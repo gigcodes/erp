@@ -64,10 +64,20 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
                 Route::get('/delete', 'DialogController@destroyValue')->name("chatbot.dialog-response.delete");
             });
         });
+        Route::get('/log', 'DialogController@log')->name("chatbot.dialog.log");
 
         // store dialog via save response
         Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
 
+    });
+
+    Route::prefix('analytics')->group(function () {
+        Route::get('/', 'AnalyticsController@index')->name("chatbot.analytics.list");
+    });
+
+    Route::prefix('messages')->group(function () {
+        Route::get('/', 'MessageController@index')->name("chatbot.messages.list");
+        Route::post('/approve', 'MessageController@approve')->name("chatbot.messages.list");
     });
 
     Route::prefix('rest/dialog')->group(function () {

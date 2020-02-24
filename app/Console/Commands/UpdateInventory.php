@@ -69,14 +69,15 @@ class UpdateInventory extends Command
 
             // Loop over scraped products
             foreach ($scrapedProducts as $scrapedProduct) {
-                $arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+                //$arrInventory[$scrapedProduct->sku] = $scrapedProduct->cnt;
+                \DB::statement("update LOW_PRIORITY `products` set `stock` = 0, `updated_at` = '".date("Y-m-d H:i:s")."' where `sku` = '".$sku."' and `products`.`deleted_at` is null");
+                echo "Updated " . $scrapedProduct->sku . "\n";
             }
 
-            foreach ($arrInventory as $sku => $cnt) {
+            //foreach ($arrInventory as $sku => $cnt) {
                 // Find product
-                Product::where('sku', $sku)->update(['stock' => 0]);
-                echo "Updated " . $sku . "\n";
-            }
+                //Product::where('sku', $sku)->update(['stock' => 0]);
+            //}
 
             // TODO: Update stock in Magento
             $report->update(['end_time' => Carbon::now()]);

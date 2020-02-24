@@ -197,6 +197,34 @@
         </div>
     </div>
 @endsection
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
+<div id="categoryUpdate" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <form class="cat-update-form" method="post">
+                <?php echo csrf_field(); ?>
+                <div class="modal-header">
+                    <h4 class="modal-title">Change Category</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        {{ Form::hidden("old_cat_id",null,["id" => "old-cat-id"]) }}
+                        {{ Form::hidden("cat_name",null,["id" => "cat-name"]) }}
+                        <?php echo $allCategoriesDropdown; ?>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    <button class="btn btn-secondary btn-category-update">Update</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
 @section('scripts')
     <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.7/css/select2.min.css" rel="stylesheet"/>
@@ -273,6 +301,32 @@
                 data: {_f : "status_after_autocrop" , _v : $(this).val(), id: $(this).closest(".category-next-btn").data("cat-id")},
             }).done(response => {
                 toastr['success']('Category Updated successfully', 'success');
+            });
+        });
+
+        $(document).on("click",".category-mov-btn span",function(){
+            var catModal = $("#categoryUpdate");
+                catModal.find("#cat-name").val($(this).text());
+                catModal.find("#old-cat-id").val($(this).closest(".category-mov-btn").data("cat-id"));
+                $("#categoryUpdate").modal("show");
+        });
+
+        $(document).on("click",".btn-category-update",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+                url: '/category/reference',
+                data: form.serialize(),
+            }).done(response => {
+                toastr['success']('Category Updated successfully', 'success');
+                location.reload();
             });
         });
 

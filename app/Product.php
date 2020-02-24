@@ -54,6 +54,14 @@ class Product extends Model
             \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
         });
 
+        static::updating(function ($product) {
+            $oldCatID = $product->category;
+            $newCatID = $product->getOriginal('category');
+            if($oldCatID != $newCatID) {
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+            }
+        });
+
         static::created(function ($model) {
             $flag = 0;
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
@@ -250,7 +258,7 @@ class Product extends Model
                 ];
 
                 // Log scrap activity
-                ScrapActivity::create($params);
+                //ScrapActivity::create($params);
 
                 // Return
                 //returning 1 for Product Updated
@@ -608,7 +616,7 @@ class Product extends Model
                         $jpg = null;
                         // need to define error update
                         if($scrapedProduct && is_object($scrapedProduct)) {
-                            $lastScraper = \App\Loggers\LogScraper::where("sku", $this->sku)->latest()->first();
+                            $lastScraper = ScrapedProducts::where("sku", $this->sku)->latest()->first();
                             if($lastScraper) {
                                 $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] One or more images has an invalid URL : ".$image.PHP_EOL;
                                 $lastScraper->save();

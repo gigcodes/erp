@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Github\GithubBranchState;
+use App\Helpers\githubTrait;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -11,6 +12,9 @@ use Illuminate\Console\Command;
 
 class LoadBranchState extends Command
 {
+
+    use githubTrait;
+
     private $githubClient;
     /**
      * The name and signature of the console command.
@@ -187,51 +191,5 @@ class LoadBranchState extends Command
         return $allBranchNames;
     }
 
-    private function compareRepoBranches(int $repoId, string $branchName, string $base = 'master')
-    {
-        //https://api.github.com/repositories/:repoId/compare/:diff
-
-        try{
-            $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
-            $response = $this->githubClient->get($url);
-        }catch(ClientException $e){
-            if($e->getResponse()->getStatusCode() == 404){
-                // known error which happens in case there is more changes 
-                return [
-                    'ahead_by' => 0,
-                    'behind_by' => 0,
-                    'last_commit_author_username' => null,
-                    'last_commit_time' => null
-                ];
-            }
-        }
-
-
-        $compare = json_decode($response->getBody()->getContents());
-
-        $lastCommitAuthorUsername = null;
-        $lastCommitTime           = null;
-
-        if (is_array($compare->commits) && sizeof($compare->commits) > 0) {
-            $index = sizeof($compare->commits) - 1;
-
-            try {
-                $lastCommitAuthorUsername = $compare->commits[$index]->author->login;
-            } catch (Exception $e) {
-                // do nothing
-                $lastCommitAuthorUsername = $compare->commits[$index]->commit->author->name;
-            }
-            $lastCommitTime = Carbon::parse($compare->commits[$index]->commit->author->date);
-        } else {
-            $lastCommitAuthorUsername = $compare->merge_base_commit->commit->author->name;
-            $lastCommitTime           = Carbon::parse($compare->merge_base_commit->commit->author->date);
-        }
-
-        return [
-            'ahead_by'                    => $compare->ahead_by,
-            'behind_by'                   => $compare->behind_by,
-            'last_commit_author_username' => $lastCommitAuthorUsername,
-            'last_commit_time'            => $lastCommitTime,
-        ];
-    }
+    
 }

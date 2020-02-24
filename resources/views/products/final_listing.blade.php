@@ -203,8 +203,8 @@
                                             $product = \App\Product::find($product->id)
                                         @endphp
                                         <?php $gridImage = ''; ?>
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            @foreach($product->getMedia(config('constants.media_tags')) as $media)
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
                                                     <?php
                                                     $width = 0;
@@ -235,12 +235,12 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4" id="col-large-image{{ $product->id }}">
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
                                                 <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
                                             </div>
-                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
-                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
+                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
+                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
                                             
                                         @endif
                                     </div>
@@ -417,7 +417,7 @@
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                                         </div>
                                         @php
-                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
@@ -426,7 +426,7 @@
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
                                                         @if($logScraper->url != "N/A")
-                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->updated_at ?> )</li>
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->last_inventory_at ?> )</li>
                                                         @else
                                                             <li><?= $logScraper->website ?></li>
                                                         @endif

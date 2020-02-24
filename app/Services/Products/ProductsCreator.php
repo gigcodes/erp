@@ -16,6 +16,7 @@ use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
+use App\Setting;
 
 class ProductsCreator
 {
@@ -167,7 +168,29 @@ class ProductsCreator
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
-                    $product->suppliers()->syncWithoutDetaching([
+
+                    $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+                    if(!$productSupplier)  {
+                        $productSupplier = new \App\ProductSupplier;
+                        $productSupplier->supplier_id = $db_supplier->id;
+                        $productSupplier->product_id = $product->id;
+                    }
+
+                    $productSupplier->title = $image->title;
+                    $productSupplier->description = $image->description;
+                    $productSupplier->supplier_link = $image->url;
+                    $productSupplier->stock = 1;
+                    $productSupplier->price = $formattedPrices[ 'price_eur' ];
+                    $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+                    $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+                    $productSupplier->size = $formattedDetails[ 'size' ];
+                    $productSupplier->color = $formattedDetails[ 'color' ];
+                    $productSupplier->composition = $formattedDetails[ 'composition' ];
+                    $productSupplier->sku = $image->original_sku;
+                    $productSupplier->save();
+
+
+                    /*$product->suppliers()->syncWithoutDetaching([
                         $db_supplier->id => [
                             'title' => $image->title,
                             'description' => $image->description,
@@ -181,7 +204,7 @@ class ProductsCreator
                             'composition' => $formattedDetails[ 'composition' ],
                             'sku' => $image->original_sku
                         ]
-                    ]);
+                    ]);*/
                 }
             }
 
@@ -215,7 +238,7 @@ class ProductsCreator
                 'status' => 1
             ];
 
-            ScrapActivity::create($params);
+            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug("[Success] Updated product");
 
@@ -289,7 +312,28 @@ class ProductsCreator
         if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
-            $product->suppliers()->syncWithoutDetaching([
+
+            $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+            if(!$productSupplier)  {
+                $productSupplier = new \App\ProductSupplier;
+                $productSupplier->supplier_id = $db_supplier->id;
+                $productSupplier->product_id = $product->id;
+            }
+
+            $productSupplier->title = $image->title;
+            $productSupplier->description = $image->description;
+            $productSupplier->supplier_link = $image->url;
+            $productSupplier->stock = 1;
+            $productSupplier->price = $formattedPrices[ 'price_eur' ];
+            $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+            $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+            $productSupplier->size = $formattedDetails[ 'size' ];
+            $productSupplier->color = $formattedDetails[ 'color' ];
+            $productSupplier->composition = $formattedDetails[ 'composition' ];
+            $productSupplier->sku = $image->original_sku;
+            $productSupplier->save();
+
+            /*$product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,
                     'description' => $image->description,
@@ -303,7 +347,7 @@ class ProductsCreator
                     'composition' => $formattedDetails[ 'composition' ],
                     'sku' => $image->original_sku
                 ]
-            ]);
+            ]);*/
         }
     }
 

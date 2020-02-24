@@ -19,6 +19,9 @@ class ChatMessage extends Model
         7,8,9,10,11
     ];
 
+    CONST CHAT_AUTO_BROADCAST = 8;
+    CONST CHAT_AUTO_WATSON_REPLY = 11;
+
     use Mediable;
 
     protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id'];
@@ -232,7 +235,7 @@ class ChatMessage extends Model
     {
         $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();
         
-        return ($limit) ? $limit->val : 0;
+        return ($limit) ? json_decode($limit->val,true) : [];
     }
 
     public static function getStartTime()
@@ -247,6 +250,13 @@ class ChatMessage extends Model
         $limit  = \App\Setting::where("name","is_queue_send_end_time")->first();
         
         return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getSupplierForwardTo()
+    {
+        $no  = \App\Setting::where("name","supplier_forward_message_no")->first();
+        
+        return ($no) ? $no->val : 0;
     }
 
 }

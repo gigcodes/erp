@@ -79,6 +79,7 @@ trait hubstaffTrait
                 $this->refreshTokens();
                 if ($shouldRetry) {
                     echo "Retrying";
+                    $tokens = $this->getTokens();
                     return $functionToDo($tokens->access_token);
                 }
             } else {

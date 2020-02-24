@@ -77,7 +77,9 @@ var msQueue = {
             }
         });
 
-
+        $(document).on("click",".recall-api",function(e) {    
+            msQueue.recallQueue($(this));
+        });
 
         $(".select2").select2({tags:true});
 
@@ -237,6 +239,25 @@ var msQueue = {
         var addProductTpl = $.templates("#template-send-message-report");
         var tplHtml       = addProductTpl.render(response);
             msQueue.config.bodyView.find(".send-message-report").html(tplHtml);
+    },
+    recallQueue : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/message-queue/setting/recall",
+            method: "get",
+            data : {send_number : ele.data("no")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterRecallQueue");   
+    },
+    afterRecallQueue : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200){
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error']('Oops.something went wrong', 'error');
+        }
     }
 }
 

@@ -1,11 +1,53 @@
 @extends('layouts.app')
 
 
+@section('favicon' , 'user-management.png')
+
+@section('title', 'User Info')
+
+@section('styles')
+
+<style type="text/css">
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+</style>
+@endsection
 @section('content')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Users Management</h2>
+            <h2 class="page-heading">Users Management (<span id="user_count">{{ $data->total() }}</span>)</h2>
             <div class="pull-left">
+                <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <select class="form-control select-multiple" id="user-select">
+                                    <option value="">Select User</option>
+                                    @foreach($data as $key => $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-4">
+                                <input name="term" type="text" class="form-control"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="Name of User" id="term">
+                            </div>
+                            <div class="col-md-2">
+                               <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="/images/filter.png"/></button>
+                            </div>
+                            <div class="col-md-2">
+                                <button type="button" class="btn btn-image" id="resetFilter" onclick="resetSearch()"><img src="/images/resend2.png"/></button>    
+                            </div>
+                        </div>
+                    </div>
             </div>
             <div class="pull-right">
                 <a class="btn btn-secondary" href="{{ route('users.create') }}">+</a>
@@ -16,7 +58,8 @@
     @include('partials.flash_messages')
 
     <div class="table-responsive">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="users-table">
+              <thead>
             <tr>
                 <th>No</th>
                 <th>Name</th>
@@ -24,34 +67,10 @@
                 <th>Roles</th>
                 <th width="280px">Action</th>
             </tr>
-            @foreach ($data as $key => $user)
-                <tr>
-                    <td>{{ ++$i }}</td>
-                    <td><span class="user-status {{ $user->isOnline() ? 'is-online' : '' }}"></span> {{ str_replace( '_' , ' ' ,$user->name) }}</td>
-                    <td>{{ $user->email }}</td>
-                    <td>
-                        @if(!empty($user->getRoleNames()))
-                            @foreach($user->getRoleNames() as $v)
-                                <label class="badge badge-success">{{ $v }}</label>
-                            @endforeach
-                        @endif
-                    </td>
-                    <td>
-                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{ $user->id }}" title="Load messages"><img src="/images/chat.png" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" alt=""></button>
-                        @if (Auth::id() == $user->id)
-                            <a class="btn btn-image" href="{{ route('users.show',$user->id) }}"><img src="/images/view.png"/></a>
-                        @else
-                            <a class="btn btn-image" href="{{ route('users.edit',$user->id) }}"><img src="/images/edit.png"/></a>
-                        @endif
-
-                        {!! Form::open(['method' => 'DELETE','route' => ['users.destroy', $user->id],'style'=>'display:inline']) !!}
-                        <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
-                        {!! Form::close() !!}
-                        <a href="{{ action('UserActionsController@show', $user->id) }}">Info</a>
-                        <a title="Payments" class="btn btn-image" href="/users/{{$user->id}}/payments"><span class="glyphicon glyphicon-usd"></span></a>
-                    </td>
-                </tr>
-            @endforeach
+            </thead>
+            <tbody>
+                @include('users.partials.list-users')
+            </tbody>
         </table>
     </div>
 
@@ -72,5 +91,78 @@
 
     {!! $data->render() !!}
 
+
+@endsection
+
+@section('scripts')
+ <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+<script type="text/javascript">
+    $('.select-multiple').select2({width: '100%'});
+
+    function submitSearch(){
+        src = '/users'
+        term = $('#term').val()
+        id = $('#user-select').val()
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+                term : term,
+                id : id,
+
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            $("#users-table tbody").empty().html(data.tbody);
+            $("#user_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+        
+    }
+
+    function resetSearch(){
+        src = '/users'
+        blank = ''
+        $.ajax({
+            url: src,
+            dataType: "json",
+            data: {
+               
+               blank : blank, 
+
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+
+        }).done(function (data) {
+            $("#loading-image").hide();
+            $('#term').val('')
+            $('#user-select').val('')
+            $("#users-table tbody").empty().html(data.tbody);
+            $("#user_count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }
+</script>
 
 @endsection
