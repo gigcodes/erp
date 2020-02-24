@@ -57,6 +57,7 @@ use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
 use App\Console\Commands\VisitorLogs;
+use App\Console\Commands\InfluencerDescription;
 
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
@@ -187,7 +188,8 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
-        CacheMasterControl::class
+        CacheMasterControl::class,
+        InfluencerDescription::class,
     ];
 
     /**
@@ -213,6 +215,8 @@ class Kernel extends ConsoleKernel
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
 
+        //This command will get the influencers details and get information from it
+        $schedule->command('influencer:description')->daily();
 
         //Get Orders From Magento
         //2020-02-17 $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
@@ -240,7 +244,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('category:fix-by-supplier')->twiceDaily();
 
 
-        $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
+        //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
 
         $schedule->call(function () {

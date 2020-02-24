@@ -1098,6 +1098,22 @@ class CustomerController extends Controller
         return response()->json(['is_flagged' => $customer->is_flagged]);
     }
 
+    public function addInWhatsappList(Request $request)
+    {
+        $customer = Customer::find($request->customer_id);
+
+        if ($customer->in_w_list == 0) {
+            $customer->in_w_list = 1;
+        } else {
+            $customer->in_w_list = 0;
+        }
+
+        $customer->save();
+
+        return response()->json(['in_w_list' => $customer->in_w_list]);
+    }
+    
+
     public function prioritize(Request $request)
     {
         $customer = Customer::find($request->customer_id);

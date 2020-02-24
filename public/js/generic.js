@@ -1,5 +1,6 @@
 var currentChatParams = {};
 var workingOn =  null;
+var load_type =  null;
 
 var getMoreChatConvo = function(params) {
 
@@ -43,7 +44,16 @@ var getMoreChatConvo = function(params) {
 
 var getHtml = function(response) {
     var j = 0;
-    var li = '<div class="speech-wrapper">';
+    var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
+    var li = '<div class="speech-wrapper '+classMaster+'">';
+
+    if(load_type == "broadcast" || load_type == "images") {
+        $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
+    }else{
+        $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
+    }
+
+
     (response.messages).forEach(function (message) {
         // Set empty image var
         var media = '';
@@ -64,6 +74,7 @@ var getHtml = function(response) {
         }
 
         // check for media with details
+        var classFive = (load_type == "broadcast" || load_type == "images") ? "col-md-4" : "col-12";
         if (currentChatParams.data.load_attached == 1 && message.media && message.media.length > 0) {
             for (var i = 0; i < message.media.length; i++) {
                 // Get image to display
@@ -73,7 +84,7 @@ var getHtml = function(response) {
 
                 // Set media
                 if (imgSrc != '') {
-                    media = media + '<div class="col-12">';
+                    media = media + '<div class="'+classFive+'">';
                     var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
                     if (message.media[i].product_id) {
 
@@ -200,7 +211,7 @@ $(document).on('click', '.load-communication-modal', function () {
     var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
     var load_all = $(this).data('all');
-    var load_type = $(this).data('load-type');
+        load_type = $(this).data('load-type');
     var is_admin = $(this).data('is_admin');
     var is_hod_crm = $(this).data('is_hod_crm');
     var limit = 1000;

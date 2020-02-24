@@ -3,6 +3,7 @@
 namespace App\Console\Commands;
 
 use App\Category;
+use App\ScrapedProducts;
 use App\CronJobReport;
 use App\Loggers\LogScraper;
 use Carbon\Carbon;
@@ -53,7 +54,7 @@ class CategoryMissingReferences extends Command
             $arrUnknown = [];
 
             // Get all categories from log_scraper
-            $logScrapers = LogScraper::whereNotNull('category')->whereNotIn('website', ['amrstore', 'antonia', 'baseblu', 'brunarosso', 'coltorti', 'doublef', 'giglio', 'griffo210', 'leam', 'les-market', 'lidiashopping', 'nugnes1920', 'savannahs', 'stilmoda', 'vinicio'])->get(['website', 'brand', 'category']);
+            $logScrapers = ScrapedProducts::whereNotNull('category')->whereNotIn('website', ['amrstore', 'antonia', 'baseblu', 'brunarosso', 'coltorti', 'doublef', 'giglio', 'griffo210', 'leam', 'les-market', 'lidiashopping', 'nugnes1920', 'savannahs', 'stilmoda', 'vinicio'])->get(['website', 'brand', 'category']);
             //$logScrapers = LogScraper::whereNotNull('category')->where('url', 'LIKE', '%farfetch%')->get(['category']);
 
             // Loop over result

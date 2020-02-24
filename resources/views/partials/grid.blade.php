@@ -370,6 +370,22 @@
               @foreach ($products as $product)
       <?php
       $r = explode( ' ', $product->created_at );
+      $referencesCategory = "";
+      $referencesColor = "";
+      if(isset($product->scraped_products)){
+        // starting to see that howmany category we going to update
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+            $category = $product->scraped_products->properties['category'];
+            if(is_array($category)) {
+                $referencesCategory = implode(' > ',$category);
+            }
+
+        }
+
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+            $referencesColor = $product->scraped_products->properties['color'];
+        }
+      }  
 
       switch ( $roletype ) {
         case 'Selection':
@@ -408,8 +424,8 @@
               'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
               'price': '{{ $product->price_inr_special }}',
               'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
-              'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+              'image': '{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                          }}',
               'created_at': '{{ $r[0]  }}',
@@ -421,6 +437,8 @@
               'category' : "{{ $product->category }}",
               'supplier' : "{{ $product->supplier }}",
               'color' : "{{ ucfirst($product->color) != null ? ucfirst($product->color) : 'Select Color' }}",
+              'reference_category' : "{{ $referencesCategory }}",
+              'reference_color' : "{{ $referencesColor }}",
               @php
                 $supplier_list = '';
               @endphp
@@ -466,7 +484,9 @@
                                           <p>Color : ` + product['color'] + `</p>
                                           @if($roletype == 'Inventory')  
                                           </a>
+                                          <p>Ref. Category : ` + product['reference_category'] + ` </p>
                                           <p>Category : <select class="form-control update-product select-multiple2" id="id_`+product['sku']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
+                                          <p>Ref. Color : ` + product['reference_color'] + ` </p>
                                           <p>Color : <select class="form-control update-color select-multiple2" id="id_`+product['id']+`" data-id="`+product['id']+`">
                                             <option>Select Color</option
                                             @foreach($sampleColors as $color)

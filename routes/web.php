@@ -460,6 +460,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/create', 'CustomerController@create')->name('customer.create');
     Route::post('customer/block', 'CustomerController@block')->name('customer.block');
     Route::post('customer/flag', 'CustomerController@flag')->name('customer.flag');
+    Route::post('customer/in-w-list', 'CustomerController@addInWhatsappList')->name('customer.in-w-list');
     Route::post('customer/prioritize', 'CustomerController@prioritize')->name('customer.priority');
     Route::post('customer/create', 'CustomerController@store')->name('customer.store');
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
