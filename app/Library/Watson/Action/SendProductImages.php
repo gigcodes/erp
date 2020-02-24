@@ -47,12 +47,7 @@
  	public function getResults()
  	{
  		$images = [];
- 		$this->products = $products = Product::where("brand",$this->brand->id)
- 		->where("category",$this->category->id)
- 		//->where("stock",">",0)
- 		->orderBy("created_at","desc")
- 		->limit(self::SENDING_LIMIT)
- 		->get();
+ 		$this->products = $products = \App\Product::attachProductChat([$this->brand->id],[$this->category->id],[]);
 
  		$ids = [];
  		if($products) {

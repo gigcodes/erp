@@ -128,7 +128,7 @@
   $(document).on("click",".delete-images",function() {
 
      var tr = $(this).closest("tr");
-     var checkedImages = tr.find(".close:checkbox:checked").closest(".panel-img-shorts");
+     var checkedImages = tr.find(".remove-img:checkbox:checked").closest(".panel-img-shorts");
      var form = tr.find('.remove-images-form');
      $.ajax({
         type: 'POST',
@@ -153,10 +153,13 @@
   });
 
   $(document).on("click",".add-more-images",function() {
+      var $this = $(this);
+      var id = $this.data("id");
+
       $.ajax({
-        type: 'POST',
-        url: "",
-        data: form.serialize(),
+        type: 'GET',
+        url: "{{ route('chatbot.messages.attach-images') }}",
+        data: {chat_id : id},
         beforeSend : function() {
           $("#loading-image").show();
         },
@@ -164,10 +167,19 @@
       }).done(function(response) {
         $("#loading-image").hide();
         if(response.code == 200) {
-            $.each(checkedImages, function(k, e){
-                $(e).remove();
-            });
+            if(response.data.length > 0) {
+              var html = "";
+              $.each(response.data, function(k,img) {
+                  html += '<div class="panel-img-shorts">';
+                    html += '<input type="checkbox" name="delete_images[]" value="'+img.mediable_id+'_'+img.id+'" class="remove-img" data-media-id="'+img.id+'" data-mediable-id="'+img.mediable_id+'">';
+                    html += '<img width="50px" heigh="50px" src="'+img.url+'">';
+                  html += '</div>';
+              });
+              $this.closest("tr").find(".images-layout").find("form").append(html);
+            }
             toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
         }
       }).fail(function(response) {
         $("#loading-image").hide();

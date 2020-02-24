@@ -259,4 +259,9 @@ class ChatMessage extends Model
         return ($no) ? $no->val : 0;
     }
 
+    public function chatBotReply()
+    {
+        return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
+
 }
