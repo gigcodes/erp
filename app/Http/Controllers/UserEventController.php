@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\User;
 use App\UserEvent\UserEvent;
+use App\UserEvent\UserEventAttendee;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -23,48 +24,7 @@ class UserEventController extends Controller
         );
     }
 
-    function publicCalendar($id)
-    {
-        $calendarId = base64_decode($id);
-        $calendarUserId = explode(':', $calendarId)[1];
 
-        $user = User::find($calendarUserId, ['name']);
-
-        return view(
-            'user-event.public-calendar',
-            [
-                'calendarId' => $id,
-                'user' => $user
-            ]
-        );
-    }
-
-    function publicEvents(Request $request, $id)
-    {
-        $text = base64_decode($id);
-        $calendarUserId = explode(':', $text)[1];
-
-        $start = explode('T', $request->get('start'))[0];
-        $end = explode('T', $request->get('end'))[0];
-
-        $events = UserEvent::with(['attendees'])
-            ->where('start', '>=', $start)
-            ->where('end', '<', $end)
-            ->where('user_id', $calendarUserId)
-            ->get()
-            ->map(function ($event) {
-                return [
-                    'id' => $event->id,
-                    'subject' => $event->subject,
-                    'description' => $event->description,
-                    'date' => $event->date,
-                    'start' => $event->start,
-                    'end' => $event->end,
-                    'attendees' => $event->attendees
-                ];
-            });
-        return response()->json($events);
-    }
 
     /**
      * list of user events as json
@@ -233,10 +193,24 @@ class UserEventController extends Controller
 
         $userEvent->save();
 
+        // save the attendees
+        $attendees = explode(',', $contactsString);
+
+        $attendeesResponse = [];
+
+        foreach ($attendees as $attendee) {
+            $attendeeDb = new UserEventAttendee;
+            $attendeeDb->user_event_id = $userEvent->id;
+            $attendeeDb->contact = $attendee;
+            $attendeeDb->save();
+
+            $attendeesResponse[] = $attendeeDb->toArray();
+        }
+
         return response()->json([
             'message' => 'Event added successfully',
             'event' => $userEvent->toArray(),
-            'attendees' => []
+            'attendees' => $attendeesResponse
         ]);
     }
 
@@ -263,6 +237,96 @@ class UserEventController extends Controller
         return response()->json([
             'message' => 'Failed to deleted',
             404
+        ]);
+    }
+
+    /*
+             ____    _   _   ____    _       ___    ____ 
+            |  _ \  | | | | | __ )  | |     |_ _|  / ___|
+            | |_) | | | | | |  _ \  | |      | |  | |    
+            |  __/  | |_| | | |_) | | |___   | |  | |___ 
+            |_|      \___/  |____/  |_____| |___|  \____|
+                                                            
+    */
+
+    /**
+     * show public calendar
+     */
+    function publicCalendar($id)
+    {
+        $calendarId = base64_decode($id);
+        $calendarUserId = explode(':', $calendarId)[1];
+
+        $user = User::find($calendarUserId, ['name']);
+
+        return view(
+            'user-event.public-calendar',
+            [
+                'calendarId' => $id,
+                'user' => $user
+            ]
+        );
+    }
+
+    /**
+     * events of the user without auth
+     */
+    function publicEvents(Request $request, $id)
+    {
+        $text = base64_decode($id);
+        $calendarUserId = explode(':', $text)[1];
+
+        $start = explode('T', $request->get('start'))[0];
+        $end = explode('T', $request->get('end'))[0];
+
+        $events = UserEvent::with(['attendees'])
+            ->where('start', '>=', $start)
+            ->where('end', '<', $end)
+            ->where('user_id', $calendarUserId)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'subject' => $event->subject,
+                    'description' => $event->description,
+                    'date' => $event->date,
+                    'start' => $event->start,
+                    'end' => $event->end,
+                    'attendees' => $event->attendees
+                ];
+            });
+        return response()->json($events);
+    }
+
+    /**
+     * suggest timing for the invitation view
+     */
+    function suggestInvitationTiming($invitationId)
+    {
+
+        $attendee = UserEventAttendee::with('event')->find($invitationId);
+
+        return view(
+            'user-event.public-calendar-time-suggestion',
+            [
+                'attendee' => $attendee,
+                'invitationId' => $invitationId
+            ]
+        );
+    }
+
+    /**
+     * save suggested timing
+     */
+    function saveSuggestedInvitationTiming(Request $request, $invitationId)
+    {
+        UserEventAttendee::where('id', '=', $invitationId)
+        ->update([
+            'suggested_time' => $request->get('time')
+        ]);
+
+        return redirect('/calendar/public/event/suggest-time/'.$invitationId)->with([
+            'message' => 'Saved data'
         ]);
     }
 }

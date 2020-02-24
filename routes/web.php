@@ -1540,5 +1540,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
 });
 
-Route::get('/calendar/public/{id}', 'UserEventController@publicCalendar');
-Route::get('/calendar/public/events/{id}', 'UserEventController@publicEvents');
+Route::prefix('calendar/public')->group(function () {
+    Route::get('/{id}', 'UserEventController@publicCalendar');
+    Route::get('/events/{id}', 'UserEventController@publicEvents');
+    Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
+    Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
+});

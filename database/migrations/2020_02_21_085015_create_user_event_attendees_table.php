@@ -17,7 +17,7 @@ class CreateUserEventAttendeesTable extends Migration
             $table->increments('id');
             $table->integer('user_event_id');
             $table->string('contact');
-            $table->time('suggested_time');
+            $table->time('suggested_time')->nullable();
             $table->timestamps();
         });
     }

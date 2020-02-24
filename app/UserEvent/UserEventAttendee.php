@@ -14,6 +14,10 @@ class UserEventAttendee extends Model
 
     public function event()
     {
-        return $this->belongsTo('App\UserEvent\UserEvent');
+        return $this->belongsTo(
+            'App\UserEvent\UserEvent',
+            'user_event_id',
+            'id'
+        );
     }
 }
