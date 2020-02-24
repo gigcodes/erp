@@ -92,13 +92,13 @@ class ScrapedProducts extends Model
                     $scrapedProduct->save();
 
                     // Add to scrap statistics
-                    $scrapStatistics = new ScrapStatistics();
-                    $scrapStatistics->supplier = $json->website;
-                    $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-                    $scrapStatistics->brand = $brandName;
-                    $scrapStatistics->url = $json->url;
-                    $scrapStatistics->description = $json->sku;
-                    $scrapStatistics->save();
+                    // $scrapStatistics = new ScrapStatistics();
+                    // $scrapStatistics->supplier = $json->website;
+                    // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+                    // $scrapStatistics->brand = $brandName;
+                    // $scrapStatistics->url = $json->url;
+                    // $scrapStatistics->description = $json->sku;
+                    // $scrapStatistics->save();
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
@@ -130,13 +130,13 @@ class ScrapedProducts extends Model
                     $scrapedProduct->save();
 
                     // Add to scrap statistics
-                    $scrapStatistics = new ScrapStatistics();
-                    $scrapStatistics->supplier = $json->website;
-                    $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-                    $scrapStatistics->brand = $brandName;
-                    $scrapStatistics->url = $json->url;
-                    $scrapStatistics->description = $json->sku;
-                    $scrapStatistics->save();
+                    // $scrapStatistics = new ScrapStatistics();
+                    // $scrapStatistics->supplier = $json->website;
+                    // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+                    // $scrapStatistics->brand = $brandName;
+                    // $scrapStatistics->url = $json->url;
+                    // $scrapStatistics->description = $json->sku;
+                    // $scrapStatistics->save();
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);

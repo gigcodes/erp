@@ -28,6 +28,7 @@
     <script src="{{asset('js/readmore.js')}}" defer></script>
     <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
@@ -157,7 +158,14 @@
 
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
-
+    <style type="text/css">
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -451,6 +459,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -467,6 +476,9 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('Logging\LogListMagentoController@index') }}">Log List Magento</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -631,6 +643,14 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Checkout<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
+                                        </li>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -710,6 +730,9 @@
                                             <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User Product Assignment</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                <a class="dropdown-item" href="/calendar">Calendar</a>
                                 </li>
                             </ul>
                         </li>
@@ -977,6 +1000,12 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrases')}}">Most used phrases</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1029,6 +1058,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
                                 </li>
                             </ul>
                         </li>
@@ -1196,6 +1228,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
@@ -1486,7 +1521,7 @@
         <div class="col-md-12">
             @yield('large_content')
         </div>
-
+         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
 
     @if(Auth::check())
@@ -1946,6 +1981,23 @@
                     alert(res.success);
                 }
             })
+        });
+
+        $(document).ready(function(){
+            $(window).scroll(function () {
+                    if ($(this).scrollTop() > 50) {
+                        $('#back-to-top').fadeIn();
+                    } else {
+                        $('#back-to-top').fadeOut();
+                    }
+                });
+                // scroll body to 0px on click
+                $('#back-to-top').click(function () {
+                    $('body,html').animate({
+                        scrollTop: 0
+                    }, 400);
+                    return false;
+                });
         });
        
     </script>

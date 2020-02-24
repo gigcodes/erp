@@ -10,6 +10,7 @@ use App\Setting;
 use App\Stage;
 use Cache;
 use Auth;
+use App\ColorReference;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
@@ -261,12 +262,31 @@ class SearchController extends Controller
             $data[ 'doSelection' ] = false;
         }
 
+        $categoryAll = Category::where('parent_id',0)->get();
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id , 'value' => $category->title); 
+            $childs = Category::where('parent_id',$category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id , 'value' => $category->title.' '.$child->title);
+                $grandChilds = Category::where('parent_id',$child->id)->get();
+                if($grandChilds != null){
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id , 'value' => $category->title.' '.$child->title .' '.$grandChild->title);
+                    }
+                } 
+            }
+        }
+
+
+        $sampleColors = ColorReference::select('erp_color')->groupBy('erp_color')->get();
+
         if ($request->ajax()) {
             $html = view('partials.image-load', ['products' => $data[ 'products' ], 'data' => $data, 'selected_products' => ($request->selected_products ? json_decode($request->selected_products) : []), 'model_type' => $model_type])->render();
 
             return response()->json(['html' => $html, 'products_count' => $products_count, 'all_product_ids' => $data[ 'all_products_ids' ]]);
         }
-
+        $data['categoryArray'] = $categoryArray;
+        $data['sampleColors'] = $sampleColors;
         return view('partials.grid', $data);
     }
 

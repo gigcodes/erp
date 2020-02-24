@@ -16,6 +16,7 @@ use App\Task;
 use App\Product;
 use App\Customer;
 use App\Hubstaff\HubstaffActivity;
+use App\Hubstaff\HubstaffPaymentAccount;
 use App\Payment;
 use App\PaymentMethod;
 use App\UserProduct;
@@ -58,7 +59,27 @@ class UserController extends Controller
 	 */
 	public function index(Request $request)
 	{
-		$data = User::orderBy('name', 'asc')->paginate(25);
+		$query = User::query();
+
+		if($request->id){
+			$query = $query->where('id', $request->id);
+		}
+
+		if($request->term){
+			$query = $query->where('name', 'LIKE','%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('phone', 'LIKE', '%'.$request->term.'%');
+		}
+
+		$data = $query->orderBy('name', 'asc')->paginate(25)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('users.partials.list-users', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$data->render(),
+                'count' => $data->total(),
+            ], 200);
+        }
+
 		return view('users.index', compact('data'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
 	}
@@ -176,7 +197,8 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
-		$permission = Permission::orderBy('name', 'asc')->pluck('route', 'id')->all();
+		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+
 		$users = User::all();
 		$userRole = $user->roles->pluck('name', 'id')->all();
 		$userPermission = $user->permissions->pluck('name', 'id')->all();
@@ -432,6 +454,11 @@ class UserController extends Controller
 
 		$activitiesForWeek = HubstaffActivity::getActivitiesForWeek($week, $year);
 
+		$paymentsDone = Payment::getConsidatedUserPayments();
+
+		$amountToBePaid = HubstaffPaymentAccount::getConsidatedUserAmountToBePaid();
+
+		
 
 		$now = now();
 
@@ -440,6 +467,32 @@ class UserController extends Controller
 			$user->secondsTracked = 0;
 			$user->currency = '-';
 			$user->total = 0;
+
+			
+
+			$userPaymentsDone = 0;
+			$userPaymentsDoneModel = $paymentsDone->first(function ($value) use($user) {
+				return $value->user_id == $user->id;
+			});
+
+			if($userPaymentsDoneModel){
+				$userPaymentsDone = $userPaymentsDoneModel->paid;
+			}
+
+			$userPaymentsToBeDone = 0;
+			$userAmountToBePaidModel = $amountToBePaid->first(function ($value) use($user){
+				return $value->user_id == $user->id;
+			});
+
+			if($userAmountToBePaidModel){
+				$userPaymentsToBeDone = $userAmountToBePaidModel->amount;
+			}
+
+			$user->balance = $userPaymentsToBeDone - $userPaymentsDone;
+
+			
+
+			//echo $user->id. ' '.$userPaymentsToBeDone. ' '. $userPaymentsDone. PHP_EOL;
 
 
 			$invidualRatesPreviousWeek  = $usersRatesPreviousWeek->first(function ($value, $key) use ($user) {
@@ -498,28 +551,23 @@ class UserController extends Controller
 
 			$user->trackedActivitiesForWeek = $activities;
 
-			if (sizeof($weekRates) == 0) {
-				// user has no rates
-				continue;
-			} else {
-				foreach ($activities as $activity) {
-					$user->secondsTracked += $activity->tracked;
-					$i = 0;
-					while ($i < sizeof($weekRates) - 1) {
+			foreach ($activities as $activity) {
+				$user->secondsTracked += $activity->tracked;
+				$i = 0;
+				while ($i < sizeof($weekRates) - 1) {
 
-						$start = $weekRates[$i];
-						$end = $weekRates[$i + 1];
+					$start = $weekRates[$i];
+					$end = $weekRates[$i + 1];
 
-						if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
-							// the activity needs calculation for the start rate and hence do it
-							$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
-							$activity->rate = $start['rate'];
-							$activity->earnings = $earnings;
-							$user->total += $earnings;
-							break;
-						}
-						$i++;
+					if ($activity->starts_at >= $start['start_date'] && $activity->start_time < $end['start_date']) {
+						// the activity needs calculation for the start rate and hence do it
+						$earnings = $activity->tracked * ($start['rate'] / 60 / 60);
+						$activity->rate = $start['rate'];
+						$activity->earnings = $earnings;
+						$user->total += $earnings;
+						break;
 					}
+					$i++;
 				}
 			}
 		}
@@ -551,12 +599,17 @@ class UserController extends Controller
 
 		$parameters = $request->all();
 
+
+		$paymentMethod = PaymentMethod::firstOrCreate([
+			'name' => $parameters['payment_method']
+		]);
+
 		$payment = new Payment;
 		$payment->user_id = $parameters['user_id'];
 		$payment->amount = $parameters['amount'];
 		$payment->currency = $parameters['currency'];
 		$payment->note = $parameters['note'];
-		$payment->payment_method_id = $parameters['payment_method'];
+		$payment->payment_method_id = $paymentMethod->id;
 		$payment->save();
 
 		return redirect('/hubstaff/payments')->withSuccess('Payment saved!');

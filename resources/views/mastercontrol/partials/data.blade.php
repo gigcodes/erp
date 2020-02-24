@@ -704,6 +704,41 @@
                    </div> 
                 </td>
               </tr>
+              <tr>
+                <td>Latest Scraper Remarks</td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+              </tr>
+              <tr>
+                <td colspan="7" class="sub-table">
+                  <div class="table">
+                   <table>
+                   <tr>
+                    <th>No</th>
+                    <th>Scraper name</th>
+                    <th>Created at</th>
+                    <th>User Name</th>
+                    <th>Remark</th>
+                   </tr>
+                   <?php if(!empty($latestRemarks)){  $i = 1;?>
+                     <?php foreach($latestRemarks as $latestRemark) { ?>
+                       <tr>
+                          <td>{{ $i }}</td>
+                          <td>{{ $latestRemark->scraper_name }}</td>
+                          <td>{{ date("Y-m-d H:i",strtotime($latestRemark->created_at)) }}</td>
+                          <td>{{ $latestRemark->user_name }}</td>
+                          <td>{{ $latestRemark->remark }}</td>
+                       </tr>
+                      <?php $i++; } ?>
+                    <?php } ?>
+                 </table>
+                   </div> 
+                </td>
+              </tr>
            </tbody>
         </table>
     </div>

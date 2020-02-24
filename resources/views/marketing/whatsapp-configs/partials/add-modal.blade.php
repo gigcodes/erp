@@ -70,6 +70,31 @@
     					</div>
 
                         <div class="form-group">
+                            <strong>Instance Id:</strong>
+                            <input type="text" name="instance_id" class="form-control" value="{{ old('instance_id') }}">
+                            @if ($errors->has('instance_id'))
+                                <div class="alert alert-danger" >{{$errors->first('instance_id')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Token:</strong>
+                            <input type="text" name="token" class="form-control" value="{{ old('token') }}">
+                            @if ($errors->has('token'))
+                                <div class="alert alert-danger" >{{$errors->first('token')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Is Default ?:</strong>
+                            <select class="form-control" name="is_default">
+                                <option value="0">No</option>
+                                <option value="1">Yes</option>
+                            </select>
+                            @if ($errors->has('is_default'))
+                                <div class="alert alert-danger" >{{$errors->first('is_default')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
                             <strong>Start Time:</strong>
                             <select class="form-control" name="send_start">
                                 <option value="0">0</option>

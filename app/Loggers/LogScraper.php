@@ -49,7 +49,7 @@ class LogScraper extends Model
         $errorLog .= self::validateSizeSystem(!empty($request->size_system) ? $request->size_system : '');
 
         // Validate properties
-        // TODO
+        $warningLog .= self::validateProperty($request);
 
         // Validate image warnings
         $warningLog .= self::validateImageWarnings($request->images);
@@ -67,12 +67,12 @@ class LogScraper extends Model
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
         // Find existing record
-        $logScraper = LogScraper::where('website', $request->website)->where('sku', ProductHelper::getSku($request->sku))->first();
+        /*$logScraper = LogScraper::where('website', $request->website)->where('sku', ProductHelper::getSku($request->sku))->first();
 
         // Create new record if not found
         if ($logScraper == null) {
             $logScraper = new LogScraper();
-        }
+        }*/
 
         // For excels we only need the SKU
         if ($isExcel == 1 && isset($request->sku)) {
@@ -87,7 +87,7 @@ class LogScraper extends Model
         }
 
         // Update values
-        $logScraper->ip_address = self::getRealIp();
+        /*$logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
         $logScraper->sku = ProductHelper::getSku($request->sku) ?? null;
@@ -110,10 +110,10 @@ class LogScraper extends Model
 
         // Update modified date
         $logScraper->touch();
-        $logScraper->save();
+        $logScraper->save();*/
 
         // Return true or false
-        return $errorLog;
+        return $errorLog . $warningLog;
     }
 
     public static function validateWebsite($website)
@@ -192,6 +192,23 @@ class LogScraper extends Model
         // Return an empty string
         return "";
     }
+
+    public static function validateProperty($request)
+    {
+        // Check if we have a value
+        $string = "";
+        
+        if(isset($request->properties)) {
+           $properties =  $request->properties;
+           if(empty($properties['category'])){
+              $string .= "[warning] Category is empty".PHP_EOL;
+           }
+        }
+        
+        return $string;
+    }
+
+    
 
     public static function validateSizeSystem($sizeSystem)
     {

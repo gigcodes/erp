@@ -243,6 +243,7 @@
                                     <th>Freq</th>
                                     <th>Send Time</th>
                                     <th>End Time</th>
+                                    <th>Action</th>
                                 </tr>
                                 </thead>
                                 <tbody>
@@ -367,6 +368,7 @@
 @include('marketing.broadcasts.partials.modal-merge')
 @include('marketing.broadcasts.partials.message')
 @include('marketing.broadcasts.partials.setting')
+@include('marketing.broadcasts.partials.change')
 @endsection
 
 @section('scripts')
@@ -1647,6 +1649,11 @@
             alert('No response from server');
         });
 
+    }
+
+    function switchNumber(id){
+        $('#old_id').val(id)
+        $('#changeModal').modal('show');
     }
     </script>
 @endsection
