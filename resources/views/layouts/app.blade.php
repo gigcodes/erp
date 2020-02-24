@@ -731,6 +731,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item">
+                                <a class="dropdown-item" href="/calendar">Calendar</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

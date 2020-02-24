@@ -151,7 +151,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
-    
+
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
@@ -1532,3 +1532,18 @@ Route::group(['middleware' => 'auth'], function () {
 
 Route::put('customer/language-translate/{id}', 'CustomerController@languageTranslate');
 Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/calendar', 'UserEventController@index');
+    Route::get('/calendar/events', 'UserEventController@list');
+    Route::post('/calendar/events', 'UserEventController@createEvent');
+    Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
+    Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+});
+
+Route::prefix('calendar/public')->group(function () {
+    Route::get('/{id}', 'UserEventController@publicCalendar');
+    Route::get('/events/{id}', 'UserEventController@publicEvents');
+    Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
+    Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
+});

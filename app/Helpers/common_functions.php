@@ -113,25 +113,24 @@ if (!function_exists('getInstance')) {
     {
         $number = !empty($number) ? $number : 0;
         return isset(config("apiwha.instances")[$number])
-        ? config("apiwha.instances")[$number]
-        : config("apiwha.instances")[0];
+            ? config("apiwha.instances")[$number]
+            : config("apiwha.instances")[0];
     }
 }
 
- function human_error_array($errors)
- {
+function human_error_array($errors)
+{
     $list = [];
-    if(!empty($errors)) {
-        foreach($errors as $key => $berror) {
-            foreach($berror as $serror) {
-                $list[] = "{$key} : ".$serror;
+    if (!empty($errors)) {
+        foreach ($errors as $key => $berror) {
+            foreach ($berror as $serror) {
+                $list[] = "{$key} : " . $serror;
             }
         }
     }
 
     return $list;
-
- }
+}
 
 /**
  * Get all instances no with array list
@@ -141,10 +140,10 @@ if (!function_exists('getInstanceNo')) {
     function getInstanceNo()
     {
         $nos  = config("apiwha.instances");
-        
+
         $list = [];
-        
-        if(!empty($nos)) {
+
+        if (!empty($nos)) {
             foreach ($nos as $key => $no) {
                 $n = ($key == 0) ? $no["number"] : $key;
                 $list[$n] = $n;
@@ -153,4 +152,13 @@ if (!function_exists('getInstanceNo')) {
 
         return $list;
     }
+}
+
+/**
+ * Check if the date is valid
+ */
+function validateDate($date, $format = 'Y-m-d')
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
 }
