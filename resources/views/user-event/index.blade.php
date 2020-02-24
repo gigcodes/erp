@@ -18,27 +18,12 @@
     {{ URL::to('calendar/public/'.$link) }}
 </div>
 
-<div class="user-calendar">
-    <div id="calendar" style="position: relative;"></div>
-    <div id="create-overlay" style="pointer-events: none" onclick="closeCreateNewEventOverlay()">
-        <div id="new-event" class="create-event shadow" style="pointer-events: auto; visibility: hidden;" onclick="event.stopPropagation();">
-            <div class="title">Create a new event:</div>
-            <div>
-                <div>
-                    <label>Event Name</label>
-                </div>
-                <div>
-                    <input id="new-event-title" type="text" />
-                </div>
-                <input id="new-event-start-time" type="hidden" />
-                <div>
-                    <button onclick="closeCreateNewEventOverlay()">Cancel</button>
-                    <button onclick="createNewEvent()">Save</button>
-                </div>
-            </div>
-        </div>
-    </div>
+<div class="text-right mb-4">
+    <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#user-event-model">Create Event</button>
 </div>
+
+<div id="calendar"></div>
+@include('partials.modals.user-event-modal')
 
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
