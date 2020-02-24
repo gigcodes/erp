@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\HistorialData;
-use App\Loggers\LogScraper;
+use App\ScrapedProducts;
 use Illuminate\Console\Command;
 
 class SkuErrorCount extends Command
@@ -41,7 +41,7 @@ class SkuErrorCount extends Command
     {
         try {
             $errorCount            = 0;
-            $logs                  = LogScraper::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+            $logs                  = ScrapedProducts::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
             $data                  = new HistorialData();
             $data->object          = 'sku_log';
             $data->measuring_point = now() . ' ' . $logs;

@@ -1056,14 +1056,41 @@ class WhatsAppController extends FindByNumberController
             $dubbizle = $this->findDubbizleByNumber($searchNumber);
             $contact = $this->findContactByNumber($searchNumber);
             $customer = $this->findCustomerByNumber($searchNumber);
+
+            // check the message related to the supplier 
+            $sendToSupplier = false;
+            if(!empty($text)) {
+                $matchSupplier =  explode("-", $text);
+                if(
+                    isset($matchSupplier[0]) && $matchSupplier[0] == "S" 
+                    && isset($matchSupplier[1]) && is_numeric($matchSupplier[1])
+                ) {
+                    $sendToSupplier = true;
+                    $supplier = Supplier::find($matchSupplier[1]);
+                }
+            }
+
+
             if(!empty($supplier)) 
             {
-                $supplierDetails = Supplier::find($supplier->id);
+                $supplierDetails = is_object($supplier) ? Supplier::find($supplier->id) : $supplier;
                 $language = $supplierDetails->language;
                 if($language !=null)
                 {
-                    $result = TranslationHelper::translate($language, 'en', $text);
-                    $text = $result.' -- '.$text;
+                    $fromLang = $language;
+                    $toLang = "en";
+
+                    if($sendToSupplier) {
+                        $fromLang   = "en";
+                        $toLang     = $language;                        
+                    }
+
+                    $result = TranslationHelper::translate($fromLang, $toLang, $text);
+                    if($sendToSupplier) {
+                        $text = $result;
+                    }else {
+                        $text = $result.' -- '.$text;
+                    }
                 }
             }
             $originalMessage = $text;
@@ -1162,40 +1189,30 @@ class WhatsAppController extends FindByNumberController
                 continue;
             }
 
+            $userId = $supplierId = $contactId = $vendorId = $dubbizleId = $customerId = null;
+            
             if($user != null){
-                $userId = $user->id;
-            }else{
-                $userId = null;
+               $userId = $user->id;
             }
 
             if($contact != null){
-                $contactId = $contact->id;
-            }else{
-                $contactId = null;
+               $contactId = $contact->id;
             }
 
             if($supplier != null){
-                $supplierId = $supplier->id;
-            }else{
-                 $supplierId = null;
+               $supplierId = $supplier->id;
             }
 
             if($vendor != null){
-                $vendorId = $vendor->id;
-            }else{
-                $vendorId = null;
+               $vendorId = $vendor->id;
             }
 
             if($dubbizle != null){
                 $dubbizleId = $dubbizle->id;
-            }else{
-                $dubbizleId = null;
             }
 
             if($customer != null){
                 $customerId = $customer->id;
-            }else{
-                $customerId = null;
             }
 
             $params[ 'user_id' ] = $userId;
@@ -1205,12 +1222,9 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = $dubbizleId;
             $params[ 'customer_id' ] = $customerId;
 
-            if(empty($user) && empty($contact) && empty($contact) && empty($supplier) && empty($vendor) && empty($dubbizle) && empty($customer)){
-               
-            }else{
+            if( !empty($user) || !empty($contact) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
                $message = ChatMessage::create($params);  
             }
-            
 
             // Is there a user linked to this number?
             if ($user) {
@@ -1300,6 +1314,22 @@ class WhatsAppController extends FindByNumberController
                         $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
                     }
+                }
+            }
+
+            // check if the supplier message has been set then we need to send that message to erp user
+            if($supplier) {
+                
+                $phone = $supplier->phone;;
+                if(!$sendToSupplier)  {
+                   $phone = ChatMessage::getSupplierForwardTo(); 
+                }
+
+                $textMessage = ($sendToSupplier) ? $params[ 'message' ] : 'S-' . $supplier->id . '-(' . $supplier->supplier . ')=> ' . $params[ 'message' ];
+                $sendResult = $this->sendWithThirdApi($phone, null, $textMessage, $params[ 'media_url' ]);
+                if ($sendResult) {
+                    $message->unique_id = $sendResult[ 'id' ] ?? '';
+                    $message->save();
                 }
             }
 
@@ -1509,23 +1539,28 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
-                        if(!empty($chatbotReply["reply_text"])
-                            && !empty($chatbotReply["reply_text"]->text)
-                            && !empty($chatbotReply["reply_text"]->response_type)
-                            && $chatbotReply["reply_text"]->response_type == "text"
-                        ) {
-                            $temp_params = $params;
-                            $temp_params['message']    = $chatbotReply["reply_text"]->text;
-                            $temp_params['media_url']  = null;
-                            $temp_params['status']     = 11;
-                            $temp_params['number']     = "";
-                            $temp_params['is_chatbot'] = 1;
-                            // Create new message
-                            $message = ChatMessage::create($temp_params);
-                            \App\ChatbotReply::create([
-                                "chat_id" => $message->id,
-                                "reply"   => $chatbotReply["response"],
-                            ]);
+
+                        if(!empty($chatbotReply["action"])) {
+                            // assign params
+                            $params = [
+                               "is_queue"         => 0,
+                               "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
+                               "customer_ids"     => [$customer->id],
+                               "message"          => $chatbotReply["reply_text"],
+                               "is_chatbot"       => true,
+                               "chatbot_response" => $chatbotReply,
+                               "chatbot_question" => $params['message']
+                            ];
+                            
+                            switch ($chatbotReply["action"]) {
+                                case 'send_product_images':
+                                    $params["images"] = $chatbotReply["medias"];
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                break;
+                                case 'send_text_only':
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                break;
+                            }
                         }
                     }
                 }

@@ -150,7 +150,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/updateMagentoProduct', 'ProductController@updateMagentoProduct')->name('product.update.magento');
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
+    Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
+    Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
     Route::resource('attribute-replacements', 'AttributeReplacementController');
     Route::post('products/bulk/update', 'ProductController@bulkUpdate')->name('products.bulk.update');
@@ -457,6 +460,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/create', 'CustomerController@create')->name('customer.create');
     Route::post('customer/block', 'CustomerController@block')->name('customer.block');
     Route::post('customer/flag', 'CustomerController@flag')->name('customer.flag');
+    Route::post('customer/in-w-list', 'CustomerController@addInWhatsappList')->name('customer.in-w-list');
     Route::post('customer/prioritize', 'CustomerController@prioritize')->name('customer.priority');
     Route::post('customer/create', 'CustomerController@store')->name('customer.store');
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');

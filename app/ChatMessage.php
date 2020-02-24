@@ -20,6 +20,7 @@ class ChatMessage extends Model
     ];
 
     CONST CHAT_AUTO_BROADCAST = 8;
+    CONST CHAT_AUTO_WATSON_REPLY = 11;
 
     use Mediable;
 
@@ -249,6 +250,13 @@ class ChatMessage extends Model
         $limit  = \App\Setting::where("name","is_queue_send_end_time")->first();
         
         return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getSupplierForwardTo()
+    {
+        $no  = \App\Setting::where("name","supplier_forward_message_no")->first();
+        
+        return ($no) ? $no->val : 0;
     }
 
 }
