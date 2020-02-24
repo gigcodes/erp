@@ -13,6 +13,11 @@
     </div>
 </div>
 
+<p class="text-secondary">Calendar link:</p>
+<div class="border border-light p-2 my-3 text-info">
+    {{ URL::to('calendar/public/'.$link) }}
+</div>
+
 <div class="user-calendar">
     <div id="calendar" style="position: relative;"></div>
     <div id="create-overlay" style="pointer-events: none" onclick="closeCreateNewEventOverlay()">

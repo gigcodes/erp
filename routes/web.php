@@ -1539,3 +1539,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
 });
+
+Route::get('/calendar/public/{id}', 'UserEventController@publicCalendar');
+Route::get('/calendar/public/events/{id}', 'UserEventController@publicEvents');

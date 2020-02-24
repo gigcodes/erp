@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\User;
 use App\UserEvent\UserEvent;
 use Auth;
 use Illuminate\Http\Request;
@@ -12,7 +13,57 @@ class UserEventController extends Controller
 
     function index()
     {
-        return view('user-event.index');
+        $userId = Auth::user()->id;
+        $link = base64_encode('soloerp:' . $userId);
+        return view(
+            'user-event.index',
+            [
+                'link' => $link
+            ]
+        );
+    }
+
+    function publicCalendar($id)
+    {
+        $calendarId = base64_decode($id);
+        $calendarUserId = explode(':', $calendarId)[1];
+
+        $user = User::find($calendarUserId, ['name']);
+
+        return view(
+            'user-event.public-calendar',
+            [
+                'calendarId' => $id,
+                'user' => $user
+            ]
+        );
+    }
+
+    function publicEvents(Request $request, $id)
+    {
+        $text = base64_decode($id);
+        $calendarUserId = explode(':', $text)[1];
+
+        $start = explode('T', $request->get('start'))[0];
+        $end = explode('T', $request->get('end'))[0];
+
+        $events = UserEvent::with(['attendees'])
+            ->where('start', '>=', $start)
+            ->where('end', '<', $end)
+            ->where('user_id', $calendarUserId)
+            ->get()
+            ->map(function ($event) {
+                return [
+                    'id' => $event->id,
+                    'subject' => $event->subject,
+                    'description' => $event->description,
+                    'date' => $event->date,
+                    'start' => $event->start,
+                    'end' => $event->end,
+                    'attendees' => $event->attendees
+                ];
+            });
+        return response()->json($events);
     }
 
     /**

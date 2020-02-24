@@ -1,5 +1,7 @@
 <?php
 
+namespace App\UserEvent;
+
 use Illuminate\Database\Eloquent\Model;
 
 class UserEventAttendee extends Model
