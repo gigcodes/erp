@@ -2,6 +2,9 @@
 
 
 @section('content')
+<link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/core/main.css') }}">
+<link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/daygrid/main.css') }}" />
+<link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/timegrid/main.css') }}" />
 
 <div class="col-lg-12 margin-tb page-heading">
     <h2>Choose event preferred timing</h2>
@@ -52,6 +55,13 @@
     </div>
 </div>
 @endif
+<div id="calendar"></div>
+
+
+<script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/timegrid/main.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/interaction/main.js') }}"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
@@ -60,6 +70,24 @@
             format: 'HH:mm'
         });
     })
+
+    document.addEventListener('DOMContentLoaded', function() {
+        var calendarEl = document.getElementById('calendar');
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            plugins: ['timeGrid'],
+            defaultView: 'timeGridDay',
+            header: false,
+            allDaySlot: false,
+            eventSources: [{
+                url: '/calendar/public/events/1',
+                method: 'GET',
+                failure: function() {
+                    alert('there was an error while fetching events!');
+                }
+            }]
+        });
+        calendar.render();
+    });
 </script>
 
 @endsection
