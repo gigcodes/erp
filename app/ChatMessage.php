@@ -11,7 +11,8 @@ class ChatMessage extends Model
     CONST MESSAGE_STATUS = [
         "11" =>  "Watson Reply",
         "5"  =>  "Read",
-        "0"  =>  "Unread"
+        "0"  =>  "Unread",
+        "12" =>  "Suggested Images"
     ];
 
     // auto reply including chatbot as well
@@ -21,6 +22,7 @@ class ChatMessage extends Model
 
     CONST CHAT_AUTO_BROADCAST = 8;
     CONST CHAT_AUTO_WATSON_REPLY = 11;
+    CONST CHAT_SUGGESTED_IMAGES = 12;
 
     use Mediable;
 
