@@ -1925,6 +1925,10 @@ class CustomerController extends Controller
             }
         }
 
+        if($request->ajax()) {
+            return response()->json(["code" => 200, "data" => [], "message" => "Your records has been update successfully"]);
+        }
+
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
     }
 

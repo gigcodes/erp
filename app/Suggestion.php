@@ -14,4 +14,9 @@ class Suggestion extends Model
   {
     return $this->hasMany('App\Product', 'suggestion_products', 'suggestion_id', 'product_id');
   }
+
+  public function customer()
+  {
+  	return $this->hasOne('App\Customer','customer_id','id');
+  }
 }
