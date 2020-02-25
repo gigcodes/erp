@@ -42,6 +42,9 @@
                 <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
               </a>
             @endif
+            <span class="check-all" data-id="{{ $pam->chat_id }}">
+              <i class="fa fa-indent" aria-hidden="true"></i>
+            </span>
           </td>
         </tr>
       <?php }?>

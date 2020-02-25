@@ -187,5 +187,10 @@
       });
   });
 
+  $(document).on("click",".check-all",function() {
+    var tr = $(this).closest("tr");
+    tr.find(".remove-img").trigger("click");
+  });
+
 </script>
 @endsection
