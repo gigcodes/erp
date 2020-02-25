@@ -1549,12 +1549,19 @@ class WhatsAppController extends FindByNumberController
                                "message"          => $chatbotReply["reply_text"],
                                "is_chatbot"       => true,
                                "chatbot_response" => $chatbotReply,
-                               "chatbot_question" => $params['message']
+                               "chatbot_question" => $params['message'],
+                               "chatbot_params"   => $chatbotReply["medias"]
                             ];
                             
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
-                                    $params["images"] = $chatbotReply["medias"];
+                                    $images = [];
+                                    if(!empty($chatbotReply["medias"]["media_ids"])) {
+                                        foreach($chatbotReply["medias"]["media_ids"] as $mediaID) {
+                                           $images[] = $mediaID;
+                                        }
+                                    }
+                                    $params["images"] = $images;
                                     \App\Jobs\SendMessageToCustomer::dispatch($params);
                                 break;
                                 case 'send_text_only':
