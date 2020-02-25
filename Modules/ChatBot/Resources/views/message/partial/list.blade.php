@@ -1,7 +1,7 @@
 <table class="table table-bordered page-template-{{ $page }}">
 <thead>
   <tr>
-    <th width="2%">Customer #</th>
+    <th width="2%">#</th>
     <th width="2%">Name</th>
     <th width="15%">User input</th>
     <th width="15%">Bot Replied</th>
@@ -13,7 +13,7 @@
 <?php if (!empty($pendingApprovalMsg)) {?>
     <?php foreach ($pendingApprovalMsg as $pam) {?>
         <tr>
-          <td>{{ $pam->customer_id }}</td>
+          <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
           <td>{{ $pam->customer_name }}</td>
           <td>{{ $pam->question }}</td>
           <td>{{ $pam->message }}</td>
@@ -37,9 +37,11 @@
             <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
               <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">
             </a>
-            <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
-              <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
-            </a>
+            @if($pam->suggestion_id)
+              <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
+                <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
+              </a>
+            @endif
           </td>
         </tr>
       <?php }?>

@@ -3,6 +3,7 @@
 namespace Modules\ChatBot\Http\Controllers;
 
 use App\ChatMessage;
+use App\Suggestion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -17,8 +18,9 @@ class MessageController extends Controller
     {
         $search = request("search");
 
-        $pendingApprovalMsg = ChatMessage::join("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
-            ->join("customers as c", "c.id", "chat_messages.customer_id");
+        $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+            ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
+            ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id");
 
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -28,9 +30,9 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->where("status", ChatMessage::CHAT_AUTO_WATSON_REPLY)
+        $pendingApprovalMsg = $pendingApprovalMsg->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])
             ->where("chat_messages.customer_id", ">", 0)
-            ->select(["chat_messages.*", "cr.chat_id", "cr.question", "c.name as customer_name"])
+            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id"])
             ->latest()
             ->paginate(20);
 
@@ -85,8 +87,8 @@ class MessageController extends Controller
 
     public function attachImages(Request $request)
     {
-        $id   = $request->get("chat_id", 0);
-        
+        $id = $request->get("chat_id", 0);
+
         $data   = [];
         $ids    = [];
         $images = [];
@@ -96,52 +98,16 @@ class MessageController extends Controller
             $chatMessages = ChatMessage::where("id", $id)->first();
 
             if ($chatMessages) {
-                $chatWatsonReply = $chatMessages->chatBotReply;
-                if ($chatWatsonReply) {
-                    // now update the
-                    $reply = json_decode($chatWatsonReply->reply, true);
-                    if (!empty($reply)) {
-                        $mediasParams = !empty($reply["medias"]["params"]) ? $reply["medias"]["params"] : [];
-                        if (!empty($mediasParams)) {
-                            
-                            $products = \App\Product::attachProductChat($mediasParams["brands"],$mediasParams["category"],$mediasParams["products"]);
-                            if (!$products->isEmpty()) {
-                                foreach ($products as $product) {
-                                    $ids[] = $product->id;
-                                    if ($product->hasMedia(config("constants.attach_image_tag"))) {
-                                        $media = $product->getMedia(config("constants.attach_image_tag"))->first();
-                                        if ($media) {
-                                            $chatMessages->attachMedia($media, config('constants.media_tags'));
-
-                                            $data[] = [
-                                                "id"  => $media->id,
-                                                "mediable_id" => $chatMessages->id,
-                                                "url" => $media->getUrl(),
-                                            ];
-
-                                            $images[] = $media->id;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                        $mediaIds = !empty($reply["medias"]["media_ids"]) ? $reply["medias"]["media_ids"] : [];
-                        $mediaProducts = !empty($mediasParams["products"]) ? $mediasParams["products"] : [];
-
-                        $reply["medias"]["media_ids"]          = array_unique(array_merge($mediaIds, $images));
-                        $reply["medias"]["params"]["products"] = array_unique(array_merge($mediaProducts, $ids));
-                        $chatWatsonReply->reply                = json_encode($reply);
-                        $chatWatsonReply->save();
-
-                        $code = 500;
-                        $message = "Sorry no images found!";
-                        if(count($data) > 0) {
-                            $code = 200;
-                            $message = "More images attached Successfully";
-                        }
-
-                        return response()->json(["code" => $code, "data" => $data, "message" => $message]);
+                $chatsuggestion = $chatMessages->suggestion;
+                if ($chatsuggestion) {
+                    $data    = Suggestion::attachMoreProducts($chatsuggestion);
+                    $code    = 500;
+                    $message = "Sorry no images found!";
+                    if (count($data) > 0) {
+                        $code    = 200;
+                        $message = "More images attached Successfully";
                     }
+                    return response()->json(["code" => $code, "data" => $data, "message" => $message]);
                 }
             }
 

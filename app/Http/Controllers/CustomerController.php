@@ -1888,7 +1888,7 @@ class CustomerController extends Controller
 
         $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
 
-        $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
+        $products = $products->where('category', '!=', 1)->latest()->take($request->number)->get();
 
         if ($customer->suggestion) {
             $suggestion = Suggestion::find($customer->suggestion->id);
@@ -1911,9 +1911,12 @@ class CustomerController extends Controller
 
             foreach ($products as $product) {
                 if (!$product->suggestions->contains($suggestion->id)) {
-                    if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+                    if ($image = $product->getMedia(config('constants.attach_image_tag'))->first()) {
                         if ($count == 0) {
+                            $params["status"] = ChatMessage::CHAT_SUGGESTED_IMAGES; 
                             $chat_message = ChatMessage::create($params);
+                            $suggestion->chat_message_id = $chat_message->id;
+                            $suggestion->save();
                         }
 
                         $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));

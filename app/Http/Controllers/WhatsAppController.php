@@ -1555,14 +1555,54 @@ class WhatsAppController extends FindByNumberController
                             
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
-                                    $images = [];
-                                    if(!empty($chatbotReply["medias"]["media_ids"])) {
-                                        foreach($chatbotReply["medias"]["media_ids"] as $mediaID) {
-                                           $images[] = $mediaID;
-                                        }
+
+                                    // add into suggestion
+                                    $brands     = [];
+                                    $category   = [];
+
+                                    if(!empty($chatbotReply["medias"]["params"]["brands"])) {
+                                        $brands = $chatbotReply["medias"]["params"]["brands"];
                                     }
-                                    $params["images"] = $images;
-                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+                                    if(!empty($chatbotReply["medias"]["params"]["category"])) {
+                                        $category = $chatbotReply["medias"]["params"]["category"];
+                                    }
+
+                                    if(!empty($brands) || !empty($category)) {
+                                        $suggestion = \App\Suggestion::create([
+                                            "customer_id"   => $customer->id,
+                                            "brand"         => json_encode($brands),
+                                            "category"      => json_encode($category),
+                                            "number"        => 30
+                                        ]);
+
+                                        // setup the params
+                                        $insertParams = [
+                                            "customer_id" => $customer->id,
+                                            "message"  => isset($params["message"]) ? $params["message"] : null,
+                                            "status"   => isset($params["status"]) ? $params["status"] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
+                                            "is_queue" => isset($params["is_queue"]) ? $params["is_queue"] : 0,
+                                            "group_id" => isset($params["group_id"]) ? $params["group_id"] : null,
+                                            "user_id"  => isset($params["user_id"]) ? $params["user_id"] : null,
+                                            "number"   => null,
+                                            "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                        ];
+
+                                        $chatMessage = ChatMessage::create($insertParams);
+                                        if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                                            \App\ChatbotReply::create([
+                                                "chat_id"  => $chatMessage->id,
+                                                "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
+                                                "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
+                                            ]);
+                                        }
+
+                                        $suggestion->chat_message_id = $chatMessage->id;
+                                        $suggestion->save();
+
+                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion);
+                                    }
+
                                 break;
                                 case 'send_text_only':
                                     \App\Jobs\SendMessageToCustomer::dispatch($params);
