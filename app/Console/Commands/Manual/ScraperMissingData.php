@@ -2,11 +2,10 @@
 
 namespace App\Console\Commands\Manual;
 
+use App\CronJobReport;
+use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
-use App\CronJobReport;
-
-
 
 class ScraperMissingData extends Command
 {
@@ -41,18 +40,19 @@ class ScraperMissingData extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
-        // Get one product per supplier
-        $sql = "
+        /*try {*/
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
+            // Get one product per supplier
+            $sql = "
             SELECT
                 MAX(id),
                 website,
                 url,
                 sku,
-                brand,
+                brand_id,
                 category,
                 title,
                 description,
@@ -63,27 +63,27 @@ class ScraperMissingData extends Command
                 price,
                 discounted_price,
                 is_sale
-            FROM 
-                log_scraper
-            WHERE 
-                validated=1 AND 
+            FROM
+                scraped_products
+            WHERE
+                validated=1 AND
                 description LIKE '%shoe%'
-            GROUP BY 
+            GROUP BY
                 website
         ";
-        $results = DB::select(DB::raw($sql));
+            $results = DB::select(DB::raw($sql));
 
-        if ($results !== null) {
-            echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";
-            foreach ($results as $result) {
-                // Get properties
-                $properties = unserialize($result->properties);
+            if ($results !== null) {
+                echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";
+                foreach ($results as $result) {
+                    // Get properties
+                    $properties = !empty($result->properties) ? unserialize($result->properties) : [];
 
-                echo '"' . $result->website . '";' .
+                    echo '"' . $result->website . '";' .
                     '"' . $result->sku . '";' .
                     '"' . $result->url . '";' .
-                    '"' . $result->brand . '";' .
-                    '"' . (isset($properties[ 'gender' ]) ? $properties[ 'gender' ] : '') . '";' .
+                    '"' . $result->brand_id . '";' .
+                    '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
                     '"' . (!empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
                     '"' . $result->title . '";' .
                     '"' . str_replace('"', "'", $result->description) . '";' .
@@ -96,10 +96,13 @@ class ScraperMissingData extends Command
                     $result->price . ';' .
                     $result->discounted_price . ';' .
                     $result->is_sale . ';' .
-                    "\n";
+                        "\n";
+                }
             }
-        }
 
-        $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        /*} catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }*/
     }
 }

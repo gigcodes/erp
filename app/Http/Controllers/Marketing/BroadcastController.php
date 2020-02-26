@@ -574,6 +574,24 @@ class BroadcastController extends Controller
             'data' => $count,
         ]);
     }
+
+    public function switchBroadcast(Request $request)
+    {
+        $id = $request->id;
+        if($id == $request->newId){
+            return redirect()->back()->with('message', 'Both Number Are Same');
+        }
+        $whatsAppNew = WhatsappConfig::find($request->newId);
+        $whatsAppOld = WhatsappConfig::find($id);
+        
+        $messages = ImQueue::where('number_from',$whatsAppOld->number)->get();
+        foreach ($messages as $message) {
+            $message->number_from = $whatsAppNew->number; 
+            $message->update();  
+        }
+
+        return redirect()->back()->with('message', 'Broadcast Switch To Another Number');
+    }
     
     
 }

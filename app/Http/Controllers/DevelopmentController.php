@@ -259,9 +259,9 @@ class DevelopmentController extends Controller
             });
         }
         // Get all data with user and messages
-        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages'])->get();
-        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages'])->get();
-        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages'])->get();
+        $plannedTasks = $plannedTasks->where('status', 'Planned')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
+        $completedTasks = $completedTasks->where('status', 'Done')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
+        $progressTasks = $progressTasks->where('status', 'In Progress')->orderBy('created_at')->with(['user', 'messages', 'timeSpent'])->get();
         // Get all modules
         $modules = DeveloperModule::all();
         // Get all developers
@@ -352,7 +352,7 @@ class DevelopmentController extends Controller
     {
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
-        $issues = DeveloperTask::where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
+        $issues = DeveloperTask::with('timeSpent')->where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
 
         if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
@@ -905,6 +905,8 @@ class DevelopmentController extends Controller
         if (empty($responsibleUser)) {
             $responsibleUser = Auth::id();
         }*/
+        $userId = Auth::id();
+        $userId = !empty($userId) ? $userId : $request->get('assigned_to', 0);
         $task = new DeveloperTask;
         $task->priority = $request->input('priority');
         $task->subject = $request->input('subject');
@@ -913,8 +915,8 @@ class DevelopmentController extends Controller
         $task->assigned_to = $request->get('assigned_to', 0);
         $task->module_id = $module->id;
         $task->user_id = 0;
-        $task->assigned_by = Auth::id();
-        $task->created_by = Auth::id();
+        $task->assigned_by = $userId;
+        $task->created_by = $userId;
         $task->reference = $reference;
         $task->status = 'Issue';
         $task->task_type_id = 3;

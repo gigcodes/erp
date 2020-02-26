@@ -10,7 +10,7 @@
                         </span>
                     </td>
                    <td>{{ $log->sku }}</td>
-                    <td>{{ $log->brand }}</td>
+                    <td>{{ $log->brand->name }}</td>
                     <td>{{ $log->title }}</td>
                     <td>{{ $log->currency }}</td>
                     <td>{{ $log->price }}</td>

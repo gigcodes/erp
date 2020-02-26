@@ -7,9 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use \App\ChatbotCategory;
 use \App\ChatbotQuestion;
 use \App\ChatbotQuestionExample;
-use \App\ChatbotCategory;
 
 class QuestionController extends Controller
 {
@@ -19,23 +19,22 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $q = request("q","");
-        $category_id = request("category_id",0);
+        $q           = request("q", "");
+        $category_id = request("category_id", 0);
 
         $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
-            ->leftJoin("chatbot_categories as cc","cc.id","chatbot_questions.category_id")
-            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"),"cc.name as category_name");
-            
+            ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
+            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
 
-        if(!empty($q)) {
-            $chatQuestions = $chatQuestions->where(function($query) use ($q) {
-                $query->where("chatbot_questions.value","like","%".$q."%")->orWhere("cqe.question","like","%".$q."%");
+        if (!empty($q)) {
+            $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
+                $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
             });
         }
 
-        if(!empty($category_id)) {
-            $chatQuestions = $chatQuestions->where("cc.id",$category_id);
-        }   
+        if (!empty($category_id)) {
+            $chatQuestions = $chatQuestions->where("cc.id", $category_id);
+        }
 
         $chatQuestions = $chatQuestions->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
@@ -64,7 +63,19 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::create($params);
 
-        WatsonManager::pushQuestion($chatbotQuestion->id);
+        if (!empty($params["question"])) {
+            $params["chatbot_question_id"] = $chatbotQuestion->id;
+            $chatbotQuestionExample        = new ChatbotQuestionExample;
+            $chatbotQuestionExample->fill($params);
+            $chatbotQuestionExample->save();
+        }
+
+        $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+
+        if (property_exists($result, 'error')) {
+            ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
 
         return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => route("chatbot.question.edit", [$chatbotQuestion->id])]);
     }
@@ -116,16 +127,16 @@ class QuestionController extends Controller
             $chatbotQuestion->fill($params);
             $chatbotQuestion->save();
 
-            if(!empty($params["category_id"])) {
-                if(is_numeric($params["category_id"])) {
+            if (!empty($params["category_id"])) {
+                if (is_numeric($params["category_id"])) {
                     $chatbotQuestion->category_id = $params["category_id"];
                     $chatbotQuestion->save();
-                }else {
+                } else {
                     $catModel = ChatbotCategory::create([
-                        "name" => $params["category_id"]
+                        "name" => $params["category_id"],
                     ]);
 
-                    if($catModel) {
+                    if ($catModel) {
                         $chatbotQuestion->category_id = $catModel->id;
                         $chatbotQuestion->save();
                     }
@@ -158,9 +169,9 @@ class QuestionController extends Controller
 
     public function saveAjax(Request $request)
     {
-        $groupId  = $request->get("group_id", 0);
-        $name     = $request->get("name", "");
-        $question = $request->get("question");
+        $groupId     = $request->get("group_id", 0);
+        $name        = $request->get("name", "");
+        $question    = $request->get("question");
         $category_id = $request->get("category_id");
 
         if (!empty($groupId) && $groupId > 0) {
@@ -182,16 +193,16 @@ class QuestionController extends Controller
                     "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name)),
                 ]);
 
-                if(!empty($category_id)) {
-                    if(is_numeric($category_id)) {
+                if (!empty($category_id)) {
+                    if (is_numeric($category_id)) {
                         $chQuestion->category_id = $category_id;
                         $chQuestion->save();
-                    }else {
+                    } else {
                         $catModel = ChatbotCategory::create([
-                            "name" => $category_id
+                            "name" => $category_id,
                         ]);
 
-                        if($catModel) {
+                        if ($catModel) {
                             $chQuestion->category_id = $catModel->id;
                             $chQuestion->save();
                         }
@@ -274,10 +285,10 @@ class QuestionController extends Controller
 
     public function deleteAnnotation(Request $request)
     {
-        $annotationId   =  $request->get("id");
-        $annotation     = \App\ChatbotIntentsAnnotation::where("id",$annotationId)->first();
-        
-        if($annotation) {
+        $annotationId = $request->get("id");
+        $annotation   = \App\ChatbotIntentsAnnotation::where("id", $annotationId)->first();
+
+        if ($annotation) {
             $questionExample = $annotation->question_example_id;
             $annotation->delete();
             WatsonManager::pushValue($questionExample);
@@ -302,7 +313,7 @@ class QuestionController extends Controller
         }
 
         return response()->json(["incomplete_results" => false, "items" => $allCategoryList, "total_count" => count($allCategoryList)]);
-        
+
     }
 
 }

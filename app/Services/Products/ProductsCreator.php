@@ -16,6 +16,7 @@ use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
+use App\Setting;
 
 class ProductsCreator
 {
@@ -128,15 +129,20 @@ class ProductsCreator
             // Update with scraped sizes
             if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
                 $sizes = $image->properties[ 'sizes' ];
+                $euSize = [];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $allSize[] = ProductHelper::getRedactedText($size, 'composition');
+                        $helperSize = ProductHelper::getRedactedText($size, 'composition');
+                        $allSize[] = $helperSize;
+                        //find the eu size and update into the field
+                        $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                     }
                 }
 
                 $product->size = implode(',', $allSize);
+                $product->size_eu = implode(',', $euSize);
             }
 
             // Store measurement
@@ -162,7 +168,29 @@ class ProductsCreator
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
-                    $product->suppliers()->syncWithoutDetaching([
+
+                    $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+                    if(!$productSupplier)  {
+                        $productSupplier = new \App\ProductSupplier;
+                        $productSupplier->supplier_id = $db_supplier->id;
+                        $productSupplier->product_id = $product->id;
+                    }
+
+                    $productSupplier->title = $image->title;
+                    $productSupplier->description = $image->description;
+                    $productSupplier->supplier_link = $image->url;
+                    $productSupplier->stock = 1;
+                    $productSupplier->price = $formattedPrices[ 'price_eur' ];
+                    $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+                    $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+                    $productSupplier->size = $formattedDetails[ 'size' ];
+                    $productSupplier->color = $formattedDetails[ 'color' ];
+                    $productSupplier->composition = $formattedDetails[ 'composition' ];
+                    $productSupplier->sku = $image->original_sku;
+                    $productSupplier->save();
+
+
+                    /*$product->suppliers()->syncWithoutDetaching([
                         $db_supplier->id => [
                             'title' => $image->title,
                             'description' => $image->description,
@@ -176,7 +204,7 @@ class ProductsCreator
                             'composition' => $formattedDetails[ 'composition' ],
                             'sku' => $image->original_sku
                         ]
-                    ]);
+                    ]);*/
                 }
             }
 
@@ -210,7 +238,7 @@ class ProductsCreator
                 'status' => 1
             ];
 
-            ScrapActivity::create($params);
+            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug("[Success] Updated product");
 
@@ -248,6 +276,21 @@ class ProductsCreator
         $product->measurement_size_type = $formattedDetails[ 'measurement_size_type' ];
         $product->made_in = $formattedDetails[ 'made_in' ];
         $product->category = $formattedDetails[ 'category' ];
+        // start to update the eu size
+        if(!empty($product->size)) {
+            $sizeExplode = explode(",", $product->size);
+            if(!empty($sizeExplode) && is_array($sizeExplode)){
+                $euSize = [];
+                foreach($sizeExplode as $sizeE){
+                    $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
+                    //find the eu size and update into the field
+                    $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                }
+                if(!empty($euSize)) {
+                    $product->size_eu = implode(',', $euSize);
+                }
+            }
+        }
 
         $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
@@ -269,7 +312,28 @@ class ProductsCreator
         if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
-            $product->suppliers()->syncWithoutDetaching([
+
+            $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+            if(!$productSupplier)  {
+                $productSupplier = new \App\ProductSupplier;
+                $productSupplier->supplier_id = $db_supplier->id;
+                $productSupplier->product_id = $product->id;
+            }
+
+            $productSupplier->title = $image->title;
+            $productSupplier->description = $image->description;
+            $productSupplier->supplier_link = $image->url;
+            $productSupplier->stock = 1;
+            $productSupplier->price = $formattedPrices[ 'price_eur' ];
+            $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+            $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+            $productSupplier->size = $formattedDetails[ 'size' ];
+            $productSupplier->color = $formattedDetails[ 'color' ];
+            $productSupplier->composition = $formattedDetails[ 'composition' ];
+            $productSupplier->sku = $image->original_sku;
+            $productSupplier->save();
+
+            /*$product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,
                     'description' => $image->description,
@@ -283,7 +347,7 @@ class ProductsCreator
                     'composition' => $formattedDetails[ 'composition' ],
                     'sku' => $image->original_sku
                 ]
-            ]);
+            ]);*/
         }
     }
 

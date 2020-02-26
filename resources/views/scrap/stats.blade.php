@@ -100,15 +100,24 @@
         </div>
     </form>
     <div class="row">
-        <div class="col-md-2">
-            Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
-        </div>
-        <div class="col-md-2">
-            Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
-        </div>
-        <div class="col-md-3">
-            Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
-        </div>
+        <div class="col col-md-9">
+            <div class="col-md-3">
+                Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
+            </div>
+            <div class="col-md-3">
+                Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
+            </div>
+            <div class="col-md-3">
+                Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
+            </div>
+        </div>    
+        <div class="col">
+            <div style="float: right;" class="col-md-3">
+                <button type="button" class="btn btn-default btn-sm get-latest-remark">
+                  <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
+                </button>
+            </div>
+         </div>   
     </div>
     <?php $totalCountedUrl = 0; ?>
     <div class="row no-gutters mt-3">
@@ -192,7 +201,11 @@
                             <td width="10%" style="text-right">
                                 {{ $supplier->scraper_start_time }}h
                             </td>
-                            <td width="10%">{!! !empty($data) ? str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($data->last_scrape_date))) : '' !!}</td>
+                            <td width="10%">
+                                @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
+                                    {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                @endif
+                            </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                             <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
@@ -326,20 +339,63 @@
                 </table>
                 */ ?>
                 @include('partials.modals.remarks',['type' => 'scrap'])
+                @include('partials.modals.latest-remarks',[])
             </div>
         </div>
     </div>
 @endsection
 
 @section('scripts')
-    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.9.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="//code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script type="text/javascript" src="/js/bootstrap-datepicker.min.js"></script>
+    <script src="/js/jquery-ui.js"></script>
     <script type="text/javascript">
 
         $(".total-info").html("({{$totalCountedUrl}})");
 
         $(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
+        });
+
+        $(document).on("keyup",".table-full-search",function() {
+            var input, filter, table, tr, td, i, txtValue;
+              input = document.getElementById("table-full-search");
+              filter = input.value.toUpperCase();
+              table = document.getElementById("latest-remark-records");
+              tr = table.getElementsByTagName("tr");
+
+              // Loop through all table rows, and hide those who don't match the search query
+              for (i = 0; i < tr.length; i++) {
+                td = tr[i].getElementsByTagName("td")[0];
+                if (td) {
+                  txtValue = td.textContent || td.innerText;
+                  if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    tr[i].style.display = "";
+                  } else {
+                    tr[i].style.display = "none";
+                  }
+                }
+              }
+        });
+
+        $(document).on("click",".get-latest-remark",function(e) {
+            $.ajax({
+                type: 'GET',
+                url: '{{ route('scrap.latest-remark') }}',
+                dataType:"json"
+            }).done(response => {
+                var html = '';
+                var no = 1;
+                if(response.code == 200) {
+                    $.each(response.data, function (index, value) {
+                        html += '<tr><th scope="row">' + no + '</th><td>' + value.scraper_name + '</td><td>' + moment(value.created_at).format('DD-M H:mm') + '</td><td>' + value.user_name + '</td><td>' + value.remark + '</td></tr>';
+                        no++;
+                    });
+                    $("#latestRemark").find('.show-list-records').html(html);
+                    $("#latestRemark").modal("show");
+                }else{
+                    toastr['error']('Oops, something went wrong', 'error');
+                }
+            });
         });
 
         $(document).on('click', '.make-remark', function (e) {

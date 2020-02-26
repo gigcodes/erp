@@ -3,10 +3,10 @@
 namespace App\Console\Commands;
 
 use App\ColdLeads;
-use App\CompetitorFollowers;
 use App\CompetitorPage;
-use Illuminate\Console\Command;
 use App\CronJobReport;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 use InstagramAPI\Instagram;
 use InstagramAPI\Signatures;
 
@@ -43,14 +43,15 @@ class GetCompetitorFollowers extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-        ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-        $comp = CompetitorPage::whereRaw('`competitor_pages`.`is_processed` = 0')->first();
-        $instagram = new Instagram();
-        $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
+            $comp      = CompetitorPage::whereRaw('`competitor_pages`.`is_processed` = 0')->first();
+            $instagram = new Instagram();
+            $instagram->login('sololuxury.official', "NcG}4u'z;Fm7");
 
             try {
                 $profileData = $instagram->people->getInfoByName($comp->username)->asArray();
@@ -63,10 +64,9 @@ class GetCompetitorFollowers extends Command
                 return [];
             }
 
-
             $profileData = $profileData['user'];
-            $rank = Signatures::generateUUID();
-            $lastId = $comp->cursor ?? '';
+            $rank        = Signatures::generateUUID();
+            $lastId      = $comp->cursor ?? '';
 
             do {
                 try {
@@ -75,7 +75,7 @@ class GetCompetitorFollowers extends Command
                     sleep(120);
                 }
                 $followers = $followersAll['users'];
-                $lastId = $followersAll['next_max_id'];
+                $lastId    = $followersAll['next_max_id'];
 
                 sleep(5);
 
@@ -83,9 +83,7 @@ class GetCompetitorFollowers extends Command
                     $lastId = 'END';
                 }
 
-
-                foreach ($followers as $follower)
-                {
+                foreach ($followers as $follower) {
                     echo $follower['username'] . "\n";
 
                     $u = CompetitorPage::where('username', $follower['username'])->first();
@@ -106,15 +104,15 @@ class GetCompetitorFollowers extends Command
                         continue;
                     }
 
-                    $u = new ColdLeads();
-                    $u->name = $accountInfo['full_name'];
-                    $u->username = $accountInfo['username'];
-                    $u->platform = 'instagram';
+                    $u              = new ColdLeads();
+                    $u->name        = $accountInfo['full_name'];
+                    $u->username    = $accountInfo['username'];
+                    $u->platform    = 'instagram';
                     $u->platform_id = $accountInfo['pk'];
-                    $u->because_of = 'via '.$comp->username;
-                    $u->rating = 7;
-                    $u->bio = $accountInfo['biography'];
-                    $u->status = 1;
+                    $u->because_of  = 'via ' . $comp->username;
+                    $u->rating      = 7;
+                    $u->bio         = $accountInfo['biography'];
+                    $u->status      = 1;
                     $u->save();
 
                     echo "CREATED \n";
@@ -126,12 +124,15 @@ class GetCompetitorFollowers extends Command
 
                 sleep(5);
 
-            } while($lastId != 'END');
+            } while ($lastId != 'END');
 
-            $comp->cursor = 'END';
+            $comp->cursor       = 'END';
             $comp->is_processed = 1;
             $comp->save();
 
-            $report->update(['end_time' => Carbon:: now()]);
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
     }
 }

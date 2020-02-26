@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\Loggers\LogScraper;
 use App\HistorialData;
+use App\ScrapedProducts;
+use Illuminate\Console\Command;
 
 class SkuErrorCount extends Command
 {
@@ -39,13 +39,17 @@ class SkuErrorCount extends Command
      */
     public function handle()
     {
-        $errorCount = 0;
-        $logs = LogScraper::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
-        $data = new HistorialData();
-        $data->object = 'sku_log';
-        $data->measuring_point = now().' '.$logs;
-        $data->value = $logs;
-        $data->save();
+        try {
+            $errorCount            = 0;
+            $logs                  = ScrapedProducts::where('validation_result', 'LIKE', '%SKU failed regex test%')->count();
+            $data                  = new HistorialData();
+            $data->object          = 'sku_log';
+            $data->measuring_point = now() . ' ' . $logs;
+            $data->value           = $logs;
+            $data->save();
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        }
 
     }
 }

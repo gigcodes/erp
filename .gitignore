@@ -46,6 +46,7 @@ cronjob-magecontroller.php
 trash.php
 /merge_conflicts
 temp.php
+temp.txt
 logs
 .git.zip
 _MACOSX
@@ -58,3 +59,5 @@ public/uploads
 public/zoom/*
 !public/zoom/.gitkeep
 public/tmp_images/*
+
+/deployment_scripts_test

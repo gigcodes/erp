@@ -2,9 +2,9 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Marketing\WhatsappConfig;
 use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class CheckWhatsAppActive extends Command
 {
@@ -39,31 +39,35 @@ class CheckWhatsAppActive extends Command
      */
     public function handle()
     {
-        // Check only active numbers which are not customer support numbers
-        $numbers = WhatsappConfig::where('is_customer_support', '!=', 1)->where('status', 1)->get();
+        try {
+            // Check only active numbers which are not customer support numbers
+            $numbers = WhatsappConfig::where('is_customer_support', '!=', 1)->where('status', 1)->get();
 
-        // Set the current time
-        $time = Carbon::now();
+            // Set the current time
+            $time = Carbon::now();
 
-        // Check only during the day
-        $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);
-        $evening = Carbon::create($time->year, $time->month, $time->day, 18, 00, 0);
-        if ($time->between($morning, $evening, true)) {
-            foreach ($numbers as $number) {
-                //Checking if device was active from last 15 mins
-                if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
-                    continue;
+            // Check only during the day
+            $morning = Carbon::create($time->year, $time->month, $time->day, 8, 0, 0);
+            $evening = Carbon::create($time->year, $time->month, $time->day, 18, 00, 0);
+            if ($time->between($morning, $evening, true)) {
+                foreach ($numbers as $number) {
+                    //Checking if device was active from last 15 mins
+                    if ($number->last_online > Carbon::now()->subMinutes(15)->toDateTimeString()) {
+                        continue;
+                    }
+                    $phones  = ['+971569119192', '+31629987287'];
+                    $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
+
+                    foreach ($phones as $phone) {
+                        // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
+                    }
+
                 }
-                $phones = ['+919004780634', '+31629987287'];
-                $message = $number->number . 'Username : ' . $number->username . ' Phone Number is not working Please Check It';
-
-                foreach ($phones as $phone) {
-                    // app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($phone, '', $message, '', '');
-                }
-
+            } else {
+                dump('We only check during the day');
             }
-        } else {
-            dump('We only check during the day');
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }
