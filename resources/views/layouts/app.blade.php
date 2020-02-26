@@ -1267,6 +1267,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('database.index') }}">Historical Data</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('database.states') }}">States</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">

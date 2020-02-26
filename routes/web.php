@@ -1007,6 +1007,10 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
 
 Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/states', 'DatabaseController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
+    
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
