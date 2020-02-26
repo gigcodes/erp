@@ -18,12 +18,25 @@ Route::prefix('store-website')->group(function () {
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
-    	Route::prefix('attached-category')->group(function () {
+    	
+        Route::prefix('attached-category')->group(function () {
     		Route::get('/', 'CategoryController@index')->name("store-website.attached-category.index");
     		Route::post('/', 'CategoryController@store')->name("store-website.attached-category.store");
             Route::prefix('{store_category_id}')->group(function () {
                 Route::get('/delete', 'CategoryController@delete')->name("store-website.attached-category.delete");
             });    
     	});		
+
+        Route::prefix('attached-brand')->group(function () {
+            Route::get('/', 'BrandController@index')->name("store-website.attached-brand.index");
+            Route::post('/', 'BrandController@store')->name("store-website.attached-brand.store");
+            Route::prefix('{store_brand_id}')->group(function () {
+                Route::get('/delete', 'BrandController@delete')->name("store-website.attached-brand.delete");
+            });    
+        });
+
+
+        
+
     });    
 });
