@@ -10,7 +10,7 @@ use App\DatabaseHistoricalRecord;
 class AddDatabaseHistoricalData extends Command
 {
 
-    CONST MAX_REACH_LIMIT = 0;
+    CONST MAX_REACH_LIMIT = 100;
 
     /**
      * The name and signature of the console command.
