@@ -11,6 +11,7 @@ class AddDatabaseHistoricalData extends Command
 {
 
     CONST MAX_REACH_LIMIT = 100;
+    CONST MAX_REACH_TOTAL_LIMIT = 4096;
 
     /**
      * The name and signature of the console command.
@@ -64,9 +65,13 @@ class AddDatabaseHistoricalData extends Command
                         if($lastDb->database_name == $d->db_name) {
                             if(($d->db_size - $lastDb->size) >= self::MAX_REACH_LIMIT) {
                                 \App\CronJob::insertLastError($this->signature,
-                                    "Database is reached to the max limit : ".self::MAX_REACH_LIMIT
+                                    "Database is reached to the max limit : ".self::MAX_REACH_LIMIT. " MB"
                                 );
-                            }
+                            }else if($d->db_size > self::MAX_REACH_TOTAL_LIMIT) {
+                                \App\CronJob::insertLastError($this->signature,
+                                    "Database is reached to the max total limit : ".self::MAX_REACH_TOTAL_LIMIT. " MB"
+                                );
+                            }   
                         }
                     }
 
