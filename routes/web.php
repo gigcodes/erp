@@ -1005,6 +1005,10 @@ Route::prefix('pinterest')->middleware('auth')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
 });
 
+Route::prefix('database')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseController@index')->name("database.index");
+});
+
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
