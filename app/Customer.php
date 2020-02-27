@@ -18,7 +18,9 @@ class Customer extends Model
         'city',
         'whatsapp_number',
         'chat_session_id',
-        'in_w_list'
+        'in_w_list',
+        'reminder_from',
+        'reminder_last_reply',
     ];
 
     protected $casts = [

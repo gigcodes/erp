@@ -18,7 +18,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
      *
      * @var string
      */
-    protected $signature = 'reminder:send-to-customers';
+    protected $signature = 'reminder:send-to-customer';
 
     /**
      * The console command description.
@@ -57,6 +57,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 ->selectRaw('MAX(id) as id, customer_id')
                 ->groupBy('customer_id')
                 ->whereNotNull('message')
+                //->where("frequency",">",0)
                 ->where('customer_id', '>', '0')
                 ->where(function ($query) {
                     $query->whereNotIn('status', [7, 8, 9, 10]);
@@ -74,25 +75,26 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                     continue;
                 }
 
-                dump('here' . $customer->name);
+                if($customer->reminder_from == "0000-00-00 00:00" || strtotime($customer->reminder_from) >= strtotime("now")) {
+                    dump('here' . $customer->name);
+                    $templateMessage = $customer->reminder_message;
+                    if($customer->reminder_last_reply == 0) {
+                        //sends messahe
+                        $this->sendMessage($customer->id, $templateMessage);
+                    }else{
+                        // get the message if the interval is greater or equal to time which is set for this customer
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
+                            ->where('id', $messagesId->id)
+                            ->where('user_id', '>', '0')
+                            ->where('approved', '1')
+                            ->first();
 
-                // get the message if the interval is greater or equal to time which is set for this customer
-                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
-                    ->where('id', $messagesId->id)
-                    ->where('user_id', '>', '0')
-                    ->where('approved', '1')
-                    ->first();
-
-                if (!$message) {
-                    continue;
+                        if (!$message) {
+                            continue;
+                        }
+                    }
+                    dump('saving...');
                 }
-
-                dump('saving...');
-
-                $templateMessage = $customer->reminder_message;
-
-                //sends messahe
-                $this->sendMessage($customer->id, $templateMessage);
             }
 
             $report->update(['end_time' => Carbon::now()]);

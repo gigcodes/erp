@@ -130,7 +130,13 @@ var getHtml = function(response) {
                 media = '<input type="checkbox" class="form-control" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                 j++;
             } else {
-                media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                media =  '<div style="margin-bottom:10px;">'; 
+                media += '<div class="row">'; 
+                media += '<div class="'+classFive+'">';
+                media += '<a href="' + message.media_url + '" class="show-product-info show-thumbnail-image" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                media += '</div>';
+                media += '</div>';
+                media += '</div>';
             }
 
         }
@@ -814,7 +820,6 @@ $('#chat-list-history').on("scroll", function() {
     // Bottom reached:
     //console.log([modal_scrollTop,(modal_scrollHeight - 500), workingOn , currentChatParams.data.hasMore]);
     if (modal_scrollTop > (modal_scrollHeight - 500) && workingOn == null) {
-        console.log(currentChatParams.data.hasMore,workingOn);
         if(currentChatParams.data.hasMore && workingOn == null) {
             workingOn = true;
             currentChatParams.data.page++; 
