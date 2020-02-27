@@ -179,22 +179,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="frequency">Frequency (in Minutes)</label>
-                        <select class="form-control" name="frequency" id="frequency">
-                            <option value="0">Disabled</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="35">35</option>
-                            <option value="40">40</option>
-                            <option value="45">45</option>
-                            <option value="50">50</option>
-                            <option value="55">55</option>
-                            <option value="60">60</option>
-                        </select>
+                        <label for="frequency">Frequency</label>
+                        <?php echo From::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency"]); ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequency">Reminder Start From</label>
+                        <input type="text" name="reminder_from" id="reminder_from" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Check Last Message?</label>
+                        <label class="radio-inline">
+                          <input type="radio" id="reminder_last_reply" name="reminder_last_reply" value="1" checked>Yes
+                        </label>
+                        <label class="radio-inline">
+                          <input type="radio" name="reminder_last_reply" value="0">No
+                        </label>
                     </div>
                     <div class="form-group">
                         <label for="reminder_message">Reminder Message</label>
