@@ -67,12 +67,22 @@ class ParseLog extends Command
                         continue;
                     }
 
+
+
                     if (strpos($value, 'local.ERROR') !== false) {
-                        $log              = new LaravelLog();
-                        $log->log_created = $dateTime;
-                        $log->filename    = $filename;
-                        $log->log         = $value;
-                        $log->save();
+
+                        //Check if already exist and update the time
+                        $loggedBefore = LaravelLog::where('log', $value)->first();
+                        if(empty($loggedBefore)){
+                            $log              = new LaravelLog();
+                            $log->log_created = $dateTime;
+                            $log->filename    = $filename;
+                            $log->log         = $value;
+                            $log->save();
+                        }else{
+                            $loggedBefore->touch();
+                        }
+                        
                     }
 
                 }

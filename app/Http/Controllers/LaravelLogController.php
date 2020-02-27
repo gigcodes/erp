@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\LaravelLog;
 use App\Setting;
+use File;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class LaravelLogController extends Controller
 {
@@ -63,7 +65,7 @@ class LaravelLogController extends Controller
         else {
 
              $paginate = (Setting::get('pagination') * 10);
-            $logs = LaravelLog::orderby('log_created','desc')->paginate($paginate);
+            $logs = LaravelLog::orderby('updated_at','desc')->paginate($paginate);
 
         }
 
@@ -76,5 +78,40 @@ class LaravelLogController extends Controller
         }
 
     	return view('logging.laravellog',compact('logs'));
+    }
+
+    public function liveLogs()
+    {
+        $filename = '/laravel-'.now()->format('Y-m-d').'.log';
+
+        $path = storage_path('logs');
+        $fullPath = $path.$filename;
+        try {
+            $content = File::get($fullPath);
+
+            preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+
+            foreach ($match[0] as $value) {
+                $errors[] = $value;
+            }
+            $errors = array_reverse($errors);
+        } catch (\Exception $e) {
+            $errors = [];
+        }
+            
+
+        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        
+        $perPage = Setting::get('pagination'); 
+        
+        $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
+
+        $logs = new LengthAwarePaginator($currentItems, count($errors), $perPage, $currentPage, [
+            'path'  => LengthAwarePaginator::resolveCurrentPath()
+        ]);
+
+        return view('logging.livelaravellog',['logs' => $logs , 'filename' => str_replace('/','',$filename)]);
+        
+        
     }
 }
