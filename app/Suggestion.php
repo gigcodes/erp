@@ -63,7 +63,9 @@ class Suggestion extends Model
                 // check with categories
                 if (!empty($categories) && is_array($categories)) {
                     $needToBeRun = true;
-                    $products    = $products->whereIn('products.category', $categories);
+                    $category   = \App\Category::whereIn("parent_id",$categories)->get()->pluck("id")->toArray();
+                    $categories = array_merge($categories,$category);
+                    $products   = $products->whereIn('products.category', $categories);
                 }
 
                 // check with sizes
