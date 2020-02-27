@@ -57,13 +57,13 @@ class Suggestion extends Model
                 // check with brands
                 if (!empty($brands) && is_array($brands)) {
                     $needToBeRun = true;
-                    //$products    = $products->whereIn('brand', $brands);
+                    $products    = $products->whereIn('products.brand', $brands);
                 }
 
                 // check with categories
                 if (!empty($categories) && is_array($categories)) {
                     $needToBeRun = true;
-                    //$products    = $products->whereIn('category', $categories);
+                    $products    = $products->whereIn('products.category', $categories);
                 }
 
                 // check with sizes
@@ -71,7 +71,7 @@ class Suggestion extends Model
                     $needToBeRun = true;
                     $products    = $products->where(function ($query) use ($sizes) {
                         foreach ($sizes as $size) {
-                            $query->orWhere('size', 'LIKE', "%$size%");
+                            $query->orWhere('products.size', 'LIKE', "%$size%");
                         }
                         return $query;
                     });
