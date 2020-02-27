@@ -18,6 +18,8 @@ class VerifyCsrfToken extends Middleware
         'livechat/*',
         'api/instagram/post',
         'duty/v1/calculate',
-        'hubstaff/linkuser'
+        'hubstaff/linkuser',
+        'calendar',
+        'calendar/*'
     ];
 }

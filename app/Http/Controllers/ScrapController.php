@@ -125,9 +125,9 @@ class ScrapController extends Controller
         $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Return error
-        if (!empty($errorLog)) {
+        if (!empty($errorLog["error"])) {
             return response()->json([
-                'error' => $errorLog
+                'error' => $errorLog["error"]
             ]);
         }
 
@@ -199,8 +199,8 @@ class ScrapController extends Controller
             $scrapedProduct->discounted_price = $request->get('discounted_price');
             $scrapedProduct->original_sku = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
-            $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
-            $scrapedProduct->validation_result = $errorLog;
+            $scrapedProduct->validated = empty($errorLog["error"]) ? 1 : 0;
+            $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->save();
             $scrapedProduct->touch();
@@ -478,7 +478,7 @@ class ScrapController extends Controller
         $request->website = 'internal_scraper';
 
         // Log before validating
-        LogScraper::LogScrapeValidationUsingRequest($request);
+        //LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Find product
         $product = Product::find($request->get('id'));

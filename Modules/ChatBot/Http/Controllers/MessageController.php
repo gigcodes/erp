@@ -2,11 +2,11 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
-use App\Library\Watson\Model as WatsonManager;
+use App\ChatMessage;
+use App\Suggestion;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use App\ChatMessage;
 
 class MessageController extends Controller
 {
@@ -16,30 +16,105 @@ class MessageController extends Controller
      */
     public function index(Request $request)
     {
-        
-        $pendingApprovalMsg = ChatMessage::join("chatbot_replies as cr","cr.chat_id","chat_messages.id")
-        ->where("status",ChatMessage::CHAT_AUTO_WATSON_REPLY)
-        ->select(["chat_messages.*","cr.chat_id","cr.question"])
-        ->latest()
-        ->paginate(20);
+        $search = request("search");
 
-        return view("chatbot::message.index",compact('pendingApprovalMsg'));
+        $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
+            ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
+            ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id");
+
+        if (!empty($search)) {
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
+                $q->where("cr.question", "like", "%" . $search . "%")
+                    ->orWhere("c.name", "Like", "%" . $search . "%")
+                    ->orWhere("chat_messages.message", "like", "%" . $search . "%");
+            });
+        }
+
+        $pendingApprovalMsg = $pendingApprovalMsg->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])
+            ->where("chat_messages.customer_id", ">", 0)
+            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id"])
+            ->latest()
+            ->paginate(20);
+
+        $page = $pendingApprovalMsg->currentPage();
+
+        if ($request->ajax()) {
+            $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page'));
+            return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
+        }
+
+        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page'));
     }
 
-    public function approve() 
+    public function approve()
     {
-    	$id = request("id");
-    	
-    	if($id > 0) {
-    		
-    		$myRequest = new Request();
+        $id = request("id");
+
+        if ($id > 0) {
+
+            $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $id]);
 
             app('App\Http\Controllers\WhatsAppController')->approveMessage('customer', $myRequest);
-    	}
+        }
 
-    	return response()->json(["code" => 200, "message" => "Messsage Send Successfully"]);
+        return response()->json(["code" => 200, "message" => "Messsage Send Successfully"]);
+
+    }
+
+    /**
+     * [removeImages description]
+     * @return [type] [description]
+     *
+     */
+    public function removeImages(Request $request)
+    {
+        $deleteImages = $request->get("delete_images", []);
+
+        if (!empty($deleteImages)) {
+            foreach ($deleteImages as $image) {
+                list($mediableId, $mediaId) = explode("_", $image);
+                if (!empty($mediaId) && !empty($mediableId)) {
+                    \Db::statement("delete from mediables where mediable_id = ? and media_id = ? limit 1", [$mediableId, $mediaId]);
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Image has been removed now"]);
+
+    }
+
+    public function attachImages(Request $request)
+    {
+        $id = $request->get("chat_id", 0);
+
+        $data   = [];
+        $ids    = [];
+        $images = [];
+
+        if ($id > 0) {
+            // find the chat message
+            $chatMessages = ChatMessage::where("id", $id)->first();
+
+            if ($chatMessages) {
+                $chatsuggestion = $chatMessages->suggestion;
+                if ($chatsuggestion) {
+                    $data    = Suggestion::attachMoreProducts($chatsuggestion);
+                    $code    = 500;
+                    $message = "Sorry no images found!";
+                    if (count($data) > 0) {
+                        $code    = 200;
+                        $message = "More images attached Successfully";
+                    }
+                    return response()->json(["code" => $code, "data" => $data, "message" => $message]);
+                }
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Sorry , There is not avaialble images"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "It looks like there is not validate id"]);
 
     }
 

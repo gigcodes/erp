@@ -241,7 +241,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
-        $schedule->command('category:fix-by-supplier')->twiceDaily();
+        //$schedule->command('category:fix-by-supplier')->twiceDaily();
 
 
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
@@ -399,6 +399,8 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         //2020-02-17 Changed below to hourly
         $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
+        $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+        
     }
 
     /**

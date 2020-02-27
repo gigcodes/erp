@@ -12,7 +12,7 @@
  class SendProductImages
  {
 
- 	CONST SENDING_LIMIT = 10; 
+ 	CONST SENDING_LIMIT = 30; 
  	CONST FEMALE_CATEGORY = 2;
  	CONST MALE_CATEGORY = 3;
 
@@ -47,25 +47,30 @@
  	public function getResults()
  	{
  		$images = [];
- 		$this->products = $products = Product::where("brand",$this->brand->id)
- 		->where("category",$this->category->id)
- 		//->where("stock",">",0)
- 		->orderBy("created_at","desc")
- 		->limit(self::SENDING_LIMIT)
- 		->get();
+ 		$ids 	= [];
+ 		// Removed more options from here as we don't need product for now
+ 		// $this->products = $products = \App\Product::attachProductChat([$this->brand->id],[$this->category->id],[]);
 
- 		if($products) {
- 			foreach($products as $product) {
- 				if($product->hasMedia(config("constants.attach_image_tag"))){
- 					$media = $product->getMedia(config("constants.attach_image_tag"))->first();
- 					if ($media) {
- 						$this->mediaIds[] = $images[] = $media->id;
- 					}	
- 				}
- 			}
- 		}
+ 		// if($products) {
+ 		// 	foreach($products as $product) {
+ 		// 		$ids[] = $product->id;
+ 		// 		if($product->hasMedia(config("constants.attach_image_tag"))){
+ 		// 			$media = $product->getMedia(config("constants.attach_image_tag"))->first();
+ 		// 			if ($media) {
+ 		// 				$this->mediaIds[] = $images[] = $media->id;
+ 		// 			}	
+ 		// 		}
+ 		// 	}
+ 		// }
 
- 		return $images;
+ 		return [
+ 			"media_ids" => $images , 
+ 			"params" => [
+	 			"brands" => [$this->brand->id],
+	 			"category" => [$this->category->id],
+	 			"products" => $ids
+	 		]
+ 		];
 
  	}
 

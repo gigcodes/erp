@@ -6,7 +6,19 @@
 @section('content')
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
-
+<style type="text/css">
+  .panel-img-shorts{
+      width:80px;
+      height:80px;
+      display: inline-block;
+  }
+  .panel-img-shorts .remove-img{
+      display:block;
+      float:right;
+      width:15px;
+      height:15px;
+  }
+</style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 	    <h2 class="page-heading">Message List | Chatbot</h2>
@@ -30,42 +42,8 @@
 
 <div class="row">
   <div class="col-md-12">
-    <div class="table-responsive-lg">
-      <table class="table">
-        <thead>
-          <tr>
-          	<th width="2%">Customer #</th>
-            <th width="15%">User input</th>
-            <th width="15%">Bot Replied</th>
-            <th width="30%">Images</th>
-            <th width="5%">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-    	  <?php if(!empty($pendingApprovalMsg)) { ?>
-    	  		<?php foreach($pendingApprovalMsg as $pam) { ?>
-	              <tr>
-	                <td>{{ $pam->customer_id }}</td>
-	                <td>{{ $pam->question }}</td>
-	                <td>{{ $pam->message }}</td>
-	                <td>
-                    @if($pam->hasMedia(config('constants.media_tags')))
-                      @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
-                        <img width="75px" heigh="75px" src="{{ $medias->getUrl() }}">
-                      @endforeach
-                    @endif
-                  </td>
-	                <td>
-                    <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
-                      <img width="15px" height="15px" src="/images/completed-green.png"> 
-                    </a>
-                  </td>
-	              </tr>
-	          	<?php } ?>
-          <?php } ?>
-        </tbody>
-      </table>
-     <?php echo $pendingApprovalMsg->links(); ?>
+    <div class="table-responsive-lg" id="page-view-result">
+      @include("chatbot::message.partial.list")
     </div>
   </div>
 </div>
@@ -98,5 +76,121 @@
           console.log("Sorry, something went wrong");
         }); 
   });
+ 
+  var getResults = function(href) {
+    $.ajax({
+        type: 'GET',
+        url: href,
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+          var removePage = response.page;
+           if(removePage > 0) {
+              var pageList = $("#page-view-result").find(".page-template-"+removePage);
+              pageList.nextAll().remove();
+              pageList.remove();
+           }
+           if(removePage > 1) {
+             $("#page-view-result").find(".pagination").first().remove();
+           }
+          $("#page-view-result").append(response.tpl);
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  };
+
+  $("#page-view-result").on("click",".page-link",function(e) {
+      e.preventDefault();
+        
+        var activePage = $(this).closest(".pagination").find(".active").text();
+        var clickedPage = $(this).text();
+        if(clickedPage == "‹" || clickedPage < activePage) {
+            $('html, body').animate({scrollTop: ($(window).scrollTop() - 50) + "px"}, 200);
+            getResults($(this).attr("href"));
+        }else{
+            getResults($(this).attr("href"));
+        }
+
+    });
+
+  $(window).scroll(function() {
+      if($(window).scrollTop() > ($(document).height() - $(window).height() - 10)) {
+          $("#page-view-result").find(".pagination").find(".active").next().find("a").click();
+      }
+  });
+
+  $(document).on("click",".delete-images",function() {
+
+     var tr = $(this).closest("tr");
+     var checkedImages = tr.find(".remove-img:checkbox:checked").closest(".panel-img-shorts");
+     var form = tr.find('.remove-images-form');
+     $.ajax({
+        type: 'POST',
+        url: form.attr("action"),
+        data: form.serialize(),
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            $.each(checkedImages, function(k, e){
+                $(e).remove();
+            });
+            toastr['success'](response.message, 'success');
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  });
+
+  $(document).on("click",".add-more-images",function() {
+      var $this = $(this);
+      var id = $this.data("id");
+
+      $.ajax({
+        type: 'GET',
+        url: "{{ route('chatbot.messages.attach-images') }}",
+        data: {chat_id : id},
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            if(response.data.length > 0) {
+              var html = "";
+              $.each(response.data, function(k,img) {
+                  html += '<div class="panel-img-shorts">';
+                    html += '<input type="checkbox" name="delete_images[]" value="'+img.mediable_id+'_'+img.id+'" class="remove-img" data-media-id="'+img.id+'" data-mediable-id="'+img.mediable_id+'">';
+                    html += '<img width="50px" heigh="50px" src="'+img.url+'">';
+                  html += '</div>';
+              });
+              $this.closest("tr").find(".images-layout").find("form").append(html);
+            }
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  });
+
+  $(document).on("click",".check-all",function() {
+    var tr = $(this).closest("tr");
+    tr.find(".remove-img").trigger("click");
+  });
+
 </script>
 @endsection

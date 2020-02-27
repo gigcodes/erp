@@ -7,9 +7,11 @@ use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 
-trait githubTrait{
+trait githubTrait
+{
 
-    private function getGithubClient(){
+    private function getGithubClient()
+    {
         return new Client([
             'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')],
         ]);
@@ -20,11 +22,11 @@ trait githubTrait{
         $githubClient = $this->getGithubClient();
         //https://api.github.com/repositories/:repoId/compare/:diff
 
-        try{
+        try {
             $url = 'https://api.github.com/repositories/' . $repoId . '/compare/' . $base . '...' . $branchName;
             $response = $githubClient->get($url);
-        }catch(ClientException $e){
-            if($e->getResponse()->getStatusCode() == 404){
+        } catch (ClientException $e) {
+            if ($e->getResponse()->getStatusCode() == 404) {
                 // known error which happens in case there is more changes 
                 return [
                     'ahead_by' => 0,
@@ -62,5 +64,24 @@ trait githubTrait{
             'last_commit_author_username' => $lastCommitAuthorUsername,
             'last_commit_time'            => $lastCommitTime,
         ];
+    }
+
+    private function inviteUser(string $email)
+    {
+        // /orgs/:org/invitations
+        $url = 'https://api.github.com/orgs/' . getenv('GITHUB_ORG_ID') . '/invitations';
+        try {
+            $this->getGithubClient()->post(
+                $url,
+                [
+                    'json' => [
+                        'email' => $email
+                    ]
+                ]
+            );
+            return true;
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }
