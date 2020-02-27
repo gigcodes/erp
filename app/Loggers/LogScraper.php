@@ -113,7 +113,7 @@ class LogScraper extends Model
         $logScraper->save();*/
 
         // Return true or false
-        return $errorLog . $warningLog;
+        return ["error" => $errorLog , "warning" => $warningLog];
     }
 
     public static function validateWebsite($website)
