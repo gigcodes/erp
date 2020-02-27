@@ -79,6 +79,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/', 'MessageController@index')->name("chatbot.messages.list");
         Route::post('/approve', 'MessageController@approve')->name("chatbot.messages.approve");
         Route::post('/remove-images', 'MessageController@removeImages')->name("chatbot.messages.remove-images");
+        Route::get('/attach-images', 'MessageController@attachImages')->name("chatbot.messages.attach-images");
     });
 
     Route::prefix('rest/dialog')->group(function () {
