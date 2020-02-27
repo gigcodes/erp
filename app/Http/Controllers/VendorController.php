@@ -13,6 +13,7 @@ use App\Setting;
 use App\ReplyCategory;
 use App\Helpers;
 use App\Helpers\githubTrait;
+use App\Helpers\hubstaffTrait;
 use App\User;
 use Carbon\Carbon;
 use Mail;
@@ -23,12 +24,16 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Webklex\IMAP\Client;
 use App\Role;
+use Exception;
+use GuzzleHttp\Client as GuzzleHttpClient;
+use GuzzleHttp\RequestOptions;
 use Hash;
 
 class VendorController extends Controller
 {
 
   use githubTrait;
+  use hubstaffTrait;
 
   /**
    * Display a listing of the resource.
@@ -39,6 +44,7 @@ class VendorController extends Controller
   public function __construct()
   {
     // $this->middleware('permission:vendor-all');
+    $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
   }
 
   public function updateReminder(Request $request)
@@ -356,14 +362,37 @@ class VendorController extends Controller
       }
     }
 
-    $hasCreatedGithubUser = false;
+    $isInvitedOnGithub = false;
     if ($request->create_user_github == 'on' && isset($request->email)) {
       //has requested for github invitation
-      $hasCreatedGithubUser = $this->inviteUser($request->email);
+      $isInvitedOnGithub = $this->inviteUser($request->email);
     }
 
-    if ($request->create_user_hubstaff == 'on') {
+    $isInvitedOnHubstaff = false;
+    if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
       //has requested hubstaff invitation
+      try {
+        $this->doHubstaffOperationWithAccessToken(
+          function ($accessToken) use ($request) {
+            $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+            $client = new GuzzleHttpClient;
+            return $client->post(
+              $url,
+              [
+                RequestOptions::HEADERS => [
+                  'Authorization' => 'Bearer ' . $accessToken,
+                ],
+                RequestOptions::JSON => [
+                  'email' => $request->email
+                ]
+              ]
+            );
+          }
+        );
+        $isInvitedOnHubstaff = true;
+      } catch (Exception $e) {
+        $isInvitedOnHubstaff = false;
+      }
     }
 
     return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
