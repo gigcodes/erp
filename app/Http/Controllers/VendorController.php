@@ -12,6 +12,7 @@ use App\VendorCategory;
 use App\Setting;
 use App\ReplyCategory;
 use App\Helpers;
+use App\Helpers\githubTrait;
 use App\User;
 use Carbon\Carbon;
 use Mail;
@@ -26,6 +27,9 @@ use Hash;
 
 class VendorController extends Controller
 {
+
+  use githubTrait;
+
   /**
    * Display a listing of the resource.
    *
@@ -184,7 +188,10 @@ class VendorController extends Controller
         $currentPage = 1;
       }
 
-      //dd($perPage);
+      if (!is_numeric($perPage)) {
+        $perPage = 2;
+      }
+
 
       $currentItems = array_slice($vendors, $perPage * ($currentPage - 1), $perPage);
 
@@ -317,7 +324,7 @@ class VendorController extends Controller
 
     $data = $request->except(['_token', 'create_user']);
 
-    Vendor::create($data);
+    //Vendor::create($data);
 
     if ($request->create_user == 'on') {
       if ($request->email != null) {
@@ -349,7 +356,15 @@ class VendorController extends Controller
       }
     }
 
+    $hasCreatedGithubUser = false;
+    if ($request->create_user_github == 'on' && isset($request->email)) {
+      //has requested for github invitation
+      $hasCreatedGithubUser = $this->inviteUser($request->email);
+    }
 
+    if ($request->create_user_hubstaff == 'on') {
+      //has requested hubstaff invitation
+    }
 
     return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
   }
