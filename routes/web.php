@@ -826,6 +826,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
+    Route::post('vendor/inviteGithub', 'VendorController@inviteGithub');
+    Route::post('vendor/inviteHubstaff', 'VendorController@inviteHubstaff');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -1003,6 +1005,14 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
+});
+
+Route::prefix('database')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/states', 'DatabaseController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
+    
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');

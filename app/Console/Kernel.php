@@ -405,6 +405,8 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         //2020-02-17 Changed below to hourly
         $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
+        $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+        
     }
 
     /**
