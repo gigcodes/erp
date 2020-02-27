@@ -94,7 +94,7 @@ class Suggestion extends Model
 
                 // now check the params and start getting result
                 if ($needToBeRun) {
-                    $products = $products->where('category', '!=', 1)->whereNotIn("id", $excludedProductIDs)->latest()->take($suggestion->number)->get();
+                    $products = $products->where('category', '!=', 1)->whereNotIn("products.id", $excludedProductIDs)->latest()->take($suggestion->number)->get();
                     if (!$products->isEmpty()) {
                         $params = [
                             'number'      => null,
