@@ -93,7 +93,7 @@
                             {!! Form::close() !!}
                             <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>
                             <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
-                            <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor({{ $vendor->id }})"><i class="fa fa-user"></i></button>
+                            <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor({{ $vendor->id }}, '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
                         </div>
                     </td>
                 </tr>
