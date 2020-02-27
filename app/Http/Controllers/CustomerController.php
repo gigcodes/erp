@@ -1894,7 +1894,7 @@ class CustomerController extends Controller
 
         $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
 
-        $products = $products->where('category', '!=', 1)->latest()->take($request->number)->get();
+        $products = $products->where('category', '!=', 1)->select(["products.*"])->latest()->take($request->number)->get();
 
         if ($customer->suggestion) {
             $suggestion = Suggestion::find($customer->suggestion->id);
