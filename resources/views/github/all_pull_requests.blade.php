@@ -39,6 +39,8 @@
                 <th>Number</th>
                 <th>Title</th>
                 <th>Branch</th>
+                <th>User</th>
+                <th>Updated At</th>
                 <th>Deploy</th>
                 <th>Actions</th>
             </tr>
@@ -50,6 +52,8 @@
                 <td>{{$pullRequest['id']}}</td>
                 <td>{{$pullRequest['title']}}</td>
                 <td>{{$pullRequest['source']}}</td>
+                <td>{{$pullRequest['username']}}</td>
+                <td>{{$pullRequest['updated_at']}}</td>
                 <td>
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}">Deploy</a>
                 </td>
