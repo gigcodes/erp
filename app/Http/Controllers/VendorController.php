@@ -365,34 +365,13 @@ class VendorController extends Controller
     $isInvitedOnGithub = false;
     if ($request->create_user_github == 'on' && isset($request->email)) {
       //has requested for github invitation
-      $isInvitedOnGithub = $this->inviteUser($request->email);
+      $isInvitedOnGithub = $this->sendGithubInvitaion($request->email);
     }
 
     $isInvitedOnHubstaff = false;
     if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
       //has requested hubstaff invitation
-      try {
-        $this->doHubstaffOperationWithAccessToken(
-          function ($accessToken) use ($request) {
-            $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-            $client = new GuzzleHttpClient;
-            return $client->post(
-              $url,
-              [
-                RequestOptions::HEADERS => [
-                  'Authorization' => 'Bearer ' . $accessToken,
-                ],
-                RequestOptions::JSON => [
-                  'email' => $request->email
-                ]
-              ]
-            );
-          }
-        );
-        $isInvitedOnHubstaff = true;
-      } catch (Exception $e) {
-        $isInvitedOnHubstaff = false;
-      }
+      $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
     }
 
     return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
@@ -998,6 +977,77 @@ class VendorController extends Controller
       return response()->json(["code" => 200, "data" => "User Created"]);
     } else {
       return response()->json(["code" => 200, "data" => "Couldn't Create User Email or Phone Already Exist"]);
+    }
+  }
+
+  public function inviteGithub(Request $request)
+  {
+    $email = $request->get('email');
+    if ($email) {
+      if ($this->sendGithubInvitaion($email)) {
+        return response()->json(
+          ['message' => 'Invitation sent to ' . $email]
+        );
+      }
+      return response()->json(
+        ['message' => 'Unable to send invitation to ' . $email],
+        500
+      );
+    }
+    return response()->json(
+      ['message' => 'Email not mentioned'],
+      400
+    );
+  }
+
+  public function inviteHubstaff(Request $request)
+  {
+    $email = $request->get('email');
+    if ($email) {
+      if ($this->sendHubstaffInvitation($email)) {
+        return response()->json(
+          ['message' => 'Invitation sent to ' . $email]
+        );
+      }
+      return response()->json(
+        ['message' => 'Unable to send invitation to ' . $email],
+        500
+      );
+    }
+    return response()->json(
+      ['message' => 'Email not mentioned'],
+      400
+    );
+  }
+
+  private function sendGithubInvitaion(string $email)
+  {
+    return $this->inviteUser($email);
+  }
+
+  private function sendHubstaffInvitation(string $email)
+  {
+    try {
+      $this->doHubstaffOperationWithAccessToken(
+        function ($accessToken) use ($email) {
+          $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+          $client = new GuzzleHttpClient;
+          return $client->post(
+            $url,
+            [
+              RequestOptions::HEADERS => [
+                'Authorization' => 'Bearer ' . $accessToken,
+              ],
+              RequestOptions::JSON => [
+                'email' => $email
+              ]
+            ]
+          );
+        }
+      );
+      return true;
+    } catch (Exception $e) {
+      return false;
     }
   }
 }
