@@ -80,8 +80,7 @@ class ParseLog extends Command
                             $log->log         = $value;
                             $log->save();
                         }else{
-                            $loggedBefore->log_created = now();
-                            $loggedBefore->update();
+                            $loggedBefore->touch();
                         }
                         
                     }

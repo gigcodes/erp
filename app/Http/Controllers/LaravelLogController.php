@@ -65,7 +65,7 @@ class LaravelLogController extends Controller
         else {
 
              $paginate = (Setting::get('pagination') * 10);
-            $logs = LaravelLog::orderby('log_created','desc')->paginate($paginate);
+            $logs = LaravelLog::orderby('updated_at','desc')->paginate($paginate);
 
         }
 
