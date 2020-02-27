@@ -18,7 +18,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
      *
      * @var string
      */
-    protected $signature = 'reminder:send-to-customers';
+    protected $signature = 'reminder:send-to-customer';
 
     /**
      * The console command description.

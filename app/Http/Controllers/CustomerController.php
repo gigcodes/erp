@@ -1644,8 +1644,10 @@ class CustomerController extends Controller
     public function updateReminder(Request $request)
     {
         $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency = $request->get('frequency');
-        $customer->reminder_message = $request->get('message');
+        $customer->frequency            = strtotime($request->get('frequency'));
+        $customer->reminder_message     = $request->get('message');
+        $customer->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $customer->reminder_last_reply  = $request->get('reminder_last_reply',0);
         $customer->save();
 
         return response()->json([
