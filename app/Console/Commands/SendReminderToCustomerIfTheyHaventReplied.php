@@ -57,7 +57,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                 ->selectRaw('MAX(id) as id, customer_id')
                 ->groupBy('customer_id')
                 ->whereNotNull('message')
-                ->where("frequency",">",0)
+                //->where("frequency",">",0)
                 ->where('customer_id', '>', '0')
                 ->where(function ($query) {
                     $query->whereNotIn('status', [7, 8, 9, 10]);
