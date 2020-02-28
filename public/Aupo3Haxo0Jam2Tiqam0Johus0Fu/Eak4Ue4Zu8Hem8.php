@@ -1,5 +1,7 @@
 <?php
-$cmd = 'sh ' . getenv('SERVER_SCRIPTS_PATH') . $repository->name . '/restart_db01.sh 2>&1';
+$cmd = 'sh ' . getenv('SERVER_SCRIPTS_PATH') . '/restart_db01.sh 2>&1';
+
+echo $cmd; exit();
 
 $allOutput = array();
 $allOutput[] = $cmd;
