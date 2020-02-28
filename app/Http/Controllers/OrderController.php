@@ -239,13 +239,13 @@ class OrderController extends Controller {
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
 				return $query->where('name', 'LIKE', "%$term%");
 			})
-			               ->orWhere('order_id','like','%'.$term.'%')
-			               ->orWhere('order_type',$term)
-			               ->orWhere('sales_person',Helpers::getUserIdByName($term))
-			               ->orWhere('received_by',Helpers::getUserIdByName($term))
-			               ->orWhere('client_name','like','%'.$term.'%')
-			               ->orWhere('city','like','%'.$term.'%')
-			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_id','like','%'.$term.'%')
+           ->orWhere('order_type',$term)
+           ->orWhere('sales_person',Helpers::getUserIdByName($term))
+           ->orWhere('received_by',Helpers::getUserIdByName($term))
+           ->orWhere('client_name','like','%'.$term.'%')
+           ->orWhere('city','like','%'.$term.'%')
+           ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
 		if ($order_status[0] != '') {
@@ -280,7 +280,7 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
 		
-		$orders_array = $orders->paginate(500);
+		$orders_array = $orders->paginate(20);
 		
 		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 	}

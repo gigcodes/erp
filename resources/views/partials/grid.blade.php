@@ -204,8 +204,7 @@
         </div>
       </div>
     @endif
-
-    <div class="productGrid" id="productGrid">
+    <div class="productGrid " id="productGrid">
 
     </div>
 
@@ -485,9 +484,9 @@
                                           @if($roletype == 'Inventory')  
                                           </a>
                                           <p>Ref. Category : ` + product['reference_category'] + ` </p>
-                                          <p>Category : <select class="form-control update-product select-multiple2" id="id_`+product['sku']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
+                                          <p>Category : <select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
                                           <p>Ref. Color : ` + product['reference_color'] + ` </p>
-                                          <p>Color : <select class="form-control update-color select-multiple2" id="id_`+product['id']+`" data-id="`+product['id']+`">
+                                          <p>Color : <select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
                                             <option>Select Color</option
                                             @foreach($sampleColors as $color)
                                             <option value="{{ $color['erp_color'] }}">{{ $color['erp_color'] }}</option>
@@ -524,10 +523,15 @@
               });
 
               jQuery('#productGrid').append(html + '</div>');
+              $(".select-multiple2").select2();
           
               groupedByTime[key].forEach(function (product) {
-                  $("#id_"+product['sku']).val(product['category']);
-                  $("#id_"+product['id']).val(product['color']);
+                  if($("#category_"+product['id']).length > 0) {
+                    $("#category_"+product['id']).val(product['category']);
+                  }
+                  if($("#color_"+product['id']).length > 0) {
+                    $("#color_"+product['id']).val(product['color']);
+                  }
                    
               });
           });
@@ -755,10 +759,6 @@
                     $("#no_of_product_will_affect_color").html(0);
                 }
             });
-        }); 
-
-
-         
-
+        });
   </script>
 @endsection
