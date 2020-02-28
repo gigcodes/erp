@@ -57,6 +57,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
@@ -827,6 +828,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
+    Route::post('vendor/inviteGithub', 'VendorController@inviteGithub');
+    Route::post('vendor/inviteHubstaff', 'VendorController@inviteHubstaff');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -1004,6 +1007,14 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
+});
+
+Route::prefix('database')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/states', 'DatabaseController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
+    
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
@@ -1398,6 +1409,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
     Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
     Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
+    Route::get('whatsapp-config/blocked-number', 'WhatsappConfigController@blockedNumber')->name('whatsapp.block.number');
 
     Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 

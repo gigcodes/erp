@@ -49,6 +49,8 @@ use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
 use seo2websites\GoogleVision\LogGoogleVision;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
 
 
 class ProductController extends Controller
@@ -2223,6 +2225,25 @@ class ProductController extends Controller
             //
         }
 
+        //Getting Website Color
+        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+        if(count($websiteArrays) == 0){
+            $colors = [];
+        }else{
+            foreach ($websiteArrays as $websiteArray) {
+               
+                $website = StoreWebsite::find($websiteArray);
+                if($website){
+                    $colors[] = array('code' => $website->cropper_color, 'color' => $website->cropper_color_name);
+                }
+            }
+        }
+
+        if(!isset($colors)){
+            $colors = [];
+        }
+        
         if($parent == null && $parent == ''){
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2245,7 +2266,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => '',
+            'colors' => $colors,
         ]);
         }
     }
@@ -2271,7 +2292,12 @@ class ProductController extends Controller
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
-            $product->attachMedia($media, config('constants.media_gallery_tag'));
+            if($request->get('color')){
+                $tag = 'gallery_'.$request->get('color');
+            }else{
+                $tag = config('constants.media_gallery_tag');
+            }    
+            $product->attachMedia($media, $tag);
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
@@ -2291,6 +2317,22 @@ class ProductController extends Controller
             $productMediacount = $product->media()->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
+
+            //check website count using Product
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+            try {
+                if(count($websiteArrays) == 0){
+                $multi = 1;
+                }else{
+                    $multi = count($websiteArray);
+                }
+            } catch (\Exception $e) {
+                $multi = 1;
+            }
+            
+
+            $cropCount = ($cropCount * $multi);
 
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();

@@ -9,7 +9,12 @@ use App\Brand;
 use App\GoogleServer;
 use App\Loggers\LogListMagento;
 use App\Product;
+use App\StoreWebsiteCategory;
+use App\StoreWebsiteBrand;
 
+
+
+        
 class ProductHelper extends Model
 {
     private static $_attributeReplacements = [];
@@ -732,6 +737,32 @@ class ProductHelper extends Model
         }
 
         return [];
+    }
+
+    public static function getStoreWebsiteName($id)
+    {
+        $product = Product::find($id);
+
+        $brand = $product->brand;
+
+        $category = $product->category;
+
+        
+        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
+        
+        $websiteArray = [];
+        foreach ($storeCategories as $storeCategory) {
+            $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
+            if(!empty($storeBrands)){
+                foreach ($storeBrands as $storeBrand) {
+                    $websiteArray[] = $storeBrand->store_website_id;
+                }
+               
+            }
+        }
+
+        return $websiteArray;
+
     }
 
 }
