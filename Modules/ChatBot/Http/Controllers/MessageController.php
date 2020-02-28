@@ -118,4 +118,28 @@ class MessageController extends Controller
 
     }
 
+    public function forwardToCustomer(Request $request)
+    {
+        $customer = $request->get("customer");
+        $images   = $request->get("images");
+
+        if($customer > 0 && !empty($images)) {
+
+            $params = request()->all();
+            $params["user_id"] = \Auth::id();
+            $params["is_queue"] = 1;
+            $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
+            $params["customer_ids"] = is_array($customer) ? $customer : [$customer];
+            $groupId = \DB::table('chat_messages')->max('group_id');
+            $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
+            $params["images"] = $images;
+            
+            \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Message forward to customer(s)"]);
+
+    }
+
 }

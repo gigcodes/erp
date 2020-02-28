@@ -37,6 +37,17 @@
               </form>
           </div>
         </div>
+        <div class="pull-right">
+          <div class="form-inline">
+              <form method="post">
+                  <?php echo csrf_field(); ?>
+                  <?php echo Form::select("customer_id[]",[],null,["class" => "form-control customer-search-select-box","multiple"=> true,"style" => "width:250px;"]); ?>      
+                  <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-forward-images">
+                      <i class="glyphicon glyphicon-send"></i>
+                  </button>
+              </form>
+          </div>
+        </div>  
     </div>
 </div>
 
@@ -190,6 +201,31 @@
   $(document).on("click",".check-all",function() {
     var tr = $(this).closest("tr");
     tr.find(".remove-img").trigger("click");
+  });
+
+  $(document).on("click",".btn-forward-images", function(e) {
+      e.preventDefault();
+      var selectedImages = $("#page-view-result").find(".remove-img:checkbox:checked");
+      var imagesArr = [];
+      $.each(selectedImages,function(k,v){
+          imagesArr.push($(v).data("media-id"));
+      });
+      $.ajax({
+          type: "POST",
+          url: "/chatbot/messages/forward-images",
+          data: {
+              '_token': "{{ csrf_token() }}",
+              'images': imagesArr,
+              'customer' : $(".customer-search-select-box").val()
+          }
+      }).done(function (response) {
+          if(response.code == 200) {
+            toastr['success'](response.message, 'success');
+          }else{
+            toastr['error'](response.message, 'error');
+          }
+      });
+
   });
 
 </script>
