@@ -22,10 +22,9 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Laravel Logs</h2>
+            <h2 class="page-heading">Live Laravel Logs</h2>
              <div class="pull-right">
-                <a href="/logging/live-laravel-logs" type="button" class="btn btn-secondary">Live Logs</a>
-                <button type="button" class="btn btn-image" onclick="refreshPage()"><img src="/images/resend2.png" /></button>
+                <a href="/logging/list-laravel-logs" type="button" class="btn btn-secondary">Laravel Logs</a>
             </div>
 
         </div>
@@ -39,38 +38,11 @@
             <tr>
                 <th width="10%">Filename</th>
                 <th width="30%">Log</th>
-                <th width="10%">LogCreated</th>
-            </tr>
-            <tr>
-                
-                <th width="10%"><input type="text" class="search form-control" id="filename"></th>
-                <th width="10%"><input type="text" class="search form-control" id="log"></th>
-                <th> <div class='input-group' id='log-created-date'>
-                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="log_created" />
-                            <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                </th>
-                <!-- <th> <div class='input-group' id='created-date'>
-                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" />
-                            <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                </th>
-                <th> <div class='input-group' id='updated-date'>
-                        <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="updated_date" />
-                            <span class="input-group-addon">
-                            <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                        </div>
-                    </th> -->
             </tr>
             </thead>
 
             <tbody id="content_data">
-             @include('logging.partials.laraveldata')
+             @include('logging.partials.livelaraveldata')
             </tbody>
 
             {!! $logs->render() !!}

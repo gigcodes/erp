@@ -287,7 +287,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                
                     <div class="modal-body">
-                        <button class="btn btn-secondary" id="vendor_id">Create ERP User from Vendor</button>
+                        <div><button class="btn btn-secondary m-1" id="vendor_id">Create ERP User from Vendor</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteGithub()">Invite to Github</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteHubstaff()">Invite to Hubstaff</button></div>
                     </div>
 
                     <div class="modal-footer">
@@ -924,10 +926,17 @@
               });
           });
 
-        function createUserFromVendor(id){
-            $('#vendor_id').attr('data-id', id);
-            $('#createUser').modal('show');   
-        }
+          function createUserFromVendor(id, email) {
+                $('#vendor_id').attr('data-id', id);
+                if (email) {
+                    $('#createUser').attr('data-email', email);
+                }
+                $('#createUser').modal('show');
+            }
+
+            $('#createUser').on('hidden.bs.modal', function() {
+                $('#createUser').removeAttr('data-email');
+            })
 
          $(document).on("click", "#vendor_id", function () {
             $('#createUser').modal('hide');
@@ -954,5 +963,48 @@
                           alert('No response from server');
                       });
           });
+
+          function inviteGithub() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+
+            $.ajax({
+                type: "POST",
+                url: "vendor/inviteGithub",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            });
+
+            console.log(email);
+        }
+
+        function inviteHubstaff() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+            console.log(email);
+
+            $.ajax({
+                type: "POST",
+                url: "vendor/inviteHubstaff",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            })
+        }
     </script>
 @endsection
