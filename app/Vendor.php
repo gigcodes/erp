@@ -27,6 +27,10 @@ class Vendor extends Model
         'account_swift',
         'account_iban',
         'is_blocked',
+        'frequency',
+        'reminder_message',
+        'reminder_last_reply',
+        'reminder_from',
         'updated_by'
     ];
 
