@@ -45,6 +45,9 @@
             <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span>
+            <span class="forward-messages" data-id="{{ $pam->chat_id }}">
+              <i class="glyphicon glyphicon-fast-forward" aria-hidden="true"></i>
+            </span>
           </td>
         </tr>
       <?php }?>
