@@ -4,6 +4,11 @@
 @section('title', $title)
 
 @section('content')
+<style type="text/css">
+	.preview-category input.form-control {
+	  width: auto;
+	}
+</style>
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
