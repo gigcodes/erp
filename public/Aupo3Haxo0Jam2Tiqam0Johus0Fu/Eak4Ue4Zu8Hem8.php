@@ -1,7 +1,5 @@
 <?php
-$cmd = 'sh ' . getenv('SERVER_SCRIPTS_PATH') . '/restart_db01.sh 2>&1';
-
-echo $cmd; exit();
+$cmd = 'sh ' . __dir__ . '/../../server_scripts/restart_db01.sh 2>&1';
 
 $allOutput = array();
 $allOutput[] = $cmd;
