@@ -23,6 +23,7 @@ class ChatMessage extends Model
     CONST CHAT_AUTO_BROADCAST = 8;
     CONST CHAT_AUTO_WATSON_REPLY = 11;
     CONST CHAT_SUGGESTED_IMAGES = 12;
+    CONST CHAT_MESSAGE_APPROVED = 2;
 
     use Mediable;
 
