@@ -77,8 +77,7 @@ class Category extends Model
         // Just one result
         if ( $dbResult->count() == 1 ) {
             // Check if the category has subcategories
-            $dbSubResult = Category::where('parent_id', $dbResult->first()->id);
-
+            $dbSubResult = Category::where('parent_id', $dbResult->first()->id)->first();
             // No results?
             if ( $dbSubResult == null ) {
                 // Return
