@@ -183,6 +183,14 @@ class SendMessageToCustomer implements ShouldQueue
                         }
                     }
                 }
+
+                // chat message for approval
+                if($chatMessage->status == ChatMessage::CHAT_MESSAGE_APPROVED) {
+                    $myRequest = new Request();
+                    $myRequest->setMethod('POST');
+                    $myRequest->request->add(['messageId' => $chatMessage->id]);
+                    app(\App\Http\Controllers\WhatsAppController::class)->approveMessage('customer', $myRequest);
+                }
             }
         }
 
