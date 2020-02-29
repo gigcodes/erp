@@ -192,6 +192,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
     //	Route::resource('activity','ActivityConroller');
+    Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
