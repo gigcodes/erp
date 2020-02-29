@@ -95,6 +95,10 @@ Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 Route::get('google/keywords', 'GoogleSearchController@getKeywordsApi');
 Route::post('google/search-results', 'GoogleSearchController@apiPost');
 
+//Wetransfer
+Route::get('wetransfer', 'WeTransferController@getLink');
+Route::post('wetransfer-file-store', 'WeTransferController@storeFile');
+
 //Google affiliate search
 Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');
 Route::post('google/affiliate/search-results', 'GoogleAffiliateController@apiPost');

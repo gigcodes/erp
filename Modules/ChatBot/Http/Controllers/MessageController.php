@@ -30,8 +30,12 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])
-            ->where("chat_messages.customer_id", ">", 0)
+        $pendingApprovalMsg = $pendingApprovalMsg->
+        where(function($q) {
+            $q->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])->orWhere(function($q){
+                $q->whereIn("status",ChatMessage::AUTO_REPLY_CHAT)->where("group_id",">",0);
+            });
+        })->where("chat_messages.customer_id", ">", 0)
             ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id"])
             ->latest()
             ->paginate(20);

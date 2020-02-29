@@ -1224,6 +1224,9 @@
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
+                                        </li>
+                                        <li>    
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
