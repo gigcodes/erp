@@ -11,6 +11,7 @@ use App\Task;
 use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\PublicKey;
 
 class ChatMessagesController extends Controller
 {
@@ -63,13 +64,26 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object
-            ->whatsappAll()
-            ->whereRaw($rawWhere)
-            ->where('status', '!=', 10)
-            ->skip(0)->take($limit);
+        $currentPage = request("page",1);
+        $skip        = ($currentPage - 1) * $limit;
 
-        $loadType = $request->get('load_type');
+        $loadType       = $request->get('load_type');
+        $onlyBroadcast  = false;
+        
+        //  if loadtype is brodcast then get the images only
+        if($loadType == "broadcast") {
+           $onlyBroadcast   = true;
+           $loadType        = "images"; 
+        }
+
+        $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+        
+        if(!$onlyBroadcast){
+           $chatMessages = $chatMessages->where('status', '!=', 10);
+        }
+
+        $chatMessages =  $chatMessages->skip($skip)->take($limit);   
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -161,12 +175,29 @@ class ChatMessagesController extends Controller
 
                 }
             }
+            if($request->object == 'customer'){
 
+                if(session()->has('encrpyt')){
+                   $public = PublicKey::first();
+                    if($public != null){
+                        $privateKey = hex2bin(session()->get('encrpyt.private'));
+                        $publicKey = hex2bin($public->key);
+                        $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                        $message = hex2bin($chatMessage->message);
+                        $textMessage = sodium_crypto_box_seal_open($message, $keypair);
+                    }
+                }else{
+                    $textMessage = htmlentities($chatMessage->message);
+                }
+            }else{
+                $textMessage = htmlentities($chatMessage->message);
+            }
+            
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
-                'message' => htmlentities($chatMessage->message),
+                'message' => $textMessage,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,

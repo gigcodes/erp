@@ -225,6 +225,7 @@
         $('.comment-it').click(function() {
             
                 let id = $(this).attr('data-id');
+                let post_id = $(this).attr('data-post-id');
                 let message = $('#textbox_'+id).val();
                 let textbox = $('#textbox_'+id);
                 let accountId = $('#account_id_'+id).val();
@@ -243,6 +244,7 @@
                             message: message,
                             account_id: accountId,
                             id : id,
+                            post_id : post_id,
                             narrative: narrative,
                             hashtag: "{{$hashtag->hashtag}}",
                             _token: '{{ csrf_token() }}'

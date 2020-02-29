@@ -48,8 +48,17 @@ class DialogController extends Controller
 
         $chatbotDialog = ChatbotDialog::create($params);
 
-        WatsonManager::pushDialog($chatbotDialog->id);
+        $result        = json_decode(WatsonManager::pushDialog($chatbotDialog->id));
 
+        if (property_exists($result, 'error')) {
+            ChatbotDialog::where("id", $chatbotDialog->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
+
+        if (property_exists($result, 'error')) {
+            ChatbotDialog::where("id", $chatbotDialog->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
         return response()->json(["code" => 200, "data" => $chatbotDialog, "redirect" => route("chatbot.dialog.edit", [$chatbotDialog->id])]);
     }
 
@@ -60,6 +69,12 @@ class DialogController extends Controller
             $chatbotDialog = ChatbotDialog::where("id", $id)->first();
 
             if ($chatbotDialog) {
+                // check if it has any parent 
+                $hasChild = ChatbotDialog::where("parent_id",$id)->first();
+                if($hasChild) {
+                    return redirect()->back();
+                }
+
                 WatsonManager::deleteDialog($chatbotDialog->id);
                 ChatbotDialogResponse::where("chatbot_dialog_id", $id)->delete();
                 $chatbotDialog->delete();
@@ -136,7 +151,7 @@ class DialogController extends Controller
         $matchCondition = implode(" ", $request->get("conditions"));
 
         $id               = $request->get("id", 0);
-        $multipleResponse = $request->get("response_condition");
+        $multipleResponse = $request->get("response_condition", []);
         $notToDelete      = [];
 
         if (!empty($multipleResponse)) {
@@ -240,16 +255,22 @@ class DialogController extends Controller
             if($current) {
                 $current->previous_sibling = $chatbotDialog->id;
                 $current->save();
-                WatsonManager::newPushDialog($current->id);
+                $error = WatsonManager::newPushDialog($current->id);
+
             }
             $chatbotDialog->previous_sibling = $previousSibling;
             $chatbotDialog->save();
-            WatsonManager::newPushDialog($chatbotDialog->id);
+            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($response["code"]) && $response["code"] != 200) {
+                return response()->json(["code" => 500, "error" => $response["error"]]);
+            }
 
         }else {
-            WatsonManager::newPushDialog($chatbotDialog->id);
+            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($response["code"]) && $response["code"] != 200) {
+                return response()->json(["code" => 500, "error" => $response["error"]]);
+            }
         }
-
 
         return response()->json(["code" => 200, "redirect" => route("chatbot.dialog.list")]);
 
@@ -274,6 +295,7 @@ class DialogController extends Controller
             $details["parent_id"]          = $dialog->parent_id;
             $details["name"]               = $dialog->name;
             $details["title"]              = $dialog->title;
+            $details["dialog_type"]        = $dialog->dialog_type;
             $details["response_condition"] = !empty($dialog->metadata) ? true : false;
 
             $matchCondition = explode(" ", $dialog->match_condition);
@@ -351,8 +373,9 @@ class DialogController extends Controller
     public function restCreate(Request $request)
     {
         $params = [
-            "name"      => "solo_" . time(),
+            "name"      => $request->get("dialog_type", 'node') == "node" ? "solo_" . time() : "solo_project_" . time(),
             "parent_id" => $request->get("parent_id", 0),
+            "dialog_type" => $request->get("dialog_type", 'node')
         ];
 
         $previousNode = $request->get("previous_node", 0);
@@ -363,6 +386,7 @@ class DialogController extends Controller
         }
         $params["response_type"] = "standard";
 
+        //$siblingNode = ChatbotDialog::where("previous_sibling", 0)->first();
         $dialog = ChatbotDialog::create($params);
 
         $currentNode = $request->get("current_node", 0);
@@ -373,6 +397,11 @@ class DialogController extends Controller
                 $current->save();
             }
         }
+
+        /*if($dialog->dialog_type == 'folder' && $siblingNode) {
+            $siblingNode->previous_sibling = $dialog->id;
+            $siblingNode->save();
+        }*/
 
         // update sort order with previous sibling
         //$this->updateSortOrder();
@@ -414,6 +443,10 @@ class DialogController extends Controller
 
         $allSuggestedOptions = $keywords + $question;
 
+        foreach ($chatDialog as $k => $dialogNode) {         
+            $childNodeCount = ChatbotDialog::where("parent_id", $dialogNode["id"])->get(); 
+            $chatDialog[$k]["childCount"] =  count($childNodeCount );
+        }
         $data = [
             "chatDialog"          => $chatDialog,
             "allSuggestedOptions" => $allSuggestedOptions,
@@ -426,6 +459,13 @@ class DialogController extends Controller
     {
         $chatbotDialog = ChatbotDialog::find($id);
         if (!empty($chatbotDialog)) {
+
+            // check if it has any parent 
+            $hasChild = ChatbotDialog::where("parent_id",$id)->first();
+            if($hasChild) {
+                return response()->json(["code" => 500 , "error" => "Parent node can not delete before child : {$hasChild->name}"]);
+            }
+
             // delete old values and send new again start
             $responseCondition = $chatbotDialog->parentResponse()->where("response_type", "response_condition")->get();
             if (!$responseCondition->isEmpty()) {
@@ -474,5 +514,11 @@ class DialogController extends Controller
 
         return response()->json(["incomplete_results" => false, "items"=> $allDialogList, "total_count" => count($allDialogList)]);
 
+    }
+
+    public function log(Request $request)
+    {
+        $log = WatsonManager::getLog();
+        return view('chatbot::dialog.log', compact('log'));
     }
 }

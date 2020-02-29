@@ -44,11 +44,38 @@ class KeywordController extends Controller
         ]);
 
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "error" => []]);
+            $errors = human_error_array($validator->messages()->get('*'));
+            return response()->json(["code" => 500, "error" => $errors]);
         }
 
         $chatbotKeyword = ChatbotKeyword::create($params);
-        WatsonManager::pushKeyword($chatbotKeyword->id);
+
+        if ( $params["value"] != NULL) {
+            $params["chatbot_keyword_id"] = $chatbotKeyword->id;
+            $chatbotKeywordValue = new ChatbotKeywordValue;
+            $chatbotKeywordValue->fill($params);
+            $chatbotKeywordValue->save();
+            
+            $valueType = [];
+            $valueType["chatbot_keyword_value_id"] =  $chatbotKeywordValue->id;
+            if(!empty($params["type"])) {
+                foreach ($params["type"] as $value) {
+                    if($value != NULL) {
+                        $valueType["type"] = $value;
+                        $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
+                        $chatbotKeywordValueTypes->fill($valueType);
+                        $chatbotKeywordValueTypes->save();
+                    }
+                }
+            }
+        }
+
+        $result         = json_decode(WatsonManager::pushKeyword($chatbotKeyword->id));
+
+        if (property_exists($result, 'error')) {
+            ChatbotKeyword::where("id", $chatbotKeyword->id)->delete();
+            return response()->json(["code" => $result->code, "error" => $result->error]);
+        }
 
         return response()->json(["code" => 200, "data" => $chatbotKeyword, "redirect" => route("chatbot.keyword.edit", [$chatbotKeyword->id])]);
     }

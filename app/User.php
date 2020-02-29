@@ -10,6 +10,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
 use Cache;
 use App\UserLog;
+use DB;
 use Redirect;
 
 
@@ -85,7 +86,6 @@ class User extends Authenticatable
     public function manualCropProducts()
     {
         return $this->belongsToMany(Product::class, 'user_manual_crop', 'user_id', 'product_id');
-
     }
 
     public function customers()
@@ -111,13 +111,11 @@ class User extends Authenticatable
     public function attributeRejected()
     {
         return $this->hasMany(ListingHistory::class)->where('action', 'LISTING_REJECTED');
-
     }
 
     public function cropSequenced()
     {
         return $this->hasMany(ListingHistory::class)->where('action', 'CROP_SEQUENCED');
-
     }
 
     public function whatsappAll()
@@ -163,12 +161,12 @@ class User extends Authenticatable
      */
     public function hasPermission($name)
     {
-        if($name == '/'){
+        if ($name == '/') {
             $genUrl = 'mastercontrol';
             header("Location: /development/list/devtask");
-        }else{
+        } else {
             $url = explode('/', $name);
-            $model = $url[ 0 ];
+            $model = $url[0];
             $actions = end($url);
             if ($model != '') {
                 if ($model == $actions) {
@@ -180,11 +178,15 @@ class User extends Authenticatable
                 return true;
             }
         }
-        
+
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
-            echo 'unauthorized route doesnt not exist - ' . $genUrl;
+            echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
+            $per = new Permission;
+            $per->name = $genUrl;
+            $per->route = $genUrl;
+            $per->save();
             die();
             return false;
         }
@@ -257,7 +259,6 @@ class User extends Authenticatable
             }
         }
         return false;
-
     }
 
     public function user_logs()
@@ -337,8 +338,8 @@ class User extends Authenticatable
         }
 
         $splitName = explode(' ', $this->name);
-        if (mb_strlen($splitName[ 0 ]) <= $chars) {
-            return $splitName[ 0 ];
+        if (mb_strlen($splitName[0]) <= $chars) {
+            return $splitName[0];
         }
 
         return '';
@@ -346,11 +347,19 @@ class User extends Authenticatable
 
     public static function getNameById($id)
     {
-       $q  = self::where("id",$id)->first();
-       return ($q) ? $q->name : "";
+        $q  = self::where("id", $id)->first();
+        return ($q) ? $q->name : "";
     }
 
+    public function currentRate()
+    {
 
 
-
+        return $this->hasOne(
+            'App\UserRate',
+            'user_id',
+            'id'
+        )
+            ->latest();
+    }
 }

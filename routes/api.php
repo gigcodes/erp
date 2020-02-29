@@ -84,6 +84,10 @@ Route::post('{username}/{password}/get-comments', 'InstagramPostsController@getC
 Route::post('{username}/{password}/send-comment', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
+//Giving All Brands with Reference
+Route::get('brands','BrandController@brandReference');
+
+
 // SUPPLIERS
 Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 
@@ -93,7 +97,7 @@ Route::post('google/search-results', 'GoogleSearchController@apiPost');
 
 //Wetransfer
 Route::get('wetransfer', 'WeTransferController@getLink');
-Route::get('wetransfer-file-store', 'WeTransferController@getLink');
+Route::post('wetransfer-file-store', 'WeTransferController@storeFile');
 
 //Google affiliate search
 Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');

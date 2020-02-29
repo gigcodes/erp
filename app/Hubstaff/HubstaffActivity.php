@@ -11,8 +11,40 @@ class HubstaffActivity extends Model
         'user_id',
         'task_id',
         'starts_at',
-        'tracked'
+        'tracked',
+        'keyboard',
+        'mouse',
+        'overall',
+        'hubstaff_payment_account_id'
     ];
 
-        
+    public static function getActivitiesForWeek($week, $year)
+    {
+        $result = getStartAndEndDate($week, $year);
+        $start = $result['week_start'];
+        $end = $result['week_end'];
+
+        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+            ->where('starts_at', '>=', $start)
+            ->where('starts_at', '<', $end)
+            ->select(['hubstaff_activities.*', 'hubstaff_members.user_id as system_user_id'])
+            ->get();
+    }
+
+    /**
+     * get the activities between start (inclusive)
+     */
+    public static function getActivitiesBetween($start, $end)
+    {
+        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+            ->where('starts_at', '>=', $start)
+            ->where('starts_at', '<', $end)
+            ->select(['hubstaff_activities.*', 'hubstaff_members.user_id as system_user_id'])
+            ->get();
+    }
+
+    public static function getFirstUnaccounted()
+    {
+        return self::whereNull('hubstaff_payment_account_id')->orderBy('starts_at')->first();
+    }
 }

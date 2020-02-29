@@ -78,7 +78,7 @@
                       </div>
 
                       <div class="form-group mr-3" style="padding-top: 10px">
-                        <select class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                        <select style="width: 250px !important;" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
                           <optgroup label="Brands">
                             @foreach ($scrapedBrands as $key => $value)
                               @if(!in_array($value, $selectedBrands))
@@ -170,6 +170,29 @@
                   @if ($supplier->has_error == 1)
                     <span class="text-danger">!!!</span>
                   @endif
+
+                  <p>
+                    <div class="form-group">
+                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                            <option value="">-No Selected-</option>
+                            @foreach($whatsappConfigs as $whatsappConfig)
+                                @if($whatsappConfig->number != "0")
+                                    <option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
+                                @endif
+                            @endforeach
+                        </select>
+                    </div>
+                </p>
+                <p>
+                  <div class="form-group">
+                      <select name="autoTranslate" data-id="{{ $supplier->id }}" class="form-control input-sm mb-3 autoTranslate">
+                          <option value="">Translations Languages</option>
+                          <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
+                          <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
+                          <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
+                      </select>
+                  </div>
+                </p>
                 </span>
                 <br>
               </td>
@@ -958,6 +981,44 @@
               }
           });
       });
+
+      $(document).on('change', '.change-whatsapp-no', function () {
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "{{ route('supplier.change.whatsapp') }}",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : $this.data("supplier-id"),
+                    number: $this.val()
+                }
+            }).done(function () {
+                alert('Number updated successfully!');
+            }).fail(function (response) {
+               alert('Please check entry for supplier');
+            });
+        });
+
+      $(document).on('change', '.autoTranslate', function () {
+            var $this = $(this);
+            var supplier_id = $this.data("id");
+            var language = $this.val();
+            $.ajax({
+                type: "PUT",
+                url: "/supplier/language-translate/"+supplier_id,
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id : supplier_id,
+                    language: language
+                }
+            }).done(function () {
+                alert('Language updated successfully!');
+            }).fail(function (response) {
+               alert('Please check entry for supplier');
+            });
+        });
+
+
     
   </script>
 @endsection

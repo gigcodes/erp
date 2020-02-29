@@ -1098,6 +1098,22 @@ class CustomerController extends Controller
         return response()->json(['is_flagged' => $customer->is_flagged]);
     }
 
+    public function addInWhatsappList(Request $request)
+    {
+        $customer = Customer::find($request->customer_id);
+
+        if ($customer->in_w_list == 0) {
+            $customer->in_w_list = 1;
+        } else {
+            $customer->in_w_list = 0;
+        }
+
+        $customer->save();
+
+        return response()->json(['in_w_list' => $customer->in_w_list]);
+    }
+    
+
     public function prioritize(Request $request)
     {
         $customer = Customer::find($request->customer_id);
@@ -1628,8 +1644,10 @@ class CustomerController extends Controller
     public function updateReminder(Request $request)
     {
         $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency = $request->get('frequency');
-        $customer->reminder_message = $request->get('message');
+        $customer->frequency            = $request->get('frequency');
+        $customer->reminder_message     = $request->get('message');
+        $customer->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $customer->reminder_last_reply  = $request->get('reminder_last_reply',0);
         $customer->save();
 
         return response()->json([
@@ -1844,21 +1862,27 @@ class CustomerController extends Controller
 
         if ($request->supplier[ 0 ] != null) {
             if ($request->brand[ 0 ] != null || ($request->category[ 0 ] != 1 && $request->category[ 0 ] != null) || $request->size[ 0 ] != null) {
-                $products = $products->whereHas('suppliers', function ($query) use ($request) {
+                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
+                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+                $products = $products->groupBy("products.id");
+                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
                     return $query->where(function ($q) use ($request) {
                         foreach ($request->supplier as $supplier) {
                             $q->orWhere('suppliers.id', $supplier);
                         }
                     });
-                });
+                });*/
             } else {
-                $products = Product::whereHas('suppliers', function ($query) use ($request) {
+                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
+                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+                $products = $products->groupBy("products.id");
+                /*$products = Product::whereHas('suppliers', function ($query) use ($request) {
                     return $query->where(function ($q) use ($request) {
                         foreach ($request->supplier as $supplier) {
                             $q->orWhere('suppliers.id', $supplier);
                         }
                     });
-                });
+                });*/
             }
 
             $params[ 'supplier' ] = json_encode($request->supplier);
@@ -1872,7 +1896,7 @@ class CustomerController extends Controller
 
         $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
 
-        $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
+        $products = $products->where('category', '!=', 1)->select(["products.*"])->latest()->take($request->number)->get();
 
         if ($customer->suggestion) {
             $suggestion = Suggestion::find($customer->suggestion->id);
@@ -1895,9 +1919,12 @@ class CustomerController extends Controller
 
             foreach ($products as $product) {
                 if (!$product->suggestions->contains($suggestion->id)) {
-                    if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+                    if ($image = $product->getMedia(config('constants.attach_image_tag'))->first()) {
                         if ($count == 0) {
+                            $params["status"] = ChatMessage::CHAT_SUGGESTED_IMAGES; 
                             $chat_message = ChatMessage::create($params);
+                            $suggestion->chat_message_id = $chat_message->id;
+                            $suggestion->save();
                         }
 
                         $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
@@ -1907,6 +1934,10 @@ class CustomerController extends Controller
                     $product->suggestions()->attach($suggestion->id);
                 }
             }
+        }
+
+        if($request->ajax()) {
+            return response()->json(["code" => 200, "data" => [], "message" => "Your records has been update successfully"]);
         }
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
@@ -2516,5 +2547,18 @@ class CustomerController extends Controller
         }
     }
 
+    public function languageTranslate(Request $request) 
+    {
+      $customer = Customer::find($request->id);
+      $customer->language = $request->language;
+      $customer->save();
+      return response()->json(['success' => 'Customer language updated'], 200);
+    }
+
+    public function getLanguage(Request $request)
+    {
+        $customerDetails = Customer::find($request->id);
+        return  response()->json(["data" => $customerDetails]);
+    }
 
 }

@@ -186,4 +186,27 @@ class BrandController extends Controller
 
         return $result;
     }
+
+    public function brandReference()
+    {
+        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
+        foreach ($brands as $brand) {
+            $referenceArray[] = $brand->name;
+            if(!empty($brand->references)){
+                $references = explode(';', $brand->references);
+                if(is_array($references)){
+                    foreach($references as $reference){
+                        if($reference != null && $reference != ''){
+                         $referenceArray[] = $reference;
+                        }
+                    }
+                }
+                
+            }
+        }
+
+        
+       return json_encode($referenceArray);
+
+    }
 }

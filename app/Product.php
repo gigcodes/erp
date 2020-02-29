@@ -34,7 +34,8 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'is_barcode_check',
-        'has_mediables'
+        'has_mediables',
+        'size_eu'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
@@ -51,6 +52,14 @@ class Product extends Model
                 $flag = 1;
             }
             \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+        });
+
+        static::updating(function ($product) {
+            $oldCatID = $product->category;
+            $newCatID = $product->getOriginal('category');
+            if($oldCatID != $newCatID) {
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+            }
         });
 
         static::created(function ($model) {
@@ -71,7 +80,7 @@ class Product extends Model
     public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
         // Log before validating
-        LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
+        //LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
 
         // Check for required values
         if (
@@ -249,7 +258,7 @@ class Product extends Model
                 ];
 
                 // Log scrap activity
-                ScrapActivity::create($params);
+                //ScrapActivity::create($params);
 
                 // Return
                 //returning 1 for Product Updated
@@ -605,10 +614,19 @@ class Product extends Model
                     } catch (\Exception $e) {
                         // if images are null
                         $jpg = null;
+                        // need to define error update
+                        if($scrapedProduct && is_object($scrapedProduct)) {
+                            $lastScraper = ScrapedProducts::where("sku", $this->sku)->latest()->first();
+                            if($lastScraper) {
+                                $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] One or more images has an invalid URL : ".$image.PHP_EOL;
+                                $lastScraper->save();
+                            }
+                        }
+
                     }
                     if ($jpg != null) {
                         $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                        $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
                         $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
@@ -721,6 +739,38 @@ class Product extends Model
           
             return true;
         }      
+    }
+
+
+    public function websiteProducts()
+    {
+        return $this->hasMany("App\WebsiteProduct","product_id","id");
+    }
+
+    
+    public function publishedOn()
+    {
+        return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
+
+
+    }
+
+    /**
+     * get product images from watson
+     * 
+     */
+
+    public static function attachProductChat($brands = [], $category = [], $existeProducts = [])
+    {
+        return \App\Product::whereIn("brand", $brands)->whereIn("category", $category)
+                ->whereNotIn("id", $existeProducts)
+                ->join("mediables as m",function($q){
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
+                })
+                ->where("stock",">",0)
+                ->orderBy("created_at", "desc")
+                ->limit(\App\Library\Watson\Action\SendProductImages::SENDING_LIMIT)
+                ->get();
     }
 
 }

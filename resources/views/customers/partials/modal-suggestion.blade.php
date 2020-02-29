@@ -5,7 +5,7 @@
     <div class="modal-content">
       <form action="{{ route('customer.send.suggestion') }}" method="POST">
         @csrf
-        <input type="hidden" name="customer_id" value="{{ $customer->id }}">
+        <input type="hidden" name="customer_id" value="{{ isset($customer) ? $customer->id : 0 }}">
 
         <div class="modal-header">
           <h4 class="modal-title">Send Suggestion</h4>
@@ -88,7 +88,7 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary">Send Suggestion</button>
+          <button type="submit" class="btn btn-secondary submit-suggestion-modal">Send Suggestion</button>
         </div>
       </form>
     </div>

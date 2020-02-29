@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers\Github;
 
+use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\Helpers\githubTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use Artisan;
 use Carbon\Carbon;
 use DateTime;
 use Exception;
@@ -12,10 +15,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Input;
-use Twilio\TwiML\Messaging\Body;
 
 class RepositoryController extends Controller
 {
+
+    use githubTrait;
+
     private $client;
 
     function __construct()
@@ -70,10 +75,10 @@ class RepositoryController extends Controller
         $repository = GithubRepository::find($repositoryId);
         $branches = $repository->branches;
 
-        $currentBranch = exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/get_current_deployment.sh');
-        
-       //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
-        
+        $currentBranch = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/get_current_deployment.sh');
+
+        //exec('sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh master');
+
         //exit;
         return view('github.repository_settings', [
             'repository' => $repository,
@@ -81,9 +86,44 @@ class RepositoryController extends Controller
             'current_branch' => $currentBranch
         ]);
 
-
-
         //print_r($repository);
+    }
+
+    public function deployBranch($repoId)
+    {
+        $repository = GithubRepository::find($repoId);
+
+        $branch = Input::get('branch');
+        //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+        $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+
+        $allOutput = array();
+        $allOutput[] = $cmd;
+        $result = exec($cmd, $allOutput);
+        return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
+            'message' => print_r($allOutput, true),
+            'alert-type' => 'success'
+        ]);
+    }
+
+    private function updateBranchState($repoId, $branchName){
+        $comparison = $this->compareRepoBranches($repoId, $branchName);
+
+        GithubBranchState::updateOrCreate(
+            [
+                'repository_id' => $repoId,
+                'branch_name'   => $branchName,
+            ],
+            [
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
+                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                'last_commit_time'            => $comparison['last_commit_time'],
+            ]
+        );
     }
 
     public function mergeBranch($id)
@@ -105,6 +145,12 @@ class RepositoryController extends Controller
                 ]
             );
             echo 'done';
+            //Artisan::call('github:load_branch_state');
+            if($source == 'master'){
+                $this->updateBranchState($id, $destination);
+            }else if($destination == 'master'){
+                $this->updateBranchState($id, $source);
+            }
         } catch (Exception $e) {
             print_r($e->getMessage());
             return redirect(url('/github/repos/' . $id . '/branches'))->with(
@@ -113,11 +159,98 @@ class RepositoryController extends Controller
                     'alert-type' => 'error'
                 ]
             );
-            
         }
         return redirect(url('/github/repos/' . $id . '/branches'))->with([
             'message' => 'Branch merged successfully',
             'alert-type' => 'success'
         ]);
+    }
+
+    private function getPullRequests($repoId)
+    {
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        $response = $this->client->get($url);
+
+        $decodedJson = json_decode($response->getBody()->getContents());
+
+        $pullRequests = array();
+        foreach ($decodedJson as $pullRequest) {
+            $pullRequests[] = array(
+                'id' => $pullRequest->number,
+                'title' => $pullRequest->title,
+                'number' => $pullRequest->number,
+                'username' => $pullRequest->user->login,
+                'userId' => $pullRequest->user->id,
+                'updated_at' => $pullRequest->updated_at,
+                'source' => $pullRequest->head->ref,
+                'destination' => $pullRequest->base->ref
+            );
+        }
+
+        return $pullRequests;
+    }
+
+    public function listPullRequests($repoId)
+    {
+
+        $repository = GithubRepository::find($repoId);
+
+        $pullRequests = $this->getPullRequests($repoId);
+
+        $branchNames = array_map(
+            function ($pullRequest) {
+                return $pullRequest['source'];
+            },
+            $pullRequests
+        );
+
+        $branchStates = GithubBranchState::whereIn('branch_name', $branchNames)->get();
+
+        foreach ($pullRequests as $pullRequest) {
+            $pullRequest['branchState'] = $branchStates->first(
+                function ($value, $key) use ($pullRequest) {
+                    return $value->branch_name == $pullRequest['source'];
+                }
+            );
+        }
+
+        return view('github.repository_pull_requests', [
+            'pullRequests' => $pullRequests,
+            'repository' => $repository
+        ]);
+    }
+
+    public function listAllPullRequests()
+    {
+        $repositories = GithubRepository::all(['id', 'name']);
+
+        $allPullRequests = [];
+        foreach ($repositories as $repository) {
+            $pullRequests = $this->getPullRequests($repository->id);
+
+            $pullRequests = array_map(
+                function($pullRequest) use($repository){
+                    $pullRequest['repository'] = $repository;
+                    return $pullRequest;    
+                },
+                $pullRequests
+            );
+
+            $allPullRequests = array_merge($allPullRequests, $pullRequests);
+        }
+
+        //echo print_r($allPullRequests, true);
+
+        //exit;
+        return view(
+            'github.all_pull_requests',
+            [
+                'pullRequests' =>  $allPullRequests
+            ]
+        );
+    }
+
+    function deployNodeScrapers(){
+        return $this->getRepositoryDetails(231924853);
     }
 }

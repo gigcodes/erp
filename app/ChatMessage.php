@@ -11,13 +11,18 @@ class ChatMessage extends Model
     CONST MESSAGE_STATUS = [
         "11" =>  "Watson Reply",
         "5"  =>  "Read",
-        "0"  =>  "Unread"
+        "0"  =>  "Unread",
+        "12" =>  "Suggested Images"
     ];
 
     // auto reply including chatbot as well
     CONST AUTO_REPLY_CHAT  = [
         7,8,9,10,11
     ];
+
+    CONST CHAT_AUTO_BROADCAST = 8;
+    CONST CHAT_AUTO_WATSON_REPLY = 11;
+    CONST CHAT_SUGGESTED_IMAGES = 12;
 
     use Mediable;
 
@@ -219,6 +224,51 @@ class ChatMessage extends Model
         }
 
         return $name; 
+    }
+
+    public static function pendingQueueGroupList($params = [])
+    {
+        return self::where($params)->where("group_id",">",0)
+        ->pluck("group_id","group_id")
+        ->toArray();
+    }
+
+    public static function getQueueLimit()
+    {
+        $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();
+        
+        return ($limit) ? json_decode($limit->val,true) : [];
+    }
+
+    public static function getStartTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_send_start_time")->first();
+        
+        return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getEndTime()
+    {
+        $limit  = \App\Setting::where("name","is_queue_send_end_time")->first();
+        
+        return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getSupplierForwardTo()
+    {
+        $no  = \App\Setting::where("name","supplier_forward_message_no")->first();
+        
+        return ($no) ? $no->val : 0;
+    }
+
+    public function chatBotReply()
+    {
+        return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
+
+    public function suggestion()
+    {
+        return $this->hasOne("App\Suggestion","chat_message_id","id");
     }
 
 }

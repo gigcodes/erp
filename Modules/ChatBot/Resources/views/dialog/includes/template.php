@@ -52,6 +52,38 @@
 	</li>
 </script>
 
+<script id="dialog-folder-leaf" type="text/x-jsrender">
+	<li id="folder-leaf-node" class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
+	  <div class="node-container node--selected-sibling">
+	     <div id="{{:data.name}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}" class="node">
+	        <div class="node__expander">
+	           <button id="node-expander-{{:data.name}}" type="button">
+			     <svg fill="#000000" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" width="24px" height="24px">    <path d="M22,6H12l-2-2H2v16h20V6z"/></svg>
+	           </button>
+	        </div>
+	        <div class="node__contents">
+	           <div class="node__summary">
+	              <div class="node__text">{{:data.name}} [{{:data.id}}]</div>
+	              <div class="node__subtext">{{:data.match_condition}}</div>
+	           </div>
+	           <div dir="ltr" class="node__subtext"><span>{{:data.childCount}} Dialog notes</span></div>
+	        </div>
+	        <div class="node__menu">
+	           <div role="button" data-has-pop=false class="bx--overflow-menu" id="node__options-menu-{{:data.name}}" tabindex="0">
+	              <svg class="bx--overflow-menu__icon" fill-rule="evenodd" height="15" role="img" viewBox="0 0 3 15" width="3" focusable="false" aria-label="Node options" alt="Node options">
+	                 <title>Node options</title>
+	                 <path d="M0 1.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 7.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0M0 13.5a1.5 1.5 0 1 1 3 0 1.5 1.5 0 1 1-3 0"></path>
+	              </svg>
+	           </div>
+	        </div>
+	     </div>
+	     <ul class="node-children">
+	     	
+	     </ul>
+	  </div>
+	</li>
+</script>
+
 <script id="multiple-response-condition" type="text/x-jsrender">
 	<div class="form-row">
 		<div class="form-group col-md-3">
@@ -323,59 +355,61 @@
 					  	</div>
 					</div>
 				{{/props}}
-			</div>	
-			<hr>
-				<h4>Assistant responds</h4>
-			<hr>
-			<div class="form-row">
-				<div class="col-md-9">
-			  		<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
-			  		<small class="form-text text-muted">Multiple conditioned responses</small>
-			  	</div>
-			</div>	
-			<div class="assistant-response-based">
-				{{if data.assistant_report && data.assistant_report.length}}
-					{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
-						<div class="form-row">
-							{{if prop.condition != ''}}
-								<div class="form-group col-md-3">
-							      <select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
-									{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
-							      		<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
-							      	{{/props}}
-							      </select>
-							      <small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
-							  	</div>
-						  	{{/if}}
-						  	<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
-						      <select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
-								 <option value="">Any</option>
-								 <option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
-								 <option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
-								 <option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
-								 <option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
-						      </select>
-						  	</div>
-						  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
-						     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
-						  	</div>
-						  	<div class="form-group col-md-9">
-						      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
-						  	</div>
-						  	<div class="form-group col-md-3">
-						  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
-						  		<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
-						  	</div>	
-						</div>
-					{{/props}}
-				{{else}}
-					<div class="form-row">
-						<div class="form-group col-md-9">
-					      <input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
-					    </div>
-					</div>
-				{{/if}}
 			</div>
+			{{if data.dialog_type != "folder"}}	
+				<hr>
+					<h4>Assistant responds</h4>
+				<hr>
+				<div class="form-row">
+					<div class="col-md-9">
+						<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
+						<small class="form-text text-muted">Multiple conditioned responses</small>
+					</div>
+				</div>	
+				<div class="assistant-response-based">
+					{{if data.assistant_report && data.assistant_report.length}}
+						{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
+							<div class="form-row">
+								{{if prop.condition != ''}}
+									<div class="form-group col-md-3">
+									<select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
+										{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
+											<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
+										{{/props}}
+									</select>
+									<small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
+									</div>
+								{{/if}}
+								<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+								<select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
+									<option value="">Any</option>
+									<option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
+									<option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
+									<option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
+									<option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
+								</select>
+								</div>
+								<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+									<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+								</div>
+								<div class="form-group col-md-9">
+									<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+								</div>
+								<div class="form-group col-md-3">
+									<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
+									<button type="button" class="btn btn-image btn-add-mul-response"><img src="/images/add.png"></button>
+								</div>	
+							</div>
+						{{/props}}
+					{{else}}
+						<div class="form-row">
+							<div class="form-group col-md-9">
+							<input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+							</div>
+						</div>
+					{{/if}}
+				</div>
+			{{/if}}
 			{{if data.create_type == "intents_create"}}
 				<hr>
 					<h4>Dialog Location</h4>

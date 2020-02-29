@@ -174,7 +174,7 @@
         </div>
     </div>
 
-
+   
     @include('partials.flash_messages')
 
     {!! $products->appends(Request::except('page'))->links() !!}
@@ -204,8 +204,7 @@
         </div>
       </div>
     @endif
-
-    <div class="productGrid" id="productGrid">
+    <div class="productGrid " id="productGrid">
 
     </div>
 
@@ -285,9 +284,10 @@
 
       </div>
     </div>
-
+  
 	<?php $stage = new \App\Stage(); ?>
-
+  @include('partials.modals.category')
+  @include('partials.modals.color')
 @endsection
 
 @section('scripts')
@@ -369,6 +369,22 @@
               @foreach ($products as $product)
       <?php
       $r = explode( ' ', $product->created_at );
+      $referencesCategory = "";
+      $referencesColor = "";
+      if(isset($product->scraped_products)){
+        // starting to see that howmany category we going to update
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+            $category = $product->scraped_products->properties['category'];
+            if(is_array($category)) {
+                $referencesCategory = implode(' > ',$category);
+            }
+
+        }
+
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+            $referencesColor = $product->scraped_products->properties['color'];
+        }
+      }  
 
       switch ( $roletype ) {
         case 'Selection':
@@ -405,10 +421,10 @@
               'sku': '{{ strlen($product->sku) > 18 ? substr($product->sku, 0, 15) . '...' : $product->sku }}',
               'id': '{{ $product->id }}',
               'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
-              'price': '{{ $product->price_special }}',
+              'price': '{{ $product->price_inr_special }}',
               'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
-              'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+              'image': '{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                          }}',
               'created_at': '{{ $r[0]  }}',
@@ -417,7 +433,11 @@
               'stage': '{{ $stage->getNameById( $product->stage )}}',
               'is_scraped': {{ $product->is_scraped ?? 0 }},
               'is_imported': {{ $product->status == 2 ? 1 : 0 }},
+              'category' : "{{ $product->category }}",
               'supplier' : "{{ $product->supplier }}",
+              'color' : "{{ ucfirst($product->color) != null ? ucfirst($product->color) : 'Select Color' }}",
+              'reference_category' : "{{ $referencesCategory }}",
+              'reference_color' : "{{ $referencesColor }}",
               @php
                 $supplier_list = '';
               @endphp
@@ -451,7 +471,7 @@
                 var is_imported = product['is_imported'] == 1 ? '<p><span class="badge">Imported</span></p>' : '';
 
                   html += `
-                      <div class="col-md-3 col-xs-6 text-center mb-5">
+                      <div class="col-md-3 col-xs-6 text-left mb-5">
                       <a href="` + product['link'] + `">
                           <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
                                           <p>Sku : ` + product['sku'] + `</p>
@@ -460,7 +480,21 @@
                                           <p>Price : ` + product['price'] + `</p>
                                           <!--<p>Brand : ` + product['brand'] + `</p>-->
                                           <p>Status : ` + product['stage'] + `</p>
+                                          <p>Color : ` + product['color'] + `</p>
+                                          @if($roletype == 'Inventory')  
+                                          </a>
+                                          <p>Ref. Category : ` + product['reference_category'] + ` </p>
+                                          <p>Category : <select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
+                                          <p>Ref. Color : ` + product['reference_color'] + ` </p>
+                                          <p>Color : <select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
+                                            <option>Select Color</option
+                                            @foreach($sampleColors as $color)
+                                            <option value="{{ $color['erp_color'] }}">{{ $color['erp_color'] }}</option>
+                                            @endforeach
+                                            </select></p>
 
+                                          <a href="` + product['link'] + `">
+                                          @endif
                                           <p>Supplier : ` + product['supplier'] + `</p>
                                           <p>Suppliers : ` + product['suppliers'] + `</p>
                                           ` + is_scraped + is_imported + `
@@ -484,10 +518,25 @@
                                           @endif
                       </div>
                   `;
+                  
+          
               });
 
               jQuery('#productGrid').append(html + '</div>');
+              $(".select-multiple2").select2();
+          
+              groupedByTime[key].forEach(function (product) {
+                  if($("#category_"+product['id']).length > 0) {
+                    $("#category_"+product['id']).val(product['category']);
+                  }
+                  if($("#color_"+product['id']).length > 0) {
+                    $("#color_"+product['id']).val(product['color']);
+                  }
+                   
+              });
           });
+
+
 
           // $('#product-search').on('keyup', function() {
           //   alert('t');
@@ -527,6 +576,189 @@
               });
           });
       });
+      
+      $("select.select-multiple-cat-list:not(.select2-hidden-accessible)").select2();
 
+      $(document).on('change', '.update-product', function () {    
+            product_id = $(this).attr('data-id');
+            category = $(this).find('option:selected').text();
+            category_id = $(this).val();
+            //Getting Scrapped Category
+            $.ajax({
+                url: '/products/'+product_id+'/originalCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
+                    if(result[0] == 'success'){
+                        $('#old_category').text(result[1]);
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                        if(typeof result[2] != "undefined") {
+                            $("#no_of_product_will_affect").html(result[2]);
+                        }
+                    }else{
+                        $('#old_category').text('No Scraped Product Present');
+                        $('#changed_category').text(category);
+                        $('#product_id').val(product_id);
+                        $('#category_id').val(category_id);
+                        $("#no_of_product_will_affect").html(0);
+                    }
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
+                    $('#old_category').text('No Scraped Product Present');
+                    $('#changed_category').text(category);
+                    $('#product_id').val(product_id);
+                    $('#category_id').val(category_id);
+                    $("#no_of_product_will_affect").html(0);
+                }
+            });
+
+            
+            //$('#categoryUpdate').modal('show');
+            
+        });
+
+
+      function changeSelected(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/updateCategory',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                              $("#loading-image").hide();
+                          },
+                });
+        
+        }
+
+        function changeAll(){
+            product_id = $('#product_id').val();
+            category = $('#category_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/changeCategorySupplier',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    category : category
+                },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                          },
+                success: function(result){
+                     $("#loading-image").hide();
+             }
+         });
+        }
+
+
+        function changeSelectedColor(){
+            product_id = $('#product_id').val();
+            color = $('#color_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/updateColor',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    color : color
+                },
+                beforeSend: function () {
+                              $('#categoryUpdate').modal('hide');  
+                              $("#loading-image").show();
+                              $("#loading-image").hide();
+                          },
+                });
+        
+        }
+
+
+        function changeAllColors(){
+            product_id = $('#product_id').val();
+            color = $('#color_id').val();
+            $.ajax({
+                url: '/products/'+product_id+'/changeColorSupplier',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    color : color
+                },
+                beforeSend: function () {
+                              $('#colorUpdate').modal('hide');  
+                              $("#loading-image").show();
+                          },
+                success: function(result){
+                     $("#loading-image").hide();
+             }
+         });
+        } 
+
+
+     $(document).on('change', '.update-color', function () {    
+            product_id = $(this).attr('data-id');
+            color = $(this).find('option:selected').text();
+            color_id = $(this).val();
+            //Getting Scrapped Category
+            $.ajax({
+                url: '/products/'+product_id+'/originalColor',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                    $('#colorUpdate').modal('show');
+                    if(result[0] == 'success'){
+                        $('#old_color').text(result[1]);
+                        $('#changed_color').text(color);
+                        $('#product_id').val(product_id);
+                        $('#color_id').val(color_id);
+                        if(typeof result[2] != "undefined") {
+                            $("#no_of_product_will_affect_color").html(result[2]);
+                        }
+                    }else{
+                        $('#old_color').text('No Scraped Product Present');
+                        $('#changed_color').text(color);
+                        $('#product_id').val(product_id);
+                        $('#color_id').val(color_id);
+                        $("#no_of_product_will_affect_color").html(0);
+                    }
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                    $('#colorUpdate').modal('show');
+                    $('#old_color').text('No Scraped Product Present');
+                    $('#changed_color').text(color);
+                    $('#product_id').val(product_id);
+                    $('#color_id').val(color_id);
+                    $("#no_of_product_will_affect_color").html(0);
+                }
+            });
+        });
   </script>
 @endsection

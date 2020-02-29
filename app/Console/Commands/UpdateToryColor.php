@@ -2,11 +2,11 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
-use App\ScrapedProducts;
-use App\Brand;
 use App\CronJobReport;
 use App\Product;
+use App\ScrapedProducts;
+use Carbon\Carbon;
+use Illuminate\Console\Command;
 
 class UpdateToryColor extends Command
 {
@@ -33,7 +33,7 @@ class UpdateToryColor extends Command
      */
     public function __construct()
     {
-      parent::__construct();
+        parent::__construct();
     }
 
     /**
@@ -43,24 +43,28 @@ class UpdateToryColor extends Command
      */
     public function handle()
     {
-        $report = CronJobReport::create([
-        'signature' => $this->signature,
-        'start_time'  => Carbon::now()
-     ]);
+        try {
+            $report = CronJobReport::create([
+                'signature'  => $this->signature,
+                'start_time' => Carbon::now(),
+            ]);
 
-      $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Tory')->get();
+            $products = ScrapedProducts::where('has_sku', 1)->where('website', 'Tory')->get();
 
-      foreach ($products as $product) {
-        if ($old_product = Product::where('sku', $product->sku)->first()) {
-          $properties_array = $product->properties;
+            foreach ($products as $product) {
+                if ($old_product = Product::where('sku', $product->sku)->first()) {
+                    $properties_array = $product->properties;
 
-          if (array_key_exists('color', $properties_array)) {
-            $old_product->color = $properties_array['color'];
-            $old_product->save();
-          }
+                    if (array_key_exists('color', $properties_array)) {
+                        $old_product->color = $properties_array['color'];
+                        $old_product->save();
+                    }
+                }
+            }
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
-      }
-
-       $report->update(['end_time' => Carbon:: now()]);
     }
 }

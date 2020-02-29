@@ -11,6 +11,8 @@ use App\Setting;
 use Validator;
 use Crypt;
 use Response;
+use App\Customer;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class WhatsappConfigController extends Controller
 {
@@ -302,4 +304,191 @@ class WhatsappConfigController extends Controller
             'message' => 'WhatsApp Configs Deleted'
         ));
     }
+
+    public function getBarcode(Request $request){
+
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-barcode';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'No Barcode Available'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+           $content = base64_decode($barcode->barcode);
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('barcode')->upload();
+        
+            return Response::json(array('success' => true,'media' => $media->getUrl())); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+
+    public function getScreen(Request $request){
+
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/get-screen';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'No Screen Available'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+           $content = base64_decode($barcode->barcode);
+
+            $media = MediaUploader::fromString($content)->toDirectory('/barcode')->useFilename('screen')->upload();
+        
+            return Response::json(array('success' => true,'media' => $media->getUrl())); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+
+    public function deleteChromeData(Request $request)
+    {
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/delete-chrome-data';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $barcode = json_decode($output);
+            
+        if($barcode){
+           
+           if($barcode->barcode == 'Directory Deleted'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+            return Response::json(array('success' => true,'media' => 'Directory Can not be Deleted')); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+
+    public function restartScript(Request $request)
+    {
+        $id = $request->id;
+
+        $whatsappConfig = WhatsappConfig::find($id);
+        
+        $ch = curl_init();
+
+        $url = env('WHATSAPP_BARCODE_IP').':'.$whatsappConfig->username.'/restart-script';
+        
+        // set url
+        curl_setopt($ch, CURLOPT_URL, $url);
+
+        //return the transfer as a string
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+        // $output contains the output string
+        $output = curl_exec($ch);
+
+        // close curl resource to free up system resources
+        curl_close($ch); 
+
+        $response = json_decode($output);
+            
+        if($response){
+           
+           if($response->barcode == 'Process Killed'){
+                return Response::json(array('nobarcode' => true)); 
+           } 
+            return Response::json(array('success' => true,'media' => 'No Process Found')); 
+        }else{
+         
+             return Response::json(array('error' => true)); 
+        }
+    }
+
+
+    public function blockedNumber()
+    {
+        $whatsappNumbers = WhatsappConfig::where('status',2)->get();
+
+
+        foreach ($whatsappNumbers as $whatsappNumber) {
+            
+            $queues = ImQueue::where('number_from',$whatsappNumber->number)->whereNotNull('sent_at')->orderBy('sent_at','desc')->get();
+            
+            //Making DND for last 30 numbers
+            $maxCount = 30;
+            $count = 0;
+            //Making 30 customer numbers to DND
+            foreach ($queues as $queue) {
+                $customer = Customer::where('phone',$queue->number_to)->first();
+                if($count == $maxCount){
+                    break;
+                }
+                if(!empty($customer)){
+                    $customer->do_not_disturb = 1;
+                    $customer->phone = '-'.$customer->phone;
+                    $customer->update();
+                    $count++;
+                }
+            }
+            
+
+
+        }
+
+        return Response::json(array('success' => true,'message' => 'Last 30 Customer disabled')); 
+    }
+    
 }
