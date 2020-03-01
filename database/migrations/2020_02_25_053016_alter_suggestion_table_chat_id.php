@@ -14,7 +14,7 @@ class AlterSuggestionTableChatId extends Migration
     public function up()
     {
         Schema::table('suggestions', function (Blueprint $table) {
-            $table->string('chat_message_id')->nullable()->after('number');
+            $table->integer('chat_message_id')->nullable()->after('number');
         });
     }
 
