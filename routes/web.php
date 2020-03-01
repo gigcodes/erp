@@ -964,7 +964,8 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
-//Hubstaff
+
+Route::group(['middleware' => ['auth']], function () {
 Route::get('hubstaff/members', 'HubstaffController@index');
 Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
@@ -980,7 +981,7 @@ Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
 Route::get('hubstaff/payments', 'UserController@payments');
 Route::post('hubstaff/makePayment', 'UserController@makePayment');
-
+});
 /*
  * @date 1/13/2019
  * @author Rishabh Aryal
