@@ -2118,6 +2118,7 @@ class ProductController extends Controller
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
+            $order_product->product_id = $product->id;
 
             $order_product->save();
 

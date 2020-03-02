@@ -678,7 +678,7 @@ class ProductInventoryController extends Controller
 		$couriers = \App\Courier::all()->pluck("name","name");
 		$order = [];
 		if($product) {
-		   $order = \App\OrderProduct::where("sku",$product->sku)
+		   $order = \App\OrderProduct::where("product_id",$product->id)
 		   ->join("orders as o","o.id","order_products.order_id")
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}

@@ -240,7 +240,7 @@ class PurchaseController extends Controller
             }
         }
 
-        $skuNeed = Db::select("select p.id from order_products as op join products as p on p.sku = op.sku left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
+        $skuNeed = Db::select("select p.id from order_products as op join products as p on p.id = op.product_id left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
         $skuNeed = collect($skuNeed)->pluck("id")->toArray();
 
         $ignoreSku = array_diff($includedPurchases, $skuNeed);
@@ -250,7 +250,7 @@ class PurchaseController extends Controller
             $status = $request->status;
             $status_list = implode("','", $request->status ?? []);
             $orders = OrderProduct::join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku")
+                ->join("products as p", "p.id", "order_products.product_id")
                 ->whereIn("o.order_status", $status)
                 ->where('qty', '>=', 1);
 
@@ -270,7 +270,7 @@ class PurchaseController extends Controller
                 $status_list = implode("','", $request->status);
 
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id")
-                    ->join("products as p", "p.sku", "order_products.sku")
+                    ->join("products as p", "p.id", "order_products.product_id")
                     ->join("product_suppliers as ps", "ps.product_id", "p.id")
                     ->whereIn("o.order_status", $request->status)
                     ->whereIn("ps.supplier_id", $request->supplier)->where('qty', '>=', 1);
@@ -317,7 +317,7 @@ class PurchaseController extends Controller
                     // });
 
                 }
-                $orders = $orders->join("products as p", "p.sku", "order_products.sku")->join("product_suppliers as ps", "ps.product_id", "p.id")->whereIn("ps.supplier_id", $request->supplier)
+                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->join("product_suppliers as ps", "ps.product_id", "p.id")->whereIn("ps.supplier_id", $request->supplier)
                     /*$orders = $orders
                     ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")*/
                     // ->whereHas('Product', function($q) use ($supplier_list) {
@@ -396,7 +396,7 @@ class PurchaseController extends Controller
                     $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
                 }
 
-                $orders = $orders->join("products as p", "p.sku", "order_products.sku")->where('brand', $brand)->where('qty', '>=', 1);
+                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->where('brand', $brand)->where('qty', '>=', 1);
                 if ($customerId > 0) {
                     $orders = $orders->where("o.customer_id", $customerId);
                 }
@@ -409,7 +409,7 @@ class PurchaseController extends Controller
         if (!empty($request->order_id)) {
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
                 ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku");
+                ->join("products as p", "p.id", "order_products.product_id");
             if ($page == 'canceled-refunded') {
                 $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
             } elseif ($page == 'ordered') {
@@ -450,7 +450,7 @@ class PurchaseController extends Controller
 
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
                 ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku");
+                ->join("products as p", "p.id", "order_products.product_id");
             if ($page == 'canceled-refunded') {
                 $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
             } elseif ($page == 'ordered') {
@@ -1180,6 +1180,7 @@ class PurchaseController extends Controller
             $new_order = new OrderProduct;
             $new_order->order_id = $order_product->order_id;
             $new_order->sku = $new_product->sku;
+            $new_order->product_id = $new_product->id;
             $new_order->product_price = $new_product->price_inr_special;
             $new_order->size = $order_product->size;
             $new_order->color = $order_product->color;
