@@ -1546,12 +1546,14 @@ class ProductController extends Controller
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
         $cat = $request->category;
+        $lastcategory = false;
         
         $product = Product::find($id);
         if($product->scraped_products){
             if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
                 $category = $product->scraped_products->properties['category'];
                 $referencesCategory = implode(' ',$category);
+                $lastcategory = end($category);
             }
         }else{
             return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
@@ -1580,9 +1582,13 @@ class ProductController extends Controller
 
             //Add reference to category 
             $category = Category::find($cat);
+            if($lastcategory) {
+                // find the current category and move its
+                $refCat     = explode(",", $category->references);
+                $refCat[]   = $lastcategory;
+                $reference  = implode(",", array_unique($refCat));
 
-            if($product->product_category != null){
-                $reference = $category->references.','.$referencesCategory;
+                // refrences updated
                 $category->references = $reference;
                 $category->save();
             }
