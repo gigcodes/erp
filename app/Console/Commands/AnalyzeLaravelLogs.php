@@ -57,15 +57,25 @@ class AnalyzeLaravelLogs extends Command
         $errorData = array();
 
         $files = Storage::disk('logs')->files();
+
         foreach ($files as $file) {
 
+            $yesterday = strtotime('yesterday');
+            $today = strtotime('today');
+
+            $time = Storage::disk('logs')->lastModified($file);
+
+            if ($yesterday > $time || $time >= $today) {
+                echo 'HERE' . PHP_EOL;
+                continue;
+            }
+
             echo '====== Getting logs from file:' . $file . ' ======' . PHP_EOL;
+
 
             $content = Storage::disk('logs')->get($file);
 
             $matches = [];
-            //preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*' . $escaped . '(\S*):\d*\)(.|\\s)*[stacktrace](.|\\s)*main/U', $content, $matches);
-
             preg_match_all('/\[([0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2})\].*?' . $escaped . '(\S*?):\d*?\)\n.*?(#0.*?)main/s', $content, $matches);
 
             $timestamps = $matches[1];
@@ -80,13 +90,15 @@ class AnalyzeLaravelLogs extends Command
                     'filename' => $filenames[$index],
                     'stacktrace' => $errorStackTrace[$index]
                 );
-
-                echo 'Got error: ';
-                echo print_r($data, true) . PHP_EOL;
-
                 $errorData[] = $data;
             }
         }
+
+        echo '====== Got the following errors: ======'.PHP_EOL;
+        echo print_r($errorData, true) . PHP_EOL;
+
+
+        echo '====== Executing Github commands: ======'.PHP_EOL;
 
         foreach ($errorData as $key => $error) {
             $cmdReponse = [];
@@ -156,36 +168,35 @@ class AnalyzeLaravelLogs extends Command
         );
 
         echo '====== Github User IDs ======' . PHP_EOL;
-        echo print_r($githubUserIds, true).PHP_EOL;
+        echo print_r($githubUserIds, true) . PHP_EOL;
 
 
         $users = GithubUser::whereIn('id', $githubUserIds)->select(['id', 'user_id'])->get();
 
-        echo print_r($users, true).PHP_EOL;
+        echo print_r($users, true) . PHP_EOL;
 
         // create issue for the newly create log
-        foreach($newlyCreatedLogs as $log){
+        foreach ($newlyCreatedLogs as $log) {
 
-            $issue = $log->file.PHP_EOL.PHP_EOL.$log->stacktrce;
-            $subject = 'Exception in '.$log->file;
+            $issue = $log->file . PHP_EOL . PHP_EOL . $log->stacktrce;
+            $subject = 'Exception in ' . $log->file;
 
-            $user = $users->first(function ($value, $key) use ($log){
+            $user = $users->first(function ($value, $key) use ($log) {
                 return $value->id == $log->githubUserId;
             });
 
             $user_id = 0;
-            if($user){
+            if ($user) {
                 $user_id = $user->user_id;
             }
 
             Issue::create([
-                'user_id' => $user_id, 
-                'issue' => $issue, 
-                'priority' => 0, 
-                'module' => '', 
+                'user_id' => $user_id,
+                'issue' => $issue,
+                'priority' => 0,
+                'module' => '',
                 'subject' => $subject
             ]);
-
         }
 
         echo 'done';
