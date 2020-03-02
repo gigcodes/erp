@@ -14,7 +14,7 @@ class AddProductIdInOrderProductTable extends Migration
     public function up()
     {
         Schema::table('order_products', function (Blueprint $table) {
-            $table->integer('product_id')->nullable()->after("sku");
+            $table->integer('product_id')->nullable()->index()->after("sku");
         });
     }
 
