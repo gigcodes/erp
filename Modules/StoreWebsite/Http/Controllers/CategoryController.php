@@ -86,4 +86,70 @@ class CategoryController extends Controller
         return response()->json(["code" => 200, "data" => []]);
     }
 
+    /**
+     * Get child categories
+     * @return []
+     *
+     */
+
+    public function getChildCategories(Request $request, $id)
+    {
+        $categories = \App\Category::where("id", $id)->first();
+        $return     = [];
+        if ($categories) {
+            $return[] = [
+                "id"   => $categories->id,
+                "title" => $categories->title,
+            ];
+
+            $this->recursiveChildCat($categories, $return);
+        }
+
+        return response()->json(["code" => 200, "data" => $return]);
+    }
+
+    /**
+     * Recursive child category
+     * @return []
+     *
+     */
+
+    public function recursiveChildCat($categories, &$return = [])
+    {
+        foreach ($categories->childs as $cat) {
+            if($cat->title != "") {
+                $return[] = [
+                    "id"   => $cat->id,
+                    "title" => $cat->title,
+                ];
+            }
+            $this->recursiveChildCat($cat, $return);
+        }
+    }
+
+    public function storeMultipleCategories(Request $request)
+    {
+        $swi        = $request->get("website_id");
+        $categories = $request->get("categories");
+
+        // store website category
+        $ccat = StoreWebsiteCategory::where("store_website_id", $swi)->get()
+            ->pluck("name")
+            ->toArray();
+
+        // check unique records    
+        $unique = array_diff($categories, $ccat);
+
+        if(!empty($unique) && is_array($unique)) {
+            foreach ($unique as $cat) {
+                StoreWebsiteCategory::create([
+                    "store_website_id" => $swi,
+                    "category_id" => $cat 
+                ]);
+            }
+        }
+
+        // return response
+        return response()->json(["code" => 200 , "data" => ["store_website_id" => $swi] , "message" => "Category has been saved successfully"]);
+    }
 }

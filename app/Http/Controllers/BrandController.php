@@ -6,6 +6,7 @@ use App\Brand;
 use App\Setting;
 use App\Product;
 use Illuminate\Http\Request;
+use \App\StoreWebsiteBrand;
 
 class BrandController extends Controller
 {
@@ -19,9 +20,15 @@ class BrandController extends Controller
     public function index()
     {
 
-        $brands = Brand::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
+        $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+        ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
+        ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on")])
+        ->groupBy("brands.id")
+        ->oldest()->whereNull('brands.deleted_at')->paginate(Setting::get('pagination'));
 
-        return view('brand.index', compact('brands'))
+        $storeWebsite = \App\StoreWebsite::all()->pluck("website","id")->toArray();
+
+        return view('brand.index', compact('brands','storeWebsite'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -208,5 +215,36 @@ class BrandController extends Controller
         
        return json_encode($referenceArray);
 
+    }
+
+    public function attachWebsite(Request $request)
+    {
+        $website = $request->get("website");
+        $brandId = $request->get("brand_id");
+
+        if(!empty($website) && !empty($brandId)) {
+             
+             if(is_array($website)) {
+                StoreWebsiteBrand::where("brand_id",$brandId)->whereNotIn("store_website_id",$website)->delete();
+                foreach ($website as $key => $web) {
+                    $sbrands = StoreWebsiteBrand::where("brand_id",$brandId)
+                     ->where("store_website_id",$web)
+                     ->first();
+
+                    if(!$sbrands)  {
+                        $sbrands = new StoreWebsiteBrand;
+                        $sbrands->brand_id = $brandId;
+                        $sbrands->store_website_id = $web;
+                        $sbrands->save();
+                    }
+                }
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Website attached successfully"]);
+             }else{
+                return response()->json(["code" => 500 , "data" => [], "message" => "There is no website selected"]);
+             }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
 }
