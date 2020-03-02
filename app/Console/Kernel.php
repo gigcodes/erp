@@ -400,6 +400,10 @@ class Kernel extends ConsoleKernel
         //2020-02-17 Changed below to hourly
         $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
         $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+
+        //update currencies
+        $schedule->command('currencies:refresh')->hourly();
+        $schedule->command('currencies:update_name')->monthly();
         
     }
 
