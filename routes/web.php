@@ -173,6 +173,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::resource('productinventory', 'ProductInventoryController');
+
+    Route::prefix('product-inventory')->group(function () {
+        Route::get('/', 'NewProductInventoryController@index')->name('google.search.image');
+    });
+
+
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
