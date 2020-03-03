@@ -71,7 +71,7 @@ class ProductSearch
         $params = $this->params;
 
         // starting with new query
-        $products = (new Product())->newQuery()->whereNull('dnf')->latest();
+        $products = (new Product())->newQuery()->whereNull("deleted_at")->whereNull('dnf')->latest();
 
         //loop through params and add result
         if (!empty($params)) {

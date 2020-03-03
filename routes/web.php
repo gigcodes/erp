@@ -175,7 +175,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productinventory', 'ProductInventoryController');
 
     Route::prefix('product-inventory')->group(function () {
-        Route::get('/', 'NewProductInventoryController@index')->name('google.search.image');
+        Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
     });
 
 
