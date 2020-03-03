@@ -6,8 +6,8 @@
     ?>  
     <?php foreach($raw as $product) { ?>
       <?php 
-      if($rowCount % 3 == 0) { echo '<div class="row">'; } 
-      $rowCount++;  
+        if($rowCount % 3 == 0) { echo '<div class="row">'; } 
+           $rowCount++;  
       ?>
       <div class="card text-left mb-5" style="margin-left:5px;width: 35rem;">
         <img style="object-fit: cover;" src="{{ $product->getMedia(config('constants.attach_image_tag'))->first() ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
@@ -31,7 +31,7 @@
               "data-id" => $product->id
             ]); ?></p>
           <p class="card-text">Supplier : {{ $product->supplier }}</p>
-          <p class="card-text">Suppliers : {{ $product->sku }}</p>
+          <p class="card-text">Suppliers : {{ $product->supplier_list }}</p>
           <p class="card-text"><input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}"></p>
         </div>
       </div>
