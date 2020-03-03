@@ -903,7 +903,7 @@ class SupplierController extends Controller
                         $product->size = '';
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
-                        $product->location = '';
+                        $product->location = request("location","");
                         if ($request->category == null) {
                             $product->category = '';
                         } else {
@@ -931,13 +931,15 @@ class SupplierController extends Controller
                         $product->is_pending = 1;
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                        $image = $match[ 0 ][ 0 ];
+                        $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                        if(!empty($image)) {
+                          $jpg = \Image::make($image)->encode('jpg');
+                          $filename = substr($image, strrpos($image, '/'));
+                          $filename = str_replace("/", "", $filename);
+                          $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                          $product->attachMedia($media, config('constants.media_tags'));
+                        }
 
-                        $jpg = \Image::make($image)->encode('jpg');
-                        $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/", "", $filename);
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                        $product->attachMedia($media, config('constants.media_tags'));
 
                         // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
@@ -1001,7 +1003,7 @@ class SupplierController extends Controller
                     $product->size = '';
                     $product->brand = $request->brand;
                     $product->color = '';
-                    $product->location = '';
+                    $product->location = request("location","");
                     if ($request->category == null) {
                         $product->category = '';
                     } else {

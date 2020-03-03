@@ -8,6 +8,9 @@
 	$roletype = "Inventory";
 @endphp
 
+@section('favicon' , 'inventory.png')
+@section('title', 'Products Grid - ERP Sololuxury')
+
 @section('content')
 	<div class="row">
         <div class="col-lg-12 margin-tb">
