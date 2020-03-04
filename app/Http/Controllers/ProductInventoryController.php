@@ -333,7 +333,7 @@ class ProductInventoryController extends Controller
         } else {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
         }
-
+        
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';

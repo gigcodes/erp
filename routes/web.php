@@ -760,6 +760,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('password/update', 'PasswordController@update')->name('password.update');
     Route::post('password/getHistory', 'PasswordController@getHistory')->name('password.history');
 
+    //Language Manager
+    Route::get('languages', 'LanguageController@index')->name('language.index');
+    Route::post('language/store', 'LanguageController@store')->name('language.store');
+    Route::post('language/update', 'LanguageController@update')->name('language.update');
+    Route::post('language/delete', 'LanguageController@delete')->name('language.delete');
+
+
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');
     Route::get('documents-email', 'DocumentController@email')->name('document.email');
