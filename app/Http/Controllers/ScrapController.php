@@ -117,7 +117,7 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
-
+        \Log::channel('scraper')->debug("##!!##".json_encode($request->all())."##!!##");
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
