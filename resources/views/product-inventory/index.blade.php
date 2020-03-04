@@ -73,7 +73,10 @@
                   </div>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                   <input {{ (isset($is_on_sale) && $is_on_sale) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
+                   <input {{ (request('is_on_sale')) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
+                </div>
+                <div class="form-group mr-3 mb-3">
+                   <input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category"><label for="without_category">Without Category?</label>
                 </div>
                 @if (isset($customer_id) && $customer_id != null)
                   <input type="hidden" name="customer_id" value="{{ $customer_id }}">
