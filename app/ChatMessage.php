@@ -272,4 +272,14 @@ class ChatMessage extends Model
         return $this->hasOne("App\Suggestion","chat_message_id","id");
     }
 
+    public static function getLastImgProductId($customerId)
+    {
+        return \App\ChatMessage::where("customer_id", $customerId)
+        ->whereNull("chat_messages.number")
+        ->whereNotIn("status",self::AUTO_REPLY_CHAT)
+        ->select(["chat_messages.*"])
+        ->orderBy("chat_messages.created_at", "desc")
+        ->first();
+    }
+
 }
