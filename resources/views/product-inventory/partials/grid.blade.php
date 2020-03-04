@@ -21,13 +21,13 @@
             <p class="card-text">Status : {{ (new \App\Stage)->getNameById( $product->stage ) }}</p>
             <p class="card-text">Ref. Category : {{ $product->reference_category }}</p>
             <p class="card-text">Category : <?php echo Form::select("category",$categoryArray,$product->category,[
-                "class" => "form-control update-product select-multiple2" , 
+                "class" => "form-control update-product" , 
                 "id" => "category_".$product->id,
                 "data-id" => $product->id
               ]); ?></p>
             <p class="card-text">Ref. Color : {{ $product->reference_color }}</p>
             <p class="card-text">Color : <?php echo Form::select("color",$sampleColors,$product->color,[
-                "class" => "form-control update-product select-multiple2" , 
+                "class" => "form-control update-product" , 
                 "id" => "id_".$product->id,
                 "data-id" => $product->id
               ]); ?></p>

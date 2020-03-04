@@ -112,6 +112,10 @@
        		$(".select-multiple2").select2();
     	});
 
+        $(document).on('mouseover', 'select.update-product', function() { 
+            $(this).select2().select2('open');
+        });
+
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,
@@ -121,8 +125,8 @@
                 contentSelector: 'div.infinite-scroll',
                 callback: function () {
                 	$('ul.pagination').not(":last").remove();
-                   	$(".select-multiple").multiselect();
-       				$(".select-multiple2").select2();
+                   	//$(".select-multiple").multiselect();
+       				//$(".select-multiple2").select2();
                 }
             });
         });
