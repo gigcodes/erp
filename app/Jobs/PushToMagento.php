@@ -42,16 +42,16 @@ class PushToMagento implements ShouldQueue
         // Load product
         $product = $this->_product;
 
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+        // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
         
-            $result = MagentoHelper::uploadProduct($product);
+        //     $result = MagentoHelper::uploadProduct($product);
 
-        }
+        // }
         // Load Magento Soap Helper
-        //$magentoSoapHelper = new MagentoSoapHelper();
+        $magentoSoapHelper = new MagentoSoapHelper();
 
         // Push product to Magento
-        //$result = $magentoSoapHelper->pushProductToMagento( $product );
+        $result = $magentoSoapHelper->pushProductToMagento( $product );
 
         // Check for result
         if ( !$result ) {

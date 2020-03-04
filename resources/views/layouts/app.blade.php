@@ -379,6 +379,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -479,6 +480,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/languages">Language</a>
                                         </li>
                                     </ul>
                                 </li>

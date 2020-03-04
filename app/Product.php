@@ -519,7 +519,7 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'sku', 'sku');
+        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
     }
 
     public function scraped_products()

@@ -15,9 +15,11 @@ Route::prefix('store-website')->group(function () {
     Route::get('/', 'StoreWebsiteController@index')->name("store-website.index");
     Route::get('/records', 'StoreWebsiteController@records')->name("store-website.records");
     Route::post('/save', 'StoreWebsiteController@save')->name("store-website.save");
+
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
+        Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
     	
         Route::prefix('attached-category')->group(function () {
     		Route::get('/', 'CategoryController@index')->name("store-website.attached-category.index");
@@ -25,8 +27,12 @@ Route::prefix('store-website')->group(function () {
             Route::prefix('{store_category_id}')->group(function () {
                 Route::get('/delete', 'CategoryController@delete')->name("store-website.attached-category.delete");
             });    
-    	});		
+    	});
 
+        Route::prefix('attached-categories')->group(function () {
+            Route::post('/', 'CategoryController@storeMultipleCategories')->name("store-website.attached-categories.store");
+        }); 
+         
         Route::prefix('attached-brand')->group(function () {
             Route::get('/', 'BrandController@index')->name("store-website.attached-brand.index");
             Route::post('/', 'BrandController@store')->name("store-website.attached-brand.store");
@@ -34,9 +40,5 @@ Route::prefix('store-website')->group(function () {
                 Route::get('/delete', 'BrandController@delete')->name("store-website.attached-brand.delete");
             });    
         });
-
-
-        
-
     });    
 });

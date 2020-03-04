@@ -74,8 +74,14 @@ var page = {
             }
         });
 
+        $(document).on("change","select.select-searchable",function() {
+            // now need to call for getting child 
+            var id = $(this).val();
+            page.getChildCategories(id);
+
+        });
     },
-    validationRule : function() {
+    validationRule : function(response) {
          $(document).find("#product-template-from").validate({
             rules: {
                 name     : "required",
@@ -299,7 +305,63 @@ var page = {
         if(response.code == 200) {
             ele.closest("tr").remove();
         } 
-    } 
+    },
+    getChildCategories : function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+id+"/child-categories",
+            method: "get",
+        }
+        this.sendAjax(_z, 'showChildCategoriesFrom');
+    },
+    showChildCategoriesFrom : function(response) {
+        if(response.code == 200) {
+            var template = $.templates("#template-category-list");
+            var tplHtml = template.render(response);
+            $(".preview-category").html(tplHtml);
+
+            $(".preview-category").on("click",".btn-delete-preview-category",function() {
+                $(this).closest("tr").remove();
+            });
+
+            $(".preview-category").on("click",".select-all-preview-category",function() {
+                var table = $(this).closest("table");
+                checkBoxes = table.find(".preview-checkbox");
+                checkBoxes.prop("checked", !checkBoxes.prop("checked"));
+            });
+
+            $(".preview-category").on('click','.save-preview-categories',function() {
+                page.storeMultipleCategories($(this));
+            });
+        }
+    },
+    storeMultipleCategories : function(ele) {
+        var website_id = ele.closest(".modal-body").find('input[name="store_website_id"]').val();
+        var categories = [];
+        var selectedcategories      = ele.closest(".modal-body").find(".preview-checkbox:checked");
+        if(selectedcategories.length > 0) {
+            $.each(selectedcategories,function(k,v) {
+                categories.push($(v).val());
+            });
+        }
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+website_id+"/attached-categories",
+            method: "post",
+            data : {
+                _token:$('meta[name="csrf-token"]').attr('content'),
+                website_id:website_id,
+                categories:categories,
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'afterMultipleCategories');
+    },
+    afterMultipleCategories : function(response) {
+        if(response.code == 200) {
+            page.attachCategory(response.data.store_website_id);
+        }
+    }
 }
 
 $.extend(page, common);

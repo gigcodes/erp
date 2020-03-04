@@ -173,6 +173,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::resource('productinventory', 'ProductInventoryController');
+
+    Route::prefix('product-inventory')->group(function () {
+        Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+    });
+
+
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
@@ -192,6 +198,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
     //	Route::resource('activity','ActivityConroller');
+    Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
@@ -752,6 +759,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('password/sendWhatsApp', 'PasswordController@sendWhatsApp')->name('password.sendwhatsapp');
     Route::post('password/update', 'PasswordController@update')->name('password.update');
     Route::post('password/getHistory', 'PasswordController@getHistory')->name('password.history');
+
+    //Language Manager
+    Route::get('languages', 'LanguageController@index')->name('language.index');
+    Route::post('language/store', 'LanguageController@store')->name('language.store');
+    Route::post('language/update', 'LanguageController@update')->name('language.update');
+    Route::post('language/delete', 'LanguageController@delete')->name('language.delete');
+
 
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');
