@@ -491,6 +491,7 @@
                         @csrf
                         <button type="buttin" class="btn btn-xs btn-secondary" value="1" name="type" id="createProduct">Create Product</button>
                         <button type="button" class="btn btn-xs btn-secondary" value="2" name="type" id="createGroup">Create Product Group</button>
+                        <button type="button" class="btn btn-xs btn-secondary" value="3" name="type" id="createInStockProduct">Create InStock Product</button>
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
@@ -507,6 +508,8 @@
     @include('customers.partials.modal-reply')
 
     @include('suppliers.partials.modal-create-group')
+
+    @include('suppliers.partials.instock-product')
 
 
     <div class="row mt-5">
@@ -1892,12 +1895,10 @@
          $(document).on('click', '#createProduct', function (e) {
             e.preventDefault();
              var images = [];
-            $.each($("input[name='checkbox[]']:checked"), function(){
-                images.push($(this).val());
+            $.each($("input[name='product']:checked"), function(e,v){
+                var image = $(v).closest(".show-thumbnail-image").attr("href");
+                    images.push(image);
             });
-            console.log(images);
-            console.log(images.length);
-
             $("#images_product").val(JSON.stringify(images));
             $("#count_product_images").html(images.length);
             $('#productSingleGroupDetails').modal('show');
@@ -1915,6 +1916,25 @@
             $("#images").val(JSON.stringify(images));
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
+        });
+
+
+          $(document).on('click', '#createInStockProduct', function (e) {
+            e.preventDefault();
+             var images = [];
+            $.each($("input[name='checkbox[]']:checked"), function(){
+                images.push($(this).val());
+            });
+            console.log(images);
+            console.log(images.length);
+            if(images.length == 0){
+                alert('Please Select Image');
+            }else{
+                $("#images").val(JSON.stringify(images));
+                $("#count_images").html(images.length);
+                $('#productModal').modal('show');
+            }
+            
         });
 
         $(document).on('click', '#auto-translate', function (e) {
@@ -1984,7 +2004,61 @@
             }).fail(function (response) {
                 console.log(response);
             });
-        });  
+        });
+
+    
+    
+        function createProduct(){
+            var images = [];
+            $.each($("input[name='checkbox[]']:checked"), function(){
+                images.push($(this).val());
+            });
+            sku = $('#sku').val();
+            category = $('#category').val();
+            if(images.length == 0){
+                alert('Please select image');
+            }else if(sku == ''){
+                alert('Please enter sku');
+            }else if(category == ''){
+                alert('Please select category');
+            }else if(location_data == ''){ 
+                alert('Please select location');
+            }else{
+                size = $('#size-selection').val();
+                name = $('#name').val();
+                brand = $('#brand').val();
+                color = $('#color').val();
+                
+                supplier = $('#supplier').val();
+                price = $('#price').val();
+                price_inr_special_stock = $('#price_inr_special_stock').val();
+                location_data = $('#location_data').val();
+                $.ajax({
+                    type: "POST",
+                    url: "{{ route('supplier.image') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        type : 3,
+                        images : $('#images').val(),
+                        sku : sku,
+                        size : size,
+                        name : name,
+                        brand : brand,
+                        color : color,
+                        supplier : supplier,
+                        price : price,
+                        price_special : price_inr_special_stock,
+                        category : category,
+                        location : location_data,
+                    }
+                }).done(function () {
+                    $('#productModal').modal('hide');
+                    alert('Product Saved successfully!');
+                }).fail(function (response) {
+                    console.log(response);
+                });
+                }
+            }  
 
 
         

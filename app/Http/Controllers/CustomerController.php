@@ -1644,8 +1644,10 @@ class CustomerController extends Controller
     public function updateReminder(Request $request)
     {
         $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency = $request->get('frequency');
-        $customer->reminder_message = $request->get('message');
+        $customer->frequency            = $request->get('frequency');
+        $customer->reminder_message     = $request->get('message');
+        $customer->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $customer->reminder_last_reply  = $request->get('reminder_last_reply',0);
         $customer->save();
 
         return response()->json([
@@ -1827,10 +1829,13 @@ class CustomerController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+            $categorySel = $request->category;
+            $category = \App\Category::whereIn("parent_id",$categorySel)->get()->pluck("id")->toArray();
+            $categorySelected = array_merge($categorySel,$category);
             if ($request->brand[ 0 ] != null) {
-                $products = $products->whereIn('category', $request->category);
+                $products = $products->whereIn('category', $categorySelected);
             } else {
-                $products = Product::whereIn('category', $request->category);
+                $products = Product::whereIn('category', $categorySelected);
             }
 
             $params[ 'category' ] = json_encode($request->category);

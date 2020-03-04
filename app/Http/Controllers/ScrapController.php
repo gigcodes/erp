@@ -117,7 +117,7 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
-
+        \Log::channel('scraper')->debug("##!!##".json_encode($request->all())."##!!##");
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
@@ -162,13 +162,17 @@ class ScrapController extends Controller
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
         if(isset($propertiesExt["category"])) {
-            $categories = array_map("strtolower", $propertiesExt["category"]);
-            $strsku     =  strtolower($sku);
-            if(in_array($strsku, $categories)) {
-               $index = array_search($strsku, $categories);
-               unset($categories[$index]);
+            if(is_array($propertiesExt["category"])){
+                $categories = array_map("strtolower", $propertiesExt["category"]);
+                $strsku     =  strtolower($sku);
+                if(in_array($strsku, $categories)) {
+                   $index = array_search($strsku, $categories);
+                   unset($categories[$index]);
+                }
+                $propertiesExt["category"] = $categories;
+            }else{
+                $propertiesExt["category"] = '';
             }
-            $propertiesExt["category"] = $categories;
         }
 
         // Get this product from scraped products

@@ -216,6 +216,7 @@ class GetOrdersFromnMagento extends Command
                         DB::table('order_products')->insert(
                             array(
                                 'order_id'      => $id,
+                                'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
                                 'sku'           => $skuAndColor['sku'],
                                 'product_price' => round($results['items'][$i]['price']),
                                 'qty'           => round($results['items'][$i]['qty_ordered']),
@@ -354,7 +355,8 @@ class GetOrdersFromnMagento extends Command
                 $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
                 if ($product) {
-                    $result['sku'] = $product->sku;
+                    $result['product_id']   = $product->id;
+                    $result['sku']          = $product->sku;
                 } else {
                     $result['sku'] = $sku;
                 }
@@ -369,7 +371,8 @@ class GetOrdersFromnMagento extends Command
         $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
         if ($product) {
-            $result['sku'] = $product->sku;
+            $result['product_id']   = $product->id;
+            $result['sku']          = $product->sku;
         } else {
             $result['sku'] = $sku;
         }

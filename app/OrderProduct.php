@@ -10,6 +10,7 @@ class OrderProduct extends Model
     protected $fillable = [
 		'order_id',
 	    'sku',
+	    'product_id',
 	    'product_price',
 	    'size',
 	    'color',
@@ -27,12 +28,12 @@ class OrderProduct extends Model
 	public function product(){
 
 //		return $this->hasOne('App\Product',['sku','color'],['sku','color']);
-		return $this->hasOne('App\Product','sku','sku');
+		return $this->hasOne('App\Product','id','product_id');
 
 	}
 
 	public function products(){
-		return $this->hasMany('App\Product','sku','sku');
+		return $this->hasMany('App\Product','id','product_id');
 	}
 
   public function purchase()

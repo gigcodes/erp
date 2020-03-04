@@ -11,6 +11,8 @@ use Nestable\NestableTrait;
 class Category extends Model
 {
 
+    CONST UNKNOWN_CATEGORIES = 143;
+
     use NestableTrait;
 
     protected $parent = 'parent_id';
@@ -66,7 +68,7 @@ class Category extends Model
 
         // No result? Try where like
         if ( $dbResult->count() == 0 ) {
-            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->get();
+            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->where("id","!=",self::UNKNOWN_CATEGORIES)->get();
         }
 
         // Still no result
@@ -77,8 +79,7 @@ class Category extends Model
         // Just one result
         if ( $dbResult->count() == 1 ) {
             // Check if the category has subcategories
-            $dbSubResult = Category::where('parent_id', $dbResult->first()->id);
-
+            $dbSubResult = Category::where('parent_id', $dbResult->first()->id)->first();
             // No results?
             if ( $dbSubResult == null ) {
                 // Return

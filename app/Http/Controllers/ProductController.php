@@ -49,6 +49,8 @@ use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
 use seo2websites\GoogleVision\LogGoogleVision;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
 
 
 class ProductController extends Controller
@@ -94,8 +96,9 @@ class ProductController extends Controller
         }
 
         $products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\Helpers\ProductHelper::storeWebsite();
 
-        return view('products.index', compact('products', 'term', 'archived'))
+        return view('products.index', compact('products', 'term', 'archived','websiteList'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -1543,12 +1546,14 @@ class ProductController extends Controller
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
         $cat = $request->category;
+        $lastcategory = false;
         
         $product = Product::find($id);
         if($product->scraped_products){
             if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
                 $category = $product->scraped_products->properties['category'];
                 $referencesCategory = implode(' ',$category);
+                $lastcategory = end($category);
             }
         }else{
             return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
@@ -1577,9 +1582,13 @@ class ProductController extends Controller
 
             //Add reference to category 
             $category = Category::find($cat);
+            if($lastcategory) {
+                // find the current category and move its
+                $refCat     = explode(",", $category->references);
+                $refCat[]   = $lastcategory;
+                $reference  = implode(",", array_unique($refCat));
 
-            if($product->product_category != null){
-                $reference = $category->references.','.$referencesCategory;
+                // refrences updated
                 $category->references = $reference;
                 $category->save();
             }
@@ -2115,6 +2124,7 @@ class ProductController extends Controller
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
+            $order_product->product_id = $product->id;
 
             $order_product->save();
 
@@ -2222,6 +2232,25 @@ class ProductController extends Controller
             //
         }
 
+        //Getting Website Color
+        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+        if(count($websiteArrays) == 0){
+            $colors = [];
+        }else{
+            foreach ($websiteArrays as $websiteArray) {
+               
+                $website = StoreWebsite::find($websiteArray);
+                if($website){
+                    $colors[] = array('code' => $website->cropper_color, 'color' => $website->cropper_color_name);
+                }
+            }
+        }
+
+        if(!isset($colors)){
+            $colors = [];
+        }
+        
         if($parent == null && $parent == ''){
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2244,7 +2273,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => '',
+            'colors' => $colors,
         ]);
         }
     }
@@ -2270,7 +2299,12 @@ class ProductController extends Controller
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
-            $product->attachMedia($media, config('constants.media_gallery_tag'));
+            if($request->get('color')){
+                $tag = 'gallery_'.$request->get('color');
+            }else{
+                $tag = config('constants.media_gallery_tag');
+            }    
+            $product->attachMedia($media, $tag);
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
@@ -2290,6 +2324,22 @@ class ProductController extends Controller
             $productMediacount = $product->media()->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
+
+            //check website count using Product
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+            try {
+                if(count($websiteArrays) == 0){
+                $multi = 1;
+                }else{
+                    $multi = count($websiteArray);
+                }
+            } catch (\Exception $e) {
+                $multi = 1;
+            }
+            
+
+            $cropCount = ($cropCount * $multi);
 
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -3066,6 +3116,26 @@ class ProductController extends Controller
 
         return response()->json(['success' => 'success'], 200);
     }
+
+    public function published(Request $request)
+    {
+        $id         = $request->get("id");
+        $website    = $request->get("website",[]);
+
+        \App\WebsiteProduct::where("product_id",$id)->delete();
+
+        if(!empty($website)) {
+            foreach($website as $web) {
+                $website                    = new \App\WebsiteProduct;
+                $website->product_id        = $id;
+                $website->store_website_id  = $web;
+                $website->save(); 
+            }
+        }
+
+        return response()->json(["code" => 200]);    
+
+    }    
 
     public function originalColor($id)
     {

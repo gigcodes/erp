@@ -30,8 +30,12 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])
-            ->where("chat_messages.customer_id", ">", 0)
+        $pendingApprovalMsg = $pendingApprovalMsg->
+        where(function($q) {
+            $q->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY])->orWhere(function($q){
+                $q->whereIn("status",ChatMessage::AUTO_REPLY_CHAT)->where("group_id",">",0);
+            });
+        })->where("chat_messages.customer_id", ">", 0)
             ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id"])
             ->latest()
             ->paginate(20);
@@ -115,6 +119,30 @@ class MessageController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "It looks like there is not validate id"]);
+
+    }
+
+    public function forwardToCustomer(Request $request)
+    {
+        $customer = $request->get("customer");
+        $images   = $request->get("images");
+
+        if($customer > 0 && !empty($images)) {
+
+            $params = request()->all();
+            $params["user_id"] = \Auth::id();
+            $params["is_queue"] = 0;
+            $params["status"] = \App\ChatMessage::CHAT_MESSAGE_APPROVED;
+            $params["customer_ids"] = is_array($customer) ? $customer : [$customer];
+            $groupId = \DB::table('chat_messages')->max('group_id');
+            $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
+            $params["images"] = $images;
+            
+            \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Message forward to customer(s)"]);
 
     }
 

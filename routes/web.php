@@ -21,6 +21,7 @@ Route::get('create-media-image', 'CustomerController@testImage');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+Route::post('/products/published', 'ProductController@published');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -56,10 +57,12 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
     Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
+    Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -171,6 +174,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::resource('productinventory', 'ProductInventoryController');
+
+    Route::prefix('product-inventory')->group(function () {
+        Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+    });
+
+
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
@@ -190,6 +199,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
     //	Route::resource('activity','ActivityConroller');
+    Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
@@ -751,6 +761,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('password/update', 'PasswordController@update')->name('password.update');
     Route::post('password/getHistory', 'PasswordController@getHistory')->name('password.history');
 
+    //Language Manager
+    Route::get('languages', 'LanguageController@index')->name('language.index');
+    Route::post('language/store', 'LanguageController@store')->name('language.store');
+    Route::post('language/update', 'LanguageController@update')->name('language.update');
+    Route::post('language/delete', 'LanguageController@delete')->name('language.delete');
+
+
     // Documents Manager
     Route::get('documents', 'DocumentController@index')->name('document.index');
     Route::get('documents-email', 'DocumentController@email')->name('document.email');
@@ -962,7 +979,8 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
-//Hubstaff
+
+Route::group(['middleware' => ['auth']], function () {
 Route::get('hubstaff/members', 'HubstaffController@index');
 Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
@@ -978,7 +996,7 @@ Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
 Route::get('hubstaff/payments', 'UserController@payments');
 Route::post('hubstaff/makePayment', 'UserController@makePayment');
-
+});
 /*
  * @date 1/13/2019
  * @author Rishabh Aryal
@@ -1407,6 +1425,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
     Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
     Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
+    Route::get('whatsapp-config/blocked-number', 'WhatsappConfigController@blockedNumber')->name('whatsapp.block.number');
 
     Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
@@ -1510,6 +1529,7 @@ Route::prefix('google')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
 

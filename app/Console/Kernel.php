@@ -227,7 +227,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 s$schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
-        //2020-02-17 $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+        $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
         //Flag customer if they have a complaint
         $schedule->command('flag:customers-with-complaints')->daily();
@@ -406,6 +406,10 @@ class Kernel extends ConsoleKernel
         //2020-02-17 Changed below to hourly
         $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
         $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+
+        //update currencies
+        $schedule->command('currencies:refresh')->hourly();
+        $schedule->command('currencies:update_name')->monthly();
         
     }
 

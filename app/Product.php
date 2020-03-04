@@ -519,7 +519,7 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'sku', 'sku');
+        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
     }
 
     public function scraped_products()
@@ -741,6 +741,20 @@ class Product extends Model
         }      
     }
 
+
+    public function websiteProducts()
+    {
+        return $this->hasMany("App\WebsiteProduct","product_id","id");
+    }
+
+    
+    public function publishedOn()
+    {
+        return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
+
+
+    }
+
     /**
      * get product images from watson
      * 
@@ -753,7 +767,7 @@ class Product extends Model
                 ->join("mediables as m",function($q){
                     $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
                 })
-                //->where("stock",">",0)
+                ->where("stock",">",0)
                 ->orderBy("created_at", "desc")
                 ->limit(\App\Library\Watson\Action\SendProductImages::SENDING_LIMIT)
                 ->get();

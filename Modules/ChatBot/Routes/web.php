@@ -80,6 +80,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post('/approve', 'MessageController@approve')->name("chatbot.messages.approve");
         Route::post('/remove-images', 'MessageController@removeImages')->name("chatbot.messages.remove-images");
         Route::get('/attach-images', 'MessageController@attachImages')->name("chatbot.messages.attach-images");
+        Route::post('/forward-images', 'MessageController@forwardToCustomer')->name("chatbot.messages.forward-images");
     });
 
     Route::prefix('rest/dialog')->group(function () {
