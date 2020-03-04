@@ -397,7 +397,7 @@ class ProductsCreator
     public function getGeneralDetails($properties_array)
     {
         if (array_key_exists('material_used', $properties_array)) {
-            $composition = (string)$properties_array[ 'material_used' ];
+            $composition = (is_array($properties_array[ 'material_used' ])) ? implode(" ",$properties_array[ 'material_used' ]) : (string)$properties_array[ 'material_used' ];
         }
 
         if (array_key_exists('color', $properties_array)) {

@@ -498,6 +498,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
+                                        </li>
                                     </ul>
                                 </li>
 

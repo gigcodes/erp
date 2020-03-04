@@ -62,6 +62,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
     Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
+    Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
 });
 
 Route::prefix('category-messages')->group(function () {
