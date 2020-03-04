@@ -1039,7 +1039,7 @@ class WhatsAppController extends FindByNumberController
             // Check if message already exists
             $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
             if ($chatMessage != null) {
-                continue;
+                //continue;
             }
 
             // Find connection with this number in our database
@@ -1539,6 +1539,7 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
+                        echo '<pre>'; print_r($chatbotReply); echo '</pre>';exit;
 
                         if(!empty($chatbotReply["action"])) {
                             // assign params
@@ -1550,9 +1551,11 @@ class WhatsAppController extends FindByNumberController
                                "is_chatbot"       => true,
                                "chatbot_response" => $chatbotReply,
                                "chatbot_question" => $params['message'],
-                               "chatbot_params"   => $chatbotReply["medias"]
+                               "chatbot_params"   => isset($chatbotReply["medias"]) ? $chatbotReply["medias"] : []
                             ];
-                            
+
+                            \Log::info(print_r($chatbotReply,true));
+
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
 
@@ -1567,6 +1570,8 @@ class WhatsAppController extends FindByNumberController
                                     if(!empty($chatbotReply["medias"]["params"]["category"])) {
                                         $category = $chatbotReply["medias"]["params"]["category"];
                                     }
+
+                                    $chatbotReply = WatsonManager::sendMessage($customer,"Thanks!", true);
 
                                     if(!empty($brands) || !empty($category)) {
                                         $suggestion = \App\Suggestion::create([
