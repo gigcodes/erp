@@ -17,6 +17,8 @@ class UpdateScrapedCategory implements ShouldQueue
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $params;
+    public $product_id;
+    public $category_id;
 
     /**
      * Create a new job instance.
