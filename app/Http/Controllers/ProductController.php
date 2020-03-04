@@ -1545,67 +1545,12 @@ class ProductController extends Controller
 
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
-        $cat = $request->category;
-        $lastcategory = false;
-        
-        $product = Product::find($id);
-        if($product->scraped_products){
-            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
-                $category = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' ',$category);
-                $lastcategory = end($category);
-            }
-        }else{
-            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
-        }
+        \App\Jobs\UpdateScrapedCategory::dispatch([
+            "product_id"    => $id,
+            "category_id"   => $request->category
+        ]);
 
-        if(isset($referencesCategory)){
-
-            $productSupplier = $product->supplier;
-            $supplier = Supplier::where('supplier',$productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if(isset($scrapedProduct->properties['category'])) {
-                    $products = $scrapedProduct->properties['category'];
-                    if(is_array($products)) {
-                        $list = implode(' ',$products);
-                        if(strtolower($referencesCategory) == strtolower($list)){
-                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
-                        }
-                    }
-                }
-            }
-
-            if(!isset($scrapedProductSkuArray)){
-                $scrapedProductSkuArray = [];
-            }
-
-            //Add reference to category 
-            $category = Category::find($cat);
-            if($lastcategory) {
-                // find the current category and move its
-                $refCat     = explode(",", $category->references);
-                $refCat[]   = $lastcategory;
-                $reference  = implode(",", array_unique($refCat));
-
-                // refrences updated
-                $category->references = $reference;
-                $category->save();
-            }
-            
-            //Update products with sku 
-            if(count($scrapedProductSkuArray) != 0){
-                foreach ($scrapedProductSkuArray as $productSku) {
-                    $oldProduct = Product::where('sku',$productSku)->first();
-                    if($oldProduct != null){
-                        $oldProduct->category = $cat;
-                        $oldProduct->save();
-                    }
-                }
-            }
-
-            return response()->json(['success','Product Got Updated']); 
-        }
+        return response()->json(['success','Product category has been sent for the update']);
     }
 
     public function attachProducts($model_type, $model_id, $type = null, $customer_id = null, Request $request)
