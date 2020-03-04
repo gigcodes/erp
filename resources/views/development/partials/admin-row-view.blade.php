@@ -54,7 +54,7 @@
             <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
         </div>
     </td>
-    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? $issue->timeSpent->tracked : '' }}</td>
+    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
         <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">

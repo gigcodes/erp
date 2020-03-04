@@ -113,8 +113,8 @@ if (!function_exists('getInstance')) {
     {
         $number = !empty($number) ? $number : 0;
         return isset(config("apiwha.instances")[$number])
-        ? config("apiwha.instances")[$number]
-        : config("apiwha.instances")[0];
+            ? config("apiwha.instances")[$number]
+            : config("apiwha.instances")[0];
     }
 }
 
@@ -187,4 +187,19 @@ function drop_down_frequency()
         "360"  => "Every 6 hr",
         "1440" => "Every 24 hr",
     ];
+}
+
+/**
+ * format the duration in Hour:minute:seconds format
+ */
+function formatDuration($seconds_time)
+{
+    if ($seconds_time < 24 * 60 * 60) {
+        return gmdate('H:i:s', $seconds_time);
+    } else {
+        $hours = floor($seconds_time / 3600);
+        $minutes = floor(($seconds_time - $hours * 3600) / 60);
+        $seconds = floor($seconds_time - ($hours * 3600) - ($minutes * 60));
+        return "$hours:$minutes:$seconds";
+    }
 }

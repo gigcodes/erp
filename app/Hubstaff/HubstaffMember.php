@@ -26,4 +26,8 @@ class HubstaffMember extends Model
                 'user_id' => $userId
             ]);
     }
+
+    function user(){
+        return $this->hasOne('App\User');
+    }
 }
