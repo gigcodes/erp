@@ -11,7 +11,8 @@ class ChatMessage extends Model
     CONST MESSAGE_STATUS = [
         "11" =>  "Watson Reply",
         "5"  =>  "Read",
-        "0"  =>  "Unread"
+        "0"  =>  "Unread",
+        "12" =>  "Suggested Images"
     ];
 
     // auto reply including chatbot as well
@@ -21,6 +22,8 @@ class ChatMessage extends Model
 
     CONST CHAT_AUTO_BROADCAST = 8;
     CONST CHAT_AUTO_WATSON_REPLY = 11;
+    CONST CHAT_SUGGESTED_IMAGES = 12;
+    CONST CHAT_MESSAGE_APPROVED = 2;
 
     use Mediable;
 
@@ -250,6 +253,23 @@ class ChatMessage extends Model
         $limit  = \App\Setting::where("name","is_queue_send_end_time")->first();
         
         return ($limit) ? $limit->val : 0;
+    }
+
+    public static function getSupplierForwardTo()
+    {
+        $no  = \App\Setting::where("name","supplier_forward_message_no")->first();
+        
+        return ($no) ? $no->val : 0;
+    }
+
+    public function chatBotReply()
+    {
+        return $this->hasOne("\App\ChatBotReply","chat_id", "id");
+    }
+
+    public function suggestion()
+    {
+        return $this->hasOne("App\Suggestion","chat_message_id","id");
     }
 
 }

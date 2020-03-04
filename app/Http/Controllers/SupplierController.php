@@ -120,7 +120,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -903,7 +903,7 @@ class SupplierController extends Controller
                         $product->size = '';
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
-                        $product->location = '';
+                        $product->location = request("location","");
                         if ($request->category == null) {
                             $product->category = '';
                         } else {
@@ -931,13 +931,15 @@ class SupplierController extends Controller
                         $product->is_pending = 1;
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                        $image = $match[ 0 ][ 0 ];
+                        $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                        if(!empty($image)) {
+                          $jpg = \Image::make($image)->encode('jpg');
+                          $filename = substr($image, strrpos($image, '/'));
+                          $filename = str_replace("/", "", $filename);
+                          $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                          $product->attachMedia($media, config('constants.media_tags'));
+                        }
 
-                        $jpg = \Image::make($image)->encode('jpg');
-                        $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/", "", $filename);
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                        $product->attachMedia($media, config('constants.media_tags'));
 
                         // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
@@ -1001,7 +1003,7 @@ class SupplierController extends Controller
                     $product->size = '';
                     $product->brand = $request->brand;
                     $product->color = '';
-                    $product->location = '';
+                    $product->location = request("location","");
                     if ($request->category == null) {
                         $product->category = '';
                     } else {

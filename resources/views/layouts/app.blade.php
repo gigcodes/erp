@@ -379,6 +379,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -493,6 +494,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -733,6 +737,9 @@
                                             <a class="dropdown-item" href="{{ action('ProductController@showListigByUsers') }}">User Product Assignment</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                <a class="dropdown-item" href="/calendar">Calendar</a>
                                 </li>
                             </ul>
                         </li>
@@ -1003,6 +1010,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1056,6 +1066,9 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1081,6 +1094,16 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1205,6 +1228,9 @@
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
+                                        </li>
+                                        <li>    
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
@@ -1255,7 +1281,17 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('database.index') }}">Historical Data</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('database.states') }}">States</a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">

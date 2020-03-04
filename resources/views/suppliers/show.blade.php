@@ -1892,12 +1892,10 @@
          $(document).on('click', '#createProduct', function (e) {
             e.preventDefault();
              var images = [];
-            $.each($("input[name='checkbox[]']:checked"), function(){
-                images.push($(this).val());
+            $.each($("input[name='product']:checked"), function(e,v){
+                var image = $(v).closest(".show-thumbnail-image").attr("href");
+                    images.push(image);
             });
-            console.log(images);
-            console.log(images.length);
-
             $("#images_product").val(JSON.stringify(images));
             $("#count_product_images").html(images.length);
             $('#productSingleGroupDetails').modal('show');

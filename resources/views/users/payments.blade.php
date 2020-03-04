@@ -136,7 +136,7 @@
                         </div>
                     </div>
                 </td>
-                <td>{{$user->secondsTracked / 3600 }}</td>
+                <td>{{round($user->secondsTracked / 3600, 2) }}</td>
                 <td>{{isset($user->currentRate) ? $user->currentRate->hourly_rate : '-'}}</td>
                 <td>{{$user->currency}}</td>
                 <td>{{$user->total}}</td>

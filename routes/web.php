@@ -21,6 +21,7 @@ Route::get('create-media-image', 'CustomerController@testImage');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
+Route::post('/products/published', 'ProductController@published');
 
 //Route::get('/home', 'HomeController@index')->name('home');
 Route::get('/productselection/list', 'ProductSelectionController@sList')->name('productselection.list');
@@ -56,6 +57,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
+    Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::get('sku-logs', 'Logging\LogScraperController@logSKU')->name('logging.laravel.log');
     Route::get('sku-logs-errors', 'Logging\LogScraperController@logSKUErrors')->name('logging.sku.errors.log');
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
@@ -151,7 +153,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
-    
+
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
     Route::resource('products', 'ProductController');
@@ -171,6 +173,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::resource('productinventory', 'ProductInventoryController');
+
+    Route::prefix('product-inventory')->group(function () {
+        Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+    });
+
+
     Route::resource('sales', 'SaleController');
     Route::resource('stock', 'StockController');
     Route::post('stock/track/package', 'StockController@trackPackage')->name('stock.track.package');
@@ -190,6 +198,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
     //	Route::resource('activity','ActivityConroller');
+    Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
@@ -460,6 +469,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('customer/create', 'CustomerController@create')->name('customer.create');
     Route::post('customer/block', 'CustomerController@block')->name('customer.block');
     Route::post('customer/flag', 'CustomerController@flag')->name('customer.flag');
+    Route::post('customer/in-w-list', 'CustomerController@addInWhatsappList')->name('customer.in-w-list');
     Route::post('customer/prioritize', 'CustomerController@prioritize')->name('customer.priority');
     Route::post('customer/create', 'CustomerController@store')->name('customer.store');
     Route::get('customer/broadcast', 'CustomerController@broadcast')->name('customer.broadcast.list');
@@ -832,6 +842,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
+    Route::post('vendor/inviteGithub', 'VendorController@inviteGithub');
+    Route::post('vendor/inviteHubstaff', 'VendorController@inviteHubstaff');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 
@@ -966,7 +978,8 @@ Route::post('whatsapp/{id}/resendMessage', 'WhatsAppController@resendMessage');
 Route::get('message/resend', 'WhatsAppController@resendMessage2');
 Route::get('message/delete', 'WhatsAppController@delete');
 
-//Hubstaff
+
+Route::group(['middleware' => ['auth']], function () {
 Route::get('hubstaff/members', 'HubstaffController@index');
 Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
@@ -982,7 +995,7 @@ Route::get('hubstaff/redirect', 'HubstaffController@redirect');
 Route::get('hubstaff/debug', 'HubstaffController@debug');
 Route::get('hubstaff/payments', 'UserController@payments');
 Route::post('hubstaff/makePayment', 'UserController@makePayment');
-
+});
 /*
  * @date 1/13/2019
  * @author Rishabh Aryal
@@ -1009,6 +1022,14 @@ Route::prefix('sitejabber')->middleware('auth')->group(function () {
 
 Route::prefix('pinterest')->middleware('auth')->group(function () {
     Route::resource('accounts', 'PinterestAccountAcontroller');
+});
+
+Route::prefix('database')->middleware('auth')->group(function () {
+    Route::get('/', 'DatabaseController@index')->name("database.index");
+    Route::get('/states', 'DatabaseController@states')->name("database.states");
+    Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
+    Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
+    
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
@@ -1403,6 +1424,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('whatsapp-config/get-screen', 'WhatsappConfigController@getScreen')->name('whatsapp.config.screen');
     Route::get('whatsapp-config/delete-chrome', 'WhatsappConfigController@deleteChromeData')->name('whatsapp.config.delete');
     Route::get('whatsapp-config/restart-script', 'WhatsappConfigController@restartScript')->name('whatsapp.restart.script');
+    Route::get('whatsapp-config/blocked-number', 'WhatsappConfigController@blockedNumber')->name('whatsapp.block.number');
 
     Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
@@ -1504,10 +1526,11 @@ Route::prefix('google')->middleware('auth')->group(function () {
 });
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
 
-Route::group(['middleware' => 'auth'], function () {
+Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
     Route::prefix('github')->group(function () {
         Route::get('/repos', 'Github\RepositoryController@listRepositories');
         Route::get('/repos/{name}/users', 'Github\UserController@listUsersOfRepository');
@@ -1536,5 +1559,25 @@ Route::group(['middleware' => 'auth'], function () {
     });
 });
 
+Route::group(['middleware' => ['auth', 'role_or_permission:Admin|deployer']], function () {
+    Route::get('/deploy-node', 'Github\RepositoryController@deployNodeScrapers');
+});
+
+
 Route::put('customer/language-translate/{id}', 'CustomerController@languageTranslate');
 Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.customer.language');
+
+Route::group(['middleware' => 'auth'], function () {
+    Route::get('/calendar', 'UserEventController@index');
+    Route::get('/calendar/events', 'UserEventController@list');
+    Route::post('/calendar/events', 'UserEventController@createEvent');
+    Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
+    Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
+});
+
+Route::prefix('calendar/public')->group(function () {
+    Route::get('/{id}', 'UserEventController@publicCalendar');
+    Route::get('/events/{id}', 'UserEventController@publicEvents');
+    Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
+    Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
+});

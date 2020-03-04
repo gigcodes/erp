@@ -44,6 +44,7 @@
                 </form>
             </div>
             <div class="pull-right">
+              <button type="button" class="btn btn-secondary" onclick="removeBlocked()" style="margin-right: 5px;">Remove 30 Cust From Block No.</a>  
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#whatsAppConfigCreateModal">+</a>
             </div>
         </div>
@@ -358,6 +359,26 @@
                 });
             
             }      
+    }
+
+    function removeBlocked() {
+        var result = confirm("Want to remove WhatsApp Blocked?");
+          if (result) {
+                $.ajax({
+                url: '/marketing/whatsapp-config/blocked-number',
+                type: 'GET',
+                dataType: 'json',
+                data: {},
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    if(data.success){
+                        alert('Blocked Number Disabled');
+                    }
+                    
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+          }       
     }        
 </script>
 @endsection

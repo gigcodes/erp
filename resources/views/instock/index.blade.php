@@ -35,11 +35,14 @@
           <div class="form-group mr-3 mb-3">
             {!! $category_selection !!}
           </div>
-
+          <?php 
+          /*
           <div class="form-group mr-3 mb-3">
             <strong class="mr-3">Price</strong>
             <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="10000000" data-slider-step="10" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '10000000' }}]" />
           </div>
+          */
+          ?>
 
           <div class="form-group mr-3">
             @php $brands = \App\Brand::getAll();
@@ -103,8 +106,28 @@
 
   @include('partials.flash_messages')
 
+<?php
+  $query = http_build_query( Request::except('page' ) );
+  $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
+?>
+
+
   <div class="productGrid" id="productGrid">
-    @include('instock.product-items')
+    <div class="row">
+      <div class="col-2">
+        <div class="form-group">
+          Goto :
+          <select onchange="location.href = this.value;" class="form-control">
+            @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
+              <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
+              @endfor
+          </select>
+        </div>
+      </div>
+    </div>
+    <div class="infinite-scroll">
+        @include('instock.product-items')
+    </div>
   </div>
 
   <div id="instruction-model" class="modal fade" role="dialog">
@@ -207,6 +230,7 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script>
 
      var customerSearch = function() {
@@ -619,6 +643,22 @@
     $(document).ready(function() {
        $(".select-multiple").multiselect();
        $(".select-multiple2").select2();
+       $('ul.pagination').hide();
+       $(function () {
+            $('.infinite-scroll').jscroll({
+                autoTrigger: true,
+                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                padding: 2500,
+                nextSelector: '.pagination li.active + li a',
+                contentSelector: 'div.infinite-scroll',
+                callback: function () {
+                    console.log($('ul.pagination').not(":last"));
+                    $('ul.pagination').not(":last").remove();
+                    $(".select-multiple").multiselect();
+                    $(".select-multiple2").select2();
+                }
+            });
+        });
     });
 
     // $('#product-search').autocomplete({
@@ -629,7 +669,7 @@
     //   }
     // });
 
-    $(document).on('click', '.pagination a', function(e) {
+    /*$(document).on('click', '.pagination a', function(e) {
       e.preventDefault();
       var url = $(this).attr('href');
 
@@ -644,7 +684,7 @@
       }).fail(function() {
         alert('Error loading more products');
       });
-    }
+    }*/
 
     {{--$('#searchForm').on('submit', function(e) {--}}
     {{--  e.preventDefault();--}}

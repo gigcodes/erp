@@ -90,4 +90,9 @@ class Brand extends Model
        return $this->hasOne(SkuFormat::class,'brand_id','id');
     }
 
+    public static function getBrands()
+    {
+        return self::where("magento_id",">",0)->get();
+    }
+
 }

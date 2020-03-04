@@ -7,6 +7,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
+use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Support\Facades\Log;
 use App\MagentoSoapHelper;
 use App\Product;
@@ -41,11 +42,16 @@ class PushToMagento implements ShouldQueue
         // Load product
         $product = $this->_product;
 
+        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+        
+            $result = MagentoHelper::uploadProduct($product);
+
+        }
         // Load Magento Soap Helper
-        $magentoSoapHelper = new MagentoSoapHelper();
+        //$magentoSoapHelper = new MagentoSoapHelper();
 
         // Push product to Magento
-        $result = $magentoSoapHelper->pushProductToMagento( $product );
+        //$result = $magentoSoapHelper->pushProductToMagento( $product );
 
         // Check for result
         if ( !$result ) {

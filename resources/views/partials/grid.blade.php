@@ -204,8 +204,7 @@
         </div>
       </div>
     @endif
-
-    <div class="productGrid" id="productGrid">
+    <div class="productGrid " id="productGrid">
 
     </div>
 
@@ -290,7 +289,9 @@
   @include('partials.modals.category')
   @include('partials.modals.color')
 @endsection
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -370,6 +371,22 @@
               @foreach ($products as $product)
       <?php
       $r = explode( ' ', $product->created_at );
+      $referencesCategory = "";
+      $referencesColor = "";
+      if(isset($product->scraped_products)){
+        // starting to see that howmany category we going to update
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
+            $category = $product->scraped_products->properties['category'];
+            if(is_array($category)) {
+                $referencesCategory = implode(' > ',$category);
+            }
+
+        }
+
+        if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+            $referencesColor = $product->scraped_products->properties['color'];
+        }
+      }  
 
       switch ( $roletype ) {
         case 'Selection':
@@ -408,8 +425,8 @@
               'size': '{{ strlen($product->size) > 17 ? substr($product->size, 0, 14) . '...' : $product->size }}',
               'price': '{{ $product->price_inr_special }}',
               'brand': '{{ \App\Http\Controllers\BrandController::getBrandName($product->brand ) }}',
-              'image': '{{ $product->getMedia(config('constants.media_tags'))->first()
-                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+              'image': '{{ $product->getMedia(config('constants.attach_image_tag'))->first()
+                            ? $product->getMedia(config('constants.attach_image_tag'))->first()->getUrl()
                             : ''
                          }}',
               'created_at': '{{ $r[0]  }}',
@@ -421,6 +438,8 @@
               'category' : "{{ $product->category }}",
               'supplier' : "{{ $product->supplier }}",
               'color' : "{{ ucfirst($product->color) != null ? ucfirst($product->color) : 'Select Color' }}",
+              'reference_category' : "{{ $referencesCategory }}",
+              'reference_color' : "{{ $referencesColor }}",
               @php
                 $supplier_list = '';
               @endphp
@@ -466,8 +485,14 @@
                                           <p>Color : ` + product['color'] + `</p>
                                           @if($roletype == 'Inventory')  
                                           </a>
-                                          <p>Category : <select class="form-control update-product select-multiple2" id="id_`+product['sku']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
-                                          <p>Color : <select class="form-control update-color select-multiple2" id="id_`+product['id']+`" data-id="`+product['id']+`">
+                                          <p>Ref. Category : ` + product['reference_category'] + ` </p>
+                                          <p>Category : <select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">
+                                            @foreach($categoryArray as $category)
+                                              <option value="{{ $category['id'] }}">{{ $category['value']}}</option>
+                                            @endforeach
+                                          </select></p>
+                                          <p>Ref. Color : ` + product['reference_color'] + ` </p>
+                                          <p>Color : <select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
                                             <option>Select Color</option
                                             @foreach($sampleColors as $color)
                                             <option value="{{ $color['erp_color'] }}">{{ $color['erp_color'] }}</option>
@@ -506,10 +531,15 @@
               jQuery('#productGrid').append(html + '</div>');
           
               groupedByTime[key].forEach(function (product) {
-                  $("#id_"+product['sku']).val(product['category']);
-                  $("#id_"+product['id']).val(product['color']);
-                   
+                console.log(product);
+                  if($("#category_"+product['id']).length > 0) {
+                    $("#category_"+product['id']).val(product['category']);
+                  }
+                  if($("#color_"+product['id']).length > 0) {
+                    $("#color_"+product['id']).val(product['color']);
+                  }
               });
+              $(".select-multiple2").select2();
           });
 
 
@@ -735,10 +765,6 @@
                     $("#no_of_product_will_affect_color").html(0);
                 }
             });
-        }); 
-
-
-         
-
+        });
   </script>
 @endsection
