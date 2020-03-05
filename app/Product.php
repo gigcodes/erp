@@ -51,7 +51,9 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
         });
 
         static::updating(function ($product) {
@@ -67,7 +69,9 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
         });
     }
 
