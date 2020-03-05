@@ -193,7 +193,13 @@
                       $('#categoryUpdate').modal('hide');  
                       $("#loading-image").show();
                       $("#loading-image").hide();
-                  },
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+                }, 
+                error: function (){
+                    $("#loading-image").hide();
+                }
             });
         }
 
@@ -214,7 +220,10 @@
                           },
                 success: function(result){
                      $("#loading-image").hide();
-            	}
+            	}, 
+                error: function (){
+                    $("#loading-image").hide();
+                }
          	});
         }
 
