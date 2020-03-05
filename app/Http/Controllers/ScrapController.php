@@ -159,6 +159,20 @@ class ScrapController extends Controller
                 ]);
             }
         }
+
+        // fix property array
+        $requestedProperties = $request->get('properties');
+        if(!empty($requestedProperties)) {
+            foreach ($requestedProperties as $key => &$value) {
+                if($key == "category") {
+                   $requestedProperties[$key] = !is_array($value) ? [$value] : $value;
+                }
+            }
+        }
+
+        $request->request->add(["properties" => $requestedProperties]);
+        
+
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
         if(isset($propertiesExt["category"])) {
@@ -241,7 +255,7 @@ class ScrapController extends Controller
             $scrapedProduct->brand_id = $brand->id;
             $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
-            $scrapedProduct->validation_result = $errorLog;
+            $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->save();
         }
 
