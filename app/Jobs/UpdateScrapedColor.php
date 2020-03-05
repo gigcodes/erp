@@ -40,6 +40,9 @@ class UpdateScrapedColor implements ShouldQueue
         $product      = Product::find($this->product_id);
         $cat          = $this->color;
         $lastcategory = false;
+        if($product) {
+            $scrapedProductSkuArray[] = $product->sku; 
+        }
 
         if ($product->scraped_products) {
             if (isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null) {
@@ -79,28 +82,28 @@ class UpdateScrapedColor implements ShouldQueue
             if (!isset($scrapedProductSkuArray)) {
                 $scrapedProductSkuArray = [];
             }
+        }
 
-            //Update products with sku
-            $totalUpdated = 0;
-            if (count($scrapedProductSkuArray) != 0) {
-                foreach ($scrapedProductSkuArray as $productSku) {
-                    $oldProduct = Product::where('sku', $productSku)->first();
-                    if ($oldProduct != null) {
-                        $oldProduct->color = $cat;
-                        $oldProduct->save();
-                        $totalUpdated++;
-                    }
+        //Update products with sku
+        $totalUpdated = 0;
+        if (count($scrapedProductSkuArray) != 0) {
+            foreach ($scrapedProductSkuArray as $productSku) {
+                $oldProduct = Product::where('sku', $productSku)->first();
+                if ($oldProduct != null) {
+                    $oldProduct->color = $cat;
+                    $oldProduct->save();
+                    $totalUpdated++;
                 }
             }
-
-            \App\Notification::create([
-                "role"       => "Admin",
-                "message"    => $totalUpdated . " product has been affected while update color",
-                "product_id" => $product->id,
-                "user_id"    => 49,
-            ]);
-
-            return response()->json(['success', 'Product Got Updated']);
         }
+
+        \App\Notification::create([
+            "role"       => "Admin",
+            "message"    => $totalUpdated . " product has been affected while update color",
+            "product_id" => $product->id,
+            "user_id"    => 6,
+        ]);
+
+        return response()->json(['success', 'Product Got Updated']);
     }
 }
