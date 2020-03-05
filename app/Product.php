@@ -100,7 +100,11 @@ class Product extends Model
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
-                $product = Product::where('sku', $data[ 'sku' ])->first();
+                if($json->product_id > 0) {
+                    $product = Product::where('id', $json->product_id)->first();
+                }else{
+                    $product = Product::where('sku', $data[ 'sku' ])->first();
+                }
 
                 // Return false if no product is found
                 if (!$product) {
@@ -304,6 +308,8 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    $json->product_id = $product->id;
+                    $json->save();
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
@@ -524,12 +530,12 @@ class Product extends Model
 
     public function scraped_products()
     {
-        return $this->hasOne('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasOne('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasMany('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function user()

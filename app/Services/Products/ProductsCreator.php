@@ -74,7 +74,11 @@ class ProductsCreator
             Log::channel('productUpdates')->debug("[validator] fails - sku exists " . ProductHelper::getSku($image->sku));
 
             // Try to get the product from the database
-            $product = Product::where('sku', $data[ 'sku' ])->first();
+            if($image->product_id > 0) {
+                $product = Product::where('id', $image->product_id)->first();
+            }else{
+                $product = Product::where('sku', $data[ 'sku' ])->first();
+            }
 
             // Does the product exist? This should not fail, since the validator told us it's there
             if (!$product) {
@@ -301,6 +305,8 @@ class ProductsCreator
 
         try {
             $product->save();
+            $image->product_id = $product->id;
+            $image->save();
             $product->attachImagesToProduct();
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
