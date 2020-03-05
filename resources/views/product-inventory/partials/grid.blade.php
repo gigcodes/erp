@@ -30,7 +30,7 @@
               ]); ?></p>
             <p class="card-text">Ref. Color : {{ $product->reference_color }}</p>
             <p class="card-text">Color : <?php echo Form::select("color",$sampleColors,$product->color,[
-                "class" => "form-control update-product" , 
+                "class" => "form-control update-color" , 
                 "id" => "id_".$product->id,
                 "data-id" => $product->id
               ]); ?></p>

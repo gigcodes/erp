@@ -87,15 +87,25 @@ class UpdateScrapedCategory implements ShouldQueue
             }
 
             //Update products with sku
+            $totalUpdated = 0;
             if (count($scrapedProductSkuArray) != 0) {
+                $scrapedProductSkuArray = array_unique($scrapedProductSkuArray);
                 foreach ($scrapedProductSkuArray as $productSku) {
                     $oldProduct = Product::where('sku', $productSku)->first();
                     if ($oldProduct != null) {
                         $oldProduct->category = $cat;
                         $oldProduct->save();
+                        $totalUpdated++;
                     }
                 }
             }
+
+            \App\Notification::create([
+                "role" => "Admin",
+                "message" => $totalUpdated." product has been affected while update category",
+                "product_id" => $product->id,
+                "user_id" => 49
+            ]);
 
             return response()->json(['success', 'Product Got Updated']);
         }
