@@ -1605,6 +1605,8 @@ class ProductController extends Controller
             }
 
             return response()->json(['success','Product Got Updated']); 
+        }else{
+            return response()->json(['success','Sorry There is no Scrapped product category exists!']); 
         }
     }
 
