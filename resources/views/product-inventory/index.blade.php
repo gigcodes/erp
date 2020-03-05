@@ -48,13 +48,13 @@
                 </div>
                 <div class="form-group mr-3 mb-3">
                   @php $colors = new \App\Colors(); @endphp
-                  {!! Form::select('color[]',$colors->all(), request("color",[]), ['data-placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                  {!! Form::select('color[]',$colors->all(), request("color",[]), ['data-placeholder' => 'Select a Color','class' => 'form-control select-multiple2', 'multiple' => true,'style' => "width:250px;"]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
-                	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
-                	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
                   <input name="size" type="text" class="form-control" value="{{ request('size',null) }}" placeholder="Size">
