@@ -116,6 +116,10 @@
             $(this).select2().select2('open');
         });
 
+        $(document).on('mouseover', 'select.update-color', function() { 
+            $(this).select2().select2('open');
+        });
+
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,
@@ -166,6 +170,7 @@
                     }
                 },
                 error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
                     $("#loading-image").hide();
                     $('#categoryUpdate').modal('show');
                     $('#old_category').text('No Scraped Product Present');
@@ -184,7 +189,6 @@
             $.ajax({
                 url: '/products/'+product_id+'/updateCategory',
                 type: 'POST',
-                dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
                     category : category
@@ -192,8 +196,16 @@
                 beforeSend: function () {
                       $('#categoryUpdate').modal('hide');  
                       $("#loading-image").show();
-                      $("#loading-image").hide();
-                  },
+                      //$("#loading-image").hide();
+                },
+                success: function(result){
+                    toastr['success']('Request Sent successfully', 'success');
+                    $("#loading-image").hide();
+                }, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
             });
         }
 
@@ -213,8 +225,13 @@
                               $("#loading-image").show();
                           },
                 success: function(result){
+                    toastr['success']('Request Sent successfully', 'success');
                      $("#loading-image").hide();
-            	}
+            	}, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
          	});
         }
 
@@ -225,16 +242,23 @@
             $.ajax({
                 url: '/products/'+product_id+'/updateColor',
                 type: 'POST',
-                dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
                     color : color
                 },
                 beforeSend: function () {
-	                $('#categoryUpdate').modal('hide');  
 	                $("#loading-image").show();
 	                $("#loading-image").hide();
 	            },
+                success: function(result){
+                    $('#colorUpdate').modal('hide');
+                    toastr['success']('Request Sent successfully', 'success');
+                     $("#loading-image").hide();
+                }, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
             });
         
         }
@@ -256,8 +280,13 @@
                    $("#loading-image").show();
                 },
                 success: function(result){
+                   toastr['success']('Request Sent successfully', 'success');
                     $("#loading-image").hide();
-             	}
+             	}, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
          	});
         } 
 
@@ -297,6 +326,7 @@
                     }
                 },
                 error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
                     $("#loading-image").hide();
                     $('#colorUpdate').modal('show');
                     $('#old_color').text('No Scraped Product Present');
