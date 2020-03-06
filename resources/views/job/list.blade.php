@@ -66,6 +66,9 @@
                                     </td>
                                     <td>
                                         <button data-toggle="modal" data-target="#detail_modal" class="btn btn-primary job-details" data-id="{{ $item}}"><i class="fa fa-eye"></i></button>
+                                        <a onclick="return confirm('Are you sure you want to delete job ?')" href="{{ route('jobs.delete',[$item->id]) }}">
+                                            <button class="btn btn-primary"><i class="fa fa-trash"></i></button>
+                                        </a>
                                     </td>
                                 </tr>
                             @endforeach()
