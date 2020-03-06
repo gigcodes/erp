@@ -1,4 +1,4 @@
- @if($categories->isEmpty())
+ @if(count($categories) == 0)
 
             <tr>
                 <td>
