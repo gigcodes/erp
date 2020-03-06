@@ -819,7 +819,7 @@ $('#chat-list-history').on("scroll", function() {
 
     // Bottom reached:
     //console.log([modal_scrollTop,(modal_scrollHeight - 500), workingOn , currentChatParams.data.hasMore]);
-    if (modal_scrollTop > (modal_scrollHeight - 500) && workingOn == null) {
+    if (modal_scrollTop > (modal_scrollHeight - 1000) && workingOn == null) {
         if(currentChatParams.data.hasMore && workingOn == null) {
             workingOn = true;
             currentChatParams.data.page++; 
