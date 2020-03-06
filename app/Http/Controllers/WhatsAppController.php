@@ -1493,6 +1493,30 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
+                        // check the last message send for price
+                        $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
+                        if($lastChatMessage) {
+                            if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
+                                $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
+                                if($lastImg) {
+                                   $mediable = \DB::table("mediables")->where("media_id",$lastImg->id)->where('mediable_type',Product::class)->first();
+                                   if(!empty($mediable)) {
+                                      $product = Product::find($mediable->mediable_id);
+                                      if(!empty($product)) {
+                                            $priceO = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
+                                            $selected_products[] = $product->id;
+                                            $temp_img_params = $params;
+                                            $temp_img_params[ 'message' ]   = "Price : ".$priceO;
+                                            $temp_img_params[ 'media_url' ] = null;
+                                            $temp_img_params[ 'status' ]    = 2;
+                                            // Create new message
+                                            ChatMessage::create($temp_img_params); 
+                                      }
+                                   }    
+                                }
+                            }    
+                        }
+
                         if (!empty($selected_products) && $messageSentLast) {
                             foreach ($selected_products as $pid) {
                                 $product = \App\Product::where("id", $pid)->first();

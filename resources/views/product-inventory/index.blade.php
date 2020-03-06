@@ -8,6 +8,9 @@
 	$roletype = "Inventory";
 @endphp
 
+@section('favicon' , 'inventory.png')
+@section('title', 'Products Grid - ERP Sololuxury')
+
 @section('content')
 	<div class="row">
         <div class="col-lg-12 margin-tb">
@@ -34,7 +37,7 @@
         <div class="col-lg-12 margin-tb">
         	<form action="?" method="GET" class="form-inline align-items-start">
         		<div class="form-group mr-3 mb-3">
-        			<input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
+        			<input name="term" type="text" class="form-control" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">
         		</div>
         		<div class="form-group mr-3 mb-3">
                   {!! $category_selection !!}
@@ -45,13 +48,13 @@
                 </div>
                 <div class="form-group mr-3 mb-3">
                   @php $colors = new \App\Colors(); @endphp
-                  {!! Form::select('color[]',$colors->all(), request("color",[]), ['data-placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                  {!! Form::select('color[]',$colors->all(), request("color",[]), ['data-placeholder' => 'Select a Color','class' => 'form-control select-multiple2', 'multiple' => true,'style' => "width:250px;"]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
-                	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
-                	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple', 'multiple' => true]) !!}
+                	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
                   <input name="size" type="text" class="form-control" value="{{ request('size',null) }}" placeholder="Size">
@@ -63,14 +66,17 @@
                 </div>
                 <div class="form-group mr-3 mb-3">
                   <div class='input-group date' id='filter-date'>
-                      <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+                      <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                       <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                       </span>
                   </div>
                 </div>
                 <div class="form-group mr-3 mb-3">
-                   <input {{ (isset($is_on_sale) && $is_on_sale) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
+                   <input {{ (request('is_on_sale')) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
+                </div>
+                <div class="form-group mr-3 mb-3">
+                   <input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category"><label for="without_category">Without Category?</label>
                 </div>
                 @if (isset($customer_id) && $customer_id != null)
                   <input type="hidden" name="customer_id" value="{{ $customer_id }}">
@@ -106,6 +112,14 @@
        		$(".select-multiple2").select2();
     	});
 
+        $(document).on('mouseover', 'select.update-product', function() { 
+            $(this).select2().select2('open');
+        });
+
+        $(document).on('mouseover', 'select.update-color', function() { 
+            $(this).select2().select2('open');
+        });
+
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,
@@ -115,8 +129,8 @@
                 contentSelector: 'div.infinite-scroll',
                 callback: function () {
                 	$('ul.pagination').not(":last").remove();
-                   	$(".select-multiple").multiselect();
-       				$(".select-multiple2").select2();
+                   	//$(".select-multiple").multiselect();
+       				//$(".select-multiple2").select2();
                 }
             });
         });
@@ -156,6 +170,7 @@
                     }
                 },
                 error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
                     $("#loading-image").hide();
                     $('#categoryUpdate').modal('show');
                     $('#old_category').text('No Scraped Product Present');
@@ -174,7 +189,6 @@
             $.ajax({
                 url: '/products/'+product_id+'/updateCategory',
                 type: 'POST',
-                dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
                     category : category
@@ -182,8 +196,16 @@
                 beforeSend: function () {
                       $('#categoryUpdate').modal('hide');  
                       $("#loading-image").show();
-                      $("#loading-image").hide();
-                  },
+                      //$("#loading-image").hide();
+                },
+                success: function(result){
+                    toastr['success']('Request Sent successfully', 'success');
+                    $("#loading-image").hide();
+                }, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
             });
         }
 
@@ -203,8 +225,13 @@
                               $("#loading-image").show();
                           },
                 success: function(result){
+                    toastr['success']('Request Sent successfully', 'success');
                      $("#loading-image").hide();
-            	}
+            	}, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
          	});
         }
 
@@ -215,16 +242,23 @@
             $.ajax({
                 url: '/products/'+product_id+'/updateColor',
                 type: 'POST',
-                dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
                     color : color
                 },
                 beforeSend: function () {
-	                $('#categoryUpdate').modal('hide');  
 	                $("#loading-image").show();
 	                $("#loading-image").hide();
 	            },
+                success: function(result){
+                    $('#colorUpdate').modal('hide');
+                    toastr['success']('Request Sent successfully', 'success');
+                     $("#loading-image").hide();
+                }, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
             });
         
         }
@@ -246,8 +280,13 @@
                    $("#loading-image").show();
                 },
                 success: function(result){
+                   toastr['success']('Request Sent successfully', 'success');
                     $("#loading-image").hide();
-             	}
+             	}, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
          	});
         } 
 
@@ -287,6 +326,7 @@
                     }
                 },
                 error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
                     $("#loading-image").hide();
                     $('#colorUpdate').modal('show');
                     $('#old_color').text('No Scraped Product Present');

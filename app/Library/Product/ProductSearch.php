@@ -36,6 +36,9 @@ class ProductSearch
         $category_children = [];
 
         foreach ($categoies as $category) {
+            if($category == 1) {
+               continue;
+            }
             $is_parent = Category::isParent($category);
             if ($is_parent) {
                 $childs = Category::find($category)->childs()->get();
@@ -90,9 +93,11 @@ class ProductSearch
                         $products = $products->whereIn('color', $value);
                         break;
 
-                    case 'category':
+                    case 'category':    
                         $matchedCategories = $this->matchedCategories($value);
-                        $products          = $products->whereIn('category', $matchedCategories);
+                        if(!empty($matchedCategories)) {
+                            $products          = $products->whereIn('category', $matchedCategories);
+                        }
                         break;
 
                     case 'price_min':
@@ -183,6 +188,9 @@ class ProductSearch
                             $products = $products->whereRaw("(stock > 0 OR (supplier LIKE '%In-Stock%'))");
                         }
                         break;
+                    case 'without_category':
+                        $products = $products->where('category',"<=", 0);
+                        break;    
                     case 'source_of_search':
                         if ($value == "attach_media") {
                             $products = $products->join("mediables", function ($query) {

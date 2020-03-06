@@ -30,7 +30,7 @@ class NewProductInventoryController extends Controller
         ];
 
         $params   = request()->all();
-        $products = (new ProductSearch($params))->getQuery()->paginate(10);
+        $products = (new ProductSearch($params))->getQuery()->paginate(24);
 
         $items = [];
         foreach ($products->items() as $product) {

@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\ChatMessage;
+use App\Currency;
 use App\Customer;
 use App\Helpers\ProductHelper;
 use App\Product;
@@ -68,14 +69,14 @@ class SendMessageToCustomer implements ShouldQueue
 
         // if we need to send by images id  direct then use this one
         //if ($this->type == "by_images") {
-        if(!empty($params["images"])) {
+        if (!empty($params["images"])) {
             $ids = is_array($params["images"]) ? $params["images"] : json_decode($params["images"]);
             $haveMedia = true;
             $medias = Media::whereIn("id", $ids)->get();
         }
         //}
 
-        if(isset($params["images"]) && is_array($params["images"])) {
+        if (isset($params["images"]) && is_array($params["images"])) {
             $medias = Media::whereIn("id", $params["images"])->get();
         }
         // attach to the customer
@@ -83,6 +84,27 @@ class SendMessageToCustomer implements ShouldQueue
 
         // @todo since this message all are auto so no need to update cutomer last message to read
         $customers = Customer::whereIn("id", $customerIds)->get();
+
+        //get the currencies for the customer
+        $currencies = $customers->map(
+            function ($customer) {
+                return $customer->currency;
+            }
+        )->filter(function ($currency) {
+            return isset($currency);
+        });
+
+        $currencies = array_values($currencies->toArray());
+
+        // Get the rates
+        $ratesDb = Currency::whereIn('code', $currencies)->get();
+
+        $rates = array();
+        foreach ($ratesDb as $rate) {
+            $rates[$rate->code] = $rate->rate;
+        }
+        //Base EURO currency
+        $rates['EUR'] = 1;
 
         $insertParams = [
             "message"  => isset($params["message"]) ? $params["message"] : null,
@@ -111,42 +133,62 @@ class SendMessageToCustomer implements ShouldQueue
         // check first if the media needs to be handled by pdf then first create the images of it
         $allpdf   = [];
         $allMedia = [];
-        if(!empty($medias)) {
+        $translatedPdfs = [];
+        if (!empty($medias)) {
             if ($medias->count() > self::SENDING_MEDIA_SIZE || (isset($params["send_pdf"]) && $params["send_pdf"] == 1)) {
                 $chunkedMedia = $medias->chunk(self::MEDIA_PDF_CHUNKS);
+
                 foreach ($chunkedMedia as $key => $medias) {
 
-                    $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products'));
+                    foreach ($rates as $currency => $rate) {
 
-                    // based on view create a pdf
-                    $pdf = new Dompdf();
-                    $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
-                    $pdf->loadHtml($pdfView);
+                        $products = $products->map(function ($product) use ($rates, $currency) {
+                            if (isset($rates[$currency])) {
+                                $product->price_inr_special *=  $rates[$currency];
+                            }
+                            return $product;
+                        });
+                        $currencySymbol = 'EUR';
+                        if (isset($rates[$currency])){
+                            $currencySymbol = $currency;
+                        }
 
-                    if (!empty($params["pdf_file_name"])) {
-                        $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
-                    } else {
-                        $random = uniqid('sololuxury_', true);
+                        $pdfView = (string) view('pdf_views.images_customer', compact('medias', 'availableMedia', 'products', 'currencySymbol'));
+
+                        // based on view create a pdf
+                        $pdf = new Dompdf();
+                        $pdf->setPaper([0, 0, 1000, 1000], 'portrait');
+                        $pdf->loadHtml($pdfView);
+
+                        if (!empty($params["pdf_file_name"])) {
+                            $random = str_replace(" ", "-", $params["pdf_file_name"] . "-" . ($key + 1) . "-" . date("Y-m-d-H-i-s-") . rand());
+                        } else {
+                            $random = uniqid('sololuxury_', true);
+                        }
+
+                        $fileName = public_path() . '/' . $random . '.pdf';
+                        $pdf->render();
+
+                        File::put($fileName, $pdf->output());
+
+                       
+                        $allpdf[]            = $fileName;
+                        $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
+                        $allMedia[$fileName] = $media;
+
+                        $translatedPdfs[$fileName][$currency] = $media;
+
                     }
-
-                    $fileName = public_path() . '/' . $random . '.pdf';
-                    $pdf->render();
-
-                    File::put($fileName, $pdf->output());
-
-                    $allpdf[]            = $fileName;
-                    $media               = MediaUploader::fromSource($fileName)->toDirectory('chatmessage/0')->upload();
-                    $allMedia[$fileName] = $media;
-
                 }
             }
         }
 
         if (!$customers->isEmpty()) {
             foreach ($customers as $customer) {
+                $customerPreferredCurrency = $customer->currency;
                 $insertParams["customer_id"] = $customer->id;
                 $chatMessage                 = ChatMessage::create($insertParams);
-                if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
                     \App\ChatbotReply::create([
                         "chat_id"  => $chatMessage->id,
                         "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
@@ -161,19 +203,36 @@ class SendMessageToCustomer implements ShouldQueue
                         if (!empty($allpdf)) {
                             foreach ($allpdf as $no => $file) {
                                 // if first file then send direct into queue and if then send after it
+
+                                $media = $allMedia[$file];
+
+                                // translated PDF logic starts -->
+
+                                if(isset($translatedPdfs) && isset($translatedPdfs[$fileName])){
+                                    // the translated PDF exits and hence check for customer currency
+                                    if(isset($translatedPdfs[$fileName][$customerPreferredCurrency])){
+                                        // if customer preferred currency exist, use that
+                                        $media = $translatedPdfs[$fileName][$customerPreferredCurrency];
+                                    }else if(isset($translatedPdfs[$fileName]['EUR'])){
+                                        //else if EURO exists
+                                        $media = $translatedPdfs[$fileName]['EUR'];
+                                    }
+                                }
+
+                                // <-- translated PDF logic ends
+
                                 if ($no == 0) {
-                                    $chatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                    $chatMessage->attachMedia($media, config('constants.media_tags'));
                                 } else {
                                     // attach to customer so we can send later after approval
                                     $extradata             = $insertParams;
                                     $extradata['is_queue'] = 0;
                                     $extraChatMessage      = ChatMessage::create($extradata);
-                                    $extraChatMessage->attachMedia($allMedia[$file], config('constants.media_tags'));
+                                    $extraChatMessage->attachMedia($media, config('constants.media_tags'));
                                 }
                             }
-
                         }
-                    }else {
+                    } else {
                         foreach ($medias as $media) {
                             try {
                                 $chatMessage->attachMedia($media, config('constants.media_tags'));
@@ -185,7 +244,7 @@ class SendMessageToCustomer implements ShouldQueue
                 }
 
                 // chat message for approval
-                if($chatMessage->status == ChatMessage::CHAT_MESSAGE_APPROVED) {
+                if ($chatMessage->status == ChatMessage::CHAT_MESSAGE_APPROVED) {
                     $myRequest = new Request();
                     $myRequest->setMethod('POST');
                     $myRequest->request->add(['messageId' => $chatMessage->id]);
@@ -195,7 +254,6 @@ class SendMessageToCustomer implements ShouldQueue
         }
 
         self::deletePdfFiles($allpdf);
-
     }
 
     /**
@@ -211,5 +269,4 @@ class SendMessageToCustomer implements ShouldQueue
             }
         }
     }
-
 }
