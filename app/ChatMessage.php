@@ -282,4 +282,65 @@ class ChatMessage extends Model
         ->first();
     }
 
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getGroupImagesByIds($ids,$toArray = false)
+    {
+        $list = \DB::table("mediables")
+        ->where("mediable_type",self::class)
+        ->whereIn("mediable_id",$ids)
+        ->groupBy("mediable_id")
+        ->select(["mediable_id",\DB::raw("group_concat(media_id) as image_ids")])
+        ->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+
+     /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByCustomerIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("customer_id",$ids)->latest()->select($fields)->limit(20)->paginate();
+
+        if($toArray) {
+            $list = $list->items();
+        }
+
+        return $list;
+    }
+
+
+    
+
+
 }
