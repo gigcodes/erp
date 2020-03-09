@@ -328,9 +328,21 @@ class ChatMessage extends Model
      *  @return Mixed
      */
 
-    public static function getInfoByCustomerIds($ids, $fields = ["*"], $toArray = false)
+    public static function getInfoByCustomerIds($ids, $fields = ["*"], $params = [], $toArray = false)
     {
-        $list = self::whereIn("customer_id",$ids)->latest()->select($fields)->limit(20)->paginate();
+        unset($_GET["page"]);
+        $list = self::whereIn("customer_id",$ids)->latest();
+
+        if(!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
+            $list = $list->where("id","<",$params["lastMsg"]);            
+        }
+
+        if(!empty($params["next"]) && $params["next"] == true && !empty($params["lastMsg"])) {
+            $list = $list->where("id",">",$params["lastMsg"]);            
+        }
+
+        $list =  $list->select($fields)->paginate(10);
+
 
         if($toArray) {
             $list = $list->items();

@@ -1,31 +1,10 @@
 
-let user = {
+/*let user = {
 	id: 0,
 	name: "Anish",
 	number: "+91 91231 40293",
 	pic: "https://via.placeholder.com/400x400"
-};
-
-let groupList = [
-	{
-		id: 1,
-		name: "Programmers",
-		members: [0, 1, 3],
-		pic: "https://via.placeholder.com/400x400"
-	},
-	{
-		id: 2,
-		name: "Web Developers",
-		members: [0, 2],
-		pic: "https://via.placeholder.com/400x400"
-	},
-	{
-		id: 3,
-		name: "notes",
-		members: [0],
-		pic: "https://via.placeholder.com/400x400"
-	}
-];
+};*/
 
 // message status - 0:sent, 1:delivered, 2:read
 

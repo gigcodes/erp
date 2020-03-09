@@ -50,13 +50,13 @@ class WhatsappConfigProvider extends ServiceProvider
                         "customer_number" => ($inst->is_customer_support == 1) ? true : false,
                     ];
                     if ($inst->is_default == 1) {
-                        $default[0] = $array;
+                        $others[0] = $array;
                     }
                     $others[$inst->number] = $array;
 
                 }
                 // merge array to default instances and update the config file
-                $nos = array_merge($default, $others);
+                $nos = $others;
                 if(!empty($nos)) {
                     config(['apiwha.instances' => $nos]);
                 }
