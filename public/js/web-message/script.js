@@ -73,6 +73,7 @@ let populateChatList = () => {
 	// that are already included in chatList
 	// in short, 'present' is a Map DS
 	let present = {};
+	console.log('contactList',contactList);
 
 	MessageUtils.getMessages()
 	.sort((a, b) => mDate(a.time).subtract(b.time))
@@ -87,7 +88,8 @@ let populateChatList = () => {
 			chat.name = chat.group.name;
 		} else {
 			chat.contact = contactList.find((contact) => (msg.sender !== user.id) ? (contact.id === msg.sender) : (contact.id === msg.recvId));
-			chat.name = chat.contact.name;
+			console.log('CHAT',chat);
+			chat.name = (chat.contact) ? chat.contact.name : "";
 		}
 
 		chat.unread = (msg.sender !== user.id && msg.status <= 2) ? 1: 0;
