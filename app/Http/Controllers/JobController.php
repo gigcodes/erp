@@ -47,4 +47,15 @@ class JobController extends Controller
         return view('job.list',compact('jobs','filters'))
                             ->withInput($request->all());
     }
+
+    public function delete(Request $request, $id)
+    {
+        $jobs = \App\Job::find($id);
+
+        if(!empty($jobs)) {
+            $jobs->delete();
+        }
+
+        return back()->withInput();
+    }
 }
