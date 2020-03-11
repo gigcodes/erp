@@ -282,4 +282,77 @@ class ChatMessage extends Model
         ->first();
     }
 
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getGroupImagesByIds($ids,$toArray = false)
+    {
+        $list = \DB::table("mediables")
+        ->where("mediable_type",self::class)
+        ->whereIn("mediable_id",$ids)
+        ->groupBy("mediable_id")
+        ->select(["mediable_id",\DB::raw("group_concat(media_id) as image_ids")])
+        ->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+
+     /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByObjectIds($field, $ids, $fields = ["*"], $params = [], $toArray = false)
+    {
+        unset($_GET["page"]);
+        $list = self::whereIn($field,$ids)->latest();
+
+        if(!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
+            $list = $list->where("id","<",$params["lastMsg"]);            
+        }
+
+        if(!empty($params["next"]) && $params["next"] == true && !empty($params["lastMsg"])) {
+            $list = $list->where("id",">",$params["lastMsg"]);            
+        }
+
+        $list =  $list->select($fields)->paginate(10);
+
+
+        if($toArray) {
+            $list = $list->items();
+        }
+
+        return $list;
+    }
+
+
+    
+
+
 }
