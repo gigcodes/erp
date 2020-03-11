@@ -73,7 +73,6 @@
 		var user  = JSON.parse('<?php echo json_encode($jsonUser); ?>');
 		var contactList = JSON.parse('<?php echo json_encode($jsonCustomer) ?>');
 		var messages = JSON.parse('<?php echo json_encode($jsonMessage) ?>');
-		var autoReply = JSON.parse('<?php echo addslashes(json_encode($replies)); ?>');
 	</script>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
