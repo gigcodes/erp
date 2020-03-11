@@ -505,6 +505,9 @@ let init = () => {
 		}
 	});
 
+	/*$( ".input-message" ).autocomplete({
+      source: autoReply
+    });*/
 };
 
 init();

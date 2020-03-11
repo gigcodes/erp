@@ -6,6 +6,7 @@ use App\ChatMessage;
 use App\Customer;
 use App\Vendor;
 use App\Supplier;
+use App\AutoReply;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -37,7 +38,10 @@ class WebMessageController extends Controller
         $jsonCustomer = $customerList["jsonCustomer"];
         $jsonMessage  = $customerList["jsonMessage"];
 
-        return view('webmessage::index', compact('customers', 'jsonCustomer', 'jsonMessage', 'jsonUser'));
+        // add the auto reply message here 
+        $replies = \App\AutoReply::get()->pluck(["reply"])->toArray();
+
+        return view('webmessage::index', compact('customers', 'jsonCustomer', 'jsonMessage', 'jsonUser', 'replies'));
     }
 
     public function getLastConversationGroup($page = 1)

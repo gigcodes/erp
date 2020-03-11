@@ -26,7 +26,7 @@
 	
 	<div class="container-fluid" id="main-container">
 		<div class="row h-100">
-			<div class="col-12 col-sm-5 col-md-4 d-flex flex-column" id="chat-list-area" style="position:relative;">
+			<div class="col-12 col-sm-3 col-md-3 d-flex flex-column" id="chat-list-area" style="position:relative;">
 				<!-- Navbar -->
 				<div class="row d-flex flex-row align-items-center p-2" id="navbar">
 					<img alt="Profile Photo" class="img-fluid rounded-circle mr-2" style="height:50px; cursor:pointer;" id="display-pic">
@@ -37,7 +37,7 @@
 			</div>
 
 			<!-- Message Area -->
-			<div class="d-none d-sm-flex flex-column col-12 col-sm-7 col-md-8 p-0 h-100" id="message-area">
+			<div class="d-none d-sm-flex flex-column col-12 col-sm-8 col-md-9 p-0 h-100" id="message-area">
 				<div class="w-100 h-100 overlay"></div>
 
 				<!-- Navbar -->
@@ -62,8 +62,8 @@
 
 				<!-- Input -->
 				<div class="d-none justify-self-end align-items-center flex-row" id="input-area">
-					<a href="#"><i class="far fa-smile text-muted px-3" style="font-size:1.5rem;"></i></a>
-					<input type="text" name="message" id="input" placeholder="Type a message" class="flex-grow-1 border-0 px-3 py-2 my-3 rounded shadow-sm">
+					<a href="#"><i class="fa fa-history text-muted px-3" style="font-size:1.5rem;"></i></a>
+					<input type="text" name="message" id="input" placeholder="Type a message" class="flex-grow-1 border-0 px-3 py-2 my-3 rounded shadow-sm input-message">
 					<i class="fas fa-paper-plane text-muted px-3" style="cursor:pointer;" onclick="sendMessage()"></i>
 				</div>
 			</div>
@@ -73,9 +73,11 @@
 		var user  = JSON.parse('<?php echo json_encode($jsonUser); ?>');
 		var contactList = JSON.parse('<?php echo json_encode($jsonCustomer) ?>');
 		var messages = JSON.parse('<?php echo json_encode($jsonMessage) ?>');
+		var autoReply = JSON.parse('<?php echo addslashes(json_encode($replies)); ?>');
 	</script>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 	<script src="/js/jquery.magnific-popup.min.js"></script>
