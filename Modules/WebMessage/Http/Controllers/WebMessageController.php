@@ -49,7 +49,7 @@ class WebMessageController extends Controller
     {
         $customerList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
+            ->whereDate('created_at', '>', Carbon::now()->subDays(3))
             ->groupBy("customer_id")
             ->select(["customer_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("customer_id is not null")
@@ -59,7 +59,7 @@ class WebMessageController extends Controller
         // need to setup list as per the the customer, supplier, vendor etc
         $vendorList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
+            ->whereDate('created_at', '>', Carbon::now()->subDays(3))
             ->groupBy("vendor_id")
             ->select(["vendor_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("vendor_id is not null")
@@ -69,7 +69,7 @@ class WebMessageController extends Controller
         // need to setup list as per the the customer, supplier, vendor etc
         $supplierList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
+            ->whereDate('created_at', '>', Carbon::now()->subDays(3))
             ->groupBy("supplier_id")
             ->select(["supplier_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("supplier_id is not null")
