@@ -156,7 +156,7 @@ let addMediaToMessageArray = (msg,append) => {
 			}
 
 			var dropMenu = ``;
-			if(media.product_id > 0) {
+			if(media.product_id > 0 && chat.contact.type == "customer") {
 				dropMenu = `
 				<div class="options dropup" style="z-index:1000; top:auto;bottom:0;">
 					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
