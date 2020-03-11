@@ -435,8 +435,8 @@ class WebMessageController extends Controller
 
         if (!empty($customer) && !empty($pureValue["field"])) {
             $messageInfo = ChatMessage::getInfoByObjectIds(
-                $pureValue["field"]
-                [$customer->id],
+                $pureValue["field"],
+                array($customer->id),
                 ["id", "number", "message", "media_url", "customer_id", "is_chatbot", "status", "approved", "created_at"],
                 $params,
                 true
