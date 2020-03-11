@@ -51,6 +51,7 @@ class WebMessageController extends Controller
             ->groupBy("customer_id")
             ->select(["customer_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("customer_id is not null")
+            ->limit(10)
             ->latest()
             ->get();
 
@@ -60,6 +61,7 @@ class WebMessageController extends Controller
             ->groupBy("vendor_id")
             ->select(["vendor_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("vendor_id is not null")
+            ->limit(10)
             ->latest()
             ->get();
 
@@ -69,6 +71,7 @@ class WebMessageController extends Controller
             ->groupBy("supplier_id")
             ->select(["supplier_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("supplier_id is not null")
+            ->limit(10)
             ->latest()
             ->get();    
 
