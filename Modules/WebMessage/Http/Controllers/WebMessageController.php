@@ -39,7 +39,7 @@ class WebMessageController extends Controller
         $jsonMessage  = $customerList["jsonMessage"];
 
         // add the auto reply message here 
-        $replies = \App\AutoReply::get()->pluck(["reply"])->toArray();
+        $replies = [];//\App\AutoReply::get()->pluck(["reply"])->toArray();
 
         return view('webmessage::index', compact('customers', 'jsonCustomer', 'jsonMessage', 'jsonUser', 'replies'));
     }
