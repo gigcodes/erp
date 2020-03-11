@@ -11,6 +11,7 @@ use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Carbon\Carbon;
 
 class WebMessageController extends Controller
 {
@@ -48,31 +49,31 @@ class WebMessageController extends Controller
     {
         $customerList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
             ->groupBy("customer_id")
             ->select(["customer_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("customer_id is not null")
-            ->limit(10)
-            ->latest()
+            ->orderBy("last_chat_id","desc")
             ->get();
 
         // need to setup list as per the the customer, supplier, vendor etc
         $vendorList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
             ->groupBy("vendor_id")
             ->select(["vendor_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("vendor_id is not null")
-            ->limit(10)
-            ->latest()
+            ->orderBy("last_chat_id","desc")
             ->get();
 
         // need to setup list as per the the customer, supplier, vendor etc
         $supplierList = \DB::table("chat_messages")
             ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(30))
             ->groupBy("supplier_id")
             ->select(["supplier_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("supplier_id is not null")
-            ->limit(10)
-            ->latest()
+            ->orderBy("last_chat_id","desc")
             ->get();    
 
         $customers = [];
