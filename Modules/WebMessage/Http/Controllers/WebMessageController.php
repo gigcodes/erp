@@ -581,8 +581,6 @@ class WebMessageController extends Controller
             $object = "supplier";
         }
 
-        echo '<pre>'; print_r(["field" => $field, "object" => $object, "real_id" => $i]); echo '</pre>';exit;
-
         return ["field" => $field, "object" => $object, "real_id" => $i];
 
     }
