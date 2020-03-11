@@ -154,6 +154,19 @@ let addMediaToMessageArray = (msg,append) => {
 			if(key > 3 ) {
 				classDis = "dis-none";
 			}
+
+			var dropMenu = ``;
+			if(media.product_id > 0) {
+				dropMenu = `
+				<div class="options dropup" style="z-index:1000; top:auto;bottom:0;">
+					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
+					<div class="dropdown-menu" x-placement="top-start" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; z-index:1200">
+						<a data-case="send_dimension" data-p="${media.product_id}" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Send Dimensions</a>
+						<a data-case="send_detail" data-p="${media.product_id}" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Send Detail</a>
+					</div>
+				</div>`;
+			}
+
 			MediaHtml += 
 				`<div class="_36Yqt `+classDis+`">
 				    <div class="_1b8RS">
@@ -161,10 +174,11 @@ let addMediaToMessageArray = (msg,append) => {
 				        	${(key == 3 && msg.media.length > 4) ? '<div class="_3Ms7M">' : ''}
 				            <div>
 				                <div class="_3mdDl ${(key == 3 && msg.media.length > 4) ? '_1cdQD' : ''}" style="width: 165px; height: 168px;">
-				                   <img data-src="${media.url}" data-type="${media.type}" src="${media.url}" class="_18vxA" style="height: 100%;">
+				                   <img data-src="${media.url}" data-type="${media.type}" src="${(media.type == "pdf") ? "/images/pdf_icon.png" : media.url}" class="_18vxA" style="height: 100%;">
 				                   <div class="_3TrQs"></div>
 				                </div>
 				            </div>
+				            ${(dropMenu != '') ? dropMenu : ''}
 				            ${(key == 3 && msg.media.length > 4) ? '<span class="_1XSxP _1drsQ">+'+(msg.media.length - 4)+'</span></div>' : ''}
 				         </div>
 				      </div>
@@ -178,6 +192,8 @@ let addMediaToMessageArray = (msg,append) => {
 					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 					<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 						<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
+						${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+						${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
 					</div>
 				</div>
 				<div class="d-flex flex-row media-row">
@@ -217,6 +233,10 @@ let addMessageToMessageArea = (msg,append) => {
 				<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 				<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 					<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
+					${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+					${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
+					${(msg.status == 0) ? '<a data-case="mark_as_read" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Read</a>' : ''}
+					${(msg.status == 0 || msg.status == 5) ? '<a data-case="mark_as_replied" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Replied</a>' : ''}
 				</div>
 			</div>	
 			${chat.isGroup ? htmlForGroup : ""}
@@ -280,7 +300,7 @@ let generateMessageArea = (elem, chatIndex) => {
 	DOM.messageAreaName.innerHTML = chat.name;
 	DOM.messageAreaPic.src = chat.isGroup ? chat.group.pic : chat.contact.pic;
 	
-	document.getElementById("attach-files-user").href = "/attachImages/customer/"+chat.contact.id+"/1";
+	document.getElementById("attach-files-user").href = "/attachImages/"+chat.contact.type+"/"+chat.contact.real_id+"/1";
 	
 	DOM.messageAreaDetails.innerHTML = `Created At ${mDate(chat.contact.lastSeen).lastSeenFormat()}`;
 	
@@ -428,7 +448,8 @@ let messageAction = (ele) => {
 	
 	let action = {
 		id : ele.data("i"),
-		case : ele.data("case")
+		case : ele.data("case"),
+		p : ele.data("p")
 	}
 	
 	$.ajax({
@@ -465,23 +486,23 @@ let init = () => {
 	});
 
 	$(document).on("click","._36Yqt",function(e){
-		console.log("called");
-		var images  = $(this).closest(".media-row").find("img");
-		var items = [];
-			$.each(images,function(k,v){
-				items.push({
-					"src" : $(v).attr("src"),
-					"type" : "image"
-				})
-			});
+		if(e.target.tagName.toLowerCase() !== "a") {
+			var images  = $(this).closest(".media-row").find("img");
+			var items = [];
+				$.each(images,function(k,v){
+					var ele = $(v);
+					items.push({
+						"src" : ele.attr("data-src"),
+						"type" : (ele.attr("data-type") == "pdf") ? "iframe" : "image"
+					})
+				});
 
-		$.magnificPopup.open({
-		  items:items,
-		  gallery: {
-	      enabled: true
-	    },
-	    type: 'image'
-		});
+			$.magnificPopup.open({
+			 	items:items,
+			  	gallery: {enabled: true},
+		    	type: 'image'
+			});
+		}
 	});
 
 };
