@@ -125,6 +125,16 @@ return [
             'path'   => storage_path('logs/scraper/scraper.log'),
             'days'   => 14,
         ],
+        'update_category_job'        => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/category_job/category_job.log'),
+            'days'   => 7,
+        ],
+        'update_color_job'        => [
+            'driver' => 'daily',
+            'path'   => storage_path('logs/color_job/color_job.log'),
+            'days'   => 7,
+        ]
     ],
 
 ];
