@@ -1,4 +1,3 @@
-``
 let getById = (id, parent) => parent ? parent.getElementById(id) : getById(id, document);
 let getByClass = (className, parent) => parent ? parent.getElementsByClassName(className) : getByClass(className, document);
 
@@ -111,6 +110,7 @@ let viewChatList = () => {
 	.forEach((elem, index) => {
 		let statusClass = elem.msg.status <= 5 ? "far" : "fas";
 		let unreadClass = elem.unread ? "unread" : "";
+		let unApproved  = (elem.msg.approved != 1);
 		DOM.chatList.innerHTML += `
 		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" id="user-list-${elem.msg.recvId}">
 			<div class="w-50" onclick="generateMessageArea(this, ${index})">
@@ -188,9 +188,9 @@ let addMediaToMessageArray = (msg,append) => {
 				</div>`;
 		});
 		MediaHtml += '</div>';
-
+		let unApprovedcls = (msg.approved != 1) ?  "unapproved-msg" : "";
 		var body =  
-			`<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''}">
+			`<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 				<div class="options dropdown" style="z-index:1200">
 					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 					<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
@@ -230,8 +230,9 @@ let addMessageToMessageArea = (msg,append) => {
 	`;*/
 
 	let sendStatus = `<i class="${msg.status <= 5 ? "far" : "fas"} fa-check-circle"></i>`;
+	let unApprovedcls = (msg.approved != 1) ?  "unapproved-msg" : "";
 	if(msg.has_media == false || msg.body != '') {
-		var body = `<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''}">
+		var body = `<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 			<div class="options dropdown" style="z-index:1200">
 				<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 				<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">

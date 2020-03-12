@@ -20,6 +20,9 @@
 		.dis-none{
 			display: none;
 		}
+		.unapproved-msg {
+			border: 1px solid red;
+		}
 	</style>
 </head>
 <body>
