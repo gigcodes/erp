@@ -204,7 +204,7 @@ let addMediaToMessageArray = (msg,append) => {
 				</div>
 			</div>`;
 
-		if(append ==  true) {
+		if(append == true) {
 			DOM.messages.append($(body)[0])
 		}else{
 			DOM.messages.prepend($(body)[0])
@@ -531,9 +531,14 @@ let init = () => {
 
 	
 
-	/*$( ".input-message" ).autocomplete({
-      source: autoReply
-    });*/
+	$( ".input-message" ).easyAutocomplete({
+		data : autoSuggest,
+		list: {
+			match: {
+				enabled: true
+			}
+		}
+	});
 };
 
 init();
