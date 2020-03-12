@@ -1039,7 +1039,7 @@ class WhatsAppController extends FindByNumberController
             // Check if message already exists
             $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
             if ($chatMessage != null) {
-                continue;
+                //continue;
             }
 
             // Find connection with this number in our database
@@ -1222,7 +1222,30 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = $dubbizleId;
             $params[ 'customer_id' ] = $customerId;
 
-            if( !empty($user) || !empty($contact) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+            if( !empty($user) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+               
+               // check that if message comes from customer,supplier,vendor
+               if(!empty($customer)) {
+                    $blockCustomer = \App\BlockWebMessageList::where("object_id",$customer->id)->where("object_type",Customer::class)->first();
+                    if($blockCustomer) {
+                        $blockCustomer->delete();
+                    }
+               }
+               // check for vendor and remvove from the list
+               if(!empty($vendor)) {
+                    $blockVendor = \App\BlockWebMessageList::where("object_id",$vendor->id)->where("object_type",Vendor::class)->first();
+                    if($blockVendor) {
+                        $blockVendor->delete();
+                    }
+               }
+               // check for supplier and remove from the list
+               if(!empty($supplier)) {
+                    $blockSupplier = \App\BlockWebMessageList::where("object_id",$supplier->id)->where("object_type",Supplier::class)->first();
+                    if($blockSupplier) {
+                        $blockSupplier->delete();
+                    }
+               }
+
                $message = ChatMessage::create($params);  
             }
 

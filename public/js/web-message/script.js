@@ -1,4 +1,4 @@
-
+``
 let getById = (id, parent) => parent ? parent.getElementById(id) : getById(id, document);
 let getByClass = (className, parent) => parent ? parent.getElementsByClassName(className) : getByClass(className, document);
 
@@ -112,8 +112,8 @@ let viewChatList = () => {
 		let statusClass = elem.msg.status <= 5 ? "far" : "fas";
 		let unreadClass = elem.unread ? "unread" : "";
 		DOM.chatList.innerHTML += `
-		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" id="user-list-${elem.msg.recvId}" onclick="generateMessageArea(this, ${index})">
-			<div class="w-50">
+		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" id="user-list-${elem.msg.recvId}">
+			<div class="w-50" onclick="generateMessageArea(this, ${index})">
 				<div class="name">${elem.name}</div>
 				<div class="small last-message">${elem.isGroup ? contactList.find(contact => contact.id === elem.msg.sender).number + ": " : ""}${elem.msg.sender === user.id ? "<i class=\"" + statusClass + " fa-check-circle mr-1\"></i>" : ""}
 					${(elem.msg.has_media == true) ? '<i class="fas fa-file-image"></i> Media' : elem.msg.body}
@@ -121,6 +121,7 @@ let viewChatList = () => {
 			</div>
 			<div class="flex-grow-1 text-right">
 				<div class="small time">${mDate(elem.msg.time).chatListFormat()}</div>
+				<div data-i="${elem.msg.recvId}" class="badge badge-danger badge-pill small block-from-list" onClick="blockEvent('`+elem.msg.recvId+`');">Block</div>
 				${elem.unread ? "<div class=\"badge badge-success badge-pill small\" id=\"unread-count\">" + elem.unread + "</div>" : ""}
 			</div>
 		</div>
@@ -471,6 +472,25 @@ let messageAction = (ele) => {
 
 }; 
 
+let blockEvent = (id) => {
+	let action = {
+		id : id,
+		case : "block"
+	}
+	$.ajax({
+		type: 'POST',
+	    url: "/web-message/user-action",
+	    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+	    data: action
+	}).done(function(response) {
+		if(response.code == 200) {
+			
+		}
+	}).fail(function(response) {
+	    console.log("Oops, something went wrong request failed :" , response)
+	});
+};
+
 let init = () => {
 	DOM.username.innerHTML = user.name;
 	DOM.displayPic.src = user.pic;
@@ -506,6 +526,9 @@ let init = () => {
 			});
 		}
 	});
+
+
+	
 
 	/*$( ".input-message" ).autocomplete({
       source: autoReply
