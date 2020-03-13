@@ -66,9 +66,10 @@ class UpdateScrapedCategory implements ShouldQueue
             return;
         }
 
-        self::putLog("referencesCategory : " . $referencesCategory . " ||  category : ".json_encode($category));
 
         if (isset($referencesCategory)) {
+             
+            self::putLog("referencesCategory : " . $referencesCategory . " ||  category : ".json_encode($category));
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
