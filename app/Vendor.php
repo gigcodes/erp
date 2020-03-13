@@ -98,4 +98,21 @@ class Vendor extends Model
     {
         return $this->hasMany('App\ChatMessage')->where('created_at','>=', Carbon::now()->subDay()->toDateTimeString())->orderBy('id','desc');
     }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
 }

@@ -31,6 +31,13 @@ class UpdateScrapedCategory implements ShouldQueue
         $this->category_id = $params["category_id"];
     }
 
+    public static function putLog($message)
+    {
+        \Log::channel('update_category_job')->info($message);
+
+        return true;
+    }
+
     /**
      * Execute the job.
      *
@@ -38,6 +45,10 @@ class UpdateScrapedCategory implements ShouldQueue
      */
     public function handle()
     {
+
+        self::putLog("Job start time : ". date("Y-m-d H:i:s"));
+        self::putLog("Params : " . print_r([$this->product_id,$this->category_id],true));
+
         $product      = Product::find($this->product_id);
         $cat          = $this->category_id;
         $lastcategory = false;
@@ -52,14 +63,21 @@ class UpdateScrapedCategory implements ShouldQueue
                 $lastcategory       = end($category);
             }
         } else {
-            return response()->json(['success', 'Scrapped Product Doesnt Not Exist']);
+            return;
         }
 
+
         if (isset($referencesCategory)) {
+             
+            self::putLog("referencesCategory : " . $referencesCategory . " ||  category : ".json_encode($category));
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
             $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
+
+            self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
+            self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
+
             foreach ($scrapedProducts as $scrapedProduct) {
                 if (isset($scrapedProduct->properties['category'])) {
                     $products = $scrapedProduct->properties['category'];
@@ -75,6 +93,7 @@ class UpdateScrapedCategory implements ShouldQueue
             if (!isset($scrapedProductSkuArray)) {
                 $scrapedProductSkuArray = [];
             }
+            self::putLog("Matched SKU : " . json_encode($scrapedProductSkuArray));
 
             //Add reference to category
             $category = Category::find($cat);
@@ -95,11 +114,13 @@ class UpdateScrapedCategory implements ShouldQueue
         if (count($scrapedProductSkuArray) != 0) {
             $scrapedProductSkuArray = array_unique($scrapedProductSkuArray);
             foreach ($scrapedProductSkuArray as $productSku) {
+                self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
                 $oldProduct = Product::where('sku', $productSku)->first();
                 if ($oldProduct != null) {
                     $oldProduct->category = $cat;
                     $oldProduct->save();
                     $totalUpdated++;
+                    self::putLog("Scrapeed Product {$productSku} update end time : ". date("Y-m-d H:i:s"));
                 }
             }
         }

@@ -92,25 +92,25 @@ class ProductsCreator
             // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
                 // Check if we can update the title - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {

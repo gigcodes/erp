@@ -37,7 +37,7 @@
         <div class="col-lg-12 margin-tb">
         	<form action="?" method="GET" class="form-inline align-items-start">
         		<div class="form-group mr-3 mb-3">
-        			<input name="term" type="text" class="form-control" id="product-search" value="{{ isset($term) ? $term : '' }}" placeholder="sku,brand,category,status,stage">
+        			<input name="term" type="text" class="form-control" id="product-search" value="{{ request('term','') }}" placeholder="sku,brand,category,status,stage">
         		</div>
         		<div class="form-group mr-3 mb-3">
                   {!! $category_selection !!}
@@ -66,7 +66,7 @@
                 </div>
                 <div class="form-group mr-3 mb-3">
                   <div class='input-group date' id='filter-date'>
-                      <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" placeholder="Date" />
+                      <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                       <span class="input-group-addon">
                         <span class="glyphicon glyphicon-calendar"></span>
                       </span>
