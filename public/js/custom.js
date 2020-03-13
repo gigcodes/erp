@@ -698,3 +698,20 @@ var customerSearch = function() {
       }
 
   }
+
+  let checkQueueIsStucked = () => {
+    fetch("/message-queue/status", { headers: { "Content-Type": "application/json; charset=utf-8" }}
+    )
+    .then(res => res.json()) // parse response as JSON (can be res.text() for plain response)
+    .then(response => {
+      if(response.code == 500) {
+        toastr['error'](response.message, 'Message');
+      }
+      setTimeout(checkQueueIsStucked, 10000);
+    })
+    .catch(err => {
+        console.log(err)
+    });
+  };
+
+  checkQueueIsStucked();
