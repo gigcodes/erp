@@ -1624,12 +1624,12 @@ class WhatsAppController extends FindByNumberController
                                         $suggestion->chat_message_id = $chatMessage->id;
                                         $suggestion->save();
 
-                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion);
+                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion)->onQueue("customer_message");
                                     }
 
                                 break;
                                 case 'send_text_only':
-                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
                                 break;
                             }
                         }
