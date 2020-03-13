@@ -188,14 +188,14 @@ let addMediaToMessageArray = (msg,append) => {
 				</div>`;
 		});
 		MediaHtml += '</div>';
-		let unApprovedcls = (msg.approved != 1) ?  "unapproved-msg" : "";
+		let unApprovedcls = (msg.approved != 1 && !msg.isSender) ?  "unapproved-msg" : "";
 		var body =  
 			`<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 				<div class="options dropdown" style="z-index:1200">
 					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 					<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 						<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
-						${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+						${(msg.approved != 1 && (user.is_hod_crm || user.is_admin) && !msg.isSender) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
 						${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
 					</div>
 				</div>
@@ -230,14 +230,14 @@ let addMessageToMessageArea = (msg,append) => {
 	`;*/
 
 	let sendStatus = `<i class="${msg.status <= 5 ? "far" : "fas"} fa-check-circle"></i>`;
-	let unApprovedcls = (msg.approved != 1) ?  "unapproved-msg" : "";
+	let unApprovedcls = (msg.approved != 1 && !msg.isSender) ?  "unapproved-msg" : "";
 	if(msg.has_media == false || msg.body != '') {
 		var body = `<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 			<div class="options dropdown" style="z-index:1200">
 				<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 				<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 					<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
-					${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+					${(msg.approved != 1 && (user.is_hod_crm || user.is_admin) && !msg.isSender) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
 					${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
 					${(msg.status == 0) ? '<a data-case="mark_as_read" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Read</a>' : ''}
 					${(msg.status == 0 || msg.status == 5) ? '<a data-case="mark_as_replied" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Replied</a>' : ''}
