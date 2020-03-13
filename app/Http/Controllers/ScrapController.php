@@ -752,7 +752,7 @@ class ScrapController extends Controller
             }
 
             $totalUniqueSkuRecords = \DB::table("scraped_products")->leftJoin("products as p",function($q){
-                $q->on("p.sku","scraped_products.sku")->where('stock','>=',1);
+                $q->on("p.id","scraped_products.product_id")->where('stock','>=',1);
             });
 
             if(!empty($startDate)) {
