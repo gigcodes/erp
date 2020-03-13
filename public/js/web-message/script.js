@@ -466,6 +466,9 @@ let messageAction = (ele) => {
 			if(action.case == "delete") {
 				ele.closest(".message-item").remove();
 			}
+			if(action.case == "approve") {
+				ele.closest(".message-item").removeClass("unapproved-msg");
+			}
 		}
 	}).fail(function(response) {
 	    console.log("Oops, something went wrong request failed :" , response)
@@ -528,7 +531,12 @@ let init = () => {
 		}
 	});
 
-
+	$(document).on("keypress",".input-message",function(event){
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+	    if(keycode == '13'){
+	        sendMessage();
+	    }
+	});
 	
 
 	$( ".input-message" ).easyAutocomplete({
