@@ -335,7 +335,7 @@ class ChatMessage extends Model
     public static function getInfoByObjectIds($field, $ids, $fields = ["*"], $params = [], $toArray = false)
     {
         unset($_GET["page"]);
-        $list = self::whereIn($field,$ids);
+        $list = self::whereIn($field,$ids)->whereNotIn("status", self::EXECLUDE_AUTO_CHAT);
 
         if(!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
             $list = $list->where("id","<",$params["lastMsg"]);            
