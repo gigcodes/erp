@@ -127,7 +127,6 @@ class ResponsePurify
 
         // now check with context scenrio of this again
         $context = $this->context;
-        \Log::info(print_r($context,true));
         if(!empty($context)) {
         	if(!empty($context->skills)) {
         		$attributes = "";

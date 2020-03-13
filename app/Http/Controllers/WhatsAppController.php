@@ -1563,7 +1563,6 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($params['message'])) {
                     if ($customer && $params[ 'message' ] != '') {
                         $chatbotReply = WatsonManager::sendMessage($customer,$params['message']);
-                        echo '<pre>'; print_r($chatbotReply); echo '</pre>';exit;
 
                         if(!empty($chatbotReply["action"])) {
                             // assign params
@@ -1577,8 +1576,6 @@ class WhatsAppController extends FindByNumberController
                                "chatbot_question" => $params['message'],
                                "chatbot_params"   => isset($chatbotReply["medias"]) ? $chatbotReply["medias"] : []
                             ];
-
-                            \Log::info(print_r($chatbotReply,true));
 
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
@@ -1595,7 +1592,7 @@ class WhatsAppController extends FindByNumberController
                                         $category = $chatbotReply["medias"]["params"]["category"];
                                     }
 
-                                    $chatbotReply = WatsonManager::sendMessage($customer,"Thanks!", true);
+                                    /*$chatbotReply = WatsonManager::sendMessage($customer,"Thanks!", true);*/
 
                                     if(!empty($brands) || !empty($category)) {
                                         $suggestion = \App\Suggestion::create([

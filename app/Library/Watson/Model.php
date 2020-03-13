@@ -431,16 +431,16 @@ class Model
                 ]
             ],
         ];
-
-        if($contextReset) {
-            $params["context"]["global"]["system"]["turn_count"] = 1;
+        //$contextReset = true;
+        /*if($contextReset) {
+            $params["context"]["global"]["system"]["turn_count"]                        = 0;
             $params["context"]["skills"]["main skill"]["user_defined"]["brand_name"]    = null;
-            $params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
-        }
-
+            $params["context"]["skills"]["main skill"]["user_defined"] = null;
+            //$params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
+        }*/
 
         $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, $params);
-        \Log::info(print_r($result,true));
+        \Log::info(print_r([$result,$params],true));
 
         return json_decode($result->getContent());
 
