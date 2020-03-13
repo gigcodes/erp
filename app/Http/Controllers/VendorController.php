@@ -50,8 +50,10 @@ class VendorController extends Controller
   public function updateReminder(Request $request)
   {
     $vendor = Vendor::find($request->get('vendor_id'));
-    $vendor->frequency = $request->get('frequency');
-    $vendor->reminder_message = $request->get('message');
+    $vendor->frequency            = $request->get('frequency');
+    $vendor->reminder_message     = $request->get('message');
+    $vendor->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+    $vendor->reminder_last_reply  = $request->get('reminder_last_reply',0);
     $vendor->save();
 
     return response()->json([
@@ -163,8 +165,11 @@ class VendorController extends Controller
                   FROM (SELECT vendors.id, vendors.frequency, vendors.is_blocked ,vendors.reminder_message, vendors.category_id, vendors.name, vendors.phone, vendors.email, vendors.address, vendors.social_handle, vendors.website, vendors.login, vendors.password, vendors.gst, vendors.account_name, vendors.account_iban, vendors.account_swift,
                     vendors.created_at,vendors.updated_at,
                     vendors.updated_by,
-                  category_name,
-                  chat_messages.message_id FROM vendors
+                    vendors.reminder_from,
+                    vendors.reminder_last_reply,
+                    category_name,
+                  chat_messages.message_id 
+                  FROM vendors
 
                   LEFT JOIN (SELECT MAX(id) as message_id, vendor_id FROM chat_messages GROUP BY vendor_id ORDER BY created_at DESC) AS chat_messages
                   ON vendors.id = chat_messages.vendor_id
