@@ -186,7 +186,14 @@
 						  	</div>
 				  			<div class="form-group">
 							    <label for="from">From:</label>
-							    <?php echo Form::text("from",request("from"),["class"=> "form-control","placeholder" => "Enter Number from"]) ?>
+							    <select class="form-control" name="from" id="sending-number-from">
+							    	<option value="">-- Select --</option>
+								    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+				                        @if($number != "0")
+				                            <option value="{{ $number }}">{{ $number }}</option>
+				                        @endif
+				                    @endforeach
+							    </select>
 						  	</div>
 						  	<div class="form-group">
 							    <label for="to">To:</label>
