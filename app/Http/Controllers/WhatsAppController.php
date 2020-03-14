@@ -1247,6 +1247,14 @@ class WhatsAppController extends FindByNumberController
                }
 
                $message = ChatMessage::create($params);  
+            }else{
+                // create a customer here
+                $customer = Customer::create([
+                    "name" => $from,
+                    "phone" => $from
+                ]);
+                $params["customer_id"] = $customer->id;
+                $message = ChatMessage::create($params);  
             }
 
             // Is there a user linked to this number?

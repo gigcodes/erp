@@ -448,7 +448,7 @@ class WebMessageController extends Controller
         if (!empty($ac)) {
             $pureValue = self::getObject($request->get("ac"));
             if ($pureValue["object"] == "customer") {
-                $customer = Customer::find($request->get("ac"));
+                $customer = Customer::find($pureValue["real_id"]);
             } elseif ($pureValue["object"] == "vendor") {
                 $customer = Vendor::find($pureValue["real_id"]);
             } elseif ($pureValue["object"] == "supplier") {
@@ -471,6 +471,15 @@ class WebMessageController extends Controller
             if (!empty($messageInfo)) {
                 foreach ($messageInfo as $message) {
                     $messageIds[]                = $message["id"];
+                    
+                    if ($message["customer_id"] > 0) {
+                        $id = "c_" . $message["customer_id"];
+                    } else if ($message["vendor_id"] > 0) {
+                        $id = "v_" . $message["vendor_id"];
+                    } else if ($message["supplier_id"] > 0) {
+                        $id = "s_" . $message["supplier_id"];
+                    }
+
                     $jsonMessage[$message["id"]] = [
                         "id"          => $message["id"],
                         "sender"      => 0,
@@ -478,7 +487,7 @@ class WebMessageController extends Controller
                         "time"        => date("M d, Y H:i:s", strtotime($message["created_at"])),
                         "status"      => $message["status"],
                         "approved"    => $message["approved"],
-                        "recvId"      => $message["customer_id"],
+                        "recvId"      => $id,
                         "recvIsGroup" => false,
                         "isSender"    => is_null($message["number"]) || $message["number"] != $customer->phone ? false : true,
                         "isLast"      => false,

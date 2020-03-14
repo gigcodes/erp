@@ -369,7 +369,7 @@ let getNewMessages = () => {
     .then(response => {
     	contactList = response.data.jsonCustomer;
 		messages = response.data.jsonMessage;
-		if(chat && chat.contact.id > 0) {
+		if(chat && chat.contact.id != '') {
 			response.data.msgs.forEach((msg) => {
 				msg.isFirst = true;	
 				addMessageToMessageArea(msg,true);
