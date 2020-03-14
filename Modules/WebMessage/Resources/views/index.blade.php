@@ -11,6 +11,8 @@
 	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css">
 	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.0.10/css/all.css">
 	<link rel="stylesheet" href="/css/magnific-popup.css">
+	<link rel="stylesheet" href="/css/easy-autocomplete.min.css">
+	<link rel="stylesheet" href="/css/easy-autocomplete.themes.min.css">
 	<link rel="stylesheet" href="/css/web-message.css">
 
 	<style type="text/css">
@@ -19,6 +21,15 @@
 		}
 		.dis-none{
 			display: none;
+		}
+		.unapproved-msg {
+			border: 1px solid red;
+		}
+		.easy-autocomplete {
+			width: 100% !important;
+		}
+		.easy-autocomplete .input-message {
+			width: 100%;
 		}
 	</style>
 </head>
@@ -51,9 +62,9 @@
 						<div class="text-white small" id="details"></div>
 					</div>
 					<div class="d-flex flex-row align-items-center ml-auto">
-						<a href="#"><i class="fas fa-search mx-3 text-white d-none d-md-block"></i></a>
+						<!-- <a href="#"><i class="fas fa-search mx-3 text-white d-none d-md-block"></i></a> -->
 						<a id="attach-files-user" target="_blank" href="#"><i class="fas fa-paperclip mx-3 text-white d-none d-md-block"></i></a>
-						<a href="#"><i class="fas fa-ellipsis-v mr-2 mx-sm-3 text-white"></i></a>
+						<!-- <a href="#"><i class="fas fa-ellipsis-v mr-2 mx-sm-3 text-white"></i></a> -->
 					</div>
 				</div>
 
@@ -73,13 +84,14 @@
 		var user  = JSON.parse('<?php echo addslashes(json_encode($jsonUser)); ?>');
 		var contactList = JSON.parse('<?php echo addslashes(json_encode($jsonCustomer)) ?>');
 		var messages = JSON.parse('<?php echo addslashes(json_encode($jsonMessage)) ?>');
+		var autoSuggest = JSON.parse('<?php echo addslashes(json_encode($jsonAutoSuggest)) ?>');
 	</script>
 	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
 	<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
-	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.0/umd/popper.min.js"></script>
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/js/bootstrap.min.js"></script>
 	<script src="/js/jquery.magnific-popup.min.js"></script>
+	<script src="/js/jquery.easy-autocomplete.min.js"></script>
 	<script src="/js/web-message/datastore.js"></script>
 	<script src="/js/web-message/date-utils.js"></script>
 	<script src="/js/web-message/script.js"></script>

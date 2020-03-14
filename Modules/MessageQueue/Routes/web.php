@@ -13,6 +13,7 @@
 
 Route::prefix('message-queue')->group(function() {
     Route::get('/', 'MessageQueueController@index')->name("message-queue.index");
+    Route::get('/status', 'MessageQueueController@status')->name("message-queue.status");
     Route::prefix('records')->group(function() {
 		Route::get('/', 'MessageQueueController@records');
 		Route::post('action-handler','MessageQueueController@actionHandler');
@@ -28,5 +29,5 @@ Route::prefix('message-queue')->group(function() {
 	Route::prefix('setting')->group(function() {
 		Route::post('update-limit','MessageQueueController@updateLimit');
 		Route::get('recall','MessageQueueController@recall');
-	});	
+	});
 });

@@ -58,4 +58,11 @@ class JobController extends Controller
 
         return back()->withInput();
     }
+
+    public function deleteMultiple(Request $request)
+    {
+        $jobs = \App\Job::whereIn("id",$request->get("jobIds"))->delete();
+
+        return response()->json(["code" => 200, "data" => []]);
+    }
 }

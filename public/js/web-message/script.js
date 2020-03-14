@@ -1,4 +1,3 @@
-
 let getById = (id, parent) => parent ? parent.getElementById(id) : getById(id, document);
 let getByClass = (className, parent) => parent ? parent.getElementsByClassName(className) : getByClass(className, document);
 
@@ -111,9 +110,10 @@ let viewChatList = () => {
 	.forEach((elem, index) => {
 		let statusClass = elem.msg.status <= 5 ? "far" : "fas";
 		let unreadClass = elem.unread ? "unread" : "";
+		let unApproved  = (elem.msg.approved != 1);
 		DOM.chatList.innerHTML += `
-		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" id="user-list-${elem.msg.recvId}" onclick="generateMessageArea(this, ${index})">
-			<div class="w-50">
+		<div class="chat-list-item d-flex flex-row w-100 p-2 border-bottom ${unreadClass}" id="user-list-${elem.msg.recvId}">
+			<div class="w-50" onclick="generateMessageArea(this, ${index})">
 				<div class="name">${elem.name}</div>
 				<div class="small last-message">${elem.isGroup ? contactList.find(contact => contact.id === elem.msg.sender).number + ": " : ""}${elem.msg.sender === user.id ? "<i class=\"" + statusClass + " fa-check-circle mr-1\"></i>" : ""}
 					${(elem.msg.has_media == true) ? '<i class="fas fa-file-image"></i> Media' : elem.msg.body}
@@ -121,6 +121,7 @@ let viewChatList = () => {
 			</div>
 			<div class="flex-grow-1 text-right">
 				<div class="small time">${mDate(elem.msg.time).chatListFormat()}</div>
+				<div data-i="${elem.msg.recvId}" class="badge badge-danger badge-pill small block-from-list" onClick="blockEvent('`+elem.msg.recvId+`');">Block</div>
 				${elem.unread ? "<div class=\"badge badge-success badge-pill small\" id=\"unread-count\">" + elem.unread + "</div>" : ""}
 			</div>
 		</div>
@@ -187,14 +188,14 @@ let addMediaToMessageArray = (msg,append) => {
 				</div>`;
 		});
 		MediaHtml += '</div>';
-
+		let unApprovedcls = (msg.approved != 1 && !msg.isSender) ?  "unapproved-msg" : "";
 		var body =  
-			`<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''}">
+			`<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 				<div class="options dropdown" style="z-index:1200">
 					<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 					<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 						<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
-						${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+						${(msg.approved != 1 && (user.is_hod_crm || user.is_admin) && !msg.isSender) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
 						${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
 					</div>
 				</div>
@@ -203,7 +204,7 @@ let addMediaToMessageArray = (msg,append) => {
 				</div>
 			</div>`;
 
-		if(append ==  true) {
+		if(append == true) {
 			DOM.messages.append($(body)[0])
 		}else{
 			DOM.messages.prepend($(body)[0])
@@ -229,13 +230,14 @@ let addMessageToMessageArea = (msg,append) => {
 	`;*/
 
 	let sendStatus = `<i class="${msg.status <= 5 ? "far" : "fas"} fa-check-circle"></i>`;
+	let unApprovedcls = (msg.approved != 1 && !msg.isSender) ?  "unapproved-msg" : "";
 	if(msg.has_media == false || msg.body != '') {
-		var body = `<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''}">
+		var body = `<div data-cn="${msg.id}" class="align-self-${msg.isSender ? "end self" : "start"} p-1 my-1 mx-3 rounded bg-white shadow-sm message-item ${msg.isLast == true ? 'last-block-message' : ''} ${unApprovedcls}">
 			<div class="options dropdown" style="z-index:1200">
 				<a class="dropdown-toggle-chat" data-toggle="dropdown"><i class="fas fa-angle-down text-muted px-2"></i></a>
 				<div class="dropdown-menu dropdown-menu-right" x-placement="bottom-end" style="position: absolute; transform: translate3d(-122px, 40px, 0px); top: 0px; left: 0px; will-change: transform;">
 					<a data-case="delete" data-i="${msg.id}" class="dropdown-item dropdown-item-message" href="javascript:;">Delete</a>
-					${(msg.approved != 1 && (user.is_hod_crm || user.is_admin)) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
+					${(msg.approved != 1 && (user.is_hod_crm || user.is_admin) && !msg.isSender) ? '<a data-case="approve" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Approve</a>' : '' } 
 					${(msg.approved) ? '<a data-case="resend" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Resend</a>' : '' }
 					${(msg.status == 0) ? '<a data-case="mark_as_read" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Read</a>' : ''}
 					${(msg.status == 0 || msg.status == 5) ? '<a data-case="mark_as_replied" data-i="'+msg.id+'" class="dropdown-item dropdown-item-message" href="javascript:;">Mark as Replied</a>' : ''}
@@ -464,12 +466,34 @@ let messageAction = (ele) => {
 			if(action.case == "delete") {
 				ele.closest(".message-item").remove();
 			}
+			if(action.case == "approve") {
+				ele.closest(".message-item").removeClass("unapproved-msg");
+			}
 		}
 	}).fail(function(response) {
 	    console.log("Oops, something went wrong request failed :" , response)
 	});
 
 }; 
+
+let blockEvent = (id) => {
+	let action = {
+		id : id,
+		case : "block"
+	}
+	$.ajax({
+		type: 'POST',
+	    url: "/web-message/user-action",
+	    headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
+	    data: action
+	}).done(function(response) {
+		if(response.code == 200) {
+			
+		}
+	}).fail(function(response) {
+	    console.log("Oops, something went wrong request failed :" , response)
+	});
+};
 
 let init = () => {
 	DOM.username.innerHTML = user.name;
@@ -507,9 +531,22 @@ let init = () => {
 		}
 	});
 
-	/*$( ".input-message" ).autocomplete({
-      source: autoReply
-    });*/
+	$(document).on("keypress",".input-message",function(event){
+		var keycode = (event.keyCode ? event.keyCode : event.which);
+	    if(keycode == '13'){
+	        sendMessage();
+	    }
+	});
+	
+
+	$( ".input-message" ).easyAutocomplete({
+		data : autoSuggest,
+		list: {
+			match: {
+				enabled: true
+			}
+		}
+	});
 };
 
 init();

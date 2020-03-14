@@ -20,6 +20,10 @@ class ChatMessage extends Model
         7,8,9,10,11
     ];
 
+    const EXECLUDE_AUTO_CHAT = [
+        7,8,9,10
+    ];
+
     CONST CHAT_AUTO_BROADCAST = 8;
     CONST CHAT_AUTO_WATSON_REPLY = 11;
     CONST CHAT_SUGGESTED_IMAGES = 12;
@@ -331,7 +335,9 @@ class ChatMessage extends Model
     public static function getInfoByObjectIds($field, $ids, $fields = ["*"], $params = [], $toArray = false)
     {
         unset($_GET["page"]);
-        $list = self::whereIn($field,$ids)->latest();
+        $list = self::whereIn($field,$ids)->where(function ($q) {
+            $q->whereNull("group_id")->orWhere("group_id", 0);
+        })->whereNotIn("status", self::EXECLUDE_AUTO_CHAT);
 
         if(!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
             $list = $list->where("id","<",$params["lastMsg"]);            
@@ -341,8 +347,7 @@ class ChatMessage extends Model
             $list = $list->where("id",">",$params["lastMsg"]);            
         }
 
-        $list =  $list->select($fields)->paginate(10);
-
+        $list =  $list->orderBy("created_at","desc")->select($fields)->paginate(10);
 
         if($toArray) {
             $list = $list->items();

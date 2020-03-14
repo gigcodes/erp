@@ -1548,7 +1548,7 @@ class ProductController extends Controller
         \App\Jobs\UpdateScrapedCategory::dispatch([
             "product_id"    => $id,
             "category_id"   => $request->category
-        ]);
+        ])->onQueue("supplier_products");
 
         return response()->json(['success','Product category has been sent for the update']);
     }
@@ -2730,7 +2730,7 @@ class ProductController extends Controller
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
         
-        \App\Jobs\SendMessageToCustomer::dispatch($params);
+        \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {
             return response()->json(['msg' => 'success']);
@@ -2835,7 +2835,7 @@ class ProductController extends Controller
         $data[ 'customer_id' ] = $request->customer_id;
         $data[ 'status' ] = $request->status;
 
-        \App\Jobs\AttachImagesSend::dispatch($data);
+        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
 
@@ -3150,7 +3150,7 @@ class ProductController extends Controller
         \App\Jobs\UpdateScrapedColor::dispatch([
             "product_id"    => $id,
             "color"         => $request->color
-        ]);
+        ])->onQueue("supplier_products");
 
         return response()->json(['success','Product color has been sent for the update']);
     }
