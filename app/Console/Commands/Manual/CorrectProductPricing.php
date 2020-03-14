@@ -61,7 +61,7 @@ class CorrectProductPricing extends Command
             JOIN
                 scraped_products sp
             ON
-                p.sku=sp.sku
+                p.id=sp.product_id
             WHERE
                 discounted_price IS NOT NULL AND
                 p.price!=sp.price_eur

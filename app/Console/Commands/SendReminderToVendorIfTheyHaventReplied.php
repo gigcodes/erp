@@ -74,23 +74,30 @@ class SendReminderToVendorIfTheyHaventReplied extends Command
                     continue;
                 }
 
-                // get message if its >= than the interval set for this vendor
-                $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
-                    ->where('id', $messagesId->id)
-                    ->where('user_id', '>', '0')
-                    ->where('approved', '1')
-                    ->first();
+                if($vendor->reminder_from == "0000-00-00 00:00" || strtotime($vendor->reminder_from) >= strtotime("now")) {
+                    dump('here' . $vendor->name);
+                    $templateMessage = $vendor->reminder_message;
+                    if($vendor->reminder_last_reply == 0) {
+                        //sends messahe
+                        $this->sendMessage($vendor->id, $templateMessage);
+                        dump('saving...');
+                    }else{
+                        // get the message if the interval is greater or equal to time which is set for this customer
+                        $message = ChatMessage::whereRaw('TIMESTAMPDIFF(MINUTE, `updated_at`, "' . $now . '") >= ' . $frequency)
+                            ->where('id', $messagesId->id)
+                            ->where('user_id', '>', '0')
+                            ->where('approved', '1')
+                            ->first();
 
-                if (!$message) {
-                    continue;
+                        if (!$message) {
+                            continue;
+                        }
+                        //send the message
+                        $this->sendMessage($vendor->id, $templateMessage);
+                        dump('saving...');
+                    }
                 }
-
-                dump('saving...');
-
-                $templateMessage = $vendor->reminder_message;
-
-                //send the message
-                $this->sendMessage($vendor->id, $templateMessage);
+                
             }
 
             $report->update(['end_time' => Carbon::now()]);

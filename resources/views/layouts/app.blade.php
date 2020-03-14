@@ -510,6 +510,9 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CRM <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -742,7 +745,7 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                <a class="dropdown-item" href="/calendar">Calendar</a>
+                                    <a class="dropdown-item" href="/calendar">Calendar</a>
                                 </li>
                             </ul>
                         </li>

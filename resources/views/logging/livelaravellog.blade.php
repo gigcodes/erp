@@ -22,11 +22,7 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Live Laravel Logs</h2>
-             <div class="pull-right">
-                <a href="/logging/list-laravel-logs" type="button" class="btn btn-secondary">Laravel Logs</a>
-            </div>
-
+            <h2 class="page-heading">Live Scraper Logs</h2>
         </div>
     </div>
 
@@ -40,13 +36,10 @@
                 <th width="30%">Log</th>
             </tr>
             </thead>
-
             <tbody id="content_data">
-             @include('logging.partials.livelaraveldata')
+                @include('logging.partials.livelaraveldata')
             </tbody>
-
             {!! $logs->render() !!}
-
         </table>
     </div>
  

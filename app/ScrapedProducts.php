@@ -18,6 +18,7 @@ class ScrapedProducts extends Model
 
     protected $fillable = [
         'sku',
+        'product_id',
         'website',
         'images',
         'properties',
@@ -171,6 +172,6 @@ class ScrapedProducts extends Model
 
     public function product()
     {
-        return $this->hasOne('App\Product', 'sku', 'sku');
+        return $this->hasOne('App\Product', 'id', 'product_id');
     }
 }

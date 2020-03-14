@@ -67,9 +67,10 @@ class UpdateScrapedColor implements ShouldQueue
             return;
         }
 
-        self::putLog("referencesColor : " . $referencesColor . " ||  color : ".$color);
 
         if (isset($referencesColor)) {
+            
+            self::putLog("referencesColor : " . $referencesColor . " ||  color : ".$color);
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
