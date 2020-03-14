@@ -1592,7 +1592,7 @@ class WhatsAppController extends FindByNumberController
                                         $category = $chatbotReply["medias"]["params"]["category"];
                                     }
 
-                                    /*$chatbotReply = WatsonManager::sendMessage($customer,"Thanks!", true);*/
+                                    $chatbotReply = WatsonManager::sendMessage($customer,"image_has_been_found", true);
 
                                     if(!empty($brands) || !empty($category)) {
                                         $suggestion = \App\Suggestion::create([

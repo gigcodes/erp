@@ -67,8 +67,8 @@ class ResponsePurify
         $medias = $this->isNeedToSendProductImages();
         $text   = $this->getReplyText();
         // if match action then assign
-        if (!empty($medias)) {
-            return ["action" => "send_product_images", "reply_text" => $text, "response" => $this->response, "medias" => $medias];
+        if (!empty($medias["match"]) && $medias["match"] == true) {
+            return ["action" => "send_product_images", "reply_text" => $text, "response" => $this->response, "medias" => $medias["medias"]];
         }
 
         if (!empty($text)) {
@@ -108,6 +108,12 @@ class ResponsePurify
         if (isset($this->customer) && isset($this->customer->gender)) {
             $gender = ($this->customer->gender == "male") ? 3 : 2;
         }
+
+        $return = [
+            "match" => false,
+            "medias" => []
+        ];
+
         // first match with scenerios
         foreach ($intentsList as $intents) {
             if (
@@ -118,8 +124,10 @@ class ResponsePurify
                 $sendImages = new Action\SendProductImages($attributes, $params = [
                     "gender" => $gender,
                 ]);
+
+                $return["match"] = true;
                 if ($sendImages->isOptionMatched()) {
-                    return $sendImages->getResults();
+                    $return["medias"] = $sendImages->getResults();
                 }
 
             }
@@ -141,8 +149,9 @@ class ResponsePurify
 	        				$sendImages = new Action\SendProductImages($attributes, $params = [
 			                    "gender" => $gender,
 			                ]);
+                            $return["match"] = true;
 			                if ($sendImages->isOptionMatched()) {
-			                    return $sendImages->getResults();
+			                    $return["medias"] = $sendImages->getResults();
 			                }
 	        			}
         			}
@@ -151,7 +160,7 @@ class ResponsePurify
         }
 
 
-        return false;
+        return $return;
     }
 
     public function getEntities()
