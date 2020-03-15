@@ -44,6 +44,15 @@
                       <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
+                  <div class="form-group ml-3" style="width: 250px !important;">
+                      <select class="form-control select-multiple2" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
+
+                        @foreach($suppliers_all as $supplier)
+                            <option value="{{ $supplier->id }}" @if(in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+                        @endforeach
+                      </select>
+                  </div>
+
                 <div class="form-group ml-3">
                   <select class="form-control" name="type">
                     <option value="">Select Type</option>
@@ -105,7 +114,7 @@
 
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
-
+    <div class="row">
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>
@@ -315,7 +324,7 @@
         </tbody>
       </table>
     </div>
-
+    </div>
     {!! $suppliers->appends(Request::except('page'))->links() !!}
 
     @include('partials.modals.remarks')
