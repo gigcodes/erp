@@ -112,7 +112,17 @@ class ProductHelper extends Model
             }
 
             // Remove html special chars
-            $text = htmlspecialchars_decode($text);
+            try {
+                if(!empty($text)){
+                    $text = htmlspecialchars_decode($text);
+                }else{
+                    $text = '';
+                }
+            } catch (\Exception $e) {
+               $text = ''; 
+            }
+            
+            
         }
 
         // Return redacted text
