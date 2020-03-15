@@ -94,6 +94,13 @@
             <strong>Product URL Selector:</strong>
             <input type="text" name="designer_url" id="product_url_selector" class="form-control">
           </div>
+          <div class="form-group">
+            <strong>Full Scrape:</strong>
+            <select class="form-control" id="full_scrape" name="full_scrape">
+              <option value="1">Yes</option>
+              <option value="0">No</option>
+            </select>
+          </div>
           <input type="hidden" id="scraper_id">
           </div>
         <div class="modal-footer">
