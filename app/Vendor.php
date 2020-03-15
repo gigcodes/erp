@@ -27,6 +27,10 @@ class Vendor extends Model
         'account_swift',
         'account_iban',
         'is_blocked',
+        'frequency',
+        'reminder_message',
+        'reminder_last_reply',
+        'reminder_from',
         'updated_by'
     ];
 
@@ -97,5 +101,22 @@ class Vendor extends Model
     public function whatsappLastTwentyFourHours()
     {
         return $this->hasMany('App\ChatMessage')->where('created_at','>=', Carbon::now()->subDay()->toDateTimeString())->orderBy('id','desc');
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
     }
 }

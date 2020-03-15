@@ -20,6 +20,10 @@ class ChatMessage extends Model
         7,8,9,10,11
     ];
 
+    const EXECLUDE_AUTO_CHAT = [
+        7,8,9,10
+    ];
+
     CONST CHAT_AUTO_BROADCAST = 8;
     CONST CHAT_AUTO_WATSON_REPLY = 11;
     CONST CHAT_SUGGESTED_IMAGES = 12;
@@ -281,5 +285,79 @@ class ChatMessage extends Model
         ->orderBy("chat_messages.created_at", "desc")
         ->first();
     }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getGroupImagesByIds($ids,$toArray = false)
+    {
+        $list = \DB::table("mediables")
+        ->where("mediable_type",self::class)
+        ->whereIn("mediable_id",$ids)
+        ->groupBy("mediable_id")
+        ->select(["mediable_id",\DB::raw("group_concat(media_id) as image_ids")])
+        ->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+
+     /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByObjectIds($field, $ids, $fields = ["*"], $params = [], $toArray = false)
+    {
+        unset($_GET["page"]);
+        $list = self::whereIn($field,$ids)->where(function ($q) {
+            $q->whereNull("group_id")->orWhere("group_id", 0);
+        })->whereNotIn("status", self::EXECLUDE_AUTO_CHAT);
+
+        if(!empty($params["previous"]) && $params["previous"] == true && !empty($params["lastMsg"]) && is_numeric($params["lastMsg"])) {
+            $list = $list->where("id","<",$params["lastMsg"]);            
+        }
+
+        if(!empty($params["next"]) && $params["next"] == true && !empty($params["lastMsg"])) {
+            $list = $list->where("id",">",$params["lastMsg"]);            
+        }
+
+        $list =  $list->orderBy("created_at","desc")->select($fields)->paginate(10);
+
+        if($toArray) {
+            $list = $list->items();
+        }
+
+        return $list;
+    }
+
+
+    
+
 
 }

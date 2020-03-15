@@ -81,7 +81,7 @@ class MailinglistEmailController extends Controller
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => array(
-                    "api-key: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",
+                    "api-key: ".getenv('SEND_IN_BLUE_API'),
                     "Content-Type: application/json"
                 ),
             ));

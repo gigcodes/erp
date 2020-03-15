@@ -10,6 +10,6 @@ class StoreWebsite extends Model
     use SoftDeletes;
     protected $fillable = [
         'title', 'remote_software', 'website', 'description', 'is_published', 'deleted_at', 'created_at', 'updated_at',
-        'magento_url', 'magento_username', 'magento_password'
+        'magento_url', 'magento_username', 'magento_password','cropper_color'
     ];
 }

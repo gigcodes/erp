@@ -42,6 +42,10 @@
 		         <label for="magento_password">Magento Password</label>
 		         <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
 		      </div>
+		      <div class="form-group">
+		         <label for="cropper_color">Cropper color</label>
+		         <input type="text" name="cropper_color" value="{{if data}}{{:data.cropper_color}}{{/if}}" class="form-control" id="cropper_color" placeholder="Enter cropper color">
+		      </div>
 		      <div class="form-row">
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Is Published?</label>

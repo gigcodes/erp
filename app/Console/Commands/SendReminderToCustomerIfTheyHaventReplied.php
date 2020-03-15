@@ -92,6 +92,7 @@ class SendReminderToCustomerIfTheyHaventReplied extends Command
                         if (!$message) {
                             continue;
                         }
+                        $this->sendMessage($customer->id, $templateMessage);
                     }
                     dump('saving...');
                 }

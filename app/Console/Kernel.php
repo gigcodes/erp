@@ -404,6 +404,7 @@ class Kernel extends ConsoleKernel
         //update currencies
         $schedule->command('currencies:refresh')->hourly();
         $schedule->command('currencies:update_name')->monthly();
+        $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         
     }
 
