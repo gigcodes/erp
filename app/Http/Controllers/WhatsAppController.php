@@ -1222,8 +1222,39 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = $dubbizleId;
             $params[ 'customer_id' ] = $customerId;
 
-            if( !empty($user) || !empty($contact) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+            if( !empty($user) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+               
+               // check that if message comes from customer,supplier,vendor
+               if(!empty($customer)) {
+                    $blockCustomer = \App\BlockWebMessageList::where("object_id",$customer->id)->where("object_type",Customer::class)->first();
+                    if($blockCustomer) {
+                        $blockCustomer->delete();
+                    }
+               }
+               // check for vendor and remvove from the list
+               if(!empty($vendor)) {
+                    $blockVendor = \App\BlockWebMessageList::where("object_id",$vendor->id)->where("object_type",Vendor::class)->first();
+                    if($blockVendor) {
+                        $blockVendor->delete();
+                    }
+               }
+               // check for supplier and remove from the list
+               if(!empty($supplier)) {
+                    $blockSupplier = \App\BlockWebMessageList::where("object_id",$supplier->id)->where("object_type",Supplier::class)->first();
+                    if($blockSupplier) {
+                        $blockSupplier->delete();
+                    }
+               }
+
                $message = ChatMessage::create($params);  
+            }else{
+                // create a customer here
+                $customer = Customer::create([
+                    "name" => $from,
+                    "phone" => $from
+                ]);
+                $params["customer_id"] = $customer->id;
+                $message = ChatMessage::create($params);  
             }
 
             // Is there a user linked to this number?
@@ -1576,7 +1607,7 @@ class WhatsAppController extends FindByNumberController
                                "chatbot_question" => $params['message'],
                                "chatbot_params"   => isset($chatbotReply["medias"]) ? $chatbotReply["medias"] : []
                             ];
-                            
+
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
 
@@ -1591,6 +1622,8 @@ class WhatsAppController extends FindByNumberController
                                     if(!empty($chatbotReply["medias"]["params"]["category"])) {
                                         $category = $chatbotReply["medias"]["params"]["category"];
                                     }
+
+                                    $chatbotReply = WatsonManager::sendMessage($customer,"image_has_been_found", true);
 
                                     if(!empty($brands) || !empty($category)) {
                                         $suggestion = \App\Suggestion::create([
@@ -1624,12 +1657,12 @@ class WhatsAppController extends FindByNumberController
                                         $suggestion->chat_message_id = $chatMessage->id;
                                         $suggestion->save();
 
-                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion);
+                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion)->onQueue("customer_message");
                                     }
 
                                 break;
                                 case 'send_text_only':
-                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
                                 break;
                             }
                         }

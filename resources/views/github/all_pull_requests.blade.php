@@ -53,7 +53,7 @@
                 <td>{{$pullRequest['title']}}</td>
                 <td>{{$pullRequest['source']}}</td>
                 <td>{{$pullRequest['username']}}</td>
-                <td>{{$pullRequest['updated_at']}}</td>
+                <td>{{date('Y-m-d H:i:s', strtotime($pullRequest['updated_at']))}}</td>
                 <td>
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}">Deploy</a>
                 </td>

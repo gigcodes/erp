@@ -322,7 +322,7 @@ class Model
 
     }
 
-    public static function sendMessage(Customer $customer, $inputText)
+    public static function sendMessage(Customer $customer, $inputText , $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -344,16 +344,15 @@ class Model
 
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
-            $result = self::sendMessageCustomer($customer, $assistant, $inputText);
+            $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
 
             if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
                 $customer = self::createSession($customer, $assistant);
                 if ($customer) {
-                    $result = self::sendMessageCustomer($customer, $assistant, $inputText);
+                    $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
                 }
             }
-
-            $chatResponse = new ResponsePurify($result->output,$customer);
+            $chatResponse = new ResponsePurify($result,$customer);
             // if response is valid then check ahead
             if($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
@@ -416,7 +415,7 @@ class Model
 
     }
 
-    public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText)
+    public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -424,11 +423,24 @@ class Model
 
         $assistantID = self::getAssistantId();
 
-        $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, [
+        $params = [
             "input" => [
                 "text" => $inputText,
+                "options" => [
+                    "return_context" => true
+                ]
             ],
-        ]);
+        ];
+        //$contextReset = true;
+        /*if($contextReset) {
+            $params["context"]["global"]["system"]["turn_count"]                        = 0;
+            $params["context"]["skills"]["main skill"]["user_defined"]["brand_name"]    = null;
+            $params["context"]["skills"]["main skill"]["user_defined"] = null;
+            //$params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
+        }*/
+
+        $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, $params);
+        \Log::info(print_r([$result,$params],true));
 
         return json_decode($result->getContent());
 

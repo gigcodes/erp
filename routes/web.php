@@ -14,9 +14,7 @@
 Auth::routes();
 
 
-Route::get('/test/test', function () {
-    return session()->all();
-});
+Route::get('/test/test', 'TestController@index');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -1070,6 +1068,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
+    Route::get('hashtag/comments/{id}', 'HashtagController@showGridComments')->name('hashtag.grid');
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue', 'HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
@@ -1528,6 +1527,8 @@ Route::prefix('google')->middleware('auth')->group(function () {
 
 Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', 'JobController@delete')->middleware('auth')->name('jobs.delete');
+Route::post('/jobs/delete-multiple', 'JobController@deleteMultiple')->middleware('auth')->name('jobs.delete.multiple');
+
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');

@@ -68,7 +68,7 @@ var getHtml = function(response) {
 
                 // Set media
                 if (imgSrc != '') {
-                    media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class="show-thumbnail-image"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                    media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class=""><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
                 }
             }
         }
@@ -89,13 +89,13 @@ var getHtml = function(response) {
                     if (message.media[i].product_id) {
 
                         if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                            media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info "><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         } else {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         } 
                     } else {
                         if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                            media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                            media = media + '<a class="" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }else{
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
@@ -133,7 +133,7 @@ var getHtml = function(response) {
                 media =  '<div style="margin-bottom:10px;">'; 
                 media += '<div class="row">'; 
                 media += '<div class="'+classFive+'">';
-                media += '<a href="' + message.media_url + '" class="show-product-info show-thumbnail-image" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                media += '<a href="' + message.media_url + '" class="show-product-info" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
                 media += '</div>';
                 media += '</div>';
                 media += '</div>';

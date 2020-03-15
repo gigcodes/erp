@@ -4,17 +4,18 @@ namespace Modules\WebMessage\Http\Controllers;
 
 use App\ChatMessage;
 use App\Customer;
-use App\Vendor;
 use App\Supplier;
-use App\AutoReply;
+use App\Vendor;
+use Carbon\Carbon;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Carbon\Carbon;
 
 class WebMessageController extends Controller
 {
+
+    const LAST_MESSAGE_LIMIT_DAY = 5;
 
     /**
      * Display a listing of the resource.
@@ -39,51 +40,76 @@ class WebMessageController extends Controller
         $jsonCustomer = $customerList["jsonCustomer"];
         $jsonMessage  = $customerList["jsonMessage"];
 
-        // add the auto reply message here 
-        $replies = [];//\App\AutoReply::get()->pluck(["reply"])->toArray();
+        // add the auto reply message here
+        $jsonAutoSuggest = \App\AutoReply::get()->pluck(["reply"])->toArray();
 
-        return view('webmessage::index', compact('customers', 'jsonCustomer', 'jsonMessage', 'jsonUser', 'replies'));
+        return view('webmessage::index', compact('customers', 'jsonCustomer', 'jsonMessage', 'jsonUser', 'jsonAutoSuggest'));
     }
 
     public function getLastConversationGroup($page = 1)
     {
+
+        $blockedUser = \App\BlockWebMessageList::all();
+        $autoChat    = ChatMessage::EXECLUDE_AUTO_CHAT;
+
+        $excludeSuppliers = [];
+        $excludeVendors   = [];
+        $excludeCustomers = [];
+
+        if (!empty($blockedUser)) {
+            foreach ($blockedUser as $user) {
+                if ($user->object_type == Customer::class) {
+                    $excludeCustomers[] = $user->object_id;
+                }
+                if ($user->object_type == Vendor::class) {
+                    $excludeVendors[] = $user->object_id;
+                }
+                if ($user->object_type == Supplier::class) {
+                    $excludeSuppliers[] = $user->object_id;
+                }
+            }
+        }
+
         $customerList = \DB::table("chat_messages")
-            ->where(function($q){
-                $q->whereNull("group_id")->orWhere("group_id",0);
+            ->where(function ($q) {
+                $q->whereNull("group_id")->orWhere("group_id", 0);
             })
-            ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(1))
+            ->whereNotIn('customer_id', $excludeCustomers)
+            ->whereNotIn("status", $autoChat)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(self::LAST_MESSAGE_LIMIT_DAY))
             ->groupBy("customer_id")
             ->select(["customer_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("customer_id is not null")
-            ->orderBy("last_chat_id","desc")
+            ->orderBy("last_chat_id", "desc")
             ->get();
 
         // need to setup list as per the the customer, supplier, vendor etc
         $vendorList = \DB::table("chat_messages")
-            ->where(function($q){
-                $q->whereNull("group_id")->orWhere("group_id",0);
+            ->where(function ($q) {
+                $q->whereNull("group_id")->orWhere("group_id", 0);
             })
-            ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(1))
+            ->whereNotIn('vendor_id', $excludeVendors)
+            ->whereNotIn("status", $autoChat)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(self::LAST_MESSAGE_LIMIT_DAY))
             ->groupBy("vendor_id")
             ->select(["vendor_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("vendor_id is not null")
-            ->orderBy("last_chat_id","desc")
+            ->orderBy("last_chat_id", "desc")
             ->get();
 
         // need to setup list as per the the customer, supplier, vendor etc
         $supplierList = \DB::table("chat_messages")
-            ->where(function($q){
-                $q->whereNull("group_id")->orWhere("group_id",0);
+            ->where(function ($q) {
+                $q->whereNull("group_id")->orWhere("group_id", 0);
             })
-            ->whereNotIn("status", ChatMessage::AUTO_REPLY_CHAT)
-            ->whereDate('created_at', '>', Carbon::now()->subDays(1))
+            ->whereNotIn('supplier_id', $excludeSuppliers)
+            ->whereNotIn("status", $autoChat)
+            ->whereDate('created_at', '>', Carbon::now()->subDays(self::LAST_MESSAGE_LIMIT_DAY))
             ->groupBy("supplier_id")
             ->select(["supplier_id", \DB::raw("max(id) as last_chat_id")])
             ->havingRaw("supplier_id is not null")
-            ->orderBy("last_chat_id","desc")
-            ->get();    
+            ->orderBy("last_chat_id", "desc")
+            ->get();
 
         $customers = [];
 
@@ -122,7 +148,7 @@ class WebMessageController extends Controller
         $supplierIds = [];
         if (!empty($supplierList)) {
             foreach ($supplierList as $supplier) {
-                $supplierIds[]     = $supplier->supplier_id;
+                $supplierIds[]    = $supplier->supplier_id;
                 $lastMessageIds[] = $supplier->last_chat_id;
             }
         }
@@ -139,7 +165,6 @@ class WebMessageController extends Controller
             ["id", "number", "message", "media_url", "customer_id", "vendor_id", "supplier_id", "is_chatbot", "status", "approved", "created_at"],
             true
         );
-
 
         // check last message has any media images
         $lastImages = ChatMessage::getGroupImagesByIds(
@@ -420,14 +445,14 @@ class WebMessageController extends Controller
         $mainJsonMessage = $customerList["jsonMessage"];
 
         $ac = $request->get("ac");
-        if(!empty($ac)) {
+        if (!empty($ac)) {
             $pureValue = self::getObject($request->get("ac"));
-            if($pureValue["object"] == "customer") {
-                $customer    = Customer::find($request->get("ac"));
-            }elseif($pureValue["object"] == "vendor") {
-                $customer    = Vendor::find($pureValue["real_id"]);
-            }elseif($pureValue["object"] == "supplier") {
-                $customer    = Supplier::find($pureValue["real_id"]);
+            if ($pureValue["object"] == "customer") {
+                $customer = Customer::find($pureValue["real_id"]);
+            } elseif ($pureValue["object"] == "vendor") {
+                $customer = Vendor::find($pureValue["real_id"]);
+            } elseif ($pureValue["object"] == "supplier") {
+                $customer = Supplier::find($pureValue["real_id"]);
             }
         }
 
@@ -435,8 +460,8 @@ class WebMessageController extends Controller
 
         if (!empty($customer) && !empty($pureValue["field"])) {
             $messageInfo = ChatMessage::getInfoByObjectIds(
-                $pureValue["field"]
-                [$customer->id],
+                $pureValue["field"],
+                array($customer->id),
                 ["id", "number", "message", "media_url", "customer_id", "is_chatbot", "status", "approved", "created_at"],
                 $params,
                 true
@@ -446,6 +471,15 @@ class WebMessageController extends Controller
             if (!empty($messageInfo)) {
                 foreach ($messageInfo as $message) {
                     $messageIds[]                = $message["id"];
+                    
+                    if ($message["customer_id"] > 0) {
+                        $id = "c_" . $message["customer_id"];
+                    } else if ($message["vendor_id"] > 0) {
+                        $id = "v_" . $message["vendor_id"];
+                    } else if ($message["supplier_id"] > 0) {
+                        $id = "s_" . $message["supplier_id"];
+                    }
+
                     $jsonMessage[$message["id"]] = [
                         "id"          => $message["id"],
                         "sender"      => 0,
@@ -453,7 +487,7 @@ class WebMessageController extends Controller
                         "time"        => date("M d, Y H:i:s", strtotime($message["created_at"])),
                         "status"      => $message["status"],
                         "approved"    => $message["approved"],
-                        "recvId"      => $message["customer_id"],
+                        "recvId"      => $id,
                         "recvIsGroup" => false,
                         "isSender"    => is_null($message["number"]) || $message["number"] != $customer->phone ? false : true,
                         "isLast"      => false,
@@ -579,19 +613,43 @@ class WebMessageController extends Controller
 
         $field  = "";
         $object = "";
+        $class  = "";
 
         if ($o == "c") {
             $field  = "customer_id";
             $object = "customer";
-        }else if ($o == "v") {
+            $class  = Customer::class;
+        } else if ($o == "v") {
             $field  = "vendor_id";
             $object = "vendor";
+            $class  = Vendor::class;
         } elseif ($o == "s") {
             $field  = "supplier_id";
             $object = "supplier";
+            $class  = Supplier::class;
         }
 
-        return ["field" => $field, "object" => $object, "real_id" => $i];
+        return ["field" => $field, "object" => $object, "real_id" => $i, "class" => $class];
+
+    }
+
+    public function userAction(Request $request)
+    {
+        $params    = $request->all();
+        $pureValue = self::getObject($params["id"]);
+
+        if (!empty($pureValue["object"]) && !empty($pureValue["real_id"])) {
+            switch ($params["case"]) {
+                case 'block':
+                    $bml = \App\BlockWebMessageList::updateOrCreate(
+                        ['object_id' => $pureValue["real_id"], 'object_type' => $pureValue["class"]],
+                        ['object_id' => $pureValue["real_id"], 'object_type' => $pureValue["class"]]
+                    );
+                    break;
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "User added successfully in blocked list"]);
 
     }
 

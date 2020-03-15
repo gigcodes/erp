@@ -203,3 +203,29 @@ function formatDuration($seconds_time)
         return "$hours:$minutes:$seconds";
     }
 }
+
+
+function get_field_by_number($no, $field = "name") 
+{
+    $no  = explode("@", $no);
+
+    if(!empty($no[0])) {
+        
+        $customer = \App\Customer::where("phone",$no[0])->first();
+        if($customer) {
+            return $customer->{$field}. " (Customer)";
+        }
+        
+        $vendor = \App\Vendor::where("phone",$no[0])->first();
+        if($vendor) {
+            return $vendor->{$field}. " (Vendor)";
+        }
+
+        $supplier = \App\Supplier::where("phone",$no[0])->first();
+        if($supplier) {
+            return $supplier->{$field}. "(Supplier)";
+        }
+    }
+
+    return "";
+}

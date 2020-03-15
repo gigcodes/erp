@@ -24,7 +24,7 @@
         <div class="col-lg-12 margin-tb">
             <div class="row">
                 <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">WhatsApp Queue</h2>
+                    <h2 class="page-heading">WhatsApp Queue <?php echo $provider === 'py-whatsapp' ? "(".count($data).")" : "(".count($data["first100"]).")" ?></h2>
                     <div class="pull-left">
                         <form action="{{ route('whatsapp.config.queue', $id) }}" method="GET"
                               class="form-inline align-items-start">
@@ -85,6 +85,7 @@
             <thead>
             <tr>
                 <!-- <th style="">ID</th> -->
+                <th style="">Name</th>
                 <th style="">Number to</th>
                 <th style="">Number from</th>
                 <th style="">Text</th>
@@ -98,6 +99,7 @@
             @if($provider === 'py-whatsapp')
                 @foreach($data as $value)
                     <tr>
+                        <td>{{ get_field_by_number($value->number_to,'name') }}</td>
                         <td>{{$value->number_to}}</td>
                         <td>{{$value->number_from}}</td>
                         <td>{{$value->text}}</td>
@@ -112,6 +114,7 @@
             @else
                 @foreach($data["first100"] as $value)
                     <tr>
+                        <td>{{ get_field_by_number($value["chatId"],'name') }}</td>
                         <td>{{$value["chatId"]}}</td>
                         <td>{{$number}}</td>
                         <td>{{$value["body"]}}</td>
@@ -122,23 +125,7 @@
                         <td></td>
                     </tr>
                 @endforeach
-
             @endif
-            {{--            @foreach($data["first100"] as $value)
-                            <tr>
-                                <td>{{$value["chatId"]}}</td>
-                                <td>{{$number}}</td>
-                                <td></td>
-                                <td></td>
-                                <td>{{$value["body"]}}</td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td></td>
-                                <td>&</td>
-                            </tr>
-                        @endforeach--}}
-            </tbody>
         </table>
     </div>
 @endsection

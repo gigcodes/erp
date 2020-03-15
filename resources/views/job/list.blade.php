@@ -31,10 +31,18 @@
                         </button>
                     </div>
                 </form>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button class="btn btn-secondary" id="delete-selected">
+                            <span class="fa fa-trash"></span> Delete Selected
+                        </button>
+                    </div>
+                </div>
 
                 <div class="table-responsive">
                     <table class="table table-bordered table-hover">
                         <thead>
+                            <th></th>
                             <th>Queue</th>
                             <th>Payload</th>
                             <th>Attempts</th>
@@ -45,6 +53,7 @@
                         <tbody>
                             @foreach($jobs as $item)
                                 <tr>
+                                    <td><input class="check-jobs" type="checkbox" name="ids[]" value="{{ $item->id }}"></td>
                                     <td> {{ $item->queue }} </td>
                                     <td>
                                         @if(strlen($item->payload)>60)
@@ -108,6 +117,33 @@
 @section('scripts')
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script>
+
+        $(document).on("click","#delete-selected",function() {
+                var yes = confirm("Are you sure you want to delete selected jobs ?");
+                if(yes) {
+                    
+                    var jobIds = [];
+                    $('.check-jobs:checkbox:checked').each(function (k,v) {
+                        jobIds.push($(v).val());
+                    });
+
+                    $.ajax({
+                        type: 'POST',
+                        url: "/jobs/delete-multiple",
+                        data: {
+                          _token: "{{ csrf_token() }}",
+                          jobIds: jobIds,
+                        }
+                    }).done(function(response) {
+                        alert('Job Deleted');
+                        if(response.code == 200) {
+                            location.reload();
+                        }
+                    }).fail(function(response) {
+                        alert('Sorry , we can not delete the jobs due to some internal error.');
+                    }); 
+                }
+        });
         
         $(document).on("click", ".job-details", function () {
             var detail = $(this).data('id');
