@@ -17,6 +17,7 @@ use Plank\Mediable\Media;
 use App\Setting;
 use App\Jobs\InstagramComment;
 use App\ScrapInfluencer;
+use App\InstagramPostsComments;
 
 
 
@@ -253,6 +254,46 @@ class HashtagController extends Controller
          }
         
         return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
+    }
+
+    public function showGridComments($id, Request $request)
+    {
+        
+        $maxId = '';
+
+        if ($request->has('maxId'))  {
+            $maxId = $request->get('maxId');
+        }
+
+        $txt = $id;
+        $ht = null;
+        if (is_numeric($id)) {
+            $hashtag = HashTag::findOrFail($id);
+        }else{
+            $hashtag = HashTag::where('hashtag','LIKE',$id)->first();
+        }
+
+        $query = InstagramPostsComments::query();
+        
+        if($request->term){
+            $query = $query->where('comment','LIKE','%'.$request->term.'%');
+        }
+
+        $query = $query->where('comment','LIKE','%'.$hashtag->hashtag.'%');
+        
+        $comments = $query->paginate(25);
+
+        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
+        
+        if ($request->ajax()) {
+           return response()->json([
+                'tbody' => view('instagram.hashtags.comments.partials.data', compact('hashtag','comments','accs'))->render(),
+               'links' => (string)$comments->render(),
+               'total' => $comments->total(),
+            ], 200);
+         }
+
+        return view('instagram.hashtags.comments.grid', compact('hashtag','comments','accs','id'));
     }
 
     public function loadComments($mediaId) {

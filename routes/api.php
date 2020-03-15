@@ -108,3 +108,6 @@ Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 
 Route::get('search/{type}', 'SearchQueueController@index');
 Route::post('search/{type}', 'SearchQueueController@upload_content');
+
+//Magneto Customer Reference Store
+Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
