@@ -48,7 +48,7 @@
                       <select class="form-control select-multiple2" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
 
                         @foreach($suppliers_all as $supplier)
-                            <option value="{{ $supplier->id }}" @if(in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+                            <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
                         @endforeach
                       </select>
                   </div>
