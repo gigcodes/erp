@@ -285,7 +285,7 @@
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
               </td>
                 <td>
-                    {{ $supplier->status ? 'Active' : 'Inactive' }}
+                    {{ $supplier->supplier_status_id ? 'Active' : 'Inactive' }}
                 </td>
                 <td>{{ $supplier->created_at }}</td>
                 <td>{{ $supplier->updated_at }}</td>
@@ -583,6 +583,7 @@
 
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');
+      console.log(supplier)
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
@@ -595,6 +596,8 @@
       $('#status').val(supplier.status);
       $('#supplier_status_id').val(supplier.supplier_status_id);
       $('#supplier_category_id').val(supplier.supplier_category_id);
+      $('#scraper_name').val(supplier.scraper_name);
+      $('#inventory_lifetime').val(supplier.inventory_lifetime);
     });
 
     $(document).on('click', '.send-supplier-email', function() {
