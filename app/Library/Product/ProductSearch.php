@@ -161,7 +161,8 @@ class ProductSearch
                     case 'term':
                         if (trim($value) != '') {
                             $products = $products->where(function ($query) use ($value) {
-                                $query->where('sku', 'LIKE', "%$value%")->orWhere('id', 'LIKE', "%$value%");
+                                $query->where('supplier', 'LIKE', "%$value%")->orWhere('id', 'LIKE', "%$value%");
+                                $query->orWhere('sku', 'LIKE', "%$value%")->orWhere('id', 'LIKE', "%$value%");
                                 if ($value == -1) {
                                     $query = $query->orWhere('isApproved', -1);
                                 }
