@@ -143,6 +143,7 @@ input:checked + .slider:before {
                 <tr>
                     <th>S.N</th>
                     <th>Tag Name</th>
+                    <th>Comments</th>
                     <th>Count</th>
                     <th>Rating</th>
                     <th>Actions</th>
@@ -154,6 +155,11 @@ input:checked + .slider:before {
                         <td>
                             <a href="{{ action('HashtagController@showGrid',$hashtag->id) }}">
                                 {{ $hashtag->hashtag }}
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}">
+                                Link
                             </a>
                         </td>
                         <td>{{$hashtag->instagramPost->count()}}</td>
