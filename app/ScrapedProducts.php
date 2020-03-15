@@ -121,6 +121,7 @@ class ScrapedProducts extends Model
                     $scrapedProduct->description = $json->description;
                     $scrapedProduct->images = $json->images;
                     $scrapedProduct->price = $json->price;
+                    $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                     if ($json->sku != 'N/A') {
                         $scrapedProduct->has_sku = 1;
                     }
