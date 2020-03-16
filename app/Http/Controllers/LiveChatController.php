@@ -14,6 +14,7 @@ use App\User;
 use App\LiveChatUser;
 use App\LivechatincSetting;
 use App\Helpers\TranslationHelper;
+use App\Library\Watson\Model as WatsonManager;
 
 
 class LiveChatController extends Controller
