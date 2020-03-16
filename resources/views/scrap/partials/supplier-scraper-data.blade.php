@@ -4,7 +4,10 @@
     <td>{{ $scraper->id }}</td>
     <td>{{ $scraper->scraper_name }}</td>
     <td>@if($scraper->mainSupplier) {{ $scraper->mainSupplier->supplier }} @endif</td>
-    <td>@if($scraper->full_scrape == 1) Yes @else No @endif</td>
+    <td><select class="form-control" onchange="changeFullScrape({{ $scraper->id }})" id="full_scrape{{ $scraper->id }}">
+        <option value="1" @if($scraper->full_scrape == 1) selected @endif>Yes</option>
+        <option value="0" @if($scraper->full_scrape == 0) selected @endif>No</option>
+        </select></td>
     <td>{{ $scraper->start_time }}</td>
     <td>{{ $scraper->end_time }}</td>
     <td>{{ $scraper->run_gap }}</td>
