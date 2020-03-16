@@ -694,7 +694,7 @@ class Product extends Model
             if($group != null && $group != '' && $group->composition != null){
                 return $group->composition;
             }else{
-                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                $hscodeDetails = HsCode::find($group->hs_code_id);
                 if($hscodeDetails != null && $hscodeDetails != ''){
                     if($hscodeDetails->correct_composition != null){
                         return $hscodeDetails->correct_composition;
@@ -719,9 +719,9 @@ class Product extends Model
         {
             $groupId = $hscodeList->hs_code_group_id;
             $group = HsCodeGroup::find($groupId);
-            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            $hscodeDetails = HsCode::find($group->hs_code_id);
             if($hscodeDetails != null && $hscodeDetails != ''){
-                if($hscodeDetails->correct_composition != null){
+                if($hscodeDetails->description != null){
                     return $hscodeDetails->code;
                 }else{
                     return false;

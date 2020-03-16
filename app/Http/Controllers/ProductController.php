@@ -1220,21 +1220,28 @@ class ProductController extends Controller
         // Get product by ID
         $product = Product::find($id);
 
-        // If we have a product, push it to Magento
-        if ($product !== null) {
-            // Dispatch the job to the queue
-            PushToMagento::dispatch($product)->onQueue('magento');
+        //check for hscode 
+        $hsCode = $product->hsCode($product->category,$product->composition);
 
-            // Update the product so it doesn't show up in final listing
-            $product->isUploaded = 1;
-            $product->save();
+        if($hsCode){
+            // If we have a product, push it to Magento
+            if ($product !== null) {
+                // Dispatch the job to the queue
+                PushToMagento::dispatch($product)->onQueue('magento');
 
-            // Return response
-            return response()->json([
-                'result' => 'queuedForDispatch',
-                'status' => 'listed'
-            ]);
+                // Update the product so it doesn't show up in final listing
+                $product->isUploaded = 1;
+                $product->save();
+
+                // Return response
+                return response()->json([
+                    'result' => 'queuedForDispatch',
+                    'status' => 'listed'
+                ]);
+            }
+
         }
+        
 
         // Return error response by default
         return response()->json([

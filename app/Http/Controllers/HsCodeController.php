@@ -85,7 +85,7 @@ class HsCodeController extends Controller
         }else{
 
          $productss = $query->select('*', DB::raw('count(*) as total'))
-                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->orderBy('total','desc')->get();
+                 ->where('category','>',3)->where('stock',1)->groupBy('category')->groupBy('composition')->whereNotNull('composition')->where('composition','!=','')->orderBy('total','desc')->get();
           }
           
           if($productss->count() != 0){
@@ -179,11 +179,12 @@ class HsCodeController extends Controller
                 $products = Product::select('composition')->where('category',$category->id)->where('category','>',3)->where('stock',1)->where('composition','LIKE','%'.$request->combination.'%')->whereNotNull('composition')->groupBy('composition')->limit(3)->get(); 
 
             }else{
-             $products = Product::select('composition')->where('category',$category->id)->where('stock',1)->whereNotNull('composition')->groupBy('composition')->limit(3)->get(); 
+             $products = Product::select('composition')->where('category',$category->id)->where('stock',1)->groupBy('composition')->whereNotNull('composition')->where('composition','!=','')->limit(3)->get(); 
          }
 
          foreach ($products as $product) {
             //Check if product hscode exist
+
             $hscodeSearchString = str_replace(['&gt;','>'],'', $product->composition.' '.$name);
             
             $hscode = HsCode::where('description',$hscodeSearchString)->first();
@@ -199,15 +200,8 @@ class HsCodeController extends Controller
     if(!isset($data)){
         $data = [];
     }
+    $categories = $data;    
     
-    $currentPage = LengthAwarePaginator::resolveCurrentPage();
-    $perPage = Setting::get('pagination'); 
-
-    $currentItems = array_slice($data, $perPage * ($currentPage - 1), $perPage);
-
-    $categories = new LengthAwarePaginator($currentItems, count($data), $perPage, $currentPage, [
-        'path'  => LengthAwarePaginator::resolveCurrentPath()
-    ]);
     $hscodes = SimplyDutyCategory::all();
     $groups = HsCodeGroup::all();
     $cate = HsCodeGroupsCategoriesComposition::groupBy('category_id')->pluck('category_id')->toArray();
@@ -223,7 +217,7 @@ class HsCodeController extends Controller
         return response()->json([
             'tbody' => view('simplyduty.most-common-category.partials.data', compact('categories','hscodes','groups','cate'))->render(),
             'links' => (string)$categories->render(),
-            'total' => $categories->total(),
+            'total' => count($categories),
         ], 200);
     }
 
