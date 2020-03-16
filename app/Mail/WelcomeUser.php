@@ -7,22 +7,20 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class ContactBlogger extends Mailable
+class WelcomeUser extends Mailable
 {
     use Queueable, SerializesModels;
+
+    public $orders;
 
     /**
      * Create a new message instance.
      *
      * @return void
      */
-    public $subject;
-    public $message;
-
-    public function __construct(string $subject, string $message)
+    public function __construct()
     {
-        $this->subject = $subject;
-        $this->message = $message;
+        //
     }
 
     /**
@@ -32,9 +30,6 @@ class ContactBlogger extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
-            ->bcc('contact@sololuxury.co.in')
-            ->subject($this->subject)
-            ->markdown('emails.customers.email');
+        return $this->view('maileclipse::templates.invoiceTemplate');
     }
 }

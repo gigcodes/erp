@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
-use App\Customer;
+use App\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class IssueCredit extends Mailable
+class OrderConfirmation extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,11 +18,11 @@ class IssueCredit extends Mailable
      * @return void
      */
 
-    public $customer;
+    public $order;
 
-    public function __construct(Customer $customer)
+    public function __construct(Order $order)
     {
-      $this->customer = $customer;
+      $this->order = $order;
     }
 
     /**
@@ -32,9 +32,11 @@ class IssueCredit extends Mailable
      */
     public function build()
     {
+      $subject = "New Order # " . $this->order->order_id;
+
       return $this->from('customercare@sololuxury.co.in')
                   ->bcc('customercare@sololuxury.co.in')
-                  ->subject("Customer Credit Issued")
-                  ->markdown('emails.customers.issue-credit');
+                  ->subject($subject)
+                  ->markdown('emails.orders.confirmed');
     }
 }

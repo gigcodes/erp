@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
 use App\Affiliates;
-use App\Mail\AffiliateEmail;
+use App\Mails\Manual\AffiliateEmail;
 use Illuminate\Support\Facades\Mail;
 
 class GoogleAffiliateController extends Controller

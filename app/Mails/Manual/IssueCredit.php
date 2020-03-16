@@ -1,14 +1,14 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
-use App\Voucher;
+use App\Customer;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class VoucherReminder extends Mailable
+class IssueCredit extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -18,11 +18,11 @@ class VoucherReminder extends Mailable
      * @return void
      */
 
-    public $voucher;
+    public $customer;
 
-    public function __construct(Voucher $voucher)
+    public function __construct(Customer $customer)
     {
-      $this->voucher = $voucher;
+      $this->customer = $customer;
     }
 
     /**
@@ -32,9 +32,9 @@ class VoucherReminder extends Mailable
      */
     public function build()
     {
-      return $this->from('contact@sololuxury.co.in')
+      return $this->from('customercare@sololuxury.co.in')
                   ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Voucher Reminder')
-                  ->markdown('emails.vouchers.reminder');
+                  ->subject("Customer Credit Issued")
+                  ->markdown('emails.customers.issue-credit');
     }
 }

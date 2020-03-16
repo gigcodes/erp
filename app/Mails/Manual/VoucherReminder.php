@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
+use App\Voucher;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class HourlyReport extends Mailable
+class VoucherReminder extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -16,11 +17,12 @@ class HourlyReport extends Mailable
      *
      * @return void
      */
-    protected $path;
 
-    public function __construct($path)
+    public $voucher;
+
+    public function __construct(Voucher $voucher)
     {
-      $this->path = $path;
+      $this->voucher = $voucher;
     }
 
     /**
@@ -32,8 +34,7 @@ class HourlyReport extends Mailable
     {
       return $this->from('contact@sololuxury.co.in')
                   ->bcc('customercare@sololuxury.co.in')
-                  ->subject('Generated Hourly Report')
-                  ->markdown('emails.hourly-report')
-                  ->attachFromStorageDisk('files', $this->path);
+                  ->subject('Voucher Reminder')
+                  ->markdown('emails.vouchers.reminder');
     }
 }

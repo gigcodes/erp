@@ -1,13 +1,13 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class AffiliateEmail extends Mailable
+class CustomerEmail extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -33,8 +33,8 @@ class AffiliateEmail extends Mailable
      */
     public function build()
     {
-        return $this->from('affiliate@amourint.com')
-                    ->bcc('affiliate@amourint.com')
+        return $this->from('customercare@sololuxury.co.in')
+                    ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
                     ->markdown('emails.customers.email');
     }

@@ -3,7 +3,7 @@
 namespace App\Console\Commands;
 
 use App\CronJobReport;
-use App\Mail\VoucherReminder;
+use App\Mails\Manual\VoucherReminder;
 use App\Voucher;
 use Carbon\Carbon;
 use Illuminate\Console\Command;

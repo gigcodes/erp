@@ -1,14 +1,13 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
-use App\Order;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class OrderConfirmation extends Mailable
+class HourlyReport extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -17,12 +16,11 @@ class OrderConfirmation extends Mailable
      *
      * @return void
      */
+    protected $path;
 
-    public $order;
-
-    public function __construct(Order $order)
+    public function __construct($path)
     {
-      $this->order = $order;
+      $this->path = $path;
     }
 
     /**
@@ -32,11 +30,10 @@ class OrderConfirmation extends Mailable
      */
     public function build()
     {
-      $subject = "New Order # " . $this->order->order_id;
-
-      return $this->from('customercare@sololuxury.co.in')
+      return $this->from('contact@sololuxury.co.in')
                   ->bcc('customercare@sololuxury.co.in')
-                  ->subject($subject)
-                  ->markdown('emails.orders.confirmed');
+                  ->subject('Generated Hourly Report')
+                  ->markdown('emails.hourly-report')
+                  ->attachFromStorageDisk('files', $this->path);
     }
 }

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Mail;
+namespace App\Mails\Manual;
 
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
@@ -8,7 +8,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use App\Order;
 
-class AdvanceReceiptPDF extends Mailable
+class AdvanceReceipt extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -44,6 +44,6 @@ class AdvanceReceiptPDF extends Mailable
     {
         return $this->from('contact@sololuxury.co.in')
                     ->bcc('customercare@sololuxury.co.in')
-                    ->markdown('emails.orders.advance-receipt-pdf');
+                    ->markdown('emails.orders.advance-receipt');
     }
 }
