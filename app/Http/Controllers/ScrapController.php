@@ -604,10 +604,14 @@ class ScrapController extends Controller
                     $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
 
                     if ($scrapedProduct != null) {
-                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
-                        $scrapedProduct->url = $link;
-                        $scrapedProduct->last_inventory_at = Carbon::now();
-                        $scrapedProduct->save();
+                        if($scrapedProduct->full_scrape == 1){
+                            $pendingUrl[] = $link;
+                        }else{
+                            Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
+                            $scrapedProduct->url = $link;
+                            $scrapedProduct->last_inventory_at = Carbon::now();
+                            $scrapedProduct->save();
+                        }
                     } else {
                         $pendingUrl[] = $link;
                     }
@@ -922,7 +926,7 @@ class ScrapController extends Controller
     }
 
     public function genericScraperSave(Request $request){
-
+        
         if($request->id){
             $scraper = Scraper::find($request->id);
         }else{
@@ -933,6 +937,7 @@ class ScrapController extends Controller
 
 
         $scraper->run_gap = $request->run_gap;
+        $scraper->full_scrape = $request->full_scrape;
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
