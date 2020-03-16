@@ -7,8 +7,6 @@ use App\ChatbotKeyword;
 use App\ChatbotQuestion;
 use App\ChatbotQuestionExample;
 use App\Customer;
-use App\Brand;
-use App\Image;
 use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
@@ -322,7 +320,7 @@ class Model
 
     }
 
-    public static function sendMessage(Customer $customer, $inputText , $contextReset = false)
+    public static function sendMessage(Customer $customer, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
@@ -352,40 +350,112 @@ class Model
                     $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
                 }
             }
-            $chatResponse = new ResponsePurify($result,$customer);
+            $chatResponse = new ResponsePurify($result, $customer);
             // if response is valid then check ahead
-            if($chatResponse->isValid()) {
+            if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-                if(!empty($result)) {
-                    return $result;
+                \Log::info(print_r($result,true));
+                if (!empty($result)) {
+                    if (!empty($result["action"])) {
+                        // assign params
+                        $params = [
+                            "is_queue"         => 0,
+                            "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
+                            "customer_ids"     => [$customer->id],
+                            "message"          => $result["reply_text"],
+                            "is_chatbot"       => true,
+                            "chatbot_response" => $result,
+                            "chatbot_question" => $inputText,
+                            "chatbot_params"   => isset($result["medias"]) ? $result["medias"] : [],
+                        ];
+
+                        switch ($result["action"]) {
+                            case 'send_product_images':
+
+                                // add into suggestion
+                                $brands   = [];
+                                $category = [];
+
+                                if (!empty($result["medias"]["params"]["brands"])) {
+                                    $brands = $result["medias"]["params"]["brands"];
+                                }
+
+                                if (!empty($result["medias"]["params"]["category"])) {
+                                    $category = $result["medias"]["params"]["category"];
+                                }
+
+                                self::sendMessage($customer, "image_has_been_found", true);
+
+                                if (!empty($brands) || !empty($category)) {
+                                    $suggestion = \App\Suggestion::create([
+                                        "customer_id" => $customer->id,
+                                        "brand"       => json_encode($brands),
+                                        "category"    => json_encode($category),
+                                        "number"      => 30,
+                                    ]);
+
+                                    // setup the params
+                                    $insertParams = [
+                                        "customer_id" => $customer->id,
+                                        "message"     => isset($params["message"]) ? $params["message"] : null,
+                                        "status"      => isset($params["status"]) ? $params["status"] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
+                                        "is_queue"    => isset($params["is_queue"]) ? $params["is_queue"] : 0,
+                                        "group_id"    => isset($params["group_id"]) ? $params["group_id"] : null,
+                                        "user_id"     => isset($params["user_id"]) ? $params["user_id"] : null,
+                                        "number"      => null,
+                                        "is_chatbot"  => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                    ];
+
+                                    $chatMessage = ChatMessage::create($insertParams);
+                                    if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                                        \App\ChatbotReply::create([
+                                            "chat_id"  => $chatMessage->id,
+                                            "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
+                                            "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
+                                        ]);
+                                    }
+
+                                    $suggestion->chat_message_id = $chatMessage->id;
+                                    $suggestion->save();
+
+                                    \App\Jobs\AttachSuggestionProduct::dispatch($suggestion)->onQueue("customer_message");
+                                }
+
+                                break;
+                            case 'send_text_only':
+                                \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
+                                break;
+                        }
+                    }
+
                 }
             }
             /*if (isset($result->output) && isset($result->output->generic)) {
 
-                $textMessage = reset($result->output->generic);
-                if(isset($result->output->entities)) {
-                    $entities = $result->output->entities;
-                    $imageFiles = [];
-                    foreach($entities as $entity) {
-                        // if a entity keyword is product then find image matching it brand and category
-                        if( $entity->entity == "product") {
-                            $value = strtoupper($entity->value);
-                            $brand = explode(" ", $value);
-                            $brand = Brand::where('name', 'LIKE',"%".$brand[0]."%")->first();
-                            $category = trim(str_replace($brand->name,"", $value));
-                            $images = Image::where('brand','LIKE',"%".$brand->name."%")->where('category','LIKE',"%".$category."%")->get();
-                            foreach($images as $image) {
-                                array_push($imageFiles, $image->filename);
-                            }
-                        }
-                    }
-                }
+            $textMessage = reset($result->output->generic);
+            if(isset($result->output->entities)) {
+            $entities = $result->output->entities;
+            $imageFiles = [];
+            foreach($entities as $entity) {
+            // if a entity keyword is product then find image matching it brand and category
+            if( $entity->entity == "product") {
+            $value = strtoupper($entity->value);
+            $brand = explode(" ", $value);
+            $brand = Brand::where('name', 'LIKE',"%".$brand[0]."%")->first();
+            $category = trim(str_replace($brand->name,"", $value));
+            $images = Image::where('brand','LIKE',"%".$brand->name."%")->where('category','LIKE',"%".$category."%")->get();
+            foreach($images as $image) {
+            array_push($imageFiles, $image->filename);
+            }
+            }
+            }
+            }
 
-                if (isset($textMessage->text)) {
-                    if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
-                        return ["reply_text" => $textMessage, "response" => json_encode($result), "imageFiles"=>$imageFiles];
-                    }
-                }
+            if (isset($textMessage->text)) {
+            if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
+            return ["reply_text" => $textMessage, "response" => json_encode($result), "imageFiles"=>$imageFiles];
+            }
+            }
             }*/
 
             return false;
@@ -425,31 +495,29 @@ class Model
 
         $params = [
             "input" => [
-                "text" => $inputText,
+                "text"    => $inputText,
                 "options" => [
-                    "return_context" => true
-                ]
+                    "return_context" => true,
+                ],
             ],
         ];
         //$contextReset = true;
         /*if($contextReset) {
-            $params["context"]["global"]["system"]["turn_count"]                        = 0;
-            $params["context"]["skills"]["main skill"]["user_defined"]["brand_name"]    = null;
-            $params["context"]["skills"]["main skill"]["user_defined"] = null;
-            //$params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
+        $params["context"]["global"]["system"]["turn_count"]                        = 0;
+        $params["context"]["skills"]["main skill"]["user_defined"]["brand_name"]    = null;
+        $params["context"]["skills"]["main skill"]["user_defined"] = null;
+        //$params["context"]["skills"]["main skill"]["user_defined"]["category_name"] = null;
         }*/
 
         $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, $params);
-        \Log::info(print_r([$result,$params],true));
-
         return json_decode($result->getContent());
 
     }
 
     public static function newPushDialog($id)
     {
-        if(env("PUSH_WATSON",true) == false) {
-            return ["code" => 500 , "error" => "Sorry, Watson push is not activated"];
+        if (env("PUSH_WATSON", true) == false) {
+            return ["code" => 500, "error" => "Sorry, Watson push is not activated"];
         }
 
         $dialog      = ChatbotDialog::where("id", $id)->first();
@@ -484,21 +552,21 @@ class Model
                 self::API_KEY
             );
 
-            if(!empty($genericOutput) && $storeParams["type"] != "folder") {
+            if (!empty($genericOutput) && $storeParams["type"] != "folder") {
                 $storeParams["output"]["generic"][] = $genericOutput;
             }
 
             if (!empty($dialog->workspace_id)) {
                 $result = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
             } else {
-                $result               = $watson->create($workSpaceId, $storeParams);
-                if($result->getStatusCode() !=  200) {
+                $result = $watson->create($workSpaceId, $storeParams);
+                if ($result->getStatusCode() != 200) {
                     $error = json_decode($result->getContent());
-                    if(isset($error->error)) {
-                       return ["code" => 500 , "error" => $error->error];
+                    if (isset($error->error)) {
+                        return ["code" => 500, "error" => $error->error];
                     }
-                } 
-                $dialog->workspace_id = $workSpaceId; 
+                }
+                $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
             }
 
@@ -537,19 +605,19 @@ class Model
                             $mulDialog->save();
                         }
 
-                        if($result->getStatusCode() !=  200) {
+                        if ($result->getStatusCode() != 200) {
                             $error = json_decode($result->getContent());
-                            if(isset($error->error)) {
-                               return ["code" => 500 , "error" => $error->error];
+                            if (isset($error->error)) {
+                                return ["code" => 500, "error" => $error->error];
                             }
-                        }else{
-                            return ["code" => 200 , "error" => false];
+                        } else {
+                            return ["code" => 200, "error" => false];
                         }
                     }
                 }
             }
 
-            return ["code" => 200 , "error" => false];
+            return ["code" => 200, "error" => false];
         }
 
     }

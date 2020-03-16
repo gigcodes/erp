@@ -125,6 +125,10 @@ class LiveChatController extends Controller
 					
 					// Create chat message
                 	$chatMessage = ChatMessage::create($params);
+                	// if customer found then send reply for it
+                	if (!empty($customerDetails) && $message != '') {
+                        WatsonManager::sendMessage($customerDetails,$message);
+                    }
 					
 				}
 
