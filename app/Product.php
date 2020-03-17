@@ -218,6 +218,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -312,8 +313,8 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
-                    $json->product_id = $product->id;
-                    $json->save();
+                    //$json->product_id = $product->id;
+                    //$json->save();
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
@@ -335,6 +336,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
