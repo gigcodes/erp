@@ -2,7 +2,7 @@
 <html>
    <head>
       <meta charset="utf-8">
-      <title>A simple, clean, and responsive HTML invoice template</title>
+      <title>Invoice of {{ $order->order_id }}</title>
       <style>
          .invoice-box {
          max-width: 800px;
