@@ -92,4 +92,22 @@ class TmpTaskController extends Controller
         app('App\Services\Products\ProductsCreator')->createProduct($scraped_product);
     }
 
+    public function testEmail(Request $request)
+    {
+        $order = \App\Order::latest()->first();
+        
+        if($order) {
+            
+            $customer           = $order->customer;
+            $orderItems         = $order->order_product;
+
+            $data["order"]      = $order;
+            $data["customer"]   = $customer;
+            $data["orderItems"] = $orderItems;
+            
+            Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
+        }
+
+    }
+
 }

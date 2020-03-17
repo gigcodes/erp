@@ -53,6 +53,7 @@ use App\Waybill;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
+use App\Mail\OrderInvoice;
 
 
 class OrderController extends Controller {
@@ -779,6 +780,15 @@ class OrderController extends Controller {
 		// 	'sent_to' => '',
 		// 	'role' => 'Admin',
 		// ]);
+
+		if($order) {
+            $data["order"]      = $order;
+            $data["customer"]   = $order->customer;
+
+            if($order->customer) {
+            	Mail::to($order->customer->email)->send(new OrderInvoice($data));
+            }
+        }
 
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);

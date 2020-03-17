@@ -1,1 +1,1 @@
-[{"template_name":"InvoiceTemplate","template_slug":"invoiceTemplate","template_description":"We will send invoice as per template","template_type":"html","template_view_name":"airmail","template_skeleton":"invoice"}]
+[{"template_name":"Order Invoice","template_slug":"orderInvoice","template_description":"Sending order invoice","template_type":"html","template_view_name":"plain","template_skeleton":"plain"}]
