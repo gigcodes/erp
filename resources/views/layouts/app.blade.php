@@ -765,6 +765,7 @@
                                             <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
                                             <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
                                             <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
+                                            <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag Comments</a>
                                         </li>
 
                                         <hr />
