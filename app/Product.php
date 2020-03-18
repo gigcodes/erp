@@ -104,11 +104,18 @@ class Product extends Model
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
-                if($json->product_id > 0) {
-                    $product = Product::where('id', $json->product_id)->first();
-                }else{
+                try {
+                    
+                    if($json->product_id > 0) {
+                        $product = Product::where('id', $json->product_id)->first();
+                    }else{
+                        $product = Product::where('sku', $data[ 'sku' ])->first();
+                    }
+
+                } catch (\Exception $e) {
                     $product = Product::where('sku', $data[ 'sku' ])->first();
                 }
+                
 
                 // Return false if no product is found
                 if (!$product) {
