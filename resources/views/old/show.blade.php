@@ -1160,7 +1160,7 @@
 
         $(document).on('click', '.edit-product', function () {
             var product = $(this).data('product');
-            var url = "{{ url('vendor/product') }}/" + product.id;
+            var url = "{{ url('vendors/product') }}/" + product.id;
 
             $('#productEditModal form').attr('action', url);
             $('#vendor_vendor_id').val(product.vendor_id);

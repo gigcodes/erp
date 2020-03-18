@@ -671,10 +671,10 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
+                                    <a class="dropdown-item" href="{{ route('vendors.index') }}">Vendor Info</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                                    <a class="dropdown-item" href="{{ route('vendors.product.index') }}">Product Info</a>
                                 </li>
                             </ul>
                         </li>

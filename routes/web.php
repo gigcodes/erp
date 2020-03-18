@@ -450,7 +450,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/reminder', 'CustomerController@updateReminder');
     Route::post('supplier/reminder', 'SupplierController@updateReminder');
     Route::post('supplier/excel-import', 'SupplierController@excelImport');
-    Route::post('vendor/reminder', 'VendorController@updateReminder');
+    Route::post('vendors/reminder', 'VendorController@updateReminder');
     Route::post('customer/add-note/{id}', 'CustomerController@addNote');
     Route::post('supplier/add-note/{id}', 'SupplierController@addNote');
     Route::get('customers/{id}/post-show', 'CustomerController@postShow')->name('customer.post.show');
@@ -824,27 +824,27 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('complaint/{id}/status', 'ComplaintController@updateStatus')->name('complaint.updateStatus');
 
     // Vendor Module
-    Route::get('vendor/product', 'VendorController@product')->name('vendor.product.index');
-    Route::post('vendor/reply/add', 'VendorController@addReply')->name('vendor.reply.add');
-    Route::get('vendor/reply/delete', 'VendorController@deleteReply')->name('vendor.reply.delete');
-    Route::post('vendor/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendor.email.send.bulk');
-    Route::post('vendor/create-user', 'VendorController@createUser')->name('vendor.create.user');
+    Route::get('vendors/product', 'VendorController@product')->name('vendors.product.index');
+    Route::post('vendors/reply/add', 'VendorController@addReply')->name('vendors.reply.add');
+    Route::get('vendors/reply/delete', 'VendorController@deleteReply')->name('vendors.reply.delete');
+    Route::post('vendors/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendors.email.send.bulk');
+    Route::post('vendors/create-user', 'VendorController@createUser')->name('vendors.create.user');
 
-    Route::post('vendor/send/email', 'VendorController@sendEmail')->name('vendor.email.send');
-    Route::get('vendor/email/inbox', 'VendorController@emailInbox')->name('vendor.email.inbox');
-    Route::post('vendor/product', 'VendorController@productStore')->name('vendor.product.store');
-    Route::put('vendor/product/{id}', 'VendorController@productUpdate')->name('vendor.product.update');
-    Route::delete('vendor/product/{id}', 'VendorController@productDestroy')->name('vendor.product.destroy');
-    Route::get('vendor/{vendor}/payments', 'VendorPaymentController@index')->name('vendor.payments');
-    Route::post('vendor/{vendor}/payments', 'VendorPaymentController@store')->name('vendor.payments.store');
-    Route::put('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendor.payments.update');
-    Route::delete('vendor/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendor.payments.destroy');
-    Route::resource('vendor', 'VendorController');
+    Route::post('vendors/send/email', 'VendorController@sendEmail')->name('vendors.email.send');
+    Route::get('vendors/email/inbox', 'VendorController@emailInbox')->name('vendors.email.inbox');
+    Route::post('vendors/product', 'VendorController@productStore')->name('vendors.product.store');
+    Route::put('vendors/product/{id}', 'VendorController@productUpdate')->name('vendors.product.update');
+    Route::delete('vendors/product/{id}', 'VendorController@productDestroy')->name('vendors.product.destroy');
+    Route::get('vendors/{vendor}/payments', 'VendorPaymentController@index')->name('vendors.payments');
+    Route::post('vendors/{vendor}/payments', 'VendorPaymentController@store')->name('vendors.payments.store');
+    Route::put('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@update')->name('vendors.payments.update');
+    Route::delete('vendors/{vendor}/payments/{vendor_payment}', 'VendorPaymentController@destroy')->name('vendors.payments.destroy');
+    Route::resource('vendors', 'VendorController');
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
-    Route::post('vendor/email', 'VendorController@email')->name('vendor.email');
-    Route::post('vendot/block', 'VendorController@block')->name('vendor.block');
-    Route::post('vendor/inviteGithub', 'VendorController@inviteGithub');
-    Route::post('vendor/inviteHubstaff', 'VendorController@inviteHubstaff');
+    Route::post('vendors/email', 'VendorController@email')->name('vendors.email');
+    Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
+    Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
+    Route::post('vendors/inviteHubstaff', 'VendorController@inviteHubstaff');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
     Route::resource('vendor_category', 'VendorCategoryController');
 

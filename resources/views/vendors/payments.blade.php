@@ -10,9 +10,9 @@
 
     <div class="row">
       <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Payment History - <a href="{{route('vendor.show',$vendor->id)}}" title="Vendor Details">{{ $vendor->name }} ({{ optional($vendor->category)->title }})</a></h2>
+        <h2 class="page-heading">Payment History - <a href="{{route('vendors.show',$vendor->id)}}" title="Vendor Details">{{ $vendor->name }} ({{ optional($vendor->category)->title }})</a></h2>
         <div class="pull-left">
-          <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
+          <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
             <div class="form-group">
               <input name="term" type="text" class="form-control"
                      value="{{ isset($term) ? $term : '' }}"
@@ -95,7 +95,7 @@
                 <div class="d-flex">
                   <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#paymentShowModal" data-payment="{{ json_encode($payment) }}" title="View Payment Detail" data-currency="{{ $currencies[$payment->currency]??'N/A' }}"><img src="/images/view.png" /></button>
                     <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#paymentFormModal" data-payment="{{ json_encode($payment) }}" title="Edit Payment Detail"><img src="/images/edit.png" /></button>
-                  {!! Form::open(['method' => 'DELETE','route' => ['vendor.payments.destroy', $vendor->id,$payment->id],'style'=>'display:inline']) !!}
+                  {!! Form::open(['method' => 'DELETE','route' => ['vendors.payments.destroy', $vendor->id,$payment->id],'style'=>'display:inline']) !!}
                     <button type="submit" class="btn btn-image" title="Delete Payment detail"><img src="/images/delete.png" /></button>
                   {!! Form::close() !!}
                 </div>
@@ -112,7 +112,7 @@
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
-                <form action="{{ route('vendor.payments.store', $vendor->id) }}" method="POST">
+                <form action="{{ route('vendors.payments.store', $vendor->id) }}" method="POST">
                     @csrf
 
                     <div class="modal-header">
@@ -273,7 +273,7 @@
           var button = $(event.relatedTarget)
           var payment = button.data('payment')
           if (payment != undefined) {
-              var url = "{{ url('vendor') }}/" + payment.vendor_id+'/payments/'+payment.id;
+              var url = "{{ url('vendors') }}/" + payment.vendor_id+'/payments/'+payment.id;
               modal.find('form').attr('action', url);
               var method = '<input type="hidden" name="_method" value="PUT">'
               modal.find('form').append(method)
@@ -290,7 +290,7 @@
               modal.find('button[type="submit"]').html('Update')
               modal.find('.modal-title').html('Update Vendor Payment')
           } else {
-              var url = "{{ route('vendor.payments.store', $vendor->id) }}";
+              var url = "{{ route('vendors.payments.store', $vendor->id) }}";
               modal.find('form').attr('action', url);
               modal.find('form').trigger('reset');
               modal.find('button[type="submit"]').html('Add')

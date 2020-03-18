@@ -82,8 +82,8 @@
                 <h3>Vendor Page</h3>
             </div>
             <div class="pull-right mt-4">
-                <a class="btn btn-xs btn-secondary" href="{{ route('vendor.index') }}">Back</a>
-                <a href="{{route('vendor.payments', $vendor->id)}}" class="btn btn-secondary btn-xs" title="Vendor Payments" target="_blank">Payments </a>
+                <a class="btn btn-xs btn-secondary" href="{{ route('vendors.index') }}">Back</a>
+                <a href="{{route('vendors.payments', $vendor->id)}}" class="btn btn-secondary btn-xs" title="Vendor Payments" target="_blank">Payments </a>
                 {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                 <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}
@@ -528,7 +528,7 @@
                             <td>
                                 <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png"/></button>
 
-                                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                                {!! Form::open(['method' => 'DELETE','route' => ['vendors.product.destroy', $product->id],'style'=>'display:inline']) !!}
                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                                 {!! Form::close() !!}
                             </td>
@@ -585,7 +585,7 @@
                                             <td>
                                                 <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png"/></button>
 
-                                                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                                                {!! Form::open(['method' => 'DELETE','route' => ['vendors.product.destroy', $product->id],'style'=>'display:inline']) !!}
                                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                                                 {!! Form::close() !!}
                                             </td>
@@ -1087,7 +1087,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{{ url('vendor') }}/" + id,
+                url: "{{ url('vendors') }}/" + id,
                 data: {
                     _token: "{{ csrf_token() }}",
                     _method: "PUT",
@@ -1214,7 +1214,7 @@
 
         $(document).on('click', '.edit-product', function () {
             var product = $(this).data('product');
-            var url = "{{ url('vendor/product') }}/" + product.id;
+            var url = "{{ url('vendors/product') }}/" + product.id;
 
             $('#productEditModal form').attr('action', url);
             $('#vendor_vendor_id').val(product.vendor_id);
@@ -1308,7 +1308,7 @@
             var type = $(this).data('type');
 
             $.ajax({
-                url: "{{ route('vendor.email.inbox') }}",
+                url: "{{ route('vendors.email.inbox') }}",
                 type: "GET",
                 data: {
                     vendor_id: vendor_id,
