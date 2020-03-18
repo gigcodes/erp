@@ -51,7 +51,9 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
         });
 
         static::updating(function ($product) {
@@ -67,7 +69,9 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
         });
     }
 
@@ -100,7 +104,11 @@ class Product extends Model
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
-                $product = Product::where('sku', $data[ 'sku' ])->first();
+                if($json->product_id > 0) {
+                    $product = Product::where('id', $json->product_id)->first();
+                }else{
+                    $product = Product::where('sku', $data[ 'sku' ])->first();
+                }
 
                 // Return false if no product is found
                 if (!$product) {
@@ -210,6 +218,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -304,6 +313,8 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    //$json->product_id = $product->id;
+                    //$json->save();
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
@@ -325,6 +336,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -519,17 +531,17 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'sku', 'sku');
+        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
     }
 
     public function scraped_products()
     {
-        return $this->hasOne('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasOne('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasMany('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function user()
@@ -684,7 +696,7 @@ class Product extends Model
             if($group != null && $group != '' && $group->composition != null){
                 return $group->composition;
             }else{
-                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                $hscodeDetails = HsCode::find($group->hs_code_id);
                 if($hscodeDetails != null && $hscodeDetails != ''){
                     if($hscodeDetails->correct_composition != null){
                         return $hscodeDetails->correct_composition;
@@ -709,9 +721,9 @@ class Product extends Model
         {
             $groupId = $hscodeList->hs_code_group_id;
             $group = HsCodeGroup::find($groupId);
-            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            $hscodeDetails = HsCode::find($group->hs_code_id);
             if($hscodeDetails != null && $hscodeDetails != ''){
-                if($hscodeDetails->correct_composition != null){
+                if($hscodeDetails->description != null){
                     return $hscodeDetails->code;
                 }else{
                     return false;
@@ -739,6 +751,38 @@ class Product extends Model
           
             return true;
         }      
+    }
+
+
+    public function websiteProducts()
+    {
+        return $this->hasMany("App\WebsiteProduct","product_id","id");
+    }
+
+    
+    public function publishedOn()
+    {
+        return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
+
+
+    }
+
+    /**
+     * get product images from watson
+     * 
+     */
+
+    public static function attachProductChat($brands = [], $category = [], $existeProducts = [])
+    {
+        return \App\Product::whereIn("brand", $brands)->whereIn("category", $category)
+                ->whereNotIn("id", $existeProducts)
+                ->join("mediables as m",function($q){
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
+                })
+                ->where("stock",">",0)
+                ->orderBy("created_at", "desc")
+                ->limit(\App\Library\Watson\Action\SendProductImages::SENDING_LIMIT)
+                ->get();
     }
 
 }

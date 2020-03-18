@@ -204,8 +204,7 @@
         </div>
       </div>
     @endif
-
-    <div class="productGrid" id="productGrid">
+    <div class="productGrid " id="productGrid">
 
     </div>
 
@@ -290,7 +289,9 @@
   @include('partials.modals.category')
   @include('partials.modals.color')
 @endsection
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -485,9 +486,13 @@
                                           @if($roletype == 'Inventory')  
                                           </a>
                                           <p>Ref. Category : ` + product['reference_category'] + ` </p>
-                                          <p>Category : <select class="form-control update-product select-multiple2" id="id_`+product['sku']+`" data-id="`+product['id']+`">@foreach($categoryArray as $category)<option value="{{ $category['id'] }}">{{ $category['value']}}</option>@endforeach</select></p>
+                                          <p>Category : <select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">
+                                            @foreach($categoryArray as $category)
+                                              <option value="{{ $category['id'] }}">{{ $category['value']}}</option>
+                                            @endforeach
+                                          </select></p>
                                           <p>Ref. Color : ` + product['reference_color'] + ` </p>
-                                          <p>Color : <select class="form-control update-color select-multiple2" id="id_`+product['id']+`" data-id="`+product['id']+`">
+                                          <p>Color : <select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
                                             <option>Select Color</option
                                             @foreach($sampleColors as $color)
                                             <option value="{{ $color['erp_color'] }}">{{ $color['erp_color'] }}</option>
@@ -526,10 +531,15 @@
               jQuery('#productGrid').append(html + '</div>');
           
               groupedByTime[key].forEach(function (product) {
-                  $("#id_"+product['sku']).val(product['category']);
-                  $("#id_"+product['id']).val(product['color']);
-                   
+                console.log(product);
+                  if($("#category_"+product['id']).length > 0) {
+                    $("#category_"+product['id']).val(product['category']);
+                  }
+                  if($("#color_"+product['id']).length > 0) {
+                    $("#color_"+product['id']).val(product['color']);
+                  }
               });
+              $(".select-multiple2").select2();
           });
 
 
@@ -755,10 +765,6 @@
                     $("#no_of_product_will_affect_color").html(0);
                 }
             });
-        }); 
-
-
-         
-
+        });
   </script>
 @endsection

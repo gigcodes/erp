@@ -8,16 +8,15 @@
 <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
 <style type="text/css">
   .panel-img-shorts{
-      width:100px;
-      height:100px;
+      width:80px;
+      height:80px;
       display: inline-block;
   }
-  .panel-img-shorts .close{
+  .panel-img-shorts .remove-img{
       display:block;
       float:right;
       width:15px;
       height:15px;
-      background:url(https://web.archive.org/web/20110126035650/http://digitalsbykobke.com/images/close.png) no-repeat center center;
   }
 </style>
 <div class="row">
@@ -38,6 +37,17 @@
               </form>
           </div>
         </div>
+        <div class="pull-right">
+          <div class="form-inline">
+              <form method="post">
+                  <?php echo csrf_field(); ?>
+                  <?php echo Form::select("customer_id[]",[],null,["class" => "form-control customer-search-select-box","multiple"=> true,"style" => "width:250px;"]); ?>      
+                  <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-forward-images">
+                      <i class="glyphicon glyphicon-send"></i>
+                  </button>
+              </form>
+          </div>
+        </div>  
     </div>
 </div>
 
@@ -129,7 +139,7 @@
   $(document).on("click",".delete-images",function() {
 
      var tr = $(this).closest("tr");
-     var checkedImages = tr.find(".close:checkbox:checked").closest(".panel-img-shorts");
+     var checkedImages = tr.find(".remove-img:checkbox:checked").closest(".panel-img-shorts");
      var form = tr.find('.remove-images-form');
      $.ajax({
         type: 'POST',
@@ -151,6 +161,71 @@
         $("#loading-image").hide();
         console.log("Sorry, something went wrong");
       });
+  });
+
+  $(document).on("click",".add-more-images",function() {
+      var $this = $(this);
+      var id = $this.data("id");
+
+      $.ajax({
+        type: 'GET',
+        url: "{{ route('chatbot.messages.attach-images') }}",
+        data: {chat_id : id},
+        beforeSend : function() {
+          $("#loading-image").show();
+        },
+        dataType:"json"
+      }).done(function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            if(response.data.length > 0) {
+              var html = "";
+              $.each(response.data, function(k,img) {
+                  html += '<div class="panel-img-shorts">';
+                    html += '<input type="checkbox" name="delete_images[]" value="'+img.mediable_id+'_'+img.id+'" class="remove-img" data-media-id="'+img.id+'" data-mediable-id="'+img.mediable_id+'">';
+                    html += '<img width="50px" heigh="50px" src="'+img.url+'">';
+                  html += '</div>';
+              });
+              $this.closest("tr").find(".images-layout").find("form").append(html);
+            }
+            toastr['success'](response.message, 'success');
+        }else{
+            toastr['error'](response.message, 'error');
+        }
+      }).fail(function(response) {
+        $("#loading-image").hide();
+        console.log("Sorry, something went wrong");
+      });
+  });
+
+  $(document).on("click",".check-all",function() {
+    var tr = $(this).closest("tr");
+    tr.find(".remove-img").trigger("click");
+  });
+
+  $(document).on("click",".btn-forward-images", function(e) {
+      e.preventDefault();
+      var selectedImages = $("#page-view-result").find(".remove-img:checkbox:checked");
+      var imagesArr = [];
+      $.each(selectedImages,function(k,v){
+          imagesArr.push($(v).data("media-id"));
+      });
+      $.ajax({
+          type: "POST",
+          url: "/chatbot/messages/forward-images",
+          data: {
+              '_token': "{{ csrf_token() }}",
+              'images': imagesArr,
+              'customer' : $(".customer-search-select-box").val()
+          }
+      }).done(function (response) {
+          if(response.code == 200) {
+            toastr['success'](response.message, 'success');
+          }else{
+            toastr['error'](response.message, 'error');
+          }
+      });
+
   });
 
 </script>

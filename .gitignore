@@ -61,3 +61,6 @@ public/zoom/*
 public/tmp_images/*
 
 /deployment_scripts_test
+
+# private files
+app/Console/Commands/DispatchJob.php 

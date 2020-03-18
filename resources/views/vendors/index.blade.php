@@ -179,22 +179,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="frequency">Frequency (in Minutes)</label>
-                        <select class="form-control" name="frequency" id="frequency">
-                            <option value="0">Disabled</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="35">35</option>
-                            <option value="40">40</option>
-                            <option value="45">45</option>
-                            <option value="50">50</option>
-                            <option value="55">55</option>
-                            <option value="60">60</option>
-                        </select>
+                        <label for="frequency">Frequency</label>
+                        <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency"]); ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequency">Reminder Start From</label>
+                        <input type="text" name="reminder_from" id="reminder_from" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Check Last Message?</label>
+                        <label class="radio-inline">
+                          <input type="radio" id="reminder_last_reply" name="reminder_last_reply" value="1" checked>Yes
+                        </label>
+                        <label class="radio-inline">
+                          <input type="radio" id="reminder_last_reply_no" name="reminder_last_reply" value="0">No
+                        </label>
                     </div>
                     <div class="form-group">
                         <label for="reminder_message">Reminder Message</label>
@@ -287,7 +286,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                
                     <div class="modal-body">
-                        <button class="btn btn-secondary" id="vendor_id">Create ERP User from Vendor</button>
+                        <div><button class="btn btn-secondary m-1" id="vendor_id">Create ERP User from Vendor</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteGithub()">Invite to Github</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteHubstaff()">Invite to Hubstaff</button></div>
                     </div>
 
                     <div class="modal-footer">
@@ -414,16 +415,26 @@
             let vendorId = $(this).data('id');
             let frequency = $(this).data('frequency');
             let message = $(this).data('reminder_message');
+            let reminder_from = $(this).data('reminder_from');
+            let reminder_last_reply = $(this).data('reminder_last_reply');
 
             $('#frequency').val(frequency);
             $('#reminder_message').val(message);
+            $("#reminderModal").find("#reminder_from").val(reminder_from);
+            if(reminder_last_reply == 1) {
+            	$("#reminderModal").find("#reminder_last_reply").prop("checked",true);
+            }else{
+            	$("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
+            }
             vendorToRemind = vendorId;
-
         });
 
         $(document).on('click', '.save-reminder', function () {
+        	var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
+            let reminder_from = reminderModal.find("#reminder_from").val();
+            let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
                 url: "{{action('VendorController@updateReminder')}}",
@@ -435,6 +446,8 @@
                     vendor_id: vendorToRemind,
                     frequency: frequency,
                     message: message,
+                    reminder_from: reminder_from,
+                    reminder_last_reply: reminder_last_reply,
                     _token: "{{ csrf_token() }}"
                 }
             });
@@ -924,10 +937,17 @@
               });
           });
 
-        function createUserFromVendor(id){
-            $('#vendor_id').attr('data-id', id);
-            $('#createUser').modal('show');   
-        }
+          function createUserFromVendor(id, email) {
+                $('#vendor_id').attr('data-id', id);
+                if (email) {
+                    $('#createUser').attr('data-email', email);
+                }
+                $('#createUser').modal('show');
+            }
+
+            $('#createUser').on('hidden.bs.modal', function() {
+                $('#createUser').removeAttr('data-email');
+            })
 
          $(document).on("click", "#vendor_id", function () {
             $('#createUser').modal('hide');
@@ -954,5 +974,52 @@
                           alert('No response from server');
                       });
           });
+
+          function inviteGithub() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+
+            $.ajax({
+                type: "POST",
+                url: "vendor/inviteGithub",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            });
+
+            console.log(email);
+        }
+
+        function inviteHubstaff() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+            console.log(email);
+
+            $.ajax({
+                type: "POST",
+                url: "vendor/inviteHubstaff",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            })
+        }
+
+        $('#reminder_from').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
     </script>
 @endsection

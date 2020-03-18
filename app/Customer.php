@@ -18,7 +18,9 @@ class Customer extends Model
         'city',
         'whatsapp_number',
         'chat_session_id',
-        'in_w_list'
+        'in_w_list',
+        'reminder_from',
+        'reminder_last_reply',
     ];
 
     protected $casts = [
@@ -243,6 +245,24 @@ class Customer extends Model
     public function hasDND()
     {
         return ($this->do_not_disturb == 1) ? true : false;
+    }
+
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
     }
 
     

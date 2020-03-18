@@ -179,6 +179,9 @@ class RepositoryController extends Controller
                 'id' => $pullRequest->number,
                 'title' => $pullRequest->title,
                 'number' => $pullRequest->number,
+                'username' => $pullRequest->user->login,
+                'userId' => $pullRequest->user->id,
+                'updated_at' => $pullRequest->updated_at,
                 'source' => $pullRequest->head->ref,
                 'destination' => $pullRequest->base->ref
             );

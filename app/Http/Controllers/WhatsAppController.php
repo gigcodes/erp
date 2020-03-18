@@ -1222,8 +1222,39 @@ class WhatsAppController extends FindByNumberController
             $params[ 'dubbizle_id' ] = $dubbizleId;
             $params[ 'customer_id' ] = $customerId;
 
-            if( !empty($user) || !empty($contact) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+            if( !empty($user) || !empty($contact) || !empty($supplier) || !empty($vendor) || !empty($dubbizle) || !empty($customer)){
+               
+               // check that if message comes from customer,supplier,vendor
+               if(!empty($customer)) {
+                    $blockCustomer = \App\BlockWebMessageList::where("object_id",$customer->id)->where("object_type",Customer::class)->first();
+                    if($blockCustomer) {
+                        $blockCustomer->delete();
+                    }
+               }
+               // check for vendor and remvove from the list
+               if(!empty($vendor)) {
+                    $blockVendor = \App\BlockWebMessageList::where("object_id",$vendor->id)->where("object_type",Vendor::class)->first();
+                    if($blockVendor) {
+                        $blockVendor->delete();
+                    }
+               }
+               // check for supplier and remove from the list
+               if(!empty($supplier)) {
+                    $blockSupplier = \App\BlockWebMessageList::where("object_id",$supplier->id)->where("object_type",Supplier::class)->first();
+                    if($blockSupplier) {
+                        $blockSupplier->delete();
+                    }
+               }
+
                $message = ChatMessage::create($params);  
+            }else{
+                // create a customer here
+                $customer = Customer::create([
+                    "name" => $from,
+                    "phone" => $from
+                ]);
+                $params["customer_id"] = $customer->id;
+                $message = ChatMessage::create($params);  
             }
 
             // Is there a user linked to this number?
@@ -1493,6 +1524,30 @@ class WhatsAppController extends FindByNumberController
                             }
                         }
 
+                        // check the last message send for price
+                        $lastChatMessage = \App\ChatMessage::getLastImgProductId($customer->id);
+                        if($lastChatMessage) {
+                            if ($lastChatMessage->hasMedia(config('constants.attach_image_tag'))) {
+                                $lastImg = $lastChatMessage->getMedia(config('constants.attach_image_tag'))->sortByDesc('id')->first();
+                                if($lastImg) {
+                                   $mediable = \DB::table("mediables")->where("media_id",$lastImg->id)->where('mediable_type',Product::class)->first();
+                                   if(!empty($mediable)) {
+                                      $product = Product::find($mediable->mediable_id);
+                                      if(!empty($product)) {
+                                            $priceO = ($product->price_inr_special > 0) ? $product->price_inr_special : $product->price_inr;
+                                            $selected_products[] = $product->id;
+                                            $temp_img_params = $params;
+                                            $temp_img_params[ 'message' ]   = "Price : ".$priceO;
+                                            $temp_img_params[ 'media_url' ] = null;
+                                            $temp_img_params[ 'status' ]    = 2;
+                                            // Create new message
+                                            ChatMessage::create($temp_img_params); 
+                                      }
+                                   }    
+                                }
+                            }    
+                        }
+
                         if (!empty($selected_products) && $messageSentLast) {
                             foreach ($selected_products as $pid) {
                                 $product = \App\Product::where("id", $pid)->first();
@@ -1549,16 +1604,65 @@ class WhatsAppController extends FindByNumberController
                                "message"          => $chatbotReply["reply_text"],
                                "is_chatbot"       => true,
                                "chatbot_response" => $chatbotReply,
-                               "chatbot_question" => $params['message']
+                               "chatbot_question" => $params['message'],
+                               "chatbot_params"   => isset($chatbotReply["medias"]) ? $chatbotReply["medias"] : []
                             ];
-                            
+
                             switch ($chatbotReply["action"]) {
                                 case 'send_product_images':
-                                    $params["images"] = $chatbotReply["medias"];
-                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+
+                                    // add into suggestion
+                                    $brands     = [];
+                                    $category   = [];
+
+                                    if(!empty($chatbotReply["medias"]["params"]["brands"])) {
+                                        $brands = $chatbotReply["medias"]["params"]["brands"];
+                                    }
+
+                                    if(!empty($chatbotReply["medias"]["params"]["category"])) {
+                                        $category = $chatbotReply["medias"]["params"]["category"];
+                                    }
+
+                                    $chatbotReply = WatsonManager::sendMessage($customer,"image_has_been_found", true);
+
+                                    if(!empty($brands) || !empty($category)) {
+                                        $suggestion = \App\Suggestion::create([
+                                            "customer_id"   => $customer->id,
+                                            "brand"         => json_encode($brands),
+                                            "category"      => json_encode($category),
+                                            "number"        => 30
+                                        ]);
+
+                                        // setup the params
+                                        $insertParams = [
+                                            "customer_id" => $customer->id,
+                                            "message"  => isset($params["message"]) ? $params["message"] : null,
+                                            "status"   => isset($params["status"]) ? $params["status"] : \App\ChatMessage::CHAT_AUTO_BROADCAST,
+                                            "is_queue" => isset($params["is_queue"]) ? $params["is_queue"] : 0,
+                                            "group_id" => isset($params["group_id"]) ? $params["group_id"] : null,
+                                            "user_id"  => isset($params["user_id"]) ? $params["user_id"] : null,
+                                            "number"   => null,
+                                            "is_chatbot" => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
+                                        ];
+
+                                        $chatMessage = ChatMessage::create($insertParams);
+                                        if($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                                            \App\ChatbotReply::create([
+                                                "chat_id"  => $chatMessage->id,
+                                                "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
+                                                "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
+                                            ]);
+                                        }
+
+                                        $suggestion->chat_message_id = $chatMessage->id;
+                                        $suggestion->save();
+
+                                        \App\Jobs\AttachSuggestionProduct::dispatch($suggestion)->onQueue("customer_message");
+                                    }
+
                                 break;
                                 case 'send_text_only':
-                                    \App\Jobs\SendMessageToCustomer::dispatch($params);
+                                    \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
                                 break;
                             }
                         }

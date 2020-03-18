@@ -20,6 +20,7 @@ class VerifyCsrfToken extends Middleware
         'duty/v1/calculate',
         'hubstaff/linkuser',
         'calendar',
-        'calendar/*'
+        'calendar/*',
+        'api/wetransfer-file-store'
     ];
 }

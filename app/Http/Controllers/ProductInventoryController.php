@@ -168,6 +168,8 @@ class ProductInventoryController extends Controller
 		$term     = $request->input( 'term' );
 		$data['term']     = $term;
 
+		$productQuery = ( new Product() )->newQuery();
+		
 		if ($request->brand[0] != null) {
 			$productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
 
@@ -178,8 +180,7 @@ class ProductInventoryController extends Controller
 			if ($request->brand[0] != null) {
 				$productQuery = $productQuery->whereIn('color', $request->color);
 			} else {
-				$productQuery = ( new Product() )->newQuery()
-				                                 ->latest()->whereIn('color', $request->color);
+				$productQuery = (new Product())->newQuery()->latest()->whereIn('color', $request->color);
 			}
 
 			$data['color'] = $request->color[0];
@@ -219,7 +220,7 @@ class ProductInventoryController extends Controller
 			$data['category'] = $request->category[0];
 		}
 
-		if (isset($request->price) && $request->price != null) {
+		/*if (isset($request->price) && $request->price != null) {
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
 			$max = $exploded[1];
@@ -235,7 +236,7 @@ class ProductInventoryController extends Controller
 
 			$data['price'][0] = $min;
 			$data['price'][1] = $max;
-		}
+		}*/
 
 		if ($request->location[0] != null) {
 			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
@@ -332,7 +333,7 @@ class ProductInventoryController extends Controller
         } else {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
         }
-
+        
 		$data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
@@ -357,10 +358,10 @@ class ProductInventoryController extends Controller
 			$data['categories_array'][$category->id] = $category->parent_id;
 		}
 
-		if ($request->ajax()) {
+		/*if ($request->ajax()) {
 			$html = view('instock.product-items', $data)->render();
 			return response()->json(['html' => $html]);
-		}
+		}*/
 
         if ($request->get('in_pdf') === 'on') {
 		    set_time_limit(0);
@@ -678,7 +679,7 @@ class ProductInventoryController extends Controller
 		$couriers = \App\Courier::all()->pluck("name","name");
 		$order = [];
 		if($product) {
-		   $order = \App\OrderProduct::where("sku",$product->sku)
+		   $order = \App\OrderProduct::where("product_id",$product->id)
 		   ->join("orders as o","o.id","order_products.order_id")
 		   ->select(["o.id",\DB::raw("concat(o.id,' => ',o.client_name) as client_name")])->pluck("client_name",'id');
 		}

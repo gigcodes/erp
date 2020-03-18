@@ -379,6 +379,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -480,6 +481,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/languages">Language</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -491,6 +495,12 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
+                                        </li>
                                     </ul>
                                 </li>
 
@@ -500,6 +510,9 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CRM <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -732,7 +745,7 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                <a class="dropdown-item" href="/calendar">Calendar</a>
+                                    <a class="dropdown-item" href="/calendar">Calendar</a>
                                 </li>
                             </ul>
                         </li>
@@ -1092,6 +1105,16 @@
                             </li>
                         @endif
                         @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(auth()->user()->isAdmin())
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Admin <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
@@ -1211,6 +1234,9 @@
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
+                                        </li>
+                                        <li>    
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>

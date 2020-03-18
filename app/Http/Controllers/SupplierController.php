@@ -57,6 +57,7 @@ class SupplierController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $term = $request->term ?? '';
         $type = $request->type ?? '';
+        $supplier_filter = $request->supplier_filter ?? '';
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
@@ -82,6 +83,10 @@ class SupplierController extends Controller
         }
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+        }
+
+        if($supplier_filter){
+            $typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
         }
         if(!empty($request->brand)) {
           $brands = array();
@@ -203,6 +208,7 @@ class SupplierController extends Controller
             'solo_numbers' => $solo_numbers,
             'term' => $term,
             'type' => $type,
+            'supplier_filter' => $supplier_filter,
             'source' => $source,
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,
@@ -283,6 +289,11 @@ class SupplierController extends Controller
         $emails = [];
         $suppliercategory = SupplierCategory::pluck('name', 'id');
         $supplierstatus = SupplierStatus::pluck('name', 'id');
+        $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'category'])->renderAsDropdown();
+        $locations = \App\ProductLocation::pluck("name","name");
+
+        $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
+                                              ->renderAsDropdown();
 
         return view('suppliers.show', [
             'supplier' => $supplier,
@@ -292,6 +303,10 @@ class SupplierController extends Controller
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,
             'suppliers' => $suppliers,
+            'new_category_selection' => $new_category_selection,
+            'locations' => $locations,
+            'category_selection' => $category_selection,
+
         ]);
     }
 
@@ -903,7 +918,7 @@ class SupplierController extends Controller
                         $product->size = '';
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
-                        $product->location = '';
+                        $product->location = request("location","");
                         if ($request->category == null) {
                             $product->category = '';
                         } else {
@@ -931,13 +946,15 @@ class SupplierController extends Controller
                         $product->is_pending = 1;
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                        $image = $match[ 0 ][ 0 ];
+                        $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                        if(!empty($image)) {
+                          $jpg = \Image::make($image)->encode('jpg');
+                          $filename = substr($image, strrpos($image, '/'));
+                          $filename = str_replace("/", "", $filename);
+                          $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                          $product->attachMedia($media, config('constants.media_tags'));
+                        }
 
-                        $jpg = \Image::make($image)->encode('jpg');
-                        $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/", "", $filename);
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                        $product->attachMedia($media, config('constants.media_tags'));
 
                         // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
@@ -945,7 +962,59 @@ class SupplierController extends Controller
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
             }
             return redirect()->back()->withSuccess('Please Select Image');
-        } else {
+        }elseif ($request->type == 3) {
+          // Create Group ID with Product
+            $images = $request->images;
+            
+            $images = explode('"',$images);
+            if ($images) {
+                foreach ($images as $image) {
+
+                    if ($image != null) {
+                        if($image != '[' && $image != ']' && $image != ',' ){
+                          $product = new Product;
+                          $product->name = $request->name;
+                          $product->sku = $request->sku;
+                          $product->size = $request->size;
+                          $product->brand = $request->brand;
+                          $product->color = $request->color;
+                          $product->location = $request->location;
+                          $product->category = $request->category;
+                          $product->supplier = $request->supplier;
+                          
+                          if ($request->price == null) {
+                              $product->price = 0;
+                          } else {
+                              $product->price = $request->price;
+                          }
+
+                          if ($request->price_special == null) {
+                              $product->price_inr_special = 0;
+                          } else {
+                              $product->price_inr_special = $request->price_special;
+                          }
+                          $product->stock = 1;
+                          $product->purchase_status = 'InStock';
+                          $product->save();
+                          dd($product);
+                          preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                          $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                          if(!empty($image)) {
+                            $jpg = \Image::make($image)->encode('jpg');
+                            $filename = substr($image, strrpos($image, '/'));
+                            $filename = str_replace("/", "", $filename);
+                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                            $product->attachMedia($media, config('constants.media_tags'));
+                          }
+                       }   
+
+                    }
+                }
+               return response()->json(['success' => 'Product Created'], 200);
+        }
+      }
+
+         else {
 
             // Create Group ID with Product
             $images = explode(",", $request->checkbox[ 0 ]);
@@ -1001,7 +1070,7 @@ class SupplierController extends Controller
                     $product->size = '';
                     $product->brand = $request->brand;
                     $product->color = '';
-                    $product->location = '';
+                    $product->location = request("location","");
                     if ($request->category == null) {
                         $product->category = '';
                     } else {

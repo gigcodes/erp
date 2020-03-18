@@ -1,24 +1,5 @@
 {!! $products->appends(Request::except('page'))->links() !!}
-
-<?php
-  $query = http_build_query( Request::except('page' ) );
-  $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
-?>
-
-<div class="row">
-  <div class="col-2">
-    <div class="form-group">
-      Goto :
-      <select onchange="location.href = this.value;" class="form-control">
-        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-          <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-          @endfor
-      </select>
-    </div>
-  </div>
-</div>
-
-<div class="row">
+<div class="row col-md-12">
   @foreach ($products as $product)
   <div class="col-md-3 col-xs-6 text-left">
       <a href="{{ route('products.show', $product->id) }}">
@@ -77,18 +58,7 @@
     </div>
   </div>
 @endif
-
+<?php
+  request()->request->add(['instock' => 'yes']);
+?>
 {!! $products->appends(Request::except('page'))->links() !!}
-
-<div class="row">
-  <div class="col-2">
-    <div class="form-group">
-      Goto :
-      <select onchange="location.href = this.value;" class="form-control">
-        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-          <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-          @endfor
-      </select>
-    </div>
-  </div>
-</div>

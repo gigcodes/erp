@@ -44,6 +44,15 @@
                       <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
 
+                  <div class="form-group ml-3" style="width: 250px !important;">
+                      <select class="form-control select-multiple2" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
+
+                        @foreach($suppliers_all as $supplier)
+                            <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+                        @endforeach
+                      </select>
+                  </div>
+
                 <div class="form-group ml-3">
                   <select class="form-control" name="type">
                     <option value="">Select Type</option>
@@ -105,7 +114,7 @@
 
     @include('purchase.partials.modal-email')
     @include('suppliers.partials.modal-emailToAll')
-
+    <div class="row">
     <div class="mt-3 col-md-12">
       <table class="table table-bordered table-striped">
         <thead>
@@ -285,7 +294,7 @@
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
               </td>
                 <td>
-                    {{ $supplier->status ? 'Active' : 'Inactive' }}
+                    {{ $supplier->supplier_status_id ? 'Active' : 'Inactive' }}
                 </td>
                 <td>{{ $supplier->created_at }}</td>
                 <td>{{ $supplier->updated_at }}</td>
@@ -315,7 +324,7 @@
         </tbody>
       </table>
     </div>
-
+    </div>
     {!! $suppliers->appends(Request::except('page'))->links() !!}
 
     @include('partials.modals.remarks')
@@ -583,6 +592,7 @@
 
     $(document).on('click', '.edit-supplier', function() {
       var supplier = $(this).data('supplier');
+      console.log(supplier)
       var url = "{{ url('supplier') }}/" + supplier.id;
 
       $('#supplierEditModal form').attr('action', url);
@@ -595,6 +605,8 @@
       $('#status').val(supplier.status);
       $('#supplier_status_id').val(supplier.supplier_status_id);
       $('#supplier_category_id').val(supplier.supplier_category_id);
+      $('#scraper_name').val(supplier.scraper_name);
+      $('#inventory_lifetime').val(supplier.inventory_lifetime);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

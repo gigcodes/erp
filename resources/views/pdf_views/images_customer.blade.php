@@ -93,7 +93,7 @@
                     $textToSend[] = "Dimension: " . \App\Helpers\ProductHelper::getMeasurements($product) . "";
                 }
                 
-                $textToSend[] = "Price: Rs. " . $product->price_inr_special; ?>
+                $textToSend[] = "Price: ".$currencySymbol ." ". $product->price_inr_special; ?>
                 
                 <div class="row">
                     <div class="col-md-12">

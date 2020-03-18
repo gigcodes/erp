@@ -239,13 +239,13 @@ class OrderController extends Controller {
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
 				return $query->where('name', 'LIKE', "%$term%");
 			})
-			               ->orWhere('order_id','like','%'.$term.'%')
-			               ->orWhere('order_type',$term)
-			               ->orWhere('sales_person',Helpers::getUserIdByName($term))
-			               ->orWhere('received_by',Helpers::getUserIdByName($term))
-			               ->orWhere('client_name','like','%'.$term.'%')
-			               ->orWhere('city','like','%'.$term.'%')
-			               ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_id','like','%'.$term.'%')
+           ->orWhere('order_type',$term)
+           ->orWhere('sales_person',Helpers::getUserIdByName($term))
+           ->orWhere('received_by',Helpers::getUserIdByName($term))
+           ->orWhere('client_name','like','%'.$term.'%')
+           ->orWhere('city','like','%'.$term.'%')
+           ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
 		if ($order_status[0] != '') {
@@ -259,7 +259,7 @@ class OrderController extends Controller {
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
-		->leftJoin("products as p","p.sku","op.sku")->leftJoin("brands as b","b.id","p.brand");
+		->leftJoin("products as p","p.id","op.product_id")->leftJoin("brands as b","b.id","p.brand");
 
 		if(!empty($brandIds)) {
 			$orders = $orders->whereIn("p.brand",$brandIds);
@@ -280,7 +280,7 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
 		
-		$orders_array = $orders->paginate(500);
+		$orders_array = $orders->paginate(20);
 		
 		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 	}
@@ -550,8 +550,7 @@ class OrderController extends Controller {
 		$data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
 
 		$customer_suggestions = [];
-		$customers = ( new Customer() )->newQuery()
-																			->latest()->select('name')->get()->toArray();
+		$customers = ( new Customer() )->newQuery()->latest()->select('name')->get()->toArray();
 
 		foreach ($customers as $customer) {
 			array_push($customer_suggestions, $customer['name']);
@@ -1812,7 +1811,7 @@ class OrderController extends Controller {
 
 		$product = Product::where( 'id', '=', $product_id )->get()->first();
 
-		$order_product = OrderProduct::where( 'order_id', $model_id )->where( 'sku', $product->sku )->first();
+		$order_product = OrderProduct::where( 'order_id', $model_id )->where( 'product_id', $product_id )->first();
 		$order = Order::find($model_id);
 		$size = '';
 
@@ -1840,6 +1839,7 @@ class OrderController extends Controller {
 
 			OrderProduct::create( [
 				'order_id'      => $model_id,
+				'product_id'    => $product->id,
 				'sku'           => $product->sku,
 				'product_price' => $product->price_special_offer != '' ? $product->price_special_offer : $product->price_inr_special,
 				'color' => $product->color,
@@ -1879,13 +1879,13 @@ class OrderController extends Controller {
 
 			if(!empty($orderProducts[$key]['color'])) {
 
-				$temp = Product::where( 'sku', '=', $orderProducts[ $key ]['sku'] )
+				$temp = Product::where( 'id', '=', $orderProducts[ $key ]['product_id'] )
 				                                           ->where( 'color', $orderProducts[ $key ]['color'] )
 				                                           ->get()->first();
 
 			}else{
 
-				$temp = Product::where( 'sku', '=', $orderProducts[ $key ]['sku'] )
+				$temp = Product::where( 'id', '=', $orderProducts[ $key ]['product_id'] )
 				                                           ->get()->first();
 			}
 

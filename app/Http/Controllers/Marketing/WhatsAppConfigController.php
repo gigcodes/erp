@@ -11,6 +11,7 @@ use App\Setting;
 use Validator;
 use Crypt;
 use Response;
+use App\Customer;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class WhatsappConfigController extends Controller
@@ -454,6 +455,40 @@ class WhatsappConfigController extends Controller
          
              return Response::json(array('error' => true)); 
         }
+    }
+
+
+    public function blockedNumber()
+    {
+        $whatsappNumbers = WhatsappConfig::where('status',2)->get();
+
+
+        foreach ($whatsappNumbers as $whatsappNumber) {
+            
+            $queues = ImQueue::where('number_from',$whatsappNumber->number)->whereNotNull('sent_at')->orderBy('sent_at','desc')->get();
+            
+            //Making DND for last 30 numbers
+            $maxCount = 30;
+            $count = 0;
+            //Making 30 customer numbers to DND
+            foreach ($queues as $queue) {
+                $customer = Customer::where('phone',$queue->number_to)->first();
+                if($count == $maxCount){
+                    break;
+                }
+                if(!empty($customer)){
+                    $customer->do_not_disturb = 1;
+                    $customer->phone = '-'.$customer->phone;
+                    $customer->update();
+                    $count++;
+                }
+            }
+            
+
+
+        }
+
+        return Response::json(array('success' => true,'message' => 'Last 30 Customer disabled')); 
     }
     
 }

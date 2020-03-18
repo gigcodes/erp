@@ -9,7 +9,12 @@ use App\Brand;
 use App\GoogleServer;
 use App\Loggers\LogListMagento;
 use App\Product;
+use App\StoreWebsiteCategory;
+use App\StoreWebsiteBrand;
 
+
+
+        
 class ProductHelper extends Model
 {
     private static $_attributeReplacements = [];
@@ -107,7 +112,17 @@ class ProductHelper extends Model
             }
 
             // Remove html special chars
-            $text = htmlspecialchars_decode($text);
+            try {
+                if(!empty($text)){
+                    $text = htmlspecialchars_decode($text);
+                }else{
+                    $text = '';
+                }
+            } catch (\Exception $e) {
+               $text = ''; 
+            }
+            
+            
         }
 
         // Return redacted text
@@ -667,6 +682,14 @@ class ProductHelper extends Model
         }
     }
 
+
+    public static function storeWebsite()
+    {
+        return \App\storeWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
+
+    }
+
+
     /**
      * get product images by helper class
      * $params = []
@@ -725,4 +748,31 @@ class ProductHelper extends Model
 
         return [];
     }
+
+    public static function getStoreWebsiteName($id)
+    {
+        $product = Product::find($id);
+
+        $brand = $product->brand;
+
+        $category = $product->category;
+
+        
+        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
+        
+        $websiteArray = [];
+        foreach ($storeCategories as $storeCategory) {
+            $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
+            if(!empty($storeBrands)){
+                foreach ($storeBrands as $storeBrand) {
+                    $websiteArray[] = $storeBrand->store_website_id;
+                }
+               
+            }
+        }
+
+        return $websiteArray;
+
+    }
+
 }

@@ -356,6 +356,8 @@ $(document).ready(function(){
 
 $(document).ready(function(){
 
+        customerSearch();
+
         $(document).on('click','.talk-bubble',function(){
             $('#editmessage').show();
             var message = $(this).find('p').html();
@@ -653,3 +655,63 @@ function sendMessageWhatsapp(developer_task_id,message,context,token){
         }
     });
 }
+
+var customerSearch = function() {
+      if($(".customer-search-select-box").length == 0) {
+        return false;
+      }
+      $(".customer-search-select-box").select2({
+        tags : true,
+        ajax: {
+            url: '/erp-leads/customer-search',
+            dataType: 'json',
+            delay: 750,
+            data: function (params) {
+                return {
+                    q: params.term, // search term
+                };
+            },
+            processResults: function (data,params) {
+                params.page = params.page || 1;
+                return {
+                    results: data,
+                    pagination: {
+                        more: (params.page * 30) < data.total_count
+                    }
+                };
+            },
+        },
+        placeholder: 'Search for Customer by id, Name, No',
+        escapeMarkup: function (markup) { return markup; },
+        minimumInputLength: 2,
+        templateResult: formatCustomer,
+        templateSelection: (customer) => customer.text || customer.name,
+    });
+  };
+
+  function formatCustomer (customer) {
+      if (customer.loading) {
+          return customer.name;
+      }
+      if(customer.name) {
+          return "<p> <b>Id:</b> " +customer.id  + (customer.name ? " <b>Name:</b> "+customer.name : "" ) +  (customer.phone ? " <b>Phone:</b> "+customer.phone : "" ) + "</p>";
+      }
+
+  }
+
+  let checkQueueIsStucked = () => {
+    fetch("/message-queue/status", { headers: { "Content-Type": "application/json; charset=utf-8" }}
+    )
+    .then(res => res.json()) // parse response as JSON (can be res.text() for plain response)
+    .then(response => {
+      if(response.code == 500) {
+        toastr['error'](response.message, 'Message');
+      }
+      setTimeout(checkQueueIsStucked, 10000);
+    })
+    .catch(err => {
+        console.log(err)
+    });
+  };
+
+  checkQueueIsStucked();

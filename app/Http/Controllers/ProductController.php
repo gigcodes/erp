@@ -49,6 +49,8 @@ use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
 use seo2websites\GoogleVision\LogGoogleVision;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
 
 
 class ProductController extends Controller
@@ -94,8 +96,9 @@ class ProductController extends Controller
         }
 
         $products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\Helpers\ProductHelper::storeWebsite();
 
-        return view('products.index', compact('products', 'term', 'archived'))
+        return view('products.index', compact('products', 'term', 'archived','websiteList'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -1217,21 +1220,28 @@ class ProductController extends Controller
         // Get product by ID
         $product = Product::find($id);
 
-        // If we have a product, push it to Magento
-        if ($product !== null) {
-            // Dispatch the job to the queue
-            PushToMagento::dispatch($product)->onQueue('magento');
+        //check for hscode 
+        $hsCode = $product->hsCode($product->category,$product->composition);
 
-            // Update the product so it doesn't show up in final listing
-            $product->isUploaded = 1;
-            $product->save();
+        if($hsCode){
+            // If we have a product, push it to Magento
+            if ($product !== null) {
+                // Dispatch the job to the queue
+                PushToMagento::dispatch($product)->onQueue('magento');
 
-            // Return response
-            return response()->json([
-                'result' => 'queuedForDispatch',
-                'status' => 'listed'
-            ]);
+                // Update the product so it doesn't show up in final listing
+                $product->isUploaded = 1;
+                $product->save();
+
+                // Return response
+                return response()->json([
+                    'result' => 'queuedForDispatch',
+                    'status' => 'listed'
+                ]);
+            }
+
         }
+        
 
         // Return error response by default
         return response()->json([
@@ -1542,61 +1552,12 @@ class ProductController extends Controller
 
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
-        $cat = $request->category;
-        
-        $product = Product::find($id);
-        if($product->scraped_products){
-            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
-                $category = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' ',$category);
-            }
-        }else{
-            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
-        }
+        \App\Jobs\UpdateScrapedCategory::dispatch([
+            "product_id"    => $id,
+            "category_id"   => $request->category
+        ])->onQueue("supplier_products");
 
-        if(isset($referencesCategory)){
-
-            $productSupplier = $product->supplier;
-            $supplier = Supplier::where('supplier',$productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if(isset($scrapedProduct->properties['category'])) {
-                    $products = $scrapedProduct->properties['category'];
-                    if(is_array($products)) {
-                        $list = implode(' ',$products);
-                        if(strtolower($referencesCategory) == strtolower($list)){
-                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
-                        }
-                    }
-                }
-            }
-
-            if(!isset($scrapedProductSkuArray)){
-                $scrapedProductSkuArray = [];
-            }
-
-            //Add reference to category 
-            $category = Category::find($cat);
-
-            if($product->product_category != null){
-                $reference = $category->references.','.$referencesCategory;
-                $category->references = $reference;
-                $category->save();
-            }
-            
-            //Update products with sku 
-            if(count($scrapedProductSkuArray) != 0){
-                foreach ($scrapedProductSkuArray as $productSku) {
-                    $oldProduct = Product::where('sku',$productSku)->first();
-                    if($oldProduct != null){
-                        $oldProduct->category = $cat;
-                        $oldProduct->save();
-                    }
-                }
-            }
-
-            return response()->json(['success','Product Got Updated']); 
-        }
+        return response()->json(['success','Product category has been sent for the update']);
     }
 
     public function attachProducts($model_type, $model_id, $type = null, $customer_id = null, Request $request)
@@ -2115,6 +2076,7 @@ class ProductController extends Controller
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
+            $order_product->product_id = $product->id;
 
             $order_product->save();
 
@@ -2222,6 +2184,25 @@ class ProductController extends Controller
             //
         }
 
+        //Getting Website Color
+        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+        if(count($websiteArrays) == 0){
+            $colors = [];
+        }else{
+            foreach ($websiteArrays as $websiteArray) {
+               
+                $website = StoreWebsite::find($websiteArray);
+                if($website){
+                    $colors[] = array('code' => $website->cropper_color, 'color' => $website->cropper_color_name);
+                }
+            }
+        }
+
+        if(!isset($colors)){
+            $colors = [];
+        }
+        
         if($parent == null && $parent == ''){
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2244,7 +2225,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => '',
+            'colors' => $colors,
         ]);
         }
     }
@@ -2270,7 +2251,12 @@ class ProductController extends Controller
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
-            $product->attachMedia($media, config('constants.media_gallery_tag'));
+            if($request->get('color')){
+                $tag = 'gallery_'.$request->get('color');
+            }else{
+                $tag = config('constants.media_gallery_tag');
+            }    
+            $product->attachMedia($media, $tag);
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
@@ -2290,6 +2276,22 @@ class ProductController extends Controller
             $productMediacount = $product->media()->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
+
+            //check website count using Product
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+            try {
+                if(count($websiteArrays) == 0){
+                $multi = 1;
+                }else{
+                    $multi = count($websiteArray);
+                }
+            } catch (\Exception $e) {
+                $multi = 1;
+            }
+            
+
+            $cropCount = ($cropCount * $multi);
 
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -2735,7 +2737,7 @@ class ProductController extends Controller
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
         
-        \App\Jobs\SendMessageToCustomer::dispatch($params);
+        \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {
             return response()->json(['msg' => 'success']);
@@ -2840,7 +2842,7 @@ class ProductController extends Controller
         $data[ 'customer_id' ] = $request->customer_id;
         $data[ 'status' ] = $request->status;
 
-        \App\Jobs\AttachImagesSend::dispatch($data);
+        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
 
@@ -3067,6 +3069,26 @@ class ProductController extends Controller
         return response()->json(['success' => 'success'], 200);
     }
 
+    public function published(Request $request)
+    {
+        $id         = $request->get("id");
+        $website    = $request->get("website",[]);
+
+        \App\WebsiteProduct::where("product_id",$id)->delete();
+
+        if(!empty($website)) {
+            foreach($website as $web) {
+                $website                    = new \App\WebsiteProduct;
+                $website->product_id        = $id;
+                $website->store_website_id  = $web;
+                $website->save(); 
+            }
+        }
+
+        return response()->json(["code" => 200]);    
+
+    }    
+
     public function originalColor($id)
     {
         $product = Product::find($id);
@@ -3130,62 +3152,13 @@ class ProductController extends Controller
         }
     }
 
-     public function changeAllColorForAllSupplierProducts(Request $request, $id)
+    public function changeAllColorForAllSupplierProducts(Request $request, $id)
     {
-        $cat = $request->color;
-        
-        $product = Product::find($id);
-        if($product->scraped_products){
-            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
-                $color = $product->scraped_products->properties['colors'];
-                $referencesColor = $color;
-            }
-            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
-                $color = $product->scraped_products->properties['color'];
-                $referencesColor = $color;
-            }
-        }else{
-            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
-        }
+        \App\Jobs\UpdateScrapedColor::dispatch([
+            "product_id"    => $id,
+            "color"         => $request->color
+        ])->onQueue("supplier_products");
 
-        if(isset($referencesColor)){
-
-            $productSupplier = $product->supplier;
-            $supplier = Supplier::where('supplier',$productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
-
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if(isset($scrapedProduct->properties['colors'])) {
-                    $colors = $scrapedProduct->properties['colors'];
-                    if(strtolower($referencesColor) == strtolower($colors)){
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
-                    }
-                    
-                }
-                if(isset($scrapedProduct->properties['color'])) {
-                    $colors = $scrapedProduct->properties['color'];
-                    if(strtolower($referencesColor) == strtolower($colors)){
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
-                    }
-                }
-            }
-
-            if(!isset($scrapedProductSkuArray)){
-                $scrapedProductSkuArray = [];
-            }
-
-            //Update products with sku 
-            if(count($scrapedProductSkuArray) != 0){
-                foreach ($scrapedProductSkuArray as $productSku) {
-                    $oldProduct = Product::where('sku',$productSku)->first();
-                    if($oldProduct != null){
-                        $oldProduct->color = $cat;
-                        $oldProduct->save();
-                    }
-                }
-            }
-
-            return response()->json(['success','Product Got Updated']); 
-        }
+        return response()->json(['success','Product color has been sent for the update']);
     }
 }

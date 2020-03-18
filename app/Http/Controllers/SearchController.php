@@ -239,7 +239,7 @@ class SearchController extends Controller
         }
 
         // select fields..
-        $products = $products->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at']);
+        $products = $products->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'purchase_status', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at','category' , 'color']);
 
         $data[ 'is_on_sale' ] = 0;
         if ($request->get('is_on_sale') == 'on') {
