@@ -7,6 +7,7 @@ use App\ColorReference;
 use App\Library\Product\ProductSearch;
 use App\Stage;
 use Illuminate\Http\Request;
+use App\Supplier;
 
 class NewProductInventoryController extends Controller
 {
@@ -23,6 +24,8 @@ class NewProductInventoryController extends Controller
                                     ) as product_suppliers
                                 ON suppliers.id = product_suppliers.supplier_id');
         $suppliersDropList = collect($suppliersDropList)->pluck("supplier", "id")->toArray();
+        // $suppliersDropList = Supplier::where('supplier_status_id','1')->pluck('supplier','id')->toArray();
+
         $typeList          = [
             "scraped"  => "Scraped",
             "imported" => "Imported",
@@ -30,6 +33,7 @@ class NewProductInventoryController extends Controller
         ];
 
         $params   = request()->all();
+        
         $products = (new ProductSearch($params))->getQuery()->paginate(24);
 
         $items = [];
@@ -58,7 +62,7 @@ class NewProductInventoryController extends Controller
             foreach ($product->suppliers as $key => $supplier) {
                 $supplier_list .= $supplier->supplier;
             }
-
+            
             $product->supplier_list = $supplier_list;
 
             if (isset($items[$date])) {
