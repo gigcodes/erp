@@ -43,7 +43,7 @@ class VendorCategoryController extends Controller
 
       VendorCategory::create($data);
 
-      return redirect()->route('vendor.index')->withSuccess('You have successfully created a vendor category!');
+      return redirect()->route('vendors.index')->withSuccess('You have successfully created a vendor category!');
     }
 
     /**

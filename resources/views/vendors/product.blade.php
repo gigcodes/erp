@@ -88,7 +88,7 @@
               <td>
                 <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png" /></button>
 
-                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                {!! Form::open(['method' => 'DELETE','route' => ['vendors.product.destroy', $product->id],'style'=>'display:inline']) !!}
                   <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
                 {!! Form::close() !!}
               </td>
@@ -109,7 +109,7 @@
   <script type="text/javascript">
     $(document).on('click', '.edit-product', function() {
       var product = $(this).data('product');
-      var url = "{{ url('vendor/product') }}/" + product.id;
+      var url = "{{ url('vendors/product') }}/" + product.id;
 
       $('#productEditModal form').attr('action', url);
       $('#vendor_vendor_id').val(product.vendor_id);

@@ -3,7 +3,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('vendor.product.store') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('vendors.product.store') }}" method="POST" enctype="multipart/form-data">
         @csrf
 
         <div class="modal-header">
