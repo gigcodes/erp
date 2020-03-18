@@ -592,6 +592,16 @@ class ScrapController extends Controller
         }
 
         if (is_array($links)) {
+            $scraper = Scraper::where('scraper_name', $website)->first();
+            if(!empty($scraper)){
+               if($scraper->full_scrape == 1){
+                    $scraper->full_scrape = 0;
+                    $scraper->save();
+                    return $links;
+                } 
+            }
+            
+
             foreach ($links as $link) {
                 //$logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
 
@@ -602,16 +612,11 @@ class ScrapController extends Controller
 
                     // Load scraped product and update last_inventory_at
                     $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
-
                     if ($scrapedProduct != null) {
-                        if($scrapedProduct->full_scrape == 1){
-                            $pendingUrl[] = $link;
-                        }else{
-                            Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
-                            $scrapedProduct->url = $link;
-                            $scrapedProduct->last_inventory_at = Carbon::now();
-                            $scrapedProduct->save();
-                        }
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
+                        $scrapedProduct->url = $link;
+                        $scrapedProduct->last_inventory_at = Carbon::now();
+                        $scrapedProduct->save();
                     } else {
                         $pendingUrl[] = $link;
                     }
@@ -1043,5 +1048,15 @@ class ScrapController extends Controller
         $mapping = ScraperMapping::find($id);
         $mapping->delete();
         return response()->json(['success'],200);
+    }
+
+    public function scraperFullScrape(Request $request)
+    {
+       $scraper = Scraper::find($request->id);
+       if(!empty($scraper)){
+            $scraper->full_scrape = $request->value;
+            $scraper->save();
+       }
+       return response()->json(['success'],200);
     }
 }

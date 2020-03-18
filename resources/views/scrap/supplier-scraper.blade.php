@@ -210,5 +210,52 @@
                 });
             });
         });
+
+        function changeFullScrape(id) {
+            value = $('#full_scrape'+id).val();
+            if(value == 1){
+                var result = confirm("Are you sure ? you want to run Full Scrape");
+                if (result) {
+                    $.ajax({
+                    url: '/scrap/generic-scraper/full-scrape',
+                    dataType: "json",
+                    type : "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        value : value,
+                        id : id,
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        $("#loading-image").hide();
+                        alert('No response from server');
+                    });    
+                }
+            }else{
+                $.ajax({
+                    url: '/scrap/generic-scraper/full-scrape',
+                    dataType: "json",
+                    type : "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        value : value,
+                        id : id,
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        $("#loading-image").hide();
+                        alert('No response from server');
+                    }); 
+            }
+            
+        }
     </script>
 @endsection
