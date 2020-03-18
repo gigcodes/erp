@@ -440,8 +440,6 @@ class Model
         }*/
 
         $result = $assistant->sendMessage($assistantID, $customer->chat_session_id, $params);
-        \Log::info(print_r([$result,$params],true));
-
         return json_decode($result->getContent());
 
     }

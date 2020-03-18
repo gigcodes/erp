@@ -4,6 +4,7 @@
     <td>{{ $scraper->id }}</td>
     <td>{{ $scraper->scraper_name }}</td>
     <td>@if($scraper->mainSupplier) {{ $scraper->mainSupplier->supplier }} @endif</td>
+    <td>@if($scraper->full_scrape == 1) Yes @else No @endif</td>
     <td>{{ $scraper->start_time }}</td>
     <td>{{ $scraper->end_time }}</td>
     <td>{{ $scraper->run_gap }}</td>

@@ -57,6 +57,7 @@ class SupplierController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $term = $request->term ?? '';
         $type = $request->type ?? '';
+        $supplier_filter = $request->supplier_filter ?? '';
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
@@ -82,6 +83,10 @@ class SupplierController extends Controller
         }
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+        }
+
+        if($supplier_filter){
+            $typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
         }
         if(!empty($request->brand)) {
           $brands = array();
@@ -203,6 +208,7 @@ class SupplierController extends Controller
             'solo_numbers' => $solo_numbers,
             'term' => $term,
             'type' => $type,
+            'supplier_filter' => $supplier_filter,
             'source' => $source,
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,

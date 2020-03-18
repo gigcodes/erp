@@ -277,12 +277,27 @@
                                             @endforeach
                                             <hr/>
                                         @endif
+                                        
+                                        @php 
+                                        //getting proper composition and hscode
+                                        $composition = $product->commonComposition($product->category , $product->composition);
 
+                                        $hscode =  $product->hsCode($product->category , $product->composition);    
+
+                                        @endphp
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ strtoupper($product->commonComposition($product->category , $product->composition)) }}
+                                                {{ strtoupper($composition) }}
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                            <strong class="same-color" style="text-decoration: underline;">HsCode</strong>
+                                            <br/>
+                                            <span class="same-color flex-column">
+                                                {{ strtoupper($hscode) }}
                                             </span>
                                         </p>
 

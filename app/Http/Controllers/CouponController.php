@@ -8,6 +8,8 @@ use App\Coupon;
 use App\Helpers\SSP;
 use App\Order;
 use Carbon\Carbon;
+use Exception;
+use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
@@ -166,13 +168,47 @@ class CouponController extends Controller
      */
     public function store(CreateCouponRequest $request)
     {
-        Coupon::create($request->all());
-        //return redirect()->route('coupons.index')->withSuccess('You have successfully saved a coupon!');
-        return response(
-            json_encode([
-                'message' => 'Created new coupon'
-            ])
+
+        $httpClient = new Client;
+
+        //name=my3+second+rule&description=my+first+rule&code=abc-xyz-123&start=2020-02-17&expiration=2020-02-17&fixed_discount=&percentage_discount=10&minimum_order=23&maximum_usage=10
+
+        $data = array(
+            'name' => $request->get('code'),
+            'description' => $request->get('description'),
+            'code' => $request->get('code'),
+            'start' => $request->get('start'),
+            'expiration' => $request->get('expiration'),
+            'fixed_discount' => $request->get('discount_fixed'),
+            'percentage_discount' => $request->get('discount_percentage'),
+            'minimum_order' => $request->get('minimum_order_amount'),
+            'maximum_usage' => $request->get('maximum_usage'),
         );
+        $queryString = http_build_query($data);
+
+        try {
+            $url = 'https://devsite.sololuxury.com/contactcustom/index/createCoupen?' . $queryString;
+            $response = $httpClient->get($url);
+            
+
+            Coupon::create($request->all());
+            return response(
+                json_encode([
+                    'message' => 'Created new coupon',
+                    'body' => $response->getBody(),
+                    'code' => $response->getStatusCode(),
+                    'url' => $url
+                ])
+            );
+        } catch (Exception $e) {
+            return response()->json(
+                [
+                    'message' => 'Unable to create coupon',
+                    'error' =>$e->getMessage()
+                ],
+                500
+            );
+        }
     }
 
     /**
@@ -206,7 +242,7 @@ class CouponController extends Controller
      */
     public function update(Request $request, $id)
     {
-        
+
 
         $request->validate([
             'code' => 'required',
