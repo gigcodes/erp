@@ -21,7 +21,7 @@ use App\Email;
 use Carbon\Carbon;
 use Mail;
 use Response;
-use App\Mail\PurchaseEmail;
+use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 

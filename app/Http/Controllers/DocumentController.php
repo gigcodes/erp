@@ -14,7 +14,7 @@ use App\Email;
 use App\Vendor;
 use App\ApiKey;
 use App\Contact;
-use App\Mail\DocumentEmail;
+use App\Mails\Manual\DocumentEmail;
 use App\DocumentRemark;
 use App\DocumentHistory;
 use Mail;

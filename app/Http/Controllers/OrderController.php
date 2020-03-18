@@ -38,11 +38,11 @@ use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
 use App\Category;
-use App\Mail\RefundProcessed;
-use App\Mail\AdvanceReceipt;
-use App\Mail\AdvanceReceiptPDF;
-use App\Mail\OrderInvoicePDF;
-use App\Mail\OrderConfirmation;
+use App\Mails\Manual\RefundProcessed;
+use App\Mails\Manual\AdvanceReceipt;
+use App\Mails\Manual\AdvanceReceiptPDF;
+use App\Mails\Manual\OrderInvoicePDF;
+use App\Mails\Manual\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
 use App\Helpers\OrderHelper;
@@ -53,6 +53,7 @@ use App\Waybill;
 use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
+use App\Mail\OrderInvoice;
 
 
 class OrderController extends Controller {
@@ -779,6 +780,15 @@ class OrderController extends Controller {
 		// 	'sent_to' => '',
 		// 	'role' => 'Admin',
 		// ]);
+
+		/*if($order) {
+            $data["order"]      = $order;
+            $data["customer"]   = $order->customer;
+
+            if($order->customer) {
+            	Mail::to($order->customer->email)->send(new OrderInvoice($data));
+            }
+        }*/
 
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);
@@ -2077,6 +2087,40 @@ public function createProductOnMagento(Request $request, $id){
 		return response()->json('Sucess',200);
 		
 
+	}
+
+	public function sendInvoice(Request $request, $id)
+	{
+		$order = \App\Order::where("id",$id)->first();
+
+		if($order) {
+
+            $data["order"]      = $order;
+            $data["customer"]   = $order->customer;
+
+            if($order->customer) {
+            	Mail::to($order->customer->email)->send(new OrderInvoice($data));
+            	return response()->json(["code" => 200 , "data" => [], "message" => "Email sent successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
+	}
+
+	public function previewInvoice(Request $request, $id)
+	{
+		$order = \App\Order::where("id",$id)->first();
+
+		if($order) {
+            $data["order"]      = $order;
+            $data["customer"]   = $order->customer;
+            if($order->customer) {
+            	$invoice = new OrderInvoice($data);
+            	return $invoice->preview();
+            }
+        }
+
+        return abort("404");
 	}
 
 }
