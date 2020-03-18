@@ -256,32 +256,24 @@ class HashtagController extends Controller
         return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
     }
 
-    public function showGridComments($id, Request $request)
+    public function showGridComments($id = null, Request $request)
     {
         
-        $maxId = '';
-
-        if ($request->has('maxId'))  {
-            $maxId = $request->get('maxId');
-        }
-
-        $txt = $id;
-        $ht = null;
-        if (is_numeric($id)) {
-            $hashtag = HashTag::findOrFail($id);
-        }else{
-            $hashtag = HashTag::where('hashtag','LIKE',$id)->first();
-        }
-
+        
+        $hashtag = HashTag::find($id);
+        
         $query = InstagramPostsComments::query();
         
+
         if($request->term){
             $query = $query->where('comment','LIKE','%'.$request->term.'%');
         }
 
-        $query = $query->where('comment','LIKE','%'.$hashtag->hashtag.'%');
+        if(!empty($hashtag)){
+            $query = $query->where('comment','LIKE','%'.$hashtag->hashtag.'%');
+        }
         
-        $comments = $query->paginate(25);
+        $comments = $query->orderBy('id','desc')->paginate(25);
 
         $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
         

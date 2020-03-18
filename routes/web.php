@@ -1070,7 +1070,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
-    Route::get('hashtag/comments/{id}', 'HashtagController@showGridComments')->name('hashtag.grid');
+    Route::get('hashtag/comments/{id?}', 'HashtagController@showGridComments')->name('hashtag.grid');
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue', 'HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');

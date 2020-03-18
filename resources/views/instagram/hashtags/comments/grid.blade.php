@@ -14,6 +14,12 @@
         }
     </style>
 @endsection
+
+@php 
+
+
+@endphp
+
 @section('large_content')
     <div id="myDiv">
       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -56,7 +62,7 @@
                     <thead>
                     <tr>
                         <th style="width:1%">SN</th>
-                        <th style="width:1%">Hastag</th>
+                        <th style="width:1%">Post Id</th>
                         <th style="width:5%">User</th>
                         <th style="width:5%">Post URL</th>
                         <th style="width:10%">Caption</th>
@@ -168,6 +174,7 @@
                 let accountId = $('#account_id_'+id).val();
                 let narrative = $('#narrative_'+id).val();
                 let selectedusers = $('#selected_user_'+id).val();
+                let hashtag = '';
                 if(accountId == 'Select User'){
                     alert('Please Select User to Comment');
                 }else{
@@ -183,7 +190,7 @@
                             id : id,
                             post_id : post_id,
                             narrative: narrative,
-                            hashtag: "{{$hashtag->hashtag}}",
+                            hashtag: hashtag,
                             _token: '{{ csrf_token() }}'
                         },beforeSend: function() {
                            $("#loading-image").show();
