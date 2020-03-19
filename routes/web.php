@@ -1473,6 +1473,11 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
 
+    Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
+        Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
+    });        
+    
+
     Route::get('mailinglist-emails', 'MailinglistEmailController@index')->name('mailingList-emails');
     Route::post('mailinglist-ajax-index', 'MailinglistEmailController@ajaxIndex');
     Route::post('mailinglist-ajax-store', 'MailinglistEmailController@store');

@@ -26,7 +26,7 @@
                     <div class="pull-left">
                     </div>
                     <button class="btn btn-primary float-right" type="button" class="btn btn-primary"
-                            data-toggle="modal" data-target="#exampleModal">Create Mailing list
+                        data-toggle="modal" data-target="#exampleModal">Create Mailing list
                     </button>
                 </div>
             </div>
