@@ -1171,7 +1171,7 @@
                                  <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
                              </div>
 
-                             <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ $order->order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                             <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ ($order->order_status == 'Product shiped to Client' || $order->order_status_id == \App\Helpers\OrderHelper::$productShippedToClient) ? 'block' : 'none' }}">
                                <div class="form-group">
                                  <strong>AWB Number:</strong>
                                  <input type="text" name="awb" class="form-control" id="awb_field_{{ $order->id }}" value="{{ $order->awb }}" placeholder="00000000000">
@@ -1246,7 +1246,7 @@
 
                               @if (isset($order))
                                 <div class="col-6">
-                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_advance_receipt())
+                                  @if (($order->order_status == 'Advance received' || $order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) && !$order->is_sent_advance_receipt())
                                     <div class="form-group">
                                       <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
                                     </div>
@@ -1258,7 +1258,7 @@
                                 </div>
 
                                 <div class="col-6">
-                                  @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                                  @if (($order->order_status == 'Advance received' || $order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) && !$order->is_sent_initial_advance())
                                     <div class="form-group">
                                       <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                                     </div>

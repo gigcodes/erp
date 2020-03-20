@@ -29,7 +29,7 @@
                       <option value="">Select a Status</option>
 
                       @foreach ($order_status_list as $id => $order_st)
-                        <option value="{{ $id }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                     </select>
                   </div>
@@ -64,7 +64,7 @@
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
-                  <?php echo \App\Helpers\OrderHelper::getStatusNameById($listFilter["order_status"]); ?>
+                  <?php echo ucwords($listFilter["order_status"]); ?>
                 </div>
                 <div class="card-body">
                     <?php echo $listFilter["total"]; ?>
@@ -167,8 +167,7 @@
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
-                                    
-                                    <option value="{{ $id }}" {{ $order->order_status == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                    <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
                         </select>

@@ -141,14 +141,12 @@
                                 <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
                             @endif
                         </div> -->
-
                         @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
-
                          <div class="form-group">
                              <strong>status:</strong>
-                             <Select name="status" class="form-control" id="change_status">
+                             <Select name="order_status_id" class="form-control" id="order_status">
                                   @foreach($order_statuses as $key => $value)
-                                   <option value="{{$value}}" {{$value == $status ? 'Selected=Selected':''}}>{{$key}}</option>
+                                   <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
                                    @endforeach
                              </Select>
                              <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>

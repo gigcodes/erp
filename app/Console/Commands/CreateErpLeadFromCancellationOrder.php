@@ -38,7 +38,7 @@ class CreateErpLeadFromCancellationOrder extends Command
     public function handle()
     {
         try {
-            $orders = \App\Order::where('order_status', 'Cancel')->get();
+            $orders = \App\Order::where('order_status_id', \App\Helpers\OrderHelper::$cancel)->get();
             if ($orders) {
                 foreach ($orders as $order) {
                     $orderProduct = $order->order_product()->first();

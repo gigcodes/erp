@@ -98,7 +98,7 @@ class OrderController extends Controller {
                 $sortby = 'client_name';
                 break;
             case 'status':
-                $sortby = 'order_status';
+                $sortby = 'order_status_id';
                 break;
             case 'advance':
                 $sortby = 'advance_detail';
@@ -137,11 +137,11 @@ class OrderController extends Controller {
                 ->orWhere('received_by',Helpers::getUserIdByName($term))
                 ->orWhere('client_name','like','%'.$term.'%')
                 ->orWhere('city','like','%'.$term.'%')
-                ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
+                ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
         }
 
         if ($order_status[0] != '') {
-            $orders = $orders->whereIn('order_status', $order_status);
+            $orders = $orders->whereIn('order_status_id', $order_status);
         }
 
         if ($date != '') {
@@ -208,7 +208,7 @@ class OrderController extends Controller {
 					 $sortby = 'client_name';
 					break;
 			case 'status':
-					 $sortby = 'order_status';
+					 $sortby = 'order_status_id';
 					break;
 			case 'advance':
 					 $sortby = 'advance_detail';
@@ -246,11 +246,11 @@ class OrderController extends Controller {
            ->orWhere('received_by',Helpers::getUserIdByName($term))
            ->orWhere('client_name','like','%'.$term.'%')
            ->orWhere('city','like','%'.$term.'%')
-           ->orWhere('order_status',(new OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
 
 		if ($order_status[0] != '') {
-			$orders = $orders->whereIn('order_status', $order_status);
+			$orders = $orders->whereIn('order_status_id', $order_status);
 		}
 
 		if ($date != '') {
@@ -279,7 +279,8 @@ class OrderController extends Controller {
 			$orders = $orders->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC');
 		}
 
-		$statusFilterList = $statusFilterList->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"order_status")->get()->toArray();
+		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
+		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
 		
 		$orders_array = $orders->paginate(20);
 		
@@ -315,7 +316,7 @@ class OrderController extends Controller {
 					 $sortby = 'estimated_delivery_date';
 					break;
 			case 'status':
-					 $sortby = 'order_status';
+					 $sortby = 'order_status_id';
 					break;
 			case 'communication':
 					 $sortby = 'communication';
@@ -663,7 +664,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
+		if ($order->order_status_id == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -699,7 +700,7 @@ class OrderController extends Controller {
 				'type'				=> 'initial-advance',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif ($order->order_status == OrderHelper::$prepaid) {
+		} elseif ($order->order_status_id == OrderHelper::$prepaid) {
 			$auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
 			$requestData = new Request();
 			$requestData->setMethod('POST');
@@ -718,7 +719,7 @@ class OrderController extends Controller {
 				'type'				=> 'online-confirmation',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif ($order->order_status == OrderHelper::$refundToBeProcessed) {
+		} elseif ($order->order_status_id == OrderHelper::$refundToBeProcessed) {
 			$refund = Refund::where('order_id', $order->id)->first();
 
 			if (!$refund) {
@@ -828,13 +829,13 @@ class OrderController extends Controller {
 		                                 ->where( 'subject_type','=' ,Order::class )->get();
 		$data['users']          = User::all()->toArray();
 		$messages = Message::all()->where('moduleid','=', $data['id'])->where('moduletype','=', 'order')->sortByDesc("created_at")->take(10)->toArray();
-    $data['messages'] = $messages;
-    $data['total_price'] = $this->getTotalOrderPrice($order);
+    	$data['messages'] = $messages;
+    	$data['total_price'] = $this->getTotalOrderPrice($order);
 
 		$order_statuses = (new OrderStatus)->all();
 		$data['order_statuses'] = $order_statuses;
 		$data['tasks'] = Task::where('model_type', 'order')->where('model_id', $order->id)->get()->toArray();
-    $data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
+    	$data['order_recordings'] = CallRecording::where('order_id', '=', $data['order_id'])->get()->toArray();
 		$data['order_status_report'] = OrderStatuses::all();
 		if ($order->customer)
 			$data['order_reports'] = OrderReport::where('order_id', $order->customer->id)->get();
@@ -958,7 +959,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if (!$order->is_sent_initial_advance() && $order->order_status == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
+		if (!$order->is_sent_initial_advance() && $order->order_status_id == OrderHelper::$proceedWithOutAdvance && $order->order_type == 'online') {
 			$product_names = '';
 			foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
 				$product_names .= $order_product->product ? $order_product->product->name . ", " : '';
@@ -989,7 +990,7 @@ class OrderController extends Controller {
 				'type'				=> 'initial-advance',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif (!$order->is_sent_online_confirmation() && $order->order_status == 'Prepaid') {
+		} elseif (!$order->is_sent_online_confirmation() && $order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
 			$auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
 			$requestData = new Request();
 			$requestData->setMethod('POST');
@@ -1012,7 +1013,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->order_status == 'Refund to be processed') {
+		if ($order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed) {
 			if ($order->payment_mode == 'paytm') {
 				if ($order->customer) {
 					$all_amount = 0;
@@ -1046,7 +1047,7 @@ class OrderController extends Controller {
 
 		}
 
-		if ($order->order_status == 'Delivered') {
+		if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
 			if ($order->order_product) {
 				foreach ($order->order_product as $order_product) {
 					if ($order_product->product) {
@@ -1105,7 +1106,7 @@ class OrderController extends Controller {
 
 		if (true) {
 		// if ($order->auto_emailed == 0) {
-			if ($order->order_status == 'Advance received') {
+			if ($order->order_status == \App\Helpers\OrderHelper::$advanceRecieved) {
 				Mail::to($order->customer->email)->send(new AdvanceReceipt($order));
 
 				// $order->update([
@@ -1488,7 +1489,7 @@ class OrderController extends Controller {
 				'type'				=> 'initial-advance',
 				'method'			=> 'whatsapp'
 			]);
-		} elseif (!$order->is_sent_online_confirmation() && $order->order_status == 'Prepaid') {
+		} elseif (!$order->is_sent_online_confirmation() && $order->order_status == \App\Helpers\OrderHelper::$prepaid) {
 			$auto_message = AutoReply::where('type', 'auto-reply')->where('keyword', 'prepaid-order-confirmation')->first()->reply;
 			$requestData = new Request();
 			$requestData->setMethod('POST');
@@ -1504,7 +1505,7 @@ class OrderController extends Controller {
 			]);
 		}
 
-		if ($order->order_status == 'Refund to be processed') {
+		if ($order->order_status == \App\Helpers\OrderHelper::$refundToBeProcessed) {
 			$refund = Refund::where('order_id', $order->id)->first();
 
 			if (!$refund) {
@@ -1538,7 +1539,7 @@ class OrderController extends Controller {
 			}
 		}
 
-		if ($order->order_status == 'Delivered') {
+		if ($order->order_status == \App\Helpers\OrderHelper::$delivered) {
 			if ($order->order_product) {
 				foreach ($order->order_product as $order_product) {
 					if ($order_product->product) {
@@ -2064,7 +2065,8 @@ public function createProductOnMagento(Request $request, $id){
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
 			if($order) {
-				$order->order_status = $status;
+				$order->order_status 	= $status;
+				$order->order_status_id = $status;
 				$order->save();
 			}
 		}
@@ -2072,9 +2074,9 @@ public function createProductOnMagento(Request $request, $id){
 		$statuss = OrderStatus::find($status);
 		if($statuss->magento_status != null){
 			$options   = array(
-			'trace'              => true,
-			'connection_timeout' => 120,
-			'wsdl_cache'         => WSDL_CACHE_NONE,
+				'trace'              => true,
+				'connection_timeout' => 120,
+				'wsdl_cache'         => WSDL_CACHE_NONE,
 			);
 			$size = '';
 			$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );

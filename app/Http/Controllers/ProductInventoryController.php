@@ -722,6 +722,7 @@ class ProductInventoryController extends Controller
 
 				  	$instruction->customer_id = $order->customer_id;
 				  	$order->order_status = "Delivered";
+				  	$order->order_status_id = \App\Helpers\OrderHelper::$delivered;
 				  	$order->save();
 
 				  	if($order->customer) {

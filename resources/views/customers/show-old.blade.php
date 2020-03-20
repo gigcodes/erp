@@ -1000,7 +1000,7 @@
           $refunded_orders = [];
         @endphp
         @foreach ($customer->orders as $key => $order)
-          @if ($order->order_status == 'Refund to be processed')
+          @if ($order->order_status == 'Refund to be processed' || $order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed)
             @php
               array_push($refunded_orders, $order);
             @endphp
@@ -1107,7 +1107,7 @@
                              <span class="text-success change_status_message" style="display: none;">Successfully changed status</span>
                          </div>
 
-                         <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ $order->order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                         <div id="tracking-wrapper-{{ $order->id }}" style="display: {{ ($order->order_status == 'Product shiped to Client' || $order->order_status_id == \App\Helpers\OrderHelper::$productShippedToClient)  ? 'block' : 'none' }}">
                            <div class="form-group">
                              <strong>AWB Number:</strong>
                              <input type="text" name="awb" class="form-control" id="awb_field_{{ $order->id }}" value="{{ $order->awb }}" placeholder="00000000000">
@@ -1178,7 +1178,7 @@
                         @endif
 
                         @if (isset($order))
-                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                          @if (($order->order_status == 'Advance received' || $order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) && !$order->is_sent_initial_advance())
                             <div class="form-group">
                               <a href="{{ route('order.advance.receipt.email', $order->id) }}" class="btn btn-secondary">Email Advance Receipt</a>
                             </div>
@@ -1188,7 +1188,7 @@
                             </div>
                           @endif
 
-                          @if ($order->order_status == 'Advance received' && !$order->is_sent_initial_advance())
+                          @if (($order->order_status == 'Advance received' || $order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) && !$order->is_sent_initial_advance())
                             <div class="form-group">
                               <a href="{{ route('order.advance.receipt.print', $order->id) }}" class="btn btn-secondary">Print Advance Receipt</a>
                             </div>
