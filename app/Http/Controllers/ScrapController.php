@@ -1025,9 +1025,19 @@ class ScrapController extends Controller
         $scraper->start_time = now();
         $scraper->save();
 
-        $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => $scraper->product_url_selector,"map" => $mapArray));
+        return response()->json(
+            array(
+                'id' => $scraper->id,
+                "website" => $scraper->scraper_name,
+                "timeout" => $scraper->time_out,
+                "starting_urls" => $startingURLs,
+                "designer_url_selector" => $scraper->designer_url_selector,
+                "product_url_selector" => $scraper->product_url_selector,
+                "map" => $mapArray
+            )
+        );
 
-        return $json;
+        
 
     }
 
