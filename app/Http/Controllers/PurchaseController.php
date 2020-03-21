@@ -761,7 +761,7 @@ class PurchaseController extends Controller
         $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp
             join scrapers sc on sc.scraper_name =  sp.website
             JOIN suppliers s ON s.id=sc.supplier_id 
-            inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
+            inner join order_products op on op.product_id = sp.product_id where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
         $cnt = count($suppliersQuery);
 
         if ($cnt > 0 && !empty($productIds)) {
