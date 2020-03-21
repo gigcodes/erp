@@ -108,7 +108,7 @@
 <table style="width: 696px;">
 <tbody>
 <tr>
-<td class="title" style="width: 416px;"><img style="width: 100%; max-width: 300px;" src="https://erp.amourint.com/images/solo_logo.png" /></td>
+<td class="title" style="width: 416px;"><img style="width: 100%; max-width: 300px;" src="../../../../images/solo_logo.png" /></td>
 <td style="width: 260px;">Invoice #:{{ $order->order_id }}<br />Created: {{ $order->created_at }}<br /><br /></td>
 </tr>
 </tbody>
@@ -116,7 +116,7 @@
 </td>
 </tr>
 <tr class="information" style="height: 72px;">
-<td style="height: 72px; width: 632px;">Dear Mr. Dimitri Rolfson, Thank you for your order. Your order will be assigned to a customer care executive who will be avaialable at all times to answer any queries. Our customer care executive will contact you shortly. Your order confirmation is below.</td>
+<td style="height: 72px; width: 632px;">Dear {{ $order->customer->name }}, Thank you for your order. Your order will be assigned to a customer care executive who will be avaialable at all times to answer any queries. Our customer care executive will contact you shortly. Your order confirmation is below.</td>
 </tr>
 <tr class="information" style="height: 117px;">
 <td style="height: 117px; width: 729px;" colspan="2">
