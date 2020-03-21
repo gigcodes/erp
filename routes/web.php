@@ -1587,3 +1587,8 @@ Route::prefix('calendar/public')->group(function () {
     Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
+
+Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
+    Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
+    Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
+});
