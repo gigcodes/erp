@@ -358,7 +358,6 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
             }).done(function(data) {
-                console.log(data);
                 if(data.html){
                     $('.preview-body').html(data.html.html);
                 }
@@ -409,9 +408,7 @@
             e.preventDefault();
             $('.error-span').html('');
             var html =    $('.put-index-here').html();
-            var formData = $('#form-store').serialize() + '&html=' + html;
-
-
+            var formData = $('#form-store').serialize() + '&html=' + escape(html);
             $.ajax({
                 type: "POST",
                 url: "/marketing/mailinglist-ajax-store",

@@ -363,7 +363,7 @@ class VendorController extends Controller
         $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, '', $message);
       } else {
-        return redirect()->route('vendor.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
       }
     }
 
@@ -379,7 +379,7 @@ class VendorController extends Controller
       $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
     }
 
-    return redirect()->route('vendor.index')->withSuccess('You have successfully saved a vendor!');
+    return redirect()->route('vendors.index')->withSuccess('You have successfully saved a vendor!');
   }
 
   public function productStore(Request $request)
@@ -482,7 +482,7 @@ class VendorController extends Controller
 
     Vendor::find($id)->update($data);
 
-    return redirect()->route('vendor.index')->withSuccess('You have successfully updated a vendor!');
+    return redirect()->route('vendors.index')->withSuccess('You have successfully updated a vendor!');
   }
 
   public function productUpdate(Request $request, $id)
@@ -538,7 +538,7 @@ class VendorController extends Controller
     //      $vendor->agents()->delete();
     $vendor->delete();
 
-    return redirect()->route('vendor.index')->withSuccess('You have successfully deleted a vendor');
+    return redirect()->route('vendors.index')->withSuccess('You have successfully deleted a vendor');
   }
 
   public function productDestroy($id)
@@ -596,7 +596,7 @@ class VendorController extends Controller
       $vendors = Vendor::where('id', $request->vendors)->get();
     } else {
       if ($request->not_received != 'on' && $request->received != 'on') {
-        return redirect()->route('vendor.index')->withErrors(['Please select vendors']);
+        return redirect()->route('vendors.index')->withErrors(['Please select vendors']);
       }
     }
 
@@ -663,7 +663,7 @@ class VendorController extends Controller
       Email::create($params);
     }
 
-    return redirect()->route('vendor.index')->withSuccess('You have successfully sent emails in bulk!');
+    return redirect()->route('vendors.index')->withSuccess('You have successfully sent emails in bulk!');
   }
 
   public function sendEmail(Request $request)
@@ -762,7 +762,7 @@ class VendorController extends Controller
 
       Email::create($params);
 
-      return redirect()->route('vendor.show', $vendor->id)->withSuccess('You have successfully sent an email!');
+      return redirect()->route('vendors.show', $vendor->id)->withSuccess('You have successfully sent an email!');
     }
   }
 
