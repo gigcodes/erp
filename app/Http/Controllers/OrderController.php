@@ -2066,6 +2066,17 @@ public function createProductOnMagento(Request $request, $id){
 			if($order) {
 				$order->order_status = $status;
 				$order->save();
+
+				// start update the order status
+				$requestData = new Request();
+        		$requestData->setMethod('POST');
+				$requestData->request->add([
+					'customer_id' => $order->customer_id, 
+					'message' 	   => str_replace(["#{order_id}","#{order_status}"], [$order->order_id,$order->order_status], \App\Order::ORDER_STATUS_TEMPLATE),
+					'status' 	   => 1,
+					'order_id'     => $order->id
+				]);
+				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 		}
 
