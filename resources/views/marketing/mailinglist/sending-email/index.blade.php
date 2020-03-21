@@ -317,17 +317,21 @@
             }
 
         });
-
+        var imgSrcSel = null;
         $(document).on('click','.put-index-here img',function () {
             $(this).addClass('img-fluid');
             $('.open-modal-img').click();
             $('.open-modal-img').attr('data-id',$(this).attr('id'));
+            imgSrcSel = $(this);
         });
 
         $('.modal-img-item').on('click',function () {
             var src = $(this).attr('src');
-            var id = $('.open-modal-img').attr('data-id');
-            $('img[id="'+id+'"]').attr('src',src);
+            if(imgSrcSel.length > 0) {
+                imgSrcSel.attr('src',src);
+            }
+            //var id = $('.open-modal-img').attr('data-id');
+            //$('img[id="'+id+'"]').attr('src',src);
             $('#exampleModalCenter').css('overflow-y','scroll');
             $('.close-images').click();
         });
