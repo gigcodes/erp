@@ -74,7 +74,7 @@ class CustomerController extends Controller
     {
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'order_status_id', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
         $totalCount = 0;

@@ -327,14 +327,14 @@
                 <div class="form-group">
                     <strong> Status :</strong>
                     <?php
-                        if(isset($defaultSelected["order_status"])) {
-                            $order_status = $defaultSelected["order_status"];
+                        if(isset($defaultSelected["order_status_id"])) {
+                            $order_status = $defaultSelected["order_status_id"];
                         }
                     ?>
                     <?php
                     $orderStatus = new \App\ReadOnly\OrderStatus;
 
-                    echo Form::select('order_status',$orderStatus->all(), ( old('order_status') ? old('order_status') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
+                    echo Form::select('order_status_id',$orderStatus->all(), ( old('order_status_id') ? old('order_status_id') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
 
                     @if ($errors->has('order_status'))
                         <div class="alert alert-danger">{{$errors->first('order_status')}}</div>

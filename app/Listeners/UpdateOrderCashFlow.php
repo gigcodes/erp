@@ -28,7 +28,7 @@ class UpdateOrderCashFlow
     {
         $order = $event->order;
         $user_id = auth()->id();
-        if ($order->order_status == 'Prepaid') {
+        if ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
             $cash_flow = $order->cashFlows()->whereIn('order_status', ['pending', 'prepaid'])->first();
             if ($cash_flow) {
                 $cash_flow->fill([
@@ -53,7 +53,7 @@ class UpdateOrderCashFlow
                     'description' => 'Order Received with full pre payment',
                 ]);
             }
-        } else if ($order->order_status == 'Advance received') {
+        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) {
             $cash_flow = $order->cashFlows()->where('order_status', 'advance received')->first();
             if ($cash_flow) {
                 $cash_flow->fill([
@@ -88,7 +88,7 @@ class UpdateOrderCashFlow
                 'user_id' => $user_id,
                 'updated_by' => $user_id,
             ])->save();
-        } elseif ($order->order_status == 'Delivered') {
+        } elseif ($order->order_status_id == \App\Helpers\OrderHelper::$delivered) {
             $pending_cash_flow = $order->cashFlows()->firstOrCreate([
                 'order_status' => 'pending',
             ]);
@@ -103,7 +103,9 @@ class UpdateOrderCashFlow
                 'user_id' => $user_id,
                 'order_status' => 'delivered',
             ])->save();
-        } elseif($order->order_status == 'Refund to be processed' || $order->order_status == 'Refund Dispatched' || $order->order_status == 'Refund Credited' ) {
+        } elseif($order->order_status_id == \App\Helpers\OrderHelper::$refundToBeProcessed
+            || $order->order_status_id == \App\Helpers\OrderHelper::$refundDispatched
+            || $order->order_status_id == \App\Helpers\OrderHelper::$refundCredited) {
             
         } else {
             $pending_cash_flow = $order->cashFlows()->firstOrCreate([

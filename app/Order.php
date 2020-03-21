@@ -31,6 +31,7 @@ class Order extends Model
         'sales_person',
         'office_phone_number',
         'order_status',
+        'order_status_id',
         'estimated_delivery_date',
         'note_if_any',
 
