@@ -65,19 +65,60 @@ class ReturnExchangeController extends Controller
             }
 
             if(!empty($product)) {
-                $returnExchangeProduct                    = new \App\ReturnExchangeProduct;
-                $returnExchangeProduct->product_id        = $product->id;
-                $returnExchangeProduct->order_product_id  = $params["order_product_id"];
-                $returnExchangeProduct->name              = $product->name;
+                $returnExchangeProduct                      = new \App\ReturnExchangeProduct;
+                $returnExchangeProduct->product_id          = $product->id;
+                $returnExchangeProduct->order_product_id    = $params["order_product_id"];
+                $returnExchangeProduct->name                = $product->name;
+                $returnExchangeProduct->return_exchange_id  = $returnExchange->id;
                 $returnExchangeProduct->save();
             }
             // once return exchange created send message if request is for the return
             $returnExchange->notifyToUser();
         }
 
+        return response()->json(["code" => 200 ,"data" => $returnExchange , "message" => "Request stored succesfully"]);
+    }
 
+    public function index(Request $request)
+    {
 
+        //$returnExchange = ReturnExchange::latest('created_at')->paginate(10);
 
-        return response()->json(["code" => 200 ,"data" => $returnExchange]);
+        return view("return-exchange.index");
+    }
+
+    public function records(Request $request)
+    {
+        $params = $request->all();
+        $limit  = !empty($params["limit"]) ? $params["limit"] : 10;
+        $returnExchange = ReturnExchange::leftJoin("return_exchange_products as rep","rep.return_exchange_id","return_exchanges.id")
+        ->leftJoin("customers as c","c.id","return_exchanges.customer_id")
+        ->leftJoin("products as p","p.id","rep.product_id")
+        ->latest('return_exchanges.created_at');
+        
+        if(!empty($params["customer_name"])) {
+            $returnExchange = $returnExchange->where("c.name","like","%".$params["customer_name"]."%");
+        }
+
+        if(!empty($params["product"])) {
+            $returnExchange = $returnExchange->where(function($q) use($params) {
+                $q->orWhere("p.name","like","%".$params["product"]."%")
+                ->orWhere("p.id","like","%".$params["product"]."%")
+                ->orWhere("p.sku","like","%".$params["product"]."%");
+            });
+        }
+
+        
+
+        $returnExchange = $returnExchange->select(["return_exchanges.*","c.name as customer_name","rep.product_id","rep.name"])
+        ->paginate($limit);
+
+        return response()->json([
+            "code"       => 200,
+            "data"       => $returnExchange->items(),
+            "pagination" => (string) $returnExchange->links(),
+            "total"      => $returnExchange->total(),
+            "page"       => $returnExchange->currentPage(),
+        ]);
     }
 }

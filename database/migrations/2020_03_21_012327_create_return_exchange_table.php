@@ -18,7 +18,7 @@ class CreateReturnExchangeTable extends Migration
             $table->integer('customer_id')->index();
             $table->enum('type', ['refund', 'exchange']);
             $table->string('reason_for_refund')->nullable();
-            $table->decimal('refund_amount',8,2)->default("0.00");
+            $table->decimal('refund_amount',8,2)->nullable()->default("0.00");
             $table->integer('status');
             $table->text('pickup_address')->nullable();
             $table->text('remarks')->nullable();

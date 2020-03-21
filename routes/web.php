@@ -1589,6 +1589,8 @@ Route::prefix('calendar/public')->group(function () {
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
+    Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
+    Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
 });
