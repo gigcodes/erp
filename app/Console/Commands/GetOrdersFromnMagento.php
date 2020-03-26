@@ -184,19 +184,20 @@ class GetOrdersFromnMagento extends Command
 
                 $id = DB::table('orders')->insertGetId(
                     array(
-                        'customer_id'    => $customer_id,
-                        'order_id'       => $results['increment_id'],
-                        'order_type'     => 'online',
-                        'order_status'   => $order_status,
-                        'payment_mode'   => $payment_method,
-                        'order_date'     => $results['created_at'],
-                        'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
-                        'city'           => $results['billing_address']['city'],
-                        'advance_detail' => $paid,
-                        'contact_detail' => $final_phone,
-                        'balance_amount' => $balance_amount,
-                        'created_at'     => $results['created_at'],
-                        'updated_at'     => $results['created_at'],
+                        'customer_id'     => $customer_id,
+                        'order_id'        => $results['increment_id'],
+                        'order_type'      => 'online',
+                        'order_status'    => $order_status,
+                        'order_status_id' => $order_status,
+                        'payment_mode'    => $payment_method,
+                        'order_date'      => $results['created_at'],
+                        'client_name'     => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
+                        'city'            => $results['billing_address']['city'],
+                        'advance_detail'  => $paid,
+                        'contact_detail'  => $final_phone,
+                        'balance_amount'  => $balance_amount,
+                        'created_at'      => $results['created_at'],
+                        'updated_at'      => $results['created_at'],
                     ));
 
                 $noproducts = sizeof($results['items']);
@@ -266,7 +267,7 @@ class GetOrdersFromnMagento extends Command
                         'type'       => 'initial-advance',
                         'method'     => 'whatsapp',
                     ]);
-                } elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
+                } elseif ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid && $results['state'] == 'processing') {
                     $params = [
                         'number'      => null,
                         'user_id'     => 6,
