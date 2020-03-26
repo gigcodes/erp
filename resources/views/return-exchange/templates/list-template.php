@@ -52,8 +52,8 @@
 			        <div class="col">
 			            <div class="form-group">
 			                <strong>Type&nbsp;:&nbsp;</strong>
-			                <span><input type="radio" name="type" value="refund" />Refund</span>
-			                <span><input type="radio" name="type" value="exchange" />Exchange</span>
+			                <span><input type="radio" {{if data.return_exchange.type == "refund"}} checked="checked" {{/if}} name="type" value="refund" />Refund</span>
+			                <span><input type="radio" {{if data.return_exchange.type == "exchange"}} checked="checked" {{/if}} name="type" value="exchange" />Exchange</span>
 			            </div>
 			        </div>
 			    </div>
@@ -61,13 +61,13 @@
 			        <div class="col">
 			            <div class="form-group">
 			                <strong>Reason for refund&nbsp;:&nbsp;</strong>
-			                <input type="text" class="form-control" name="reason_for_refund"></textarea>
+			                <input type="text" class="form-control" value="{{:data.return_exchange.reason_for_refund}}" name="reason_for_refund"></textarea>
 			            </div>
 			        </div>
 			        <div class="col">
 			            <div class="form-group">
 			                <strong>Refund Amount&nbsp;:&nbsp;</strong>
-			                <input type="text" class="form-control" name="refund_amount"></textarea>
+			                <input type="text" class="form-control" value="{{:data.return_exchange.refund_amount}}" name="refund_amount"></textarea>
 			            </div>
 			        </div>
 			    </div>
@@ -78,7 +78,7 @@
 			                <strong>Status&nbsp;:&nbsp;</strong>
 			                <select name="status" class="form-control select-multiple" style="width: 100%;">
 			                    {{props status}}
-			                        <option value="{{>key}}">{{>prop}}</option>
+			                        <option {{if data.return_exchange.status == key}} selected="selected" {{/if}} value="{{>key}}">{{>prop}}</option>
 			                    {{/props}}
 			                </select>
 			            </div>
@@ -89,7 +89,7 @@
 			        <div class="col">
 			            <div class="form-group">
 			                <strong>Pickup Address&nbsp;:&nbsp;</strong>
-			                <textarea class="form-control" name="pickup_address"></textarea>
+			                <textarea class="form-control" value="{{:data.return_exchange.pickup_address}}" name="pickup_address"></textarea>
 			            </div>
 			        </div>
 			    </div>
@@ -98,7 +98,7 @@
 			        <div class="col">
 			            <div class="form-group">
 			                <strong>Remarks&nbsp;:&nbsp;</strong>
-			                <textarea class="form-control" name="remarks"></textarea>
+			                <textarea class="form-control" name="remarks">{{:data.return_exchange.remarks}}</textarea>
 			            </div>
 			        </div>
 			    </div>

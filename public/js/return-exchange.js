@@ -114,7 +114,7 @@ var msQueue = {
         var id = ele.data("id");
          var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/return-exchange/"+id+"/detail",
-            method: "get"
+            method: "get",
             beforeSend : function() {
                 $("#loading-image").show();
             }

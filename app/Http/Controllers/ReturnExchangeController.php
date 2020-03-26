@@ -136,10 +136,13 @@ class ReturnExchangeController extends Controller
     public function detail(Request $request, $id)
     {
         $returnExchange = ReturnExchange::find($id);
+        //check error return exist
         if(!empty($returnExchange)) {
            $data["return_exchange"] = $returnExchange;  
-           return response()->json(["code" => 200 , "data" => []]);     
+           return response()->json(["code" => 200 , "data" => $data]);     
         }
+        // if not found then add error response
+        return response()->json(["code" => 500, "data" => []]);
     }
 
     public function update(Request $request, $id)
