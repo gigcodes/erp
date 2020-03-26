@@ -29,6 +29,12 @@ var msQueue = {
 
         });
 
+        msQueue.config.bodyView.on("click",".btn-edit-template",function(e) {
+            e.preventDefault();
+            var ele = $(this);
+            msQueue.editRecord(ele);
+        });
+
         msQueue.config.bodyView.on("click",".btn-search-action",function(e) {
             e.preventDefault();
             msQueue.getResults();
@@ -104,22 +110,23 @@ var msQueue = {
         $("#total-counter").html("(" +response.total+ ")");
 
     },
-    filterReport: function(href) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/message-queue/report",
-            method: "get",
-            data : $("#message-fiter-handler").serialize(),
+    editRecord : function(ele) {
+        var id = ele.data("id");
+         var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/return-exchange/"+id+"/detail",
+            method: "get"
             beforeSend : function() {
                 $("#loading-image").show();
             }
         }
-        this.sendAjax(_z, "showReport",{append : true});
+        this.sendAjax(_z, "showEditRecords",{append : true});   
     },
-    showReport : function(response) {
-        $("#loading-image").hide();
-        var addProductTpl = $.templates("#template-send-message-report");
-        var tplHtml       = addProductTpl.render(response);
-            msQueue.config.bodyView.find(".send-message-report").html(tplHtml);
+    showEditRecords : function(response) {
+        if(response.code == 200) {
+           $("#loading-image").hide();
+            var addProductTpl = $.templates("#template-edit-block");
+            var tplHtml       = addProductTpl.render(response); 
+        }
     }
 }
 

@@ -100,6 +100,10 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("c.name","like","%".$params["customer_name"]."%");
         }
 
+        if(!empty($params["status"])) {
+           $returnExchange = $returnExchange->where("return_exchanges.status",$params["status"]);    
+        }
+
         if(!empty($params["product"])) {
             $returnExchange = $returnExchange->where(function($q) use($params) {
                 $q->orWhere("p.name","like","%".$params["product"]."%")
@@ -108,17 +112,38 @@ class ReturnExchangeController extends Controller
             });
         }
 
-        
+        $returnExchange = $returnExchange->select([
+            "return_exchanges.*",
+            "c.name as customer_name",
+            "rep.product_id","rep.name"
+        ])->paginate($limit);
 
-        $returnExchange = $returnExchange->select(["return_exchanges.*","c.name as customer_name","rep.product_id","rep.name"])
-        ->paginate($limit);
+        // update items for status
+        $items = $returnExchange->items();
+        foreach($items as &$item){
+            $item["status_name"] = @ReturnExchange::STATUS[$item->status];
+        }
 
         return response()->json([
             "code"       => 200,
-            "data"       => $returnExchange->items(),
+            "data"       => $items,
             "pagination" => (string) $returnExchange->links(),
             "total"      => $returnExchange->total(),
             "page"       => $returnExchange->currentPage(),
         ]);
+    }
+
+    public function detail(Request $request, $id)
+    {
+        $returnExchange = ReturnExchange::find($id);
+        if(!empty($returnExchange)) {
+           $data["return_exchange"] = $returnExchange;  
+           return response()->json(["code" => 200 , "data" => []]);     
+        }
+    }
+
+    public function update(Request $request, $id)
+    {
+        $params = $request->all();
     }
 }

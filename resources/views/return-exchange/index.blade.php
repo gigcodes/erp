@@ -31,6 +31,13 @@
 							    <?php echo Form::text("product",request("product"),["class"=> "form-control","placeholder" => "Enter product sku/id/name"]) ?>
 						  	</div>
 				  			<div class="form-group">
+							    <label for="action">Status:</label>
+							    <?php echo Form::select("status",\App\ReturnExchange::STATUS,request("limti"),[
+							    	"class" => "form-control select2",
+							    	"placeholder" => "-- None --"
+							    ]) ?>
+						  	</div>
+						  	<div class="form-group">
 							    <label for="action">Number of records:</label>
 							    <?php echo Form::select("limit",[10 => "10", 20 => "20", 30 => "30" , 50 => "50", 100 => "100" , 500 => "500" , 1000 => "1000"],request("limti"),["class" => "form-control select2","placeholder" => "Page limit"]) ?>
 						  	</div>
@@ -56,8 +63,6 @@
 </div>
 
 @include("return-exchange.templates.list-template")
-
-
 @endsection
 
 @section('scripts')
