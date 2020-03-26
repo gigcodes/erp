@@ -15,6 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', 'TestController@index');
+Route::get('/test/dhl', 'TmpTaskController@dhl');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -299,6 +300,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
+    Route::get('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
+    Route::post('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::resource('order', 'OrderController');

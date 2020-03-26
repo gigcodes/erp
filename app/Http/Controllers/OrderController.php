@@ -54,6 +54,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
+use App\Library\DHL\GetRateRequest;
 
 
 class OrderController extends Controller {
@@ -2134,6 +2135,52 @@ public function createProductOnMagento(Request $request, $id){
         }
 
         return abort("404");
+	}
+
+	public function generateRateRequet(Request $request) 
+	{
+		$params = $request->all();
+		$rateReq   = new GetRateRequest("soap");
+		$rateReq->setRateEstimates("Y");
+		$rateReq->setDetailedBreakDown("Y");
+		$rateReq->setShipper([
+			"city" => config("dhl.shipper.city"),
+			"postal_code" => config("dhl.shipper.postal_code"),
+			"country_code" => config("dhl.shipper.country_code"),
+			"person_name" => config("dhl.shipper.person_name"),
+			"company_name" => "N/A",
+			"phone" => config("dhl.shipper.phone")
+		]);
+		$rateReq->setRecipient([
+			"city" => $request->get("customer_city"),
+			"postal_code" => $request->get("customer_pincode"),
+			"country_code" => $request->get("customer_country","IN"),
+			"person_name" => $request->get("customer_name"),
+			"company_name" => "N/A",
+			"phone" => $request->get("customer_phone")
+		]);
+
+		$rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s-05:00",strtotime($request->get("pickup_time"))));
+		$rateReq->setDeclaredValue($request->get("amount"));
+		$rateReq->setDeclaredValueCurrencyCode($request->get("currency"));
+		$rateReq->setPackages([
+			[
+				"weight" => $request->get("actual_weight"),
+				"length" => $request->get("box_length"),
+				"width"  => $request->get("box_width"),
+				"height" => $request->get("box_height")
+			]
+		]);
+
+		$response = $rateReq->call();
+		if(!$response->hasError()) {
+			$charges = $response->getChargesBreakDown();
+			return response()->json(["code"=> 200 , "data" => $charges]);
+		}else{
+			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+		}
+
+		return response()->json(["code" => 500 , "data" => [], "message" => "Oops, Looks like something went wrong!" ]);
 	}
 
 }

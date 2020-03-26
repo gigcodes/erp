@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Library\DHL\GetRateRequest;
+use Illuminate\Http\Request;
+
 class TmpTaskController extends Controller
 {
 
@@ -108,6 +111,12 @@ class TmpTaskController extends Controller
             Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
         }
 
+    }
+
+    public function dhl(Request $request)
+    {
+        $rate   = new GetRateRequest("soap");
+        $result = $rate->call();
     }
 
 }

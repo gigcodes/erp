@@ -1206,7 +1206,14 @@
                   <strong>Customer Name:</strong>
                   <input type="text" name="customer_name" class="form-control" value="{{ $customer->name }}" required>
                 </div>
-
+                <div class="form-group">
+                  <strong>Customer City:</strong>
+                  <input type="text" name="customer_city" class="form-control" value="" required>
+                </div>
+                <div class="form-group">
+                  <strong>Customer Country (ISO 2):</strong>
+                  <input type="text" name="customer_country" class="form-control" value="" required>
+                </div>
                 <div class="form-group">
                   <strong>Customer Phone:</strong>
                   <input type="number" name="customer_phone" class="form-control" value="{{ $customer->phone }}" required>
@@ -1227,10 +1234,10 @@
                   <input type="number" name="customer_pincode" class="form-control" value="{{ $customer->pincode }}" max="999999" required>
                 </div>
 
-                {{-- <div class="form-group">
+                <div class="form-group">
                   <strong>Actual Weight:</strong>
                   <input type="number" name="actual_weight" class="form-control" value="1" step="0.01" required>
-                </div> --}}
+                </div>
 
                 <div class="row">
                   <div class="col">
@@ -1239,14 +1246,12 @@
                       <input type="number" name="box_length" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
                     </div>
                   </div>
-
                   <div class="col">
                     <div class="form-group">
                       <strong>Width:</strong>
                       <input type="number" name="box_width" class="form-control" placeholder="1.0" value="" step="0.1" max="1000" required>
                     </div>
                   </div>
-
                   <div class="col">
                     <div class="form-group">
                       <strong>Height:</strong>
@@ -1254,21 +1259,46 @@
                     </div>
                   </div>
                 </div>
+                <div class="row">
+                  <div class="col">
+                      <div class="form-group">
+                        <strong>Amount:</strong>
+                        <input type="number" name="amount" class="form-control" value="" required>
+                      </div>
+                    </div>
+                    <div class="col">
+                      <div class="form-group">
+                        <strong>Currency:</strong>
+                        <input type="text" name="currency" class="form-control" value="" required>
+                      </div>
+                    </div>
+                </div>
+                <div class="row">
+                  <div class="col">
+                    <div class="form-group">
+                      <strong>Pick Up Date and Time</strong>
+                      <div class='input-group date' id='pickup-datetime'>
+                        <input type='text' class="form-control" name="pickup_time" value="{{ date('Y-m-d H:i') }}" required />
 
-                <div class="form-group">
-                  <strong>Pick Up Date and Time</strong>
-                  <div class='input-group date' id='pickup-datetime'>
-                    <input type='text' class="form-control" name="pickup_time" value="{{ date('Y-m-d H:i') }}" required />
-
-                    <span class="input-group-addon">
-                      <span class="glyphicon glyphicon-calendar"></span>
-                    </span>
+                        <span class="input-group-addon">
+                          <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                      </div>
+                    </div>
                   </div>
                 </div>
-
+                 
+              </div>
+              <div class="modal-footer">
+                  <div class="row">
+                    <div class="col price-break-down">
+                         
+                    </div>
+                  </div>
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-secondary btn-rate-request">Calculate Rate Request</button>
                 <button type="submit" class="btn btn-secondary">Update and Generate</button>
               </div>
             </form>
@@ -1287,6 +1317,41 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $("body").tooltip({ selector: '[data-toggle=tooltip]' });
+
+      $(document).on("click",".btn-rate-request",function(e) {
+          e.preventDefault();
+          var form = $(this).closest("form");
+          //send request
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('order.generate.rate-request') }}',
+            data: form.serialize(),
+          }).done(response => {
+              if(response.code  == 200) {
+                toastr['success'](response.message, 'success');
+                var htmlReturn = "<ul style='list-style:none;'>";
+                    if(response.data.length > 0) {
+                      if(response.data.charges.length > 0) {
+                        $.each(response.data.charges,function(k,v) {
+                            htmlReturn += "<li>"+v.name+" : "+v.amount+"</li>";
+                        });
+                      }
+                      htmlReturn += "<li>Total : "+response.data.amount+" "+response.data.currency+"</li>";
+                      htmlReturn += "<li>Delivery Time : "+response.data.delivery_time+"</li>";
+                      htmlReturn += "<li>Service Type : "+response.data.service_type+"</li>";
+                      htmlReturn += "<li>Total Transit day : "+response.data.total_transit_days+"</li>";
+                    }
+                    htmlReturn += "</ul>";
+                    $(".price-break-down").html(htmlReturn);
+              }else{
+                toastr['error'](response.message, 'error');
+              }
+          });
+      });
+
     });
 
     $('#completion-datetime, #pickup-datetime').datetimepicker({
