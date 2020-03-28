@@ -55,6 +55,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
 use App\Library\DHL\GetRateRequest;
+use App\Library\DHL\CreateShipmentRequest;
 
 
 class OrderController extends Controller {
@@ -2179,8 +2180,81 @@ public function createProductOnMagento(Request $request, $id){
 		}else{
 			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
 		}
+	}
 
-		return response()->json(["code" => 500 , "data" => [], "message" => "Oops, Looks like something went wrong!" ]);
+	public function generateAWBDHL(Request $request)
+	{
+		$params = $request->all();
+
+		// find order and customer
+		$order = Order::find($request->order_id);
+
+		if(!empty($order)) {
+			$order->customer->name = $request->customer_name;
+			$order->customer->address = $request->customer_address1;
+			$order->customer->city = $request->customer_address2;
+			$order->customer->pincode = $request->customer_pincode;
+			$order->customer->save();
+		}
+
+
+		$rateReq   = new CreateShipmentRequest("soap");
+		$rateReq->setShipper([
+			"street" 		=> config("dhl.shipper.street"),
+			"city" 			=> config("dhl.shipper.city"),
+			"postal_code" 	=> config("dhl.shipper.postal_code"),
+			"country_code"	=> config("dhl.shipper.country_code"),
+			"person_name" 	=> config("dhl.shipper.person_name"),
+			"company_name" 	=> "N/A",
+			"phone" 		=> config("dhl.shipper.phone")
+		]);
+		$rateReq->setRecipient([
+			"street" 		=> $request->get("customer_address1"),
+			"city" 			=> $request->get("customer_city"),
+			"postal_code" 	=> $request->get("customer_pincode"),
+			"country_code" 	=> $request->get("customer_country","IN"),
+			"person_name" 	=> $request->get("customer_name"),
+			"company_name" 	=> "N/A",
+			"phone" 		=> $request->get("customer_phone")
+		]);
+
+		$rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->get("pickup_time")))." GMT+05:30");
+		$rateReq->setDeclaredValue($request->get("amount"));
+		$rateReq->setPackages([
+			[
+				"weight" => (float)$request->get("actual_weight"),
+				"length" => $request->get("box_length"),
+				"width"  => $request->get("box_width"),
+				"height" => $request->get("box_height"),
+				"note"   => "N/A",
+			]
+		]);
+
+		$response = $rateReq->call();
+		if(!$response->hasError()) {
+			$receipt = $response->getReceipt();
+
+			if(!empty($receipt["label_format"])){
+				if(strtolower($receipt["label_format"]) == "pdf") {
+					Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
+					$waybill = new Waybill;
+					$waybill->order_id = $order->id;
+					$waybill->awb = $receipt["tracking_number"];
+					$waybill->box_width = $request->box_width;
+					$waybill->box_height = $request->box_height;
+					$waybill->box_length = $request->box_length;
+					$waybill->actual_weight = (float)$request->get("actual_weight");
+					$waybill->package_slip = $order->id . '_package_slip.pdf';
+					$waybill->pickup_date = $request->pickup_time;
+					$waybill->save();
+				}				
+			}
+
+			return response()->json(["code"=> 200 , "data" => [], "message" => "Receipt Created successfully"]);
+		}else{
+			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+		}
+
 	}
 
 }

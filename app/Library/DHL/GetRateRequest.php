@@ -298,7 +298,6 @@ class GetRateRequest extends APIAbstract
 		$xml->endElement();
 		$xml->endElement();
         //$xml->endDocument();
-
         return $this->document = $xml->outputMemory();
     }
 

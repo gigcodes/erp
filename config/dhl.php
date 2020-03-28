@@ -14,11 +14,12 @@ return [
         'DHL_CITY'        => env('DHL_CITY', ''),
     ],
     'shipper' => [
-        "city"         => "Mumbai",
-        "postal_code"  => "480003",
-        "country_code" => "IN",
+        "street"       => "Woluwelaan 151",
+        "city"         => "Diegem",
+        "postal_code"  => "1831",
+        "country_code" => "BE",
         "person_name"  => "Pravin Solanki",
-        "company_name" => "",
-        "phone"        => "919016398686",
+        "company_name" => "LUXURY UNLIMITED",
+        "phone"        => "971502609192",
     ],
 ];

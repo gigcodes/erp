@@ -1189,10 +1189,10 @@
 
     @if ($has_customer)
       <div id="generateAWBMODAL" class="modal fade" role="dialog">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
 
           <!-- Modal content-->
-          <div class="modal-content">
+          <div class="modal-content ">
             <form action="{{ route('order.generate.awb') }}" method="POST">
               @csrf
               <input type="hidden" name="order_id" value="{{ $id }}">
@@ -1294,12 +1294,15 @@
                     <div class="col price-break-down">
                          
                     </div>
-                  </div>
+                  </div>  
               </div>
               <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                <button type="button" class="btn btn-secondary btn-rate-request">Calculate Rate Request</button>
-                <button type="submit" class="btn btn-secondary">Update and Generate</button>
+                <div class="row">
+                  <button type="button" style="margin-top: 5px;" class="btn btn-default" data-dismiss="modal">Close</button>
+                  <button type="button" style="margin-top: 5px;" class="btn btn-secondary btn-rate-request">Calculate Rate Request</button>
+                  <button type="button" style="margin-top: 5px;" class="btn btn-secondary btn-create-shipment-request">Genarate Shimpment on DHL</button>
+                  <button type="submit" style="margin-top: 5px;" class="btn btn-secondary">Update and Generate</button>
+                </div>
               </div>
             </form>
           </div>
@@ -1330,10 +1333,10 @@
             url: '{{ route('order.generate.rate-request') }}',
             data: form.serialize(),
           }).done(response => {
-              if(response.code  == 200) {
+              if(response.code == 200) {
                 toastr['success'](response.message, 'success');
                 var htmlReturn = "<ul style='list-style:none;'>";
-                    if(response.data.length > 0) {
+                    if(response.data) {
                       if(response.data.charges.length > 0) {
                         $.each(response.data.charges,function(k,v) {
                             htmlReturn += "<li>"+v.name+" : "+v.amount+"</li>";
@@ -1351,6 +1354,28 @@
               }
           });
       });
+
+      $(document).on("click",".btn-create-shipment-request",function(e) {
+          e.preventDefault();
+          var form = $(this).closest("form");
+          //send request
+          $.ajax({
+            type: 'POST',
+            headers: {
+                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+            },
+            url: '{{ route('order.generate.awbdhl') }}',
+            data: form.serialize(),
+          }).done(response => {
+              if(response.code == 200) {
+                toastr['success'](response.message, 'success');
+              }else{
+                toastr['error'](response.message, 'error');
+              }
+          });
+      });
+
+      
 
     });
 

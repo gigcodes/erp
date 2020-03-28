@@ -21,7 +21,7 @@ abstract class ResponseAbstract
 
         if(!empty($notification)) {
             foreach($notification->attributes() as $ntf) {
-                if((string)$ntf->code <= "0" && (string)$ntf->code != "") {
+                if((string)$ntf->code <= "0" && (string)$ntf->code == "") {
                     return false;
                 } 
                 return true;
