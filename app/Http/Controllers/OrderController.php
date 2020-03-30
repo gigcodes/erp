@@ -2265,7 +2265,7 @@ public function createProductOnMagento(Request $request, $id){
 		if(!empty($wayBill)) {
 			// check from the awb
 			$trackShipment = new TrackShipmentRequest;
-			$trackShipment->setAwbNumbers([3898464710]);
+			$trackShipment->setAwbNumbers([$awb]);
 			$results 	= $trackShipment->call();
 			$response 	= $results->getResponse();
 			$view = (string) view("partials.dhl.tracking",compact('response'));
