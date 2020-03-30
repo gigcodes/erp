@@ -63,7 +63,7 @@ abstract class APIAbstract
 
         $this->resultsRAW = $result;
         try {
-            $result = str_ireplace(['SOAP-ENV:', 'SOAP:','rateresp:','shipresp:'], '', $result);
+            $result = str_ireplace(['xmlSOAP-ENV','ser-root:','SOAP-ENV:', 'SOAP:','rateresp:','shipresp:','trac:','dhl:','ns:'], '', $result);
             $this->results = simplexml_load_string($result)->children();
         } catch (\Exception $exception) {
             return false;

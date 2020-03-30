@@ -56,6 +56,7 @@ use \SoapClient;
 use App\Mail\OrderInvoice;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
+use App\Library\DHL\TrackShipmentRequest;
 
 
 class OrderController extends Controller {
@@ -2255,6 +2256,23 @@ public function createProductOnMagento(Request $request, $id){
 			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
 		}
 
+	}
+
+	public function trackPackageSlip(Request $request)
+	{
+		$awb = $request->get("awb");
+		$wayBill = Waybill::where("awb", $awb)->first();
+		if(!empty($wayBill)) {
+			// check from the awb
+			$trackShipment = new TrackShipmentRequest;
+			$trackShipment->setAwbNumbers([3898464710]);
+			$results 	= $trackShipment->call();
+			$response 	= $results->getResponse();
+			$view = (string) view("partials.dhl.tracking",compact('response'));
+			return response()->json(["code" => 200, "_h" => $view, "awb" => $awb]);
+		}
+
+		return response()->json(["code"=> 200, "_h" => "No records found"]);
 	}
 
 }

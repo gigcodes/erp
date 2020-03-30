@@ -303,8 +303,8 @@
                           <div class="form-group">
                             <strong>AWB: </strong> {{ $waybill->awb }}
                             <br>
-
                             <a href="{{ route('order.download.package-slip', $waybill->id) }}" class="btn-link">Download Package Slip</a>
+                            <a href="javascript:;" data-id="{{ $waybill->id }}" data-awb="{{ $waybill->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
                           </div>
 
                         @else
@@ -1313,6 +1313,23 @@
 
 @endsection
 
+<div id="tracking-events" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h4 class="modal-title">Tracking For AWB : <span class="abw-no-txt"></span></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary">Create</button>
+        </div>
+      </div>
+    </div>
+</div>
+
 @section('scripts')
   {{-- <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/js/bootstrap.bundle.min.js"></script> --}}
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -2204,5 +2221,26 @@
     $('#generateAWBForm').submit();
   });
 
+  $(document).on('click','.track-package-slip',function() {
+    var $this = $(this);
+    $.ajax({
+        type: "GET",
+        url: "{{ route('order.track.package-slip') }}",
+        data: {
+          _token: "{{ csrf_token() }}",
+          awb: $this.data("awb"),
+          id: $this.data("waybill_id"),
+        },
+        beforeSend: function() {
+          $this.text('Tracking...');
+        }
+      }).done(function(response) {
+        $("#tracking-events").find(".abw-no-txt").html(response.awb);
+        $("#tracking-events").find(".modal-body").html(response._h);
+        $("#tracking-events").modal("show");
+      }).fail(function(response) {
+      
+      });
+  });
   </script>
 @endsection
