@@ -1385,6 +1385,7 @@
           }).done(response => {
               if(response.code == 200) {
                 toastr['success'](response.message, 'success');
+                location.reload();
               }else{
                 toastr['error'](response.message, 'error');
               }

@@ -37,6 +37,7 @@ class CreateShipmentRequest extends APIAbstract
     private $declaredValue;
     private $declaredValueCurrecyCode;
     private $sendPackage = true;
+    private $mobile;
 
     public function __construct($requestType = "soap")
     {
@@ -204,6 +205,17 @@ class CreateShipmentRequest extends APIAbstract
         return $this->paymentInfo;
     }
 
+    public function getMobile()
+    {
+        return $this->mobile;
+    }
+
+    public function setMobile($mobile)
+    {
+        $this->mobile = $mobile;
+        return $this->mobile;
+    }
+
     public function toXML()
     {
         $xml = new \XmlWriter();
@@ -311,11 +323,19 @@ class CreateShipmentRequest extends APIAbstract
                             }
                             $xml->endElement();
                         }
+                        $xml->startElement('ShipmentNotifications');
+                            $xml->startElement('ShipmentNotification');
+                                $xml->writeElement('NotificationMethod', 'EMAIL');
+                                $xml->writeElement('EmailAddress', 'solanki7492@gmail.com');
+                                $xml->writeElement('MobilePhoneNumber', $this->mobile);
+                            $xml->endElement();
+                        $xml->endElement();
                     $xml->endElement();
                 $xml->endElement();
             $xml->endElement();
         $xml->endElement();
         //$xml->endDocument();
+        //echo $xml->outputMemory();die;
         return $this->document = $xml->outputMemory();
     }
 

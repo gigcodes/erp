@@ -2206,7 +2206,7 @@ public function createProductOnMagento(Request $request, $id){
 			"postal_code" 	=> config("dhl.shipper.postal_code"),
 			"country_code"	=> config("dhl.shipper.country_code"),
 			"person_name" 	=> config("dhl.shipper.person_name"),
-			"company_name" 	=> "N/A",
+			"company_name" 	=> "Solo Luxury",
 			"phone" 		=> config("dhl.shipper.phone")
 		]);
 		$rateReq->setRecipient([
@@ -2215,7 +2215,7 @@ public function createProductOnMagento(Request $request, $id){
 			"postal_code" 	=> $request->get("customer_pincode"),
 			"country_code" 	=> $request->get("customer_country","IN"),
 			"person_name" 	=> $request->get("customer_name"),
-			"company_name" 	=> "N/A",
+			"company_name" 	=> $request->get("customer_name"),
 			"phone" 		=> $request->get("customer_phone")
 		]);
 
@@ -2231,14 +2231,17 @@ public function createProductOnMagento(Request $request, $id){
 			]
 		]);
 
+		$phone = !empty($request->get("customer_phone")) ? $request->get("customer_phone") : $order->customer->phone;
+		$rateReq->setMobile($phone);
+
 		$response = $rateReq->call();
 		if(!$response->hasError()) {
 			$receipt = $response->getReceipt();
-
 			if(!empty($receipt["label_format"])){
 				if(strtolower($receipt["label_format"]) == "pdf") {
 					Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
-					$waybill = new Waybill;
+					$waybill = Waybill::where("order_id",$order->id)->first();
+					$waybill = ($waybill) ? $waybill : new Waybill;
 					$waybill->order_id = $order->id;
 					$waybill->awb = $receipt["tracking_number"];
 					$waybill->box_width = $request->box_width;
