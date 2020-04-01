@@ -24,7 +24,7 @@
     </div>
 <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Most Recent By Category (<span id="count">{{ ($categories->total()) }}</span>)</h2>
+            <h2 class="page-heading">Most Recent By Category (<span id="count">{{ (count($categories)) }}</span>)</h2>
             <div class="pull-right">
                  <button type="button" class="btn btn-secondary" onclick="submitGroup()">Create Group</button>
                 <button type="button" class="btn btn-image" onclick="resetSearch()"><img src="/images/resend2.png"/></button>
@@ -63,13 +63,12 @@
             <th><input type="text" id="combination" class="search form-control"></th>
           </tr>
             </thead>
-             {!! $categories->appends(Request::except('page'))->links() !!}
             <tbody>
             @include('simplyduty.most-common-category.partials.data')
             </tbody>
         </table>
     </div>
-    {!! $categories->appends(Request::except('page'))->links() !!}
+    
 @include('products.partials.group-hscode-modal')
 @endsection
 @section('scripts')

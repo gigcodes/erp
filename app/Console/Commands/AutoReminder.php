@@ -55,9 +55,9 @@ class AutoReminder extends Command
             ];
 
             $customers = Customer::with(['Orders' => function ($query) {
-                $query->where('order_status', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
+                $query->where('order_status_id', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
             }])->whereHas('Orders', function ($query) {
-                $query->where('order_status', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
+                $query->where('order_status_id', OrderHelper::$proceedWithOutAdvance)->where('auto_messaged', 1)->latest();
             })->get()->toArray();
 
             foreach ($customers as $customer) {

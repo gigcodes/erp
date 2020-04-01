@@ -71,6 +71,13 @@ class ResponsePurify
             return ["action" => "send_product_images", "reply_text" => $text, "response" => $this->response, "medias" => $medias["medias"]];
         }
 
+        // send the order status from here
+        $orderStatus = $this->isNeedToSendOrderStatus();
+        if(!empty($orderStatus)) {
+           return ["action" => "send_text_only", "reply_text" => $orderStatus["text"]];
+        }
+
+
         if (!empty($text)) {
             return ["action" => "send_text_only", "reply_text" => $text];
         }
@@ -161,6 +168,23 @@ class ResponsePurify
 
 
         return $return;
+    }
+
+    private function isNeedToSendOrderStatus()
+    {
+        // is order status need to be send?
+        $intentsList = ["Order_status_find"];
+        foreach ($intentsList as $intents) {
+            if (in_array($intents, array_keys($this->intents))) {
+                // check the last order of customer and send the message status
+                $customer  = $this->customer;
+                $lastOrder = $customer->latestOrder();
+                if(!empty($lastOrder)) {
+                    return ["text" => str_replace(["#{order_id}","#{order_status}"], [$lastOrder->order_id,$lastOrder->order_status], \App\Order::ORDER_STATUS_TEMPLATE)];
+                }
+            }
+        }
+        return false;
     }
 
     public function getEntities()

@@ -78,7 +78,7 @@
     <td>{{ \App\User::getNameById($vendor->updated_by) }}</td>
     <td>
         <div style="width: 233px;">
-            <a href="{{ route('vendor.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
+            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
 
             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
              data-id="{{ $vendor->id }}"
@@ -91,10 +91,10 @@
             </button>
 
             <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="/images/edit.png"/></button>
-            <a href="{{route('vendor.payments', $vendor->id)}}" class="btn btn-sm" title="Vendor Payments" target="_blank"><i class="fa fa-money"></i> </a>
+            <a href="{{route('vendors.payments', $vendor->id)}}" class="btn btn-sm" title="Vendor Payments" target="_blank"><i class="fa fa-money"></i> </a>
             <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="/images/remark.png"/></a>
                 <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $vendor->id }}" data-type="vendor"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
-                {!! Form::open(['method' => 'DELETE','route' => ['vendor.destroy', $vendor->id],'style'=>'display:inline']) !!}
+                {!! Form::open(['method' => 'DELETE','route' => ['vendors.destroy', $vendor->id],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
             {!! Form::close() !!}
             <input type="checkbox" class="select_vendor" name="select_vendor[]" value="{{$vendor->id}}" {{ request()->get('select_all') == 'true' ? 'checked' : '' }}>

@@ -193,43 +193,50 @@ class MagentoController extends Controller {
 			}
 
 			$order_status = '';
+			$order_status_id = null;
 			$payment_method = '';
 			if ($results['payment']['method'] == 'paytm_cc') {
 				if ($results['state'] == 'processing') {
 					$order_status = 'Prepaid';
+					$order_status_id = \App\Helpers\OrderHelper::$prepaid;
 				} else {
 					$order_status = 'Follow up for advance';
+					$order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
 				}
 
 				$payment_method = 'paytm';
 			} else if ($results['payment']['method'] == 'zestmoney_zestpay') {
 				if ($results['state'] == 'processing') {
 					$order_status = 'Prepaid';
+					$order_status_id = \App\Helpers\OrderHelper::$prepaid;
 				} else {
 					$order_status = 'Follow up for advance';
+					$order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
 				}
 
 				$payment_method = 'zestpay';
 			} elseif ($results['payment']['method'] == 'cashondelivery') {
 				$order_status = 'Follow up for advance';
 				$payment_method = 'cash on delivery';
+				$order_status_id = \App\Helpers\OrderHelper::$followUpForAdvance;
 			}
 
 			$id             = DB::table( 'orders' )->insertGetId(
 				array(
-					'customer_id'    => $customer_id,
-					'order_id'       => $results['increment_id'],
-					'order_type'     => 'online',
-					'order_status'	 => $order_status,
-					'payment_mode' 	 => $payment_method,
-					'order_date'     => $results['created_at'],
-					'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
-					'city'           => $results['billing_address']['city'],
-					'advance_detail' => $paid,
-					'contact_detail' => $final_phone,
-					'balance_amount' => $balance_amount,
-					'created_at'     => $results['created_at'],
-					'updated_at'     => $results['created_at'],
+					'customer_id'    	=> $customer_id,
+					'order_id'       	=> $results['increment_id'],
+					'order_type'     	=> 'online',
+					'order_status'	 	=> $order_status,
+					'order_status_id'	=> $order_status_id,
+					'payment_mode' 	 	=> $payment_method,
+					'order_date'     	=> $results['created_at'],
+					'client_name'    	=> $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
+					'city'           	=> $results['billing_address']['city'],
+					'advance_detail' 	=> $paid,
+					'contact_detail' 	=> $final_phone,
+					'balance_amount' 	=> $balance_amount,
+					'created_at'     	=> $results['created_at'],
+					'updated_at'     	=> $results['created_at'],
 				) );
 
 			$noproducts = sizeof( $results['items'] );
@@ -311,7 +318,7 @@ class MagentoController extends Controller {
 					'type'				=> 'initial-advance',
 					'method'			=> 'whatsapp'
 				]);
-		} elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
+		} elseif ($order->order_status == \App\Helpers\OrderHelper::$prepaid && $results['state'] == 'processing') {
 			$params = [
 				 'number'       => NULL,
 				 'user_id'      => 6,

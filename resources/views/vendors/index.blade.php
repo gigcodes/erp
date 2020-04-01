@@ -42,7 +42,7 @@
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Vendor Info</h2>
             <div class="pull-left">
-                <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
+                <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
                     <div class="form-group" style="width: 441px; margin-right: 10px;">
                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
@@ -123,8 +123,8 @@
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
+                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
                 <th width="10%">Name</th>
                 <th width="10%">Phone</th>
                 <th width="10%">Email</th>
@@ -455,7 +455,7 @@
 
         $(document).on('click', '.edit-vendor', function () {
             var vendor = $(this).data('vendor');
-            var url = "{{ url('vendor') }}/" + vendor.id;
+            var url = "{{ url('vendors') }}/" + vendor.id;
 
             $('#vendorEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
@@ -560,7 +560,7 @@
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                url: '{{ route('vendor.email') }}',
+                url: '{{ route('vendors.email') }}',
                 data: {
                     id: id
                 },
@@ -777,7 +777,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{{ route('vendor.block') }}",
+                url: "{{ route('vendors.block') }}",
                 data: {
                     _token: "{{ csrf_token() }}",
                     vendor_id: vendor_id
@@ -807,7 +807,7 @@
       });
 
           $(document).ready(function() {
-              src = "{{ route('vendor.index') }}";
+              src = "{{ route('vendors.index') }}";
               $(".search").autocomplete({
                   source: function (request, response) {
                       id = $('#id').val();
@@ -853,7 +853,7 @@
 
 
               $(document).ready(function () {
-                  src = "{{ route('vendor.index') }}";
+                  src = "{{ route('vendors.index') }}";
                   $("#search_id").autocomplete({
                       source: function (request, response) {
                           $.ajax({

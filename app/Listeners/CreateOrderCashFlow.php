@@ -27,7 +27,7 @@ class CreateOrderCashFlow
     {
         $order = $event->order;
         $user_id = auth()->id();
-        if ($order->order_status == 'Prepaid') {
+        if ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid) {
             $order->cashFlows()->create([
                 'date' => $order->order_date,
                 'expected' => $order->balance_amount,
@@ -40,7 +40,7 @@ class CreateOrderCashFlow
                 'updated_by' => $user_id,
                 'description' => 'Order Received with full pre payment',
             ]);
-        } else if ($order->order_status == 'Advance received') {
+        } else if ($order->order_status_id == \App\Helpers\OrderHelper::$advanceRecieved) {
             $order->cashFlows()->create([
                 'date' => $order->advance_date ?: $order->order_date,
                 'expected' => $order->advance_detail,

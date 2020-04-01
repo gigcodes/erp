@@ -1039,7 +1039,7 @@ class WhatsAppController extends FindByNumberController
             // Check if message already exists
             $chatMessage = ChatMessage::where('unique_id', $chatapiMessage[ 'id' ])->first();
             if ($chatMessage != null) {
-                continue;
+                //continue;
             }
 
             // Find connection with this number in our database

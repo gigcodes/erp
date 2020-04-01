@@ -104,11 +104,18 @@ class Product extends Model
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
-                if($json->product_id > 0) {
-                    $product = Product::where('id', $json->product_id)->first();
-                }else{
+                try {
+                    
+                    if($json->product_id > 0) {
+                        $product = Product::where('id', $json->product_id)->first();
+                    }else{
+                        $product = Product::where('sku', $data[ 'sku' ])->first();
+                    }
+
+                } catch (\Exception $e) {
                     $product = Product::where('sku', $data[ 'sku' ])->first();
                 }
+                
 
                 // Return false if no product is found
                 if (!$product) {
@@ -218,6 +225,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -312,8 +320,8 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
-                    $json->product_id = $product->id;
-                    $json->save();
+                    //$json->product_id = $product->id;
+                    //$json->save();
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
@@ -335,6 +343,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -694,7 +703,7 @@ class Product extends Model
             if($group != null && $group != '' && $group->composition != null){
                 return $group->composition;
             }else{
-                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                $hscodeDetails = HsCode::find($group->hs_code_id);
                 if($hscodeDetails != null && $hscodeDetails != ''){
                     if($hscodeDetails->correct_composition != null){
                         return $hscodeDetails->correct_composition;
@@ -719,9 +728,9 @@ class Product extends Model
         {
             $groupId = $hscodeList->hs_code_group_id;
             $group = HsCodeGroup::find($groupId);
-            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            $hscodeDetails = HsCode::find($group->hs_code_id);
             if($hscodeDetails != null && $hscodeDetails != ''){
-                if($hscodeDetails->correct_composition != null){
+                if($hscodeDetails->description != null){
                     return $hscodeDetails->code;
                 }else{
                     return false;

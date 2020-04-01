@@ -29,7 +29,7 @@
                       <option value="">Select a Status</option>
 
                       @foreach ($order_status_list as $id => $order_st)
-                        <option value="{{ $id }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                     </select>
                   </div>
@@ -64,7 +64,7 @@
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
-                  <?php echo \App\Helpers\OrderHelper::getStatusNameById($listFilter["order_status"]); ?>
+                  <?php echo ucwords($listFilter["order_status"]); ?>
                 </div>
                 <div class="card-body">
                     <?php echo $listFilter["total"]; ?>
@@ -167,8 +167,7 @@
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
-                                    
-                                    <option value="{{ $id }}" {{ $order->order_status == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                    <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -188,6 +187,12 @@
                     <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
                   <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
+                  <a class="btn btn-image send-invoice-btn" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                    <img src="/images/purchase.png" />
+                  </a>
+                  <a class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
+                    <i class="fa fa-hourglass"></i>
+                  </a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
                   @endcan --}}
@@ -210,9 +215,8 @@
     </div>
 
     {!! $orders_array->appends(Request::except('page'))->links() !!}
-    {{--{!! $orders->links() !!}--}}
-
-
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
+   </div>
 @endsection
 
 @section('scripts')
@@ -279,6 +283,30 @@
         $(this).find('.td-mini-container').toggleClass('hidden');
         $(this).find('.td-full-container').toggleClass('hidden');
       }
+    });
+
+    $(document).on("click",".send-invoice-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: "/order/"+$this.data("id")+"/send-invoice",
+          type: "get",
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done(function(response) {
+           if(response.code == 200) {
+             toastr['success'](response.message);
+           }else{
+             toastr['error'](response.message);
+           }
+           $("#loading-image").hide(); 
+        }).fail(function(errObj) {
+           $("#loading-image").hide();
+        });
     });
   </script>
 @endsection

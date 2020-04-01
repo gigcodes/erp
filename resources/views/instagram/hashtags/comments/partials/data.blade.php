@@ -1,8 +1,8 @@
 @foreach($comments as $comment)
 	<tr>
 		<td>{{ $comment->id }}</td>
-		<td>@if(isset($comment->instagramPost->hashTags->hashtag)) {{ $comment->instagramPost->hashTags->hashtag }} @endif</td>
-		<td>@if(isset($comment->instagramPost->hashTags->hashtag)) <a href="https://instagram.com/{{ $comment->instagramPost->username }}"  target=”_blank”> 
+		<td>{{ $comment->instagram_post_id }}</td>
+        <td>@if(isset($comment->instagramPost->hashTags->hashtag)) <a href="https://instagram.com/{{ $comment->instagramPost->username }}"  target=”_blank”> 
 		{{ $comment->instagramPost->username }}</a>
 		@endif
 		</td>
@@ -13,7 +13,7 @@
       	</td>
         <td style="word-wrap: break-word;text-align: justify;">
         							@if(isset($comment->instagramPost->caption))
-                                    <div class="expand-row" style="width:150px;text-align: justify">
+                                    <div class="expand-row" style="width:100px;text-align: justify">
                                         <span class="td-mini-container">
                                             {{ strlen($comment->instagramPost->caption) > 20 ? substr($comment->instagramPost->caption, 0, 20).'...' : $comment->instagramPost->caption }}
                                           </span>
@@ -28,7 +28,7 @@
         	@if(isset($comment->comment))
                                     <div class="expand-row" style="width:150px;text-align: justify">
                                         <span class="td-mini-container">
-                                            {{ strlen($comment->comment) > 20 ? substr($comment->comment, 0, 20).'...' : $comment->comment }}
+                                            {{ strlen($comment->comment) > 40 ? substr($comment->comment, 0, 40).'...' : $comment->comment }}
                                           </span>
 
                                         <span class="td-full-container hidden">

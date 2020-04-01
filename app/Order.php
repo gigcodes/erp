@@ -11,6 +11,8 @@ class Order extends Model
 
     use SoftDeletes;
 
+    const ORDER_STATUS_TEMPLATE = 'Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status}.';
+
     protected $fillable = [
         'order_id',
         'customer_id',
@@ -29,6 +31,7 @@ class Order extends Model
         'sales_person',
         'office_phone_number',
         'order_status',
+        'order_status_id',
         'estimated_delivery_date',
         'note_if_any',
 
