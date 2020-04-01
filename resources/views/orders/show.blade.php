@@ -2234,6 +2234,7 @@
           $this.text('Tracking...');
         }
       }).done(function(response) {
+        $this.text('Track Package Slip');
         $("#tracking-events").find(".abw-no-txt").html(response.awb);
         $("#tracking-events").find(".modal-body").html(response._h);
         $("#tracking-events").modal("show");
