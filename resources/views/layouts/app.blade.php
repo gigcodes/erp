@@ -640,6 +640,7 @@
                                             <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
+                                            <a class="dropdown-item" href="/marketing/instagram-broadcast">Instagram Broadcast</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -648,6 +649,7 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
+                                            <a class="dropdown-item" href="{{ route('instagram.config.index') }}">Instagram Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
@@ -766,6 +768,7 @@
                                             <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
                                             <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
                                             <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag Comments</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Direct Message</a>
                                         </li>
 
                                         <hr />
