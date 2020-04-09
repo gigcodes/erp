@@ -23,12 +23,11 @@
   <td>@if($instagramConfig->status == 1) Active @elseif($instagramConfig->status == 2) Blocked @elseif($instagramConfig->status == 3)  Scan Barcode @else Inactive @endif</td>
   <td>{{ $instagramConfig->created_at->format('d-m-Y') }}</td>
   <td>
+    <button onclick="addBroadcast({{ $instagramConfig->id }})" class="btn btn-sm">Add Broadcast</button>
     <button onclick="changeinstagramConfig({{ $instagramConfig->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))
     <button onclick="deleteConfig({{ $instagramConfig->id }})" class="btn btn-sm">Delete</button>
     @endif
-    <a href="{{route('whatsapp.config.history', $instagramConfig->id)}}" title="History"><i class="fa fa-history" aria-hidden="true"></i></a>
-    <a href="{{route('whatsapp.config.queue', $instagramConfig->id)}}" title="Queue"><i class="fa fa-list" aria-hidden="true"></i></a>
   </td>
 </tr>
 

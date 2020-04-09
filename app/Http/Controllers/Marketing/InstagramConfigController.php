@@ -13,6 +13,7 @@ use Crypt;
 use Response;
 use App\Customer;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\CompetitorPage;
 
 class InstagramConfigController extends Controller
 {
@@ -75,9 +76,11 @@ class InstagramConfigController extends Controller
             ], 200);
         }
 
+        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
 
         return view('marketing.instagram-configs.index', [
             'instagramConfigs' => $instagramConfigs,
+            'competitors' => $competitors,
         ]);
 
     }
