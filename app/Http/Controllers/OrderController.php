@@ -2069,31 +2069,40 @@ public function createProductOnMagento(Request $request, $id){
 				$order->order_status_id = $status;
 				$order->save();
 
+				$status = \App\OrderStatus::where("id",$status)->first();
+				$defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
+				if($status && !empty($status->message_text_tpl)) {
+					$defaultMessageTpl = $status->message_text_tpl;
+				} 
+
 				// start update the order status
 				$requestData = new Request();
         		$requestData->setMethod('POST');
 				$requestData->request->add([
 					'customer_id' => $order->customer_id, 
-					'message' 	   => str_replace(["#{order_id}","#{order_status}"], [$order->order_id,$order->order_status], \App\Order::ORDER_STATUS_TEMPLATE),
+					'message' 	   => str_replace(["#{order_id}","#{order_status}"], [$order->order_id,$order->order_status], $defaultMessageTpl),
 					'status' 	   => 0,
 					'order_id'     => $order->id
 				]);
+				\Log::info(print_r($requestData,true));
 				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 			}
 		}
 
-		$statuss = OrderStatus::find($status);
-		if($statuss->magento_status != null){
-			$options   = array(
-				'trace'              => true,
-				'connection_timeout' => 120,
-				'wsdl_cache'         => WSDL_CACHE_NONE,
-			);
-			$size = '';
-			$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
-			$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
-			
-			$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+		$statuss = OrderStatus::where("id",$status)->first();
+		if(!empty($statuss)) {
+			if($statuss->magento_status != null){
+				$options   = array(
+					'trace'              => true,
+					'connection_timeout' => 120,
+					'wsdl_cache'         => WSDL_CACHE_NONE,
+				);
+				$size = '';
+				$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
+				$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
+				
+				$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+			}
 		}
 		
 		
