@@ -54,6 +54,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
+use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
@@ -794,6 +795,9 @@ class OrderController extends Controller {
             }
         }*/
 
+        // sending order message to the customer
+		UpdateOrderStatusMessageTpl::dispatch($order->id);	
+		
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);
 		}
@@ -2071,32 +2075,25 @@ public function createProductOnMagento(Request $request, $id){
 				$order->order_status 	= $status;
 				$order->order_status_id = $status;
 				$order->save();
-
-				// start update the order status
-				$requestData = new Request();
-        		$requestData->setMethod('POST');
-				$requestData->request->add([
-					'customer_id' => $order->customer_id, 
-					'message' 	   => str_replace(["#{order_id}","#{order_status}"], [$order->order_id,$order->order_status], \App\Order::ORDER_STATUS_TEMPLATE),
-					'status' 	   => 0,
-					'order_id'     => $order->id
-				]);
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				// sending order message to the customer	
+				UpdateOrderStatusMessageTpl::dispatch($order->id);
 			}
 		}
 
-		$statuss = OrderStatus::find($status);
-		if($statuss->magento_status != null){
-			$options   = array(
-				'trace'              => true,
-				'connection_timeout' => 120,
-				'wsdl_cache'         => WSDL_CACHE_NONE,
-			);
-			$size = '';
-			$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
-			$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
-			
-			$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+		$statuss = OrderStatus::where("id",$status)->first();
+		if(!empty($statuss)) {
+			if($statuss->magento_status != null){
+				$options   = array(
+					'trace'              => true,
+					'connection_timeout' => 120,
+					'wsdl_cache'         => WSDL_CACHE_NONE,
+				);
+				$size = '';
+				$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
+				$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
+				
+				$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+			}
 		}
 		
 		

@@ -450,6 +450,7 @@ class MagentoController extends Controller {
 		
 		$status = OrderStatus::find($request->id);
 		$status->magento_status = $request->status;
+		$status->message_text_tpl = $request->message_text_tpl;
 		$status->save();
 
 		return response()->json(['success'], 200);
