@@ -54,6 +54,7 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
+use App\Jobs\UpdateOrderStatusMessageTpl;
 
 
 class OrderController extends Controller {
@@ -791,6 +792,9 @@ class OrderController extends Controller {
             }
         }*/
 
+        // sending order message to the customer
+		UpdateOrderStatusMessageTpl::dispatch($order->id);	
+		
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);
 		}
@@ -2068,24 +2072,8 @@ public function createProductOnMagento(Request $request, $id){
 				$order->order_status 	= $status;
 				$order->order_status_id = $status;
 				$order->save();
-
-				$status = \App\OrderStatus::where("id",$status)->first();
-				$defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
-				if($status && !empty($status->message_text_tpl)) {
-					$defaultMessageTpl = $status->message_text_tpl;
-				} 
-
-				// start update the order status
-				$requestData = new Request();
-        		$requestData->setMethod('POST');
-				$requestData->request->add([
-					'customer_id' => $order->customer_id, 
-					'message' 	   => str_replace(["#{order_id}","#{order_status}"], [$order->order_id,$order->order_status], $defaultMessageTpl),
-					'status' 	   => 0,
-					'order_id'     => $order->id
-				]);
-				\Log::info(print_r($requestData,true));
-				app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+				// sending order message to the customer	
+				UpdateOrderStatusMessageTpl::dispatch($order->id);
 			}
 		}
 
