@@ -55,6 +55,9 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
 use App\Jobs\UpdateOrderStatusMessageTpl;
+use App\Library\DHL\GetRateRequest;
+use App\Library\DHL\CreateShipmentRequest;
+use App\Library\DHL\TrackShipmentRequest;
 
 
 class OrderController extends Controller {
@@ -2131,6 +2134,145 @@ public function createProductOnMagento(Request $request, $id){
         }
 
         return abort("404");
+	}
+
+	public function generateRateRequet(Request $request) 
+	{
+		$params = $request->all();
+		$rateReq   = new GetRateRequest("soap");
+		$rateReq->setRateEstimates("Y");
+		$rateReq->setDetailedBreakDown("Y");
+		$rateReq->setShipper([
+			"city" => config("dhl.shipper.city"),
+			"postal_code" => config("dhl.shipper.postal_code"),
+			"country_code" => config("dhl.shipper.country_code"),
+			"person_name" => config("dhl.shipper.person_name"),
+			"company_name" => "N/A",
+			"phone" => config("dhl.shipper.phone")
+		]);
+		$rateReq->setRecipient([
+			"city" => $request->get("customer_city"),
+			"postal_code" => $request->get("customer_pincode"),
+			"country_code" => $request->get("customer_country","IN"),
+			"person_name" => $request->get("customer_name"),
+			"company_name" => "N/A",
+			"phone" => $request->get("customer_phone")
+		]);
+
+		$rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s-05:00",strtotime($request->get("pickup_time"))));
+		$rateReq->setDeclaredValue($request->get("amount"));
+		$rateReq->setDeclaredValueCurrencyCode($request->get("currency"));
+		$rateReq->setPackages([
+			[
+				"weight" => $request->get("actual_weight"),
+				"length" => $request->get("box_length"),
+				"width"  => $request->get("box_width"),
+				"height" => $request->get("box_height")
+			]
+		]);
+
+		$response = $rateReq->call();
+		if(!$response->hasError()) {
+			$charges = $response->getChargesBreakDown();
+			return response()->json(["code"=> 200 , "data" => $charges]);
+		}else{
+			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+		}
+	}
+
+	public function generateAWBDHL(Request $request)
+	{
+		$params = $request->all();
+
+		// find order and customer
+		$order = Order::find($request->order_id);
+
+		if(!empty($order)) {
+			$order->customer->name = $request->customer_name;
+			$order->customer->address = $request->customer_address1;
+			$order->customer->city = $request->customer_address2;
+			$order->customer->pincode = $request->customer_pincode;
+			$order->customer->save();
+		}
+
+
+		$rateReq   = new CreateShipmentRequest("soap");
+		$rateReq->setShipper([
+			"street" 		=> config("dhl.shipper.street"),
+			"city" 			=> config("dhl.shipper.city"),
+			"postal_code" 	=> config("dhl.shipper.postal_code"),
+			"country_code"	=> config("dhl.shipper.country_code"),
+			"person_name" 	=> config("dhl.shipper.person_name"),
+			"company_name" 	=> "Solo Luxury",
+			"phone" 		=> config("dhl.shipper.phone")
+		]);
+		$rateReq->setRecipient([
+			"street" 		=> $request->get("customer_address1"),
+			"city" 			=> $request->get("customer_city"),
+			"postal_code" 	=> $request->get("customer_pincode"),
+			"country_code" 	=> $request->get("customer_country","IN"),
+			"person_name" 	=> $request->get("customer_name"),
+			"company_name" 	=> $request->get("customer_name"),
+			"phone" 		=> $request->get("customer_phone")
+		]);
+
+		$rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->get("pickup_time")))." GMT+05:30");
+		$rateReq->setDeclaredValue($request->get("amount"));
+		$rateReq->setPackages([
+			[
+				"weight" => (float)$request->get("actual_weight"),
+				"length" => $request->get("box_length"),
+				"width"  => $request->get("box_width"),
+				"height" => $request->get("box_height"),
+				"note"   => "N/A",
+			]
+		]);
+
+		$phone = !empty($request->get("customer_phone")) ? $request->get("customer_phone") : $order->customer->phone;
+		$rateReq->setMobile($phone);
+
+		$response = $rateReq->call();
+		if(!$response->hasError()) {
+			$receipt = $response->getReceipt();
+			if(!empty($receipt["label_format"])){
+				if(strtolower($receipt["label_format"]) == "pdf") {
+					Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
+					$waybill = Waybill::where("order_id",$order->id)->first();
+					$waybill = ($waybill) ? $waybill : new Waybill;
+					$waybill->order_id = $order->id;
+					$waybill->awb = $receipt["tracking_number"];
+					$waybill->box_width = $request->box_width;
+					$waybill->box_height = $request->box_height;
+					$waybill->box_length = $request->box_length;
+					$waybill->actual_weight = (float)$request->get("actual_weight");
+					$waybill->package_slip = $order->id . '_package_slip.pdf';
+					$waybill->pickup_date = $request->pickup_time;
+					$waybill->save();
+				}				
+			}
+
+			return response()->json(["code"=> 200 , "data" => [], "message" => "Receipt Created successfully"]);
+		}else{
+			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+		}
+
+	}
+
+	public function trackPackageSlip(Request $request)
+	{
+		$awb = $request->get("awb");
+		$wayBill = Waybill::where("awb", $awb)->first();
+		if(!empty($wayBill)) {
+			// check from the awb
+			$trackShipment = new TrackShipmentRequest;
+			$trackShipment->setAwbNumbers([$awb]);
+			$results 	= $trackShipment->call();
+			$response 	= $results->getResponse();
+			$view = (string) view("partials.dhl.tracking",compact('response'));
+			return response()->json(["code" => 200, "_h" => $view, "awb" => $awb]);
+		}
+
+		return response()->json(["code"=> 200, "_h" => "No records found"]);
 	}
 
 }

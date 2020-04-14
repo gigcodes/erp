@@ -22,13 +22,14 @@ class InstantMessagingController extends Controller
      */
     public function getMessage($client, $numberFrom, Request $request)
     {
+
         // Get client class
         $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
 
         // Check credentials
         $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
 
-        // Nothing found
+        //Nothing found
          if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
              $message = ['error' => 'Invalid token'];
              return json_encode($message, 400);
@@ -39,7 +40,7 @@ class InstantMessagingController extends Controller
         if ($sentLast != null) {
             $sentLast = strtotime($sentLast);
         }
-
+        
 
         if ( $sentLast > time() - (3600 / $whatsappConfig->frequency) ) {
             $message = ['error' => 'Awaiting forced time gap'];

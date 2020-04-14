@@ -15,6 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', 'TestController@index');
+Route::get('/test/dhl', 'TmpTaskController@dhl');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -294,11 +295,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/preview-invoice', 'OrderController@previewInvoice')->name('order.perview.invoice');
     Route::post('order/{id}/createProductOnMagento', 'OrderController@createProductOnMagento')->name('order.create.magento.product');
     Route::get('order/{id}/download/PackageSlip', 'OrderController@downloadPackageSlip')->name('order.download.package-slip');
+    Route::get('order/track/packageSlip', 'OrderController@trackPackageSlip')->name('order.track.package-slip');
     Route::delete('order/permanentDelete/{order}', 'OrderController@permanentDelete')->name('order.permanentDelete');
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
+    Route::post('order/generate/awb/dhl', 'OrderController@generateAWBDHL')->name('order.generate.awbdhl');
+    Route::get('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
+    Route::post('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::resource('order', 'OrderController');
@@ -1088,6 +1093,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('schedule/{scheduleId}', 'InstagramController@editSchedule');
     Route::post('schedule/{scheduleId}', 'InstagramController@updateSchedule');
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
+
+    Route::get('direct-message','ColdLeadsController@home');
 });
 
 // logScraperVsAiController
@@ -1431,6 +1438,25 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
+    //Instagram Config
+
+    // Whats App Config
+    Route::get('instagram-config', 'InstagramConfigController@index')->name('instagram.config.index');
+    Route::get('instagram-history/{id}', 'InstagramConfigController@history')->name('instagram.config.history');
+    Route::post('instagram-config/store', 'InstagramConfigController@store')->name('instagram.config.store');
+    Route::post('instagram-config/edit', 'InstagramConfigController@edit')->name('instagram.config.edit');
+    Route::post('instagram-config/delete', 'InstagramConfigController@destroy')->name('instagram.config.delete');
+    Route::get('instagram-queue/{id}', 'InstagramConfigController@queue')->name('instagram.config.queue');
+    Route::post('instagram-queue/delete', 'InstagramConfigController@destroyQueue')->name('instagram.config.delete_queue');
+    Route::post('instagram-queue/delete_all/', 'InstagramConfigController@destroyQueueAll')->name('instagram.config.delete_all');
+    Route::get('instagram-queue/delete_queues/{id}', 'InstagramConfigController@clearMessagesQueue')->name('instagram.config.delete_all_queues');
+    Route::get('instagram-config/get-barcode', 'InstagramConfigController@getBarcode')->name('instagram.config.barcode');
+    Route::get('instagram-config/get-screen', 'InstagramConfigController@getScreen')->name('instagram.config.screen');
+    Route::get('instagram-config/delete-chrome', 'InstagramConfigController@deleteChromeData')->name('instagram.config.delete');
+    Route::get('instagram-config/restart-script', 'InstagramConfigController@restartScript')->name('instagram.restart.script');
+    Route::get('instagram-config/blocked-number', 'InstagramConfigController@blockedNumber')->name('instagram.block.number');
+
+    // Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
     // Marketing Platform
     Route::get('platforms', 'MarketingPlatformController@index')->name('platforms.index');
@@ -1452,6 +1478,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('broadcast/customer/list', 'BroadcastController@getCustomerBroadcastList')->name('broadcast.customer.list');
     Route::post('broadcast/global/save', 'BroadcastController@saveGlobalValues')->name('broadcast.global.save');
     Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
+
+    Route::get('instagram-broadcast','BroadcastController@instagram');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
