@@ -21,6 +21,7 @@ class VerifyCsrfToken extends Middleware
         'hubstaff/linkuser',
         'calendar',
         'calendar/*',
-        'api/wetransfer-file-store'
+        'api/wetransfer-file-store',
+        'cold-leads-broadcasts'
     ];
 }
