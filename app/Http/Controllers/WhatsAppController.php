@@ -71,6 +71,9 @@ use App\Library\Watson\Model as WatsonManager;
 use Response;
 use \App\Helpers\TranslationHelper;
 use App\ImQueue;
+use App\Account;
+use App\BrandFans;
+use App\ColdLeads;
 
 
 
@@ -3489,6 +3492,7 @@ class WhatsAppController extends FindByNumberController
 
     public function sendToAll(Request $request, $validate = true)
     {
+
         set_time_limit(0);
         if ($validate) {
             $this->validate($request, [
@@ -3498,6 +3502,7 @@ class WhatsAppController extends FindByNumberController
                 'gender' => 'sometimes|nullable|string',
             ]);
         }
+        
         $frequency = $request->frequency;
 
         // if ($request->moduletype == 'customers') {
@@ -3529,12 +3534,10 @@ class WhatsAppController extends FindByNumberController
                         $content[ 'image' ]['key'] = $brod_image->getKey();
                     }
                 }
-
-            
-            
         }
-        
-        if ($request->to_all || $request->moduletype == 'customers') {
+        //Broadcast For Whatsapp
+        if (($request->to_all || $request->moduletype == 'customers') && $request->platform == 'whatsapp') {
+            
             // Create empty array for checking numbers
             $arrCustomerNumbers = [];
 
@@ -3685,7 +3688,256 @@ class WhatsAppController extends FindByNumberController
 
                 }
             }
-        } else {
+        //Broadcast for Facebook   
+        }elseif(strtolower($request->platform) == 'facebook'){
+            //Getting Frequency
+            $minutes = round(60 / $frequency);
+            //Getting Max Id
+            $max_group_id = ChatMessage::where('status', 8)->max('group_id') + 1;
+
+            //Getting All Brand Fans
+            $brands = BrandFans::all();
+
+            $count = 0;
+            
+            //Scheduling Time based on frequency
+            $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+                    $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                    $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+
+                    if (!$now->between($morning, $evening, true)) {
+                        if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                            // add day
+                            $now->addDay();
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                        } else {
+                            // dont add day
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                        }
+                    }
+            $sendingTime = '';
+
+            //Getting Last Broadcast Id
+            $broadcastId = ImQueue::groupBy('broadcast_id')->orderby('broadcast_id','desc')->first();
+
+            foreach ($brands  as $brand) {
+
+                    $count++;
+
+                    // Convert maxTime to unixtime
+                    if(empty($sendingTime)){
+                        $maxTime = strtotime($now);
+                    }else{
+                        $now = $sendingTime ? Carbon::parse($sendingTime) : Carbon::now();
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+
+                        if (!$now->between($morning, $evening, true)) {
+                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                                // add day
+                                $now->addDay();
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                            } else {
+                                // dont add day
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                            }
+                        }
+                        $sendingTime = $now;
+                        $maxTime = strtotime($sendingTime);
+                    }
+                    
+
+                    // Add interval
+                    $maxTime = $maxTime + (3600 / $request->frequency);
+                    
+                    // Check if it's in the future
+                    if ($maxTime < time()) {
+                        $maxTime = time();
+                    }
+
+                    $sendAfter = date('Y-m-d H:i:s', $maxTime);
+                    $sendingTime = $sendAfter;
+                    //Getting Least Number of Messages Send Per Account
+                    $accounts = Account::where('platform','facebook')->where('status',1)->get();
+                    $count = [];
+                    foreach ($accounts  as $account) {
+                        $count[] = array($account->imQueueBroadcast->count() => $account->last_name);
+                    }
+                    //Arranging In Ascending Order
+                    ksort($count);
+                    if(!isset($broadcastId->broadcast_id)){
+                        $broadcastIdLast = 0;
+                    }else{
+                        $broadcastIdLast = $broadcastId->broadcast_id;
+                    }
+                    //Just Sending Text To Facebook
+                    if(isset($content)){
+                        foreach ($content as $url) {
+                            if(isset($count[0][key($count[0])])){
+                                $username = $count[0][key($count[0])];
+                                $queue = new ImQueue();
+                                $queue->im_client = 'facebook';
+                                $queue->number_to = str_replace('https://www.facebook.com/','',$brand->profile_url);
+                                $queue->number_from = $username;
+                                $queue->text = $request->message;
+                                $queue->priority = null;
+                                $queue->image = $url['url'];
+                                $queue->marketing_message_type_id = 1;
+                                $queue->priority = 1;
+                                $queue->broadcast_id = ($broadcastIdLast+1);
+                                $queue->send_after = $sendAfter;
+                                $queue->save();
+                            }
+                        }
+                    }else{
+                        //Sending Text with Image
+                        if(isset($count[0][key($count[0])])){
+                                $username = $count[0][key($count[0])];
+                                $queue = new ImQueue();
+                                $queue->im_client = 'facebook';
+                                $queue->number_to = str_replace('https://www.facebook.com/','',$brand->profile_url);
+                                $queue->number_from = $username;
+                                $queue->text = $request->message;
+                                $queue->priority = null;
+                                $queue->priority = 1;
+                                $queue->marketing_message_type_id = 1;
+                                $queue->broadcast_id = ($broadcastId->broadcast_id+1);
+                                $queue->send_after = $sendAfter;
+                                $queue->save();
+                        }
+                    }
+                    
+            
+            }
+            
+        }elseif (strtolower($request->platform) == 'instagram') {
+            //Getting Cold Leads to Send Message
+            $query = ColdLeads::query();
+            $competitor = $request->competitor;
+            $limit = 100;
+            //Check if competitor is selected
+            if(!empty($competitor)){
+                $comp = CompetitorPage::find($competitor);
+                $query = $query->where('because_of','LIKE','%via '.$comp->name.'%');
+            }
+            //check for gender
+            if(!empty($request->gender)){
+                $query = $query->where('gender', $request->gender);   
+            }
+            //Get Cold Leads to be send
+            $coldleads = $query->where('status', 1)->where('messages_sent', '<', 5)->take($limit)->orderBy('messages_sent', 'ASC')->orderBy('id', 'ASC')->get();
+            //Schedulaing Message based on frequency
+            $minutes = round(60 / $frequency);
+
+            $count = 0;
+            
+            //Scheduling Time based on frequency
+            $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
+                    $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                    $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+
+                    if (!$now->between($morning, $evening, true)) {
+                        if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                            // add day
+                            $now->addDay();
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                        } else {
+                            // dont add day
+                            $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                            $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                        }
+                    }
+            $sendingTime = '';
+            //Getting Last Broadcast Id
+            $broadcastId = ImQueue::groupBy('broadcast_id')->orderby('broadcast_id','desc')->first();
+
+            foreach ($coldleads  as $coldlead) {
+
+                    $count++;
+
+                    // Convert maxTime to unixtime
+                    if(empty($sendingTime)){
+                        $maxTime = strtotime($now);
+                    }else{
+                        $now = $sendingTime ? Carbon::parse($sendingTime) : Carbon::now();
+                        $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                        $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+
+                        if (!$now->between($morning, $evening, true)) {
+                            if (Carbon::parse($now->format('Y-m-d'))->diffInWeekDays(Carbon::parse($morning->format('Y-m-d')), false) == 0) {
+                                // add day
+                                $now->addDay();
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                            } else {
+                                // dont add day
+                                $now = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);
+                                $evening = Carbon::create($now->year, $now->month, $now->day, 19, 0, 0);
+                            }
+                        }
+                        $sendingTime = $now;
+                        $maxTime = strtotime($sendingTime);
+                    }
+                    
+
+                    // Add interval
+                    $maxTime = $maxTime + (3600 / $request->frequency);
+                    
+                    // Check if it's in the future
+                    if ($maxTime < time()) {
+                        $maxTime = time();
+                    }
+
+                    $sendAfter = date('Y-m-d H:i:s', $maxTime);
+                    $sendingTime = $sendAfter;
+
+                    //Getting Least Number of Messages Send Per Account
+                    $accounts = Account::where('platform','instagram')->where('status',1)->get();
+                    $count = [];
+                    foreach ($accounts  as $account) {
+                        $count[] = array($account->imQueueBroadcast->count() => $account->last_name);
+                    }
+                    //Arranging In Ascending Order
+                    ksort($count);
+                    
+                    if(!isset($broadcastId->broadcast_id)){
+                        $broadcastIdLast = 0;
+                    }else{
+                        $broadcastIdLast = $broadcastId->broadcast_id;
+                    }
+                    //Sending Text with Image
+                    if(isset($count[0][key($count[0])])){
+                            $username = $count[0][key($count[0])];
+                            $queue = new ImQueue();
+                            $queue->im_client = 'instagram';
+                            $queue->number_to = $coldlead->platform_id;
+                            $queue->number_from = $username;
+                            $queue->text = $request->message;
+                            $queue->priority = null;
+                            $queue->priority = 1;
+                            $queue->marketing_message_type_id = 1;
+                            $queue->broadcast_id = ($broadcastIdLast+1);
+                            $queue->send_after = $sendAfter;
+                            $queue->save();
+                    }
+
+                }
+
+        }
+         else {
             $minutes = round(60 / $frequency);
             $now = $request->sending_time ? Carbon::parse($request->sending_time) : Carbon::now();
             $morning = Carbon::create($now->year, $now->month, $now->day, 9, 0, 0);

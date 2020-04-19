@@ -15,7 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', 'TestController@index');
-Route::get('/test/dhl', 'TmpTaskController@dhl');
+Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
 
@@ -1449,6 +1449,15 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-queue/{id}', 'InstagramConfigController@queue')->name('instagram.config.queue');
     Route::post('instagram-queue/delete', 'InstagramConfigController@destroyQueue')->name('instagram.config.delete_queue');
     Route::post('instagram-queue/delete_all/', 'InstagramConfigController@destroyQueueAll')->name('instagram.config.delete_all');
+
+    //Social Config
+    Route::get('accounts/{type?}', 'AccountController@index')->name('accounts.index');
+    Route::post('accounts', 'AccountController@store')->name('accounts.store');
+    Route::post('accounts/edit', 'AccountController@edit')->name('accounts.edit');
+    Route::post('accounts/broadcast', 'AccountController@broadcast')->name('accounts.broadcast');
+
+
+
     Route::get('instagram-queue/delete_queues/{id}', 'InstagramConfigController@clearMessagesQueue')->name('instagram.config.delete_all_queues');
     Route::get('instagram-config/get-barcode', 'InstagramConfigController@getBarcode')->name('instagram.config.barcode');
     Route::get('instagram-config/get-screen', 'InstagramConfigController@getScreen')->name('instagram.config.screen');
@@ -1456,6 +1465,10 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-config/restart-script', 'InstagramConfigController@restartScript')->name('instagram.restart.script');
     Route::get('instagram-config/blocked-number', 'InstagramConfigController@blockedNumber')->name('instagram.block.number');
 
+    Route::get('facebook-config', 'FacebookConfigController@index')->name('facebook.config.index');
+    Route::post('facebook-config/store', 'FacebookConfigController@store')->name('facebook.config.store');
+    Route::post('facebook-config/edit', 'FacebookConfigController@edit')->name('facebook.config.edit');
+    Route::post('facebook-config/delete', 'FacebookConfigController@destroy')->name('facebook.config.delete');
     // Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
     // Marketing Platform
@@ -1480,6 +1493,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('broadcast/enable/count', 'BroadcastController@getCustomerCountEnable')->name('broadcast.enable.count');
 
     Route::get('instagram-broadcast','BroadcastController@instagram');
+
+    Route::get('facebook-broadcast','BroadcastController@facebook');
 
     Route::get('mailinglist', 'MailinglistController@index')->name('mailingList');
     Route::get('mailinglist/{id}', 'MailinglistController@show')->name('mailingList.single');
