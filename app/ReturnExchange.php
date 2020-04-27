@@ -2,8 +2,8 @@
 
 namespace App;
 
+use App\ReturnExchangeHistory;
 use Illuminate\Database\Eloquent\Model;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Mediable;
 
 class ReturnExchange extends Model
@@ -27,18 +27,41 @@ class ReturnExchange extends Model
         3 => 'Return pickup',
         4 => 'Return received in warehouse',
         5 => 'Return accepted',
-        6 => 'Return rejected'
+        6 => 'Return rejected',
     ];
 
     public function notifyToUser()
     {
-        if($this->type == "refund") {
+        if ($this->type == "refund") {
             // notify message we need to add here
         }
     }
 
     public function returnExchangeProducts()
     {
-        return $this->hasMany(\App\ReturnExchangeProduct::class,"return_exchange_id","id");
+        return $this->hasMany(\App\ReturnExchangeProduct::class, "return_exchange_id", "id");
     }
+
+    public function returnExchangeHistory()
+    {
+        return $this->hasMany(\App\ReturnExchangeHistory::class, "return_exchange_id", "id");
+    }
+
+    /**
+     * Update return exchange history
+     *
+     */
+
+    public function updateHistory()
+    {
+        ReturnExchangeHistory::create([
+            "return_exchange_id" => $this->id,
+            "status_id"          => $this->status,
+            "user_id"            => \Auth::user()->id,
+            "comment"            => $this->remarks,
+        ]);
+
+        return true;
+    }
+
 }

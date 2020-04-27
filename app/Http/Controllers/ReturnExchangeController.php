@@ -74,6 +74,7 @@ class ReturnExchangeController extends Controller
             }
             // once return exchange created send message if request is for the return
             $returnExchange->notifyToUser();
+            $returnExchange->updateHistory();
         }
 
         return response()->json(["code" => 200, "data" => $returnExchange, "message" => "Request stored succesfully"]);
@@ -159,6 +160,7 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
             $returnExchange->save();
+            $returnExchange->updateHistory();
         }
 
         return response()->json(["code" => 200, "data" => [], "message" => "Request updated succesfully!!"]);
@@ -170,8 +172,27 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             // start to delete from here
             $returnExchange->returnExchangeProducts()->delete();
+            $returnExchange->returnExchangeHistory()->delete();
             $returnExchange->delete();
         }
         return response()->json(["code" => 200, "data" => [], "message" => "Request deleted succesfully!!"]);
+    }
+
+    public function history(Request $request, $id)
+    {
+        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->leftJoin("users as u","u.id","return_exchange_histories.user_id")
+        ->select(["return_exchange_histories.*","u.name as user_name"])
+        ->orderby("return_exchange_histories.created_at","desc")
+        ->get();
+
+        $history = [];
+        if(!empty($result)) {
+            foreach($result as $res) {
+                $res["status"] = @ReturnExchange::STATUS[$res->status_id];
+                $history[] = $res;
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
     }
 }

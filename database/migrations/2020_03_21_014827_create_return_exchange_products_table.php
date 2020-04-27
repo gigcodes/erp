@@ -16,6 +16,7 @@ class CreateReturnExchangeProductsTable extends Migration
         Schema::create('return_exchange_products', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('return_exchange_id')->nullable()->index();
+            $table->integer('status_id')->nullable()->index();
             $table->integer('product_id');
             $table->text('order_product_id')->nullable();
             $table->text('name')->nullable();

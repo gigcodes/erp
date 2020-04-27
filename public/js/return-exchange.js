@@ -51,6 +51,11 @@ var msQueue = {
             msQueue.deleteRecords($(this).data("id"));     
         });
 
+        $(document).on("click",".btn-history-template",function(e){
+            e.preventDefault();
+            msQueue.historyList($(this).data("id"));     
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -174,6 +179,25 @@ var msQueue = {
         $("#loading-image").hide();
         if(response.code == 200) {
             msQueue.loadFirst();
+        }
+    },
+    historyList: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/"+id+"/history",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showHistoryList",{append : true});
+    },
+    showHistoryList: function(response) {
+        if(response.code == 200) {
+           $("#loading-image").hide();
+            var addProductTpl = $.templates("#template-history-block");
+            var tplHtml       = addProductTpl.render(response);
+            $(".common-modal").find(".modal-dialog").html(tplHtml);
+            $(".common-modal").modal("show");
         }
     }
 }

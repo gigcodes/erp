@@ -1602,6 +1602,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
+        Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
 });

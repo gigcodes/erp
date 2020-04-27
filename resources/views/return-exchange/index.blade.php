@@ -69,7 +69,7 @@
           50% 50% no-repeat;display:none;">
 </div>
 <div class="common-modal modal" role="dialog">
-  	<div class="modal-dialog" role="document">
+  	<div class="modal-dialog modal-lg" role="document">
   	</div>	
 </div>
 

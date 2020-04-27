@@ -34,12 +34,43 @@
 			        <td>
 			        	<button type="button" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" src="/images/edit.png"></button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-history-template"><img width="15px" src="/images/list-128x128.png"></button>
 			        </td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
 		</table>
 		{{:pagination}}
+	</div>
+</script>
+<script type="text/x-jsrender" id="template-history-block">
+	<div class="modal-content">
+		<div class="modal-body">
+			<div class="col-md-12">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				      	<th>Id</th>
+				        <th>Status</th>
+				        <th>Comment</th>
+				        <th>Updated By</th>
+				        <th>Created at</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    	{{props data}}
+					      <tr>
+					      	<td>{{:prop.id}}</td>
+					      	<td>{{:prop.status}}</td>
+					      	<td>{{:prop.comment}}</td>
+					      	<td>{{:prop.user_name}}</td>
+					      	<td>{{:prop.created_at}}</td>
+					      </tr>
+					    {{/props}}  
+				    </tbody>
+				</table>
+			</div>
+		</div> 		
 	</div>
 </script>
 <script type="text/x-jsrender" id="template-edit-block">
