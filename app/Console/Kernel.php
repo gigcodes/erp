@@ -35,6 +35,7 @@ use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendActivitiesListing;
 use App\Console\Commands\SendDailyPlannerReport;
+use App\Console\Commands\ProcessCommentsFromCompetitors;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
@@ -190,6 +191,7 @@ class Kernel extends ConsoleKernel
         MailingListSendMail::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
+        ProcessCommentsFromCompetitors::class,
     ];
 
     /**
@@ -242,6 +244,9 @@ class Kernel extends ConsoleKernel
 
         //assign the category to products, runs twice daily...
         //$schedule->command('category:fix-by-supplier')->twiceDaily();
+
+        //Get Posts , Userdata as well as comments based on hastag
+        $schedule->command('competitors:process-users')->daily();
 
 
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
