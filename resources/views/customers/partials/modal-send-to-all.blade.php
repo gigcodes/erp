@@ -23,6 +23,15 @@
 
                     <hr>
                   @endif --}}
+                  
+                  <div class="form-group">
+                      <strong>Select Platform:</strong>
+                      <select class="form-control" name="platform" class="platform" id="platform">
+                        @foreach($platforms as $platform)
+                        <option value="{{ $platform->name }}">{{ $platform->name }}</option>
+                        @endforeach
+                      </select>
+                  </div>
 
                   <div class="form-group">
                     <strong>Schedule Date:</strong>
@@ -45,7 +54,7 @@
                   </div>
 
                   <div class="form-group">
-                        <strong>Message</strong>
+                        <strong id="message">Message</strong>
                         <textarea name="message" id="message_to_all_field" rows="2" cols="20" class="form-control"></textarea>
                     </div>
 
@@ -56,7 +65,7 @@
 
                     <hr>
 
-                    <div class="form-group">
+                    <div class="form-group select-group">
                       <strong>Select Group of Customers</strong>
                       <select class="form-control" name="rating">
                         <option value="">Select a Rating</option>
@@ -73,7 +82,7 @@
                       </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group gender">
                       <select class="form-control" name="gender">
                         <option value>Both Genders</option>
                         <option value="female">Female</option>
@@ -81,10 +90,10 @@
                       </select>
                     </div>
 
-                    <div class="form-group">
+                    <div class="form-group shoe-size">
                        <input type='text' class="form-control" name="shoe_size" placeholder="Shoe Size"/>
                      </div>
-                     <div class="form-group">
+                     <div class="form-group clothing-size">
                         <input type='text' class="form-control" name="clothing_size" placeholder="Clothing Size"/>
                      </div>
 

@@ -209,4 +209,15 @@ class Hashtags {
     {
         return $this->instagram->hashtag->getRelated($hashtag)->asArray();
     }
+
+
+    /**
+     * @param $hashtag
+     * @return mixed
+     * get related hashtag using the mgp25 instagram package
+     */
+    public function getUserInfo($userId)
+    {
+        return $this->instagram->people->getInfoById($userId)->asArray();
+    }
 }

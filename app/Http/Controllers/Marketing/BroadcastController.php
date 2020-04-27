@@ -609,6 +609,8 @@ class BroadcastController extends Controller
 
         return view('marketing.broadcasts.instagram.index',compact('leads','competitors'));
     }
+
+    
     
     
 }

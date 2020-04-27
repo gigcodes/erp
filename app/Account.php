@@ -4,6 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use App\ImQueue;
 
 class Account extends Model
 {
@@ -22,5 +23,10 @@ class Account extends Model
     $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
 
     return $count > 0;
+  }
+
+  public function imQueueBroadcast()
+  {
+    return $this->hasMany(ImQueue::class,'number_from','last_name');
   }
 }

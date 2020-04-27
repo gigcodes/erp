@@ -22,12 +22,21 @@ class InstantMessagingController extends Controller
      */
     public function getMessage($client, $numberFrom, Request $request)
     {
+        if($client == 'whatsapp'){
+            // Get client class
+            $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
 
-        // Get client class
-        $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
+            // Check credentials
+            $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
+        }else{
+            $clientClass = '\\App\\Account';
 
-        // Check credentials
-        $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
+            // Check credentials
+            $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
+            
+        }
+
+        
 
         //Nothing found
          if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
@@ -52,7 +61,7 @@ class InstantMessagingController extends Controller
             $send_start = $whatsappConfig->send_start;
             $send_end = $whatsappConfig->send_end;
         }else{
-            $send_start = 8;
+            $send_start = 4;
             $send_end = 19;
         }
 

@@ -23,11 +23,13 @@ class InstagramPostsController extends Controller
     public function index(Request $request)
     {
         // Load posts
-        $posts = $this->_getFilteredInstagramPosts($request);
-
+        if($request->hashtag){
+            $posts = $this->_getFilteredInstagramPosts($request);
+        }else{
+            $posts = InstagramPosts::orderBy('id','desc');
+        }
         // Paginate
         $posts = $posts->paginate(Setting::get('pagination'));
-
         // Return view
         return view('social-media.instagram-posts.index', compact('posts'));
     }
