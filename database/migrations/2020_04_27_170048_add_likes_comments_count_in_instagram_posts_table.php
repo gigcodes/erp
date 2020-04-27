@@ -16,7 +16,6 @@ class AddLikesCommentsCountInInstagramPostsTable extends Migration
         Schema::table('instagram_posts', function (Blueprint $table) {
             $table->integer('likes')->nullable()->after('source');
             $table->integer('comments_count')->nullable()->after('source');
-            $table->string('location')->nullable()->after('source');
         });
     }
 
@@ -30,7 +29,6 @@ class AddLikesCommentsCountInInstagramPostsTable extends Migration
         Schema::table('instagram_posts', function (Blueprint $table) {
             $table->dropColumn('likes');
             $table->dropColumn('comments_count');
-            $table->dropColumn('location');
         });
     }
 }
