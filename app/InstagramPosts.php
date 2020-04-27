@@ -26,4 +26,9 @@ class InstagramPosts extends Model
     {
         return $this->belongsTo(HashTag::class, 'hashtag_id');
     }
+
+    public function userDetail()
+    {
+        return $this->hasOne(InstagramUsersList::class,'user_id','user_id');
+    }
 }

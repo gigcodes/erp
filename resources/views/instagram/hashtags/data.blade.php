@@ -2,28 +2,56 @@
                     @foreach($medias as $key=>$post)
                    
                        <tr>
-                                <td>
-                                    {{ $count }}
-                                    @php $count++ @endphp
-                                    <br>
-                                    <a class="btn btn-sm btn-image hide-media" data-id="{{$post['media_id']}}">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
+                                <td>{{ $count }} @php $count++ @endphp </td>
+                                <td>#{{ $hashtag->hashtag }} <br> <a href="https://www.instagram.com/p/{{$post['code']}}">Visit Post</a><br/>
+                                Posted At : <br>{{ date('d-M-Y H:i:s', strtotime($post['posted_at'])) }}<br/><br/>
+                                Likes : <span style="color: red;">{{ $post['likes'] }}</span><br/>
+                                Comments : <span style="color: red;">{{ $post['comments_count'] }}</span><br/>
                                 </td>
-                                <td>#{{ $hashtag->hashtag }}</td>
-                                <td><a href="https://instagram.com/{{$post['username']}}"> 
-                                     {{ $post['username'] }}
-                                       
-                                    </a></td>
-                                <td><a href="{{$post['location']}}">Visit Post</a></td>
-                                <td>
-                                   
-                                   
+                                <td><a href="https://instagram.com/{{$post['username']}}" target="_blank">{{ $post['username'] }}</a><br>
+                                Location : <br>{{ $post['location'] }} <br>
+                                User Posts <span style="color: red;">@if(isset($post['userDetail']->posts)){{ $post['userDetail']->posts }} @endif</span><br/>
+                                User Followers : <span style="color: red;">@if(isset($post['userDetail']->followers)){{ $post['userDetail']->followers }} @endif</span><br/>
+                                User Following : <span style="color: red;">@if(isset($post['userDetail']->following)){{ $post['userDetail']->following }} @endif</span><br/>
+                                Engagement <span style="color: red;">% @if(isset($post['likes']) && isset($post['userDetail']->followers)){{ number_format(($post['likes']/$post['userDetail']->followers) * 100,2) }} @endif</span>
+                                </td>
+                                <td>@if($post->media_url )
+                                @if($post->media_type == 1)
+                                    <div style="display: flex; width: 150px; height: 150px; background: url('{{ json_decode($post->media_url)[0] }}'); background-size: cover;">
+                                    &nbsp;
+                                    </div>  
+                                @elseif($post->media_type == 2)
+                                    <video controls src="{{ json_decode($post->media_url)[0] }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                @elseif($post->media_type == 8)
+                                    <?php $count = 0; ?>
+                                    @foreach(json_decode($post->media_url) as $m)
+                                        @if($count == 0)
+                                            <?php $count = 1; ?>
+                                        @else
+                                            @break;    
+                                        @endif
+                                        @if ($m->media_type == 1)
+                                            <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
+                                                &nbsp;
+                                            </div>
+                                        @elseif($m->media_type == 2)
+                                            <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+
+                                        @endif
+                                    @endforeach
+                                @endif
+
+                        
+                                @else
+                                    <div style="display: flex; width: 150px; height: 150px; background-color: #eee;">
+                                        &nbsp;
+                                    </div>
+                                @endif
                                 </td>
                                 <td style="word-wrap: break-word;text-align: justify;">
                                     <div class="expand-row" style="width:150px;text-align: justify">
                                         <span class="td-mini-container">
-                                            {{ strlen($post['caption']) > 20 ? substr($post['caption'], 0, 20).'...' : $post['caption'] }}
+                                            {{ strlen($post['caption']) > 40 ? substr($post['caption'], 0, 40).'...' : $post['caption'] }}
                                           </span>
 
                                         <span class="td-full-container hidden">
@@ -31,23 +59,6 @@
                                         </span>
                                     </div>
                                 </td>
-
-                                <td>
-                                    <div>
-                                        {{ count($post->comments) }}
-                                    </div>
-                                </td>
-                                <td>
-                                    <div>
-                                         <span class="td-mini-container">
-                                            {{ strlen($post['location']) > 5 ? substr($post['location'], 0, 5).'...' : $post['location'] }}
-                                          </span>
-                                        <span class="td-full-container hidden">
-                                            {{ $post['location'] }}
-                                        </span>
-                                    </div>
-                                </td>
-                                <td>{{ $post['created_at']->format('d-m-y') }}</td>
                                 <td> @if(isset($post->send_comment[0])) 
                                      <span class="td-mini-container" style="color: red;">
                                         
@@ -58,7 +69,7 @@
                                         </span>
                                 @endif
                                 <button type="button" class="btn btn-xs btn-image" onclick="loadComments({{ $post->id }})" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                            </td>
+                                </td>
                                 <td style="width: 600px;">
                                     <div class="row">
                                         <div class="col-md-4">
@@ -92,8 +103,6 @@
                                         </div>
                                     </div>
                                 </td>
-                                 <td></td>
                             </tr>
-
-                            @include('instagram.hashtags.partials.comments')    
+                            @include('instagram.hashtags.partials.comments') 
                     @endforeach

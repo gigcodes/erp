@@ -23,9 +23,6 @@
   <td>{{ $account->send_end }}</td>
   <td>
     
-    @if($type == 'instagram')
-    <button onclick="addBroadcast({{ $account->id }})" class="btn btn-sm">Add Broadcast</button>
-    @endif
     
     <button onclick="editAccount({{ $account->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))

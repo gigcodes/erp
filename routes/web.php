@@ -1465,10 +1465,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-config/restart-script', 'InstagramConfigController@restartScript')->name('instagram.restart.script');
     Route::get('instagram-config/blocked-number', 'InstagramConfigController@blockedNumber')->name('instagram.block.number');
 
-    Route::get('facebook-config', 'FacebookConfigController@index')->name('facebook.config.index');
-    Route::post('facebook-config/store', 'FacebookConfigController@store')->name('facebook.config.store');
-    Route::post('facebook-config/edit', 'FacebookConfigController@edit')->name('facebook.config.edit');
-    Route::post('facebook-config/delete', 'FacebookConfigController@destroy')->name('facebook.config.delete');
+    
     // Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
     // Marketing Platform

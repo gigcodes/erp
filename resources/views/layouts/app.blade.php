@@ -649,8 +649,8 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
-                                            <a class="dropdown-item" href="{{ route('instagram.config.index') }}">Instagram Config</a>
-                                            <a class="dropdown-item" href="{{ route('facebook.config.index') }}">Facebook Config</a>
+                                            <a class="dropdown-item" href="/marketing/accounts/instagram">Instagram Config</a>
+                                            <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>

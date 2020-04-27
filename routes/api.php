@@ -71,6 +71,12 @@ Route::post('product-template', 'ProductTemplatesController@apiSave');
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
 Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
 Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');
+Route::post('{client}/{numberFrom}/social-message','FacebookController@storeMessages');
+
+//Competitor Facebook
+Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor');
+
+Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor');
 
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
