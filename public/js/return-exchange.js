@@ -40,6 +40,17 @@ var msQueue = {
             msQueue.getResults();
         });
 
+        $(document).on("click","#btn-return-exchage-request",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            msQueue.updateForms(form);
+        });
+
+        $(document).on("click",".btn-delete-template",function(e){
+            e.preventDefault();
+            msQueue.deleteRecords($(this).data("id"));     
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -125,7 +136,44 @@ var msQueue = {
         if(response.code == 200) {
            $("#loading-image").hide();
             var addProductTpl = $.templates("#template-edit-block");
-            var tplHtml       = addProductTpl.render(response); 
+            var tplHtml       = addProductTpl.render(response);
+            $(".common-modal").find(".modal-dialog").html(tplHtml);
+            $(".common-modal").modal("show");
+        }
+    },
+    updateForms : function(form) {
+        var _z = {
+            url: form.attr("action"),
+            method: form.attr("method"),
+            data: form.serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterUpdateForms");  
+    },
+    afterUpdateForms:function(result) {
+        $("#loading-image").hide();
+        if(result.code == 200) {
+            $(".common-modal").modal("hide");
+            $(".common-modal").find(".modal-dialog").html();
+            msQueue.loadFirst();
+        }
+    },
+    deleteRecords : function(id) {
+         var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/return-exchange/"+id+"/delete",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterDeleteRecord",{append : true});     
+    },
+    afterDeleteRecord : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            msQueue.loadFirst();
         }
     }
 }

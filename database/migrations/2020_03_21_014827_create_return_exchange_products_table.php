@@ -18,7 +18,7 @@ class CreateReturnExchangeProductsTable extends Migration
             $table->integer('return_exchange_id')->nullable()->index();
             $table->integer('product_id');
             $table->text('order_product_id')->nullable();
-            $table->text('name');
+            $table->text('name')->nullable();
             $table->timestamps();
         });
     }

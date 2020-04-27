@@ -36,4 +36,9 @@ class ReturnExchange extends Model
             // notify message we need to add here
         }
     }
+
+    public function returnExchangeProducts()
+    {
+        return $this->hasMany(\App\ReturnExchangeProduct::class,"return_exchange_id","id");
+    }
 }
