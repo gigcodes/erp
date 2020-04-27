@@ -104,6 +104,10 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("return_exchanges.status", $params["status"]);
         }
 
+        if (!empty($params["type"])) {
+            $returnExchange = $returnExchange->where("return_exchanges.type", $params["type"]);
+        }
+
         if (!empty($params["product"])) {
             $returnExchange = $returnExchange->where(function ($q) use ($params) {
                 $q->orWhere("p.name", "like", "%" . $params["product"] . "%")
