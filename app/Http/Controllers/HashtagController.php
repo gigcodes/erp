@@ -18,6 +18,7 @@ use App\Setting;
 use App\Jobs\InstagramComment;
 use App\ScrapInfluencer;
 use App\InstagramPostsComments;
+use App\InstagramUsersList;
 
 
 
@@ -484,5 +485,38 @@ class HashtagController extends Controller
             }
 
          return view('instagram.hashtags.influencers', compact('influencers'));
+    }
+
+    public function showGridUsers($id = null,Request $request)
+    {
+        
+        if($request->term != null){
+
+                 $users  = InstagramUsersList::query()
+                        ->where('username', 'LIKE', "%{$request->term}%")
+                        ->orWhere('bio', 'LIKE', "%{$request->term}%")
+                        ->orWhere('location', 'LIKE', "%{$request->term}%")
+                        ->orWhere('because_of', 'LIKE', "%{$request->term}%")
+                        ->orderBy('id','desc')
+                        ->paginate(25);
+               
+        }else{
+          if($id){
+            $users = InstagramUsersList::where('because_of',$id)->orderBy('id','desc')->paginate(25);
+          }else{
+            $users = InstagramUsersList::orderBy('id','desc')->paginate(25);
+          }  
+          
+        }
+        
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('instagram.hashtags.partials.users-data', compact('users','id'))->render(),
+                'links' => (string)$users->render(),
+                'total' => $users->total(),
+            ], 200);
+            }
+
+        return view('instagram.hashtags.users', compact('users','id'));
     }
 }
