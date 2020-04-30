@@ -26,7 +26,7 @@
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
 			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category"><img width="15px" title="Attach Category" src="/images/attach.png"></button> |<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"><img width="15px" title="Attach Brands" src="/images/purchase.png"></button> 
+			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category"><img width="15px" title="Attach Category" src="/images/attach.png"></button> |<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"><img width="15px" title="Attach Brands" src="/images/purchase.png"></button>|<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/site-development/{{>prop.id}}"><img width="15px" title="Site Development" src="/images/project.png"></a></button> 
 			        </td>
 			      </tr>
 			    {{/props}}  

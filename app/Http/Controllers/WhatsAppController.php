@@ -1901,6 +1901,7 @@ class WhatsAppController extends FindByNumberController
             'document_id' => 'sometimes|nullable|numeric',
             'quicksell_id' => 'sometimes|nullable|numeric',
             'old_id' => 'sometimes|nullable|numeric',
+            'site_development_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -2432,6 +2433,23 @@ class WhatsAppController extends FindByNumberController
 
                     }
 
+                }elseif ($context == 'site_development') {
+
+                    $user = User::find($request->get('user_id'));
+                    
+                    $params[ 'message' ] = $request->get('message');
+                    
+                    $params[ 'site_development_id' ] = $request->get('site_development_id');
+                    $params[ 'approved' ] = 1;
+                    
+                    $params[ 'status' ] = 2;
+
+                    $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                    
+                    $chat_message = ChatMessage::create($params);
+                    
+                    return response()->json(['message' => $chat_message]);
+                
                 } else {
                     if ($context == 'developer_task') {
                         $params[ 'developer_task_id' ] = $request->get('developer_task_id');
