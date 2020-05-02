@@ -18,7 +18,7 @@
 
   <div class="row mb-5">
       <div class="col-lg-12 margin-tb">
-          <h2 class="page-heading">Master Control - {{ date('Y-m-d') }}</h2>
+          <h2 class="page-heading">Dev Master Control - {{ date('Y-m-d') }}</h2>
           <div class="pull-left">
           </div>
           <div class="pull-right mt-4">

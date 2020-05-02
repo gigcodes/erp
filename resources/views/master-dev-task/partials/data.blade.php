@@ -2,7 +2,7 @@
     <table class="table table-bordered" id="master-table">
         <tbody>
           <tr>
-            <td>DataBase</td>
+            <td>Database</td>
             <td colspan="6">
               <table style="width: 100%;">
                   <tr>

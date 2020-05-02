@@ -1079,6 +1079,9 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
