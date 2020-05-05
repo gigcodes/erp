@@ -10532,6 +10532,46 @@ a.text-dark:focus {
     background: #ffaa00;
 }
 
+.instruction-button {
+    height: 3em;
+    width: 3em;
+    font-size: 14px;
+    border-radius: 50%;
+    border: 0 none;
+    background: #72AB59;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    transform: scale(1);
+    transition: all 200ms ease;
+}
+
+.instruction-button:hover,
+.instruction-button:focus,
+.instruction-button:active {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+    outline: 0;
+}
+
+.instruction-button span {
+    display: block;
+    font-size: 2em;
+    transform: scale(1);
+    transition: transform 100ms ease;
+}
+
+.instruction-button:hover span,
+.expanded .instruction-button span,
+.expanded .instruction-button span {
+    transform: scale(1.25);
+}
+
+.expanded .instruction-button {
+    transform: scale(.5);
+    color: rgba(255, 255, 255, .5);
+    background: #ffaa00;
+}
+
 .help-list {
     list-style: none;
     padding: 0;
