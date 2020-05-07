@@ -35,10 +35,13 @@ class ProductInventoryController extends Controller
 											->where('stock', '>=', 1)
 //		                   ->where('stage','>=',$stage->get('Approver') )
 		                   ->whereNull('dnf')
-											 ->select(['id', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at','category','color']);
+											 ->select(['id','name', 'sku', 'size', 'price_inr_special', 'brand', 'supplier', 'isApproved', 'stage', 'status', 'is_scraped', 'created_at','category','color']);
+											 //->limit(6);
 
-                        $products_count = $products->count();
-		                   $products = $products->paginate(Setting::get('pagination'));
+        
+
+        $products_count = $products->count();
+		$products = $products->paginate(Setting::get('pagination'));
 
 		$roletype = 'Inventory';
 
@@ -61,7 +64,10 @@ class ProductInventoryController extends Controller
             }
         }
 
+
+
         $sampleColors = ColorReference::select('erp_color')->groupBy('erp_color')->get(); 
+
 
         return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection','categoryArray','sampleColors'))
 			->with('i', (request()->input('page', 1) - 1) * 10);

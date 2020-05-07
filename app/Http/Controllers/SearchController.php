@@ -247,6 +247,12 @@ class SearchController extends Controller
             $products = $products->where('is_on_sale', 1);
         }
 
+        // start for the expoert file in excel
+        $export = request()->get("export",null);
+        if($export) {
+            return \Excel::download(new \App\Exports\ProductExport($products->get()), 'export.xlsx');
+        }
+
         $products_count = $products->get()->count();
         $data[ 'products_count' ] = $products_count;
         $data[ 'all_products_ids' ] = $products->pluck('id')->toArray();
