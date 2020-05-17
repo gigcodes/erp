@@ -1567,20 +1567,26 @@
         </div>
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
-
     @if(Auth::check())
     <div class="help-button-wrapper">
-        <div class="col-md-8 page-notes-list-rt dis-none">
+        <!-- <div class="col-md-8 page-notes-list-rt dis-none">
             <div class="well">
-                <textarea class="note-content" name="note_content"></textarea>
+                <textarea id="editor-note-content" class="note-content" data-url="/page-notes/create" data-page="{{ request()->fullUrl() }}" name="note_content"></textarea>
+            </div>
+        </div> -->
+        <div class="col-md-8 instruction-notes-list-rt dis-none">
+            <div class="well">
+                @php
+                    $pageInstruction = \App\PageInstruction::where("page",request()->fullUrl())->first()
+                @endphp
+                <textarea id="editor-instruction-content" data-url="{{ route('instructionCreate') }}" data-page="{{ request()->fullUrl() }}" class="editor-instruction-content" name="instruction">{{ ($pageInstruction) ? $pageInstruction->instruction : "" }}</textarea>
             </div>
         </div>
         <div class="col-md-5">
-            <button class="help-button"><span>+</span></button>
+            <!-- <button class="help-button"><span>+</span></button> -->
+            <button class="instruction-button" style="margin-top: 2px;"><span>?</span></button>
         </div>
     </div>
-
-
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -1760,7 +1766,8 @@
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
     <script>
         $(document).ready(function() {
-            $('.note-content').richText();
+            $('#editor-note-content').richText();
+            $('#editor-instruction-content').richText();
         });
         window.token = "{{ csrf_token() }}";
 
@@ -1786,6 +1793,32 @@
             $('.help-button-wrapper').toggleClass('expanded');
             $('.page-notes-list-rt').toggleClass('dis-none');
         });
+
+        $('.instruction-button').on('click', function() {
+            $('.help-button-wrapper').toggleClass('expanded');
+            $('.instruction-notes-list-rt').toggleClass('dis-none');
+        });
+
+        //setup before functions
+        var typingTimer;                //timer identifier
+        var doneTypingInterval = 5000;  //time in ms, 5 second for example
+        var $input = $('#editor-instruction-content');
+        //on keyup, start the countdown
+        $input.on('keyup', function () {
+            console.log("CAlled");
+          clearTimeout(typingTimer);
+          typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        //on keydown, clear the countdown 
+        $input.on('keydown', function () {
+          clearTimeout(typingTimer);
+        });
+
+        //user is "finished typing," do something
+        function doneTyping () {
+          //do something
+        }
 
         // started for chat button
         var chatBoxOpen = false;

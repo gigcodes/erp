@@ -1420,6 +1420,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('records', 'PageNotesController@records')->name('pageNotesRecords');
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
     });
+    Route::prefix('instruction-notes')->group(function () {
+        Route::post('create', 'PageNotesController@instructionCreate')->name('instructionCreate');
+    });
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {
