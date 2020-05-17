@@ -247,4 +247,22 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
     }
+
+    public function createRemoteId(Request $request, $id)
+    {
+        $brand = \App\Brand::where("id",$id)->first();
+        
+        if(!empty($brand)) {
+            if($brand->magento_id == '' || $brand->magento_id <= 0) {
+                $brand->magento_id = 10000 + $brand->id;
+                $brand->save(); 
+                return response()->json(["code" => 200, "data" => $brand, "message" => "Remote id created successfully"]);
+            }else{
+                return response()->json(["code" => 500, "data" => $brand, "message" => "Remote id already exist"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => $brand, "message" => "Brand not found"]);
+
+    }
 }

@@ -72,7 +72,7 @@
                 <tr>
                     <td>{{ $brand->id }}</td>
                     <td>{{ $brand->name }}</td>
-                    <td>{{ $brand->magento_id}}</td>
+                    <td class="remote-td">{{ $brand->magento_id}}</td>
                     <td>{{ $brand->euro_to_inr }}</td>
                     <td>{{ $brand->deduction_percentage }}</td>
                     <td>{{ $brand->brand_segment }}</td>
@@ -93,6 +93,7 @@
                         <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                         {!! Form::close() !!}
                         <a class="btn btn-image btn-attach-website" href="javascript:;"><i class="fa fa-globe"></i></a>
+                        <a class="btn btn-image btn-create-remote" data-id="{{ $brand->id }}" href="javascript:;"><i class="fa fa-check-circle-o"></i></a>
                     </td>
                 </tr>
             @endforeach
@@ -136,6 +137,29 @@
                  console.log("Could not update successfully");
               });
 
-       }); 
+       });
+
+       $(document).on("click",".btn-create-remote",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+         var ready =  confirm("Are you sure want to create remote id ?");
+            if(ready) {
+                var brandId = $(this).data("id");
+                $.ajax({
+                    type: 'GET',
+                    url: "/brand/"+brandId+"/create-remote-id",
+                }).done(function(response) {
+                    if(response.code == 200) {
+                        $this.closest("tr").find(".remote-td").html(response.data.magento_id);
+                        toastr['success'](response.message, 'success');   
+                    }else if(response.code == 500) {
+                        toastr['error'](response.message, 'error');   
+                    }
+                }).fail(function(response) {
+                     console.log("Could not update successfully");
+                });        
+            }
+       });
+
     </script>
 @endsection
