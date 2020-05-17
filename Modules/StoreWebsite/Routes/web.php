@@ -20,6 +20,7 @@ Route::prefix('store-website')->group(function () {
         Route::get('/edit', 'StoreWebsiteController@edit')->name("store-website.edit");
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
+        Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
     	
         Route::prefix('attached-category')->group(function () {
     		Route::get('/', 'CategoryController@index')->name("store-website.attached-category.index");
