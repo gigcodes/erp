@@ -680,7 +680,28 @@
                 <div class="form-group">
                   <label>Broadcast Number</label>
                   <input type="text"  class="form-control input-sm" value="{{ $customer->broadcast_number }}" disabled>
-
+                </div>
+              </div>
+              <div class="col-9">
+                <div class="form-group">
+                  <label>Registration Source</label>
+                  <select class="form-control update-customer-field select2" data-customer-id="<?php echo $customer->id; ?>" data-type="store_website_id">
+                      <option value="">-No Selected-</option>
+                      @foreach(\App\StoreWebsite::all()->pluck("website","id")->toArray() as $r => $sWeb)
+                          <option {{ ($r == $customer->store_website_id && $customer->store_website_id != '') ? "selected='selected'" : "" }} value="{{ $r }}">{{ $sWeb }}</option>
+                      @endforeach
+                  </select>
+                </div>
+              </div>
+              <div class="col-9">
+                <div class="form-group">
+                  <label>Registration User</label>
+                  <select class="form-control update-customer-field select2" data-customer-id="<?php echo $customer->id; ?>" data-type="user_id">
+                      <option value="">-No Selected-</option>
+                      @foreach(\App\User::all()->pluck("name","id")->toArray() as $r => $sWeb)
+                          <option {{ ($r == $customer->user_id && $customer->user_id != '') ? "selected='selected'" : "" }} value="{{ $r }}">{{ $sWeb }}</option>
+                      @endforeach
+                  </select>
                 </div>
               </div>
                <div class="col-3">
@@ -3658,6 +3679,24 @@
                 $('#add_order').find('input[name="convert_order"]').val('');
             }
             $('#add_order').modal('show');
+      });
+
+      $(document).on('change', '.update-customer-field', function () {
+          var $this = $(this);
+          $.ajax({
+              type: "POST",
+              url: "{{ route('customer.update.field') }}",
+              data: {
+                  _token: "{{ csrf_token() }}",
+                  field: $this.data("type"),
+                  value: $this.val(),
+                  customer_id: $this.data("customer-id")
+              }
+          }).done(function (response) {
+              alert(response.message);
+          }).fail(function (response) {
+              console.log(response);
+          });
       });
 
       /*
