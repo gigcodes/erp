@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSocialMarketingPlatformRemarksTable extends Migration
+class CreateDigitalMarketingUspTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,10 @@ class CreateSocialMarketingPlatformRemarksTable extends Migration
      */
     public function up()
     {
-        Schema::create('social_marketing_platform_remarks', function (Blueprint $table) {
+        Schema::create('digital_marketing_usp', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('social_marketing_platform_id');
-            $table->text('remarks')->nullable();
-            $table->integer('created_by');
-            $table->timestamps();
+            $table->integer('digital_marketing_platform_id');
+            $table->string('name');
         });
     }
 
@@ -29,6 +27,6 @@ class CreateSocialMarketingPlatformRemarksTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('social_marketing_platform_remarks');
+        Schema::dropIfExists('digital_marketing_usp');
     }
 }

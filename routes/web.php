@@ -1639,6 +1639,27 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
+Route::prefix('digital-marketing')->middleware('auth')->group(function () {
+    Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
+    Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
+    Route::prefix('{id}')->group(function () {
+        Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
+        Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
+
+        Route::prefix('solution')->group(function () {
+            Route::get('/', 'DigitalMarketingController@solution')->name("digital-marketing.solutions");
+            Route::get('/records', 'DigitalMarketingController@solutionRecords')->name("digital-marketing.records");
+            Route::post('/save', 'DigitalMarketingController@solutionSave')->name("digital-marketing.solution.save");
+            Route::prefix('{solutionId}')->group(function () {
+                Route::get('/edit', 'DigitalMarketingController@solutionEdit')->name("digital-marketing.solution.edit");
+                Route::get('/delete', 'DigitalMarketingController@solutionDelete')->name("digital-marketing.solution.delete");
+            });        
+        });
+                
+    }); 
+});
+
 Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
     Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');

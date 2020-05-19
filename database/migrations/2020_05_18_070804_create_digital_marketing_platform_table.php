@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateSocialMarketingPlatformTable extends Migration
+class CreateDigitalMarketingPlatformTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class CreateSocialMarketingPlatformTable extends Migration
      */
     public function up()
     {
-        Schema::create('social_marketing_platforms', function (Blueprint $table) {
+        Schema::create('digital_marketing_platforms', function (Blueprint $table) {
             $table->increments('id');
             $table->string('platform');
             $table->text('description');
@@ -29,6 +29,6 @@ class CreateSocialMarketingPlatformTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('social_marketing_platforms');
+        Schema::dropIfExists('digital_marketing_platforms');
     }
 }
