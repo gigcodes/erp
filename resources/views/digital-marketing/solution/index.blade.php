@@ -26,22 +26,36 @@
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" method="post">
-					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group">
-							    <label for="keyword">Keyword:</label>
-							    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
-						  	</div>
-						  	<div class="form-group">
-						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-						  			<img src="/images/search.png" style="cursor: default;">
-						  		</button>
-						  	</div>		
-				  		</div>
-					  </div>	
-					</form>	
+					<div class="row">
+		    			<form class="form-inline message-search-handler" method="post">
+					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="keyword">Keyword:</label>
+								    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+							  	</div>
+							  	<div class="form-group">
+							  		<label for="button">&nbsp;</label>
+							  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+							  			<img src="/images/search.png" style="cursor: default;">
+							  		</button>
+							  	</div>		
+					  		</div>
+				  		</form>	
+				  		<form class="form-inline message-search-handler" method="post">
+					  		<div class="col">
+					  			<div class="form-group">
+								    <label for="usp">USP:</label>
+								    <?php echo Form::text("usp",request("usp"),["class"=> "form-control","placeholder" => "Enter usp"]) ?>
+							  	</div>
+							  	<div class="form-group">
+							  		<label for="button">&nbsp;</label>
+							  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
+							  			<img src="/images/search.png" style="cursor: default;">
+							  		</button>
+							  	</div>		
+					  		</div>
+					  	</form>
+					</div>
 		    	</div>
 		    </div>
 	    </div>	
