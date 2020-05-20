@@ -16,8 +16,8 @@ class CreateDigitalMarketingSolutionResearchesTable extends Migration
         Schema::create('digital_marketing_solution_researches', function (Blueprint $table) {
             $table->increments('id');
             $table->string('subject');
-            $table->text('description');
-            $table->text('remarks');
+            $table->text('description')->nullable();
+            $table->text('remarks')->nullable();
             $table->integer('priority');
             $table->integer('digital_marketing_solution_id');
             $table->timestamps();

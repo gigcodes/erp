@@ -319,8 +319,8 @@ class DigitalMarketingController extends Controller
 
         $validator = Validator::make($post, [
             'subject'     => 'required',
-            'description' => 'required',
-            'remarks'     => 'required',
+            //'description' => 'required',
+            //'remarks'     => 'required',
             'priority'    => 'required',
         ]);
 

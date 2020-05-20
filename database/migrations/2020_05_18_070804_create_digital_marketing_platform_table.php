@@ -16,7 +16,7 @@ class CreateDigitalMarketingPlatformTable extends Migration
         Schema::create('digital_marketing_platforms', function (Blueprint $table) {
             $table->increments('id');
             $table->string('platform');
-            $table->text('description');
+            $table->text('description')->nullable();
             $table->integer('status');
             $table->timestamps();
         });

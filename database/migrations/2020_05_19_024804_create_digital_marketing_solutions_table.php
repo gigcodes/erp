@@ -16,8 +16,8 @@ class CreateDigitalMarketingSolutionsTable extends Migration
         Schema::create('digital_marketing_solutions', function (Blueprint $table) {
             $table->increments('id');
             $table->string('provider');
-            $table->string('website');
-            $table->text('contact');
+            $table->string('website')->nullable();
+            $table->text('contact')->nullable();
             $table->integer('digital_marketing_platform_id')->nullable();
         });
     }
