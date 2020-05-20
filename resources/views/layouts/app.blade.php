@@ -1053,6 +1053,10 @@
                                         </li>                                        
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
+                                    </a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

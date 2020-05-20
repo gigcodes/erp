@@ -1640,6 +1640,39 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
+Route::prefix('digital-marketing')->middleware('auth')->group(function () {
+    Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
+    Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
+    Route::prefix('{id}')->group(function () {
+        Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
+        Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
+
+        Route::prefix('solution')->group(function () {
+            Route::get('/', 'DigitalMarketingController@solution')->name("digital-marketing.solutions");
+            Route::get('/records', 'DigitalMarketingController@solutionRecords')->name("digital-marketing.records");
+            Route::post('/save', 'DigitalMarketingController@solutionSave')->name("digital-marketing.solution.save");
+            Route::post('/create-usp', 'DigitalMarketingController@solutionCreateUsp')->name("digital-marketing.solution.create-usp");
+            Route::prefix('{solutionId}')->group(function () {
+                Route::get('/edit', 'DigitalMarketingController@solutionEdit')->name("digital-marketing.solution.edit");
+                Route::get('/delete', 'DigitalMarketingController@solutionDelete')->name("digital-marketing.solution.delete");
+                Route::post('/save-usp', 'DigitalMarketingController@solutionSaveUsp')->name("digital-marketing.solution.delete");
+                Route::prefix('research')->group(function () {
+                    Route::get('/', 'DigitalMarketingController@research')->name("digital-marketing.solution.research");
+                    Route::get('/records', 'DigitalMarketingController@researchRecords')->name("digital-marketing.solution.research");
+                    Route::post('/save', 'DigitalMarketingController@researchSave')->name("digital-marketing.solution.research.save");
+                    Route::prefix('{researchId}')->group(function () {
+                        Route::get('/edit', 'DigitalMarketingController@researchEdit')->name("digital-marketing.solution.research.edit");
+                        Route::get('/delete', 'DigitalMarketingController@researchDelete')->name("digital-marketing.solution.research.delete");
+                    });
+                });     
+
+            });        
+        });
+                
+    }); 
+});
+
 Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
     Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
