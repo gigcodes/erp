@@ -47,8 +47,8 @@
                     <th>Last 24 hours</th>
                   </tr>
                   <tr>
-                      <td>{{ $last3HrsMsg }}</td>
-                      <td>{{ $last24HrsMsg }}</td>
+                      <td>{{ isset($last3HrsMsg) ? $last3HrsMsg->cnt : 0 }}</td>
+                      <td>{{ isset($last24HrsMsg) ? $last24HrsMsg->cnt : 0 }}</td>
                   </tr>
               </table>
             </td>
@@ -87,6 +87,27 @@
               </table>
             </td>
           </tr>
+
+          <tr>
+            <td>Scrap</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Total</th>
+                    <th>Failed</th>
+                    <th>Validated</th>
+                    <th>Errors</th>
+                  </tr>
+                  <tr>
+                      <td>{{ isset($scrapeData[0]->total) ? $scrapeData[0]->total : 0 }}</td>
+                      <td>{{ isset($scrapeData[0]->failed) ? $scrapeData[0]->failed : 0 }}</td>
+                      <td>{{ isset($scrapeData[0]->validated) ? $scrapeData[0]->validated : 0 }}</td>
+                      <td>{{ isset($scrapeData[0]->errors) ? $scrapeData[0]->errors : 0 }}</td>
+                  </tr>
+              </table>
+            </td>
+          </tr>
+
        </tbody>
     </table>
 </div>
