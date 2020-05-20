@@ -17,6 +17,7 @@ class DigitalMarketingPlatform extends Model
 
     protected $fillable = [
         'platform',
+        'sub_platform',
         'description',
         'status',
         'created_at',

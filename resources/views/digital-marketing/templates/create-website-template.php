@@ -17,6 +17,10 @@
 		            <label for="platform">Platform</label>
 		            <input type="text" name="platform" value="{{if data}}{{:data.platform}}{{/if}}" class="form-control" id="platform" placeholder="Enter platform">
 		         </div>
+		         <div class="form-group col-md-6">
+		            <label for="sub_platfrom">Sub Platform</label>
+		            <input type="text" name="sub_platform" value="{{if data}}{{:data.sub_platfrom}}{{/if}}" class="form-control" id="sub_platfrom" placeholder="Enter sub platfrom">
+		         </div>
 		      </div>
 		      <div class="form-group">
 		         <label for="description">Description</label>

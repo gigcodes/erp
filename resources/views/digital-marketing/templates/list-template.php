@@ -5,6 +5,7 @@
 		      <tr>
 		      	<th>Id</th>
 		        <th>Platform</th>
+		        <th>Sub Platform</th>
 		        <th>Description</th>
 		        <th>Status</th>
 		        <th>Created At</th>
@@ -16,6 +17,7 @@
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.platform}}</td>
+			        <td>{{:prop.sub_platform}}</td>
 			        <td>{{:prop.description}}</td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.created_at}}</td>
