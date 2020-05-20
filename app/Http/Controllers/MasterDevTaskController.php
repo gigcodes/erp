@@ -85,7 +85,7 @@ class MasterDevTaskController extends Controller
 
         $last24HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
             [\DB::raw("count(*) as cnt")]
-        )->first();*/
+        )->first();
 
         // Get scrape data
         $sql = '
