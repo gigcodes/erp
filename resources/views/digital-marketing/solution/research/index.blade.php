@@ -40,22 +40,7 @@
 							  		</button>
 							  	</div>		
 					  		</div>
-				  		</form>	
-				  		<form class="form-inline usp-handler-form" method="post">
-					  		<?php echo csrf_field(); ?>
-					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="usp">USP:</label>
-								    <?php echo Form::text("name",request("name"),["class"=> "form-control","placeholder" => "Enter usp"]) ?>
-							  	</div>
-							  	<div class="form-group">
-							  		<label for="button">&nbsp;</label>
-							  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-usp">
-							  			<img src="/images/add.png" style="cursor: default;">
-							  		</button>
-							  	</div>		
-					  		</div>
-					  	</form>
+				  		</form>
 					</div>
 		    	</div>
 		    </div>
@@ -70,22 +55,23 @@
 </div>
 <div class="common-modal modal" role="dialog">
   	<div class="modal-dialog" role="document">
-  	</div>	
+  	</div>
 </div>
 
-@include("digital-marketing.solution.templates.list-template")
-@include("digital-marketing.solution.templates.create-solution-template")
+@include("digital-marketing.solution.research.templates.list-template")
+@include("digital-marketing.solution.research.templates.create-research-template")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/js/common-helper.js"></script>
-<script type="text/javascript" src="/js/digital-marketing-solution.js"></script>
+<script type="text/javascript" src="/js/digital-marketing-solution-research.js"></script>
 
 <script type="text/javascript">
 	page.init({
 		bodyView : $("#common-page-layout"),
 		baseUrl : "<?php echo url("/"); ?>",
-		digitalId : "<?php echo $id; ?>"
+		digitalId : "<?php echo $id; ?>",
+		solutionId : "<?php echo $solutionId; ?>"
 	});
 </script>
 

@@ -13,7 +13,7 @@ class CreateDigitalMarketingUspTable extends Migration
      */
     public function up()
     {
-        Schema::create('digital_marketing_usp', function (Blueprint $table) {
+        Schema::create('digital_marketing_usps', function (Blueprint $table) {
             $table->increments('id');
             $table->integer('digital_marketing_platform_id');
             $table->string('name');
@@ -27,6 +27,6 @@ class CreateDigitalMarketingUspTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('digital_marketing_usp');
+        Schema::dropIfExists('digital_marketing_usps');
     }
 }

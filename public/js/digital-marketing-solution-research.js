@@ -7,7 +7,7 @@ var page = {
 
         $.extend(page.config, settings);
         
-        page.config.mainUrl = page.config.baseUrl + "/digital-marketing/"+page.config.digitalId+"/solution";
+        page.config.mainUrl = page.config.baseUrl + "/digital-marketing/"+page.config.digitalId+"/solution/"+page.config.solutionId+"/research";
         
         this.getResults();
 
@@ -27,8 +27,8 @@ var page = {
             page.createRecord();
         });
 
-        $(".common-modal").on("click",".submit-solution",function() {
-            page.submitSolution($(this));
+        $(".common-modal").on("click",".submit-research",function() {
+            page.submitResearch($(this));
         });
 
         // delete product templates
@@ -42,16 +42,6 @@ var page = {
 
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
-        });
-
-        page.config.bodyView.on("click",".btn-add-usp",function(e) {
-            e.preventDefault();
-            page.addUsp($(this));
-        });
-
-        page.config.bodyView.on("click",".btn-save-usp",function(e) {
-            e.preventDefault();
-            page.saveSolutionUsp($(this));
         });
     },
     validationRule : function(response) {
@@ -109,14 +99,14 @@ var page = {
     deleteResults : function(response) {
         if(response.code == 200){
             this.getResults();
-            toastr['success']('Message deleted successfully', 'success');
+            toastr['success']('Research deleted successfully', 'success');
         }else{
             toastr['error']('Oops.something went wrong', 'error');
         }
 
     },
     createRecord : function(response) {
-        var createWebTemplate = $.templates("#template-create-solution");
+        var createWebTemplate = $.templates("#template-create-research");
         var tplHtml = createWebTemplate.render({data:{}});
         
         var common =  $(".common-modal");
@@ -133,14 +123,14 @@ var page = {
     },
 
     editResult : function(response) {
-        var createWebTemplate = $.templates("#template-create-solution");
+        var createWebTemplate = $.templates("#template-create-research");
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
 
-    submitSolution : function(ele) {
+    submitResearch : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl + "/save",
             method: "post",
@@ -171,25 +161,6 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    },
-    addUsp : function() {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.mainUrl+"/create-usp",
-            method: "post",
-            data : $(".usp-handler-form").serialize(),
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "saveSite");
-    },
-    saveSolutionUsp : function(ele) {
-        var _z = {
-            url: (typeof href != "undefined") ? href : this.config.mainUrl+ "/"+ele.data("id")+"/save-usp",
-            method: "post",
-            data : ele.closest("tr").find("select,textarea, input").serialize()
-        }
-        this.sendAjax(_z, 'saveSite');
     }
 }
 

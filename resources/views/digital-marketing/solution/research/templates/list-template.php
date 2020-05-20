@@ -4,38 +4,24 @@
 		    <thead>
 		      <tr>
 		      	<th>Id</th>
-		        <th>Provider</th>
-		        <th>Website</th>
-		        <th>Contact</th>
-		        {{props usps}}
-		        	<th>{{:prop.name}}</th>
-		        {{/props}}
+		        <th>Subject</th>
+		        <th>Description</th>
+		        <th>Remarks</th>
+		        <th>Priority</th>
 		        <th>Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
-		    	{{props data ~allusp=usps ~filledUsp=filledUsp}}
+		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.provider}}</td>
-			        <td>{{:prop.website}}</td>
-			        <td>{{:prop.contact}}</td>
-			        {{props ~allusp ~x=~filledUsp ~solutionId=prop.id}}
-			        	<td>
-			        		<div class="row">
-						    	<div class="col">
-						      		<input type="text" class="form-control" name="usps[{{:prop.id}}]" value="{{if ~x && ~x[~solutionId] }}{{:~x[~solutionId][prop.id] }} {{/if}}" placeholder="{{:prop.name}}">
-						    	</div>
-						    </div>
-			        	</td>
-			        {{/props}}
+			        <td>{{:prop.subject}}</td>
+			        <td>{{:prop.description}}</td>
+			        <td>{{:prop.remarks}}</td>
+			        <td>{{:prop.priority}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
 			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-save-usp"><i class="fa fa-save" aria-hidden="true"></i></button>
-			        	|<a href="/digital-marketing/{{>prop.digital_marketing_platform_id}}/solution/{{>prop.id}}/research">
-			        		<button type="button" data-id="{{>prop.id}}" class="btn"><i class="fa fa-cubes" aria-hidden="true"></i></button>
-			        	</a>
 			        </td>
 			      </tr>
 			    {{/props}}  
