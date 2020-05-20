@@ -54,6 +54,19 @@
             </td>
           </tr>
           <tr>
+            <td>Scraper Reports</td>
+            <td colspan="6">
+              <table style="width: 100%;">
+                  <tr>
+                    <th>Last 24 hours</th>
+                  </tr>
+                  <tr>
+                      <td>{{ !empty($scraperReports) ? $scraperReports->cnt : 0 }}</td>
+                  </tr>
+              </table>
+            </td>
+          </tr>
+          <tr>
             <td>Cron jobs</td>
             <td colspan="6">
               <table style="width: 100%;">

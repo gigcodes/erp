@@ -71,6 +71,11 @@ class MasterDevTaskController extends Controller
         ->groupBy("cron_jobs.signature")
         ->get();
 
+        $scraperReports = null;
+        $scraperReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
+            [\DB::raw("count(*) as cnt")]
+        )->first();
+
         $last3HrsMsg = null;
         $last24HrsMsg = null;
 
@@ -80,7 +85,7 @@ class MasterDevTaskController extends Controller
 
         $last24HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
             [\DB::raw("count(*) as cnt")]
-        )->first();
+        )->first();*/
 
         // Get scrape data
         $sql = '
