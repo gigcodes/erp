@@ -2564,4 +2564,24 @@ class CustomerController extends Controller
         return  response()->json(["data" => $customerDetails]);
     }
 
+    public function updateField(Request $request)
+    {
+        $field = $request->get("field");
+        $value = $request->get("value");
+
+        $customerId = $request->get("customer_id");
+
+        if(!empty($customerId)) {
+            $customer = \App\Customer::find($customerId);
+            if(!empty($customer)) {
+                $customer->{$field} = $value;
+                $customer->save();
+            }
+
+            return response()->json(["code" => 200 , "data" => [], "message" => $field . " updated successfully"]);
+        }
+        
+        return response()->json(["code" => 200 , "data" => [] , "message" => "Sorry , no customer found"]);
+    }
+
 }

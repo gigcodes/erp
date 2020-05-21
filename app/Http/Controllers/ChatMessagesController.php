@@ -12,6 +12,7 @@ use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\PublicKey;
+use App\SiteDevelopment;
 
 class ChatMessagesController extends Controller
 {
@@ -50,6 +51,9 @@ class ChatMessagesController extends Controller
             case 'old':
                 $object = Old::find($request->object_id);
                 break;
+            case 'site_development':
+                $object = SiteDevelopment::find($request->object_id);
+                break;    
             default:
                 $object = Customer::find($request->object);
         }

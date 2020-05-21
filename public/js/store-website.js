@@ -61,6 +61,21 @@ var page = {
             page.attachBrands($(this).data("id"));
         });
 
+        page.config.bodyView.on("click",".show-facebook-remarks",function(e) {
+            e.preventDefault();
+            page.showRemarks("facebook_remarks",$(this).data("id"),$(this).data("value"));
+        });
+
+        $(".common-modal").on("click",".update-remark-btn",function(e) {
+            e.preventDefault();
+            page.submitRemarks($(this));
+        });
+
+        page.config.bodyView.on("click",".show-instagram-remarks",function(e) {
+            e.preventDefault();
+            page.showRemarks("instagram_remarks",$(this).data("id"),$(this).data("value"));
+        });
+
         $(".common-modal").on("click",".add-attached-brands",function(e) {
             e.preventDefault();
             page.submitAttachedBrands($(this));
@@ -360,6 +375,40 @@ var page = {
     afterMultipleCategories : function(response) {
         if(response.code == 200) {
             page.attachCategory(response.data.store_website_id);
+        }
+    },
+    showRemarks : function(field,id, remarks) {
+        $("#loading-image").hide();
+        var createWebTemplate = $.templates("#template-update-remarks");
+        var tplHtml = createWebTemplate.render({
+            "field":field,
+            "id":id,
+            "remarks":remarks
+        });
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+    },
+    submitRemarks : function(ele) {
+        var website_id = ele.closest("form").find(".frm_store_website_id").val();
+        var _z = {
+            url: this.config.baseUrl + "/store-website/"+website_id+"/submit-social-remarks",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'afterSubmitRemarks');
+    },
+    afterSubmitRemarks : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200) {
+            $(".common-modal").modal("hide");
+            toastr['success'](response.message, 'success');
+            page.loadFirst();
+        }else{
+            toastr['error'](response.message, 'error');   
         }
     }
 }

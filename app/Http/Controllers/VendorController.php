@@ -335,7 +335,7 @@ class VendorController extends Controller
 
     $data = $request->except(['_token', 'create_user']);
 
-    //Vendor::create($data);
+    Vendor::create($data);
 
     if ($request->create_user == 'on') {
       if ($request->email != null) {

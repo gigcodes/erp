@@ -144,7 +144,8 @@ input:checked + .slider:before {
                     <th>S.N</th>
                     <th>Tag Name</th>
                     <th>Comments</th>
-                    <th>Count</th>
+                    <th>Users</th>
+                    <th>Post Count</th>
                     <th>User Links</th>
                     <th>Priority</th>
                 </tr>
@@ -158,6 +159,11 @@ input:checked + .slider:before {
                         </td>
                         <td>
                             <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}">
+                                Link
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ action('HashtagController@showGridUsers',$hashtag->hashtag) }}">
                                 Link
                             </a>
                         </td>

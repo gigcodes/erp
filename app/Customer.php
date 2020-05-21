@@ -19,6 +19,8 @@ class Customer extends Model
         'whatsapp_number',
         'chat_session_id',
         'in_w_list',
+        'store_website_id',
+        'user_id',
         'reminder_from',
         'reminder_last_reply',
     ];

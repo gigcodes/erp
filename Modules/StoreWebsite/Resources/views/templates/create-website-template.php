@@ -43,6 +43,22 @@
 		         <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
 		      </div>
 		      <div class="form-group">
+		         <label for="facebook">Facebook</label>
+		         <input type="text" name="facebook" value="{{if data}}{{:data.facebook}}{{/if}}" class="form-control" id="facebook" placeholder="Enter facebook profle">
+		      </div>
+		      <div class="form-group">
+		         <label for="facebook_remarks">Facebook Remarks</label>
+		         <textarea name="facebook_remarks" class="form-control" id="facebook_remarks" placeholder="Enter facebook remarks">{{if data}}{{:data.facebook_remarks}}{{/if}}</textarea>
+		      </div>
+		      <div class="form-group">
+		         <label for="instagram">Instagram</label>
+		         <input type="text" name="instagram" value="{{if data}}{{:data.instagram}}{{/if}}" class="form-control" id="instagram" placeholder="Enter instagram profile">
+		      </div>
+		      <div class="form-group">
+		         <label for="instagram_remarks">Instagram Remarks</label>
+		         <textarea name="instagram_remarks" class="form-control" id="instagram_remarks" placeholder="Enter instagram remarks">{{if data}}{{:data.instagram_remarks}}{{/if}}</textarea>
+		      </div>
+		      <div class="form-group">
 		         <label for="cropper_color">Cropper color</label>
 		         <input type="text" name="cropper_color" value="{{if data}}{{:data.cropper_color}}{{/if}}" class="form-control" id="cropper_color" placeholder="Enter cropper color">
 		      </div>

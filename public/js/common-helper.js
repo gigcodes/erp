@@ -6,6 +6,9 @@ var common = {
             return true;
         }
         $.ajax({
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
             method: this.checkTypeOf(params, 'method', "GET"),
             dataType: this.checkTypeOf(params, 'dataType', "json"),
             data: this.checkTypeOf(params, 'data', []),

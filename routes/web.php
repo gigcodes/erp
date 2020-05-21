@@ -199,6 +199,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //	Route::resource('activity','ActivityConroller');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
+    Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
@@ -342,6 +343,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
+    Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
@@ -500,6 +502,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/attach/all', 'CustomerController@attachAll')->name('customer.attach.all');
     Route::post('customer/sendScraped/images', 'CustomerController@sendScraped')->name('customer.send.scraped');
     Route::post('customer/change-whatsapp-no', 'CustomerController@changeWhatsappNo')->name('customer.change.whatsapp');
+    Route::post('customer/update-field', 'CustomerController@updateField')->name('customer.update.field');
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
     Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
 
@@ -1076,6 +1079,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
     Route::get('hashtag/comments/{id?}', 'HashtagController@showGridComments')->name('hashtag.grid');
+    Route::get('hashtag/users/{id?}', 'HashtagController@showGridUsers')->name('hashtag.users.grid');
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue', 'HashtagController@rumCommand')->name('hashtag.command');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
@@ -1417,6 +1421,9 @@ Route::group(['middleware' => 'auth'], function () {
         Route::get('records', 'PageNotesController@records')->name('pageNotesRecords');
         Route::get('/', 'PageNotesController@index')->name('pageNotes.viewList');
     });
+    Route::prefix('instruction-notes')->group(function () {
+        Route::post('create', 'PageNotesController@instructionCreate')->name('instructionCreate');
+    });
 });
 
 Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'marketing'], function () {
@@ -1631,4 +1638,51 @@ Route::prefix('calendar/public')->group(function () {
     Route::get('/events/{id}', 'UserEventController@publicEvents');
     Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
+});
+
+Route::prefix('digital-marketing')->middleware('auth')->group(function () {
+    Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
+    Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
+    Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
+    Route::prefix('{id}')->group(function () {
+        Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
+        Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
+
+        Route::prefix('solution')->group(function () {
+            Route::get('/', 'DigitalMarketingController@solution')->name("digital-marketing.solutions");
+            Route::get('/records', 'DigitalMarketingController@solutionRecords')->name("digital-marketing.records");
+            Route::post('/save', 'DigitalMarketingController@solutionSave')->name("digital-marketing.solution.save");
+            Route::post('/create-usp', 'DigitalMarketingController@solutionCreateUsp')->name("digital-marketing.solution.create-usp");
+            Route::prefix('{solutionId}')->group(function () {
+                Route::get('/edit', 'DigitalMarketingController@solutionEdit')->name("digital-marketing.solution.edit");
+                Route::get('/delete', 'DigitalMarketingController@solutionDelete')->name("digital-marketing.solution.delete");
+                Route::post('/save-usp', 'DigitalMarketingController@solutionSaveUsp')->name("digital-marketing.solution.delete");
+                Route::prefix('research')->group(function () {
+                    Route::get('/', 'DigitalMarketingController@research')->name("digital-marketing.solution.research");
+                    Route::get('/records', 'DigitalMarketingController@researchRecords')->name("digital-marketing.solution.research");
+                    Route::post('/save', 'DigitalMarketingController@researchSave')->name("digital-marketing.solution.research.save");
+                    Route::prefix('{researchId}')->group(function () {
+                        Route::get('/edit', 'DigitalMarketingController@researchEdit')->name("digital-marketing.solution.research.edit");
+                        Route::get('/delete', 'DigitalMarketingController@researchDelete')->name("digital-marketing.solution.research.delete");
+                    });
+                });     
+
+            });        
+        });
+                
+    }); 
+});
+
+Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
+    Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
+    Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
+    Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
+    Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
+    
+    Route::prefix('{id}')->group(function () {
+        Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
+        Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
+        Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
+        Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
+    });
 });

@@ -165,6 +165,7 @@
                             @endif
 
                              <input {{ (isset($is_on_sale) && $is_on_sale) ? 'checked' : '' }} type="checkbox" name="is_on_sale" id="is_on_sale"><label for="is_on_sale">Sale</label>
+                             <input {{ (isset($export) && $export) ? 'checked' : '' }} type="checkbox" name="export" id="export"><label for="export">Export?</label>
 
                             <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
                 </form>

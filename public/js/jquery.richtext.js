@@ -593,7 +593,7 @@
             }
             fixFirstLine();
             updateTextarea();
-            doSave($(this).attr("id"));
+            //doSave($(this).attr("id"));
             updateMaxLength($(this).attr('id'));
         });
 
@@ -662,6 +662,30 @@
 
         });
 
+         //setup before functions
+        var typingTimer;                //timer identifier
+        var doneTypingInterval = 1000;  //time in ms, 5 second for example
+        //on keyup, start the countdown
+
+        $(document).on("keyup", ".richText-editor", function() {
+            clearTimeout(typingTimer);
+            var editor = $(this);
+            typingTimer = setTimeout(function(){
+                doneTyping(editor);
+            }, doneTypingInterval);
+        });
+
+        //on keydown, clear the countdown 
+        $(document).on("keydown", ".richText-editor", function() {   
+            clearTimeout(typingTimer);
+        });
+
+        //user is "finished typing," do something
+        function doneTyping (element) {
+          //do something
+          doSave(element.attr("id")); 
+        }
+
         // Saving changes from textarea to editor
         $(document).on("input change blur", ".richText-initial", function() {
             if(settings.useSingleQuotes === true) {
@@ -669,15 +693,15 @@
             }
             var editorID = $(this).siblings('.richText-editor').attr("id");
             updateEditor(editorID);
-            doSave(editorID);
+            //doSave(editorID);
             updateMaxLength(editorID);
         });
 
         // Save selection seperately (mainly needed for Safari)
-        $(document).on("dblclick mouseup", ".richText-editor", function() {
+        /*$(document).on("dblclick mouseup", ".richText-editor", function() {
             var editorID = $(this).attr("id");
             doSave(editorID);
-        });
+        });*/
 
         // embedding video
         $(document).on("click", "#richText-Video button.btn", function(event) {
@@ -1466,13 +1490,17 @@
                 method: "POST",
                 dataType: "json",
                 data: {
-                    'note'   : history[editorID][historyPosition[editorID]],
+                    'note'   : $textarea.val(),
                     '_token' : window.token,
-                    'isUpdate' : 1
+                    'isUpdate' : 1,
+                    'page' : $textarea.data("page")
                 },
-                url: "/page-notes/create",
+                url: $textarea.data("url"),
             })
         }
+
+
+        
 
         /**
          * @param editorID

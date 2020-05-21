@@ -14,6 +14,7 @@ use App\User;
 use App\LiveChatUser;
 use App\LivechatincSetting;
 use App\Helpers\TranslationHelper;
+use App\Library\Watson\Model as WatsonManager;
 
 
 class LiveChatController extends Controller
@@ -125,6 +126,10 @@ class LiveChatController extends Controller
 					
 					// Create chat message
                 	$chatMessage = ChatMessage::create($params);
+                	// if customer found then send reply for it
+                	if (!empty($customerDetails) && $message != '') {
+                        WatsonManager::sendMessage($customerDetails,$message);
+                    }
 					
 				}
 

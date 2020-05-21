@@ -117,4 +117,30 @@ class StoreWebsiteController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
     }
+
+    public function updateSocialRemarks(Request $request , $id)
+    {
+
+        $storeWebsite = StoreWebsite::where("id", $id)->first();
+
+        if ($storeWebsite) {
+
+            $facebook_remarks = $request->get("facebook_remarks");
+            if(!empty($facebook_remarks)) {
+                $storeWebsite->facebook_remarks = $facebook_remarks;               
+            }
+
+            $instagram_remarks = $request->get("instagram_remarks");
+            if(!empty($instagram_remarks)) {
+                $storeWebsite->instagram_remarks = $instagram_remarks;               
+            }
+            
+            $storeWebsite->save();
+
+            return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong site id!"]);
+
+    }
 }
