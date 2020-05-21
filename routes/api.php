@@ -117,3 +117,5 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
+
+Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');

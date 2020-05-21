@@ -17,6 +17,8 @@ use File;
 use App\CommentsStats;
 use App\InstagramCommentQueue;
 use App\ScrapInfluencer;
+use Carbon\Carbon;
+use App\InstagramUsersList;
 
 class InstagramPostsController extends Controller
 {
@@ -223,22 +225,99 @@ class InstagramPostsController extends Controller
 
     public function getHashtagList()
     {
-        $hastags = HashTag::select('id','hashtag')->where('priority',1)->get();
+        $hastags = HashTag::select('id','hashtag')->where('is_processed',0)->first();
 
-        if(count($hastags) == 0){
-            $hastags = HashTag::select('id','hashtag')->where('priority',2)->get();
-        }
-
-        if(count($hastags) == 0){
-            return response()->json(['hastag' => []],200);
-        }
-
-        foreach ($hastags as $hastag) {
-            $hastagIdArray[] = $hastag->id;
-            $hastagArray[] = $hastag->hashtag;
+        if(!$hastags){
+            $hastags = HashTag::select('id','hashtag')->where('is_processed',2)->first();
         }
         
-        return response()->json(['hastag' => $hastagArray ],200);
+        if(!$hastags){
+            return response()->json(['hastag' => ''],200);
+        }
 
+        return response()->json(['hastag' => $hastags ],200);
+
+    }
+
+    public function saveFromLocal(Request $request)
+    {
+        // Get raw JSON
+        $receivedJson = json_decode($request->getContent());
+        
+        //Saving post details 
+        if(isset($receivedJson->post)){
+            
+            $checkIfExist = InstagramPosts::where('post_id', $receivedJson->post->post_id)->first();
+
+            if(empty($checkIfExist)){
+                $media             = new InstagramPosts();
+                $media->post_id    = $receivedJson->post->post_id;
+                $media->caption    = $receivedJson->post->caption;
+                $media->user_id    = $receivedJson->post->user_id;
+                $media->username   = $receivedJson->post->username;
+                $media->media_type = $receivedJson->post->media_type;
+                $media->code       = $receivedJson->post->code;
+                $media->location   = $receivedJson->post->location;
+                $media->hashtag_id = $receivedJson->post->hashtag_id;
+                $media->likes = $receivedJson->post->likes;
+                $media->comments_count = $receivedJson->post->comments_count;
+
+                if (!is_array($receivedJson->post->media_url)) {
+                    $receivedJson->post->media_url = [$receivedJson->post->media_url];
+                }
+                $media->media_url = json_encode($receivedJson->post->media_url);
+                $media->posted_at = $receivedJson->post->posted_at;
+                $media->save();
+
+            if($media){
+                if(isset($receivedJson->comments)){
+                    $comments = $receivedJson->comments;
+                        foreach ($comments as $comment) {
+
+                            $commentEntry = InstagramPostsComments::where('comment_id', $comment->comment_id)->where('user_id', $comment->user_id)->first();
+
+                            if (!$commentEntry) {
+                                $commentEntry = new InstagramPostsComments();
+                            }
+
+                            $commentEntry = new InstagramPostsComments();
+                            $commentEntry->user_id = $comment->user_id;
+                            $commentEntry->name = $comment->name;
+                            $commentEntry->username = $comment->username;
+                            $commentEntry->instagram_post_id = $comment->instagram_post_id;
+                            $commentEntry->comment_id = $comment->comment_id;
+                            $commentEntry->comment = $comment->comment;
+                            $commentEntry->profile_pic_url = $comment->profile_pic_url;
+                            $commentEntry->posted_at = $comment->posted_at;
+                            $commentEntry->save();
+                    }        
+                        }
+                }
+
+            if(isset($receivedJson->userdetials)){    
+                $detials = $receivedJson->userdetials;
+                $userList = InstagramUsersList::where('user_id',$detials->user_id)->first();
+                if(empty($userList)){
+                    $user = new InstagramUsersList;
+                    $user->username = $detials->username;
+                    $user->user_id = $detials->user_id;
+                    $user->image_url = $detials->image_url;
+                    $user->bio = $detials->bio;
+                    $user->rating = 0;
+                    $user->location_id = 0;
+                    $user->because_of = $detials->because_of;
+                    $user->posts = $detials->posts;
+                    $user->followers = $detials->followers;
+                    $user->following = $detials->following;
+                    $user->location = $detials->location;
+                    $user->save();
+                }        
+            } 
+
+
+          }     
+
+            
+        }
     }
 }
