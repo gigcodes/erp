@@ -34,8 +34,13 @@
     document.addEventListener('DOMContentLoaded', function() {
         var calendarEl = document.getElementById('calendar');
         calendar = new FullCalendar.Calendar(calendarEl, {
-            plugins: ['timeGrid', 'interaction'],
-            defaultView: 'timeGridWeek',
+            plugins: [ 'interaction', 'dayGrid', 'timeGrid', 'list' ],
+              header: {
+                left: 'prev,next today',
+                center: 'title',
+                right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
+              },
+            defaultView: 'dayGridMonth',
             allDaySlot: false,
             editable: true,
             eventSources: [{

@@ -98,6 +98,9 @@ use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
 use App\Console\Commands\CacheMasterControl;
+use App\Console\Commands\SendEventNotificationBefore24hr;
+use App\Console\Commands\SendEventNotificationBefore2hr;
+use App\Console\Commands\SendEventNotificationBefore30Min;
 
 
 class Kernel extends ConsoleKernel
@@ -192,6 +195,9 @@ class Kernel extends ConsoleKernel
         CacheMasterControl::class,
         InfluencerDescription::class,
         ProcessCommentsFromCompetitors::class,
+        SendEventNotificationBefore24hr::class,
+        SendEventNotificationBefore2hr::class,
+        SendEventNotificationBefore30min::class
     ];
 
     /**
@@ -408,8 +414,11 @@ class Kernel extends ConsoleKernel
 
         //update currencies
         $schedule->command('currencies:refresh')->hourly();
+        $schedule->command('send:event-notification2hr')->hourly();
+        $schedule->command('send:event-notification24hr')->hourly();
         $schedule->command('currencies:update_name')->monthly();
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
+        $schedule->command('send:event-notification30min')->everyFiveMinutes();
         
     }
 
