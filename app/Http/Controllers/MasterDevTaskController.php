@@ -65,30 +65,56 @@ class MasterDevTaskController extends Controller
         }
         $cronjobReports = null;
         
-        /*$cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
+        $cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
         ->where("cjr.start_time", '>', \DB::raw('NOW() - INTERVAL 24 HOUR'))
         ->where("cron_jobs.last_status", "error")
         ->groupBy("cron_jobs.signature")
-        ->get();*/
+        ->get();
+
+        $scraperReports = null;
+        $scraperReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
+            [\DB::raw("count(*) as cnt")]
+        )->first();
 
         $last3HrsMsg = null;
         $last24HrsMsg = null;
 
-        /*$last3HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
+        $last3HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
             [\DB::raw("count(*) as cnt")]
         )->first();
 
         $last24HrsMsg = \DB::table("chat_messages")->where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
             [\DB::raw("count(*) as cnt")]
-        )->first();*/
+        )->first();
+
+        // Get scrape data
+        $sql = '
+            SELECT
+                s.id,
+                s.supplier,
+                COUNT(ls.id) AS total,
+                SUM(IF(ls.validated=0,1,0)) AS failed,
+                SUM(IF(ls.validated=1,1,0)) AS validated,
+                SUM(IF(ls.validation_result LIKE "%[error]%",1,0)) AS errors
+            FROM
+                suppliers s
+            JOIN
+                scrapers sc
+            ON 
+                sc.supplier_id = s.id    
+            JOIN
+                scraped_products ls 
+            ON  
+                sc.scraper_name=ls.website
+            WHERE
+                ls.website != "internal_scraper" AND
+                ls.last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+            ORDER BY
+                sc.scraper_priority desc
+        ';
+        $scrapeData = \DB::select($sql);
 
 
-        return view("master-dev-task.index",compact('currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg'));
-
-        echo '<pre>';
-        print_r($last3HrsMsg);
-        echo '</pre>';exit;
-
-        //echo '<pre>'; print_r([$currentSize,$sizeBefore]); echo '</pre>';exit;
+        return view("master-dev-task.index",compact('currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData'));
     }
 }
