@@ -317,6 +317,7 @@ class UserEventController extends Controller
                 return [
                     'id' => $event->id,
                     'subject' => $event->subject,
+                    'title' => $event->subject,
                     'description' => $event->description,
                     'date' => $event->date,
                     'start' => $event->start,
