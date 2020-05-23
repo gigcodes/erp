@@ -229,8 +229,10 @@ class UserEventController extends Controller
             );
         }
 
-        $result = UserEvent::where('id', $id)->where('user_id', $userId)->delete();
-        if ($result == 1) {
+        $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
+        if($result) {
+            $result->attendees()->delete();
+            $result->delete();
             return response()->json([
                 'message' => 'Event deleted:' . $result
             ]);
