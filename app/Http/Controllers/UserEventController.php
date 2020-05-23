@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\UserEvent\UserEvent;
 use App\UserEvent\UserEventAttendee;
+use App\UserEvent\UserEventParticipant;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -111,6 +112,19 @@ class UserEventController extends Controller
         $userEvent->end = $end;
         $userEvent->save();
 
+        // check first and vendors
+        $vendors = $request->get("vendors",[]);
+        UserEventParticipant::where("user_event_id",$userEvent->id)->delete();
+        if(!empty($vendors) && is_array($vendors)) {
+            foreach($vendors as $vendor) {
+                $userEventParticipant = new UserEventParticipant;
+                $userEventParticipant->user_event_id = $userEvent->id;
+                $userEventParticipant->object = \App\Vendor::class;
+                $userEventParticipant->object_id = $vendor;
+                $userEventParticipant->save();
+            }
+        }
+
         return response()->json([
             'message' => 'Event updated',
             'event' => [
@@ -206,6 +220,17 @@ class UserEventController extends Controller
             $attendeeDb->save();
 
             $attendeesResponse[] = $attendeeDb->toArray();
+        }
+
+        $vendors = $request->get("vendors",[]);
+        if(!empty($vendors) && is_array($vendors)) {
+            foreach($vendors as $vendor) {
+                $userEventParticipant = new UserEventParticipant;
+                $userEventParticipant->user_event_id = $userEvent->id;
+                $userEventParticipant->object = \App\Vendor::class;
+                $userEventParticipant->object_id = $vendor;
+                $userEventParticipant->save();
+            }
         }
 
         return response()->json([

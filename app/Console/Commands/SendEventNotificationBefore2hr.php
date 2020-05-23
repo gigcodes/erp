@@ -2,10 +2,11 @@
 
 namespace App\Console\Commands;
 
+use App\ChatMessage;
 use App\CronJobReport;
+use App\UserEvent\UserEvent;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
-use App\UserEvent\UserEvent;
 
 class SendEventNotificationBefore2hr extends Command
 {
@@ -50,43 +51,77 @@ class SendEventNotificationBefore2hr extends Command
             $events = UserEvent::where('start', '>', \DB::raw('NOW() - INTERVAL 2 HOUR'))
                 ->where('start', '<', \DB::raw('NOW() - INTERVAL 3 HOUR'))->get();
 
-                    $userWise = [];
-                    if (!$events->isEmpty()) {
-                        foreach ($events as $event) {
-                            $userWise[$event->user_id][] = $event;
-                        }
-                    }
+            $userWise           = [];
+            $vendorParticipants = [];
 
-                    if (!empty($userWise)) {
-                        foreach ($userWise as $id => $events) {
-                            // find user into database
-                            $user = \App\User::find($id);
-                            // if user exist
-                            if (!empty($user)) {
-                                $notification   = [];
-                                $notification[] = "Following Event Schedule on within the next 2 hours";
-                                $no             = 1;
-                                foreach ($events as $event) {
-                                    $notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
-                                    $no++;
-                                }
-
-                                $params['user_id'] = $user->id;
-                                $params['message'] = implode("\n", $notification);
-                                // send chat message
-                                $chat_message = ChatMessage::create($params);
-                                // send
-                                app('App\Http\Controllers\WhatsAppController')
-                                    ->sendWithWhatsApp($user->phone, null, $params['message'], false, $chat_message->id);
+            if (!$events->isEmpty()) {
+                foreach ($events as $event) {
+                    $userWise[$event->user_id][] = $event;
+                    $participants                = $event->participants;
+                    if (!$participants->isEmpty()) {
+                        foreach ($participants as $participant) {
+                            if ($participant->object == \App\Vendor::class) {
+                                $vendorParticipants[$participant->object_id] = $event;
                             }
                         }
                     }
-
-                    //
-
-                    $report->update(['end_time' => Carbon::now()]);
-                } catch (\Exception $e) {
-                    \App\CronJob::insertLastError($this->signature, $e->getMessage());
                 }
             }
+
+            if (!empty($userWise)) {
+                foreach ($userWise as $id => $events) {
+                    // find user into database
+                    $user = \App\User::find($id);
+                    // if user exist
+                    if (!empty($user)) {
+                        $notification   = [];
+                        $notification[] = "Following Event Schedule on within the next 2 hours";
+                        $no             = 1;
+                        foreach ($events as $event) {
+                            $notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+                            $no++;
+                        }
+
+                        $params['user_id'] = $user->id;
+                        $params['message'] = implode("\n", $notification);
+                        // send chat message
+                        $chat_message = ChatMessage::create($params);
+                        // send
+                        app('App\Http\Controllers\WhatsAppController')
+                            ->sendWithWhatsApp($user->phone, null, $params['message'], false, $chat_message->id);
+                    }
+                }
+            }
+
+            if (!empty($vendorParticipants)) {
+                foreach ($vendorParticipants as $id => $vendorParticipant) {
+                    $vendor = \App\Vendor::find($id);
+                    if (!empty($vendor)) {
+                        $notification   = [];
+                        $notification[] = "Following Event Schedule on within the next 2 hours";
+                        $no             = 1;
+                        foreach ($events as $event) {
+                            $notification[] = $no . ") [" . $event->start . "] => " . $event->subject;
+                            $no++;
+                        }
+
+                        $params['vendor_id'] = $vendor->id;
+                        $params['message']   = implode("\n", $notification);
+                        // send chat message
+                        $chat_message = ChatMessage::create($params);
+                        // send
+                        app('App\Http\Controllers\WhatsAppController')
+                            ->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $params['message'], false, $chat_message->id);
+
+                    }
+                }
+            }
+
+            //
+
+            $report->update(['end_time' => Carbon::now()]);
+        } catch (\Exception $e) {
+            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
+    }
+}

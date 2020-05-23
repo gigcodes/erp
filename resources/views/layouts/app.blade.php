@@ -29,6 +29,11 @@
     <script src="/js/generic.js" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+        .select2-container--open{
+        z-index:9999999
+        }
+    </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
@@ -1606,6 +1611,12 @@
                     <input id="notification-description" name="description" class="form-control" type="text">
                 </div>
                 <div class="form-group">
+                    <label for="notification-participants">Participants(vendor)</label>
+                    <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
+                        "id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
+                    ]); ?>
+                </div>
+                <div class="form-group">
                     <input id="notification-submit" class="form-control btn btn-primary" type="submit">
                 </div>
            </form> 
@@ -1806,6 +1817,8 @@
             $('#notification-time').datetimepicker({
                 format: 'HH:mm'
             });
+
+            $(".selectx-vendor").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 
