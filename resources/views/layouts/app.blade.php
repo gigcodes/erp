@@ -1586,9 +1586,34 @@
                 <textarea id="editor-instruction-content" data-url="{{ route('instructionCreate') }}" data-page="{{ request()->fullUrl() }}" class="editor-instruction-content" name="instruction">{{ ($pageInstruction) ? $pageInstruction->instruction : "" }}</textarea>
             </div>
         </div>
-        <div class="col-md-5">
+         <div class="col-md-12 notification-notes-list-rt dis-none well">
+            <form id="notification-submit-form" action="<?php echo route('calendar.event.create') ?>" method="post">
+                {{ csrf_field() }}    
+                <div class="form-group">
+                    <label for="notification-date">Date</label>
+                    <input id="notification-date" name="date" class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                    <label for="notification-time">Time</label>
+                    <input id="notification-time" name="time" class="form-control" type="text">
+                </div>    
+                <div class="form-group">
+                    <label for="notification-subject">Subject</label>
+                    <input id="notification-subject" name="subject" class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                    <label for="notification-description">Description</label>
+                    <input id="notification-description" name="description" class="form-control" type="text">
+                </div>
+                <div class="form-group">
+                    <input id="notification-submit" class="form-control btn btn-primary" type="submit">
+                </div>
+           </form> 
+        </div>
+        <div class="col-md-12">
             <!-- <button class="help-button"><span>+</span></button> -->
-            <button class="instruction-button" style="margin-top: 2px;"><span>?</span></button>
+            <button class="instruction-button" style="margin-top: 2px; float: left;"><span>?</span></button>
+            <button class="notification-button" style="margin-top: 2px; margin-left: 5px; float: right;"><span><i class="fa fa-bell"></i></span></button>
         </div>
     </div>
     @if($liveChatUsers != '' && $liveChatUsers != null)
@@ -1768,10 +1793,19 @@
 
     @yield('scripts')
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
         $(document).ready(function() {
             $('#editor-note-content').richText();
             $('#editor-instruction-content').richText();
+            $('#notification-date').datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
+            $('#notification-time').datetimepicker({
+                format: 'HH:mm'
+            });
         });
         window.token = "{{ csrf_token() }}";
 
@@ -1803,13 +1837,37 @@
             $('.instruction-notes-list-rt').toggleClass('dis-none');
         });
 
+        $('.notification-button').on('click', function() {
+            $('.help-button-wrapper').toggleClass('expanded');
+            $('.notification-notes-list-rt').toggleClass('dis-none');
+        });
+
+        $(document).on("submit","#notification-submit-form",function(e){
+            e.preventDefault();
+            var $form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                url: $form.attr("action"),
+                data: $form.serialize(),
+                dataType: "json",
+                success: function(data) {
+                    if (data.code > 0) {
+                        $form[0].reset();
+                        $(".notification-button").trigger("click");
+                        toastr['success'](data.message, 'Message');
+                    }else{
+                        toastr['error'](data.message, 'Message');
+                    }
+                },
+            });
+        });
+
         //setup before functions
         var typingTimer;                //timer identifier
         var doneTypingInterval = 5000;  //time in ms, 5 second for example
         var $input = $('#editor-instruction-content');
         //on keyup, start the countdown
         $input.on('keyup', function () {
-            console.log("CAlled");
           clearTimeout(typingTimer);
           typingTimer = setTimeout(doneTyping, doneTypingInterval);
         });

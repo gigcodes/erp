@@ -209,6 +209,7 @@ class UserEventController extends Controller
         }
 
         return response()->json([
+            "code"    => 200, 
             'message' => 'Event added successfully',
             'event' => $userEvent->toArray(),
             'attendees' => $attendeesResponse

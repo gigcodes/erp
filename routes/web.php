@@ -1628,7 +1628,7 @@ Route::get('get-language', 'CustomerController@getLanguage')->name('livechat.cus
 Route::group(['middleware' => 'auth'], function () {
     Route::get('/calendar', 'UserEventController@index');
     Route::get('/calendar/events', 'UserEventController@list');
-    Route::post('/calendar/events', 'UserEventController@createEvent');
+    Route::post('/calendar/events', 'UserEventController@createEvent')->name("calendar.event.create");
     Route::put('/calendar/events/{id}', 'UserEventController@editEvent');
     Route::delete('/calendar/events/{id}', 'UserEventController@removeEvent');
 });
