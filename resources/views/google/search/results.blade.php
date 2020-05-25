@@ -3,11 +3,11 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Google Search Results</h2>
+            <h2 class="page-heading">Google Search Results (<span>{{ $posts->total() }}</span>)</h2>
         </div>
         <div class="col-md-12 mt-4">
             {{ $posts->appends($request->all())->render() }}
-            <table id="table" class="table table-striped">
+            <table id="table" class="table table-striped table-bordered">
                 <thead>
                 <tr>
                     <th width="16%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>

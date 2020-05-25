@@ -97,6 +97,7 @@ use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
 use App\Console\Commands\SendEventNotificationBefore2hr;
@@ -192,6 +193,7 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
+        RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
         ProcessCommentsFromCompetitors::class,
@@ -407,6 +409,10 @@ class Kernel extends ConsoleKernel
         $schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
+        $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+
+        //Run google priority scraper
+        $schedule->command('run:priority-keyword-search')->daily();
         //2020-02-17 $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         //2020-02-17 Changed below to hourly
         $schedule->command('cache:master-control')->hourly()->withoutOverlapping();

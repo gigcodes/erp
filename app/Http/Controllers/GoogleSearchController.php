@@ -196,8 +196,9 @@ class GoogleSearchController extends Controller
             ], 400);
         }
         else {
+            $postedData = $payLoad['json'];
             // Loop over posts
-            foreach ($payLoad as $postJson) {
+            foreach ($postedData as $postJson) {
                 // Set tag
                 $tag = $postJson[ 'searchKeyword' ];
 
@@ -316,5 +317,52 @@ class GoogleSearchController extends Controller
 
         // Return google search results
         return $instagramPosts;
+    }
+
+    /**
+    * function to call google scraper
+    *
+    * @param  \Illuminate\Http\Request $request, id of keyword to scrap
+    * @return success, failure
+    */
+    function callScraper(Request $request){
+        $id = $request->input('id');
+
+        $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
+
+        if (is_null($searchKeywords)){
+            // Return
+            return response()->json([
+                'error' => 'Keyword not found'
+            ], 400);
+        }
+        else{
+            $postData = [];
+            $postData['data'] = $searchKeywords;
+            $postData = json_encode($postData);
+
+            // call this endpoint - /api/googleSearch
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => env('NODE_SCRAPER_SERVER') . "api/googleSearch",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+            ),
+            CURLOPT_POSTFIELDS => "$postData"
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+
+            // Return
+            // return response()->json($postData, 200);
+            return response()->json(['success - scrapping initiated'], 200);
+        }
     }
 }
