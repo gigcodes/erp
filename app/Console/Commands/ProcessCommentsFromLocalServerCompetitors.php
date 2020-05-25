@@ -50,7 +50,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
             $ch = curl_init();
 
             // set url
-            curl_setopt($ch, CURLOPT_URL, "https://api.jsonbin.io/b/5ec60cbce91d1e45d10e5892");
+            curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/instagram/get-hashtag-list");
 
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -65,7 +65,8 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
 
             
             
-            $hashtag = HashTag::where('is_processed', 0)->first();
+            $hashtag = $categories->hastag;
+
             if (!$hashtag) {
                 return;
             }
@@ -73,11 +74,11 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
             $hashtagText = $hashtag->hashtag;
             $hashtagId = $hashtag->id;
             $hash = new Hashtags();
-            $hash->login();
+            //$hash->login();
             $maxId = '';
 
             $keywords = Keywords::get()->pluck('text')->toArray();
-
+            
             do {
                 $hashtagPostsAll = $hash->getFeed($hashtagText, $maxId);
 
