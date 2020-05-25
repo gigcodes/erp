@@ -74,11 +74,11 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
             $hashtagText = $hashtag->hashtag;
             $hashtagId = $hashtag->id;
             $hash = new Hashtags();
-            //$hash->login();
+            $hash->login();
             $maxId = '';
 
             $keywords = Keywords::get()->pluck('text')->toArray();
-            
+
             do {
                 $hashtagPostsAll = $hash->getFeed($hashtagText, $maxId);
 
@@ -151,7 +151,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                             $commentEntry->comment = $comment['text'];
                             $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
                             $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
-                            $commentEntry->save();
+                            //$commentEntry->save();
                             $postComments[] = $commentEntry;
                             echo "Sleeping for 15s...\n";
                             dump("Getting Comments");
@@ -204,7 +204,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     }
 
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
-                    $url = 'http://erp.amourint.com/api/local/instagram-post';
+                    $url = 'https://erp.amourint.com/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);
