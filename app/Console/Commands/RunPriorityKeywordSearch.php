@@ -47,8 +47,9 @@ class RunPriorityKeywordSearch extends Command
         $this->callCurl(env('NODE_SCRAPER_SERVER') . "api/googleSearch", $postData);
 
         //call priority api call for google affiliate search
-        // $affiliateKeywords = HashTag::where('priority', 1)->where('platforms_id', 3)->get(['hashtag', 'id']);
-        $affiliateKeywords = [];
+        $affiliateKeywords = HashTag::where('priority', 1)->where('platforms_id', 3)->get(['hashtag', 'id']);
+
+        // $affiliateKeywords = [];
         $postData = json_encode($affiliateKeywords);
 
         // call this endpoint - /api/googleSearchDetails
