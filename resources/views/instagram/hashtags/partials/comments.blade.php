@@ -14,6 +14,16 @@
                     <p><a href="https://instagram.com/{{ $comment->username }}">{{ $comment->username }} </a><span> {{ $comment->comment }}</span><small>...{{ $comment->created_at->format('d-m-y') }}</small></p>
                     
                     @endforeach
+
+                    @if($post->commentQueue->count() != 0)
+                        
+                        <p>Sent Messages</p>
+                        @foreach($post->commentQueue as $comment)
+                            @if($comment->account)
+                                <p>{{ $comment->account->last_name }}<span> {{ $comment->message }}</span><small>...{{ $comment->created_at->format('d-m-y') }} @if($comment->is_send == 0) (Pending) @endif</small></p>
+                            @endif
+                        @endforeach
+                    @endif
                     @else
                     <strong>No Send Message yet!</strong>
                     @endif

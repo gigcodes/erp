@@ -217,8 +217,11 @@
                 let message = $('#textbox_'+id).val();
                 let textbox = $('#textbox_'+id);
                 let accountId = $('#account_id_'+id).val();
+                let accountType = $('#account_id_'+id).data("type");
                 let narrative = $('#narrative_'+id).val();
                 let selectedusers = $('#selected_user_'+id).val();
+                console.log(accountId);
+                console.log(accountType);
                 if(accountId == 'Select User'){
                     alert('Please Select User to Comment');
                 }else{
@@ -234,14 +237,15 @@
                             id : id,
                             post_id : post_id,
                             narrative: narrative,
+                            accountType : accountType,
                             hashtag: "{{$hashtag->hashtag}}",
                             _token: '{{ csrf_token() }}'
                         },beforeSend: function() {
                            $("#loading-image").show();
                         },
-                        success: function() {
+                        success: function(response) {
                             $("#loading-image").hide();
-                            alert('Comment added successfully!');
+                            alert(response.status);
                             $(self).removeAttr('disabled');
                             $(self).val('');
                         }
