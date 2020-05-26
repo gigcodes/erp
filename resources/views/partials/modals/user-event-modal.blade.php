@@ -26,6 +26,12 @@
                         <input id="description" class="form-control" type="text" />
                     </div>
                     <div class="form-group">
+                        <label for="contacts">Vendors</label>
+                        <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
+                            "id" => "vendors" , "class" => "form-control select2-vendor", "multiple" => true , "style" => "width:100%"
+                        ]); ?>
+                    </div>
+                    <div class="form-group">
                         <label for="contacts">Contacts (Comma separated for multiple)</label>
                         <input id="contacts" class="form-control" type="text" />
                     </div>
@@ -49,6 +55,8 @@
             format: 'HH:mm'
         });
 
+        $(".select2-vendor").select2({ tags : true});
+
     })
 
     function form_submit() {
@@ -61,6 +69,10 @@
         const subject = modal.querySelector('#subject').value;
         const description = modal.querySelector('#description').value;
         const contacts = modal.querySelector('#contacts').value;
+        const vendors = [];    
+        $("#vendors :selected").each(function(){
+            vendors.push($(this).val()); 
+        });
 
         $.post(
             '/calendar/events', {
@@ -68,7 +80,8 @@
                 time,
                 subject,
                 description,
-                contacts
+                contacts,
+                vendors
             },
             function(result) {
                 console.log(reuslt);

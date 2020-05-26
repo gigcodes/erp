@@ -596,6 +596,28 @@ class ImageController extends Controller
       $new->created_at=$new->updated_at=time();
 
       if($new->save()){
+
+        //call google image scraper
+        $postData = ['data' => array(array('id' => $new->id, 'search_term' => $request->search_term))];
+        $postData = json_encode($postData);
+        $curl = curl_init();
+        curl_setopt_array($curl, array(
+        CURLOPT_URL => env('NODE_SCRAPER_SERVER') . "api/googleSearchImages",
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_ENCODING => "",
+        CURLOPT_MAXREDIRS => 10,
+        CURLOPT_TIMEOUT => 30,
+        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+        CURLOPT_CUSTOMREQUEST => "POST",
+        CURLOPT_HTTPHEADER => array(
+            "Content-Type: application/json",
+        ),
+        CURLOPT_POSTFIELDS => "$postData"
+        ));
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+        curl_close($curl);
+
         $messages="new search queue added successfuly";
         return Redirect::Back()
               ->with('success',$messages);

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\User;
 use App\UserEvent\UserEvent;
 use App\UserEvent\UserEventAttendee;
+use App\UserEvent\UserEventParticipant;
 use Auth;
 use Illuminate\Http\Request;
 
@@ -55,6 +56,7 @@ class UserEventController extends Controller
                 return [
                     'id' => $event->id,
                     'subject' => $event->subject,
+                    'title' => $event->subject,
                     'description' => $event->description,
                     'date' => $event->date,
                     'start' => $event->start,
@@ -109,6 +111,19 @@ class UserEventController extends Controller
         $userEvent->start = $start;
         $userEvent->end = $end;
         $userEvent->save();
+
+        // check first and vendors
+        $vendors = $request->get("vendors",[]);
+        UserEventParticipant::where("user_event_id",$userEvent->id)->delete();
+        if(!empty($vendors) && is_array($vendors)) {
+            foreach($vendors as $vendor) {
+                $userEventParticipant = new UserEventParticipant;
+                $userEventParticipant->user_event_id = $userEvent->id;
+                $userEventParticipant->object = \App\Vendor::class;
+                $userEventParticipant->object_id = $vendor;
+                $userEventParticipant->save();
+            }
+        }
 
         return response()->json([
             'message' => 'Event updated',
@@ -207,7 +222,19 @@ class UserEventController extends Controller
             $attendeesResponse[] = $attendeeDb->toArray();
         }
 
+        $vendors = $request->get("vendors",[]);
+        if(!empty($vendors) && is_array($vendors)) {
+            foreach($vendors as $vendor) {
+                $userEventParticipant = new UserEventParticipant;
+                $userEventParticipant->user_event_id = $userEvent->id;
+                $userEventParticipant->object = \App\Vendor::class;
+                $userEventParticipant->object_id = $vendor;
+                $userEventParticipant->save();
+            }
+        }
+
         return response()->json([
+            "code"    => 200, 
             'message' => 'Event added successfully',
             'event' => $userEvent->toArray(),
             'attendees' => $attendeesResponse
@@ -227,8 +254,10 @@ class UserEventController extends Controller
             );
         }
 
-        $result = UserEvent::where('id', $id)->where('user_id', $userId)->delete();
-        if ($result == 1) {
+        $result = UserEvent::where('id', $id)->where('user_id', $userId)->first();
+        if($result) {
+            $result->attendees()->delete();
+            $result->delete();
             return response()->json([
                 'message' => 'Event deleted:' . $result
             ]);
@@ -288,6 +317,7 @@ class UserEventController extends Controller
                 return [
                     'id' => $event->id,
                     'subject' => $event->subject,
+                    'title' => $event->subject,
                     'description' => $event->description,
                     'date' => $event->date,
                     'start' => $event->start,
