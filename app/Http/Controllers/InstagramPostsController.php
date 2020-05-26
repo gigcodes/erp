@@ -261,11 +261,7 @@ class InstagramPostsController extends Controller
                 $media->hashtag_id = $receivedJson->post->hashtag_id;
                 $media->likes = $receivedJson->post->likes;
                 $media->comments_count = $receivedJson->post->comments_count;
-
-                if (!is_array($receivedJson->post->media_url)) {
-                    $receivedJson->post->media_url = [$receivedJson->post->media_url];
-                }
-                $media->media_url = json_encode($receivedJson->post->media_url);
+                $media->media_url = $receivedJson->post->media_url;
                 $media->posted_at = $receivedJson->post->posted_at;
                 $media->save();
 
@@ -311,6 +307,14 @@ class InstagramPostsController extends Controller
                     $user->following = $detials->following;
                     $user->location = $detials->location;
                     $user->save();
+                }else{
+                    if($userList->posts == ''){
+                        $userList->posts = $detials->posts;
+                        $userList->followers = $detials->followers;
+                        $userList->following = $detials->following;
+                        $userList->location = $detials->location;
+                        $userList->save();
+                    }
                 }        
             } 
 

@@ -50,7 +50,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
             $ch = curl_init();
 
             // set url
-            curl_setopt($ch, CURLOPT_URL, "https://api.jsonbin.io/b/5ec60cbce91d1e45d10e5892");
+            curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/instagram/get-hashtag-list");
 
             //return the transfer as a string
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -65,7 +65,8 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
 
             
             
-            $hashtag = HashTag::where('is_processed', 0)->first();
+            $hashtag = $categories->hastag;
+
             if (!$hashtag) {
                 return;
             }
@@ -150,7 +151,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                             $commentEntry->comment = $comment['text'];
                             $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
                             $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
-                            $commentEntry->save();
+                            //$commentEntry->save();
                             $postComments[] = $commentEntry;
                             echo "Sleeping for 15s...\n";
                             dump("Getting Comments");
@@ -203,7 +204,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     }
 
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
-                    $url = 'http://erp.amourint.com/api/local/instagram-post';
+                    $url = 'https://erp.amourint.com/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);

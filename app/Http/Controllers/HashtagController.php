@@ -19,6 +19,7 @@ use App\Jobs\InstagramComment;
 use App\ScrapInfluencer;
 use App\InstagramPostsComments;
 use App\InstagramUsersList;
+use App\InstagramCommentQueue;
 
 
 
@@ -243,7 +244,7 @@ class HashtagController extends Controller
 
         $hashtagList = HashTag::all();
         
-        $accs = Account::where('platform', 'instagram')->where('manual_comment', 1)->get();
+        $accs = Account::where('platform', 'instagram')->where('status', 1)->get();
 
         $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
 
@@ -363,6 +364,7 @@ class HashtagController extends Controller
 
     public function commentOnHashtag(Request $request) {
 
+
         $this->validate($request, [
             'message' => 'required',
             'account_id' => 'required',
@@ -372,30 +374,60 @@ class HashtagController extends Controller
         ]);
 
         $acc = Account::findOrFail($request->get('account_id'));
-        $acc->comment_pending = 1;
-        $acc->save();
-        
-        
-        // $instagram = new Instagram();
-        
-        // try {
 
-        //     $instagramAdmin = Config('instagram');
-        //     $senderUsername = $instagramAdmin['admin_account'];
-        //     $password = $instagramAdmin['admin_password'];
-        //     $instagram->login($senderUsername, $password);
+        if($acc->is_customer_support == 1){
+            $instagram = new Instagram();
+            
+            try {
+                
+                $senderUsername = $acc->last_name;
+                $password = $acc->password;
+                
+                if($senderUsername != '' && $password != ''){
+                    
+                    $instagram->login($senderUsername, $password);
+                
+                }else{
+                    
+                    return response()->json([
+                    'status' => 'Username Or PassWord empty'
+                    ]);
+                
+                }
+                
+            
+            } catch (\Exception $e) {
+                return response()->json([
+                    'status' => $e
+                ]);   
+            }
+            
+            $instagram->media->comment($request->get('post_id'), $request->get('message'));
         
-        // } catch (\Exception $e) {
-        //     $acc->last_name = env('IG_USERNAME');
-        //     $instagram->login(env('IG_USERNAME'), env('IG_PASSWORD'));
-        // }
-        
-        // $instagram->media->comment($request->get('post_id'), $request->get('message'));
-        // $post = InstagramPosts::find($request->get('id'));
+            return response()->json([
+                    'status' => 'Message Send'
+                ]); 
+        }else{
 
-        InstagramComment::dispatchNow($request);
+            $commentCheck = InstagramCommentQueue::where('message', $request->get('message'))->where('post_id',$request->get('post_id'))->where('account_id',$acc->id)->first();
+            if(empty($commentCheck)){
+                $comment = new InstagramCommentQueue();
+                $comment->message = $request->get('message');
+                $comment->post_id = $request->get('post_id');
+                $comment->account_id = $acc->id;
+                $comment->is_send = 0;
+                $comment->save();
+            }
+            else{
+               return response()->json([
+                    'status' => 'Comment Exist'
+                ]); 
+
+            }
+            
         
-       
+        }
+
         $stat = new CommentsStats();
         $stat->target = $request->get('hashtag');
         $stat->sender = $acc->last_name;
@@ -404,13 +436,13 @@ class HashtagController extends Controller
         $stat->code = '';
         $stat->narrative = $request->get('narrative');
         $stat->save();
-
-       
-
+        
         return response()->json([
             'status' => 'success'
         ]);
-
+        
+        //InstagramComment::dispatchNow($request);
+        
     }
 
     public function flagMedia($id) {

@@ -84,7 +84,12 @@
                                             <select class="form-control selectpicker" name="account_id" id="account_id_{{$post['id']}}" data-live-search="true">
                                                 <option>Select User</option>
                                                 @foreach($accs as $cc)
-                                                    <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
+                                                    @if($cc->is_customer_support == 1)
+                                                        <option value="{{ $cc->id }}">{{ $cc->last_name }} (Manager)</option>
+                                                    @else
+                                                        <option value="{{ $cc->id }}">{{ $cc->last_name }}</option>
+                                                    @endif
+                                                    
                                                 @endforeach
                                             </select>
                                             <select class="form-control" name="narrative_{{$post['id']}}" id="narrative_{{$post['id']}}">
