@@ -1543,6 +1543,8 @@
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
+        @include('partials.modals.quick-instruction-notes')
+        @include('partials.modals.quick-user-event-notification')
         @php
         $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
@@ -1590,51 +1592,6 @@
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
     @if(Auth::check())
-    <div class="help-button-wrapper">
-        <!-- <div class="col-md-8 page-notes-list-rt dis-none">
-            <div class="well">
-                <textarea id="editor-note-content" class="note-content" data-url="/page-notes/create" data-page="{{ request()->fullUrl() }}" name="note_content"></textarea>
-            </div>
-        </div> -->
-        <div class="col-md-8 instruction-notes-list-rt dis-none">
-            <div class="well">
-                @php
-                    $pageInstruction = \App\PageInstruction::where("page",request()->fullUrl())->first()
-                @endphp
-                <textarea id="editor-instruction-content" data-url="{{ route('instructionCreate') }}" data-page="{{ request()->fullUrl() }}" class="editor-instruction-content" name="instruction">{{ ($pageInstruction) ? $pageInstruction->instruction : "" }}</textarea>
-            </div>
-        </div>
-         <div class="col-md-12 notification-notes-list-rt dis-none well">
-            <form id="notification-submit-form" action="<?php echo route('calendar.event.create') ?>" method="post">
-                {{ csrf_field() }}    
-                <div class="form-group">
-                    <label for="notification-date">Date</label>
-                    <input id="notification-date" name="date" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-time">Time</label>
-                    <input id="notification-time" name="time" class="form-control" type="text">
-                </div>    
-                <div class="form-group">
-                    <label for="notification-subject">Subject</label>
-                    <input id="notification-subject" name="subject" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-description">Description</label>
-                    <input id="notification-description" name="description" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-participants">Participants(vendor)</label>
-                    <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
-                        "id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
-                    ]); ?>
-                </div>
-                <div class="form-group">
-                    <input id="notification-submit" class="btn btn-secondary" type="submit">
-                </div>
-           </form> 
-        </div>
-    </div>
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -1854,13 +1811,13 @@
         });
 
         $('.instruction-button').on('click', function() {
-            $('.help-button-wrapper').toggleClass('expanded');
-            $('.instruction-notes-list-rt').toggleClass('dis-none');
+            $("#quick-instruction-modal").modal("show");
+            //$('.help-button-wrapper').toggleClass('expanded');
+            //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
 
         $('.notification-button').on('click', function() {
-            $('.help-button-wrapper').toggleClass('expanded');
-            $('.notification-notes-list-rt').toggleClass('dis-none');
+            $("#quick-user-event-notification-modal").modal("show");
         });
 
         $(document).on("submit","#notification-submit-form",function(e){
@@ -1874,7 +1831,7 @@
                 success: function(data) {
                     if (data.code > 0) {
                         $form[0].reset();
-                        $(".notification-button").trigger("click");
+                        $("#quick-user-event-notification-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
                     }else{
                         toastr['error'](data.message, 'Message');
