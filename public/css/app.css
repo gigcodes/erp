@@ -10816,12 +10816,6 @@ li.active{
 
 /* Sidebar section started  */
 
-.wrapper {
-    display: flex;
-    width: 100%;
-    align-items: stretch;
-}
-
 #quick-sidebar {
     min-width: 50px;
     max-width: 50px;
@@ -10843,18 +10837,6 @@ li.active{
 
 #quick-sidebar.active {
     margin-left: -50px;
-}
-
-a[data-toggle="collapse"] {
-    position: relative;
-}
-
-.dropdown-toggle::after {
-    display: block;
-    position: absolute;
-    top: 50%;
-    right: 20px;
-    transform: translateY(-50%);
 }
 
 @media (max-width: 768px) {
