@@ -84,6 +84,8 @@ class DailyPlannerController extends Controller
       $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%$planned_at%")->where('assigned_to', $userid)->get();
       $users_array = Helpers::getUserArray(User::all());
 
+      $generalCategories = \App\GeneralCategory::all()->pluck("name","id")->toArray();
+
       return view('dailyplanner.index', [
         'tasks'             => $tasks,
         'time_slots'        => $time_slots,
@@ -91,6 +93,7 @@ class DailyPlannerController extends Controller
         'call_instructions' => $call_instructions,
         'userid'            => $userid,
         'planned_at'        => $planned_at,
+        'generalCategories' => $generalCategories
       ]);
     }
 

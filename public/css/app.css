@@ -10529,16 +10529,16 @@ a.text-dark:focus {
 .expanded .help-button {
     transform: scale(.5);
     color: rgba(255, 255, 255, .5);
-    background: #ffaa00;
+    background: #5A6267;
 }
 
-.instruction-button {
+/*.instruction-button {
     height: 3em;
     width: 3em;
     font-size: 14px;
     border-radius: 50%;
     border: 0 none;
-    background: #72AB59;
+    background: #5A6267;
     color: #fff;
     cursor: pointer;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
@@ -10564,21 +10564,21 @@ a.text-dark:focus {
 .expanded .instruction-button span,
 .expanded .instruction-button span {
     transform: scale(1.25);
-}
+}*/
 
 .expanded .instruction-button {
     transform: scale(.5);
     color: rgba(255, 255, 255, .5);
-    background: #ffaa00;
+    background: #5A6267;
 }
 
-.notification-button {
+/*.notification-button {
     height: 3em;
     width: 3em;
     font-size: 14px;
     border-radius: 50%;
     border: 0 none;
-    background: #72AB59;
+    background: #5A6267;
     color: #fff;
     cursor: pointer;
     box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
@@ -10604,12 +10604,12 @@ a.text-dark:focus {
 .expanded .notification-button span,
 .expanded .notification-button span {
     transform: scale(1.25);
-}
+}*/
 
 .expanded .notification-button {
     transform: scale(.5);
     color: rgba(255, 255, 255, .5);
-    background: #ffaa00;
+    background: #5A6267;
 }
 
 .help-list {
@@ -10813,3 +10813,63 @@ li.active{
     border-top: 9px solid #DDF7C8;
     transform: rotate(45deg) scaleY(-1);
 }
+
+/* Sidebar section started  */
+
+.wrapper {
+    display: flex;
+    width: 100%;
+    align-items: stretch;
+}
+
+#quick-sidebar {
+    min-width: 50px;
+    max-width: 50px;
+    min-height: 100vh;
+    margin-left: 25px;
+    float:left;
+    display: table;
+}   
+
+#quick-sidebar a {
+    color: #6E6767;     
+}
+
+#quick-sidebar ul {
+    display: table-cell;
+    vertical-align: center;
+}
+
+
+#quick-sidebar.active {
+    margin-left: -50px;
+}
+
+a[data-toggle="collapse"] {
+    position: relative;
+}
+
+.dropdown-toggle::after {
+    display: block;
+    position: absolute;
+    top: 50%;
+    right: 20px;
+    transform: translateY(-50%);
+}
+
+@media (max-width: 768px) {
+    #quick-sidebar {
+        margin-left: -50px;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+}
+
+#quick-sidebar .quick-icon i { 
+    width: 25px;
+    height: 25px;
+}
+
+/* Sidebar section eended */
+

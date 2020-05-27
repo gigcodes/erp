@@ -1551,23 +1551,36 @@
         @endif
         @endif
 
+        <!---start section for the sidebar toggle -->
+        <nav id="quick-sidebar">
+            <ul class="list-unstyled components">
+                <li>
+                    <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
+                </li>
+                <li>
+                    <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
+                </li>
+            </ul>
+        </nav>
+        <!-- end section for sidebar toggle -->
         <main class="container">
 
             <!-- Showing fb like page div to all pages  -->
 
             {{-- @if(Auth::check())
 
-     <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
+            <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
 
-     @endif --}}
+            @endif --}}
 
-
+            @yield('content')
 
             <!-- End of fb page like  -->
 
+            <!---start section for the sidebar toggle -->
+            <!-- end section for sidebar toggle --> 
 
 
-            @yield('content')
 
         </main>
 
@@ -1617,14 +1630,9 @@
                     ]); ?>
                 </div>
                 <div class="form-group">
-                    <input id="notification-submit" class="form-control btn btn-primary" type="submit">
+                    <input id="notification-submit" class="btn btn-secondary" type="submit">
                 </div>
            </form> 
-        </div>
-        <div class="col-md-12">
-            <!-- <button class="help-button"><span>+</span></button> -->
-            <button class="instruction-button" style="margin-top: 2px; float: left;"><span>?</span></button>
-            <button class="notification-button" style="margin-top: 2px; margin-left: 5px; float: right;"><span><i class="fa fa-bell"></i></span></button>
         </div>
     </div>
     @if($liveChatUsers != '' && $liveChatUsers != null)
@@ -2149,6 +2157,10 @@
                         scrollTop: 0
                     }, 400);
                     return false;
+                });
+
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
                 });
         });
        
