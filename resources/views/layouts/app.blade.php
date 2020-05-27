@@ -1562,33 +1562,31 @@
                 <li>
                     <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
                 </li>
+                <li>
+                    <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
+                        <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
+                    </a>
+                </li>
             </ul>
         </nav>
-        <!-- end section for sidebar toggle -->
-        <main class="container">
+        @if (trim($__env->yieldContent('large_content')))
+            <div class="col-md-11">
+                @yield('large_content')
+            </div>
+        @else
+            <!-- end section for sidebar toggle -->
+            <main class="container">
+                <!-- Showing fb like page div to all pages  -->
+                {{-- @if(Auth::check())
+                <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
 
-            <!-- Showing fb like page div to all pages  -->
+                @endif --}}
+                @yield('content')
+                <!-- End of fb page like  -->
+            </main>
+        @endif
 
-            {{-- @if(Auth::check())
-
-            <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-
-            @endif --}}
-
-            @yield('content')
-
-            <!-- End of fb page like  -->
-
-            <!---start section for the sidebar toggle -->
-            <!-- end section for sidebar toggle --> 
-
-
-
-        </main>
-
-        <div class="col-md-12">
-            @yield('large_content')
-        </div>
+        
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
     @if(Auth::check())
