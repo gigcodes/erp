@@ -1573,21 +1573,21 @@
             <nav id="quick-sidebar">
                 <ul class="list-unstyled components">
                     <li>
-                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
+                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                     </li>
                     <li>
-                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
+                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                     </li>
                     <li>
                         <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
-                            <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
+                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
                         <a id="message-chat-data-box" class="quick-icon" href="javascript:e;">
                            <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
-                                <i class="fa fa-comment fa-lg xfa-inverse" data-count="4b"></i>
+                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
                         </a>
                     </li>
