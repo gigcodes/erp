@@ -105,21 +105,11 @@ class ZoomMeetingController extends Controller
         ];
         // Calling model calss
         $meetings       = new ZoomMeetings();
-        $zoomKey        =  $this->zoomkey;
+        $zoomKey        = $this->zoomkey;
         $zoomSecret     = $this->zoomsecret;
         $createMeeting  = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
 
         // check if the token expires then try to create again request
-        if(!empty($createMeeting) 
-            && $createMeeting["status"] == "401" 
-            && !empty($createMeeting["body"]["code"]) 
-            && $createMeeting["body"]["code"] == "124"
-        ) {
-            $createMeeting  = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
-            echo "string";
-            echo "<pre>";print_r($createMeeting);die;
-        }
-
         echo "<pre>";print_r($createMeeting);die;
         
         if($createMeeting){
