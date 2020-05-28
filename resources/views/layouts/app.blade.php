@@ -31,7 +31,22 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style type="text/css">
         .select2-container--open{
-        z-index:9999999
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
         }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -1545,8 +1560,9 @@
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
+        @include('partials.modals.quick-chatbox-window')
         @php
-        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
         @include('partials.chat')
@@ -1567,6 +1583,15 @@
                             <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    <li>
+                        <a id="message-chat-data-box" class="quick-icon" href="javascript:e;">
+                           <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                                <i class="fa fa-comment fa-lg xfa-inverse" data-count="4b"></i>
+                           </span>
+                        </a>
+                    </li>
+                    @endif
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -1590,11 +1615,15 @@
         
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
+    <?php /*
     @if(Auth::check())
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            <button class="chat-button">
+                <img src="/images/chat.png" class="img-responsive"/>
+                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
+            </button>
         </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
@@ -1741,6 +1770,7 @@
     </div>
     @endif
     @endif
+    */ ?>
 
     <!-- Scripts -->
 
@@ -1860,11 +1890,25 @@
         }
 
         // started for chat button
+        // open chatbox now into popup
+
         var chatBoxOpen = false;
+        
+        $("#message-chat-data-box").on("click",function(e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
+        });
+
+        $('#quick-chatbox-window-modal').on('hidden.bs.modal', function () {
+           chatBoxOpen = false;
+           openChatBox(false);
+        });
+
         $('.chat-button').on('click', function () {
             $('.chat-button-wrapper').toggleClass('expanded');
             $('.page-chat-list-rt').toggleClass('dis-none');
-
             if($('.chat-button-wrapper').hasClass('expanded')){
                 chatBoxOpen = true;
                 openChatBox(true);
