@@ -109,9 +109,6 @@ class ZoomMeetingController extends Controller
         $zoomSecret     = $this->zoomsecret;
         $createMeeting  = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
 
-        // check if the token expires then try to create again request
-        echo "<pre>";print_r($createMeeting);die;
-        
         if($createMeeting){
          $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? "" : $createMeeting[ 'body' ]['id'];
          $input[ 'host_zoom_id' ] = $this->zoomuser;
