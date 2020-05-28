@@ -48,6 +48,10 @@
           min-width: 1em;
           //font-weight:bold;
         }
+        #quick-sidebar {
+            padding-top: 10px;
+        }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
@@ -1561,6 +1565,7 @@
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
         @include('partials.modals.quick-chatbox-window')
+        @include('partials.modals.quick-zoom-meeting-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
@@ -1585,13 +1590,18 @@
                     </li>
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
-                        <a id="message-chat-data-box" class="quick-icon" href="javascript:e;">
+                        <a id="message-chat-data-box" class="quick-icon"> 
                            <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
                         </a>
                     </li>
                     @endif
+                    <li>
+                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
+                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -2150,23 +2160,63 @@
 
         $(document).ready(function(){
             $(window).scroll(function () {
-                    if ($(this).scrollTop() > 50) {
-                        $('#back-to-top').fadeIn();
-                    } else {
-                        $('#back-to-top').fadeOut();
-                    }
-                });
-                // scroll body to 0px on click
-                $('#back-to-top').click(function () {
-                    $('body,html').animate({
-                        scrollTop: 0
-                    }, 400);
-                    return false;
-                });
+                if ($(this).scrollTop() > 50) {
+                    $('#back-to-top').fadeIn();
+                } else {
+                    $('#back-to-top').fadeOut();
+                }
+            });
+            // scroll body to 0px on click
+            $('#back-to-top').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 400);
+                return false;
+            });
 
-                $('#sidebarCollapse').on('click', function () {
-                    $('#sidebar').toggleClass('active');
-                });
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            $(".select2-vendor").select2({});
+        });
+
+        $(document).on('click', '.save-meeting-zoom', function () {
+            var user_id = $('#quick_user_id').val();
+            var meeting_topic = $('#quick_meeting_topic').val();
+            var csrf_token = $('#quick_csrfToken').val();
+            var meeting_url = $('#quick_meetingUrl').val();
+            $.ajax({
+                url: meeting_url,
+                type: 'POST',
+                success: function (response) {
+                    var status = response.success;
+                    if(false == status){
+                        toastr['error'](response.data.msg);
+                    }else{
+                        $('#quick-zoomModal').modal('toggle');
+                        window.open(response.data.meeting_link);
+                        var html = '';
+                        html += response.data.msg+'<br>';
+                        html += 'Meeting URL: <a href="'+response.data.meeting_link+'" target="_blank">'+response.data.meeting_link+'</a><br><br>';
+                        html += '<a class="btn btn-primary" target="_blank" href="'+response.data.start_meeting+'">Start Meeting</a>';
+                        $('#qickZoomMeetingModal').modal('toggle');
+                        $('.meeting_link').html(html);
+                        toastr['success'](response.data.msg);
+                    }
+                },
+                data: {
+                    user_id: user_id,
+                    meeting_topic: meeting_topic,
+                    _token: csrf_token,
+                    user_type : "vendor"
+                },
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+
+            });;
         });
        
     </script>
