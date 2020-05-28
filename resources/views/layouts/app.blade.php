@@ -1552,29 +1552,30 @@
         @include('partials.chat')
         @endif
         @endif
-
-        <!---start section for the sidebar toggle -->
-        <nav id="quick-sidebar">
-            <ul class="list-unstyled components">
-                <li>
-                    <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
-                </li>
-                <li>
-                    <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
-                </li>
-                <li>
-                    <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
-                        <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
-                    </a>
-                </li>
-            </ul>
-        </nav>
+        @if(Auth::check())
+            <!---start section for the sidebar toggle -->
+            <nav id="quick-sidebar">
+                <ul class="list-unstyled components">
+                    <li>
+                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
+                            <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- end section for sidebar toggle -->
+        @endif
         @if (trim($__env->yieldContent('large_content')))
             <div class="col-md-11">
                 @yield('large_content')
             </div>
         @else
-            <!-- end section for sidebar toggle -->
             <main class="container">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
