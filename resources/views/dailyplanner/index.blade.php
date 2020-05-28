@@ -167,9 +167,15 @@
                           <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
                         @endforeach
                       </select>
-
+                      &nbsp;&nbsp;
+                      <?php echo Form::select("general_category_id",
+                          [ null => "-- Select Category --"] + $generalCategories,
+                          $task['general_category_id'],
+                          ['class' => 'form-control general_category_id']
+                        );  ?>
+                      &nbsp;&nbsp;  
                       <input type="text" class="form-control input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
-
+                      &nbsp;&nbsp;
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
                     </div>
 
@@ -236,6 +242,7 @@
       $('#planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
+      $(".general_category_id").select2({tags :true});
     });
 
     $(document).on('change', '.plan-task', function() {
@@ -397,7 +404,7 @@
       $('.hiddentask' + count).toggleClass('hidden');
     });
 
-    function storeDailyActivity(element, activity, time_slot, target_id) {
+    function storeDailyActivity(element, activity, time_slot, target_id,general_category_id) {
       $.ajax({
         type: 'POST',
         url: "{{ route('dailyActivity.quick.store') }}",
@@ -406,7 +413,8 @@
           activity: activity,
           time_slot: time_slot,
           user_id: "{{ isset($userid) && $userid != '' ? $userid : Auth::id() }}",
-          for_date: "{{ $planned_at }}"
+          for_date: "{{ $planned_at }}",
+          general_category_id : general_category_id
         }
       }).done(function(response) {
         var count = $('#' + target_id).find('td').attr('rowspan');
@@ -450,17 +458,16 @@
     }
 
     $('.quick-plan-input').on('keypress', function(e) {
-      console.log(e);
       var key = e.which;
       var thiss = $(this);
       var time_slot = $(this).data('timeslot');
       var target_id = $(this).data('targetid');
+      var general_category_id = $(this).closest('td').find('.general_category_id').val();
       var activity = $(this).val();
-
       if (key == 13) {
         e.preventDefault();
 
-        storeDailyActivity(thiss, activity, time_slot, target_id);
+        storeDailyActivity(thiss, activity, time_slot, target_id, general_category_id);
       }
     });
 
@@ -469,8 +476,9 @@
       var time_slot = $(this).data('timeslot');
       var target_id = $(this).data('targetid');
       var activity = $(this).siblings('.quick-plan-input').val();
+      var general_category_id = $(this).closest('td').find('.general_category_id').val();
 
-      storeDailyActivity(thiss, activity, time_slot, target_id);
+      storeDailyActivity(thiss, activity, time_slot, target_id,general_category_id);
 
       $(this).siblings('.quick-plan-input').val('');
     });

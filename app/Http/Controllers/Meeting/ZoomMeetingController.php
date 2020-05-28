@@ -92,12 +92,13 @@ class ZoomMeetingController extends Controller
             'startTime' => new Carbon($input['start_date_time']),
             'duration' => $input['meeting_duration'],
             'timezone' => $input['timezone'],
-            ];
+        ];
         // Calling model calss
         $meetings = new ZoomMeetings();
         $zoomKey =  $this->zoomkey;
         $zoomSecret = $this->zoomsecret;
         $createMeeting = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
+        
         if($createMeeting){
          $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? "" : $createMeeting[ 'body' ]['id'];
          $input[ 'host_zoom_id' ] = $this->zoomuser;

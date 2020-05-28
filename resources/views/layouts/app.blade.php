@@ -1543,6 +1543,8 @@
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
+        @include('partials.modals.quick-instruction-notes')
+        @include('partials.modals.quick-user-event-notification')
         @php
         $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
@@ -1550,83 +1552,45 @@
         @include('partials.chat')
         @endif
         @endif
+        @if(Auth::check())
+            <!---start section for the sidebar toggle -->
+            <nav id="quick-sidebar">
+                <ul class="list-unstyled components">
+                    <li>
+                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
+                            <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- end section for sidebar toggle -->
+        @endif
+        @if (trim($__env->yieldContent('large_content')))
+            <div class="col-md-11">
+                @yield('large_content')
+            </div>
+        @else
+            <main class="container">
+                <!-- Showing fb like page div to all pages  -->
+                {{-- @if(Auth::check())
+                <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
 
-        <main class="container">
+                @endif --}}
+                @yield('content')
+                <!-- End of fb page like  -->
+            </main>
+        @endif
 
-            <!-- Showing fb like page div to all pages  -->
-
-            {{-- @if(Auth::check())
-
-     <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-
-     @endif --}}
-
-
-
-            <!-- End of fb page like  -->
-
-
-
-            @yield('content')
-
-        </main>
-
-        <div class="col-md-12">
-            @yield('large_content')
-        </div>
+        
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
     @if(Auth::check())
-    <div class="help-button-wrapper">
-        <!-- <div class="col-md-8 page-notes-list-rt dis-none">
-            <div class="well">
-                <textarea id="editor-note-content" class="note-content" data-url="/page-notes/create" data-page="{{ request()->fullUrl() }}" name="note_content"></textarea>
-            </div>
-        </div> -->
-        <div class="col-md-8 instruction-notes-list-rt dis-none">
-            <div class="well">
-                @php
-                    $pageInstruction = \App\PageInstruction::where("page",request()->fullUrl())->first()
-                @endphp
-                <textarea id="editor-instruction-content" data-url="{{ route('instructionCreate') }}" data-page="{{ request()->fullUrl() }}" class="editor-instruction-content" name="instruction">{{ ($pageInstruction) ? $pageInstruction->instruction : "" }}</textarea>
-            </div>
-        </div>
-         <div class="col-md-12 notification-notes-list-rt dis-none well">
-            <form id="notification-submit-form" action="<?php echo route('calendar.event.create') ?>" method="post">
-                {{ csrf_field() }}    
-                <div class="form-group">
-                    <label for="notification-date">Date</label>
-                    <input id="notification-date" name="date" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-time">Time</label>
-                    <input id="notification-time" name="time" class="form-control" type="text">
-                </div>    
-                <div class="form-group">
-                    <label for="notification-subject">Subject</label>
-                    <input id="notification-subject" name="subject" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-description">Description</label>
-                    <input id="notification-description" name="description" class="form-control" type="text">
-                </div>
-                <div class="form-group">
-                    <label for="notification-participants">Participants(vendor)</label>
-                    <?php echo Form::select("vendors[]",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
-                        "id" => "vendors" , "class" => "form-control selectx-vendor", "multiple" => true , "style" => "width:100%"
-                    ]); ?>
-                </div>
-                <div class="form-group">
-                    <input id="notification-submit" class="form-control btn btn-primary" type="submit">
-                </div>
-           </form> 
-        </div>
-        <div class="col-md-12">
-            <!-- <button class="help-button"><span>+</span></button> -->
-            <button class="instruction-button" style="margin-top: 2px; float: left;"><span>?</span></button>
-            <button class="notification-button" style="margin-top: 2px; margin-left: 5px; float: right;"><span><i class="fa fa-bell"></i></span></button>
-        </div>
-    </div>
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
@@ -1846,13 +1810,13 @@
         });
 
         $('.instruction-button').on('click', function() {
-            $('.help-button-wrapper').toggleClass('expanded');
-            $('.instruction-notes-list-rt').toggleClass('dis-none');
+            $("#quick-instruction-modal").modal("show");
+            //$('.help-button-wrapper').toggleClass('expanded');
+            //$('.instruction-notes-list-rt').toggleClass('dis-none');
         });
 
         $('.notification-button').on('click', function() {
-            $('.help-button-wrapper').toggleClass('expanded');
-            $('.notification-notes-list-rt').toggleClass('dis-none');
+            $("#quick-user-event-notification-modal").modal("show");
         });
 
         $(document).on("submit","#notification-submit-form",function(e){
@@ -1866,7 +1830,7 @@
                 success: function(data) {
                     if (data.code > 0) {
                         $form[0].reset();
-                        $(".notification-button").trigger("click");
+                        $("#quick-user-event-notification-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
                     }else{
                         toastr['error'](data.message, 'Message');
@@ -2149,6 +2113,10 @@
                         scrollTop: 0
                     }, 400);
                     return false;
+                });
+
+                $('#sidebarCollapse').on('click', function () {
+                    $('#sidebar').toggleClass('active');
                 });
         });
        
