@@ -1858,7 +1858,7 @@
                 data: $form.serialize(),
                 dataType: "json",
                 success: function(data) {
-                    if (data.code > 0) {
+                    if (data.code == 200) {
                         $form[0].reset();
                         $("#quick-user-event-notification-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
@@ -1866,6 +1866,12 @@
                         toastr['error'](data.message, 'Message');
                     }
                 },
+                error : function(xhr, status, error) {
+                    var errors = xhr.responseJSON;
+                    $.each(errors, function (key, val) {
+                        $("#" + key + "_error").text(val[0]);
+                    });
+                }
             });
         });
 
