@@ -223,8 +223,6 @@ class UserEventController extends Controller
             $userEvent->end = date('Y-m-d H:i:s', $end);
         }
 
-
-
         $userEvent->save();
 
         // once user event has been stored create the event in daily planner

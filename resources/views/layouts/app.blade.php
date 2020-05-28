@@ -1918,8 +1918,7 @@
             if($('.chat-button-wrapper').hasClass('expanded')){
                 chatBoxOpen = true;
                 openChatBox(true);
-            }
-            else{
+            }else{
                 chatBoxOpen = false;
                 openChatBox(false);
             }
@@ -2069,7 +2068,7 @@
         });
         @endif
     </script>
-    @if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
     <script>
