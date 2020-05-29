@@ -32,6 +32,7 @@ class DigitalMarketingController extends Controller
 
         foreach ($records as &$rec) {
             $rec->status_name = isset(\App\DigitalMarketingPlatform::STATUS[$rec->status]) ? \App\DigitalMarketingPlatform::STATUS[$rec->status] : $rec->status;
+            $rec->components_list = implode(",",$rec->components->pluck("name")->toArray());
         }
 
         return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
@@ -374,6 +375,32 @@ class DigitalMarketingController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong digital marketing solution research id!"]);
 
+    }
+
+    public function components(Request $request , $id) 
+    {
+        $records = [];
+        $records["id"] = $id;
+        $records["components"] = \App\DigitalMarketingPlatformComponent::where("digital_marketing_platform_id",$id)->get()->pluck("name")->toArray();
+        
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function componentStore(Request $request , $id) 
+    {
+        \App\DigitalMarketingPlatformComponent::where("digital_marketing_platform_id",$id)->delete();
+        
+        $components = $request->get("components");
+        if(!empty($components)) {
+            foreach($components as $component) {
+                \App\DigitalMarketingPlatformComponent::create([
+                    "digital_marketing_platform_id" => $id,
+                    "name" => $component
+                ]);
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => []]);
     }
 
 

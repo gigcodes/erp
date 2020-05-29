@@ -1648,6 +1648,8 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
+        Route::get('/components', 'DigitalMarketingController@components')->name("digital-marketing.components");
+        Route::post('/components', 'DigitalMarketingController@componentStore')->name("digital-marketing.components.save");
         Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
 
         Route::prefix('solution')->group(function () {
