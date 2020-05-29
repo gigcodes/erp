@@ -15,6 +15,7 @@
       <p>Id : {{ $product->id }}</p>
       <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ $product->size}}</span></p>
       <p>Price : <span class="text-editable" data-field-name="price_inr_special" data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></p>
+      <p>Status : <?php echo Form::select("stock_status",[null => "- Select --"] + \App\Product::STOCK_STATUS,$product->stock_status,["class" => "form-control update-product-stock-status","data-product-id" => $product->id]); ?></p>
 
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction" title="Create Dispatch / Location Change"><img src="/images/support.png"></button>
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction-history" title="Product Location History"><img src="/images/remark.png"></button>

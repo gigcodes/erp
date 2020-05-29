@@ -23,6 +23,13 @@ use App\Services\Products\ProductsCreator;
 class Product extends Model
 {
 
+    CONST STOCK_STATUS = [
+        1 => "Active",
+        2 => "Reserved",
+        3 => "Damaged",
+        4 => "On Hold"
+    ];
+
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
@@ -35,7 +42,8 @@ class Product extends Model
         'sku',
         'is_barcode_check',
         'has_mediables',
-        'size_eu'
+        'size_eu',
+        'stock_status'
     ];
     protected $dates = ['deleted_at'];
     protected $appends = [];
