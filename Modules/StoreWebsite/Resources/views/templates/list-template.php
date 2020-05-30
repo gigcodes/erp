@@ -1,18 +1,18 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="row">
+	<div class="table-responsive mt-3">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Id</th>
-		        <th>Title</th>
-		        <th>Website</th>
-		        <th>Description</th>
-		        <th>Remote software</th>
-		        <th>Facebook</th>
-		        <th>Instagram</th>
-		        <th>Published</th>
-		        <th>Created At</th>
-		        <th>Action</th>
+		      	<th width="2%">Id</th>
+		        <th width="10%">Title</th>
+		        <th width="10%">Website</th>
+		        <th width="20%">Description</th>
+		        <th width="2%">Remote software</th>
+		        <th width="5%">Facebook</th>
+		        <th width="5%">Instagram</th>
+		        <th width="3%">Published</th>
+		        <th width="10%">Created At</th>
+		        <th width="20%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
