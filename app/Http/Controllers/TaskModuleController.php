@@ -1456,4 +1456,24 @@ class TaskModuleController extends Controller {
 
 	}
 
+	public function createTaskFromSortcut(Request $request)
+	{
+		$params = $request->all();
+
+		$this->validate($request, [
+			'task_subject'	=> 'required',
+			'task_details'	=> 'required',
+			'assign_to' => 'required_without:assign_to_contacts'
+		]);
+
+		$taskType = $request->get("task_type");
+
+		if($taskType == "4" || $taskType == "5") {
+
+		}else{
+			
+		}
+
+	}
+
 }

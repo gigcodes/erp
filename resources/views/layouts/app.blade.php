@@ -1566,6 +1566,7 @@
         @include('partials.modals.quick-user-event-notification')
         @include('partials.modals.quick-chatbox-window')
         @include('partials.modals.quick-zoom-meeting-window')
+        @include('partials.modals.quick-create-task-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
@@ -1600,6 +1601,11 @@
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
+                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
                 </ul>
@@ -2216,9 +2222,30 @@
             }).fail(function (response) {
                 toastr['error'](response.responseJSON.message);
 
-            });;
+            });
         });
-       
+
+        $(document).on("click",".save-task-window",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: form.attr("action"),
+                type: 'POST',
+                data: form.serialize(),
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                },
+                success: function (response) {
+                    if(response.code == 200){
+                        toastr['success'](response.data.msg);
+                    }else{
+                        toastr['error'](response.data.msg);
+                    }
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+            });
+        });
     </script>
 
 </body>
