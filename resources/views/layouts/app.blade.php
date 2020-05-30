@@ -49,7 +49,7 @@
           //font-weight:bold;
         }
         #quick-sidebar {
-            padding-top: 10px;
+            padding-top: 35px;
         }
 
     </style>
