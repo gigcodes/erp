@@ -13,18 +13,22 @@
                     <div class="form-group">
                         <label for="notification-date">Date</label>
                         <input id="notification-date" name="date" class="form-control" type="text">
+                        <span id="date_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label for="notification-time">Time</label>
                         <input id="notification-time" name="time" class="form-control" type="text">
+                        <span id="time_error" class="text-danger"></span>
                     </div>    
                     <div class="form-group">
                         <label for="notification-subject">Subject</label>
                         <input id="notification-subject" name="subject" class="form-control" type="text">
+                        <span id="subject_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label for="notification-description">Description</label>
                         <input id="notification-description" name="description" class="form-control" type="text">
+                        <span id="description_error" class="text-danger"></span>
                     </div>
                     <div class="form-group">
                         <label for="notification-participants">Participants(vendor)</label>

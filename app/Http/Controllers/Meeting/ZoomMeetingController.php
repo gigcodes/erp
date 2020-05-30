@@ -59,20 +59,24 @@ class ZoomMeetingController extends Controller
     {
         $this->validate( $request, [
             'meeting_topic' => 'required|min:3|max:255',
-            'start_date_time' => 'required',
-            'meeting_duration' => 'required',
-            'timezone' => 'required'
-        ] );
+            //'start_date_time' => 'required',
+            //'meeting_duration' => 'required',
+            //'timezone' => 'required'
+        ]);
+
         $input = $request->all();
-        $startDate = strtotime(new Carbon($input['start_date_time']));
-        $currentDate = strtotime(Carbon::now());
+        
+        $startDate      = strtotime(new Carbon($request->get("start_date_time",date("Y-m-d H:i",strtotime("+5 minutes")))));
+        $currentDate    = strtotime(Carbon::now());
+
         if($startDate < $currentDate){
-             $data = ['msg' => 'Start date time should not be less than current date time.'];
-          return Response::json(array(
+            $data = ['msg' => 'Start date time should not be less than current date time.'];
+            return Response::json(array(
                 'success' => false,
                 'data'   => $data
-              ));
+            ));
         }
+
         $userId = $this->zoomuser;
         // Default settings for zoommeeting
          $settings = [
@@ -83,22 +87,28 @@ class ZoomMeetingController extends Controller
             'enforce_login' => false,
             'auto_recording' => 'cloud'
         ];
+
+        // add default setting in meeting
+        $input['start_date_time']  = date("Y-m-d H:i",$startDate);
+        $input['meeting_duration'] = $request->get("meeting_duration",5);
+        $input['timezone']         = $request->get("timezone","Asia/Dubai");
+        $input['meeting_agenda']   = $request->get("agenda","");
         // gethering all data to pass to model function
         $data = [
-            'user_id' => $userId,
-            'topic' => $input['meeting_topic'],
-            'agenda' => $input['meeting_agenda'],
-            'settings' => $settings,
+            'user_id'   => $userId,
+            'topic'     => $input['meeting_topic'],
+            'agenda'    => $input['meeting_agenda'],
+            'settings'  => $settings,
             'startTime' => new Carbon($input['start_date_time']),
-            'duration' => $input['meeting_duration'],
-            'timezone' => $input['timezone'],
+            'duration'  => $input['meeting_duration'],
+            'timezone'  => $input['timezone'],
         ];
         // Calling model calss
-        $meetings = new ZoomMeetings();
-        $zoomKey =  $this->zoomkey;
-        $zoomSecret = $this->zoomsecret;
-        $createMeeting = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
-        
+        $meetings       = new ZoomMeetings();
+        $zoomKey        = $this->zoomkey;
+        $zoomSecret     = $this->zoomsecret;
+        $createMeeting  = $meetings->createMeeting($zoomKey,$zoomSecret, $data);
+
         if($createMeeting){
          $input[ 'meeting_id' ] = empty( $createMeeting[ 'body' ]['id'] ) ? "" : $createMeeting[ 'body' ]['id'];
          $input[ 'host_zoom_id' ] = $this->zoomuser;
