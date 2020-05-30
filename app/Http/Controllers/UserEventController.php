@@ -213,7 +213,7 @@ class UserEventController extends Controller
         $userEvent = new UserEvent;
         $userEvent->user_id = $userId;
         $userEvent->subject = $subject;
-        $userEvent->description = $description;
+        $userEvent->description = ($description) ? $description : "";
         $userEvent->date = $date;
 
         if (isset($time)) {
@@ -222,8 +222,6 @@ class UserEventController extends Controller
             $userEvent->start = date('Y-m-d H:i:s', $start);
             $userEvent->end = date('Y-m-d H:i:s', $end);
         }
-
-
 
         $userEvent->save();
 

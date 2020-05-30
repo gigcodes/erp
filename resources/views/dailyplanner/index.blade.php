@@ -162,18 +162,18 @@
                     </select> --}}
 
                     <div class="d-flex">
-                      <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                        @foreach ($tasks as $task)
-                          <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                        @endforeach
-                      </select>
-                      &nbsp;&nbsp;
                       <?php echo Form::select("general_category_id",
                           [ null => "-- Select Category --"] + $generalCategories,
                           $task['general_category_id'],
                           ['class' => 'form-control general_category_id']
                         );  ?>
                       &nbsp;&nbsp;  
+                      <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
+                        @foreach ($tasks as $task)
+                          <option data-tokens="{{ $task['id'] }} {{ $task['task_subject'] }} {{ $task['task_details'] }}" value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
+                        @endforeach
+                      </select>
+                      &nbsp;&nbsp;
                       <input type="text" class="form-control input-sm quick-plan-input" name="task" placeholder="New Plan" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}" value="">
                       &nbsp;&nbsp;
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>

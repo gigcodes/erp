@@ -31,8 +31,27 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style type="text/css">
         .select2-container--open{
-        z-index:9999999
+            z-index:9999999
         }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 10px;
+        }
+
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
@@ -1545,8 +1564,10 @@
         @include('partials.modals.quick-development-task')
         @include('partials.modals.quick-instruction-notes')
         @include('partials.modals.quick-user-event-notification')
+        @include('partials.modals.quick-chatbox-window')
+        @include('partials.modals.quick-zoom-meeting-window')
         @php
-        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
         @include('partials.chat')
@@ -1557,14 +1578,28 @@
             <nav id="quick-sidebar">
                 <ul class="list-unstyled components">
                     <li>
-                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-lg"></i></span></a>
+                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
                     </li>
                     <li>
-                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-lg" aria-hidden="true"></i></span></a>
+                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
                     </li>
                     <li>
                         <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
-                            <span><i class="fa fa-calendar-check-o fa-lg" aria-hidden="true"></i></span>
+                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    <li>
+                        <a id="message-chat-data-box" class="quick-icon"> 
+                           <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
+                           </span>
+                        </a>
+                    </li>
+                    @endif
+                    <li>
+                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
+                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
                 </ul>
@@ -1590,11 +1625,15 @@
         
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
     </div>
+    <?php /*
     @if(Auth::check())
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            <button class="chat-button">
+                <img src="/images/chat.png" class="img-responsive"/>
+                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
+            </button>
         </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
@@ -1741,6 +1780,7 @@
     </div>
     @endif
     @endif
+    */ ?>
 
     <!-- Scripts -->
 
@@ -1828,7 +1868,7 @@
                 data: $form.serialize(),
                 dataType: "json",
                 success: function(data) {
-                    if (data.code > 0) {
+                    if (data.code == 200) {
                         $form[0].reset();
                         $("#quick-user-event-notification-modal").modal("hide");
                         toastr['success'](data.message, 'Message');
@@ -1836,6 +1876,12 @@
                         toastr['error'](data.message, 'Message');
                     }
                 },
+                error : function(xhr, status, error) {
+                    var errors = xhr.responseJSON;
+                    $.each(errors, function (key, val) {
+                        $("#" + key + "_error").text(val[0]);
+                    });
+                }
             });
         });
 
@@ -1860,16 +1906,29 @@
         }
 
         // started for chat button
+        // open chatbox now into popup
+
         var chatBoxOpen = false;
+        
+        $("#message-chat-data-box").on("click",function(e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
+        });
+
+        $('#quick-chatbox-window-modal').on('hidden.bs.modal', function () {
+           chatBoxOpen = false;
+           openChatBox(false);
+        });
+
         $('.chat-button').on('click', function () {
             $('.chat-button-wrapper').toggleClass('expanded');
             $('.page-chat-list-rt').toggleClass('dis-none');
-
             if($('.chat-button-wrapper').hasClass('expanded')){
                 chatBoxOpen = true;
                 openChatBox(true);
-            }
-            else{
+            }else{
                 chatBoxOpen = false;
                 openChatBox(false);
             }
@@ -2019,7 +2078,7 @@
         });
         @endif
     </script>
-    @if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
     <script>
@@ -2101,23 +2160,63 @@
 
         $(document).ready(function(){
             $(window).scroll(function () {
-                    if ($(this).scrollTop() > 50) {
-                        $('#back-to-top').fadeIn();
-                    } else {
-                        $('#back-to-top').fadeOut();
-                    }
-                });
-                // scroll body to 0px on click
-                $('#back-to-top').click(function () {
-                    $('body,html').animate({
-                        scrollTop: 0
-                    }, 400);
-                    return false;
-                });
+                if ($(this).scrollTop() > 50) {
+                    $('#back-to-top').fadeIn();
+                } else {
+                    $('#back-to-top').fadeOut();
+                }
+            });
+            // scroll body to 0px on click
+            $('#back-to-top').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 400);
+                return false;
+            });
 
-                $('#sidebarCollapse').on('click', function () {
-                    $('#sidebar').toggleClass('active');
-                });
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            $(".select2-vendor").select2({});
+        });
+
+        $(document).on('click', '.save-meeting-zoom', function () {
+            var user_id = $('#quick_user_id').val();
+            var meeting_topic = $('#quick_meeting_topic').val();
+            var csrf_token = $('#quick_csrfToken').val();
+            var meeting_url = $('#quick_meetingUrl').val();
+            $.ajax({
+                url: meeting_url,
+                type: 'POST',
+                success: function (response) {
+                    var status = response.success;
+                    if(false == status){
+                        toastr['error'](response.data.msg);
+                    }else{
+                        $('#quick-zoomModal').modal('toggle');
+                        window.open(response.data.meeting_link);
+                        var html = '';
+                        html += response.data.msg+'<br>';
+                        html += 'Meeting URL: <a href="'+response.data.meeting_link+'" target="_blank">'+response.data.meeting_link+'</a><br><br>';
+                        html += '<a class="btn btn-primary" target="_blank" href="'+response.data.start_meeting+'">Start Meeting</a>';
+                        $('#qickZoomMeetingModal').modal('toggle');
+                        $('.meeting_link').html(html);
+                        toastr['success'](response.data.msg);
+                    }
+                },
+                data: {
+                    user_id: user_id,
+                    meeting_topic: meeting_topic,
+                    _token: csrf_token,
+                    user_type : "vendor"
+                },
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+
+            });;
         });
        
     </script>

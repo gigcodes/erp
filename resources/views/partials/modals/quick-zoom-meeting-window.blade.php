@@ -1,4 +1,4 @@
-<div id="zoomModal" class="modal fade" role="dialog">
+<div id="quick-zoomModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -7,14 +7,20 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <input type="hidden" value="" class="" id="user__id" name="user_id">
-                <input type="hidden" value="" class="" id="user__type" name="user_id">
                 <div class="form-group">
                     <label for="meeting_topic">Meeting Topic</label>
-                    <input type="text" name="meeting_topic" id="meeting_topic" class="form-control"/>
+                    <input type="text" name="meeting_topic" id="quick_meeting_topic" class="form-control"/>
                 </div>
                 <div class="form-group">
-                    <button class="btn btn-secondary save-meeting">Save</button>
+                    <label for="user_id">Vendor</label>
+                    <?php echo Form::select("user_id",\App\Vendor::all()->pluck("name","id")->toArray(),null,[
+                        "class" => "form-control select2-vendor" , 
+                        "id" => "quick_user_id",
+                        "style" => "width:100%;"
+                    ]); ?>
+                </div>
+                <div class="form-group">
+                    <button class="btn btn-secondary save-meeting-zoom">Save</button>
                 </div>
             </div>
             <div class="modal-footer">
@@ -23,9 +29,9 @@
         </div>
     </div>
 </div>
-<input type="hidden" value="{{action('Meeting\ZoomMeetingController@createMeeting')}}" class="" id="meetingUrl">
-<input type="hidden" value="{{ csrf_token() }}" class="" id="csrfToken">
-<div id="zoomMeetingModal" class="modal fade" role="dialog">
+<input type="hidden" value="{{action('Meeting\ZoomMeetingController@createMeeting')}}" class="" id="quick_meetingUrl">
+<input type="hidden" value="{{ csrf_token() }}" class="" id="quick_csrfToken">
+<div id="qickZoomMeetingModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
