@@ -20,12 +20,14 @@ class Task extends Model {
 		'assign_from',
 		'assign_to',
 		'is_statutory',
+		'actual_start_date',
 		'is_completed',
 		'sending_time',
 		'recurring_type',
 		'statutory_id',
 		'model_type',
 		'model_id',
+		'general_category_id'
 	];
 
 	protected $dates = ['deleted_at'];
