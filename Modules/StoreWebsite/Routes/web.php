@@ -41,6 +41,18 @@ Route::prefix('store-website')->group(function () {
                 Route::get('/delete', 'BrandController@delete')->name("store-website.attached-brand.delete");
             });    
         });
+
+        Route::prefix('goal')->group(function () {
+            Route::get('/', 'GoalController@index')->name("store-website.goal.index");
+            Route::get('records', 'GoalController@records')->name("store-website.goal.records");
+            Route::post('save', 'GoalController@save')->name("store-website.goal.save");
+            Route::prefix('{goalId}')->group(function () {
+                Route::get('edit', 'GoalController@edit')->name("store-website.goal.edit");
+                Route::get('delete', 'GoalController@delete')->name("store-website.goal.delete");
+                Route::get('remarks', 'GoalController@remarks')->name("store-website.goal.remarks");
+                Route::post('remarks', 'GoalController@storeRemarks')->name("store-website.goal.remarks.store");
+            });
+        });
     });    
 });
 
