@@ -28,6 +28,15 @@ class Task extends Model {
 		'model_id',
 	];
 
+	const TASK_TYPES = [
+		"Other Task",
+		"Statutory Task",
+		"Calendar Task",
+		"Discussion Task",
+		"Developer Task",
+		"Developer Issue",
+	];
+
 	protected $dates = ['deleted_at'];
 
 	public static function hasremark( $id ) {

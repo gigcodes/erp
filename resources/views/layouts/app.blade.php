@@ -2237,9 +2237,11 @@
                 },
                 success: function (response) {
                     if(response.code == 200){
-                        toastr['success'](response.data.msg);
+                        form[0].reset();
+                        toastr['success'](response.message);
+                        $("#quick-create-task").modal("hide");
                     }else{
-                        toastr['error'](response.data.msg);
+                        toastr['error'](response.message);
                     }
                 }
             }).fail(function (response) {
