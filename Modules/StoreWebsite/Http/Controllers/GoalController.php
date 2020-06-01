@@ -25,21 +25,32 @@ class GoalController extends Controller
 
     public function records(Request $request, $id)
     {
+        $keyword = request("keyword");
+        
         // send response into the json
-        $storeWebsite = StoreWebsiteGoal::join("store_websites as sw", "sw.id", "store_website_goals.store_website_id")
+        $records = StoreWebsiteGoal::join("store_websites as sw", "sw.id", "store_website_goals.store_website_id")
             ->leftJoin('store_website_goal_remarks', function($query) {
                 $query->on('store_website_goals.id','=','store_website_goal_remarks.store_website_goal_id')
                     ->whereRaw('store_website_goal_remarks.id IN (select MAX(a2.id) from store_website_goal_remarks as a2 join store_website_goals as u2 on u2.id = a2.store_website_goal_id group by u2.id)');
             })
 
             ->where("store_website_id", $id)
-            ->select(["store_website_goals.*", "sw.website","store_website_goal_remarks.remark"])
-            ->get();
+            ->select(["store_website_goals.*", "sw.website","store_website_goal_remarks.remark"]);
+            //->get();
+
+       if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("store_website_goals.goal", "LIKE", "%$keyword%")
+                    ->orWhere("store_website_goals.solution", "LIKE", "%$keyword%");
+            });
+        }
+        
+        $records = $records->get();     
 
         return response()->json([
             "code"             => 200,
             "store_website_id" => $id,
-            "data"             => $storeWebsite,
+            "data"             => $records,
         ]);
     }
 
