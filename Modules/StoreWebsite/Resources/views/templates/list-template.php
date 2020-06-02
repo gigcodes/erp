@@ -52,6 +52,7 @@
 			        			<img width="15px" title="Site Development" src="/images/project.png">
 			        		</a>
 						</button> 
+						<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/store-website/{{>prop.id}}/goal"><i class="fa fa-bullseye"></i></a></button> 
 			        </td>
 			      </tr>
 			    {{/props}}  
