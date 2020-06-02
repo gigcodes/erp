@@ -49,7 +49,7 @@
           //font-weight:bold;
         }
         #quick-sidebar {
-            padding-top: 10px;
+            padding-top: 35px;
         }
 
     </style>
@@ -1610,6 +1610,8 @@
             <div class="col-md-11">
                 @yield('large_content')
             </div>
+        @elseif (trim($__env->yieldContent('core_content')))
+            @yield('core_content')
         @else
             <main class="container">
                 <!-- Showing fb like page div to all pages  -->

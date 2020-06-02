@@ -4,15 +4,15 @@
 		    <thead>
 		      <tr>
 		      	<th width="2%">Id</th>
-		        <th width="10%">Title</th>
-		        <th width="10%">Website</th>
-		        <th width="20%">Description</th>
+		        <th width="5%">Title</th>
+		        <th width="5%">Website</th>
+		        <th width="10%">Description</th>
 		        <th width="2%">Remote software</th>
 		        <th width="5%">Facebook</th>
 		        <th width="5%">Instagram</th>
 		        <th width="3%">Published</th>
-		        <th width="10%">Created At</th>
-		        <th width="20%">Action</th>
+		        <th width="5%">Created At</th>
+		        <th width="10%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -35,9 +35,23 @@
 			        <td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category"><img width="15px" title="Attach Category" src="/images/attach.png"></button> |<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands"><img width="15px" title="Attach Brands" src="/images/purchase.png"></button>|<button type="button" data-id="{{>prop.id}}" class="btn"><a href="/site-development/{{>prop.id}}"><img width="15px" title="Site Development" src="/images/project.png"></a></button> 
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
+			        		<i class="fa fa-edit" aria-hidden="true"></i>
+			        	</button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template">
+			        		<i class="fa fa-trash" aria-hidden="true"></i>
+			        	</button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-category">
+			        		<i class="fa fa-paperclip" aria-hidden="true"></i>
+			        	</button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-attach-brands">	
+			        		<img width="15px" title="Attach Brands" src="/images/purchase.png">
+			        	</button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn">
+			        		<a href="/site-development/{{>prop.id}}">
+			        			<img width="15px" title="Site Development" src="/images/project.png">
+			        		</a>
+						</button> 
 			        </td>
 			      </tr>
 			    {{/props}}  
