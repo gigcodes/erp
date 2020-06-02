@@ -184,13 +184,13 @@
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
-                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                    <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
-                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
+                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img title="View order" src="/images/view.png" /></a>
                   <a class="btn btn-image send-invoice-btn" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
-                    <img src="/images/purchase.png" />
+                    <img title="Send Invoice" src="/images/purchase.png" />
                   </a>
-                  <a class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
+                  <a title="Preview Order" class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
                     <i class="fa fa-hourglass"></i>
                   </a>
                   {{-- @can('order-edit')
@@ -198,12 +198,12 @@
                   @endcan --}}
 
                   {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                  <button type="submit" class="btn btn-image"><img title="Archive Order" src="/images/archive.png" /></button>
                   {!! Form::close() !!}
 
                   @if(auth()->user()->checkPermission('order-delete'))
                     {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                    <button type="submit" class="btn btn-image"><img title="Delete Order" src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                   @endif
                 </div>
