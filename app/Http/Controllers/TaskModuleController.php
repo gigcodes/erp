@@ -657,6 +657,7 @@ class TaskModuleController extends Controller {
 		$task = Task::find($id);
 		$task->time_slot = $request->time_slot;
 		$task->planned_at = $request->planned_at;
+		$task->general_category_id = $request->get("general_category_id",null);
 		$task->save();
 
 		return response()->json([
@@ -936,6 +937,22 @@ class TaskModuleController extends Controller {
 
 		return redirect()->back()
 		                 ->with( 'success', 'Task marked as completed.' );
+	}
+
+	public function start(Request $request, $taskid ) {
+
+		$task               = Task::find( $taskid );
+
+		$task->actual_start_date = date( 'Y-m-d H:i:s' );
+		$task->save();
+
+		if ($request->ajax()) {
+			return response()->json([
+				'task'	=> $task
+			]);
+		}
+
+		return redirect()->back()->with( 'success', 'Task started.' );
 	}
 
 	public function statutoryComplete( $taskid ) {

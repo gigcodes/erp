@@ -49,6 +49,28 @@
 
     @include('partials.flash_messages')
 
+    <?php if(!empty($spentTime)) { ?>
+      <div class="row mt-3">
+         <div class="col-md-12">
+            <div class="card card-body">
+                <div class="row col-md-12">
+                     <?php foreach ($spentTime as $key => $value) { ?>
+                         <div class="col-md-2">
+                            <div class="card">
+                               <div class="card-header">
+                                  <?php echo isset($generalCategories[$key]) ? $generalCategories[$key] : "N/A"; ?>                       
+                               </div>
+                               <div class="card-body">
+                                  <?php echo $value; ?> Minutes                              
+                               </div>
+                            </div>
+                         </div>
+                     <?php } ?>
+                </div>
+             </div>
+         </div>
+      </div>
+    <?php } ?>
     <div class="row no-gutters mt-3">
       <div class="col-xs-12 col-md-12" id="plannerColumn">
         <div class="table-responsive">
@@ -57,7 +79,8 @@
               <tr>
                 <th width="20%">Time</th>
                 <th width="40%">Planned</th>
-                <th width="20%">Actual</th>
+                <th width="20%">Actual Start Time</th>
+                <th width="20%">Actual Complete Time</th>
                 <th width="20%">Remark</th>
               </tr>
             </thead>
@@ -65,45 +88,40 @@
             <tbody>
               @php $count = 0; @endphp
               @foreach ($time_slots as $time_slot => $data)
-                {{-- <tr id="timeslot{{ $count }}">
-                  <td class="p-2" rowspan="{{ (count($data) + 1) > 5 ? 5 : (count($data) + 1)  }}">{{ $time_slot }}</td>
-                </tr> --}}
                 @if (count($data) > 0)
                   @foreach ($data as $key => $task)
-                    {{-- @if () --}}
                       <tr class="{{ $key <= 3 ? '' : "hidden hiddentask$count" }}">
-                        {{-- @if ($key > 3) --}}
-                          <td class="p-2">
-                            @if ($key == 0)
-                              {{ $time_slot }}
-                            @endif
-                          </td>
-                        {{-- @endif --}}
+                        <td class="p-2">
+                          @if ($key == 0)
+                            {{ $time_slot }} <a href="javascript:;" class="show-timer-div"> + </a>
+                          @endif
+                        </td>
                         <td class="p-2">
                           <div class="d-flex justify-content-between">
                             <span>
                               @if ($task->activity == '')
                                 {{ $task->task_subject ?? substr($task->task_details, 0, 20) }}
                               @else
-                                {{ $task->activity }}
+                                [{{ ($task->generalCategory) ? $task->generalCategory->name : "N/A" }}]  {{ $task->activity }}
                               @endif
 
                               @if ($task->pending_for != 0)
                                 - pending for {{ $task->pending_for }} days
                               @endif
                             </span>
-
                             <span>
-                              @if ($task->is_completed == '')
+                              @if ($task->is_completed == '' && $task->id != '')
                                 <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
+                              @elseif($task->is_completed == '' &&  $task->id != '')
+                                <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/youtube_128.png" /></button>
                               @endif
-
                               @if ($key == 3)
                                 <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
                               @endif
                             </span>
                           </div>
                         </td>
+                        <td class="p-2 task-start-time">{{ $task->actual_start_date != '0000-00-00 00:00:00' ? \Carbon\Carbon::parse($task->actual_start_date)->format('d-m H:i') : '' }}</td>
                         <td class="p-2 task-time">{{ $task->is_completed ? \Carbon\Carbon::parse($task->is_completed)->format('d-m H:i') : '' }}</td>
                         <td class="expand-row table-hover-cell p-2">
                           <span class="td-mini-container">
@@ -121,46 +139,24 @@
 
                             <span class="d-flex">
                               <input type="text" class="form-control input-sm quick-remark-input" name="remark" placeholder="Remark" value="">
-
                               <button type="button" class="btn btn-image quick-remark-button" data-id="{{ $task->id }}"><img src="/images/filled-sent.png" /></button>
                             </span>
                           </span>
-                          {{-- <button type="button" class="btn btn-image make-remark p-0 m-0" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $task->id }}"><img src="/images/remark.png" /></button> --}}
                         </td>
                       </tr>
-                    {{-- @endif --}}
                   @endforeach
                 @else
                   <tr>
-                    <td class="p-2">{{ $time_slot }}</td>
+                    <td class="p-2">{{ $time_slot }} <a href="javascript:;" class="show-timer-div"> + </a></td>
                     <td class="p-2"></td>
+                    <td class="p-2 task-start"></td>
                     <td class="p-2 task-complete"></td>
                     <td class="p-2"></td>
                   </tr>
                 @endif
-
-                {{-- @if (count($data) == 0)
-                  <tr>
-                    <td></td>
-                    <td></td>
-                    <td></td>
-                  </tr>
-                @endif --}}
-
-                <tr>
-                  {{-- @if (count($data) != 0) --}}
-
+                <tr class="dis-none create-input-table">
                   <td class="p-2"></td>
-                  {{-- @endif --}}
                   <td class="p-2">
-                    {{-- <select class="form-control input-sm plan-task" name="task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
-                      <option value="">Select a Task</option>
-
-                      @foreach ($tasks['list'] as $task)
-                        <option value="{{ $task['id'] }}">#{{ $task['id'] }} {{ $task['task_subject'] }} - {{ substr($task['task_details'], 0, 20) }}</option>
-                      @endforeach
-                    </select> --}}
-
                     <div class="d-flex">
                       <?php echo Form::select("general_category_id",
                           [ null => "-- Select Category --"] + $generalCategories,
@@ -178,9 +174,8 @@
                       &nbsp;&nbsp;
                       <button type="button" class="btn btn-image quick-plan-button" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}"><img src="/images/filled-sent.png" /></button>
                     </div>
-
-
                   </td>
+                  <td class="p-2"></td>
                   <td class="p-2"></td>
                   <td class="p-2"></td>
                 </tr>
@@ -250,6 +245,7 @@
       var id = $(this).val();
       var thiss = $(this);
       var target_id = $(this).data('targetid');
+      var generalCat = thiss.closest("td").find(".general_category_id").val();
 
       if (id != '') {
         $.ajax({
@@ -258,7 +254,8 @@
           data: {
             _token: "{{ csrf_token() }}",
             time_slot: time_slot,
-            planned_at: "{{ $planned_at }}"
+            planned_at: "{{ $planned_at }}",
+            general_category_id : generalCat
           }
         }).done(function(response) {
           // var count = $('#' + target_id).find('td').attr('rowspan');
@@ -272,10 +269,12 @@
                 ` + response.task.task_subject + `
                 </span>
                 <span>
+                  <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/youtube_128.png" /></button>
                   <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.task.id + `" data-type="task"><img src="/images/incomplete.png" /></button>
                 </span>
               </div>
             </td>
+            <td class="p-2 task-start-time"></td>
             <td class="p-2 task-time"></td>
             <td class="expand-row table-hover-cell p-2">
               <span class="td-mini-container"></span>
@@ -398,6 +397,48 @@
       }
     });
 
+    $(document).on('click', '.task-actual-start', function(e) {
+      e.preventDefault();
+      
+      var thiss = $(this);
+      var task_id = $(thiss).data('id');
+      var image = $(this).html();
+      var current_user = {{ Auth::id() }};
+      var type = $(this).data('type');
+
+      if (type == 'activity') {
+        var url = "/dailyActivity/start/" + task_id;
+      } else {
+        var url = "/task/start/" + task_id;
+      }
+
+      if (!$(thiss).is(':disabled')) {
+        $.ajax({
+          type: "GET",
+          url: url,
+          data: {
+            type: 'start'
+          },
+          beforeSend: function () {
+            $(thiss).text('Sending ...');
+          }
+        }).done(function(response) {
+          // $(thiss).parent()
+          $(thiss).closest('tr').find('.task-start-time').text(moment().format('DD-MM HH:mm'));
+          $(thiss).remove();
+        }).fail(function(response) {
+          $(thiss).html(image);
+
+          alert('Could not start task!');
+
+          console.log(response);
+        });
+      }
+    });
+
+
+    
+
     $(document).on('click', '.show-tasks', function() {
       var count = $(this).data('count');
       // var rowspan = $(this)
@@ -426,10 +467,12 @@
               ` + activity + `
               </span>
               <span>
+                <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="` + response.activity.id + `" data-type="activity"><img src="/images/youtube_128.png" /></button>
                 <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="` + response.activity.id + `" data-type="activity"><img src="/images/incomplete.png" /></button>
               </span>
             </div>
           </td>
+          <td class="p-2 task-start-time"></td>
           <td class="p-2 task-time"></td>
           <td class="expand-row table-hover-cell p-2">
             <span class="td-mini-container"></span>
@@ -499,6 +542,11 @@
 
     $(document).on('click', '.quick-remark-input', function(e) {
       e.stopPropagation();
+    });
+
+    $(document).on("click",".show-timer-div",function(e) {
+       var $this = $(this);
+           $this.closest("tr").nextAll('.create-input-table').first().toggleClass("dis-none"); 
     });
   </script>
 @endsection
