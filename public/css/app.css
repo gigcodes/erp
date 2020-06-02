@@ -10855,3 +10855,6 @@ li.active{
 
 /* Sidebar section eended */
 
+.dis-none { 
+    display: none;
+}

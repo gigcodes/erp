@@ -292,7 +292,7 @@
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}
                                     @if(auth()->user()->isAdmin() && $task->status != 'Done')
-                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
                                     @endif
                                 </td>
                                 <td>
@@ -392,7 +392,7 @@
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}
                                     @if($task->status != 'Done')
-                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
                                     @endif
                                 </td>
                                 <td>

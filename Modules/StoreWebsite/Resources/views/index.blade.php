@@ -45,7 +45,7 @@
 		    	</div>
 		    </div>
 	    </div>	
-		<div class="col-md-12 margin-tb" id="page-view-result">
+		<div class="margin-tb" id="page-view-result">
 
 		</div>
 	</div>

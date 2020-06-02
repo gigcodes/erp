@@ -49,7 +49,7 @@
           //font-weight:bold;
         }
         #quick-sidebar {
-            padding-top: 10px;
+            padding-top: 35px;
         }
 
     </style>
@@ -1566,6 +1566,7 @@
         @include('partials.modals.quick-user-event-notification')
         @include('partials.modals.quick-chatbox-window')
         @include('partials.modals.quick-zoom-meeting-window')
+        @include('partials.modals.quick-create-task-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
         @endphp
@@ -1602,6 +1603,11 @@
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
+                    <li>
+                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
+                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
             <!-- end section for sidebar toggle -->
@@ -1610,6 +1616,8 @@
             <div class="col-md-11">
                 @yield('large_content')
             </div>
+        @elseif (trim($__env->yieldContent('core_content')))
+            @yield('core_content')
         @else
             <main class="container">
                 <!-- Showing fb like page div to all pages  -->
@@ -2216,9 +2224,32 @@
             }).fail(function (response) {
                 toastr['error'](response.responseJSON.message);
 
-            });;
+            });
         });
-       
+
+        $(document).on("click",".save-task-window",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: form.attr("action"),
+                type: 'POST',
+                data: form.serialize(),
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                },
+                success: function (response) {
+                    if(response.code == 200){
+                        form[0].reset();
+                        toastr['success'](response.message);
+                        $("#quick-create-task").modal("hide");
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+            });
+        });
     </script>
 
 </body>

@@ -55,6 +55,15 @@ class DailyActivityController extends Controller
       return response('success', 200);
     }
 
+    public function start(Request $request, $id)
+    {
+      $activity = DailyActivity::find($id);
+      $activity->actual_start_date = Carbon::now();
+      $activity->save();
+
+      return response('success', 200);
+    }
+
     function get(Request $request){
 
     	$selected_user = $request->input('selected_user');

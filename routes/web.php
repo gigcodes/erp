@@ -340,6 +340,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
+    Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -592,10 +593,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('dailyActivity/store', 'DailyActivityController@store')->name('dailyActivity.store');
     Route::post('dailyActivity/quickStore', 'DailyActivityController@quickStore')->name('dailyActivity.quick.store');
     Route::get('dailyActivity/complete/{id}', 'DailyActivityController@complete');
+    Route::get('dailyActivity/start/{id}', 'DailyActivityController@start');
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     // Complete the task
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
+    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
     Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
     Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');

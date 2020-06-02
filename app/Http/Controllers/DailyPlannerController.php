@@ -86,6 +86,30 @@ class DailyPlannerController extends Controller
 
       $generalCategories = \App\GeneralCategory::all()->pluck("name","id")->toArray();
 
+      // start calulation of all time spent
+      $taskCategoryWise = \App\Task::where("actual_start_date", "!=", "")
+      ->where("is_completed","!=" , "")
+      ->where("general_category_id","!=" , "")
+      ->select([\DB::raw("sum(TIMESTAMPDIFF(MINUTE,actual_start_date, is_completed)) as spent_time"),"general_category_id","is_completed", "actual_start_date"])
+      ->groupBy("general_category_id")->get()->pluck("spent_time","general_category_id")->toArray();
+
+      $activitiesCategoryWise = \App\DailyActivity::where("actual_start_date", "!=", "")
+      ->where("is_completed","!=" , "")
+      ->where("general_category_id","!=" , "")
+      ->select([\DB::raw("sum(TIMESTAMPDIFF(MINUTE, actual_start_date, is_completed)) as spent_time"),"general_category_id","is_completed", "actual_start_date"])
+      ->groupBy("general_category_id")->get()->pluck("spent_time","general_category_id")->toArray();
+
+      $spentTime = [];
+      if(!empty($generalCategories)) {
+        foreach($generalCategories as $id => $name) {
+              if(!isset($spentTime[$id])){
+                $spentTime[$id] = 0;
+              }
+              $spentTime[$id] += isset($taskCategoryWise[$id]) ? $taskCategoryWise[$id] : 0;
+              $spentTime[$id] += isset($activitiesCategoryWise[$id]) ? $activitiesCategoryWise[$id] : 0;
+        }
+      }
+
       return view('dailyplanner.index', [
         'tasks'             => $tasks,
         'time_slots'        => $time_slots,
@@ -93,7 +117,8 @@ class DailyPlannerController extends Controller
         'call_instructions' => $call_instructions,
         'userid'            => $userid,
         'planned_at'        => $planned_at,
-        'generalCategories' => $generalCategories
+        'generalCategories' => $generalCategories,
+        'spentTime'         => $spentTime
       ]);
     }
 

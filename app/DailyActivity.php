@@ -13,7 +13,8 @@ class DailyActivity extends Model {
 		'assist_msg',
 		'activity',
 		'for_date',
-		'general_category_id'
+		'general_category_id',
+		'actual_start_date'
 	];
 
 	public function remarks()
