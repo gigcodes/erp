@@ -1456,4 +1456,99 @@ class TaskModuleController extends Controller {
 
 	}
 
+	public function createTaskFromSortcut(Request $request)
+	{
+		$params = $request->all();
+
+		$this->validate($request, [
+			'task_subject'	=> 'required',
+			'task_detail'	=> 'required',
+			'task_asssigned_to' => 'required_without:assign_to_contacts'
+		]);
+
+		$taskType = $request->get("task_type");
+
+		if($taskType == "5" || $taskType == "6") {
+
+			$data = [];
+			$data["assigned_to"] 	= $request->get("task_asssigned_to");
+			$data["subject"] 		= $request->get("task_subject");
+			$data["task"] 			= $request->get("task_detail");
+			$data["task_type_id"]	= 1;
+			
+			if($taskType == 6) {
+				$data["task_type_id"]	= 3;
+			}
+
+			$task = DeveloperTask::create($data);
+
+			$requestData = new Request();
+	        $requestData->setMethod('POST');
+	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
+
+	        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+
+		}else{
+
+			$data['assign_from']  = Auth::id();
+			$data['is_statutory'] = $request->get("task_type");
+			$data['task_details'] = $request->get("task_detail");
+			$data['task_subject'] = $request->get("task_subject");
+			$data['assign_to'] 	  = $request->get("task_asssigned_to");
+			$task = Task::create($data);
+			if(!empty($task)) {
+				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+			}
+
+			if ($task->is_statutory != 1) {
+				$message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+			} else {
+				$message = $task->task_subject . ". " . $task->task_details;
+			}
+
+			$params = [
+			 	'number'       => NULL,
+			 	'user_id'      => Auth::id(),
+			 	'approved'     => 1,
+			 	'status'       => 2,
+			 	'task_id'	   => $task->id,
+			 	'message'      => $message
+		    ];
+
+		 	if (count($task->users) > 0) {
+				if ($task->assign_from == Auth::id()) {
+				 	foreach ($task->users as $key => $user) {
+					 	if ($key == 0) {
+						 	$params['erp_user'] = $user->id;
+					 	} else {
+							 app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+					 	}
+				 	}
+			 	} else {
+				 	foreach ($task->users as $key => $user) {
+					 	if ($key == 0) {
+						 	$params['erp_user'] = $task->assign_from;
+					 	} else {
+						 	if ($user->id != Auth::id()) {
+							 	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+						 	}
+					 	}
+				 	}
+			 	}
+		 	}
+
+			$chat_message = ChatMessage::create($params);
+
+			$myRequest = new Request();
+      		$myRequest->setMethod('POST');
+      		$myRequest->request->add(['messageId' => $chat_message->id]);
+
+      		app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+						
+		}
+
+		return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
+
+	}
+
 }
