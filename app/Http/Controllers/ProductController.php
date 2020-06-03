@@ -1604,7 +1604,7 @@ class ProductController extends Controller
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
-             $customerId = null;
+            $customerId = null;
         }
 
         //\DB::enableQueryLog();

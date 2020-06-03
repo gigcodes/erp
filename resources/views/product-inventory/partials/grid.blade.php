@@ -18,7 +18,11 @@
             <a href="{{ route( 'products.show', $product->id ) }}">
               <p class="card-text">SKU : {{ $product->sku }}
                 <a href="javascript:;" class="push-in-shopify" data-id="{{ $product->id }}">
-                  <i class="fa fa-caret-square-o-up fa-lg" aria-hidden="true"></i>
+                    @if($product->shopify_id != "")
+                      <i class="fa fa-caret-square-o-up fa-lg" aria-hidden="true"></i>
+                    @else
+                      <i class="fa fa-caret-square-o-down fa-lg" aria-hidden="true"></i>
+                    @endif
                 </a>
               </p>
               <p class="card-text">Id : {{ $product->id }}</p>

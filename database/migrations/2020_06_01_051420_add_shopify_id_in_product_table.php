@@ -14,7 +14,7 @@ class AddShopifyIdInProductTable extends Migration
     public function up()
     {
         Schema::table('products',function($table){
-            $table->integer('shopify_id')->nullable()->after("status");
+            $table->string('shopify_id')->nullable()->after("status");
         });
     }
 

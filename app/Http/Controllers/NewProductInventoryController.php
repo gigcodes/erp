@@ -137,7 +137,7 @@ class NewProductInventoryController extends Controller
                 }else{
                     $response = $client->addProduct($productData);
                 }
-                
+
                 $errors = [];
                 if (!empty($response->errors)) {
                     foreach ($response->errors as $key => $message) {
