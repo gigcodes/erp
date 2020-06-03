@@ -5,9 +5,10 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\ColorReference;
 use App\Library\Product\ProductSearch;
+use App\Library\Shopify\Client as ShopifyClient;
 use App\Stage;
-use Illuminate\Http\Request;
 use App\Supplier;
+use Illuminate\Http\Request;
 
 class NewProductInventoryController extends Controller
 {
@@ -26,14 +27,14 @@ class NewProductInventoryController extends Controller
         $suppliersDropList = collect($suppliersDropList)->pluck("supplier", "id")->toArray();
         // $suppliersDropList = Supplier::where('supplier_status_id','1')->pluck('supplier','id')->toArray();
 
-        $typeList          = [
+        $typeList = [
             "scraped"  => "Scraped",
             "imported" => "Imported",
             "uploaded" => "Uploaded",
         ];
 
-        $params   = request()->all();
-        
+        $params = request()->all();
+
         $products = (new ProductSearch($params))->getQuery()->paginate(24);
 
         $items = [];
@@ -62,7 +63,7 @@ class NewProductInventoryController extends Controller
             foreach ($product->suppliers as $key => $supplier) {
                 $supplier_list .= $supplier->supplier;
             }
-            
+
             $product->supplier_list = $supplier_list;
 
             if (isset($items[$date])) {
@@ -94,4 +95,72 @@ class NewProductInventoryController extends Controller
 
         return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors'));
     }
+
+    public function pushInShopify(Request $request, $id)
+    {
+        if ($id > 0) {
+
+            $product = \App\Product::find($id);
+            if (!empty($product)) {
+                // Set data for Shopify
+                $productData = [
+                    'product' => [
+                        'body_html'       => $product->short_description,
+                        'images'          => [],
+                        'product_type'    => ($product->product_category && $product->category > 1) ? $product->product_category->title : "",
+                        'published_scope' => 'web',
+                        'title'           => $product->name,
+                        'variants'        => [],
+                        'vendor'          => ($product->brands) ? $product->brands->name : "",
+                    ],
+                ];
+
+                // Add images to product
+                if ($product->hasMedia(config('constants.media_tags'))) {
+                    foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                    }
+                }
+
+                $productData['product']['variants'][] = [
+                    'barcode'             => (string) $product->id,
+                    'fulfillment_service' => 'manual',
+                    'price'               => $product->price,
+                    'requires_shipping'   => true,
+                    'sku'                 => $product->sku,
+                    'title'               => (string) $product->title,
+                ];
+
+                $client   = new ShopifyClient();
+                if($product->shopify_id) {
+                    $response = $client->updateProduct($product->shopify_id,$productData);
+                }else{
+                    $response = $client->addProduct($productData);
+                }
+                
+                $errors = [];
+                if (!empty($response->errors)) {
+                    foreach ($response->errors as $key => $message) {
+                        foreach($message as $msg) {
+                            $errors[] = ucwords($key) . " " . $msg;
+                        }
+                    }
+                }
+
+                if (!empty($errors)) {
+                    return response()->json(["code" => 500, "data" => [], "message" => implode("<br>", $errors)]);
+                }
+
+                if (!empty($response->product)) {
+                    $product->shopify_id = $response->product->id;
+                    $product->save();
+                    return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+            }
+
+        }
+
+    }
+
+    return response()->json(["code" => 500, "data" => [], "message" => "Oops, Something went wrong!"]);
+}
 }

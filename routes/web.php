@@ -176,6 +176,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::prefix('{id}')->group(function () {
+            Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
+        });
     });
 
 

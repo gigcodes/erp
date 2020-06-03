@@ -16,7 +16,11 @@
           </a>      
           <div class="card-body">
             <a href="{{ route( 'products.show', $product->id ) }}">
-              <p class="card-text">SKU : {{ $product->sku }}</p>
+              <p class="card-text">SKU : {{ $product->sku }}
+                <a href="javascript:;" class="push-in-shopify" data-id="{{ $product->id }}">
+                  <i class="fa fa-caret-square-o-up fa-lg" aria-hidden="true"></i>
+                </a>
+              </p>
               <p class="card-text">Id : {{ $product->id }}</p>
               <p class="card-text">Size : {{ $product->size }}</p>
               <p class="card-text">Price : {{ $product->price }}</p>
@@ -36,7 +40,9 @@
               ]); ?></p>
             <p class="card-text">Supplier : {{ $product->supplier }}</p>
             <p class="card-text">Suppliers : {{ $product->supplier_list }}</p>
-            <p class="card-text"><input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}"></p>
+            <p class="card-text">
+              <input type="checkbox" class="select-product-edit" name="product_id" data-id="{{ $product->id }}">
+            </p>
           </div>
         </div>
       <?php //if($rowCount % 4 == 0) { echo '</div>'; } ?>

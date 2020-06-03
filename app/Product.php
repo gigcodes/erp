@@ -43,8 +43,10 @@ class Product extends Model
         'is_barcode_check',
         'has_mediables',
         'size_eu',
-        'stock_status'
+        'stock_status',
+        'shopify_id'
     ];
+
     protected $dates = ['deleted_at'];
     protected $appends = [];
     protected $communication = '';

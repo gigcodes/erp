@@ -120,6 +120,29 @@
             $(this).select2().select2('open');
         });
 
+        $(document).on("click",".push-in-shopify",function() {
+            var product_id  = $(this).data("id");
+            $.ajax({
+                url: '/product-inventory/'+product_id+'/push-in-shopify',
+                type: 'GET',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                    if(result.code == 200) {
+                        toastr['success']('Sent to store successfully', 'success');
+                    }else{
+                        toastr['error'](result.message, 'error');
+                    }
+                    $("#loading-image").hide();
+                }, 
+                error: function (){
+                    toastr['error']('Oops, Something went wrong', 'error');
+                    $("#loading-image").hide();
+                }
+            });     
+        });
+
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,
