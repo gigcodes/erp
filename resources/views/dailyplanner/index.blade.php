@@ -160,7 +160,7 @@
                     <div class="d-flex">
                       <?php echo Form::select("general_category_id",
                           [ null => "-- Select Category --"] + $generalCategories,
-                          $task['general_category_id'],
+                          isset($task['general_category_id']) ? $task['general_category_id'] : null,
                           ['class' => 'form-control general_category_id']
                         );  ?>
                       &nbsp;&nbsp;  
