@@ -334,6 +334,9 @@ class VendorController extends Controller
     ]);
 
     $data = $request->except(['_token', 'create_user']);
+    if(empty($data["whatsapp_number"]))  {
+      $data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+    }
 
     Vendor::create($data);
 
