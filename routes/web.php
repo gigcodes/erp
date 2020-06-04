@@ -14,7 +14,9 @@
 Auth::routes();
 
 
-Route::get('/test/test', 'TestController@index');
+Route::get('/test/test', function(){
+    return view('instagram.new.media.index');
+});
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 
@@ -1116,6 +1118,22 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('schedule/{scheduleId}/attach', 'InstagramController@attachMedia');
 
     Route::get('direct-message','ColdLeadsController@home');
+
+     // Media manager
+    Route::get('media', 'MediaController@index')->name('media.index');
+    Route::post('media', 'MediaController@upload')->name('media.upload');
+    Route::get('media/files', 'MediaController@files')->name('media.files');
+    Route::delete('media', 'MediaController@delete')->name('media.delete');
+
+    //Add Post
+    Route::get('post/create', 'InstagramPostsController@post')->name('instagram.post');
+    Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
+    Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
+    Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
+
+     Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
+     Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
+    
 });
 
 // logScraperVsAiController

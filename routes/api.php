@@ -86,8 +86,8 @@ Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
 Route::post('instagram/post', 'InstagramPostsController@apiPost');
 
 Route::get('instagram/send-account/{token}', 'InstagramPostsController@sendAccount');
-Route::post('{username}/{password}/get-comments', 'InstagramPostsController@getComments');
-Route::post('{username}/{password}/send-comment', 'InstagramPostsController@commentSent');
+Route::get('instagram/get-comments-list/{username}', 'InstagramPostsController@getComments');
+Route::post('instagram/comment-sent', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
 //Giving All Brands with Reference
