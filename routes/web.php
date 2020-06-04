@@ -176,6 +176,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::prefix('{id}')->group(function () {
+            Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
+        });
     });
 
 
@@ -436,6 +439,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
 
+    // landing page
+    Route::prefix('landing-page')->group(function () {
+        Route::get('/', 'LandingPageController@index')->name('landing-page.index');
+        Route::post('/save', 'LandingPageController@save')->name('landing-page.save');
+        Route::get('/records', 'LandingPageController@records')->name('landing-page.records');
+        Route::post('/store', 'LandingPageController@store')->name('landing-page.store');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
+            Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
+        });
+    });
 
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
