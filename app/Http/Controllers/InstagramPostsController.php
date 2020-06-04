@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\HashTag;
 use App\InstagramPosts;
+use App\Post;
 use App\InstagramPostsComments;
 use App\Setting;
 use Illuminate\Http\Request;
@@ -19,6 +20,8 @@ use App\InstagramCommentQueue;
 use App\ScrapInfluencer;
 use Carbon\Carbon;
 use App\InstagramUsersList;
+use App\Library\Instagram\PublishPost;
+use Plank\Mediable\Media;
 
 class InstagramPostsController extends Controller
 {
@@ -34,6 +37,37 @@ class InstagramPostsController extends Controller
         $posts = $posts->paginate(Setting::get('pagination'));
         // Return view
         return view('social-media.instagram-posts.index', compact('posts'));
+    }
+
+
+    public function post()
+    {
+        $accounts = \App\Account::all();
+        $used_space = 0;
+        $storage_limit = 0;
+        return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
+    }
+
+    public function createPost(Request $request){
+        
+        $post = new Post();
+
+        $post->account_id = $request->account;
+        $post->type       = $request->type;
+        $post->caption    = $request->caption;
+        $post->ig         = [
+            'media'    => $request->media,
+            'location' => '',
+        ];
+
+        if (new PublishPost($post)) {
+            return redirect()->route('post.index')
+                ->with('success', __('Your post has been published'));
+        } else {
+            return redirect()->route('post.index')
+                ->with('error', __('Post failed to published'));
+        }
+
     }
 
     public function grid(Request $request)
@@ -196,30 +230,30 @@ class InstagramPostsController extends Controller
      return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
     }
 
-    public function getComments($username , $password)
+    public function getComments($username)
     {
-        $account = Account::where('last_name',$username)->where('password',$password)->first();
+        $account = Account::where('last_name',$username)->first();
 
         if($account == null && $account == ''){
-             return response()->json(['message' => 'Account Not Found'], 400);
+             return response()->json(['result' =>  false,'message' => 'Account Not Found'], 400);
         }
-        $comments = InstagramCommentQueue::where('account_id',$account->id)->where('is_send',0)->get()->take(20);
-        foreach ($comments as $comment) {
-            $commentArray[] = $comment->message;
-            $codeArray[] = str_replace(["https://www.instagram.com/p/","/"],'',$comment->getPost->location);
+
+        $comments = InstagramCommentQueue::select('id','post_id','message')->where('account_id',$account->id)->where('is_send',0)->take(20)->get();
+        if(count($comments) != 0){
+            return response()->json(['result' => true , 'comments' => $comments],200); 
+        }else{
+            return response()->json(['result' =>  false, 'message' => 'No messages'],200); 
         }
-        
-        return response()->json(['comment' => $commentArray , 'code' => $codeArray ],200);        
+               
 
     }
 
     public function commentSent(Request $request)
     {
-        $comment = $request->comment;
-        $postId = $request->post_id;
-        $comments = InstagramCommentQueue::where('post_id',$postId)->where('message','LIKE','%'.$comment)->first().'%';
-        $comments->is_send = 1;
-        $comments->save();
+        $id = $request->id;
+        $comment = InstagramCommentQueue::find($id);
+        $comment->is_send = 1;
+        $comment->save();
 
     }    
 
@@ -323,5 +357,29 @@ class InstagramPostsController extends Controller
 
             
         }
+    }
+
+    public function viewPost(Request $request)
+    {
+        $accounts = Account::all();
+
+        $data = Post::whereNotNull('id')->paginate(10);
+        
+        return view('instagram.post.index', compact(
+            'accounts',
+            'data'
+        ));
+    }
+
+
+    public function users(Request $request)
+    {
+        $users = \App\InstagramUsersList::whereNotNull('username')->orderBy('id','desc')->paginate(25);
+        return view('instagram.users',compact('users'));
+    }
+
+    public function userPost($id)
+    {
+        dd($id);
     }
 }

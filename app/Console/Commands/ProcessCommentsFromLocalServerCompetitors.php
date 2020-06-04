@@ -204,7 +204,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     }
 
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
-                    $url = 'https://erp.amourint.com/api/local/instagram-post';
+                    $url = 'https://44f2ddb6e2a9.ngrok.io/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);

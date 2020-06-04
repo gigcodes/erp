@@ -99,7 +99,9 @@
         loggedinuser = "{{Auth::user()->id}}";
     </script>
     @endif
-
+    <script type="text/javascript">
+        var BASE_URL = '{{ config('app.url') }}';
+    </script>
 
 
     <!-- Fonts -->
@@ -775,6 +777,9 @@
                                             <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
                                             <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag Comments</a>
                                             <a class="dropdown-item" href="/instagram/direct-message">Direct Message</a>
+                                            <a class="dropdown-item" href="/instagram/post">Posts</a>
+                                            <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Media</a>
                                         </li>
 
                                         <hr />

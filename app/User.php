@@ -8,6 +8,8 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 use Cache;
 use App\UserLog;
 use DB;
@@ -19,6 +21,7 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable;
     use HasRoles;
     use SoftDeletes;
+    use Mediable;
 
     /**
      * The attributes that are mass assignable.
