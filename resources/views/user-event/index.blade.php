@@ -5,6 +5,7 @@
 <link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/core/main.css') }}">
 <link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/daygrid/main.css') }}" />
 <link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/timegrid/main.css') }}" />
+<link rel="stylesheet" href="{{ URL::asset('libs/fullcalendar/list/main.css') }}" />
 <link rel="stylesheet" href="{{ URL::asset('css/user-calendar.css') }}" />
 
 <div class="row">
@@ -28,6 +29,7 @@
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/core/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/daygrid/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/timegrid/main.js') }}"></script>
+<script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/list/main.js') }}"></script>
 <script type="text/javascript" src="{{ URL::asset('libs/fullcalendar/interaction/main.js') }}"></script>
 <script>
     let calendar;
@@ -40,7 +42,7 @@
                 center: 'title',
                 right: 'dayGridMonth,timeGridWeek,timeGridDay,listMonth'
               },
-            defaultView: 'dayGridMonth',
+            defaultView: 'timeGridWeek',
             allDaySlot: false,
             editable: true,
             eventSources: [{

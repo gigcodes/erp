@@ -19,6 +19,8 @@ use Illuminate\Database\Eloquent\Model;
 use App\Supplier;
 use App\Customer;
 use App\Vendor;
+use Dotenv\Dotenv;
+use InvalidArgumentException;
 
 /**
  * Class ZoomMeetings - active record
@@ -50,6 +52,14 @@ class ZoomMeetings extends Model
         $time = time() + 7200;
         $token = $zoom->getJWTToken($time);
         if ($token) {
+
+            try {
+                $dotEnv = new Dotenv(app()->environmentPath(), app()->environmentFile());
+                $dotEnv->load();
+            } catch (InvalidArgumentException $e) {
+                //
+            }
+
             //$meeting = $zoom->createInstantMeeting($data['user_id'],$data['topic'], '', $data['agenda'], '',$data['settings']);
             $meeting = $zoom->createScheduledMeeting($data[ 'user_id' ], $data[ 'topic' ], $data[ 'startTime' ], $data[ 'duration' ], $data[ 'timezone' ], '', '', $data[ 'agenda' ], [], $data[ 'settings' ]);
             return $meeting;

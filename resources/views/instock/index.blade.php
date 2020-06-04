@@ -35,6 +35,20 @@
           <div class="form-group mr-3 mb-3">
             {!! $category_selection !!}
           </div>
+          
+          <?php /*
+          <div class="form-group mr-3 mb-3">
+            @php $stockStatus = \App\Product::STOCK_STATUS;
+            @endphp
+            <select data-placeholder="Select stock status"  class="form-control select-multiple2" name="stock_status[]" multiple>
+              <optgroup label="Stock Status">
+                @foreach ($stockStatus as $id => $name)
+                  <option value="{{ $id }}" {{ isset($stock_status) && $stock_status == $id ? 'selected' : '' }}>{{ $name }}</option>
+                @endforeach
+              </optgroup>
+            </select>
+          </div>
+          */ ?>
           <?php 
           /*
           <div class="form-group mr-3 mb-3">
@@ -934,6 +948,32 @@
           }
       });
 
+    });
+    $(document).on('change', '.update-product-stock-status', function () {
+        $this = $(this);
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          type: "post",
+          url: '<?php echo route("productinventory.instock.update-field"); ?>',
+          data: {
+              "id": $this.data("product-id"),
+              "field_name": "stock_status",
+              "field_value" : $this.val()
+          },
+          dataType: "json",
+          success: function(response) {
+              if (response.code != 200) {
+                  toastr['error'](response.message);
+              } else {
+                  toastr['success']('Success!');
+              }
+          },
+          error: function() {
+              toastr['error']('Can not store value please review!');
+          }
+      });
     });
 
   </script>

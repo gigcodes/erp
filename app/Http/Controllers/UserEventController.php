@@ -112,6 +112,25 @@ class UserEventController extends Controller
         $userEvent->end = $end;
         $userEvent->save();
 
+        // once user event has been stored create the event in daily planner
+        $dailyActivities = new \App\DailyActivity; 
+        if($userEvent->daily_activity_id > 0) {
+            $dailyActivities  = \App\DailyActivity::find($userEvent->daily_activity_id);
+            if(empty($dailyActivities)) {
+                $dailyActivities = new \App\DailyActivity;
+            }
+        }
+
+        $dailyActivities->time_slot = date("h:00 a",strtotime($userEvent->start)) . " - " .date("h:00 a",strtotime($userEvent->end));
+        $dailyActivities->activity  = $userEvent->subject;
+        $dailyActivities->user_id   = $userId;
+        $dailyActivities->for_date  = $date;
+        
+        if($dailyActivities->save()) {
+           $userEvent->daily_activity_id =  $dailyActivities->id;
+           $userEvent->save();
+        }
+
         // check first and vendors
         $vendors = $request->get("vendors",[]);
         UserEventParticipant::where("user_event_id",$userEvent->id)->delete();
@@ -194,7 +213,7 @@ class UserEventController extends Controller
         $userEvent = new UserEvent;
         $userEvent->user_id = $userId;
         $userEvent->subject = $subject;
-        $userEvent->description = $description;
+        $userEvent->description = ($description) ? $description : "";
         $userEvent->date = $date;
 
         if (isset($time)) {
@@ -204,9 +223,19 @@ class UserEventController extends Controller
             $userEvent->end = date('Y-m-d H:i:s', $end);
         }
 
-
-
         $userEvent->save();
+
+        // once user event has been stored create the event in daily planner
+        $dailyActivities = new \App\DailyActivity;
+        $dailyActivities->time_slot = date("h:00 a",strtotime($userEvent->start)) . " - " .date("h:00 a",strtotime($userEvent->end));
+        $dailyActivities->activity  = $userEvent->subject;
+        $dailyActivities->user_id   = $userId;
+        $dailyActivities->for_date  = $date;
+        
+        if($dailyActivities->save()) {
+           $userEvent->daily_activity_id =  $dailyActivities->id;
+           $userEvent->save();
+        }
 
         // save the attendees
         $attendees = explode(',', $contactsString);

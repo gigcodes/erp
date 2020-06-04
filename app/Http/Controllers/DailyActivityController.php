@@ -27,6 +27,18 @@ class DailyActivityController extends Controller
     public function quickStore(Request $request)
     {
       $data = $request->except('_token');
+
+      // check first we need to add general categories first or not 
+      $generalCat = $request->get("general_category_id",null);
+
+      if(is_string($generalCat) && $generalCat != "") {
+         $gc = \App\GeneralCategory::updateOrCreate(["name" => $generalCat],["name" => $generalCat]);
+         if(!empty($gc)) {
+            $data["general_category_id"] = $gc->id;
+         }
+      }
+      // general category store end
+
       $activity = DailyActivity::create($data);
 
       return response()->json([
@@ -38,6 +50,15 @@ class DailyActivityController extends Controller
     {
       $activity = DailyActivity::find($id);
       $activity->is_completed = Carbon::now();
+      $activity->save();
+
+      return response('success', 200);
+    }
+
+    public function start(Request $request, $id)
+    {
+      $activity = DailyActivity::find($id);
+      $activity->actual_start_date = Carbon::now();
       $activity->save();
 
       return response('success', 200);

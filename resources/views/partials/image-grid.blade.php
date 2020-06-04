@@ -261,6 +261,8 @@
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
             $action =  route('product.templates');
+        } else if ($model_type == 'landing-page') {
+            $action =  route('landing-page.save');
         }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
@@ -703,7 +705,6 @@
             @if ($model_type == 'purchase-replace')
             if (image_array.length > 1) {
                 alert('Please select only one product');
-
                 return;
             }
             @endif

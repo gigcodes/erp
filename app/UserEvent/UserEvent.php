@@ -13,7 +13,8 @@ class UserEvent extends Model
         'description',
         'date',  // in case of a date only entry (time will be chosen by attendees) 
         'start', // date time to determine the start of event
-        'end'
+        'end',
+        'daily_activity_id'
     ];
 
     public function attendees()

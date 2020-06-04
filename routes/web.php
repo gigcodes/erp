@@ -178,6 +178,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::prefix('{id}')->group(function () {
+            Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
+        });
     });
 
 
@@ -342,6 +345,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
+    Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -437,6 +441,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('attachImages/{model_type}/{model_id?}/{status?}/{assigned_user?}', 'ProductController@attachImages')->name('attachImages');
     Route::post('selected_customer/sendMessage', 'ProductController@sendMessageSelectedCustomer')->name('whatsapp.send_selected_customer');
 
+    // landing page
+    Route::prefix('landing-page')->group(function () {
+        Route::get('/', 'LandingPageController@index')->name('landing-page.index');
+        Route::post('/save', 'LandingPageController@save')->name('landing-page.save');
+        Route::get('/records', 'LandingPageController@records')->name('landing-page.records');
+        Route::post('/store', 'LandingPageController@store')->name('landing-page.store');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
+            Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
+        });
+    });
 
     Route::post('download', 'MessageController@downloadImages')->name('download.images');
 
@@ -594,10 +609,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('dailyActivity/store', 'DailyActivityController@store')->name('dailyActivity.store');
     Route::post('dailyActivity/quickStore', 'DailyActivityController@quickStore')->name('dailyActivity.quick.store');
     Route::get('dailyActivity/complete/{id}', 'DailyActivityController@complete');
+    Route::get('dailyActivity/start/{id}', 'DailyActivityController@start');
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     // Complete the task
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
+    Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
     Route::post('/task/addremark', 'TaskModuleController@addRemark')->name('task.addRemark');
     Route::get('tasks/getremark', 'TaskModuleController@getremark')->name('task.getremark');
@@ -1666,6 +1683,8 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::post('/save', 'DigitalMarketingController@save')->name('digital-marketing.save');
     Route::prefix('{id}')->group(function () {
         Route::get('/edit', 'DigitalMarketingController@edit')->name("digital-marketing.edit");
+        Route::get('/components', 'DigitalMarketingController@components')->name("digital-marketing.components");
+        Route::post('/components', 'DigitalMarketingController@componentStore')->name("digital-marketing.components.save");
         Route::get('/delete', 'DigitalMarketingController@delete')->name("digital-marketing.delete");
 
         Route::prefix('solution')->group(function () {

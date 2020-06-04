@@ -41,6 +41,15 @@ var page = {
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
+
+        page.config.bodyView.on("click",".btn-add-components",function(e) {
+            page.addComponents($(this));
+        });
+
+        $(".common-modal").on("click",".update-components-btn",function(e) {
+            e.preventDefault();
+            page.submitComponents($(this));
+        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -127,7 +136,6 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
-
     submitPlatform : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/digital-marketing/save",
@@ -159,7 +167,42 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    addComponents : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/digital-marketing/"+ele.data("id")+"/components",
+            method: "get",
+        }
+        this.sendAjax(_z, 'afterResponsecomponents');
+    },
+    afterResponsecomponents : function(response) {
+        var createWebTemplate = $.templates("#template-create-components");
+        var tplHtml = createWebTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+        $(".select2-components-tags").select2({tags : true});
+    },
+    submitComponents : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/digital-marketing/"+ele.data("id")+"/components",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterSubmitComponents");
+    },
+    afterSubmitComponents : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
 }
 
 $.extend(page, common);

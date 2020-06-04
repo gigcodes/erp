@@ -3,13 +3,14 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Id</th>
-		        <th>Platform</th>
-		        <th>Sub Platform</th>
-		        <th>Description</th>
-		        <th>Status</th>
-		        <th>Created At</th>
-		        <th>Action</th>
+		      	<th width="2%">Id</th>
+		        <th width="10%">Platform</th>
+		        <th width="10%">Sub Platform</th>
+		        <th width="20%">Components</th>
+		        <th width="20%">Description</th>
+		        <th width="8%">Status</th>
+		        <th width="8%">Created At</th>
+		        <th width="18%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -18,6 +19,7 @@
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.platform}}</td>
 			        <td>{{:prop.sub_platform}}</td>
+			        <td>{{:prop.components_list}}</td>
 			        <td>{{:prop.description}}</td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.created_at}}</td>
@@ -25,6 +27,11 @@
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
 			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
 			        	| <a href="/digital-marketing/{{>prop.id}}/solution"><button type="button" data-id="{{>prop.id}}" class="btn btn-add-solution"><i class="fa fa-pie-chart" aria-hidden="true"></i></button></a>
+						| <a href="javascript:;">
+							<button type="button" data-id="{{>prop.id}}" class="btn btn-add-components">
+								<i class="fa fa-compass" aria-hidden="true"></i>
+							</button>
+						</a>
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -215,6 +222,44 @@
 					        <div class="col-md-12">
 						    	<div class="form-group">
 						      		<button class="btn btn-secondary update-remark-btn">Update</button>
+						    	</div>
+					    	</div>
+					  	</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>			
+</script>
+
+<script type="text/x-jsrender" id="template-create-components">
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Add Components</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      	<span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+			<div class="row">
+				<div class="col-lg-12">
+					<form>
+						<?php echo csrf_field(); ?>
+						<input type="hidden" class="frm_store_website_id" name="store_website_id" value="{{:data.id}}">
+					  	<div class="row">
+					  		<div class="col-md-12">
+					    		<div class="form-group">
+						         	<label for="components">Components</label>
+						         	<select name="components[]" multiple="true" class="form-control select2-components-tags">
+						         		{{props data.components}}
+						         			<option value="{{:prop}}" selected="selected">{{:prop}}</option> 
+						         		{{/props}}
+						         	</select>	
+						         </div>
+					        </div> 
+					        <div class="col-md-12">
+						    	<div class="form-group">
+						      		<button data-id="{{:data.id}}" class="btn btn-secondary update-components-btn">Update</button>
 						    	</div>
 					    	</div>
 					  	</div>

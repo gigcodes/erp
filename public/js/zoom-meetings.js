@@ -11,8 +11,10 @@ var offset = Intl.DateTimeFormat().resolvedOptions().timeZone;
 $(document).on('click', '.set-meetings', function() {
     let userId = $(this).data('id');
     let userType = $(this).data('type');
+    let mettingTitle = (typeof $(this).data('title') != "undefined") ?  $(this).data('title') : "";
     $('#user__id').val(userId);
     $('#user__type').val(userType);
+    $('#meeting_topic').val(mettingTitle);
 
 });
 $('#zoomModal').on('hidden.bs.modal', function (e) {

@@ -28,4 +28,9 @@ class DigitalMarketingPlatform extends Model
     {
         return $this->hasMany("\App\DigitalMarketingSolution", "digital_marketing_platform_id", "id");
     }
+
+    public function components()
+    {
+        return $this->hasMany("App\DigitalMarketingPlatformComponent", "digital_marketing_platform_id", "id");
+    }
 }
