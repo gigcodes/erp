@@ -32,8 +32,19 @@ var page = {
             page.showRemark($(this).data("id"));
         });
 
-        $(".common-modal").on("click",".submit-goal",function() {
-            page.submitSolution($(this));
+        page.config.bodyView.on("click",".btn-merge-category",function(e) {
+            page.showMergeCategory();
+        });
+
+        
+
+        $(".common-modal").on("click",".submit-form",function() {
+            page.submitForm($(this));
+        });
+
+        $(".common-modal").on("click",".merge-category-btn",function(e) {
+            e.preventDefault();
+            page.submitForMerge($(this));
         });
 
         // delete product templates
@@ -43,17 +54,13 @@ var page = {
             }else {
                 page.deleteRecord($(this));
             }
+
+            console.log(selecte)
         });
 
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
-
-        $(".common-modal").on("click",".add-attached-remark",function(e) {
-            e.preventDefault();
-            page.submitAttachedRemark($(this));
-        });
-
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -112,12 +119,13 @@ var page = {
             this.getResults();
             toastr['success']('Message deleted successfully', 'success');
         }else{
-            toastr['error']('Oops.something went wrong', 'error');
+            $("#loading-image").hide();
+            toastr['error'](response.error, 'error');
         }
 
     },
     createRecord : function(response) {
-        var createWebTemplate = $.templates("#template-create-goal");
+        var createWebTemplate = $.templates("#template-create-form");
         var tplHtml = createWebTemplate.render({data:{}});
         
         var common =  $(".common-modal");
@@ -134,14 +142,14 @@ var page = {
     },
 
     editResult : function(response) {
-        var createWebTemplate = $.templates("#template-create-goal");
+        var createWebTemplate = $.templates("#template-create-form");
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
 
-    submitSolution : function(ele) {
+    submitForm : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl + "/save",
             method: "post",
@@ -172,6 +180,37 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
+    },
+    showMergeCategory : function() {
+        var createWebTemplate = $.templates("#template-merge-category");
+        var tplHtml = createWebTemplate.render({});
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    submitForMerge : function(ele) {
+
+        var selectedIds = [];
+        $(".vendor-category-ckbx").each(function(k,v){
+            if($(v).is(":checked")) {
+                selectedIds.push($(v).val());
+            }
+        });
+
+        var category = ele.closest("form").find(".merge-category").val();
+
+        var _z = {
+            url: this.config.mainUrl + "/merge-category",
+            method: "post",
+            data : {
+                to_category : category,
+                from_category : selectedIds
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
     }
 }
 

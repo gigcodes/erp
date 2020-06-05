@@ -701,6 +701,9 @@
                                     <a class="dropdown-item" href="{{ route('vendors.index') }}">Vendor Info</a>
                                 </li>
                                 <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor-category.index') }}">Vendor Category</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendors.product.index') }}">Product Info</a>
                                 </li>
                             </ul>

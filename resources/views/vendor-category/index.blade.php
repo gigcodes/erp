@@ -22,7 +22,8 @@
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
 		  			</button>
-				 </div> 		
+		  			<button type="button" class="btn btn-secondary btn-merge-category">Merge Category</button>
+				 </div>
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">

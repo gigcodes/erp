@@ -860,7 +860,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('vendor-category')->group(function () {
         Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');
-        Route::get('/records', 'VendorCategoryController@records')->name('vendor-category.records');
+        Route::get('records', 'VendorCategoryController@records')->name('vendor-category.records');
+        Route::post('save', 'VendorCategoryController@save')->name('vendor-category.save');
+        Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
+            Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
+        });
     });
 
     Route::resource('vendor_category', 'VendorCategoryController');

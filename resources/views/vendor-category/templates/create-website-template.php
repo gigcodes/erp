@@ -1,9 +1,9 @@
-<script type="text/x-jsrender" id="template-create-platform">
-	<form name="form-create-platform" method="post">
+<script type="text/x-jsrender" id="template-create-form">
+	<form name="form-create-forn" method="post">
 		<?php echo csrf_field(); ?>
 		<div class="modal-content">
 		   <div class="modal-header">
-		      <h5 class="modal-title">{{if data.id}}Edit Platform{{else}}Create Platform{{/if}}</h5>
+		      <h5 class="modal-title">{{if data.id}}Edit Vendor Category{{else}}Create Vendor Category{{/if}}</h5>
 		      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
 		      <span aria-hidden="true">&times;</span>
 		      </button>
@@ -13,19 +13,15 @@
 		         {{if data}}
 		         	<input type="hidden" name="id" value="{{:data.id}}"/>
 		         {{/if}}
-		         <div class="form-group col-md-6">
-		            <label for="platform">Platform</label>
-		            <input type="text" name="platform" value="{{if data}}{{:data.platform}}{{/if}}" class="form-control" id="platform" placeholder="Enter platform">
-		         </div>
-		         <div class="form-group col-md-6">
-		            <label for="sub_platform">Sub Platform</label>
-		            <input type="text" name="sub_platform" value="{{if data}}{{:data.sub_platform}}{{/if}}" class="form-control" id="sub_platform" placeholder="Enter sub platform">
+		         <div class="form-group col-md-12">
+		            <label for="title">Title</label>
+		            <input type="text" name="title" value="{{if data}}{{:data.title}}{{/if}}" class="form-control" id="title" placeholder="Enter title">
 		         </div>
 		      </div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-		      <button type="button" class="btn btn-primary submit-platform">Save changes</button>
+		      <button type="button" class="btn btn-secondary submit-form">Save changes</button>
 		   </div>
 		</div>
 	</form>  	
