@@ -54,8 +54,6 @@ var page = {
             }else {
                 page.deleteRecord($(this));
             }
-
-            console.log(selecte)
         });
 
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
