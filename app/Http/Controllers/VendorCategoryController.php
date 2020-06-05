@@ -14,7 +14,26 @@ class VendorCategoryController extends Controller
      */
     public function index()
     {
-        //
+        $title = "Vendor Category";
+        
+        return view("vendor-category.index",compact('title'));
+
+    }
+
+    public function records()
+    {
+        $records = \App\VendorCategory::query();
+
+        $keyword = request("keyword");
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("title", "LIKE", "%$keyword%");
+            });
+        }
+
+        $records = $records->get();
+
+        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
     }
 
     /**
