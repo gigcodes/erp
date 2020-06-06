@@ -47,8 +47,8 @@ class SendEventNotificationBefore30Min extends Command
             ]);
 
             // get the events which has 24 hr left
-            $events = UserEvent::where('start', '>', \DB::raw('NOW() - INTERVAL 30 MINUTE'))->where('start', '<', \DB::raw('NOW() - INTERVAL 30 MINUTE'))->get();
-
+            $events = UserEvent::havingRaw("TIMESTAMPDIFF(MINUTE,now() , start) >= 30 and TIMESTAMPDIFF(MINUTE, now(), start) <= 35")->get();
+            
             $userWise           = [];
             $vendorParticipants = [];
             if (!$events->isEmpty()) {
