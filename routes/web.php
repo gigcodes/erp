@@ -873,6 +873,18 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
     Route::post('vendors/inviteHubstaff', 'VendorController@inviteHubstaff');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
+
+    Route::prefix('vendor-category')->group(function () {
+        Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');
+        Route::get('records', 'VendorCategoryController@records')->name('vendor-category.records');
+        Route::post('save', 'VendorCategoryController@save')->name('vendor-category.save');
+        Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
+            Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
+        });
+    });
+
     Route::resource('vendor_category', 'VendorCategoryController');
 
     // Suppliers Module
