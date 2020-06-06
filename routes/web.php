@@ -1689,6 +1689,9 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
+Route::get('/vendor-form', 'VendorSupplierController@vendorForm');
+Route::get('/supplier-form', 'VendorSupplierController@supplierForm');
+
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');

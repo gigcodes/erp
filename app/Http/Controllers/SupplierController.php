@@ -244,7 +244,7 @@ class SupplierController extends Controller
     {
         $this->validate($request, [
             //'supplier_category_id' => 'required|string|max:255',
-            'supplier' => 'required|string|max:255',
+            'supplier' => 'required|string|unique:suppliers|max:255',
             'address' => 'sometimes|nullable|string',
             'phone' => 'sometimes|nullable|numeric',
             'default_phone' => 'sometimes|nullable|numeric',
@@ -261,6 +261,8 @@ class SupplierController extends Controller
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
 
+        $source  = $request->get("source","");
+
         $supplier = Supplier::create($data);
 
         if ($supplier->id > 0) {
@@ -269,6 +271,10 @@ class SupplierController extends Controller
                 "scraper_name" => $request->get("scraper_name", ""),
                 "inventory_lifetime" => $request->get("inventory_lifetime", ""),
             ]);
+        }
+
+        if(!empty($source)) {
+          return redirect()->back()->withSuccess('You have successfully saved a supplier!');
         }
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');

@@ -333,6 +333,8 @@ class VendorController extends Controller
       'account_swift' => 'sometimes|nullable|max:255'
     ]);
 
+    $source = $request->get("source","");
+
     $data = $request->except(['_token', 'create_user']);
     if(empty($data["whatsapp_number"]))  {
       $data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
@@ -370,6 +372,9 @@ class VendorController extends Controller
         $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, '', $message);
       } else {
+        if(!empty($source)) {
+           return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        }
         return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
       }
     }
@@ -384,6 +389,10 @@ class VendorController extends Controller
     if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
       //has requested hubstaff invitation
       $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+    }
+
+    if(!empty($source)) {
+       return redirect()->back()->withSuccess('You have successfully saved a vendor!');
     }
 
     return redirect()->route('vendors.index')->withSuccess('You have successfully saved a vendor!');
