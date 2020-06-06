@@ -113,8 +113,9 @@
             "url": "git@github.com:ludxb/price-comparison-scraper"
         },
         {
-            "type": "vcs",
-            "url": "git@github.com:ludxb/erp-customer"
+            "type": "path", 
+            "url": "../erp-customer",
+            "symlink": true
         },
         {
             "type": "vcs",

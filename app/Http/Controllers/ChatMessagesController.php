@@ -172,6 +172,7 @@ class ChatMessagesController extends Controller
 
                         // Get media URL
                         $media[] = [
+                            'key' => $image->getKey(),
                             'image' => $image->getUrl(),
                             'product_id' => $productId
                         ];
