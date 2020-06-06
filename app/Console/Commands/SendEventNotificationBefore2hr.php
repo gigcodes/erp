@@ -48,8 +48,7 @@ class SendEventNotificationBefore2hr extends Command
             ]);
 
             // get the events which has 24 hr left
-            $events = UserEvent::where('start', '>', \DB::raw('NOW() - INTERVAL 2 HOUR'))
-                ->where('start', '<', \DB::raw('NOW() - INTERVAL 3 HOUR'))->get();
+            $events = UserEvent::havingRaw("TIMESTAMPDIFF(HOUR,now() , start) = 2")->get();
 
             $userWise           = [];
             $vendorParticipants = [];
