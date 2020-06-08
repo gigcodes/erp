@@ -35,6 +35,10 @@
           <div class="form-group mr-3 mb-3">
             {!! $category_selection !!}
           </div>
+
+          <div class="form-group mr-3 mb-3">
+             <?php echo Form::select("stock_status",[ "" => "--Select--"] + \App\Product::STOCK_STATUS,request("stock_status"),["class" => "form-control"]); ?>
+          </div>
           
           <?php /*
           <div class="form-group mr-3 mb-3">
