@@ -43,6 +43,7 @@
             <div class="pull-right">
               {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
               <button type="button" class="btn btn-xs btn-secondary" id="showMeetingsButton">Show Meetings</button>
+              <button type="button" data-toggle="collapse" href="#inProgressFilterCount" class="btn btn-xs btn-secondary" id="showMeetingsButton">Spent Time</button>
             </div>
         </div>
     </div>
@@ -50,26 +51,28 @@
     @include('partials.flash_messages')
 
     <?php if(!empty($spentTime)) { ?>
-      <div class="row mt-3">
-         <div class="col-md-12">
-            <div class="card card-body">
-                <div class="row col-md-12">
-                     <?php foreach ($spentTime as $key => $value) { ?>
-                         <div class="col-md-2">
-                            <div class="card">
-                               <div class="card-header">
-                                  <?php echo isset($generalCategories[$key]) ? $generalCategories[$key] : "N/A"; ?>                       
-                               </div>
-                               <div class="card-body">
-                                  <?php echo $value; ?> Minutes                              
-                               </div>
-                            </div>
-                         </div>
-                     <?php } ?>
-                </div>
-             </div>
-         </div>
-      </div>
+      <div class="collapse" id="inProgressFilterCount">
+        <div class="row mt-3">
+           <div class="col-md-12">
+              <div class="card card-body">
+                  <div class="row col-md-12">
+                       <?php foreach ($spentTime as $key => $value) { ?>
+                           <div class="col-md-2">
+                              <div class="card">
+                                 <div class="card-header">
+                                    <?php echo isset($generalCategories[$key]) ? $generalCategories[$key] : "N/A"; ?>                       
+                                 </div>
+                                 <div class="card-body">
+                                    <?php echo $value; ?> Minutes                              
+                                 </div>
+                              </div>
+                           </div>
+                       <?php } ?>
+                  </div>
+               </div>
+           </div>
+        </div>
+      </div> 
     <?php } ?>
     <div class="row no-gutters mt-3">
       <div class="col-xs-12 col-md-12" id="plannerColumn">
