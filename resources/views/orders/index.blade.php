@@ -193,6 +193,18 @@
                   <a title="Preview Order" class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
                     <i class="fa fa-hourglass"></i>
                   </a>
+                  @if ($order->waybill)
+                    <a title="Download Package Slip" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                    </a>
+                    <a title="Track Package Slip" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                        <i class="fa fa fa-globe" aria-hidden="true"></i>
+                    </a>
+                  @else
+                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb" href="javascript:;">
+                      <i class="fa fa-truck" aria-hidden="true"></i>
+                    </a>
+                  @endif
                   {{-- @can('order-edit')
                   <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
                   @endcan --}}
@@ -219,13 +231,29 @@
    </div>
 @endsection
 
+@include("partials.modals.tracking-event-modal")
+@include("partials.modals.generate-awb-modal")
+
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="/js/order-awb.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
+      });
+
+      $(document).on("click",".generate-awb",function() {
+          var customer = $(this).data("customer");
+            if(typeof customer != "undefined" || customer != "") {
+               $(".input_customer_name").val(customer.name);
+               $(".input_customer_phone").val(customer.phone);
+               $(".input_customer_address1").val(customer.address);
+               $(".input_customer_address2").val(customer.city);
+               $(".input_customer_pincode").val(customer.pincode);
+            }
+            $("#generateAWBMODAL").modal("show");
       });
 
       $(document).on("change",".order-status-select",function() {
