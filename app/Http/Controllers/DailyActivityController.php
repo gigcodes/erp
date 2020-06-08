@@ -31,7 +31,7 @@ class DailyActivityController extends Controller
       // check first we need to add general categories first or not 
       $generalCat = $request->get("general_category_id",null);
 
-      if(is_string($generalCat) && $generalCat != "") {
+      if(!is_numeric($generalCat) && $generalCat != "") {
          $gc = \App\GeneralCategory::updateOrCreate(["name" => $generalCat],["name" => $generalCat]);
          if(!empty($gc)) {
             $data["general_category_id"] = $gc->id;
