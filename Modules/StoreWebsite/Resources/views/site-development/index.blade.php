@@ -55,21 +55,25 @@
 					</form>	
 		    	</div>
 		    </div>
-	    </div>	
+	    </div>
+	    <div class="row">
+	    	<a href="{{ route('site-development-status.index') }}" target="__blank">
+		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+		  			+ Add Status
+		  		</button>
+		  	</a>
+	    </div>
 		<div class="col-md-12 margin-tb">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">
 				    <thead>
 				      <tr>
-				      	<th></th>
-				      	<th>Website</th>
-				        <th>Title</th>
-				        <th>Description</th>
-				        <th>Status</th>
-				        <th>Developer</th>
-				        <th></th>
-				        <th>Communication</th>
-				        <th>Created At</th>
+				      	<th width="10%"></th>
+				      	<th width="15%">Title</th>
+				        <th width="25%">Description</th>
+				        <th width="15%">Action</th>
+				        <th width="25%">Communication</th>
+				        <th width="5%">Created</th>
 				      </tr>
 				    </thead>
 				    <tbody>

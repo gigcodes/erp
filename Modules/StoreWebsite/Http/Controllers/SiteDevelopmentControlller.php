@@ -29,7 +29,7 @@ class SiteDevelopmentController extends Controller
 		$role = Role::where('name','LIKE','%Developer%')->first();
 		
 		//User Roles with Developers
-		$roles = DB::table('role_user')->select('user_id')->where('role_id',$role->id)->get();
+		$roles = DB::table('role_user')->select('user_id')/*->where('role_id',$role->id)*/->get();
 		
 		foreach ($roles as $role) {
 			$userIDs[] = $role->user_id; 
@@ -46,7 +46,10 @@ class SiteDevelopmentController extends Controller
 	        'links' => (string) $categories->render()
 	      ], 200);
 	    }
-		return view('storewebsite::site-development.index', compact('categories','users','website'));
+
+	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
+
+		return view('storewebsite::site-development.index', compact('categories','users','website','allStatus'));
 	}
 
 
