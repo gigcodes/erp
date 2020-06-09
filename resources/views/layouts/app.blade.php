@@ -708,6 +708,12 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendors.product.index') }}">Product Info</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.vendor.form') }}">Vendor Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

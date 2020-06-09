@@ -25,6 +25,7 @@
 
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 @endsection
 
 @section('content')
@@ -32,36 +33,30 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List</h2>
-            <div class="pull-left">
               <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
-                <div class="form-group">
-                  <input name="term" type="text" class="form-control"
+                  <div class="form-group">
+                    <input name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
-                </div>
-
+                  </div>
                   <div class="form-group ml-3">
                       <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
                   </div>
-
                   <div class="form-group ml-3" style="width: 250px !important;">
                       <select class="form-control select-multiple2" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
-
                         @foreach($suppliers_all as $supplier)
                             <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
                         @endforeach
                       </select>
                   </div>
-
-                <div class="form-group ml-3">
-                  <select class="form-control" name="type">
-                    <option value="">Select Type</option>
-                    <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                    <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
-                    <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
-                  </select>
-                </div>
-
+                  <div class="form-group ml-3">
+                    <select class="form-control" name="type">
+                      <option value="">Select Type</option>
+                      <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+                      <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
+                      <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
+                    </select>
+                  </div>
                   <div class="form-group ml-3">
                       <input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}> Active
                   </div>
@@ -71,43 +66,43 @@
                   <div class="form-group ml-3">
                        {!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
                   </div>
-
-{{--                  <div class="form-group ml-3">--}}
-{{--                      <select name="status" id=""></select>--}}
-{{--                  </div>--}}
-
-                      <div class="form-group mr-3" style="padding-top: 10px">
-                        <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
-                          <optgroup label="Brands">
-                            @foreach ($brands as $key => $value)
-                              <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
-                            @endforeach
-                        </optgroup>
-                        </select>
-                      </div>
-
-                      <div class="form-group mr-3" style="padding-top: 10px">
-                        <select style="width: 250px !important;" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
-                          <optgroup label="Brands">
-                            @foreach ($scrapedBrands as $key => $value)
-                              @if(!in_array($value, $selectedBrands))
-                                <option value="{{ $value }}"> {{ $value}}</option>
-                              @endif
-                            @endforeach
-                        </optgroup>
-                        </select>
-                      </div>
-
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                  <div class="form-group ml-3" style="padding-top: 10px">
+                    <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
+                      <optgroup label="Brands">
+                        @foreach ($brands as $key => $value)
+                          <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
+                        @endforeach
+                    </optgroup>
+                    </select>
+                  </div>
+                  <div class="form-group ml-3" style="padding-top: 10px">
+                    <select style="width: 250px !important;" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+                      <optgroup label="Brands">
+                        @foreach ($scrapedBrands as $key => $value)
+                          @if(!in_array($value, $selectedBrands))
+                            <option value="{{ $value }}"> {{ $value}}</option>
+                          @endif
+                        @endforeach
+                    </optgroup>
+                    </select>
+                  </div>
+                  <div class="form-group ml-3">
+                      <?php echo Form::select("updated_by",
+                          ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
+                          request('updated_by'),
+                          ["class"=> "form-control select-multiple2"]
+                      ); ?>
+                  </div>
+                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
               </form>
-            </div>
-
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">Manage Scraped Brands Raw</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
-            </div>
         </div>
+        <div class="col-lg-12 margin-tb mt-3">
+          <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">
+            Manage Scraped Brands Raw
+          </button>
+          <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+          <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
+        </div>   
     </div>
 
     @include('partials.flash_messages')
@@ -294,7 +289,7 @@
                 <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
               </td>
                 <td>
-                    {{ $supplier->supplier_status_id ? 'Active' : 'Inactive' }}
+                    <input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-width="10">
                 </td>
                 <td>{{ $supplier->created_at }}</td>
                 <td>{{ $supplier->updated_at }}</td>
@@ -470,6 +465,7 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+  <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
   <script src="{{asset('js/zoom-meetings.js')}}"></script>
   <script type="text/javascript">
 
@@ -1030,6 +1026,24 @@
             });
         });
 
+      $(document).on("change",".supplier-update-status",function(){
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "supplier/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    supplier_id: $this.data("id"),
+                    supplier_status_id : $this.prop('checked')
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    toastr["success"](data.message);
+                }
+            }).fail(function(error) {
+                
+            })
+      });
 
     
   </script>

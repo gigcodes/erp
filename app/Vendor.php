@@ -31,7 +31,8 @@ class Vendor extends Model
         'reminder_message',
         'reminder_last_reply',
         'reminder_from',
-        'updated_by'
+        'updated_by',
+        'status'
     ];
 
     protected static function boot()
