@@ -97,7 +97,7 @@
 
     @include('vendors.partials.product-modals')
 
-    <div id="exTab2" class="container">
+    <div id="exTab2" class="mb-3">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#info-tab" data-toggle="tab">Vendor Info</a>

@@ -875,6 +875,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
     Route::post('vendors/inviteHubstaff', 'VendorController@inviteHubstaff');
+    Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
 
     Route::prefix('vendor-category')->group(function () {
@@ -926,6 +927,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
+    Route::post('supplier/change-status', 'SupplierController@changeStatus');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
@@ -1692,8 +1694,8 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
-Route::get('/vendor-form', 'VendorSupplierController@vendorForm');
-Route::get('/supplier-form', 'VendorSupplierController@supplierForm');
+Route::get('/vendor-form', 'VendorSupplierController@vendorForm')->name("developer.vendor.form");
+Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("developer.supplier.form");
 
 Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/history', 'ProductCategoryController@history');

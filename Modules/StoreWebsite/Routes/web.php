@@ -64,3 +64,14 @@ Route::prefix('site-development')->group(function () {
 
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
 });
+
+Route::prefix('site-development-status')->group(function () {
+    Route::get('/', 'SiteDevelopmentStatusController@index')->name('site-development-status.index');
+    Route::get('records', 'SiteDevelopmentStatusController@records')->name('site-development-status.records');
+    Route::post('save', 'SiteDevelopmentStatusController@save')->name('site-development-status.save');
+    Route::post('merge-status', 'SiteDevelopmentStatusController@mergeStatus')->name('site-development-status.merge-status');
+    Route::prefix('{id}')->group(function () {
+        Route::get('edit', 'SiteDevelopmentStatusController@edit')->name('site-development-status.edit');
+        Route::get('delete', 'SiteDevelopmentStatusController@delete')->name('site-development-status.delete');
+    });
+});

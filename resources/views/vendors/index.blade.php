@@ -6,6 +6,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <style type="text/css">
     .numberSend {
           width: 160px;
@@ -52,31 +53,39 @@
                             ?>
                         </select>
                     </div>
-
-                    {{-- <div class="form-group ml-3">
-                      <select class="form-control" name="type">
-                        <option value="">Select Type</option>
-                        ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                      </select>
-                    </div> --}}
-
-                    <div class="form-group">
+                    <div class="form-group ml-3">
                         <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                         <label for="with_archived">Archived</label>
                     </div>
-                    <div class="form-group" style="margin-left: 10px;">
+                    <div class="form-group ml-3" style="margin-left: 10px;">
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                    </div>
+                    <div class="form-group ml-3">
+                        <label for="with_archived">Status</label>
+                        <?php echo Form::select("status",[
+                            "" => "- Select -",
+                            "0" => "De-Active",
+                            "1" => "Active"
+                        ],request('status'),["class"=> "form-control"]) ?>
+                    </div>
+                    <div class="form-group ml-3">
+                        <label for="with_updated_by">Updated by</label>
+                        <?php echo Form::select("updated_by",
+                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
+                            request('updated_by'),
+                            ["class"=> "form-control"]
+                        ); ?>
                     </div>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
-            <div class="pull-right">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-            </div>
         </div>
+        <div class="col-lg-12 margin-tb">
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+        </div>    
     </div>
 
     @include('partials.flash_messages')
@@ -303,8 +312,17 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 
     <script type="text/javascript">
+
+        <?php if(!empty($updatedProducts)) {
+            foreach($updatedProducts as $updatedProduct) {
+                echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated')";
+            }
+        } ?>
+
+
         $('.selectpicker').select2({
             tags: true,
             width : '100%',
@@ -981,7 +999,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendor/inviteGithub",
+                url: "vendors/inviteGithub",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email
@@ -1004,7 +1022,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendor/inviteHubstaff",
+                url: "vendors/inviteHubstaff",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email
@@ -1021,5 +1039,26 @@
         $('#reminder_from').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
+
+        $(document).on("change",".vendor-update-status",function(){
+            console.log($(this).prop('checked'));
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: "vendors/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: $this.data("id"),
+                    status : $this.prop('checked')
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    toastr["success"](data.message);
+                }
+            }).fail(function(error) {
+                
+            })
+        });
+
     </script>
 @endsection
