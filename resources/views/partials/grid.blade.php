@@ -289,6 +289,7 @@
 	<?php $stage = new \App\Stage(); ?>
   @include('partials.modals.category')
   @include('partials.modals.color')
+  @include('partials.modals.category-history')
 @endsection
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
@@ -504,6 +505,7 @@
                                           @endif
                                           <p>Supplier : ` + product['supplier'] + `</p>
                                           <p>Suppliers : ` + product['suppliers'] + `</p>
+                                          <p><span class="badge category-history" data-id=`+ product['id'] +`>Category History</span></p>
                                           ` + is_scraped + is_imported + `
 
                                           <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `">
@@ -767,5 +769,37 @@
                 }
             });
         });
+
+       $(document).on("click",".category-history",function(e) {
+        e.preventDefault();
+            var product_id = $(this).data("id");
+            $.ajax({
+                url: '/products/'+product_id+'/category-history',
+                type: 'GET',
+                dataType: 'json',
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+
+                    if(result.code == 200) {
+                       var t = '';
+                       $.each(result.data,function(k,v) {
+                          t += `<td>`+v.id+`</td>`;
+                          t += `<td>`+v.old_cat_name+`</td>`;
+                          t += `<td>`+v.new_cat_name+`</td>`;
+                          t += `<td>`+v.user_name+`</td>`;
+                          t += `<td>`+v.created_at+`</td>`;
+                       });
+                    }
+                    $("#category-history-modal").find(".show-list-records").html(t);
+                    $("#category-history-modal").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+       });
   </script>
 @endsection

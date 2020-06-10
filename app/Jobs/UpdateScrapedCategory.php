@@ -19,6 +19,7 @@ class UpdateScrapedCategory implements ShouldQueue
     public $params;
     public $product_id;
     public $category_id;
+    public $user_id;
 
     /**
      * Create a new job instance.
@@ -29,6 +30,7 @@ class UpdateScrapedCategory implements ShouldQueue
     {
         $this->product_id  = $params["product_id"];
         $this->category_id = $params["category_id"];
+        $this->user_id = isset($params["user_id"]) ? $params["user_id"] : null;
     }
 
     public static function putLog($message)
@@ -48,6 +50,7 @@ class UpdateScrapedCategory implements ShouldQueue
 
         self::putLog("Job start time : ". date("Y-m-d H:i:s"));
         self::putLog("Params : " . print_r([$this->product_id,$this->category_id],true));
+        \Log::info("this is called");
 
         $product      = Product::find($this->product_id);
         $cat          = $this->category_id;
@@ -117,6 +120,15 @@ class UpdateScrapedCategory implements ShouldQueue
                 self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
                 $oldProduct = Product::where('sku', $productSku)->first();
                 if ($oldProduct != null) {
+                    \Log::info("this is called");
+                    if(!empty($this->user_id)) {
+                        $productCatHis = new \App\ProductCategoryHistory;
+                        $productCatHis->user_id = $this->user_id; 
+                        $productCatHis->category_id = $cat; 
+                        $productCatHis->old_category_id = $oldProduct->category;
+                        $productCatHis->save(); 
+                    }
+
                     $oldProduct->category = $cat;
                     $oldProduct->save();
                     $totalUpdated++;

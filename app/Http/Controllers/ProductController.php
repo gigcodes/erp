@@ -1554,7 +1554,8 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedCategory::dispatch([
             "product_id"    => $id,
-            "category_id"   => $request->category
+            "category_id"   => $request->category,
+            "user_id"       => Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product category has been sent for the update']);

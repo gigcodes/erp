@@ -43,6 +43,7 @@
             <div class="pull-right">
               {{-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#documentCreateModal">+</a> --}}
               <button type="button" class="btn btn-xs btn-secondary" id="showMeetingsButton">Show Meetings</button>
+              <button type="button" data-toggle="collapse" href="#inProgressFilterCount" class="btn btn-xs btn-secondary" id="showMeetingsButton">Spent Time</button>
             </div>
         </div>
     </div>
@@ -50,26 +51,28 @@
     @include('partials.flash_messages')
 
     <?php if(!empty($spentTime)) { ?>
-      <div class="row mt-3">
-         <div class="col-md-12">
-            <div class="card card-body">
-                <div class="row col-md-12">
-                     <?php foreach ($spentTime as $key => $value) { ?>
-                         <div class="col-md-2">
-                            <div class="card">
-                               <div class="card-header">
-                                  <?php echo isset($generalCategories[$key]) ? $generalCategories[$key] : "N/A"; ?>                       
-                               </div>
-                               <div class="card-body">
-                                  <?php echo $value; ?> Minutes                              
-                               </div>
-                            </div>
-                         </div>
-                     <?php } ?>
-                </div>
-             </div>
-         </div>
-      </div>
+      <div class="collapse" id="inProgressFilterCount">
+        <div class="row mt-3">
+           <div class="col-md-12">
+              <div class="card card-body">
+                  <div class="row col-md-12">
+                       <?php foreach ($spentTime as $key => $value) { ?>
+                           <div class="col-md-2">
+                              <div class="card">
+                                 <div class="card-header">
+                                    <?php echo isset($generalCategories[$key]) ? $generalCategories[$key] : "N/A"; ?>                       
+                                 </div>
+                                 <div class="card-body">
+                                    <?php echo $value; ?> Minutes                              
+                                 </div>
+                              </div>
+                           </div>
+                       <?php } ?>
+                  </div>
+               </div>
+           </div>
+        </div>
+      </div> 
     <?php } ?>
     <div class="row no-gutters mt-3">
       <div class="col-xs-12 col-md-12" id="plannerColumn">
@@ -110,10 +113,15 @@
                               @endif
                             </span>
                             <span>
-                              @if ($task->is_completed == '' && $task->id != '')
-                                <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
-                              @elseif($task->is_completed == '' &&  $task->id != '')
+                              @if ((is_null($task->is_completed) || $task->is_completed == '') && $task->id != '' &&  (is_null($task->actual_start_date) || $task->actual_start_date == "0000-00-00 00:00:00"))
                                 <button type="button" class="btn btn-image task-actual-start p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/youtube_128.png" /></button>
+                              @elseif(is_null($task->is_completed) || $task->is_completed == '' &&  $task->id != '')
+                                <button type="button" class="btn btn-image task-complete p-0 m-0" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}"><img src="/images/incomplete.png" /></button>
+                              @endif
+                              @if($task->id != '')
+                                <button type="button" class="btn btn-image task-reschedule p-0 m-0" data-task="{{ $task }}" data-id="{{ $task->id }}" data-type="{{ $task->activity != '' ? 'activity' : 'task' }}">
+                                    <i class="fa fa-calendar" aria-hidden="true"></i>
+                                </button>
                               @endif
                               @if ($key == 3)
                                 <button type="button" class="btn btn-image show-tasks p-0 m-0" data-count="{{ $count }}" data-rowspan="{{ count($data) + 2 }}">v</button>
@@ -161,7 +169,7 @@
                       <?php echo Form::select("general_category_id",
                           [ null => "-- Select Category --"] + $generalCategories,
                           isset($task['general_category_id']) ? $task['general_category_id'] : null,
-                          ['class' => 'form-control general_category_id']
+                          ['class' => 'form-control general_category_id' , 'style' => 'width:100%']
                         );  ?>
                       &nbsp;&nbsp;  
                       <select class="selectpicker form-control input-sm plan-task" data-live-search="true" data-size="15" name="task" title="Select a Task" data-timeslot="{{ $time_slot }}" data-targetid="timeslot{{ $count }}">
@@ -226,8 +234,9 @@
     </div>
 
     {{-- @include('partials.modals.remarks') --}}
-
+    @include('partials.modals.reschedule-dailyplanner')
 @endsection
+
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
@@ -235,6 +244,10 @@
   <script type="text/javascript">
     $(document).ready(function() {
       $('#planned-datetime').datetimepicker({
+        format: 'YYYY-MM-DD'
+      });
+
+      $('#reschedule-planned-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
       $(".general_category_id").select2({tags :true});
@@ -548,5 +561,35 @@
        var $this = $(this);
            $this.closest("tr").nextAll('.create-input-table').first().toggleClass("dis-none"); 
     });
+
+    $(document).on("click",".task-reschedule",function() {
+        $("#reschedule-type").val($(this).data("type"));
+        $("#reschedule-id").val($(this).data("id"));
+        $("#planned-at-input").val($(this).data("planned-at"));
+        $("#reschedule-daily-planner").modal("show");
+    });
+
+    $(document).on("click",".save-reschedule-planner",function(e) {
+        e.preventDefault();
+
+        var $this = $(this);
+        var form  = $this.closest("form");
+        $.ajax({
+          type: form.attr("method"),
+          url: form.attr("action"),
+          data: form.serialize(),
+          beforeSend: function () {
+            $this.text('Sending ...');
+          }
+        }).done(function(response) {
+            $this.text("Save");
+            $("#reschedule-daily-planner").modal("hide");
+            toastr['success'](response.message, 'success');  
+        }).fail(function(response) {
+            $this.text("Save");
+            toastr['success']('Sorry, we could not reschedule your daily planner!', 'success');
+        });
+    });
+
   </script>
 @endsection

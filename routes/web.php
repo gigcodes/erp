@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    Route::get('products/{id}/category-history', 'ProductCategoryController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
@@ -354,6 +355,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
+    Route::post('dailyplanner/reschedule', 'DailyPlannerController@reschedule')->name('dailyplanner.reschedule');
     Route::resource('dailyplanner', 'DailyPlannerController');
 
     Route::resource('refund', 'RefundController');
@@ -1692,6 +1694,11 @@ Route::prefix('calendar/public')->group(function () {
 
 Route::get('/vendor-form', 'VendorSupplierController@vendorForm');
 Route::get('/supplier-form', 'VendorSupplierController@supplierForm');
+
+Route::prefix('product-category')->middleware('auth')->group(function () {
+    Route::get('/history', 'ProductCategoryController@history');
+});
+    
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
