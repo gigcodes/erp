@@ -249,6 +249,11 @@ class Customer extends Model
         return ($this->do_not_disturb == 1) ? true : false;
     }
 
+    public function kyc()
+    {
+        return $this->hasMany(App\CustomerKycDocument::class,"customer_id","id");
+    }
+
 
     /**
      *  Get information by ids

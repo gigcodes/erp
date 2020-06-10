@@ -100,14 +100,14 @@ var getHtml = function(response) {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
                     }
-                        
-
+                    
                     if (message.media[i].product_id > 0 && message.customer_id > 0) {
                         media = media + '<br />';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-kyc-customer" data-media-key="'+message.media[i].key+'" data-customer-id="'+message.customer_id+'">+ KYC</a>';
                     }
                     media = media + '</div>';
                 }
@@ -827,4 +827,30 @@ $('#chat-list-history').on("scroll", function() {
         }
     }
 
+});
+
+$(document).on("click",".create-kyc-customer",function(e) {
+    console.log("Hello world");
+    e.preventDefault();
+    var customerId = $(this).data("customer-id");
+    var mediaId    = $(this).data("media-key");
+    var thiss = $(this);
+    $.ajax({
+        type: 'POST',
+        url: "/customer/create-kyc",
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          customer_id: customerId,
+          media_id: mediaId
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function(response) {
+            toastr["success"]("File added into kyc", 'Message');
+        }
+      }).fail(function(error) {
+        $(thiss).text("+ KYC");
+        toastr["error"]("There was an error creating a order", 'Message');
+      });
 });
