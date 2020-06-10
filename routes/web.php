@@ -1700,7 +1700,10 @@ Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("dev
 
 Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/history', 'ProductCategoryController@history');
+    Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
+    Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
 });
+
     
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
@@ -1733,8 +1736,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
                 });     
 
             });        
-        });
-                
+        });    
     }); 
 });
 
