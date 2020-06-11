@@ -239,7 +239,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(2);
         if(!auth()->user()->isAdmin()) {
             if(!$newProducts->isEmpty()) {
                 $i = 1;

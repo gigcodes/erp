@@ -255,9 +255,19 @@
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">EUR {{ number_format($product->price) }}</span> EUR {{ number_format($product->price_eur_special) }}
+
                                         </p>
-                                        <br/>
-                                        <p>
+                                        <?php
+                                            // check brand sengment
+                                            if($product->brands) {
+                                                $segmentPrice = \App\Brand::getSegmentPrice($product->brands->brand_segment, $product->category);
+                                                if($segmentPrice) {
+                                                    echo "<p class='same-color'>Min Segment Price : ".$segmentPrice->min_price."<br>
+                                                    Max Segment Price : ".$segmentPrice->max_price."</p>";
+                                                }
+                                            }
+                                        ?>
+                                        <p> 
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
