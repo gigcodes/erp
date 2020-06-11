@@ -126,6 +126,7 @@ class UpdateScrapedCategory implements ShouldQueue
                         $productCatHis->user_id = $this->user_id; 
                         $productCatHis->category_id = $cat; 
                         $productCatHis->old_category_id = $oldProduct->category;
+                        $productCatHis->product_id = $oldProduct->id;
                         $productCatHis->save(); 
                     }
 

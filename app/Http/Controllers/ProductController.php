@@ -1093,6 +1093,16 @@ class ProductController extends Controller
     {
 
         $product = Product::find($id);
+
+        if($product) {
+            $productCatHis = new \App\ProductCategoryHistory;
+            $productCatHis->user_id = \Auth::user()->id; 
+            $productCatHis->category_id = $request->category; 
+            $productCatHis->old_category_id = $product->category;
+            $productCatHis->product_id = $product->id;
+            $productCatHis->save(); 
+        }    
+
         $product->category = $request->category;
         $product->save();
 
