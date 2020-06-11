@@ -912,7 +912,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/reply/add",
+                          url: "/vendors/reply/add",
                           dataType: "json",
                           method: "POST",
                           data: {reply: message}
@@ -935,7 +935,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/reply/delete",
+                          url: "/vendors/reply/delete",
                           dataType: "json",
                           method: "GET",
                           data: {id: deleteAuto}
@@ -974,7 +974,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/create-user",
+                          url: "/vendors/create-user",
                           dataType: "json",
                           method: "POST",
                           data: {id: id},
