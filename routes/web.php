@@ -1701,13 +1701,19 @@ Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("dev
 
 Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/history', 'ProductCategoryController@history');
+    Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
+    Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
 });
 
+<<<<<<< HEAD
 Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/', 'ListingHistoryController@index')->name("listing.history.index");
     Route::get('/records', 'ListingHistoryController@records');
 });
 
+=======
+    
+>>>>>>> master
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
@@ -1739,8 +1745,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
                 });     
 
             });        
-        });
-                
+        });    
     }); 
 });
 

@@ -29,7 +29,7 @@
         </div>
     @endif
     </td>
-    <td>{{ $vendor->phone }} <input class="vendor-update-status" type="checkbox" data-id="{{ $vendor->id }}" <?php echo ($vendor->status == 1) ? "checked" : "" ?> data-toggle="toggle" data-width="10"></td>
+    <td>{{ $vendor->phone }} <input class="vendor-update-status" type="checkbox" data-onstyle="secondary" data-id="{{ $vendor->id }}" <?php echo ($vendor->status == 1) ? "checked" : "" ?> data-toggle="toggle" data-width="10"></td>
     <td class="expand-row table-hover-cell" style="word-break: break-all;">
 <span class="td-mini-container">
   {{ strlen($vendor->email) > 10 ? substr($vendor->email, 0, 10) : $vendor->email }}
