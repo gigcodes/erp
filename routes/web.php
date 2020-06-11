@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
