@@ -1523,6 +1523,13 @@ class ProductController extends Controller
         $product->status = StatusHelper::$submitForApproval;
         $product->save();
 
+        $l = new ListingHistory();
+        $l->user_id = Auth::user()->id;
+        $l->product_id = $product->id;
+        $l->action = 'SUBMIT_FOR_APPROVAL';
+        $l->content = ['action' => 'SUBMIT_FOR_APPROVAL', 'message' => 'User has submitted for approval!'];
+        $l->save();
+
         return response()->json([
             'result' => true,
             'status' => 'submit_for_approval'

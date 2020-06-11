@@ -406,6 +406,7 @@
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
