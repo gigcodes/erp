@@ -365,4 +365,9 @@ class User extends Authenticatable
         )
             ->latest();
     }
+
+    public static function selectList()
+    {
+        return self::pluck("name","id")->toArray();
+    }
 }

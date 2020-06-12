@@ -41,6 +41,7 @@ class StatusHelper extends Model
     public static $pendingVerificationGoogleTextSearch = 31;
     public static $googleTextSearchManuallyRejected = 32;
     public static $attributeRejectCategory = 33;
+    public static $submitForApproval = 34;
 
     public static function getStatus()
     {

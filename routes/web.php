@@ -155,6 +155,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
@@ -1704,7 +1705,11 @@ Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
 });
 
-    
+Route::prefix('listing-history')->middleware('auth')->group(function () {
+    Route::get('/', 'ListingHistoryController@index')->name("listing.history.index");
+    Route::get('/records', 'ListingHistoryController@records');
+});
+
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');

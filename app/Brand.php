@@ -101,4 +101,8 @@ class Brand extends Model
         return self::where("magento_id",">",0)->get();
     }
 
+    public static function getSegmentPrice($brandId, $categoryId)
+    {
+        return \App\BrandCategoryPriceRange::where("brand_segment",$brandId)->where("category_id",$categoryId)->first();
+    }
 }
