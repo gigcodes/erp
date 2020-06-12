@@ -54,6 +54,12 @@ Route::prefix('store-website')->group(function () {
             });
         });
     });    
+
+    Route::prefix('brand')->group(function () {
+        Route::get('/', 'BrandController@list')->name("store-website.brand.list");
+        Route::get('records', 'BrandController@records')->name("store-website.brand.records");
+        Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
+    });
 });
 
 Route::prefix('site-development')->group(function () {
