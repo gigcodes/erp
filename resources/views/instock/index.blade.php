@@ -907,6 +907,9 @@
     $(document).on("dblclick",".text-editable",function(){
       
       var val = $(this).html();
+      if(val == "N/A") {
+          val = "";
+      }
       var fieldName = $(this).data("field-name");
       var productId = $(this).data("product-id");
       
