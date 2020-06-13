@@ -63,7 +63,7 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td>[{{:prop.product_id}}] {{:prop.product_name}}</td>
+			      	<td>[<a target="_blank" href="/search?term={{:prop.product_id}}&roletype=Inventory">{{:prop.product_id}}</a>] {{:prop.product_name}}</td>
 			      	<td>{{:prop.new_cat_name}}</td>
 			        <td>{{:prop.old_cat_name}}</td>
 			        <td>{{:prop.user_name}}</td>
