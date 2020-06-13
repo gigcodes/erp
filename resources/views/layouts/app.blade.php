@@ -1127,6 +1127,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
