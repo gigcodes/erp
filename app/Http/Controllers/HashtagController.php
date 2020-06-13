@@ -258,6 +258,76 @@ class HashtagController extends Controller
         return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
     }
 
+    public function showUserGrid($id, Request $request)
+    {
+        
+        $maxId = '';
+
+        if ($request->has('maxId'))  {
+            $maxId = $request->get('maxId');
+        }
+
+        $hashtag = InstagramUsersList::where('user_id',$id)->first();
+
+        $txt = $id;
+        $ht = null;
+        
+        $query  = InstagramPosts::query();
+
+        if($request->term || $request->date || $request->username || $request->caption || $request->location || $request->comment){
+              
+                if(request('term') != null) {
+                $query->where('username', 'LIKE', "%{$request->term}%")
+                    ->orWhere('caption', 'LIKE', "%{$request->term}%")
+                    ->orWhere('location', 'LIKE', "%{$request->term}%")
+                    ->orWhereHas('comments', function ($qu) use ($request) {
+                      $qu->where('comment', 'LIKE', "%{$request->term}%");
+                      });
+                }
+
+                if (request('username') != null) {
+                $query->where('username', 'LIKE', '%' . request('username') . '%');
+                }
+                if (request('caption') != null) {
+                    $query->where('caption', 'LIKE', '%' . request('caption') . '%');
+                }
+                if (request('location') != null) {
+                    $query->where('location', 'LIKE', '%' . request('location') . '%');
+                }
+
+                if (request('comments') != null) {
+                        $query->whereHas('comments', function ($qu) use ($request) {
+                            $qu->where('comment', 'LIKE', '%' . request('comments') . '%');
+                            });
+                }
+
+
+            $medias = $query->where('user_id',$hashtag->id)->orderBy('id','desc')->paginate(20);
+           
+        }else{
+            $medias = $query->where('user_id',$id)->orderBy('id','desc')->paginate(20);
+        }
+
+       
+
+        $media_count = 1;
+
+        $hashtagList = HashTag::all();
+        
+        $accs = Account::where('platform', 'instagram')->where('status', 1)->get();
+
+        $stats = [];
+
+        if ($request->ajax()) {
+           return response()->json([
+                'tbody' => view('instagram.hashtags.data', compact('medias','hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'))->render(),
+               'links' => (string)$medias->render()
+            ], 200);
+         }
+        
+        return view('instagram.hashtags.grid', compact('medias', 'hashtag', 'media_count', 'maxId', 'stats', 'accs', 'hashtagList'));
+    }
+
     public function showGridComments($id = null, Request $request)
     {
         

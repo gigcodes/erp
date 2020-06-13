@@ -799,6 +799,7 @@
                                             <a class="dropdown-item" href="/instagram/post">Posts</a>
                                             <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
                                             <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/users">Get User Post</a>
                                         </li>
 
                                         <hr />

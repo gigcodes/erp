@@ -119,3 +119,5 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
 
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
+
+Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
