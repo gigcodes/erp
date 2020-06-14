@@ -1116,6 +1116,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
+    Route::get('users/grid/{id}', 'HashtagController@showUserGrid')->name('users.grid');
     Route::get('hashtag/comments/{id?}', 'HashtagController@showGridComments')->name('hashtag.grid');
     Route::get('hashtag/users/{id?}', 'HashtagController@showGridUsers')->name('hashtag.users.grid');
     Route::resource('hashtag', 'HashtagController');
@@ -1151,6 +1152,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
 
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
+     Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
      Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
     
 });
