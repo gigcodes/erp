@@ -20,6 +20,17 @@
           display: none;
     }
 
+    .wrapword {
+        white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
+        white-space: -webkit-pre-wrap;          /* Chrome & Safari */ 
+        white-space: -pre-wrap;                 /* Opera 4-6 */
+        white-space: -o-pre-wrap;               /* Opera 7 */
+        white-space: pre-wrap;                  /* CSS3 */
+        word-wrap: break-word;                  /* Internet Explorer 5.5+ */
+        word-break: break-all;
+        white-space: normal;
+    }
+
   </style>
 
 
@@ -430,7 +441,7 @@
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title">Manage Scraped Brands Raw</h4>
+                    <h4 class="modal-title">Manage Scraped Brands Raw (<?php echo count($scrapedBrands); ?>)</h4>
                 </div>
                 <div class="modal-body">
                   <table class="table table-bordered table-striped">
@@ -442,9 +453,9 @@
                     <tbody>
                         <tr>
                           <td>
-                            <div style="overflow-y: scroll; height: 250px">
+                            <div style="overflow-y: scroll; height: 250px; width: 465px">
                               @foreach ($scrapedBrands as $key => $value)
-                               <input type="checkbox" class="newBrandSelection" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br>
+                               <input type="checkbox" class="newBrandSelection wrapword" name="scrapedBrands[]" value="{{$value}}" style="margin-right:10px" {{ in_array($value, $selectedBrands) ? 'checked' : ''}}>{{ $value }}<br>
                               @endforeach
                             </div>
                           </td>
@@ -972,22 +983,24 @@
       }); 
 
       $('.manageScrapedBrandsSave').on('click', function() {
-        $('#manageScrapedBrandsRaw').modal('toggle');
-          $.ajax({
-              url: "{{ route('manageScrapedBrands') }}",
-              type: 'POST',
-              data: {
-                  selectedBrands: $('.newBrandSelection:checked').serializeArray
-                  ().map(function(obj) { 
-                    return obj.value;
-                  }),
-                  _token: "{{ csrf_token() }}" 
-              },            
-              success: function(data) {
-                 alert(data);
-                 location.reload();
-              }
-          });
+        if(confirm("Are you sure you want to perform this operation?")){
+            $('#manageScrapedBrandsRaw').modal('toggle');
+            $.ajax({
+                url: "{{ route('manageScrapedBrands') }}",
+                type: 'POST',
+                data: {
+                    selectedBrands: $('.newBrandSelection:checked').serializeArray
+                    ().map(function(obj) { 
+                      return obj.value;
+                    }),
+                    _token: "{{ csrf_token() }}" 
+                },            
+                success: function(data) {
+                   alert(data);
+                   location.reload();
+                }
+            });
+          }  
       });
 
       $(document).on('change', '.change-whatsapp-no', function () {
