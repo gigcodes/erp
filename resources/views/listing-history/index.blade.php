@@ -30,6 +30,7 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
+    		<div class="col">
 	    		<div class="h" style="margin-bottom:10px;">
 		    		<form class="form-inline message-search-handler" method="post">
 					  <div class="row">
@@ -54,6 +55,12 @@
 				  	 	</div>	
 					</form>	
 		    	</div>
+		    </div>
+		    <div class="col">
+		    	<a data-toggle="collapse" href="#show-total-update-category" role="button" aria-expanded="false" aria-controls="show-total-update-category">
+                   Show user updated
+                </a>
+		   	</div>
 		</div>	
 		<div class="col-md-12 margin-tb" id="page-view-result">
 

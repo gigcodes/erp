@@ -26,7 +26,7 @@ class ProductCategoryController extends Controller
     	->select(["product_category_histories.*","c.title as new_cat_name","d.title as old_cat_name","u.name as user_name"])
     	->get();
 
-    	return response()->json(["code" => 200 , "data" => $productCategory]);
+        return response()->json(["code" => 200 , "data" => $productCategory]);
     }
 
     public function records(Request $request)
@@ -48,15 +48,33 @@ class ProductCategoryController extends Controller
            $productCategory = $productCategory->whereIn("product_category_histories.user_id",$usresIds);
         }
 
+        $updatedHistory = clone $productCategory;
+        $updatedHistory = $updatedHistory->groupBy("product_category_histories.user_id");
+        $updatedHistory = $updatedHistory->select(["u.name as user_name",\DB::raw("count(u.id) as total_updated")]);
+        $updatedHistory = $updatedHistory->get()->toArray();
+
         $productCategory = $productCategory->orderBy("product_category_histories.created_at","desc")
         ->select(["product_category_histories.*","c.title as new_cat_name","d.title as old_cat_name","u.name as user_name","p.name as product_name"])
         ->paginate();
+
+        // total product without category by supplier
+        $productsLeft =  \App\Product::join("product_suppliers as ps","ps.product_id","products.id")
+        ->join("suppliers as s","s.id","ps.supplier_id")
+        ->where(function($q){
+            $q->whereNull("products.category")->orWhere("products.category","");
+        })
+        ->groupBy("s.id")
+        ->select(["s.supplier as supplier_name",\DB::raw("count(s.id) as total_left")])
+        ->get()
+        ->toArray();
 
         return response()->json([
             "code"        => 200,
             "data"        => $productCategory->items(),
             "pagination"  => (string) $productCategory->render(),
-            "total" => $productCategory->total()
+            "total"       => $productCategory->total(),
+            "updated_history" => $updatedHistory,
+            "products_left" => $productsLeft
         ]);
 
     }

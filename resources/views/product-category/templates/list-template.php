@@ -1,5 +1,53 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="row">
+	<div class="row mt-2">
+	    <div class="col-md-12">
+	        <div class="collapse" id="show-total-update-category">
+	            <div class="card card-body">
+	            	{{if updated_history.length}}
+		                <div class="row col-md-12">
+		                    {{props updated_history}}
+		                      <div class="col-md-2">
+		                            <div class="card">
+		                              <div class="card-header">
+		                                {{:prop.user_name}}
+		                              </div>
+		                              <div class="card-body">
+		                                  {{:prop.total_updated}}
+		                              </div>
+		                          </div>
+		                       </div> 
+		                  	{{/props}}
+		                </div>
+	                {{else}}
+	                	No Records
+	                {{/if}}
+	            </div>
+	        </div>
+	        <div class="collapse" id="show-left-for-update-category">
+	            <div class="card card-body">
+	            	{{if products_left.length}}
+		                <div class="row col-md-12">
+		                    {{props products_left}}
+		                        <div class="col-md-2">
+		                            <div class="card">
+		                                <div class="card-header">
+		                                    {{:prop.supplier_name}}
+		                                </div>
+		                                <div class="card-body">
+		                                    {{:prop.total_left}}
+		                                </div>
+		                            </div>
+		                        </div>
+		                  	{{/props}}
+		                </div>
+		            {{else}}
+	                	No Records
+	                {{/if}}    
+	            </div>
+	        </div>
+	    </div>    
+	</div>
+	<div class="row mt-2">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
@@ -15,7 +63,7 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td>[{{:prop.product_id}}] {{:prop.product_name}}</td>
+			      	<td>[<a target="_blank" href="/search?term={{:prop.product_id}}&roletype=Inventory">{{:prop.product_id}}</a>] {{:prop.product_name}}</td>
 			      	<td>{{:prop.new_cat_name}}</td>
 			        <td>{{:prop.old_cat_name}}</td>
 			        <td>{{:prop.user_name}}</td>
