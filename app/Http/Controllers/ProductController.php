@@ -1090,6 +1090,8 @@ class ProductController extends Controller
         $product->color = $request->color;
         $product->save();
 
+        \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
+
         $lh = new ListingHistory();
         $lh->user_id = Auth::user()->id;
         $lh->product_id = $id;
@@ -1133,6 +1135,8 @@ class ProductController extends Controller
             $productCatHis->old_category_id = $product->category;
             $productCatHis->product_id = $product->id;
             $productCatHis->save(); 
+
+            \App\ProductStatus::pushRecord($product->id,"MANUAL_CATEGORY");
         }    
 
         $product->category = $request->category;
