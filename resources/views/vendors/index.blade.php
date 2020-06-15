@@ -318,7 +318,7 @@
 
         <?php if(!empty($updatedProducts)) {
             foreach($updatedProducts as $updatedProduct) {
-                echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated')";
+                echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated');";
             }
         } ?>
 
