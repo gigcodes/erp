@@ -168,24 +168,27 @@ class RepositoryController extends Controller
 
     private function getPullRequests($repoId)
     {
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
-        $response = $this->client->get($url);
-
-        $decodedJson = json_decode($response->getBody()->getContents());
-
         $pullRequests = array();
-        foreach ($decodedJson as $pullRequest) {
-            $pullRequests[] = array(
-                'id' => $pullRequest->number,
-                'title' => $pullRequest->title,
-                'number' => $pullRequest->number,
-                'username' => $pullRequest->user->login,
-                'userId' => $pullRequest->user->id,
-                'updated_at' => $pullRequest->updated_at,
-                'source' => $pullRequest->head->ref,
-                'destination' => $pullRequest->base->ref
-            );
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        try{
+            $response = $this->client->get($url);
+            $decodedJson = json_decode($response->getBody()->getContents());
+            foreach ($decodedJson as $pullRequest) {
+                $pullRequests[] = array(
+                    'id' => $pullRequest->number,
+                    'title' => $pullRequest->title,
+                    'number' => $pullRequest->number,
+                    'username' => $pullRequest->user->login,
+                    'userId' => $pullRequest->user->id,
+                    'updated_at' => $pullRequest->updated_at,
+                    'source' => $pullRequest->head->ref,
+                    'destination' => $pullRequest->base->ref
+                );
+            }
+        }catch(Exception $e) {
+
         }
+
 
         return $pullRequests;
     }
