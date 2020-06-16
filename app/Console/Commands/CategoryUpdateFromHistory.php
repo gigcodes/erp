@@ -6,7 +6,7 @@ use DB;
 use Exception;
 use Illuminate\Console\Command;
 
-class AccountHubstaffActivities extends Command
+class CategoryUpdateFromHistory extends Command
 {
     /**
      * The name and signature of the console command.
