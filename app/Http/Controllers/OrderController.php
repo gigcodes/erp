@@ -2172,11 +2172,11 @@ public function createProductOnMagento(Request $request, $id){
 		]);
 
 		$response = $rateReq->call();
-		if(!$response->hasError()) {
+        if(!$response->hasError()) {
 			$charges = $response->getChargesBreakDown();
 			return response()->json(["code"=> 200 , "data" => $charges]);
 		}else{
-			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+            return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
 		}
 	}
 

@@ -155,6 +155,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/approveProduct', 'ProductController@approveProduct');
     Route::post('products/{id}/originalCategory', 'ProductController@originalCategory');
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
+    Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
+    Route::get('products/{id}/category-history', 'ProductCategoryController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
@@ -204,6 +206,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //	Route::resource('activity','ActivityConroller');
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
+    Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
@@ -353,6 +356,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
+    Route::post('dailyplanner/reschedule', 'DailyPlannerController@reschedule')->name('dailyplanner.reschedule');
     Route::resource('dailyplanner', 'DailyPlannerController');
 
     Route::resource('refund', 'RefundController');
@@ -522,6 +526,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/update-field', 'CustomerController@updateField')->name('customer.update.field');
     Route::post('customer/send-contact-details', 'CustomerController@sendContactDetails')->name('customer.send.contact');
     Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
+    Route::post('customer/create-kyc', 'CustomerController@createKyc')->name('customer.create.kyc');
 
     Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
@@ -872,6 +877,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
     Route::post('vendors/inviteHubstaff', 'VendorController@inviteHubstaff');
+    Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
 
     Route::prefix('vendor-category')->group(function () {
@@ -923,6 +929,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('email-addresses', 'EmailAddressesController');
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
+    Route::post('supplier/change-status', 'SupplierController@changeStatus');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
@@ -1109,6 +1116,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::resource('hashtagposts', 'HashtagPostsController');
     Route::resource('hashtagpostscomments', 'HashtagPostCommentController');
     Route::get('hashtag/grid/{id}', 'HashtagController@showGrid')->name('hashtag.grid');
+    Route::get('users/grid/{id}', 'HashtagController@showUserGrid')->name('users.grid');
     Route::get('hashtag/comments/{id?}', 'HashtagController@showGridComments')->name('hashtag.grid');
     Route::get('hashtag/users/{id?}', 'HashtagController@showGridUsers')->name('hashtag.users.grid');
     Route::resource('hashtag', 'HashtagController');
@@ -1144,6 +1152,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
 
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
+     Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
      Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
     
 });
@@ -1689,6 +1698,21 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
+Route::get('/vendor-form', 'VendorSupplierController@vendorForm')->name("developer.vendor.form");
+Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("developer.supplier.form");
+
+Route::prefix('product-category')->middleware('auth')->group(function () {
+    Route::get('/history', 'ProductCategoryController@history');
+    Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
+    Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
+});
+
+Route::prefix('listing-history')->middleware('auth')->group(function () {
+    Route::get('/', 'ListingHistoryController@index')->name("listing.history.index");
+    Route::get('/records', 'ListingHistoryController@records');
+});
+
+
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');
@@ -1719,8 +1743,7 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
                 });     
 
             });        
-        });
-                
+        });    
     }); 
 });
 

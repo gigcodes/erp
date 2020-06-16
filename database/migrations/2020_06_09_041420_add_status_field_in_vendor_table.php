@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddNewColumnsInAssetsManagerTable extends Migration
+class AddStatusFieldInVendorTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,8 @@ class AddNewColumnsInAssetsManagerTable extends Migration
      */
     public function up()
     {
-        Schema::table('assets_manager', function (Blueprint $table) {
-//            $table->string('usage')->nullable()->after('currency');
+        Schema::table('vendors',function($table){
+            $table->integer("status")->nullable()->default(1)->after('is_blocked');
         });
     }
 
@@ -25,8 +25,8 @@ class AddNewColumnsInAssetsManagerTable extends Migration
      */
     public function down()
     {
-        Schema::table('assets_manager', function (Blueprint $table) {
-            $table->dropColumn('usage');
+        Schema::table('vendors',function($table){
+            $table->dropColumn('status');
         });
     }
 }

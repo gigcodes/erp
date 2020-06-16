@@ -13,7 +13,7 @@
       <p class="location_{{$product->id}}">Location : {{ ($product->location) ? $product->location : "" }}</p>
       <p>Sku : {{ $product->sku }}</p>
       <p>Id : {{ $product->id }}</p>
-      <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ $product->size}}</span></p>
+      <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ ($product->size) ? $product->size : "N/A"}}</span></p>
       <p>Price : <span class="text-editable" data-field-name="price_inr_special" data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></p>
       <p>Status : <?php echo Form::select("stock_status",[null => "- Select --"] + \App\Product::STOCK_STATUS,$product->stock_status,["class" => "form-control update-product-stock-status","data-product-id" => $product->id]); ?></p>
 

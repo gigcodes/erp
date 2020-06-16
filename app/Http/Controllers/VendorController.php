@@ -85,7 +85,9 @@ class VendorController extends Controller
     }
 
     //getting request 
-    if ($request->term || $request->name || $request->id || $request->category || $request->phone || $request->address || $request->email || $request->communication_history) {
+    if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
+        $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
+    ) {
 
 
       //Query Initiate
@@ -128,12 +130,23 @@ class VendorController extends Controller
         $query->where('phone', 'LIKE', '%' . request('phone') . '%');
       }
 
+      $status = request('status');
+      if ($status != null) {
+        $query->where('status', $status);
+      }
+
+      if (request('updated_by') != null) {
+          $query->where('updated_by', request('updated_by'));
+      }
+
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
           $qu->where('title', 'LIKE', '%' . request('category') . '%');
         });
       }
+
+
 
       if (request('communication_history') != null) {
         $communication_history = request('communication_history');
@@ -167,6 +180,7 @@ class VendorController extends Controller
                     vendors.updated_by,
                     vendors.reminder_from,
                     vendors.reminder_last_reply,
+                    vendors.status,
                     category_name,
                   chat_messages.message_id 
                   FROM vendors
@@ -226,13 +240,19 @@ class VendorController extends Controller
       ], 200);
     }
 
+    $updatedProducts = \App\Vendor::join("users as u","u.id","vendors.updated_by")
+    ->groupBy("vendors.updated_by")
+    ->select([\DB::raw("count(u.id) as total_records"),"u.name"])
+    ->get();
+    
     return view('vendors.index', [
       'vendors' => $vendors,
       'vendor_categories' => $vendor_categories,
       'term'    => $term,
       'orderby'    => $orderby,
       'users' => $users,
-      'replies' => $replies
+      'replies' => $replies,
+      'updatedProducts' => $updatedProducts
     ]);
   }
 
@@ -333,6 +353,8 @@ class VendorController extends Controller
       'account_swift' => 'sometimes|nullable|max:255'
     ]);
 
+    $source = $request->get("source","");
+
     $data = $request->except(['_token', 'create_user']);
     if(empty($data["whatsapp_number"]))  {
       $data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
@@ -341,6 +363,10 @@ class VendorController extends Controller
     if(empty($data["default_phone"]))  {
       $data["default_phone"] = $data["phone"];
     }
+
+    if(!empty($source)) {
+       $data["status"] = 0;
+    }  
 
     Vendor::create($data);
 
@@ -370,6 +396,9 @@ class VendorController extends Controller
         $message = 'We have created an account for you on our ERP. You can login using the following details: url: https://erp.amourint.com/ username: ' . $email . ' password:  ' . $password . '';
         app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($request->phone, '', $message);
       } else {
+        if(!empty($source)) {
+           return redirect()->back()->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
+        }
         return redirect()->route('vendors.index')->withErrors('Vendor Created , couldnt create User, Email or Phone Already Exist');
       }
     }
@@ -384,6 +413,10 @@ class VendorController extends Controller
     if ($request->create_user_hubstaff == 'on' && isset($request->email)) {
       //has requested hubstaff invitation
       $isInvitedOnHubstaff = $this->sendHubstaffInvitation($request->email);
+    }
+
+    if(!empty($source)) {
+       return redirect()->back()->withSuccess('You have successfully saved a vendor!');
     }
 
     return redirect()->route('vendors.index')->withSuccess('You have successfully saved a vendor!');
@@ -1061,5 +1094,22 @@ class VendorController extends Controller
     } catch (Exception $e) {
       return false;
     }
+  }
+
+  public function changeStatus(Request $request)
+  {
+      $vendorId = $request->get("vendor_id");
+      $statusId = $request->get("status");
+
+
+      if(!empty($vendorId)) {
+           $vendor = \App\Vendor::find($vendorId);
+           if(!empty($vendor)) {
+              $vendor->status = ($statusId == "false") ? 0 : 1;
+              $vendor->save();
+           }
+      }
+
+      return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
   }
 }

@@ -42,7 +42,7 @@ class InstagramPostsController extends Controller
 
     public function post()
     {
-        $accounts = \App\Account::all();
+        $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
         $used_space = 0;
         $storage_limit = 0;
         return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
@@ -374,8 +374,16 @@ class InstagramPostsController extends Controller
 
     public function users(Request $request)
     {
-        $users = \App\InstagramUsersList::whereNotNull('username')->orderBy('id','desc')->paginate(25);
+        $users = \App\InstagramUsersList::whereNotNull('username')->where('is_manual',1)->orderBy('id','desc')->paginate(25);
         return view('instagram.users',compact('users'));
+    }
+
+
+    public function getUserForLocal()
+    {
+        $users = \App\InstagramUsersList::select('id','user_id')->whereNotNull('username')->where('is_manual',1)->where('is_processed',0)->orderBy('id','desc')->first();
+        return json_encode($users);
+        
     }
 
     public function userPost($id)

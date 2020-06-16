@@ -61,6 +61,7 @@ class SupplierController extends Controller
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
+        $updated_by = $request->updated_by ?? '';
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
 
@@ -83,6 +84,10 @@ class SupplierController extends Controller
         }
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+        }
+
+        if($updated_by != '') {
+           $typeWhereClause .= ' AND updated_by=' . $updated_by;
         }
 
         if($supplier_filter){
@@ -244,7 +249,7 @@ class SupplierController extends Controller
     {
         $this->validate($request, [
             //'supplier_category_id' => 'required|string|max:255',
-            'supplier' => 'required|string|max:255',
+            'supplier' => 'required|string|unique:suppliers|max:255',
             'address' => 'sometimes|nullable|string',
             'phone' => 'sometimes|nullable|numeric',
             'default_phone' => 'sometimes|nullable|numeric',
@@ -261,6 +266,12 @@ class SupplierController extends Controller
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
 
+        $source  = $request->get("source","");
+
+        if(!empty($source)) {
+           $data["supplier_status_id"] = 0;
+        }  
+
         $supplier = Supplier::create($data);
 
         if ($supplier->id > 0) {
@@ -269,6 +280,10 @@ class SupplierController extends Controller
                 "scraper_name" => $request->get("scraper_name", ""),
                 "inventory_lifetime" => $request->get("inventory_lifetime", ""),
             ]);
+        }
+
+        if(!empty($source)) {
+          return redirect()->back()->withSuccess('You have successfully saved a supplier!');
         }
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
@@ -1364,6 +1379,22 @@ class SupplierController extends Controller
       $supplier->whatsapp_number = $request->number;
       $supplier->update();
       return response()->json(['success' => 'Supplier Whatsapp updated'], 200);
+    }
+
+    public function changeStatus(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $statusId = $request->get("supplier_status_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->supplier_status_id = ($statusId == "false") ? 0 : 1;
+              $supplier->save();
+           }
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
     }
 
 }

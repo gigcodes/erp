@@ -3,6 +3,12 @@
 @section('title', __('New post'))
 
 @section('content')
+<style>
+    .imagecheck-image{
+        height: 100px !important;
+        width: 100px !important;
+    }
+</style>
      <link rel="stylesheet" href="{{ asset('/css/instagram.css') }}?v={{ config('pilot.version') }}">
         
     @includeWhen($accounts->count() == 0, 'partials.no-accounts')
@@ -39,14 +45,14 @@
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-6">
-
+                    <small style="color: red;">Please Maintain aspect ratios between 0.800 and 1.910 for Photos</small>
                     <div class="card">
                         <div class="card-header pl-3">
                             <h3 class="card-title">@lang('New post')</h3>
                             <div class="card-options">
                                 <select name="account" class="form-control form-control-sm target-account">
                                     @foreach($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->first_name }}</option>
+                                    <option value="{{ $account->id }}">{{ $account->last_name }}</option>
                                     @endforeach
                                 </select>
                             </div>

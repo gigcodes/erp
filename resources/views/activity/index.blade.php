@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
     <section class="dashboard-counts section-padding">
-        <div class="container-fluid">
+        <div class="container-fluid" style="display: inline-block;">
             <div class="row">
                 <div class="col-lg-12">
                     <form action="{{ route('activity') }}" method="GET" enctype="multipart/form-data">

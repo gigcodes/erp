@@ -71,7 +71,8 @@ class DailyPlannerController extends Controller
         $task = new Task;
         $task->task_subject = "Complete $statutory statutory tasks today";
         $task->is_completed = Carbon::now();
-        $time_slots['08:00am - 10:00am'][] = $task;
+        $time_slots['08:00am - 09:00am'][] = $task;
+        $time_slots['09:00am - 10:00am'][] = $task;
       }
 
       // dd($time_slots);
@@ -202,5 +203,32 @@ class DailyPlannerController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function reschedule(Request $request) 
+    {
+      
+      $type       = $request->get("type");
+      $id         = $request->get("id");
+      $plannedAt  = $request->get("planned_at");
+
+      if($type == "task") {
+          $modal = \App\Task::find($id);
+      }else{
+          $modal = \App\DailyActivity::find($id);
+      }
+
+      if(!empty($modal)) {
+          if($type == "task") {
+            $modal->planned_at = $plannedAt;
+          }else{
+            $modal->for_date = $plannedAt;
+          }  
+          $modal->save();
+          return response()->json(["code" => 200 , "data" => [], "message" => "Your task has been rescheduled"]);
+      }
+
+      return response()->json(["code" => 500 , "data" => [], "message" => "Oops, somethign went wrong while rescheduling task"]);
+
     }
 }

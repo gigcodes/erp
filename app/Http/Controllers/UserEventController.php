@@ -227,7 +227,7 @@ class UserEventController extends Controller
 
         // once user event has been stored create the event in daily planner
         $dailyActivities = new \App\DailyActivity;
-        $dailyActivities->time_slot = date("h:00 a",strtotime($userEvent->start)) . " - " .date("h:00 a",strtotime($userEvent->end));
+        $dailyActivities->time_slot = date("h:00a",strtotime($userEvent->start)) . " - " .date("h:00a",strtotime($userEvent->end));
         $dailyActivities->activity  = $userEvent->subject;
         $dailyActivities->user_id   = $userId;
         $dailyActivities->for_date  = $date;

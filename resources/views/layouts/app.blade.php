@@ -406,6 +406,8 @@
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
+                                                <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -708,6 +710,12 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('vendors.product.index') }}">Product Info</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.vendor.form') }}">Vendor Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -802,6 +810,7 @@
                                             <a class="dropdown-item" href="/instagram/post">Posts</a>
                                             <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
                                             <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/users">Get User Post</a>
                                         </li>
 
                                         <hr />
@@ -1118,6 +1127,12 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
                             </ul>
                         </li>

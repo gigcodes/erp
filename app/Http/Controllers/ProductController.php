@@ -138,7 +138,11 @@ class ProductController extends Controller
         if ((int)$request->get('status_id') > 0) {
             $newProducts = Product::where('status_id', (int)$request->get('status_id'));
         } else {
-            $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+            if ($request->get('submit_for_approval') == "on") {
+                $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+            }else{
+                $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+            }
         }
 
         // Run through query helper
@@ -221,11 +225,39 @@ class ProductController extends Controller
         }
 
 
+
+
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->leftJoin("product_verifying_users as pvu",function($join) {
+            $join->on("pvu.product_id","products.id");
+            $join->where("pvu.user_id","!=",auth()->user()->id);
+        });
+        if(!auth()->user()->isAdmin()) {
+            $newProducts = $newProducts->whereNull("pvu.product_id");
+        }
+
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(2);
+        if(!auth()->user()->isAdmin()) {
+            if(!$newProducts->isEmpty()) {
+                $i = 1;
+                foreach($newProducts as $product) {
+                    $productVerify = \App\ProductVerifyingUser::firstOrNew(array(
+                        'product_id' => $product->id
+                    ));
+                    $productVerify->product_id = $product->id; 
+                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->save();
+                    $i++;
+                    // if more then 15 records then break
+                    if($i > 25) {
+                        break;
+                    }
+                }
+            }
+        }
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -1058,6 +1090,8 @@ class ProductController extends Controller
         $product->color = $request->color;
         $product->save();
 
+        \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
+
         $lh = new ListingHistory();
         $lh->user_id = Auth::user()->id;
         $lh->product_id = $id;
@@ -1093,6 +1127,18 @@ class ProductController extends Controller
     {
 
         $product = Product::find($id);
+
+        if($product) {
+            $productCatHis = new \App\ProductCategoryHistory;
+            $productCatHis->user_id = \Auth::user()->id; 
+            $productCatHis->category_id = $request->category; 
+            $productCatHis->old_category_id = $product->category;
+            $productCatHis->product_id = $product->id;
+            $productCatHis->save(); 
+
+            \App\ProductStatus::pushRecord($product->id,"MANUAL_CATEGORY");
+        }    
+
         $product->category = $request->category;
         $product->save();
 
@@ -1458,6 +1504,13 @@ class ProductController extends Controller
         $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
         $l->save();
 
+        // once product approved the remove from the edititing list
+        $productVUser = \App\ProductVerifyingUser::where("product_id",$id)->first();
+        if($productVUser) {
+            $productVUser->delete();
+        }
+
+
         ActivityConroller::create($product->id, 'productlister', 'create');
 
 //		if (Auth::user()->hasRole('Products Lister')) {
@@ -1475,6 +1528,25 @@ class ProductController extends Controller
         return response()->json([
             'result' => true,
             'status' => 'is_approved'
+        ]);
+    }
+
+    public function submitForApproval(Request $request, $id)
+    {
+        $product = Product::find($id);
+        $product->status = StatusHelper::$submitForApproval;
+        $product->save();
+
+        $l = new ListingHistory();
+        $l->user_id = Auth::user()->id;
+        $l->product_id = $product->id;
+        $l->action = 'SUBMIT_FOR_APPROVAL';
+        $l->content = ['action' => 'SUBMIT_FOR_APPROVAL', 'message' => 'User has submitted for approval!'];
+        $l->save();
+
+        return response()->json([
+            'result' => true,
+            'status' => 'submit_for_approval'
         ]);
     }
 
@@ -1554,7 +1626,8 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedCategory::dispatch([
             "product_id"    => $id,
-            "category_id"   => $request->category
+            "category_id"   => $request->category,
+            "user_id"       => Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product category has been sent for the update']);

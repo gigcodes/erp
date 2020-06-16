@@ -21,6 +21,12 @@ class Brand extends Model
     protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url'];
     protected $dates = [ 'deleted_at' ];
 
+    CONST BRAND_SEGMENT = [
+        "A" => "A",
+        "B" => "B",
+        "C" => "C"
+    ];
+
     public static function getAll()
     {
         // Get all Brands
@@ -95,4 +101,8 @@ class Brand extends Model
         return self::where("magento_id",">",0)->get();
     }
 
+    public static function getSegmentPrice($brandId, $categoryId)
+    {
+        return \App\BrandCategoryPriceRange::where("brand_segment",$brandId)->where("category_id",$categoryId)->first();
+    }
 }

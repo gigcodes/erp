@@ -24,11 +24,23 @@ class BrandController extends Controller
         ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
         ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on")])
         ->groupBy("brands.id")
-        ->oldest()->whereNull('brands.deleted_at')->paginate(Setting::get('pagination'));
+        ->oldest()->whereNull('brands.deleted_at');
+
+        $keyword = request('keyword');
+        if(!empty($keyword)) {
+            $brands = $brands->where("name","like","%".$keyword."%");
+        }
+
+        $brands = $brands->paginate(Setting::get('pagination'));
 
         $storeWebsite = \App\StoreWebsite::all()->pluck("website","id")->toArray();
 
-        return view('brand.index', compact('brands','storeWebsite'))
+        $attachedBrands = \App\StoreWebsiteBrand::groupBy("store_website_id")->select(
+            [\DB::raw("count(brand_id) as total_brand"),"store_website_id"]
+        )->get()->toArray();
+
+
+        return view('brand.index', compact('brands','storeWebsite','attachedBrands'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -264,5 +276,20 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500, "data" => $brand, "message" => "Brand not found"]);
 
+    }
+
+    public function changeSegment(Request $request) 
+    {
+        $id = $request->get("brand_id",0);
+        $brand = \App\Brand::where("id",$id)->first();
+        $segment = $request->get("segment");
+
+        if($brand) {
+           $brand->brand_segment = $segment;
+           $brand->save();
+           return response()->json(["code" => 200 , "data" => []]);
+        }
+
+        return response()->json(["code" => 500 , "data" => []]);
     }
 }

@@ -51,6 +51,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
 use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
+use Plank\Mediable\Media as PlunkMediable;
 
 class CustomerController extends Controller
 {
@@ -2582,6 +2583,35 @@ class CustomerController extends Controller
         }
         
         return response()->json(["code" => 200 , "data" => [] , "message" => "Sorry , no customer found"]);
+    }
+
+    public function  createKyc(Request $request )
+    {
+        $customer_id = $request->get("customer_id");
+        $media_id    = $request->get("media_id");
+
+        if(empty($customer_id)) {
+            return response()->json(["code" => 500 ,"message" => "Customer id is required"]);
+        }
+
+        if(empty($media_id)) {
+            return response()->json(["code" => 500 ,"message" => "Media id is required"]);
+        }
+
+        $media = PlunkMediable::find($media_id);
+        if(!empty($media)) {
+
+            $kycDoc = new \App\CustomerKycDocument;
+            $kycDoc->customer_id = $customer_id;
+            $kycDoc->url = $media->getUrl();
+            $kycDoc->path = $media->getAbsolutePath();
+            $kycDoc->type = 1;
+            $kycDoc->save();
+
+            return response()->json(["code" => 200 , "data" => [], "message" => "Kyc document added successfully"]);
+        }
+
+        return response()->json(["code" => 500 ,"message" => "Ooops, something went wrong"]);
     }
 
 }

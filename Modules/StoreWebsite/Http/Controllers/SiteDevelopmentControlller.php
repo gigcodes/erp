@@ -46,7 +46,10 @@ class SiteDevelopmentController extends Controller
 	        'links' => (string) $categories->render()
 	      ], 200);
 	    }
-		return view('storewebsite::site-development.index', compact('categories','users','website'));
+
+	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
+
+		return view('storewebsite::site-development.index', compact('categories','users','website','allStatus'));
 	}
 
 

@@ -333,6 +333,10 @@ class ProductInventoryController extends Controller
         $productQuery->where(function($query){
         	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
         });
+        $stockStatus = $request->get('stock_status', "");
+        if (!empty($stockStatus)) {
+            $productQuery = $productQuery->where('products.stock_status', $stockStatus);
+        }
 
         if ($request->get('in_pdf') === 'on') {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->get();
