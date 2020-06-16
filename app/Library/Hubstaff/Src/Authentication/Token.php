@@ -1,40 +1,43 @@
-<?php 
+<?php
 
 namespace App\Library\Hubstaff\Src\Authentication;
 
-use Curl\Curl;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use Storage;
 
-class Token {
+class Token
+{
 
-    private $url = 'https://api.hubstaff.com/v1/auth';
+    private $url = 'https://account.hubstaff.com/access_tokens';
 
+    public function getAuthToken($refreshToken, $filename = "")
+    {
 
-    /**
-    * Get Auth Token for your application. Apparently as of now hubstaff do not have expiry
-    * for this token. So you can request it and save it in database or env file
-    * Please note Auth Token is different from App Token which you can get from My Apps : https://developer.hubstaff.com/my_apps
-    * @param none
-    * @return string auth token
-    */
-    
-    public function getAuthToken($appToken, $email, $password){
+        $httpClient = new Client();
         
-        $curl = new Curl();
-        $curl->setHeader('App-Token', $appToken);
-        $curl->post($this->url, array(
-            'email' => $email,
-            'password' => $password,
-        ));
-        if ($curl->error) {
-            echo 'errorCode Auth' . $curl->error_code;
-            die();
-        }
-        else {
-            $response = json_decode($curl->response);
-        }
+        try {
+            
+            $response = $httpClient->post($this->url,
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type'    => 'refresh_token',
+                        'refresh_token' => $refreshToken,
+                    ],
+                ]
+            );
 
-        $curl->close();
+            $responseJson = json_decode($response->getBody()->getContents());
 
-        return $response->user->auth_token;
+            $tokens = [
+                'access_token'  => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token,
+            ];
+
+            return Storage::disk('local')->put($filename, json_encode($tokens));
+
+        } catch (Exception $e) {
+            return false;
+        }
     }
 }

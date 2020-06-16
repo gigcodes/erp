@@ -2,6 +2,8 @@
 
 namespace App\Library\Hubstaff\Src;
 
+use Storage;
+
 /**
  * Package is using for maintane hubstaff
  *
@@ -13,10 +15,15 @@ class Hubstaff
 {
 
     protected static $instance = null;
-    private $appToken;
-    private $email;
-    private $password;
-    private $authToken;
+    private $accessToken;
+
+    public $HUBSTAFF_TOKEN_FILE_NAME = "hubstaff_tokens.json";
+    public $SEED_REFRESH_TOKEN;
+
+    public function __construct()
+    {
+        $this->SEED_REFRESH_TOKEN = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+    }
 
     public static function getInstance()
     {
@@ -28,30 +35,25 @@ class Hubstaff
         return self::$instance;
     }
 
-    public function authenticate($appToken, $email, $password, $authToken = null)
+    public function authenticate()
     {
 
-        $this->appToken = $appToken;
-        $this->email    = $email;
-        $this->password = $password;
-
-        if (is_null($authToken)) {
-            $token           = new Token();
-            $this->authToken = $token->getAuthToken($appToken, $email, $password);
-        } else {
-            $this->authToken = $authToken;
+        if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
+            $token = new Token();
+            $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);
         }
 
-        return $this;
+        $this->accessToken = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME))->access_token;
 
+        return $this;
     }
 
     public function getRepository($repo)
     {
 
         $repo = ucwords(strtolower($repo));
-        $repo = 'Hubstaff\\Repositories\\' . $repo;
-        return new $repo($this->appToken, $this->authToken);
+        $repo = '\\App\\Library\\Hubstaff\\Src\\Repositories\\' . $repo;
+        return new $repo($this->accessToken);
     }
 
 }
