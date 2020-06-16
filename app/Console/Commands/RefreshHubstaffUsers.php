@@ -10,6 +10,8 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 use Storage;
+use App\Library\Hubstaff\Src\Hubstaff;
+
 
 class RefreshHubstaffUsers extends Command
 {
@@ -41,6 +43,13 @@ class RefreshHubstaffUsers extends Command
         parent::__construct();
         $this->HUBSTAFF_TOKEN_FILE_NAME = 'hubstaff_tokens.json';
         $this->SEED_REFRESH_TOKEN       = getenv('HUBSTAFF_SEED_PERSONAL_TOKEN');
+        
+
+        // start hubstaff section from here
+       $hubstaff = Hubstaff::getInstance();
+
+       echo '<pre>'; print_r($hubstaff); echo '</pre>';exit; 
+
     }
 
     /**

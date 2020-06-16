@@ -243,7 +243,7 @@ class HubstaffController extends Controller
                 $hubstaffProjectIds[] = $task->project_id;
             }
 
-            $projects = HubstaffProject::whereIn('hubstaff_project_id', $hubstaffProjectIds)->get();
+            $projects = HubstaffProject::whereIn('hubstaff_project_id', array_unique($hubstaffProjectIds))->get();
 
             $hubstaffProjects = [];
             foreach ($projects as $project) {
