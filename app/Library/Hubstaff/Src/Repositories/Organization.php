@@ -10,10 +10,11 @@ class Organization
     private $accessToken;
     private $authToken;
     private $urls = [
-        'allOrgs'     => 'https://api.hubstaff.com/v1/organizations',
-        'orgDetail'   => 'https://api.hubstaff.com/v1/organizations/{orgId}',
-        'orgProjects' => 'https://api.hubstaff.com/v1/organizations/{orgId}/projects',
-        'orgUsers'    => 'https://api.hubstaff.com/v2/organizations/{orgId}/members',
+        'allOrgs'                => 'https://api.hubstaff.com/v1/organizations',
+        'orgDetail'              => 'https://api.hubstaff.com/v1/organizations/{orgId}',
+        'orgProjects'            => 'https://api.hubstaff.com/v1/organizations/{orgId}/projects',
+        'orgUsers'               => 'https://api.hubstaff.com/v2/organizations/{orgId}/members',
+        'organizations-activity' => 'https://api.hubstaff.com/v2/organizations/{orgId}/activities',
     ];
 
     /**
@@ -141,6 +142,38 @@ class Organization
         ));
 
         if ($curl->error) {
+            echo 'errorCode' . $curl->error_code;
+            die();
+        } else {
+            $response = json_decode($curl->response);
+        }
+
+        $curl->close();
+
+        return $response;
+    }
+
+
+    /**
+     * Get activitiy
+     *
+     * @param orgId [integer]
+     */
+
+    public function getActivity($orgId, $startTime , $stopTime)
+    {
+
+        $curl = new Curl();
+        $curl->setHeader('Authorization', $this->accessToken);
+
+        $url = str_replace('{orgId}', $orgId, $this->urls['organizations-activity']);
+        $curl->get($url, array(
+            'time_slot[start]' => date(DATE_ISO8601, strtotime($startTime)),
+            'time_slot[stop]'   => date(DATE_ISO8601, strtotime($stopTime)),
+        ));
+
+        if ($curl->error) {
+            echo '<pre>'; print_r($curl); echo '</pre>';exit;
             echo 'errorCode' . $curl->error_code;
             die();
         } else {

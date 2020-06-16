@@ -880,6 +880,18 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
 
+    Route::prefix('hubstaff-payment')->group(function () {
+        Route::get('/', 'HubstaffPaymentController@index')->name('hubstaff-payment.index');
+        Route::get('records', 'HubstaffPaymentController@records')->name('hubstaff-payment.records');
+        Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
+        Route::post('merge-category', 'HubstaffPaymentController@mergeCategory')->name('hubstaff-payment.merge-category');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'HubstaffPaymentController@edit')->name('hubstaff-payment.edit');
+            Route::get('delete', 'HubstaffPaymentController@delete')->name('hubstaff-payment.delete');
+        });
+    });
+
+
     Route::prefix('vendor-category')->group(function () {
         Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');
         Route::get('records', 'VendorCategoryController@records')->name('vendor-category.records');

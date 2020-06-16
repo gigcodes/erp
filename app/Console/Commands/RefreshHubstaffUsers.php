@@ -69,25 +69,34 @@ class RefreshHubstaffUsers extends Command
         // start hubstaff section from here
         $hubstaff          = Hubstaff::getInstance();
         $hubstaff          = $hubstaff->authenticate();
-        $organizationUsers = $hubstaff->getRepository('organization')->getOrgUsers(env("HUBSTAFF_ORG_ID"));
+        $organizationUsers = $hubstaff->getRepository('organization')->getActivity(env("HUBSTAFF_ORG_ID"));
         if (!empty($organizationUsers->members)) {
+            $record = count($organizationUsers->members);
+            echo "Total Record :" . $record;
             foreach ($organizationUsers->members as $member) {
-                $userDetails = $hubstaff->getRepository('user')->getUserDetail($member->user_id);
-                if (!empty($userDetails)) {
-                    $member->email = $userDetails->user->email;
+                echo $member->user_id . " Record started";
+                echo PHP_EOL;
+                $memeberExist = HubstaffMember::where("hubstaff_user_id", $member->user_id)->first();
+                if (!$memeberExist) {
+                    $userDetails = $hubstaff->getRepository('user')->getUserDetail($member->user_id);
+                    if (!empty($userDetails)) {
+                        $member->email = $userDetails->user->email;
+                    }
+
+                    if (!empty($member->email)) {
+                        $userExist = \App\User::where("email", $member->email)->first();
+                        HubstaffMember::create([
+                            'hubstaff_user_id' => $member->user_id,
+                            'email'            => $member->email,
+                            'user_id'          => ($userExist) ? $userExist->id : null,
+                        ]);
+                    }
                 }
 
-                if (!empty($member->email)) {
-                    $userExist = \App\User::where("email", $member->email)->first();
-                    HubstaffMember::updateOrCreate([
-                        'hubstaff_user_id' => $member->user_id,
-                    ], [
-                        'hubstaff_user_id' => $member->user_id,
-                        'email'            => $member->email,
-                        'user_id'          => ($userExist) ? $userExist->id : null,
-                    ]);
-                }
-
+                echo $member->user_id . " Record eneded";
+                echo PHP_EOL;
+                echo "Total Record Left :" . $record--;
+                echo PHP_EOL;
             }
         }
 
