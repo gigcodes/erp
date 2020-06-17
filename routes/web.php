@@ -1043,6 +1043,7 @@ Route::get('hubstaff/members', 'HubstaffController@index');
 Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
 
 Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
 Route::get('hubstaff/projects/{id}', 'HubstaffController@editProject');
 Route::put('hubstaff/projects/edit', 'HubstaffController@editProjectData');
 Route::get('hubstaff/tasks', 'HubstaffController@getTasks');

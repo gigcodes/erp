@@ -14,6 +14,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Support\Facades\Validator;
 use Storage;
 
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
@@ -617,5 +618,37 @@ class HubstaffController extends Controller
         return response()->json([
             'message' => 'link success',
         ]);
+    }
+
+    public function createProject(Request $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'hubstaff_project_name' => 'required|unique:hubstaff_projects',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "error" => $outputString]);
+        }
+
+        // create hubstaff project
+
+        // start hubstaff section from here
+        $hubstaff             = Hubstaff::getInstance();
+        $hubstaff             = $hubstaff->authenticate();
+        $organizationProjects = $hubstaff->getRepository('organization')->createOrgProjects(env("HUBSTAFF_ORG_ID"), [
+            "name"        => $request->hubstaff_project_name,
+            "description" => $request->hubstaff_project_description,
+        ]);
+
+        return response()->json(["code" => 200, "Project added successfully"]);
+
     }
 }

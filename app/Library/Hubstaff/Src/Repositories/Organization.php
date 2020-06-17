@@ -119,6 +119,27 @@ class Organization
         return $response;
     }
 
+    public function createOrgProjects($orgId = null, $params = [])
+    {
+
+        $curl = new Curl();
+        $curl->setHeader('Authorization', $this->accessToken);
+
+        $url = str_replace('{orgId}', $orgId, $this->urls['orgProjects']);
+        $curl->post($url, $params);
+
+        if ($curl->error) {
+            echo 'errorCode' . $curl->error_code;
+            die();
+        } else {
+            $response = json_decode($curl->response);
+        }
+
+        $curl->close();
+
+        return $response;
+    }
+
     /**
      * Retrieve users for an organization
      *

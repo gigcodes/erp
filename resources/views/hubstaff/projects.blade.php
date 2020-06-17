@@ -68,10 +68,32 @@
   @endif
 </div>
 @endsection
+
+@include("hubstaff.partials.project-modal")
 @section("scripts")
 <script type="text/javascript">
     $(document).on("click",".add-project", function() {
-       
+       $("#project-modal-view").modal("show");
     });
+
+    $(document).on("click",".store-project",function(e){
+      e.preventDefault();
+      var form = $(this).closest("form");
+      $.ajax({
+        url: '/hubstaff/projects/create',
+        type: 'POST',
+        dataType: 'json',
+        data:form.serialize(),
+      }).done(function(response) {
+        if(response.code == 200) {
+           location.reload();
+        }else{
+          toastr["erorr"](response.message);
+        }
+      }).fail(function(r) {
+          console.log(r);
+      });
+    });
+
 </script>
 @endsection
