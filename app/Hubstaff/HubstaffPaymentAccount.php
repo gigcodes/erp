@@ -8,6 +8,8 @@ class HubstaffPaymentAccount extends Model
 {
     const STATUS = [
         "1" => "Pending",
+        "2" => "Done",
+        "3" => "Partial Done"
     ];
 
     protected $fillable = [

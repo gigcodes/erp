@@ -12,7 +12,7 @@ class Organization
     private $urls = [
         'allOrgs'                => 'https://api.hubstaff.com/v1/organizations',
         'orgDetail'              => 'https://api.hubstaff.com/v1/organizations/{orgId}',
-        'orgProjects'            => 'https://api.hubstaff.com/v1/organizations/{orgId}/projects',
+        'orgProjects'            => 'https://api.hubstaff.com/v2/organizations/{orgId}/projects',
         'orgUsers'               => 'https://api.hubstaff.com/v2/organizations/{orgId}/members',
         'organizations-activity' => 'https://api.hubstaff.com/v2/organizations/{orgId}/activities',
     ];
@@ -43,8 +43,7 @@ class Organization
     {
 
         $curl = new Curl();
-        $curl->setHeader('App-Token', $this->appToken);
-        $curl->setHeader('Auth-Token', $this->authToken);
+        $curl->setHeader('Authorization', $this->accessToken);
 
         $curl->get($this->urls['allOrgs'], array(
             'offset' => $offset,
@@ -72,8 +71,7 @@ class Organization
     {
 
         $curl = new Curl();
-        $curl->setHeader('App-Token', $this->appToken);
-        $curl->setHeader('Auth-Token', $this->authToken);
+        $curl->setHeader('Authorization', $this->accessToken);
 
         $url = str_replace('{orgId}', $orgId, $this->urls['orgDetail']);
 
@@ -101,8 +99,7 @@ class Organization
     {
 
         $curl = new Curl();
-        $curl->setHeader('App-Token', $this->appToken);
-        $curl->setHeader('Auth-Token', $this->authToken);
+        $curl->setHeader('Authorization', $this->accessToken);
 
         $url = str_replace('{orgId}', $orgId, $this->urls['orgProjects']);
 
