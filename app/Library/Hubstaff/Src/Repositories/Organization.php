@@ -154,11 +154,9 @@ class Organization
         $curl->setHeader('Authorization', $this->accessToken);
 
         $url = str_replace('{orgId}', $orgId, $this->urls['orgUsers']);
-
         $curl->get($url, array(
             'offset' => $offset,
         ));
-
         if ($curl->error) {
             echo 'errorCode' . $curl->error_code;
             die();

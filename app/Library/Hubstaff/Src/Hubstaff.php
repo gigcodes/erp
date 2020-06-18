@@ -2,7 +2,9 @@
 
 namespace App\Library\Hubstaff\Src;
 
+
 use Storage;
+use App\Library\Hubstaff\Src\Authentication\Token;
 
 /**
  * Package is using for maintane hubstaff
@@ -38,10 +40,12 @@ class Hubstaff
     public function authenticate()
     {
 
-        if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
-            $token = new Token();
-            $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);
-        }
+        /*if (!Storage::disk('local')->exists($this->HUBSTAFF_TOKEN_FILE_NAME)) {
+            
+        }*/
+
+        $token = new Token();
+        $token->getAuthToken($this->SEED_REFRESH_TOKEN, $this->HUBSTAFF_TOKEN_FILE_NAME);
 
         $this->accessToken = json_decode(Storage::disk('local')->get($this->HUBSTAFF_TOKEN_FILE_NAME))->access_token;
 
