@@ -891,6 +891,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    Route::prefix('hubstaff-activities')->group(function () {
+
+        Route::prefix('notification')->group(function () {
+            Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
+            Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
+            Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
+        });
+        Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
+        Route::post('merge-category', 'HubstaffPaymentController@mergeCategory')->name('hubstaff-payment.merge-category');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'HubstaffPaymentController@edit')->name('hubstaff-payment.edit');
+            Route::get('delete', 'HubstaffPaymentController@delete')->name('hubstaff-payment.delete');
+        });
+    });
+
 
     Route::prefix('vendor-category')->group(function () {
         Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');
@@ -1039,22 +1054,22 @@ Route::get('message/delete', 'WhatsAppController@delete');
 
 
 Route::group(['middleware' => ['auth']], function () {
-Route::get('hubstaff/members', 'HubstaffController@index');
-Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
-
-Route::get('hubstaff/projects', 'HubstaffController@getProjects');
-Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
-Route::get('hubstaff/projects/{id}', 'HubstaffController@editProject');
-Route::put('hubstaff/projects/edit', 'HubstaffController@editProjectData');
-Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
-Route::get('hubstaff/tasks/add', 'HubstaffController@addTaskFrom');
-Route::put('hubstaff/tasks/editData', 'HubstaffController@editTask');
-Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
-Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
-Route::get('hubstaff/redirect', 'HubstaffController@redirect');
-Route::get('hubstaff/debug', 'HubstaffController@debug');
-Route::get('hubstaff/payments', 'UserController@payments');
-Route::post('hubstaff/makePayment', 'UserController@makePayment');
+    Route::get('hubstaff/members', 'HubstaffController@index');
+    Route::post('hubstaff/members/{id}/save-field', 'HubstaffController@saveMemberField');
+    Route::post('hubstaff/linkuser', 'HubstaffController@linkUser');
+    Route::get('hubstaff/projects', 'HubstaffController@getProjects');
+    Route::post('hubstaff/projects/create', 'HubstaffController@createProject');
+    Route::get('hubstaff/projects/{id}', 'HubstaffController@editProject');
+    Route::put('hubstaff/projects/edit', 'HubstaffController@editProjectData');
+    Route::get('hubstaff/tasks', 'HubstaffController@getTasks');
+    Route::get('hubstaff/tasks/add', 'HubstaffController@addTaskFrom');
+    Route::put('hubstaff/tasks/editData', 'HubstaffController@editTask');
+    Route::post('hubstaff/tasks/addData', 'HubstaffController@addTask');
+    Route::get('hubstaff/tasks/{id}', 'HubstaffController@editTaskForm');
+    Route::get('hubstaff/redirect', 'HubstaffController@redirect');
+    Route::get('hubstaff/debug', 'HubstaffController@debug');
+    Route::get('hubstaff/payments', 'UserController@payments');
+    Route::post('hubstaff/makePayment', 'UserController@makePayment');
 });
 /*
  * @date 1/13/2019

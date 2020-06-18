@@ -651,4 +651,22 @@ class HubstaffController extends Controller
         return response()->json(["code" => 200, "Project added successfully"]);
 
     }
+
+    public function saveMemberField(Request $request, $id)
+    {
+        $fieldName  = $request->field_name;
+        $fieldValue = $request->field_value;
+
+        $memeber = \App\Hubstaff\HubstaffMember::find($id);
+
+        if($memeber) {
+           $memeber->{$fieldName} = $fieldValue;
+           $memeber->save();
+
+           return response()->json(["code" => 200 , "data" => [], "message" => "Date updated successfully"]);
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Id is missing"]);
+
+    }
 }

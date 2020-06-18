@@ -36,13 +36,15 @@ class AddFieldsInHubstaffPaymentAccounts extends Migration
      */
     public function down()
     {
-        Schema::table('vendors', function ($table) {
+        Schema::table('hubstaff_payment_accounts', function ($table) {
             $table->dropColumn('billing_start');
             $table->dropColumn('billing_end');
             $table->dropColumn('hrs');
             $table->dropColumn('rate');
             $table->dropColumn('currency');
             $table->dropColumn('payment_currency');
+            $table->dropColumn('total_payout');
+            $table->dropColumn('total_paid');
             $table->dropColumn('ex_rate');
             $table->dropColumn('status');
             $table->dropColumn('payment_info');

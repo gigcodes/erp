@@ -102,6 +102,7 @@ use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
 use App\Console\Commands\SendEventNotificationBefore2hr;
 use App\Console\Commands\SendEventNotificationBefore30Min;
+use App\Console\Commands\AccountHubstaffActivities;
 
 
 class Kernel extends ConsoleKernel
@@ -199,7 +200,8 @@ class Kernel extends ConsoleKernel
         ProcessCommentsFromCompetitors::class,
         SendEventNotificationBefore24hr::class,
         SendEventNotificationBefore2hr::class,
-        SendEventNotificationBefore30min::class
+        SendEventNotificationBefore30min::class,
+        AccountHubstaffActivities::class
     ];
 
     /**
@@ -401,6 +403,7 @@ class Kernel extends ConsoleKernel
         // send hubstaff report
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
         $schedule->command('hubstaff:load_activities')->hourly();
+        $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();

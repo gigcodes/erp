@@ -70,6 +70,9 @@ class LoadHubstaffActivities extends Command
             $time     = $time + (60 * 60); //one hour
             $stopTime = date("c", $time);
 
+            $startTime = "2020-06-17T10:16:20+04:00";
+            $stopTime = "2020-06-18T15:16:20+04:00";
+
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
                 echo 'Error in activities' . PHP_EOL;

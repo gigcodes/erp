@@ -1,0 +1,74 @@
+<script type="text/x-jsrender" id="template-result-block">
+	<div class="row">
+		<table class="table table-bordered">
+		    <thead>
+		      <tr>
+		      	<th width="2%"></th>
+		      	<th width="2%">User</th>
+		        <th width="10%">Start Date</th>
+		        <th width="10%">End date</th>
+		        <th width="2%">Min Percentage</th>
+		        <th width="2%">Actual Percentage</th>
+		        <th width="10%">Reason</th>
+		        <th width="10%">Created at</th>
+		        <th width="10%">Updated at</th>
+		        <th width="10%">Action</th>
+		      </tr>
+		    </thead>
+		    <tbody>
+		    	{{props data}}
+			      <tr>
+			      	<td>
+			      		<input type="checkbox" class="activity-notification-ckbx" name="activity_notification[]" value="{{:prop.id}}"/>
+			      	</td>
+			      	<td>{{:prop.user_name}}</td>
+			        <td>{{:prop.start_date}}</td>
+			        <td>{{:prop.end_date}}</td>
+			        <td>{{:prop.min_percentage}}</td>
+			        <td>{{:prop.actual_percentage}}</td>
+			        <td>{{:prop.reason}}</td>
+			        <td>{{:prop.created_at}}</td>
+			        <td>{{:prop.updated_at}}</td>
+			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-edit-reason">
+			        	<i class="fa fa-comment"></i>
+			        </button></td>
+			      </tr>
+			    {{/props}}  
+		    </tbody>
+		</table>
+		{{:pagination}}
+	</div>
+</script>
+
+<script type="text/x-jsrender" id="template-edit-reason">
+<div class="modal-content">
+   <div class="modal-header">
+      <h5 class="modal-title">Add Reason</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      	<span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+		<div class="row">
+			<div class="col-lg-12">
+				<form>
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="id" value="{{:id}}">
+					<div class="row">
+				  		<div class="col-md-12">
+				    		<div class="form-group">
+					         	<?php echo Form::textarea("reason",null,["class" => "form-control"]); ?>
+					         </div>
+				        </div> 
+				        <div class="col-md-12">
+					    	<div class="form-group">
+					      		<button class="btn btn-secondary store-reason-btn">Save</button>
+					    	</div>
+				    	</div>
+				  	</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</script>

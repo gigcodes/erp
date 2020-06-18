@@ -47,7 +47,6 @@ class AccountHubstaffActivities extends Command
         try {
             DB::beginTransaction();
             $firstUnaccountedActivity = HubstaffActivity::orderBy('starts_at')->first();
-
             if (!$firstUnaccountedActivity) {
                 return;
             }
