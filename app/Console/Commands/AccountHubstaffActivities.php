@@ -46,10 +46,10 @@ class AccountHubstaffActivities extends Command
         //
         try {
             DB::beginTransaction();
-            $firstUnaccountedActivity = HubstaffActivity::orderBy('starts_at')->whereNull('hubstaff_payment_account_id')->first();
+            $firstUnaccountedActivity = HubstaffActivity::orderBy('starts_at')->first();
 
-            if($firstUnaccountedActivity) {
-                break;   
+            if (!$firstUnaccountedActivity) {
+                return;
             }
 
             // UTC midnight
@@ -64,22 +64,18 @@ class AccountHubstaffActivities extends Command
             if ($firstUnaccountActivityTime < $today) {
 
                 // accounting periods
-                $start = $firstUnaccountedActivity->starts_at; // inclusive
-
-                $endTime = strtotime($start) + (2 * 24 * 60 * 60);
-
-                $end = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
+                $start   = $firstUnaccountedActivity->starts_at; // inclusive
+                $endTime = strtotime($start) + (1 * 24 * 60 * 60);
+                $end     = date('Y-m-d', $endTime) . ' 23:59:59'; //exclusive
 
                 echo $start . PHP_EOL;
                 echo $end . PHP_EOL;
 
                 //get the rate for the start of yesterday
                 $userRatesForStartOfDayYesterday = UserRate::latestRatesBeforeTime($end);
-
-                $rateChangesForYesterday = UserRate::rateChangesForDate($start, $end);
-
-                $activities = HubstaffActivity::getActivitiesBetween($start, $end);
-                $userId     = [];
+                $rateChangesForYesterday         = UserRate::rateChangesForDate($start, $end);
+                $activities                      = HubstaffActivity::getActivitiesBetween($start, $end);
+                $userId                          = [];
                 if (!empty($activities)) {
                     foreach ($activities as $acts) {
                         if ($acts->system_user_id > 0) {
@@ -103,6 +99,7 @@ class AccountHubstaffActivities extends Command
                         'activityIds'   => array(),
                         'amount'        => 0,
                         'hrs'           => 0,
+                        'tasks'         => []
                     );
 
                     $user->total = 0;
@@ -168,6 +165,12 @@ class AccountHubstaffActivities extends Command
                         foreach ($userActivities as $activity) {
 
                             $accountingEntry['activityIds'][] = $activity->id;
+
+                            if (empty($accountingEntry['tasks'][$activity->task_id])) {
+                                $accountingEntry['tasks'][$activity->task_id] = $activity->tracked / 60;
+                            } else {
+                                $accountingEntry['tasks'][$activity->task_id] += $activity->tracked / 60;
+                            }
 
                             $i = 0;
                             while ($i < sizeof($rates) - 1) {
@@ -235,6 +238,21 @@ class AccountHubstaffActivities extends Command
                             ->update([
                                 'hubstaff_payment_account_id' => $paymentAccount->id,
                             ]);
+                    }
+                }
+
+                // once account stored now update the time into db
+                if (!empty($accountingEntries)) {
+                    foreach ($accountingEntries as $entires) {
+                        if (!empty($entires['tasks'])) {
+                            foreach ($entires['tasks'] as $taskid => $task) {
+                                $developerTask = \App\DeveloperTask::where("hubstaff_task_id", $taskid)->first();
+                                if ($developerTask) {
+                                    $developerTask->estimate_minutes += $task;
+                                    $developerTask->save();
+                                }
+                            }
+                        }
                     }
                 }
 
