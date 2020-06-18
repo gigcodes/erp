@@ -400,4 +400,18 @@ class AutoReplyController extends Controller
         ]);
     }
 
+
+    public function deleteMostUsedPharses(Request $request)
+    {
+        $id = $request->id;
+        $phrases = \App\ChatMessagePhrase::find($id);
+        
+        if($phrases) {
+           $phrases->delete();
+        }
+
+        return response()->json(["code" => 200 ,"data" => []]);
+
+    }
+
 }
