@@ -35,7 +35,7 @@ class HubstaffActivitiesController extends Controller
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
-                $q->where("user_name", "LIKE", "%$keyword%");
+                $q->where("u.name", "LIKE", "%$keyword%");
             });
         }
 
