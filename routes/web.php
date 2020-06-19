@@ -1706,6 +1706,7 @@ Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/history', 'ProductCategoryController@history');
     Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
     Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
+    Route::post('/update-category-assigned', 'ProductCategoryController@updateCategoryAssigned')->name("product.category.update-assigned");
 });
 
 Route::prefix('listing-history')->middleware('auth')->group(function () {

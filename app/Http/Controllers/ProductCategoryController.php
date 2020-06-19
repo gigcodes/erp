@@ -60,11 +60,13 @@ class ProductCategoryController extends Controller
         // total product without category by supplier
         $productsLeft =  \App\Product::join("product_suppliers as ps","ps.product_id","products.id")
         ->join("suppliers as s","s.id","ps.supplier_id")
+        ->leftJoin("category_update_users as cuu","cuu.supplier_id","s.id")
+        ->leftJoin("users as u","u.id","cuu.user_id")
         ->where(function($q){
             $q->whereNull("products.category")->orWhere("products.category","")->orWhere("products.category",1);
         })
         ->groupBy("s.id")
-        ->select(["s.supplier as supplier_name",\DB::raw("count(s.id) as total_left")])
+        ->select(["s.supplier as supplier_name",\DB::raw("count(s.id) as total_left"),"u.name as user_name","u.phone","u.id as user_id","s.id as supplier_id"])
         ->get()
         ->toArray();
 
@@ -79,6 +81,26 @@ class ProductCategoryController extends Controller
 
     }
 
-    
+    public function updateCategoryAssigned(Request $request)
+    {
+        if(!empty($request->user_id) && $request->supplier_id != null) 
+        {
+            $categoryUpdate = \App\CategoryUpdateUser::where("supplier_id",$request->supplier_id)->where("user_id",$request->user_id)->first();
+            if(!$categoryUpdate) {
+                $categoryUpdate = new \App\CategoryUpdateUser;
+                $categoryUpdate->user_id = $request->user_id;
+                $categoryUpdate->supplier_id = $request->supplier_id;
+                $categoryUpdate->save();
+            }
 
+            if($request->comment != "") {
+                $message = "WORK ON {$categoryUpdate->supplier->supplier}: " . $request->comment;
+                \App\ChatMessage::sendWithChatApi($categoryUpdate->user->phone, null, $message);
+            } 
+
+            return response()->json(["code" => 200 , "data" => [] , "message" => "Request send succefully"]);
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "Required field is missing [user_id,supplier_id]"]);
+    }
 }
