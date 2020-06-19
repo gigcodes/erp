@@ -61,6 +61,15 @@ var page = {
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
+
+        page.config.bodyView.on("click",".send-message-user",function(e) {
+            page.sendMessageOpen($(this));
+        });
+
+        $(".common-modal").on("click",".store-and-save-btn",function(e) {
+            e.preventDefault();
+            page.storeAndSave($(this));
+        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -208,6 +217,28 @@ var page = {
             },
             beforeSend : function() {
                 $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    sendMessageOpen: function(ele) {
+        var createWebTemplate = $.templates("#template-send-message");
+        var tplHtml = createWebTemplate.render({
+            user_id : ele.data("user-id"),
+            supplier_id :  ele.data("supplier-id")
+        });
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    storeAndSave: function(ele) {
+        var form = ele.closest("form");
+        var _z = {
+            url: this.config.mainUrl + "/update-category-assigned",
+            method: "post",
+            data : form.serialize(),
+            beforeSend : function() {
+              $("#loading-image").show();
             }
         }
         this.sendAjax(_z, "saveSite");
