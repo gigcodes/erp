@@ -72,6 +72,7 @@
                         <td>{{ $phrases->total_count }}</td>
                         <td>
                             <button data-id="{{ $phrases->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
+                            <button data-id="{{ $phrases->id }}" class="btn btn-image delete-row-btn"><i class="fa fa-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -153,22 +154,23 @@
             });
         });
 
-        /*$(document).on("click",".delete-row-btn",function() {
+        $(document).on("click",".delete-row-btn",function() {
             var $this = $(this);
             var dataId = $(this).data("id");
-            $.ajax({
-                type: 'POST',
-                url: "autoreply/delete-chat-word",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: dataId,
-                }
-            }).done(function () {
-                $this.closest("tr").remove();
-                $("#phrases_"+dataId).remove();
-            }).fail(function (response) {
-            });
-        });*/
+            if(confirm("Are you sure you want to do this operation ?")) {
+                $.ajax({
+                    type: 'POST',
+                    url: "autoreply/delete-most-used-phrases",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: dataId,
+                    }
+                }).done(function () {
+                    $this.closest("tr").remove();
+                }).fail(function (response) {
+                });
+            }
+        });
 
         var callingMoreChat = function(chatId, pageId) {
             $.ajax({

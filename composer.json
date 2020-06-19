@@ -51,6 +51,7 @@
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-master",
         "seo2websites/laravel-zoom": "dev-master",
+        "seo2websites/magento-helper": "dev-master",
         "seo2websites/price-comparison-scraper": "dev-master",
         "skovmand/mailchimp-laravel": "^1.0",
         "spatie/laravel-activitylog": "^2.8",
@@ -113,13 +114,16 @@
             "url": "git@github.com:ludxb/price-comparison-scraper"
         },
         {
-            "type": "path", 
-            "url": "../erp-customer",
-            "symlink": true
+            "type": "vcs",
+            "url": "git@github.com:ludxb/erp-customer"
         },
         {
             "type": "vcs",
             "url": "git@github.com:ludxb/laravel-zoom"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:ludxb/magento-helper"
         }
     ],
     "scripts": {

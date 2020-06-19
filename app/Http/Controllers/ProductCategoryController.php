@@ -61,7 +61,7 @@ class ProductCategoryController extends Controller
         $productsLeft =  \App\Product::join("product_suppliers as ps","ps.product_id","products.id")
         ->join("suppliers as s","s.id","ps.supplier_id")
         ->where(function($q){
-            $q->whereNull("products.category")->orWhere("products.category","");
+            $q->whereNull("products.category")->orWhere("products.category","")->orWhere("products.category",1);
         })
         ->groupBy("s.id")
         ->select(["s.supplier as supplier_name",\DB::raw("count(s.id) as total_left")])
