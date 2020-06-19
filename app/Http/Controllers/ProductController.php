@@ -3234,4 +3234,27 @@ class ProductController extends Controller
 
         return response()->json(['success','Product color has been sent for the update']);
     }
+
+    public function storeWebsiteDescription(Request $request)
+    {
+        $websites = $request->store_wesites;
+        if(is_array($websites) && $request->product_id != null && $request->description != null) {
+            foreach($websites as $website)  {
+                $storeWebsitePA = \App\StoreWebsiteProductAttribute::where("product_id",$request->product_id)->where("store_website_id",$website)->first();
+                if(!$storeWebsitePA) {
+                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id = $request->product_id;
+                    $storeWebsitePA->store_website_id = $website;
+                }
+                $storeWebsitePA->store_website_id = $website;
+                $storeWebsitePA->description = $request->description;
+                $storeWebsitePA->save();
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Store website description stored successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Required field is missing"]);
+    }
+
 }
