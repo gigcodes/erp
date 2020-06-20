@@ -447,7 +447,7 @@ class UserController extends Controller
 		$start = $result['week_start'];
 		$end = $result['week_end'];
 
-		$users = User::with(['currentRate'])->get();
+		$users = User::join('hubstaff_payment_accounts as hpa',"hpa.user_id","users.id")->with(['currentRate'])->get();
 		$usersRatesThisWeek = UserRate::ratesForWeek($week, $year);
 
 		$usersRatesPreviousWeek = UserRate::latestRatesForWeek($week - 1, $year);

@@ -4,11 +4,11 @@ namespace App\Console\Commands;
 
 use App\ChatMessage;
 use App\Helpers\hubstaffTrait;
+use App\Library\Hubstaff\Src\Hubstaff;
+use Carbon\Carbon;
 use DB;
 use GuzzleHttp\Client;
-use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use Carbon\Carbon;
 
 class SendHubstaffReport extends Command
 {
@@ -51,20 +51,15 @@ class SendHubstaffReport extends Command
     {
         //
         try {
+
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+
             $userPastHour = $this->getActionsForPastHour();
-
-            echo print_r($userPastHour);
-
             $userToday = $this->getActionsForToday();
-
-            echo print_r($userToday);
-
-            $users = DB::table('users')
-                ->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
+            $users     = DB::table('users')->join('hubstaff_members', 'hubstaff_members.user_id', '=', 'users.id')
                 ->select(['hubstaff_user_id', 'name'])
                 ->get();
 
@@ -80,7 +75,7 @@ class SendHubstaffReport extends Command
                     : '0');
 
                 if ($today != '0') {
-                    $message  = $user->name . ' ' . $pastHour . ' ' . $today;
+                    $message          = $user->name . ' ' . $pastHour . ' ' . $today;
                     $hubstaffReport[] = $message;
                 }
             }
@@ -102,77 +97,39 @@ class SendHubstaffReport extends Command
 
     private function getActionsForPastHour()
     {
-        $stop =  gmdate("c");
-        $time   = strtotime($stop);
-        $time   = $time - (60 * 60); //one hour
-        $start = gmdate("c", $time);
-
-        $response = $this->doHubstaffOperationWithAccessToken(
-            function ($accessToken) use ($start, $stop) {
-                $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
-                return $this->client->get(
-                    $url,
-                    [
-                        RequestOptions::HEADERS => [
-                            'Authorization' => 'Bearer ' . $accessToken,
-                        ],
-                    ]
-                );
-            }
-        );
-
-        $responseJson = json_decode($response->getBody()->getContents());
-
-        $users = array();
-
-        foreach ($responseJson->activities as $activity) {
-
-            if (isset($users[$activity->user_id])) {
-                $users[$activity->user_id] += $activity->tracked;
-            } else {
-                $users[$activity->user_id] = $activity->tracked;
-            }
-        }
-
-        return $users;
+        return self::getActivity(date("Y-m-d H:i:s", strtotime("-1 hour")), date("Y-m-d H:i:s"));
     }
 
     private function getActionsForToday()
     {
+        return self::getActivity(date("Y-m-d 00:00:00"), date("Y-m-d H:i:s"));
+    }
 
-        $now   = date('Y-m-d H:i:s');
-        $time  = strtotime($now);
-        $start = date('Y-m-d', $time);
-        $time  = $time + (24 * 60 * 60);
-        $stop  = date('Y-m-d', $time);
+    private static function getActivity($startTime, $endTime)
+    {
 
-        //https://api.hubstaff.com/v2/organizations/:organization_id/activities/daily?date[start]=2020-01-08T00:00:00+0&date[stop]=2020-01-08T05:30:00+0
-        $response = $this->doHubstaffOperationWithAccessToken(
-            function ($accessToken) use ($start, $stop) {
-                $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities/daily?date[start]=' . $start . '&date[stop]=' . $stop;
-                return $this->client->get(
-                    $url,
-                    [
-                        RequestOptions::HEADERS => [
-                            'Authorization' => 'Bearer ' . $accessToken,
-                        ],
-                    ]
-                );
-            }
+        // start hubstaff section from here
+        $hubstaff        = Hubstaff::getInstance();
+        $hubstaff        = $hubstaff->authenticate();
+        $organizationAct = $hubstaff->getRepository('organization')->getActivity(
+            env("HUBSTAFF_ORG_ID"),
+            $startTime,
+            $endTime
         );
 
-        $responseJson = json_decode($response->getBody()->getContents());
-
         $users = array();
-
-        foreach ($responseJson->daily_activities as $activity) {
-
-            if (isset($users[$activity->user_id])) {
-                $users[$activity->user_id] += $activity->tracked;
-            } else {
-                $users[$activity->user_id] = $activity->tracked;
+        // assign activity to user
+        if (!empty($organizationAct->activities)) {
+            foreach ($organizationAct->activities as $activity) {
+                if (isset($users[$activity->user_id])) {
+                    $users[$activity->user_id] += $activity->tracked;
+                } else {
+                    $users[$activity->user_id] = $activity->tracked;
+                }
             }
         }
+
         return $users;
+
     }
 }

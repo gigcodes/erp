@@ -7,10 +7,8 @@ var page = {
 
         $.extend(page.config, settings);
         
-        page.config.mainUrl = page.config.baseUrl + "/product-category";
+        page.config.mainUrl = page.config.baseUrl + "/hubstaff-payment";
         
-        $(".multiple-selection").select2({tags: true});
-
         this.getResults();
 
         //initialize pagination
@@ -62,14 +60,49 @@ var page = {
             page.editRecord($(this));
         });
 
-        page.config.bodyView.on("click",".send-message-user",function(e) {
-            page.sendMessageOpen($(this));
+
+        let r_s = jQuery('input[name="start_date"]').val();
+        let r_e = jQuery('input[name="end_date"]').val()
+
+        if(r_s == "0000-00-00 00:00:00") {
+           r_s = undefined; 
+        }
+
+        if(r_e == "0000-00-00 00:00:00") {
+           r_e = undefined; 
+        }
+
+        let start = r_s ? moment(r_s, 'YYYY-MM-DD') : moment().subtract(6, 'days');
+        let end = r_e ? moment(r_e, 'YYYY-MM-DD') : moment();
+
+        // jQuery('input[name="range_start"]').val(start.format('YYYY-MM-DD'));
+        // jQuery('input[name="range_end"]').val(end.format('YYYY-MM-DD'));
+
+        function cb(start, end) {
+            $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+        }
+
+        $('#reportrange').daterangepicker({
+            startDate: start,
+            maxYear: 1,
+            endDate: end,
+            ranges: {
+                'Today': [moment(), moment()],
+                'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                'This Month': [moment().startOf('month'), moment().endOf('month')],
+                'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+            }
+        }, cb);
+
+        cb(start, end);
+
+        $('#reportrange').on('apply.daterangepicker', function (ev, picker) {
+            jQuery('input[name="start_date"]').val(picker.startDate.format('YYYY-MM-DD'));
+            jQuery('input[name="end_date"]').val(picker.endDate.format('YYYY-MM-DD'));
         });
 
-        $(".common-modal").on("click",".store-and-save-btn",function(e) {
-            e.preventDefault();
-            page.storeAndSave($(this));
-        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -139,6 +172,9 @@ var page = {
         
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
+            $('#billing_start,#billing_end,#scheduled_on').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:00'
+            });
             common.modal("show");
     },
 
@@ -154,7 +190,10 @@ var page = {
         var createWebTemplate = $.templates("#template-create-form");
         var tplHtml = createWebTemplate.render(response);
         var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
+            common.find(".modal-dialog").html(tplHtml);
+            $('#billing_start,#billing_end,#scheduled_on').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm:00'
+            }); 
             common.modal("show");
     },
 
@@ -200,7 +239,7 @@ var page = {
     submitForMerge : function(ele) {
 
         var selectedIds = [];
-        $(".product-category-ckbx").each(function(k,v){
+        $(".vendor-category-ckbx").each(function(k,v){
             if($(v).is(":checked")) {
                 selectedIds.push($(v).val());
             }
@@ -217,28 +256,6 @@ var page = {
             },
             beforeSend : function() {
                 $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "saveSite");
-    },
-    sendMessageOpen: function(ele) {
-        var createWebTemplate = $.templates("#template-send-message");
-        var tplHtml = createWebTemplate.render({
-            user_id : ele.data("user-id"),
-            supplier_id :  ele.data("supplier-id")
-        });
-        var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
-    },
-    storeAndSave: function(ele) {
-        var form = ele.closest("form");
-        var _z = {
-            url: this.config.mainUrl + "/update-category-assigned",
-            method: "post",
-            data : form.serialize(),
-            beforeSend : function() {
-              $("#loading-image").show();
             }
         }
         this.sendAjax(_z, "saveSite");
