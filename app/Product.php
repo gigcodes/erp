@@ -639,6 +639,13 @@ class Product extends Model
 
                     try {
                         //generating image from image
+                        //this was quick fix for redirect url issue
+                        if(in_array($scrapedProduct->website, ["angelominetti"])) {
+                            $redirect = \App\Helpers::findUltimateDestination($image,2);
+                            if($redirect != null) {
+                               $image = str_replace(" ","%20",$redirect);
+                            }
+                        }
                         $jpg = \Image::make($image)->encode('jpg');
                     } catch (\Exception $e) {
                         // if images are null
