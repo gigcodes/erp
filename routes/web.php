@@ -918,6 +918,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    Route::prefix('manage-task-category')->group(function () {
+        Route::get('/', 'ManageTaskCategoryController@index')->name('manage-task-category.index');
+        Route::get('records', 'ManageTaskCategoryController@records')->name('manage-task-category.records');
+        Route::post('save', 'ManageTaskCategoryController@save')->name('manage-task-category.save');
+        Route::post('merge-module', 'ManageTaskCategoryController@mergeModule')->name('manage-task-category.merge-module');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'ManageTaskCategoryController@edit')->name('manage-task-category.edit');
+            Route::get('delete', 'ManageTaskCategoryController@delete')->name('manage-task-category.delete');
+        });
+    });
+
 
     Route::prefix('vendor-category')->group(function () {
         Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');
