@@ -8,17 +8,14 @@
 
 namespace App;
 
-use App\ReadOnly\PushNotificationStatus;
+use App\Product;
+use App\Status;
+use App\User;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Spatie\Permission\Models\Role;
-use Illuminate\Support\Facades\Auth;
-use App\Status;
-use App\Product;
-use App\Message;
-use App\User;
-use Illuminate\Pagination\LengthAwarePaginator;
-
 
 class Helpers
 {
@@ -39,7 +36,6 @@ class Helpers
         return $users;
     }
 
-
     public static function getUserArray($users)
     {
 
@@ -47,7 +43,7 @@ class Helpers
 
         foreach ($users as $user) {
 
-            $userArray[ ((string)$user->id) ] = $user->name;
+            $userArray[((string) $user->id)] = $user->name;
         }
 
         return $userArray;
@@ -76,18 +72,18 @@ class Helpers
         $timestamp = strtotime($date);
 
         $strTime = array("second", "minute", "hour", "day", "month", "year");
-        $length = array("60", "60", "24", "30", "12", "10");
+        $length  = array("60", "60", "24", "30", "12", "10");
 
         $currentTime = time();
         if ($currentTime >= $timestamp) {
             $diff = time() - $timestamp;
-            for ($i = 0; $diff >= $length[ $i ] && $i < count($length) - 1; $i++) {
-                $diff = $diff / $length[ $i ];
+            for ($i = 0; $diff >= $length[$i] && $i < count($length) - 1; $i++) {
+                $diff = $diff / $length[$i];
             }
 
             $diff = round($diff);
 
-            return $diff . " " . $strTime[ $i ] . "(s) ago ";
+            return $diff . " " . $strTime[$i] . "(s) ago ";
         }
     }
 
@@ -98,7 +94,7 @@ class Helpers
 
         $values = [];
         foreach ($temp_values as $size) {
-            $values[ $size ] = $size;
+            $values[$size] = $size;
         }
 
         return $values;
@@ -106,7 +102,7 @@ class Helpers
 
     public static function getadminorsupervisor()
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
         if (in_array('Supervisors', $myrole) or in_array('Admin', $myrole)) {
             return true;
@@ -117,7 +113,7 @@ class Helpers
 
     public static function getmessagingrole()
     {
-        $user = Auth::user();
+        $user   = Auth::user();
         $myrole = json_decode(json_encode($user->getRoleNames()));
         if (in_array('message', $myrole)) {
             return true;
@@ -128,12 +124,12 @@ class Helpers
 
     public static function getproductsfromarraysofids($productsid)
     {
-        $products = json_decode($productsid);
+        $products         = json_decode($productsid);
         $productnamearray = [];
-        $product = new Product();
+        $product          = new Product();
         if (!empty($products)) {
             foreach ($products as $productid) {
-                $product_instance = $product->find($productid);
+                $product_instance   = $product->find($productid);
                 $productnamearray[] = $product_instance->name;
             }
             $productsname = implode(",", $productnamearray);
@@ -144,9 +140,9 @@ class Helpers
 
     public static function getleadstatus($statusid)
     {
-        $status = New status;
-        $data[ 'status' ] = $status->all();
-        foreach ($data[ 'status' ] as $key => $value) {
+        $status         = new status;
+        $data['status'] = $status->all();
+        foreach ($data['status'] as $key => $value) {
             if ($statusid == $value) {
                 return $key;
             }
@@ -158,19 +154,19 @@ class Helpers
 
         $messages = DB::table('messages')->where('moduleid', '=', $moduleid)->where('moduletype', $model_type)->orderBy('created_at', 'desc')->first();
         $messages = json_decode(json_encode($messages), true);
-        return $messages[ 'body' ];
+        return $messages['body'];
     }
 
     public static function getAllUserIdsWithoutRole($role = 'Admin')
     {
 
-        $users = User::all();
+        $users    = User::all();
         $user_ids = [];
 
         foreach ($users as $user) {
 
             $user_roles = $user->getRoleNames()->toArray();
-//			$user_ids[] = $user_roles;
+//            $user_ids[] = $user_roles;
 
             if (!in_array($role, $user_roles)) {
                 $user_ids[] = $user->id;
@@ -220,7 +216,7 @@ class Helpers
             1 => 'USD',
             'EUR',
             'AED',
-            'INR'
+            'INR',
         ];
     }
 
@@ -235,12 +231,66 @@ class Helpers
      */
     public static function customPaginator($request, $values = array(), $posts_per_page = '10')
     {
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $itemCollection = collect($values);
-        $perPage = intval($posts_per_page);
+        $currentPage      = LengthAwarePaginator::resolveCurrentPage();
+        $itemCollection   = collect($values);
+        $perPage          = intval($posts_per_page);
         $currentPageItems = $itemCollection->slice(($currentPage * $perPage) - $perPage, $perPage)->all();
-        $items = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
+        $items            = new LengthAwarePaginator($currentPageItems, count($itemCollection), $perPage);
         $items->setPath($request->url());
         return $items;
     }
+
+    /**
+     * Get the final destination of helper
+     *
+     *
+     */
+
+    public static function findUltimateDestination($url, $maxRequests = 10)
+    {
+        $ch = curl_init();
+
+        curl_setopt($ch, CURLOPT_HEADER, true);
+        curl_setopt($ch, CURLOPT_NOBODY, true);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($ch, CURLOPT_TIMEOUT, 15);
+
+        //customize user agent if you desire...
+        curl_setopt($ch, CURLOPT_USERAGENT, 'Mozilla/5.0 (Link Checker)');
+
+        while ($maxRequests--) {
+
+            //fetch
+            curl_setopt($ch, CURLOPT_URL, $url);
+            $response = curl_exec($ch);
+
+            //try to determine redirection url
+            $location = '';
+            if (in_array(curl_getinfo($ch, CURLINFO_HTTP_CODE), [301, 302, 303, 307, 308])) {
+                if (preg_match('/Location:(.*)/i', $response, $match)) {
+                    $location = trim($match[1]);
+                }
+            }
+
+            if (empty($location)) {
+                //we've reached the end of the chain...
+                return $url;
+            }
+
+            //build next url
+            if ($location[0] == '/') {
+                $u   = parse_url($url);
+                $url = $u['scheme'] . '://' . $u['host'];
+                if (isset($u['port'])) {
+                    $url .= ':' . $u['port'];
+                }
+                $url .= $location;
+            } else {
+                $url = $location;
+            }
+        }
+
+        return null;
+    }
+
 }
