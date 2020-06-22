@@ -1134,6 +1134,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
