@@ -3,7 +3,6 @@
 namespace Modules\StoreWebsite\Http\Controllers;
 
 use App\StoreWebsite;
-use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -22,7 +21,7 @@ class BrandController extends Controller
 
         if ($request->ajax()) {
             // send response into the json
-            $brands = \App\Brand::getBrands()->pluck("name","id")->toArray();
+            $brands = \App\Brand::getBrands()->pluck("name", "id")->toArray();
 
             $storeWebsite = StoreWebsiteBrand::join("brands as b", "b.id", "store_website_brands.brand_id")
                 ->where("store_website_id", $id)
@@ -52,8 +51,8 @@ class BrandController extends Controller
 
         $validator = Validator::make($post, [
             'store_website_id' => 'required',
-            'markup'        => 'required',
-            'brand_id'      => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
+            'markup'           => 'required',
+            'brand_id'         => 'unique:store_website_brands,brand_id,NULL,id,store_website_id,' . $storeWebsiteId . '|required',
         ]);
 
         if ($validator->fails()) {
@@ -82,6 +81,52 @@ class BrandController extends Controller
             $storeBrand->delete();
         }
         return response()->json(["code" => 200, "data" => []]);
+    }
+
+    public function list(Request $request) {
+        $title        = "Store Brand";
+        $brands       = \App\Brand::query();
+        
+        if($request->keyword != null) {
+            $brands = $brands->where("name","like","%".$request->keyword."%");
+        }
+
+        $brands = $brands->get();
+
+
+        $storeWebsite = \App\StoreWebsite::all();
+        $appliedQ      = \App\StoreWebsiteBrand::all();
+        $apppliedResult = [];
+        if(!$appliedQ->isEmpty()){
+            foreach($appliedQ as $raw) {
+                $apppliedResult[$raw->brand_id][] = $raw->store_website_id;
+            }
+        }
+
+
+        return view("storewebsite::brand.index", compact(['title', 'brands', 'storeWebsite','apppliedResult']));
+    }
+
+    public function pushToStore(Request $request)
+    {
+        if ($request->brand != null && $request->store != null) {
+            $brandStore = \App\StoreWebsiteBrand::where("brand_id", $request->brand)->where("store_website_id", $request->store)->first();
+            if ($request->active == null || $request->active == "false") {
+                if ($brandStore) {
+                    $brandStore->delete();
+                }
+            } else {
+                if (!$brandStore) {
+                    $brandStore = new \App\StoreWebsiteBrand;
+                }
+                $brandStore->brand_id         = $request->brand;
+                $brandStore->store_website_id = $request->store;
+                $brandStore->save();
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => []]);
+
     }
 
 }
