@@ -106,8 +106,20 @@ class ListingHistoryController extends Controller
             $history = $history->whereDate("listing_histories.created_at",$request->created_at);
         }
 
+        $updated_history = clone $history;
+        $updated_history = $updated_history->groupBy("u.id");
+        $updated_history = $updated_history->select(["u.name as user_name",\DB::raw("count(listing_histories.product_id) as total_updated")]);
+        $updated_history = $updated_history->get()->toArray();
+
+
         $history = $history->paginate(25);
 
-        return response()->json(["code" => 200 , "data" => $history->items(),"total" => $history->total(),"pagination"  => (string) $history->render()]);
+        return response()->json([
+            "code" => 200 , 
+            "data" => $history->items(),
+            "total" => $history->total(),
+            "pagination"  => (string) $history->render(),
+            "updated_history" => $updated_history
+        ]);
     }
 }

@@ -57,6 +57,14 @@
 					</form>	
 		    	</div>
 		    </div>
+		    <div class="col">
+		    	<a data-toggle="collapse" href="#show-total-update-category" role="button" aria-expanded="false" aria-controls="show-total-update-category">
+                   Show user updated category
+                </a>
+                <a data-toggle="collapse" href="#show-left-for-update-category" role="button" aria-expanded="false" aria-controls="show-total-update-category">
+                   Category Need to update
+                </a>
+		    </div>
 	    </div>	
 		<div class="col-md-12 margin-tb" id="page-view-result">
 

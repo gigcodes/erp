@@ -2,6 +2,9 @@
 
 namespace App\Library\Instagram;
 
+use InstagramAPI\Request\People;
+use InstagramAPI\Instagram;
+
 class Helper
 {
     public static function bytes_to_human($bytes)
@@ -73,6 +76,21 @@ class Helper
         file_put_contents(base_path('.env'), $env);
 
         return true;
+    }
+
+    public static function getUserIdFromUsername($username)
+    {
+        // Create instance
+        $instagram = new Instagram();
+
+        // Login to Instagram
+        try {
+            $instagram->login('satyam_t', 'Schoolrocks93');
+        }catch(Exception $e){
+            dd('Could Login to Account');
+        }
+        $profile = $instagram->people->getInfoByName($username)->asArray();
+        return $profile;
     }
 
 }

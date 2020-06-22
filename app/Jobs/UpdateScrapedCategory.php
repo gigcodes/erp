@@ -132,6 +132,9 @@ class UpdateScrapedCategory implements ShouldQueue
 
                     $oldProduct->category = $cat;
                     $oldProduct->save();
+
+                    \App\ProductStatus::pushRecord($oldProduct->id,"MANUAL_CATEGORY");
+
                     $totalUpdated++;
                     self::putLog("Scrapeed Product {$productSku} update end time : ". date("Y-m-d H:i:s"));
                 }

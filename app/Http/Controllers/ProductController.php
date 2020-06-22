@@ -1090,6 +1090,8 @@ class ProductController extends Controller
         $product->color = $request->color;
         $product->save();
 
+        \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
+
         $lh = new ListingHistory();
         $lh->user_id = Auth::user()->id;
         $lh->product_id = $id;
@@ -1133,6 +1135,8 @@ class ProductController extends Controller
             $productCatHis->old_category_id = $product->category;
             $productCatHis->product_id = $product->id;
             $productCatHis->save(); 
+
+            \App\ProductStatus::pushRecord($product->id,"MANUAL_CATEGORY");
         }    
 
         $product->category = $request->category;
@@ -2169,14 +2173,13 @@ class ProductController extends Controller
     public function giveImage()
     {
         // Get next product
-        $product = Product::where('status_id', StatusHelper::$autoCrop)
-            ->where('category', '>', 3);
+        $product = Product::find('270045');
 
         // Add order
-        $product = QueryHelper::approvedListingOrder($product);
+        // $product = QueryHelper::approvedListingOrder($product);
 
-        // Get first product
-        $product = $product->whereHasMedia('original')->first();
+        // // Get first product
+        // $product = $product->whereHasMedia('original')->first();
 
         if (!$product) {
             // Return JSON
@@ -2263,7 +2266,10 @@ class ProductController extends Controller
                
                 $website = StoreWebsite::find($websiteArray);
                 if($website){
-                    $colors[] = array('code' => $website->cropper_color, 'color' => $website->cropper_color_name);
+
+                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                    $hexcode = '('.$r.','.$g.','.$b.')';
+                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
                 }
             }
         }
@@ -2284,8 +2290,8 @@ class ProductController extends Controller
 
         }else{
             // Set new status
-            $product->status_id = StatusHelper::$isBeingCropped;
-            $product->save();
+            //$product->status_id = StatusHelper::$isBeingCropped;
+            //$product->save();
              // Return product
             return response()->json([
             'product_id' => $product->id,
@@ -2321,7 +2327,10 @@ class ProductController extends Controller
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
             if($request->get('color')){
-                $tag = 'gallery_'.$request->get('color');
+                $colorCode = str_replace(['(',')'],'',$request->get('color'));
+                $rgbarr = explode(",",$colorCode,3);
+                $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $tag = 'gallery_'.$hex;
             }else{
                 $tag = config('constants.media_gallery_tag');
             }    

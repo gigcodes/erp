@@ -123,8 +123,11 @@ class ProductsCreator
                     }
                 }
 
-                // Update the category
-                $product->category = $formattedDetails[ 'category' ];
+                $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where("product_id",$product->id)->first();
+                if ($manual == null || (int)$manual->value == 0) {
+                    // Update the category
+                    $product->category = $formattedDetails[ 'category' ];
+                }
             }
 
             // Get current sizes

@@ -27,6 +27,7 @@
         <tr>
           <th>HubStaff Id</th>
           <th>Hubstaff Email</th>
+          <th>Minimum Activity</th>
           <th>User</th>
 
         </tr>
@@ -36,6 +37,11 @@
         <tr>
           <td>{{ $member->hubstaff_user_id }}</td>
           <td>{{ $member->email }}</td>
+          <td>
+            <div class="form-group">
+              <input type="text" data-member-id="{{ $member->id }}" class="form-control change-activity-percentage" name="min_activity_percentage" value="{{ $member->min_activity_percentage }}">
+            </div>
+          </td>
           <td>
             <select onchange="saveUser(this)">
               <option value="unassigned">Unassigned</option>
@@ -59,7 +65,10 @@
   @endif
 </div>
 @endsection
-
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')
+  50% 50% no-repeat;display:none;">
+</div>
+@section("scripts")
 <script type="text/javascript">
   function saveUser(a) {
     var selectedValue = (a.value || a.options[a.selectedIndex].value); //crossbrowser solution =)
@@ -85,6 +94,35 @@
       });
       xhr.send(data);
     }
-
   }
+  $(document).on("focusout",".change-activity-percentage",function(e){
+     e.preventDefault();
+     var $this = $(this);
+     var memberId = $this.data("member-id");
+     $.ajax({
+        type: 'POST',
+        url: "/hubstaff/members/"+memberId+"/save-field",
+        data: {
+          _token: "{{ csrf_token() }}",
+          field_name : "min_activity_percentage",
+          field_value : $this.val()
+        },
+        dataType:"json",
+        beforeSend : function(response) {
+          $(".loading-image").show();
+          
+        }
+      }).done(function(response) {
+        $(".loading-image").hide();
+        if(response.code == 200) {
+          toastr["success"](response.message);
+        }else{
+          toastr["error"](response.message);
+        } 
+      }).fail(function(response) {
+          console.log(response);
+      });
+  });
+
 </script>
+@endsection
