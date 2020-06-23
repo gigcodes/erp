@@ -1363,6 +1363,10 @@ Route::middleware('auth')->group(function () {
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
     Route::get('links-to-post', 'SEOAnalyticsController@linksToPost');
+
+    Route::prefix('country-duty')->group(function () {
+        Route::get('/', 'CountryDutyController@index')->name('country.duty.index');
+    });
 });
 
 //Blogger Module
