@@ -23,7 +23,13 @@ class SiteDevelopmentController extends Controller
 		//Getting Website Details 
 		$website = StoreWebsite::find($id);
 
-		$categories =  SiteDevelopmentCategory::orderBy('id','desc')->paginate(5);
+		$categories = SiteDevelopmentCategory::orderBy('id','desc');
+
+		if($request->k != null) {
+			$categories = $categories->where("title","like","%".$request->k."%");
+		}
+
+		$categories = $categories->paginate(Setting::get('pagination'));
 
 		//Getting Roles Developer
 		$role = Role::where('name','LIKE','%Developer%')->first();
@@ -41,7 +47,7 @@ class SiteDevelopmentController extends Controller
 
 	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
 		$users = User::select('id','name')->whereIn('id',$userIDs)->get();
-		if ($request->ajax()) {
+		if ($request->ajax() && $request->pagination == null) {
 	      return response()->json([
 	        'tbody' => view('storewebsite::site-development.partials.data', compact('categories','users','website','allStatus'))->render(),
 	        'links' => (string) $categories->render()
