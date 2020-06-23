@@ -907,6 +907,28 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    Route::prefix('manage-modules')->group(function () {
+        Route::get('/', 'ManageModulesController@index')->name('manage-modules.index');
+        Route::get('records', 'ManageModulesController@records')->name('manage-modules.records');
+        Route::post('save', 'ManageModulesController@save')->name('manage-modules.save');
+        Route::post('merge-module', 'ManageModulesController@mergeModule')->name('manage-modules.merge-module');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'ManageModulesController@edit')->name('manage-modules.edit');
+            Route::get('delete', 'ManageModulesController@delete')->name('manage-modules.delete');
+        });
+    });
+
+    Route::prefix('manage-task-category')->group(function () {
+        Route::get('/', 'ManageTaskCategoryController@index')->name('manage-task-category.index');
+        Route::get('records', 'ManageTaskCategoryController@records')->name('manage-task-category.records');
+        Route::post('save', 'ManageTaskCategoryController@save')->name('manage-task-category.save');
+        Route::post('merge-module', 'ManageTaskCategoryController@mergeModule')->name('manage-task-category.merge-module');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'ManageTaskCategoryController@edit')->name('manage-task-category.edit');
+            Route::get('delete', 'ManageTaskCategoryController@delete')->name('manage-task-category.delete');
+        });
+    });
+
 
     Route::prefix('vendor-category')->group(function () {
         Route::get('/', 'VendorCategoryController@index')->name('vendor-category.index');

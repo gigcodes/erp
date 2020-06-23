@@ -1700,4 +1700,32 @@ class DevelopmentController extends Controller
             return response()->json(["code" => 500, "error" => "Oops, id is required field"]);
         }
     }
+
+    /**
+     * changeModule on  development/list/devtask
+     * @ajax Request 
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function changeModule(Request $request)
+    {
+        if($request->ajax()){
+            $message =  array();
+            $task_module = DeveloperTask::find($request->get('issue_id'));
+            if($task_module) {
+                $task_module->module_id = $request->get('module_id');
+                if($task_module->save()){
+                    $message = array('message'=>'success', 'status'=>'200');
+                }else{
+                    $message = array('message'=>'Error', 'status'=>'400');
+                }
+            }else{
+                $message = array('message'=>'Error', 'status'=>'400');
+            }
+        }else{
+            $message = array('message'=>'Error', 'status'=>'400');
+        }
+
+        return response()->json($message);
+    }
 }

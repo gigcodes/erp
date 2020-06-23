@@ -1134,6 +1134,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1169,6 +1175,12 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1647,7 +1659,7 @@
         @elseif (trim($__env->yieldContent('core_content')))
             @yield('core_content')
         @else
-            <main class="container">
+            <main class="container" style="display: inline-block;">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
                 <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
