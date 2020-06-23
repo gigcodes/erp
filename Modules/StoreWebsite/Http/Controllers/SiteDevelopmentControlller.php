@@ -23,7 +23,7 @@ class SiteDevelopmentController extends Controller
 		//Getting Website Details 
 		$website = StoreWebsite::find($id);
 
-		$categories =  SiteDevelopmentCategory::orderBy('id','desc')->paginate(Setting::get('pagination'));
+		$categories =  SiteDevelopmentCategory::orderBy('id','desc')->paginate(5);
 
 		//Getting Roles Developer
 		$role = Role::where('name','LIKE','%Developer%')->first();
@@ -39,15 +39,14 @@ class SiteDevelopmentController extends Controller
 			$userIDs = [];
 		}
 
+	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
 		$users = User::select('id','name')->whereIn('id',$userIDs)->get();
 		if ($request->ajax()) {
 	      return response()->json([
-	        'tbody' => view('storewebsite::site-development.partials.data', compact('categories','users','website'))->render(),
+	        'tbody' => view('storewebsite::site-development.partials.data', compact('categories','users','website','allStatus'))->render(),
 	        'links' => (string) $categories->render()
 	      ], 200);
 	    }
-
-	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
 
 		return view('storewebsite::site-development.index', compact('categories','users','website','allStatus'));
 	}

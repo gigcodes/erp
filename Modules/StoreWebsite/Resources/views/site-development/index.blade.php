@@ -63,24 +63,24 @@
 		  		</button>
 		  	</a>
 	    </div>
-		<div class="col-md-12 margin-tb">
+		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">
-				    <thead>
-				      <tr>
-				      	<th width="10%"></th>
-				      	<th width="15%">Title</th>
-				        <th width="25%">Description</th>
-				        <th width="15%">Action</th>
-				        <th width="25%">Communication</th>
-				        <th width="5%">Created</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				    @include("storewebsite::site-development.partials.data")
-				    </tbody>
-				    {{ $categories->render() }}	
+					<thead>
+						<tr>
+						<th width="10%"></th>
+						<th width="15%">Title</th>
+						<th width="25%">Description</th>
+						<th width="15%">Action</th>
+						<th width="25%">Communication</th>
+						<th width="5%">Created</th>
+					</tr>
+					</thead>
+					<tbody>
+					@include("storewebsite::site-development.partials.data")
+					</tbody>
 				</table>
+				{{ $categories->render() }}	
 			</div>
 		</div>
 	</div>
@@ -104,8 +104,22 @@
 
 
 @section('scripts')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script type="text/javascript">
+
+	console.log($(".infinite-scroll"));
+
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+        	console.log("calling")
+            /*$('ul.pagination').first().remove();*/
+        }
+    });
 	
 	function saveCategory() {
 		var text = $('#add-category').val()
@@ -186,8 +200,6 @@
 				console.log("error");
 			});
 		});
-
-
 	});
 
 
