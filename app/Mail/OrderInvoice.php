@@ -62,8 +62,12 @@ class OrderInvoice extends Mailable
         if (!empty($order)) {
             foreach ($order->order_product as $products) {
                 $string .= '<tr class="item last" style="height: 25px;">
-                              <td style="height: 25px; width: 628px;">' . $products->sku . '</td>
-                              <td style="height: 25px; width: 58px;">&#8377;' . $products->product_price . '</td>
+                              <td style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' '. $products->product->short_description .'</td>
+                              <td style="height: 25px; width: 100px; text-align: left;"></td>
+                              <td style="height: 25px; width: 100px; text-align: left;">' . $products->product->made_in . '</td>
+                              <td style="height: 25px; width: 100px; text-align: left;">' . $products->qty . '</td>
+                              <td style="height: 25px; width: 100px; text-align: left;">1</td>
+                              <td style="height: 25px; width: 100px; text-align: left;">&#8377;' . $products->product_price . '</td>
                            </tr>';
 
                 $this->orderTotal += $products->product_price;
