@@ -756,7 +756,7 @@ class ProductHelper extends Model
         $brand = $product->brand;
 
         $category = $product->category;
-
+        
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         

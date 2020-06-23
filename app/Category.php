@@ -213,6 +213,51 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
+    public static function getCategoryTreeMagentoWithPosition( $id )
+    {
+        // Load new category model
+        $category = new Category();
+
+        // Create category instance
+        $categoryInstance = $category->find( $id );
+
+        // Set empty category tree for holding categories
+        $categoryTree = [];
+
+        // Continue only if category is not null
+        if ( $categoryInstance !== NULL ) {
+
+            // Load initial category
+            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryInstance->magento_id];
+
+            // Set parent ID
+            $parentId = $categoryInstance->parent_id;
+
+            // Loop until we found the top category
+            while ( $parentId != 0 ) {
+                // find next category
+                $categoryInstance = $category->find( $parentId );
+
+                if($categoryInstance->parent_id == 0){
+                    $categoryTree[] = ['position' => 2, 'category_id' => $categoryInstance->magento_id];
+                }else{
+                    $categoryTree[] = ['position' => 3, 'category_id' => $categoryInstance->magento_id];
+                }
+                
+  
+                // Add additional category to tree
+                if ( !empty( $categoryInstance->show_all_id ) )
+                    $categoryTree[] = $categoryInstance->show_all_id;
+
+                // Set new parent ID
+                $parentId = $categoryInstance->parent_id;
+            }
+        }
+
+        // Return reverse array
+        return array_reverse( $categoryTree );
+    }
+
     public static function getCroppingGridImageByCategoryId($categoryId)
     {
         $imagesForGrid = [
