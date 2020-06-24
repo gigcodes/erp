@@ -104,6 +104,7 @@ use App\Console\Commands\SendEventNotificationBefore2hr;
 use App\Console\Commands\SendEventNotificationBefore30Min;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
+use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 
 class Kernel extends ConsoleKernel
@@ -203,7 +204,8 @@ class Kernel extends ConsoleKernel
         SendEventNotificationBefore2hr::class,
         SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
-        DailyHubstaffActivityLevel::class
+        DailyHubstaffActivityLevel::class,
+        EmailExcelImporter::class
     ];
 
     /**

@@ -53,6 +53,22 @@
 				  		</div>
 					  </div>	
 					</form>	
+					<form class="form-inline handle-search">
+					  <div class="row">
+				  		<div class="col">
+				  			<div class="form-group">
+							    <label for="keyword">Search keyword:</label>
+							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
+						  	</div>
+						  	<div class="form-group">
+						  		<label for="button">&nbsp;</label>
+						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
+						  			<img src="/images/send.png" style="cursor: default;" >
+						  		</button>
+						  	</div>		
+				  		</div>
+					  </div>	
+					</form>	
 		    	</div>
 		    </div>
 	    </div>
@@ -63,24 +79,24 @@
 		  		</button>
 		  	</a>
 	    </div>
-		<div class="col-md-12 margin-tb">
+		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">
-				    <thead>
-				      <tr>
-				      	<th width="10%"></th>
-				      	<th width="15%">Title</th>
-				        <th width="25%">Description</th>
-				        <th width="15%">Action</th>
-				        <th width="25%">Communication</th>
-				        <th width="5%">Created</th>
-				      </tr>
-				    </thead>
-				    <tbody>
-				    @include("storewebsite::site-development.partials.data")
-				    </tbody>
-				    {{ $categories->render() }}	
+					<thead>
+						<tr>
+						<th width="10%"></th>
+						<th width="15%">Title</th>
+						<th width="25%">Description</th>
+						<th width="15%">Action</th>
+						<th width="25%">Communication</th>
+						<th width="5%">Created</th>
+					</tr>
+					</thead>
+					<tbody>
+					@include("storewebsite::site-development.partials.data")
+					</tbody>
 				</table>
+				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}	
 			</div>
 		</div>
 	</div>
@@ -104,8 +120,19 @@
 
 
 @section('scripts')
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script type="text/javascript">
+
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+        }
+    });
 	
 	function saveCategory() {
 		var text = $('#add-category').val()
@@ -138,7 +165,7 @@
 	}
 
 	$(function(){
-		$(".save-item").focusout(function() {
+		$(document).on("focusout" , ".save-item" , function() {
 			websiteId = $('#website_id').val()
 			category = $(this).data("category")
 			type = $(this).data("type")
@@ -165,7 +192,7 @@
 			});
 		});
 
-		$(".save-item-select").change(function() {
+		$(document).on("change" , ".save-item-select" , function() {
 			websiteId = $('#website_id').val()
 			category = $(this).data("category")
 			type = $(this).data("type")
@@ -186,8 +213,6 @@
 				console.log("error");
 			});
 		});
-
-
 	});
 
 
@@ -249,13 +274,13 @@
 			alert('Please Select User');
 		}else if(site){
 			$.ajax({
-			url: '/whatsapp/sendMessage/site_development',
-			dataType: "json",
-			type: 'POST',
-			data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
-			beforeSend: function() {
-				$('#message-'+site).attr('disabled', true);
-               }
+				url: '/whatsapp/sendMessage/site_development',
+				dataType: "json",
+				type: 'POST',
+				data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				beforeSend: function() {
+					$('#message-'+site).attr('disabled', true);
+               	}
 			}).done(function (data) {
 				$('#message-'+site).attr('disabled', false);
 				$('#message-'+site).val('');
@@ -265,8 +290,6 @@
 		}else{
 			alert('Site is not saved please enter value or select User');
 		} 
-		
-          
     });
 </script>
 
