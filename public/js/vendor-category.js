@@ -36,8 +36,6 @@ var page = {
             page.showMergeCategory();
         });
 
-        
-
         $(".common-modal").on("click",".submit-form",function() {
             page.submitForm($(this));
         });

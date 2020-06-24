@@ -24,6 +24,7 @@ class CreateCountryDutyTable extends Migration
             $table->decimal('vat');
             $table->decimal('duty_percentage');
             $table->decimal('vat_percentage');
+            $table->interger('duty_group_id')->nullable();
             $table->timestamps();
         });
     }

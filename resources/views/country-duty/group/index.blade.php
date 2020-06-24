@@ -20,47 +20,30 @@
 	    	<div class="col col-md-10">
 		    	<div class="h" style="margin-bottom:10px;">
 		    		<form class="form-inline message-search-handler" method="post">
-		    		<?php echo csrf_field(); ?>	
-					  <div class="row">
+		    		  <div class="row">
 				  		<div class="col">
 				  			<div class="form-group">
-							    <label for="hs_code">HS Code:</label>
-							    <?php echo Form::text("hs_code",request("hs_code","4203.30.0000"),["class"=> "form-control","placeholder" => "Enter hs code"]) ?>
+							    <label for="hs_code">Keyword:</label>
+							    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter Keyword"]) ?>
 						  	</div>
 						  	<div class="form-group">
-							    <label for="item_value">Item Value:</label>
-							    <?php echo Form::text("item_value",request("item_value","500"),["class"=> "form-control","placeholder" => "Enter item value"]) ?>
+							    <label for="hs_code">Destination:</label>
+							    <?php echo Form::text("destination",request("destination"),["class"=> "form-control","placeholder" => "Enter destination"]) ?>
 						  	</div>
 						  	<div class="form-group">
-							    <label for="hs_code">Origin Country:</label>
-							    <?php echo Form::select("origin_country",\App\SimplyDutyCountry::getSelectList(),request("origin_country","AE"),[
-							    	"class"=> "form-control",
-							    	"data-placeholder" => "Select origin country",
-							    ]) ?>
-						  	</div>
-						  	<div class="form-group">
-							    <label for="hs_code">Destination country:</label>
-							    <?php echo Form::textarea("destination_country",request("destination_country"),[
-							    	"class"=> "form-control",
-							    	"placeholder" => "Enter destination country",
-							    	"rows" => 2
-							    ]) ?>
+							    <label for="hs_code">Group name:</label>
+							    <?php echo Form::text("group_name",request("group_name"),["class"=> "form-control","placeholder" => "Enter group name"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
 					  </div>	
 					</form>	
 		    	</div>
-		    </div>
-		    <div class="col col-md-2">
-		    	<div class="h" style="margin-bottom:10px;">
-			    	<button class="btn btn-secondary btn-create-group-modal">+ Create a group</button>
-			    </div>
 		    </div>
 	    </div>	
 		<div class="col-md-12 margin-tb" id="page-view-result">
@@ -76,13 +59,13 @@
   	</div>	
 </div>
 
-@include("country-duty.templates.list-template")
-@include("country-duty.templates.create-website-template")
+@include("country-duty.group.templates.list-template")
+@include("country-duty.group.templates.create-website-template")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/js/common-helper.js"></script>
-<script type="text/javascript" src="/js/country-duty.js"></script>
+<script type="text/javascript" src="/js/country-duty-list.js"></script>
 <script type="text/javascript">
 	page.init({
 		bodyView : $("#common-page-layout"),

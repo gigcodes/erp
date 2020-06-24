@@ -11,13 +11,13 @@
 		        <th width="5%">VAT</th>
 		        <th width="5%">Duty</th>
 		        <th width="5%">Total</th>
-		        <th width="5%">ExchangeRate</th>
 		        <th width="5%">CurrencyType origin</th>
 		        <th width="5%">CurrencyType Destination</th>
 		        <th width="5%">Duty Rate</th>
-		        <th width="5%">Duty Type</th>
 		        <th width="5%">Vat Rate</th>
-		        <th width="5%">Quantity</th>
+		        <th width="5%">Group Name</th>
+		        <th width="5%">Group Duty</th>
+		        <th width="5%">Group Vat</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -26,33 +26,33 @@
 			      	<td>
 			      		<input type="checkbox" class="duty-rate-ckbx" 
 				      		name="duty_country[]" 
-				      		value="{{:prop.HsCode}}"
-				      		data-hs-code="{{:prop.HsCode}}"
-				      		data-origin="{{:prop.Origin}}"
-				      		data-destination="{{:prop.Destination}}"
-				      		data-vat-rate="{{:prop.VatRate}}"
-				      		data-duty-rate="{{:prop.DutyRate}}"
-				      		data-vat-val="{{:prop.VAT}}"
-				      		data-duty-val="{{:prop.Duty}}"
-				      		data-total="{{:prop.Total}}"
-				      		data-currency-origin="{{:prop.CurrencyTypeOrigin}}"
-				      		data-currency-destination="{{:prop.CurrencyTypeDestination}}"
+				      		value="{{:prop.hs_code}}"
+				      		data-hs-code="{{:prop.hs_code}}"
+				      		data-origin="{{:prop.origin}}"
+				      		data-destination="{{:prop.destination}}"
+				      		data-vat-rate="{{:prop.vat_percentage}}"
+				      		data-duty-rate="{{:prop.duty_percentage}}"
+				      		data-vat-val="{{:prop.vat}}"
+				      		data-duty-val="{{:prop.duty}}"
+				      		data-total="{{:prop.price}}"
+				      		data-currency-origin="{{:prop.currency}}"
+				      		data-currency-destination="{{:prop.currency}}"
 			      		/>
 			      	</td>
-			      	<td>{{:prop.HsCode}}</td>
-			      	<td>{{:prop.Origin}}</td>
-			      	<td>{{:prop.Destination}}</td>
-			      	<td>{{:prop.Value}}</td>
-			      	<td>{{:prop.VAT}}</td>
-			      	<td>{{:prop.Duty}}</td>
-			      	<td>{{:prop.Total}}</td>
-			      	<td>{{:prop.ExchangeRate}}</td>
-			      	<td>{{:prop.CurrencyTypeOrigin}}</td>
-			      	<td>{{:prop.CurrencyTypeDestination}}</td>
-			      	<td>{{:prop.DutyRate}}</td>
-			      	<td>{{:prop.DutyType}}</td>
-			      	<td>{{:prop.VatRate}}</td>
-			      	<td>{{:prop.Quantity}}</td>
+			      	<td>{{:prop.hs_code}}</td>
+			      	<td>{{:prop.origin}}</td>
+			      	<td>{{:prop.destination}}</td>
+			      	<td>{{:prop.price}}</td>
+			      	<td>{{:prop.vat}}</td>
+			      	<td>{{:prop.duty}}</td>
+			      	<td>{{:prop.price}}</td>
+			      	<td>{{:prop.currency}}</td>
+			      	<td>{{:prop.currency}}</td>
+			      	<td>{{:prop.duty_percentage}}</td>
+			      	<td>{{:prop.vat_percentage}}</td>
+			      	<td>{{:prop.group_name}}</td>
+			      	<td>{{:prop.group_duty}}</td>
+			      	<td>{{:prop.group_vat}}</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\VendorCategory;
+use App\Library\Duty\SimplyDuty;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 
@@ -16,33 +16,23 @@ class CountryDutyController extends Controller
     public function index()
     {
         $title = "Country duties";
-        
-        return view("country-duty.index",compact('title'));
 
+        return view("country-duty.index", compact('title'));
     }
 
-    public function records()
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response Json
+     */
+    public function search(Request $request)
     {
-        $records = \App\VendorCategory::query();
-
-        $keyword = request("keyword");
-        if (!empty($keyword)) {
-            $records = $records->where(function ($q) use ($keyword) {
-                $q->where("title", "LIKE", "%$keyword%");
-            });
-        }
-
-        $records = $records->get();
-
-        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
-    }
-
-    public function save(Request $request)
-    {
-        $post = $request->all();
-
-        $validator = Validator::make($post, [
-            'title'    => 'required'
+        // validation report generator
+        $validator = Validator::make($request->all(), [
+            'hs_code'               => 'required',
+            'origin_country'        => 'required',
+            'destination_country.*' => 'required',
+            'item_value'            => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -56,158 +46,150 @@ class CountryDutyController extends Controller
             return response()->json(["code" => 500, "error" => $outputString]);
         }
 
-        $id = $request->get("id", 0);
+        $hscode      = $request->hs_code;
+        $origin      = $request->origin_country;
+        $value       = $request->item_value;
+        $destination = $request->destination_country;
 
-        $records = VendorCategory::find($id);
+        $simplyDuty   = new SimplyDuty;
+        $errorMessage = [];
+        $response     = [];
+        if ($destination != null) {
+            foreach (explode(",", $destination) as $dest) {
+                $dest = strtoupper($dest);
+                /*$result = $simplyDuty->calculate(
+                $origin,
+                $destination,
+                $hscode,
+                1,
+                $value
+                );*/
 
-        if (!$records) {
-            $records = new VendorCategory;
-        }
-
-        $records->fill($post);
-        $records->save();
-
-        return response()->json(["code" => 200, "data" => $records]);
-
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(Request $request)
-    {
-      $this->validate($request, [
-        'title' => 'required|string'
-      ]);
-
-      $data = $request->except('_token');
-
-      VendorCategory::create($data);
-
-      return redirect()->route('vendors.index')->withSuccess('You have successfully created a vendor category!');
-    }
-
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Edit Page
-     * @param  Request $request [description]
-     * @return
-     */
-
-    public function edit(Request $request, $id)
-    {
-        $modal = VendorCategory::where("id", $id)->first();
-
-        if ($modal) {
-            return response()->json(["code" => 200, "data" => $modal]);
-        }
-
-        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
-    }
-
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        //
-    }
-
-    /**
-     * delete Page
-     * @param  Request $request [description]
-     * @return
-     */
-
-    public function delete(Request $request, $id)
-    {
-        $vendorCategory = VendorCategory::where("id", $id)->first();
-
-        $isExist = \App\Vendor::where("category_id",$id)->first();
-        if($isExist) {
-            return response()->json(["code" => 500, "error" => "Category is attached to vendor , Please update vendor category before delete."]);
-        }
-
-        if ($vendorCategory) {
-            $vendorCategory->delete();
-            return response()->json(["code" => 200]);
-        }
-
-        return response()->json(["code" => 500, "error" => "Wrong id!"]);
-    }
-
-    public function mergeCategory(Request $request) 
-    {
-        $toCategory     = $request->get("to_category");
-        $fromCategory   = $request->get("from_category");
-
-        if(empty($toCategory)) {
-            return response()->json(["code" => 500 , "error" => "Merge category is missing"]);
-        }
-
-        if(empty($fromCategory)) {
-            return response()->json(["code" => 500 , "error" => "Please select category before select merge category"]);
-        }
-
-        if(in_array($toCategory,$fromCategory)) {
-           return response()->json(["code" => 500 , "error" => "Merge category can not be same"]);
-        }
-
-        $category = \App\VendorCategory::where("id",$toCategory)->first();
-        $allMergeCategory = \App\Vendor::whereIn("category_id",$fromCategory)->get();
-
-        if($category) {
-            // start to merge first
-            if(!$allMergeCategory->isEmpty()) {
-                foreach($allMergeCategory as $amc) {
-                    $amc->category_id = $category->id;
-                    $amc->save();
+                if (!empty($result->error)) {
+                    $errorMessage[] = $result->message;
+                    continue;
+                } else {
+                    $response[] = [
+                        "HsCode"                  => "4203.30.0000",
+                        "Value"                   => 500,
+                        "VAT"                     => 0,
+                        "Duty"                    => 0,
+                        "Shipping"                => 0,
+                        "Insurance"               => 0,
+                        "Total"                   => 500,
+                        "ExchangeRate"            => 1,
+                        "CurrencyTypeOrigin"      => "EUR",
+                        "CurrencyTypeDestination" => "EUR",
+                        "DutyMinimis"             => 707,
+                        "DutyRate"                => 2.7,
+                        "DutyType"                => "General",
+                        "DutyHSCode"              => "4203.30.0000",
+                        "VatMinimis"              => 0,
+                        "VatRate"                 => 0,
+                        "Quantity"                => 1,
+                        "Origin"                  => $origin,
+                        "Destination"             => $dest,
+                    ];
                 }
             }
-            // once all merged category store then delete that category from table
-            \App\VendorCategory::whereIn("id",$fromCategory)->delete();
         }
 
-        return response()->json(["code" => 200 , "data" => [], "messages" => "Category has been merged successfully"]);
+        return response()->json(["code" => 200, "data" => $response, "error_message" => $errorMessage, "total" => count($response)]);
     }
 
+    public function saveCountryGroup(Request $request)
+    {
+        // validation report generator
+        $validator = Validator::make($request->all(), [
+            'name'     => 'required|unique:duty_groups',
+            'groups.*' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "message" => $outputString]);
+        }
+
+        $rates  = [];
+        $groups = $request->groups;
+
+        foreach ($groups as $k => $g) {
+            $rates[$k] = $g["duty-rate"];
+        }
+
+        $k = array_keys($rates, max($rates));
+
+        if (isset($k[0]) && !empty($groups[$k[0]])) {
+            $key = $k[0];
+            // first create a group and then assing country to that group
+            $group          = new \App\DutyGroup;
+            $group->name    = $request->name;
+            $group->hs_code = $groups[$key]["hs-code"];
+            $group->vat     = $groups[$key]["vat-rate"];
+            $group->duty    = $groups[$key]["duty-rate"];
+
+            if ($group->save()) {
+                foreach ($groups as $gM) {
+                    $countryDuty                  = new \App\CountryDuty;
+                    $countryDuty->hs_code         = $gM["hs-code"];
+                    $countryDuty->origin          = $gM["origin"];
+                    $countryDuty->destination     = $gM["destination"];
+                    $countryDuty->currency        = $gM["currency-origin"];
+                    $countryDuty->price           = $gM["total"];
+                    $countryDuty->duty            = $gM["duty-val"];
+                    $countryDuty->vat             = $gM["vat-val"];
+                    $countryDuty->duty_percentage = $gM["duty-rate"];
+                    $countryDuty->vat_percentage  = $gM["vat-rate"];
+                    $countryDuty->duty_group_id   = $group->id;
+                    if ($countryDuty->save()) {
+
+                    }
+                }
+
+                return response()->json(["code" => 200, "data" => [], "message" => "Added successfully"]);
+            }
+
+            return response()->json(["code" => 500, "data" => [], "message" => "Group record missing while checking max ranage."]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Oops, some field is missing."]);
+
+    }
+
+    public function list(Request $request) 
+    { 
+
+        $title = "Country Group List";
+
+        return view("country-duty.group.index", compact('title'));
+
+    }
+
+    public function records(Request $request) 
+    {
+        $records = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id", "country_duties.duty_group_id");
+        
+        if($request->keyword != null) {
+            $records = $records->where("country_duties.hs_code","like", "%".$request->keyword."%");
+        }
+
+        if($request->destination != null) {
+            $records = $records->where("country_duties.destination","like", "%".$request->destination."%");
+        }
+
+        if($request->group_name != null) {
+            $records = $records->where("dg.name","like", "%".$request->group_name."%");
+        }
+
+        $records = $records->select(["country_duties.*","dg.name as group_name","dg.duty as group_duty","dg.vat as group_vat"])->get();
+
+        return response()->json(["code" => 200 , "data" => $records, "total" => $records->count()]);
+    }
 
 }

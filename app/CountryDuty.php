@@ -16,6 +16,7 @@ class CountryDuty extends Model
         'vat',
         'duty_percentage',
         'vat_percentage',
+        'duty_group_id',
         'created_at',
         'updated_at'
     ];

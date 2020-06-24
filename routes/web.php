@@ -1366,6 +1366,12 @@ Route::middleware('auth')->group(function () {
 
     Route::prefix('country-duty')->group(function () {
         Route::get('/', 'CountryDutyController@index')->name('country.duty.index');
+        Route::post('/search', 'CountryDutyController@search')->name('country.duty.search');
+        Route::post('/save-country-group', 'CountryDutyController@saveCountryGroup')->name('country.duty.search');
+        Route::prefix('list')->group(function () {
+            Route::get('/', 'CountryDutyController@list')->name('country.duty.list');
+            Route::get('/records', 'CountryDutyController@records')->name('country.duty.records');
+        });
     });
 });
 
