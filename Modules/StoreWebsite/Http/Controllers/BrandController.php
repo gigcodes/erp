@@ -7,6 +7,7 @@ use App\StoreWebsiteBrand;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Support\Facades\Validator;
 
 class BrandController extends Controller
@@ -111,6 +112,15 @@ class BrandController extends Controller
     {
         if ($request->brand != null && $request->store != null) {
             $brandStore = \App\StoreWebsiteBrand::where("brand_id", $request->brand)->where("store_website_id", $request->store)->first();
+            $website = \App\StoreWebsite::find($request->store);
+            if($website){
+                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    $brand = \App\Brand::find($request->brand);
+                    $magentoBrandId = MagentoHelper::addBrand($brand,$website);
+                }
+
+            }
+
             if ($request->active == null || $request->active == "false") {
                 if ($brandStore) {
                     $brandStore->delete();
@@ -120,6 +130,9 @@ class BrandController extends Controller
                     $brandStore = new \App\StoreWebsiteBrand;
                 }
                 $brandStore->brand_id         = $request->brand;
+                if(isset($magentoBrandId)){
+                    $brandStore->magento_value = $magentoBrandId;
+                }
                 $brandStore->store_website_id = $request->store;
                 $brandStore->save();
             }
