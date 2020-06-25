@@ -39,7 +39,7 @@
                     <ul id="tree1">
                         @foreach($categories as $category)
                             <li>
-                                {{ $category->title }} ({{$category->id}})
+                                {{ $category->title }} ({{$category->id}}) <a href="javascript:;" data-id="{{ $category->id }}" data-name="{{ $category->title }}" data-simply-duty-code="{{ $category->simplyduty_code }}" class="edit-modal-window"><i class="fa fa-edit"></i></a> 
                                 @if(count($category->childs))
                                     @include('category.manageChild',['childs' => $category->childs])
                                 @endif
@@ -75,7 +75,7 @@
                         <div class="form-group {{ $errors->has('parent_id') ? 'has-error' : '' }}">
                             {!! Form::label('Category:') !!}
                             {{--                        {!! Form::select('parent_id',$allCategories, old('parent_id'), ['class'=>'form-control', 'placeholder'=>'Select Category']) !!}--}}
-			                <?php echo $allCategoriesDropdown; ?>
+                            <?php echo $allCategoriesDropdown; ?>
                             <span class="text-danger">{{ $errors->first('parent_id') }}</span>
                         </div>
 
@@ -122,5 +122,57 @@
 
         </div>
     </div>
+    <div id="edit-category-modal" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+        <!-- Modal content-->
+        <div class="modal-content">
+          <div class="modal-header">
+              <h4 class="modal-title"></h4>
+              <button type="button" class="close" data-dismiss="modal">&times;</button>
+          </div>
+          <div class="modal-body">
+            <form method="post" action="/category/save-form" id="category-save-form">
+              {{csrf_field()}}
+              <input type="hidden" name="id" value="" id="category-id"> 
+              <input type="text" class="form-control" placeholder="Entery HS code" name="simplyduty_code" value="" id="simplyduty-code-field">
+              <button type="button" class="btn btn-secondary btn-block mt-2" id="save-form">Save</button>`
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="{{asset('js/treeview.js')}}"></script>
+    <script type="text/javascript">
+       $(document).on("click",".edit-modal-window",function(e) {
+            var modal = $("#edit-category-modal");
+            var $this = $(this);
+            modal.find(".modal-title").html("Edit " + $this.data("name"));
+            modal.find("#category-id").val($this.data("id"));
+            modal.find("#simplyduty-code-field").val($this.data("simply-duty-code"));
+            modal.modal("show");
+       });
+
+       $(document).on("click","#save-form",function() {
+            var form = $(this).closest("form");
+            $.ajax({
+                type: 'POST',
+                url: "/category/save-form",
+                data: form.serialize(),
+                beforeSend : function() {
+                    $("#loading-image").show();
+                },
+                dataType:"json"
+              }).done(function(response) {
+                    $("#loading-image").hide();
+                    toastr["success"](response.message);
+              }).fail(function(response) {
+                    $("#loading-image").hide();
+                    toastr["error"]("Oops,something went wrong");
+              });
+       });
+
+    </script>
     @endsection

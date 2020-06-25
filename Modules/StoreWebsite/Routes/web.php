@@ -60,6 +60,17 @@ Route::prefix('store-website')->group(function () {
         Route::get('records', 'BrandController@records')->name("store-website.brand.records");
         Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
     });
+
+    Route::prefix('price-override')->group(function () {
+        Route::get('/', 'PriceOverrideController@index')->name("store-website.price-override.index");
+        Route::get('records', 'PriceOverrideController@records')->name("store-website.price-override.records");
+        Route::post('save', 'PriceOverrideController@save')->name("store-website.price-override.save");
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'PriceOverrideController@edit')->name("store-website.price-override.edit");
+            Route::get('delete', 'PriceOverrideController@delete')->name("store-website.price-override.delete");
+        });
+    });
+
 });
 
 Route::prefix('site-development')->group(function () {

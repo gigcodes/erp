@@ -1182,6 +1182,15 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif

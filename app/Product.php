@@ -807,4 +807,69 @@ class Product extends Model
                 ->get();
     }
 
+    /**
+    * Get price calculation
+    * @return float
+    **/
+    public function getPrice($websiteId)
+    {
+        $website = \App\StoreWebsite::find($websiteId);
+
+        if($website) {
+           
+           $brand    = $this->brand;  
+           $category = $this->cateogry;
+           $country  = $website->country_duty;
+
+           if(!empty($brand) && !empty($category) && !empty($country))  {
+              $priceRecords = \App\PriceOverride::where("country_code",$country)->where("brand_id",$brand)->where("category_id",$category_id)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceRecords = \App\PriceOverride::where(function($q) use($brand, $category, $country) {
+                $q->orWhere(function($q) use($brand, $category) {
+                    $q->where("brand_id", $brand)->where("category_id",$category);
+                })->orWhere(function($q) use($brand, $category) {
+                    $q->where("brand_id", $brand)->where("country",$country);
+                })->orWhere(function($q) use($brand, $category) {
+                    $q->where("country", $country)->where("category_id",$category);
+                });
+              })->first();
+           }
+
+           if(!$priceRecords) {
+              $priceRecords = \App\PriceOverride::where("brand_id",$brand_id)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceRecords = \App\PriceOverride::where("category_id",$category)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceRecords = \App\PriceOverride::where("country",$country)->first();
+           }
+
+           if($priceRecords) {
+              if($priceRecords->calculated == "+") {
+                 if($priceRecords->type == "PERCENTAGE")  {
+                    $price = ($this->price * $priceRecords->value) / 100; 
+                    return $this->price + $price;
+                 }else{
+                    return $this->price + $priceRecords->value;
+                 }
+              }
+              if($priceRecords->calculated == "-") {
+                 if($priceRecords->type == "PERCENTAGE")  {
+                    $price = ($this->price * $priceRecords->value) / 100; 
+                    return $this->price - $price;
+                 }else{
+                    return $this->price - $priceRecords->value;
+                 }
+              }
+           }
+        }
+
+        return $this->price;
+    }
+
 }

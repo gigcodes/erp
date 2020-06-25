@@ -105,4 +105,9 @@ class Brand extends Model
     {
         return \App\BrandCategoryPriceRange::where("brand_segment",$brandId)->where("category_id",$categoryId)->first();
     }
+
+    public static function list()
+    {
+        return self::pluck("name","id")->toArray();
+    }
 }

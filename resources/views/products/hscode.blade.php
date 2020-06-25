@@ -206,16 +206,17 @@
                 },
                 success: function(data) {
                     $('#groupModal').modal('hide');
-                    alert(data);
+                    console.log(data);
                     location.reload();
                 },
                 error: function(xhr) { // if error occured
                     alert("Error occured.please try again");
                 },
-
             }); 
 
         }
+
+        return false;
     }
 
 

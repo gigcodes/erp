@@ -304,4 +304,9 @@ class Category extends Model
         return $this->hasOne(SupplierCategoryCount::class,'category_id','id');
     }
 
+    public static function list()
+    {
+        return self::pluck("title","id")->toArray();
+    }
+
 }
