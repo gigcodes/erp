@@ -100,50 +100,58 @@
       </style>
    </head>
    <body>
-<div class="invoice-box">
-<table style="height: 432px;" cellspacing="0" cellpadding="0">
-<tbody>
-<tr class="top" style="height: 97px;">
-<td style="height: 97px; width: 729px;" colspan="2">
-<table style="width: 696px;">
-<tbody>
-<tr>
-<td class="title" style="width: 416px;"><img style="width: 100%; max-width: 300px;" src="../../../../images/solo_logo.png" /></td>
-<td style="width: 260px;">Invoice #:{{ $order->order_id }}<br />Created: {{ $order->created_at }}<br /><br /></td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr class="information" style="height: 72px;">
-<td style="height: 72px; width: 632px;">Dear {{ $order->customer->name }}, Thank you for your order. Your order will be assigned to a customer care executive who will be avaialable at all times to answer any queries. Our customer care executive will contact you shortly. Your order confirmation is below.</td>
-</tr>
-<tr class="information" style="height: 117px;">
-<td style="height: 117px; width: 729px;" colspan="2">
-<table>
-<tbody>
-<tr>
-<td>{{ $order->customer->address }}</td>
-<td>Solo luxury</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr class="heading" style="height: 24px;">
-<td style="height: 24px; width: 632px;">Item</td>
-<td style="height: 24px; width: 87px;">Price</td>
-</tr>
-<!-- loop -->
-<tr class="item last" style="height: 25px;">
-<td style="height: auto; width: 632px;">{!! $orderItems !!}</td>
-</tr>
-<tr class="total" style="height: 49px;">
-<td style="height: 49px; width: 632px;">&nbsp;</td>
-<td style="height: 49px; width: 87px;">Total: ₹ {{ $orderTotal }}</td>
-</tr>
-</tbody>
-</table>
-</div>
-</body>
+        <div class="invoice-box">
+            <table style="height: 432px;" cellspacing="0" cellpadding="0">
+                <tbody>
+                    <tr class="top" style="height: 97px;">
+                        <td style="height: 97px; width: 729px;" colspan="6">
+                            <table style="width: 729px;">
+                                <tbody>
+                                    <tr>
+                                        <td class="title" style="width: 469px;"><img style="width: 100%; max-width: 300px;" src="../../../../images/solo_logo.png" /></td>
+                                        <td style="width: 260px;">Invoice #:{{ $order->order_id }}<br />Created: {{ $order->created_at }}<br /><br /></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="information" style="height: 72px;">
+                        <td colspan="6  " style="height: 72px; width: 632px;">Dear {{ $order->customer->name }}, Thank you for your order. Your order will be assigned to a customer care executive who will be avaialable at all times to answer any queries. Our customer care executive will contact you shortly. Your order confirmation is below.</td>
+                    </tr>
+                    <tr class="information" style="height: 117px;">
+                        <td style="height: 117px; width: 729px;" colspan="6">
+                            <table>
+                                <tbody>
+                                    <tr>
+                                        <td>{{ $order->customer->address }}</td>
+                                        <td>105,5 EA, DAFZA DUBAI, UAE</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr class="heading" style="height: 24px;">
+                        <td style="height: 24px; width: 300px; text-align: left;">Description</td>
+                        <td style="height: 24px; width: 100px; text-align: left;">Hs Code</td>
+                        <td style="height: 24px; width: 100px; text-align: left;">Made in</td>
+                        <td style="height: 24px; width: 100px; text-align: left;">Units</td>
+                        <td style="height: 24px; width: 100px; text-align: left;">Unit</td>
+                        <td style="height: 24px; width: 100px; text-align: left;">Total Value</td>
+                    </tr>
+                    <!-- loop -->
+                    <tr class="item last" style="height: 25px;">
+                        <td style="height: auto; width: 632px;" colspan="6">{!! $orderItems !!}</td>
+                    </tr>
+                    <tr class="total" style="height: 49px;">
+                        <td style="height: 49px; width: 587px;" colspan="5">&nbsp;</td>
+                        <td style="height: 49px; width: 132px; text-align: left;">Total: ₹ {{ $orderTotal }}</td>
+                    </tr>
+                    <tr class="information" style="height: 72px;">
+                        <td colspan="6" style="height: 72px; width: 632px;">These commodities, technology or softwarewere exported from United Kingdom in accordance with the local export regulations.
+                        Diversion contray United Kindom is prohinited. I declare that all the information contained in this invoiceto be true and correct. </td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </body>
 </html>
