@@ -23,17 +23,18 @@ class PriceOverrideController extends Controller
     public function records(Request $request)
     {
         $modal = PriceOverride::leftJoin("brands as b", "b.id", "price_overrides.brand_id")
+            ->leftJoin("store_websites as sw", "sw.id", "price_overrides.store_website_id")
             ->leftJoin("categories as c", "c.id", "price_overrides.category_id")
             ->leftJoin("simply_duty_countries as sc", "sc.country_code", "price_overrides.country_code");
 
         if (!empty($request->keyword)) {
-            $modal = $modal->where(function($q) use($request) {
-                $q->orWhere("c.title","like","%".$request->keyword."%")->orWhere("b.name","like","%".$request->keyword."%")
-                ->orWhere("sc.country_name","like","%".$request->keyword."%");
+            $modal = $modal->where(function ($q) use ($request) {
+                $q->orWhere("c.title", "like", "%" . $request->keyword . "%")->orWhere("b.name", "like", "%" . $request->keyword . "%")
+                    ->orWhere("sc.country_name", "like", "%" . $request->keyword . "%");
             });
         }
 
-        $modal = $modal->select(["price_overrides.*", "b.name as brand_name", "c.title as category_name", "sc.country_name as country_name"]);
+        $modal = $modal->select(["price_overrides.*", "b.name as brand_name", "c.title as category_name", "sc.country_name as country_name", "sw.website as store_website_name"]);
         $modal = $modal->orderby("price_overrides.id", "DESC")->paginate(12);
 
         return response()->json([
@@ -50,7 +51,7 @@ class PriceOverrideController extends Controller
         $post = $request->all();
 
         $validator = Validator::make($post, [
-            'value'     => 'required'
+            'value' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -113,4 +114,45 @@ class PriceOverrideController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong id!"]);
     }
+
+    public function calculate(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'product_id'       => 'required',
+            'store_website' => 'required',
+            //'country_id'       => 'required',
+        ]);
+
+        $error = self::validationResult($validator);
+
+        if(!empty($error)) {
+            return $error;
+        }
+
+        $product = \App\Product::find($request->product_id);
+
+        if($product) {
+            $price = $product->getPrice($request->store_website,$request->country_code);
+            $price["duty"] = $product->getDuty($request->store_website);
+
+            return response()->json(["code" => 200 , "data" => $price]);
+        }
+
+        return response()->json(["code" => 200 , "data" => []]);
+    }
+
+    public static function validationResult($validator)
+    {
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "error" => $outputString]);
+        }
+    }
+
 }

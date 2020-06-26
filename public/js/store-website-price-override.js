@@ -44,6 +44,10 @@ var page = {
             page.editRecord($(this));
         });
 
+        page.config.bodyView.on("click",".calculate-price-and-duty",function(e) {
+            e.preventDefault();
+            page.calculatePriceDuty($(this));
+        });
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -161,6 +165,25 @@ var page = {
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
+        }
+    },
+    calculatePriceDuty : function(ele) {
+        var form  = ele.closest("form");
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/calculate",
+            method: "get",
+            data : form.serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+                $(".calculated-result-display").html("");
+            }
+        }
+        this.sendAjax(_z, "displayCalculation");
+    },
+    displayCalculation : function(response) {
+        $("#loading-image").hide();
+        if(response.code == 200 && response.data.total > 0) {
+            $(".calculated-result-display").html("Original Price :"+ response.data.original_price+" Promotion : "+ response.data.promotion+" Duty : "+ response.data.duty+ " Total : " + (response.data.duty + response.data.total));
         }
     }
 }

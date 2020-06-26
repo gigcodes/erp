@@ -811,27 +811,31 @@ class Product extends Model
     * Get price calculation
     * @return float
     **/
-    public function getPrice($websiteId)
+    public function getPrice($websiteId,$countryId = null)
     {
         $website        = \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
         if($website) {
 
-           $brand    = $this->brand;
+           $brand    = $this->brands->brand_segment;
            $category = $this->category;
-           $country  = $website->country_duty;
+           $country  = $countryId;
+
+           $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
+           $priceCModal = clone $priceModal;
 
            if(!empty($brand) && !empty($category) && !empty($country))  {
-              $priceRecords = \App\PriceOverride::where("country_code",$country)->where("brand_id",$brand)->where("category_id",$category)->first();
+              $priceRecords = $priceModal->where("country_code",$country)->where("brand_segment",$brand)->where("category_id",$category)->first();
            }
 
            if(!$priceRecords) {
-              $priceRecords = \App\PriceOverride::where(function($q) use($brand, $category, $country) {
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where(function($q) use($brand, $category, $country) {
                 $q->orWhere(function($q) use($brand, $category) {
-                    $q->where("brand_id", $brand)->where("category_id",$category);
+                    $q->where("brand_segment", $brand)->where("category_id",$category);
                 })->orWhere(function($q) use($brand, $country) {
-                    $q->where("brand_id", $brand)->where("country_code",$country);
+                    $q->where("brand_segment", $brand)->where("country_code",$country);
                 })->orWhere(function($q) use($country, $category) {
                     $q->where("country_code", $country)->where("category_id",$category);
                 });
@@ -839,42 +843,41 @@ class Product extends Model
            }
 
            if(!$priceRecords) {
-              $priceRecords = \App\PriceOverride::where("brand_id",$brand)->first();
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("brand_segment",$brand)->first();
            }
 
            if(!$priceRecords) {
-              $priceRecords = \App\PriceOverride::where("category_id",$category)->first();
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("category_id",$category)->first();
            }
 
            if(!$priceRecords) {
-              $priceRecords = \App\PriceOverride::where("country_code",$country)->first();
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("country_code",$country)->first();
            }
 
            if($priceRecords) {
               if($priceRecords->calculated == "+") {
                  if($priceRecords->type == "PERCENTAGE")  {
                     $price = ($this->price * $priceRecords->value) / 100;
-                    //echo  $this->price. " * " . $priceRecords->value ." / 100";
-                    return $this->price + $price;
+                    return ["original_price" => $this->price , "promotion" => $price , "total" =>  $this->price + $price];
                  }else{
-                    //echo  $this->price. " + " . $priceRecords->value;
-                    return $this->price + $priceRecords->value;
+                    return ["original_price" => $this->price , "promotion" => $priceRecords->value , "total" =>  $this->price + $priceRecords->value];
                  }
               }
               if($priceRecords->calculated == "-") {
                  if($priceRecords->type == "PERCENTAGE")  {
                     $price = ($this->price * $priceRecords->value) / 100;
-                    //echo  $this->price. " * " . $priceRecords->value ." / 100";
-                    return $this->price - $price;
+                    return ["original_price" => $this->price , "promotion" => -$price , "total" =>  $this->price - $price];
                  }else{
-                    //echo  $this->price. " - " . $priceRecords->value;
-                    return $this->price - $priceRecords->value;
+                    return ["original_price" => $this->price , "promotion" => - $priceRecords->value , "total" =>  $this->price - $priceRecords->value];
                  }
               }
            }
         }
 
-        return $this->price;
+        return ["original_price" => $this->price , "promotion" => "0.00", "total" =>  $this->price];
     }
 
     public function getDuty($websiteId)

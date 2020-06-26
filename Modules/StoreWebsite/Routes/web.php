@@ -65,6 +65,7 @@ Route::prefix('store-website')->group(function () {
         Route::get('/', 'PriceOverrideController@index')->name("store-website.price-override.index");
         Route::get('records', 'PriceOverrideController@records')->name("store-website.price-override.records");
         Route::post('save', 'PriceOverrideController@save')->name("store-website.price-override.save");
+        Route::get('calculate', 'PriceOverrideController@calculate')->name("store-website.price-override.calculate");
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'PriceOverrideController@edit')->name("store-website.price-override.edit");
             Route::get('delete', 'PriceOverrideController@delete')->name("store-website.price-override.delete");

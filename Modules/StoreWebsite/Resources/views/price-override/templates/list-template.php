@@ -4,7 +4,8 @@
 		    <thead>
 		      <tr>
 		      	<th>Id</th>
-		        <th>Brand</th>
+		      	<th>Store Website</th>
+		        <th>Brand Segment</th>
 		        <th>Category</th>
 		        <th>Country</th>
 		        <th>Price</th>
@@ -17,7 +18,8 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.brand_name}}</td>
+			      	<td>{{:prop.store_website_name}}</td>
+			        <td>{{:prop.brand_segment}}</td>
 			        <td>{{:prop.category_name}}</td>
 			        <td>{{:prop.country_name}}</td>
 			        <td>{{:prop.value}}</td>

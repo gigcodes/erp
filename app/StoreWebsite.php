@@ -27,4 +27,9 @@ class StoreWebsite extends Model
         'facebook_remarks',
         'country_duty'
     ];
+
+    public static function list()
+    {
+        return self::pluck("website","id")->toArray();
+    }
 }
