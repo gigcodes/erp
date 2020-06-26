@@ -25,5 +25,6 @@ class StoreWebsite extends Model
         'instagram_remarks',
         'facebook',
         'facebook_remarks',
+        'country_duty'
     ];
 }

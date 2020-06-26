@@ -12,4 +12,9 @@ class SimplyDutyCountry extends Model
      * @var array
      */
     protected $fillable = ['country_code','country_name'];
+
+    public static function getSelectList()
+    {
+        return self::pluck("country_name","country_code")->toArray();
+    }
 }

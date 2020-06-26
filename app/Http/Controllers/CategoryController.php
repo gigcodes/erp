@@ -352,4 +352,26 @@ class CategoryController extends Controller
         return response()->json(["code" => 500]);
 
     }
+
+    public function saveForm(Request $request)
+    {
+        $id = $request->id;
+        if($id != null) {
+            $category = \App\Category::find($id);
+            if(!empty($category)) {
+                $findChild = \App\Category::whereNull("simplyduty_code")->where("parent_id",$category->id)->get(); 
+                if(!empty($findChild) && !$findChild->isEmpty()){
+                    foreach($findChild as $child) {
+                        $child->simplyduty_code = $request->simplyduty_code;
+                        $child->save();
+                    }
+                }
+                $category->simplyduty_code = $request->simplyduty_code;
+                $category->save();
+            }
+        }
+
+        return response()->json(["code" => 200 ,"message" => "Success"]);
+
+    }
 }

@@ -7,14 +7,14 @@ var page = {
 
         $.extend(page.config, settings);
         
-        page.config.mainUrl = page.config.baseUrl + "/vendor-category";
+        page.config.mainUrl = page.config.baseUrl + "/store-website/price-override";
         
         this.getResults();
 
         //initialize pagination
         page.config.bodyView.on("click",".page-link",function(e) {
-            e.preventDefault();
-            page.getResults($(this).attr("href"));
+        	e.preventDefault();
+        	page.getResults($(this).attr("href"));
         });
 
         page.config.bodyView.on("click",".btn-search-action",function(e) {
@@ -27,22 +27,8 @@ var page = {
             page.createRecord();
         });
 
-        page.config.bodyView.on("click",".btn-show-remark",function(e) {
-            e.preventDefault();
-            page.showRemark($(this).data("id"));
-        });
-
-        page.config.bodyView.on("click",".btn-merge-category",function(e) {
-            page.showMergeCategory();
-        });
-
-        $(".common-modal").on("click",".submit-form",function() {
+        $(".common-modal").on("click",".submit-price-override",function() {
             page.submitForm($(this));
-        });
-
-        $(".common-modal").on("click",".merge-category-btn",function(e) {
-            e.preventDefault();
-            page.submitForMerge($(this));
         });
 
         // delete product templates
@@ -57,6 +43,7 @@ var page = {
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         });
+
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -79,7 +66,7 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     getResults: function(href) {
-        var _z = {
+    	var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl+"/records",
             method: "get",
             data : $(".message-search-handler").serialize(),
@@ -91,12 +78,12 @@ var page = {
     },
     showResults : function(response) {
         $("#loading-image").hide();
-        var addProductTpl = $.templates("#template-result-block");
+    	var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
 
         $(".count-text").html("("+response.total+")");
 
-        page.config.bodyView.find("#page-view-result").html(tplHtml);
+    	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
     }
     ,
@@ -115,8 +102,7 @@ var page = {
             this.getResults();
             toastr['success']('Message deleted successfully', 'success');
         }else{
-            $("#loading-image").hide();
-            toastr['error'](response.error, 'error');
+            toastr['error']('Oops.something went wrong', 'error');
         }
 
     },
@@ -176,37 +162,6 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    },
-    showMergeCategory : function() {
-        var createWebTemplate = $.templates("#template-merge-category");
-        var tplHtml = createWebTemplate.render({});
-        var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
-            common.modal("show");
-    },
-    submitForMerge : function(ele) {
-
-        var selectedIds = [];
-        $(".vendor-category-ckbx").each(function(k,v){
-            if($(v).is(":checked")) {
-                selectedIds.push($(v).val());
-            }
-        });
-
-        var category = ele.closest("form").find(".merge-category").val();
-
-        var _z = {
-            url: this.config.mainUrl + "/merge-category",
-            method: "post",
-            data : {
-                to_category : category,
-                from_category : selectedIds
-            },
-            beforeSend : function() {
-                $("#loading-image").show();
-            }
-        }
-        this.sendAjax(_z, "saveSite");
     }
 }
 

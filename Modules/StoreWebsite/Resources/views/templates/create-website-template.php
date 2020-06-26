@@ -62,6 +62,17 @@
 		         <label for="cropper_color">Cropper color</label>
 		         <input type="text" name="cropper_color" value="{{if data}}{{:data.cropper_color}}{{/if}}" class="form-control" id="cropper_color" placeholder="Enter cropper color">
 		      </div>
+		      <div class="form-group">
+		         <label for="country_duty">Country Duty</label>
+		         <select name="country_duty" class="form-control">
+	            	<option value="">-- N/A --</option>
+		            <?php
+						foreach(\App\SimplyDutyCountry::all() as $k => $l) {
+							echo "<option {{if data.country_duty == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
+						}
+					?>
+		         </select>
+		      </div>
 		      <div class="form-row">
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Is Published?</label>
