@@ -69,6 +69,9 @@ class CountryDutyController extends Controller
                     $errorMessage[] = $result->error;
                     continue;
                 } else {
+                    $result = json_decode(json_encode($result),true);
+                    $result["Origin"]   = $origin;
+                    $result["Destination"] = $dest; 
                     $response[] = $result;
                 }
             }
