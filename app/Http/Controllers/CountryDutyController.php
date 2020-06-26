@@ -57,39 +57,19 @@ class CountryDutyController extends Controller
         if ($destination != null) {
             foreach (explode(",", $destination) as $dest) {
                 $dest = strtoupper($dest);
-                /*$result = $simplyDuty->calculate(
-                $origin,
-                $destination,
-                $hscode,
-                1,
-                $value
-                );*/
+                $result = $simplyDuty->calculate(
+                    $origin,
+                    $dest,
+                    $hscode,
+                    1,
+                    $value
+                );
 
                 if (!empty($result->error)) {
-                    $errorMessage[] = $result->message;
+                    $errorMessage[] = $result->error;
                     continue;
                 } else {
-                    $response[] = [
-                        "HsCode"                  => "4203.30.0000",
-                        "Value"                   => 500,
-                        "VAT"                     => 0,
-                        "Duty"                    => 0,
-                        "Shipping"                => 0,
-                        "Insurance"               => 0,
-                        "Total"                   => 500,
-                        "ExchangeRate"            => 1,
-                        "CurrencyTypeOrigin"      => "EUR",
-                        "CurrencyTypeDestination" => "EUR",
-                        "DutyMinimis"             => 707,
-                        "DutyRate"                => 2.7,
-                        "DutyType"                => "General",
-                        "DutyHSCode"              => "4203.30.0000",
-                        "VatMinimis"              => 0,
-                        "VatRate"                 => 0,
-                        "Quantity"                => 1,
-                        "Origin"                  => $origin,
-                        "Destination"             => $dest,
-                    ];
+                    $response[] = $result;
                 }
             }
         }
