@@ -1268,7 +1268,7 @@ class ProductController extends Controller
 
         //check for hscode 
         $hsCode = $product->hsCode($product->category,$product->composition);
-
+        $hsCode = true;
         if($hsCode){
             // If we have a product, push it to Magento
             if ($product !== null) {
@@ -2172,14 +2172,15 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-        // Get next product
-        $product = Product::find('270045');
+         // Get next product
+        $product = Product::where('status_id', StatusHelper::$autoCrop)
+            ->where('category', '>', 3);
 
         // Add order
-        // $product = QueryHelper::approvedListingOrder($product);
+        $product = QueryHelper::approvedListingOrder($product);
 
-        // // Get first product
-        // $product = $product->whereHasMedia('original')->first();
+        // Get first product
+        $product = $product->whereHasMedia('original')->first();
 
         if (!$product) {
             // Return JSON
