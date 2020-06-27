@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class PriceOverride extends Model
 {
-    protected $fillable = ['brand_id', 'category_id', 'type', 'calculated', 'value', 'country_code', 'created_at', 'updated_at'];
+    protected $fillable = ['store_website_id', 'brand_id', 'brand_segment', 'category_id', 'type', 'calculated', 'value', 'country_code', 'created_at', 'updated_at'];
 
     public function brand()
     {

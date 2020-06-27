@@ -14,12 +14,22 @@
 		         	<input type="hidden" name="id" value="{{:data.id}}"/>
 		         {{/if}}
 		         <div class="form-group col-md-6">
-		            <label for="brand_id">Brand</label>
-		            <select name="brand_id" class="form-control">
+		            <label for="store_website_id">Storewebsite</label>
+		            <select name="store_website_id" class="form-control">
+		            	<?php
+			            	foreach(\App\StoreWebsite::list() as $k => $l) {
+			            		echo "<option {{if data.store_website_id == $k}} selected {{/if}}  value='".$k."'>".$l."</option>";
+			            	}
+			             ?>
+			         </select>
+		         </div>
+		         <div class="form-group col-md-6">
+		            <label for="brand_segment">Brand Segment</label>
+		            <select name="brand_segment" class="form-control">
 		            	<option value="">-- Select --</option>
 			            <?php
-			            	foreach(\App\Brand::list() as $k => $l) {
-			            		echo "<option {{if data.brand_id == $k}} selected {{/if}}  value='".$k."'>".$l."</option>";
+			            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
+			            		echo "<option {{if data.brand_segment == $k}} selected {{/if}}  value='".$k."'>".$l."</option>";
 			            	}
 			             ?>
 			         </select>
