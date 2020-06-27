@@ -26,6 +26,7 @@
 					 	<div class="form-group mar-right-5 col-md-3">
 						    <label for="product_id">Product id</label>
 						    <?php echo Form::select("product_id", [], null, ["class" => "form-control search-broduct-select", 'placeholder' => 'Select a product', "style" => "width:100%;"]); ?>
+                            <span class="product-title-show"></span>
 						</div>
 						<div class="form-group mar-right-5 col-md-3">
 						    <label for="country_code">Country</label>
@@ -132,7 +133,10 @@
         width: '100%',
         templateResult: formatProduct,
         templateSelection:function(product) {
-          return product.name || product.text;
+           if(typeof product.name != "undefined") {
+             $(".product-title-show").html("["+product.sku+"] => "+product.name) 
+           } 
+          return product.text || product.id;
         }
     });
 </script>
