@@ -175,7 +175,7 @@ var page = {
             data : form.serialize(),
             beforeSend : function() {
                 $("#loading-image").show();
-                $(".calculated-result-display").html("");
+                $(".calculated-result-display").removeClass("btn-secondary btn").html("");
             }
         }
         this.sendAjax(_z, "displayCalculation");
@@ -183,7 +183,9 @@ var page = {
     displayCalculation : function(response) {
         $("#loading-image").hide();
         if(response.code == 200 && response.data.total > 0) {
-            $(".calculated-result-display").html("Original Price :"+ response.data.original_price+" Promotion : "+ response.data.promotion+" Duty : "+ response.data.duty+ " Total : " + (response.data.duty + response.data.total));
+            var duty = parseInt((parseInt(response.data.total) * parseInt((response.data.duty))) / 100);
+            var total = parseInt((parseInt(response.data.total) + parseInt((duty))));
+            $(".calculated-result-display").addClass("btn-secondary btn").html("Original Price :"+ response.data.original_price+" Promotion : "+ response.data.promotion+" Duty : "+ response.data.duty+ " Total : " + total);
         }
     }
 }
