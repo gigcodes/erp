@@ -30,7 +30,12 @@ class CreateShipmentResponse extends ResponseAbstract
         ? $this->response->Body->ShipmentResponse->Notification : null;
 
         if (!empty($notification)) {
-            foreach ($notification->attributes() as $ntf) {
+            foreach ($notification->attributes() as $k => $ntf) {
+
+                if($k == "code" && $ntf > 0) {
+                    return true;
+                }
+            
                 if ((string) $ntf->code <= "0" && (string) $ntf->code == "") {
                     return false;
                 }
