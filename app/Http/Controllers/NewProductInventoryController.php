@@ -128,7 +128,7 @@ class NewProductInventoryController extends Controller
                     'price'               => $product->price,
                     'requires_shipping'   => true,
                     'sku'                 => $product->sku,
-                    'title'               => (string) $product->title,
+                    'title'               => (string) $product->name,
                 ];
 
                 $client   = new ShopifyClient();
