@@ -26,10 +26,10 @@ class Client
     public function __construct()
     {
         // Config ID
-        $this->_shopUrl      = "theluxuryunlimited.myshopify.com";
-        $this->_key          = "a4d6eb3af08620f47562c4f615e03c2c";
-        $this->_password     = "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";
-        $this->_sharedSecret = "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";
+        $this->_shopUrl      = env('SHOPIFY_SHOP_URL');
+        $this->_key          = env('SHOPIFY_SHOP_KEY');
+        $this->_password     = env('SHOPIFY_SHOP_PASSWORD');
+        $this->_sharedSecret = env('SHOPIFY_SHOP_SHARED_SECRET');
 
         // Set random
         $this->_random = uniqid();
