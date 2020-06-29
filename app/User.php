@@ -162,7 +162,7 @@ class User extends Authenticatable
     {
         $roles = $this->roles->pluck('name')->toArray();
 
-        if (in_array('Customer Service', $roles)) {
+        if (in_array('crm', $roles)) {
             return true;
         }
 
