@@ -140,10 +140,14 @@ class NewProductInventoryController extends Controller
 
                 $errors = [];
                 if (!empty($response->errors)) {
-                    foreach ($response->errors as $key => $message) {
-                        foreach($message as $msg) {
-                            $errors[] = ucwords($key) . " " . $msg;
+                    if(is_array($response->errors)) {
+                        foreach ($response->errors as $key => $message) {
+                            foreach($message as $msg) {
+                                $errors[] = ucwords($key) . " " . $msg;
+                            }
                         }
+                    }else{
+                        $errors[] = $response->errors;
                     }
                 }
 
