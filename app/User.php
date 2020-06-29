@@ -391,7 +391,7 @@ class User extends Authenticatable
     {
         $records = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
         ->where("hm.user_id",$this->id)
-        //->whereDate("starts_at",date("Y-m-d", strtotime('-1 days')))
+        ->whereDate("starts_at",date("Y-m-d", strtotime('-1 days')))
         ->groupBy('hubstaff_activities.user_id')
         ->select(\DB::raw("sum(hubstaff_activities.tracked) as total_seconds"))
         ->first();
