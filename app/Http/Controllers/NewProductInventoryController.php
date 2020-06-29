@@ -116,8 +116,8 @@ class NewProductInventoryController extends Controller
                 ];
 
                 // Add images to product
-                if ($product->hasMedia(config('constants.media_tags'))) {
-                    foreach ($product->getMedia(config('constants.media_tags')) as $image) {
+                if ($product->hasMedia(config('constants.attach_image_tag'))) {
+                    foreach ($product->getMedia(config('constants.attach_image_tag')) as $image) {
                         $productData['product']['images'][] = ['src' => $image->getUrl()];
                     }
                 }
