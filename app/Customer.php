@@ -272,5 +272,11 @@ class Customer extends Model
         return $list;
     }
 
+
+    public function store_website()
+    {
+        return $this->belongsTo('App\StoreWebsite');
+    }
+
     
 }

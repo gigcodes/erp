@@ -97,7 +97,7 @@
         <td colspan="5" class="p-3">
           Amount chargeable: <br>
           @php
-            $format = new NumberFormatter("en", NumberFormatter::SPELLOUT);
+            $format = new \NumberFormatter("en", \NumberFormatter::SPELLOUT);
           @endphp
           <strong>
             {{ ucwords($format->format($total_amount)) }}

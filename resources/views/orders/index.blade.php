@@ -57,7 +57,9 @@
             </div>
         </div>
     </div>
-
+    <div class="pull-right">
+                <a href="{{ action('OrderController@viewAllInvoices') }}" class="btn btn-success btn-xs">All invoices</a>
+            </div>
     @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
       <div class="row col-md-12">
@@ -162,7 +164,6 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group">
-
                   <select data-placeholder="Order Status" class="form-control order-status-select select2" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
@@ -170,7 +171,7 @@
                                     <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
-                        </select>
+                    </select>
                 </div>
               </td>
               <td>{{ $order->advance_detail }}</td>
