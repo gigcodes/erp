@@ -740,7 +740,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
                                         </li>
-
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Roles<span class="caret"></span></a>
 
@@ -760,6 +759,9 @@
 
 
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('user-management.index') }}">New Management</a>
                                         </li>
                                     </ul>
                                 </li>
