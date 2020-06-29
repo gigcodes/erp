@@ -4,6 +4,7 @@
 @section('title', 'Site Development')
 
 @section('styles')
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <style type="text/css">
 	.preview-category input.form-control {
 	  width: auto;
@@ -59,6 +60,8 @@
 				  			<div class="form-group">
 							    <label for="keyword">Search keyword:</label>
 							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
+							    <label for="status">Status:</label>
+							    <?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
@@ -121,6 +124,7 @@
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+<script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script type="text/javascript">
 
 	$('.infinite-scroll').jscroll({
@@ -291,6 +295,37 @@
 			alert('Site is not saved please enter value or select User');
 		} 
     });
+
+    $(document).on("change",".fa-ignore-category",function() {
+		var $this = $(this);
+    	var msg = "allow";
+
+    	if($this.prop('checked')) {
+    	   msg = "disallow";
+    	}
+
+		if(confirm("Are you sure want to "+msg+" this category?")) {
+			var store_website_id = $this.data("site-id");
+			var category = $this.data("category-id");
+			$.ajax({
+				url: '/site-development/disallow-category',
+				dataType: "json",
+				type: 'POST',
+				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : $this.prop('checked')},
+				beforeSend: function() {
+					$("#loading-image").show();
+               	}
+			}).done(function (data) {
+				$("#loading-image").hide();
+				toastr["success"]("Category removed successfully");
+				$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+		}
+	});
+
 </script>
 
 @endsection

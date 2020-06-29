@@ -2,133 +2,160 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
-use App\StoreWebsite;
+use App\Role;
+use App\Setting;
 use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
+use App\StoreWebsite;
+use App\User;
+use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
-use Illuminate\Support\Facades\Validator;
-use App\Setting;
-use App\Role;
-use DB;
-use App\User;
 
 class SiteDevelopmentController extends Controller
 {
 
-	public function index($id = null, Request $request)
-	{
+    public function index($id = null, Request $request)
+    {
 
-		//Getting Website Details 
-		$website = StoreWebsite::find($id);
+        //Getting Website Details
+        $website = StoreWebsite::find($id);
 
-		$categories = SiteDevelopmentCategory::orderBy('id','desc');
+        $categories = SiteDevelopmentCategory::orderBy('id', 'desc');
 
-		if($request->k != null) {
-			$categories = $categories->where("title","like","%".$request->k."%");
-		}
+        if ($request->k != null) {
+            $categories = $categories->where("title", "like", "%" . $request->k . "%");
+        }
 
-		$categories = $categories->paginate(Setting::get('pagination'));
+        $ignoredCategory = \App\SiteDevelopmentHiddenCategory::where("store_website_id", $id)->pluck("category_id")->toArray();
 
-		//Getting Roles Developer
-		$role = Role::where('name','LIKE','%Developer%')->first();
-		
-		//User Roles with Developers
-		$roles = DB::table('role_user')->select('user_id')->where('role_id',$role->id)->get();
-		
-		foreach ($roles as $role) {
-			$userIDs[] = $role->user_id; 
-		}
-		
-		if(!isset($userIDs)){
-			$userIDs = [];
-		}
+        if (request('status') == "ignored") {
+            $categories = $categories->whereIn('id', $ignoredCategory);
+        } else {
+            $categories = $categories->whereNotIn('id', $ignoredCategory);
+        }
 
-	    $allStatus = \App\SiteDevelopmentStatus::pluck("name","id")->toArray();
-		$users = User::select('id','name')->whereIn('id',$userIDs)->get();
-		if ($request->ajax() && $request->pagination == null) {
-	      return response()->json([
-	        'tbody' => view('storewebsite::site-development.partials.data', compact('categories','users','website','allStatus'))->render(),
-	        'links' => (string) $categories->render()
-	      ], 200);
-	    }
+        $categories = $categories->paginate(Setting::get('pagination'));
 
-		return view('storewebsite::site-development.index', compact('categories','users','website','allStatus'));
-	}
+        //Getting Roles Developer
+        $role = Role::where('name', 'LIKE', '%Developer%')->first();
 
+        //User Roles with Developers
+        $roles = DB::table('role_user')->select('user_id')->where('role_id', $role->id)->get();
 
-	public function addCategory(Request $request)
-	{
-		if($request->text){
+        foreach ($roles as $role) {
+            $userIDs[] = $role->user_id;
+        }
 
-			//Cross Check if title is present
-			$categoryCheck = SiteDevelopmentCategory::where('title',$request->text)->first();
-			
-			if(empty($categoryCheck)){
-				//Save the Category
-				$develop = new SiteDevelopmentCategory;
-				$develop->title = $request->text;
-				$develop->save();
+        if (!isset($userIDs)) {
+            $userIDs = [];
+        }
 
-				return response()->json(["code" => 200,"messages" => 'Category Saved Sucessfully']);
-			
-			}else{
-				
-				return response()->json(["code" => 500,"messages" => 'Category Already Exist']);
-			}
-			
-		}else{
-			return response()->json(["code" => 500,"messages" => 'Please Enter Text']);
-		}
-	}
+        $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
+        $users     = User::select('id', 'name')->whereIn('id', $userIDs)->get();
 
-	public function addSiteDevelopment(Request $request)
-	{
-		
-		if($request->site){
-			$site =  SiteDevelopment::find($request->site);
-		}else{
-			$site = new SiteDevelopment;
-		}
-		
-		if($request->type == 'title'){
-			$site->title = $request->text;
-		}
+        if ($request->ajax() && $request->pagination == null) {
+            return response()->json([
+                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'))->render(),
+                'links' => (string) $categories->render(),
+            ], 200);
+        }
 
-		if($request->type == 'description'){
-			$site->description = $request->text;
-		}
+        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'));
+    }
 
-		if($request->type == 'status'){
-			$site->status = $request->text;
-		}
+    public function addCategory(Request $request)
+    {
+        if ($request->text) {
 
-		if($request->type == 'developer'){
-			$site->developer_id = $request->text;
-		}
+            //Cross Check if title is present
+            $categoryCheck = SiteDevelopmentCategory::where('title', $request->text)->first();
 
-		$site->site_development_category_id = $request->category;
-		$site->website_id = $request->websiteId;
-		
-		$site->save();
+            if (empty($categoryCheck)) {
+                //Save the Category
+                $develop        = new SiteDevelopmentCategory;
+                $develop->title = $request->text;
+                $develop->save();
 
-		return response()->json(["code" => 200,"messages" => 'Site Development Saved Sucessfully']);
-		
-	}
+                return response()->json(["code" => 200, "messages" => 'Category Saved Sucessfully']);
 
+            } else {
 
-	public function editCategory(Request $request)
-	{
-		
-		$category = SiteDevelopmentCategory::find($request->categoryId);
-		if($category){
-			$category->title = $request->category;
-			$category->save();
-		}
+                return response()->json(["code" => 500, "messages" => 'Category Already Exist']);
+            }
 
-		return response()->json(["code" => 200,"messages" => 'Category Edited Sucessfully']);
-	}
+        } else {
+            return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
+        }
+    }
 
+    public function addSiteDevelopment(Request $request)
+    {
+
+        if ($request->site) {
+            $site = SiteDevelopment::find($request->site);
+        } else {
+            $site = new SiteDevelopment;
+        }
+
+        if ($request->type == 'title') {
+            $site->title = $request->text;
+        }
+
+        if ($request->type == 'description') {
+            $site->description = $request->text;
+        }
+
+        if ($request->type == 'status') {
+            $site->status = $request->text;
+        }
+
+        if ($request->type == 'developer') {
+            $site->developer_id = $request->text;
+        }
+
+        $site->site_development_category_id = $request->category;
+        $site->website_id                   = $request->websiteId;
+
+        $site->save();
+
+        return response()->json(["code" => 200, "messages" => 'Site Development Saved Sucessfully']);
+
+    }
+
+    public function editCategory(Request $request)
+    {
+
+        $category = SiteDevelopmentCategory::find($request->categoryId);
+        if ($category) {
+            $category->title = $request->category;
+            $category->save();
+        }
+
+        return response()->json(["code" => 200, "messages" => 'Category Edited Sucessfully']);
+    }
+
+    public function disallowCategory(Request $request)
+    {
+        $category         = $request->category;
+        $store_website_id = $request->store_website_id;
+
+        if ($category != null && $store_website_id != null) {
+
+            if ($request->status == "false") {
+                \App\SiteDevelopmentHiddenCategory::where('store_website_id', $request->store_website_id)->where('category_id', $request->category)->delete();
+            } else {
+                $siteDevHiddenCat = \App\SiteDevelopmentHiddenCategory::updateOrCreate(
+                    ['store_website_id' => $request->store_website_id, 'category_id' => $request->category],
+                    ['store_website_id' => $request->store_website_id, 'category_id' => $request->category]
+                );
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Data updated Sucessfully"]);
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Required field missing like store website or category"]);
+    }
 
 }

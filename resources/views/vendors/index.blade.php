@@ -1041,7 +1041,6 @@
         });
 
         $(document).on("change",".vendor-update-status",function(){
-            console.log($(this).prop('checked'));
             var $this = $(this);
             $.ajax({
                 type: "POST",

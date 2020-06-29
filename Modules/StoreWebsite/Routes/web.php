@@ -77,10 +77,9 @@ Route::prefix('store-website')->group(function () {
 Route::prefix('site-development')->group(function () {
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
-
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
-
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
+    Route::post('/disallow-category', 'SiteDevelopmentController@disallowCategory')->name("site-development.disallow.category");
 });
 
 Route::prefix('site-development-status')->group(function () {

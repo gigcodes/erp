@@ -1,6 +1,7 @@
 
 	@foreach($categories as $category)
-		<?php $site = $category->getDevelopment($category->id,$website->id); 
+		<?php 
+            $site = $category->getDevelopment($category->id,$website->id); 
             if(auth()->user()->isAdmin() || ($site && $site->developer_id == auth()->user()->id)) {
         ?>
     	<tr>
@@ -10,6 +11,9 @@
     			{{ $category->title }}
     			<br>
     			<button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;"><i class="fa fa-edit"></i></button>
+                <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?> 
+                data-on="Allow" data-off="Disallow"
+                data-toggle="toggle" data-width="150">
     		</td>
     		<td>
     			<input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
