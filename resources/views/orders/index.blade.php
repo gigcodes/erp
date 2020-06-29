@@ -83,8 +83,9 @@
         <?php } ?>
       </div>
     <?php } ?>  
-    </br> 
-    <div class="table-responsive">
+	</br> 
+    <div class="infinite-scroll">
+	<div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -106,7 +107,7 @@
         </thead>
 
         <tbody>
-          @foreach ($orders_array as $key => $order)
+			@foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="table-hover-cell">
                 <div class="form-inline">
@@ -248,9 +249,10 @@
           @endforeach
         </tbody>
       </table>
-    </div>
 
-    {!! $orders_array->appends(Request::except('page'))->links() !!}
+	{!! $orders_array->appends(Request::except('page'))->links() !!}
+	</div>
+    </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
 @endsection
@@ -262,6 +264,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="/js/order-awb.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
@@ -360,5 +363,21 @@
            $("#loading-image").hide();
         });
     });
+
+	
+	$('ul.pagination').hide();
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+		// debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+			$('ul.pagination').hide();
+        }
+    });
+
   </script>
 @endsection
