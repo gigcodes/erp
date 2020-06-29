@@ -28,8 +28,24 @@ class StoreWebsite extends Model
         'country_duty'
     ];
 
+    // Append attributes
+    protected $appends = ['website_url'];
+
     public static function list()
     {
         return self::pluck("website","id")->toArray();
+    }
+
+    /**
+     * Get proper website url
+     */
+    public function getWebsiteUrlAttribute()
+    {
+        $url = $this->website;
+        $parsed = parse_url($url);
+        if (empty($parsed['scheme'])) {
+            return $urlStr = 'http://' . ltrim($url, '/');
+        }
+        return $url;
     }
 }

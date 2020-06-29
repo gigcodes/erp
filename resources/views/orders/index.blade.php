@@ -48,6 +48,16 @@
                     </div>
                   </div>
 
+                    <div class="form-group ml-3">
+                        <select class="form-control select2" name="store_website_id">
+                        <option value="">Select Registration Source</option>
+                        @forelse ($registerSiteList as $key => $item)
+                            <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
+                        @empty
+                        @endforelse
+                        </select>
+                    </div>
+
                   <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
                 </form>
             </div>
@@ -81,6 +91,7 @@
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
+            <th width="10%">Registration Source</th>
             <th width="10%">Products</th>
             <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
@@ -117,6 +128,19 @@
                   <span class="td-full-container hidden">
                     <a href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
                   </span>
+                @endif
+              </td>
+              <td class="expand-row table-hover-cell">
+                @if ($order->customer)
+                  @if ($order->customer->storeWebsite)
+                    <span class="td-mini-container">
+                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ strlen($order->customer->storeWebsite->website) > 15 ? substr($order->customer->storeWebsite->website, 0, 13) . '...' : $order->customer->storeWebsite->website }}</a>
+                    </span>
+
+                    <span class="td-full-container hidden">
+                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ $order->customer->storeWebsite->website }}</a>
+                    </span>
+                  @endif
                 @endif
               </td>
               <td class="expand-row table-hover-cell">

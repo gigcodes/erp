@@ -78,7 +78,8 @@
                         <strong>Address: </strong> {{ $customer->address }} <br>
                         <strong>City: </strong> {{ $customer->city }} <br>
                         <strong>Country: </strong> {{ $customer->country }}
-                        <strong>Pincode: </strong> {{ $customer->pincode }}
+                        <strong>Pincode: </strong> {{ $customer->pincode }} <br>
+                        <strong>Registration Source: </strong> <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a>
                       @endif
 
                       <div class="form-group mt-5">
