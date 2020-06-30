@@ -58,7 +58,7 @@ use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
-
+use App\StoreWebsite;
 
 class OrderController extends Controller {
 
@@ -189,6 +189,7 @@ class OrderController extends Controller {
 		$date = $request->date ?? '';
 		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
 		$brandIds = array_filter($request->get("brand_id",[]));
+		$registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -231,7 +232,8 @@ class OrderController extends Controller {
 					 $sortby = 'order_date';
 		}
 
-		$orders = (new Order())->newQuery()->with('customer');
+		//$orders = (new Order())->newQuery()->with('customer');
+		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite');
 
 		if(empty($term))
 			$orders = $orders;
@@ -255,6 +257,12 @@ class OrderController extends Controller {
 
 		if ($date != '') {
 			$orders = $orders->where('order_date', $date);
+		}
+
+		if ($store_site = $request->store_website_id) {
+			$orders = $orders->whereHas('customer', function($query) use ($store_site) {
+				return $query->where('store_website_id', $store_site);
+			});
 		}
 
 		$statusFilterList =  clone($orders);
@@ -281,9 +289,10 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
-		
+
 		$orders_array = $orders->paginate(20);
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
 
 	public function products(Request $request)

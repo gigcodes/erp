@@ -272,11 +272,11 @@ class Customer extends Model
         return $list;
     }
 
-
-    public function store_website()
+    /**
+     * Get store website detail
+     */
+    public function storeWebsite()
     {
-        return $this->belongsTo('App\StoreWebsite');
+        return $this->belongsTo('App\StoreWebsite', 'store_website_id');
     }
-
-    
 }
