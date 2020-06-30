@@ -317,6 +317,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
+    Route::get('order/invoices', 'OrderController@viewAllInvoices');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');

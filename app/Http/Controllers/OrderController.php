@@ -184,14 +184,12 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
-
 		$term = $request->input('term');
 		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
 		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
 		$brandIds = array_filter($request->get("brand_id",[]));
 		$registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
-
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -234,9 +232,8 @@ class OrderController extends Controller {
 					 $sortby = 'order_date';
 		}
 
+		//$orders = (new Order())->newQuery()->with('customer');
 		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite');
-		
-
 
 		if(empty($term))
 			$orders = $orders;
@@ -294,7 +291,7 @@ class OrderController extends Controller {
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
 
 		$orders_array = $orders->paginate(20);
-		
+		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
 
@@ -2130,7 +2127,6 @@ public function createProductOnMagento(Request $request, $id){
 	public function previewInvoice(Request $request, $id)
 	{
 		$order = \App\Order::where("id",$id)->first();
-
 		if($order) {
             $data["order"]      = $order;
             $data["customer"]   = $order->customer;
@@ -2280,6 +2276,12 @@ public function createProductOnMagento(Request $request, $id){
 		}
 
 		return response()->json(["code"=> 200, "_h" => "No records found"]);
+	}
+
+
+	public function viewAllInvoices() {
+		$orders = (new Order())->with('customer','order_product')->paginate(10);
+		return view( 'orders.invoices.index', compact('orders') );
 	}
 
 }
