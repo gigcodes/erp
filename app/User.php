@@ -158,6 +158,19 @@ class User extends Authenticatable
         return false;
     }
 
+    public function isInCustomerService()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        if (in_array('crm', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
     /**
      * The attributes helps to check if User has Permission Using Route To Check Page.
      *
