@@ -80,6 +80,13 @@ Route::prefix('site-development')->group(function () {
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
     Route::post('/disallow-category', 'SiteDevelopmentController@disallowCategory')->name("site-development.disallow.category");
+    Route::post('/upload-documents', 'SiteDevelopmentController@uploadDocuments')->name("site-development.upload-documents");
+    Route::post('/save-documents', 'SiteDevelopmentController@saveDocuments')->name("site-development.save-documents");
+    Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
+    Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    Route::prefix('{id}')->group(function () {
+        Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+    });
 });
 
 Route::prefix('site-development-status')->group(function () {

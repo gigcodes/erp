@@ -12,6 +12,7 @@ use DB;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class SiteDevelopmentController extends Controller
 {
@@ -156,6 +157,111 @@ class SiteDevelopmentController extends Controller
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Required field missing like store website or category"]);
+    }
+
+    public function uploadDocuments(Request $request)
+    {
+        $path = storage_path('tmp/uploads');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $file = $request->file('file');
+
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+
+        $file->move($path, $name);
+
+        return response()->json([
+            'name'          => $name,
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    public function saveDocuments(Request $request)
+    {
+        $site = null;
+        $documents = $request->input('document', []);
+        if (!empty($documents)) {
+            if ($request->id) {
+                $site = SiteDevelopment::find($request->id);
+            }
+
+            if (!$site || $request->id == null) {
+                $site                   = new SiteDevelopment;
+                $site->title            = "";
+                $site->description      = "";
+                $site->store_website_id = $request->store_website_id;
+                $site->save();
+            }
+
+            foreach ($request->input('document', []) as $file) {
+                $path  = storage_path('tmp/uploads/' . $file);
+                $media = MediaUploader::fromSource($path)
+                    ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
+                    ->upload();
+                $site->attachMedia($media, config('constants.media_tags'));
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+        } else {
+            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+        }
+
+    }
+
+    public function listDocuments(Request $request, $id)
+    {
+        $site    = SiteDevelopment::find($request->id);
+        $records = [];
+        if ($site) {
+            if ($site->hasMedia(config('constants.media_tags'))) {
+                foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                    $records[] = [
+                        "id"      => $media->id,
+                        'url'     => $media->getUrl(),
+                        'site_id' => $site->id,
+                    ];
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function deleteDocument(Request $request)
+    {
+        if ($request->id != null) {
+            $media = \Plank\Mediable\Media::find($request->id);
+            if ($media) {
+                $media->delete();
+                return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "message" => "No document found"]);
+    }
+
+    public function sendDocument(Request $request)
+    {
+        if ($request->id != null && $request->site_id != null) {
+            $media        = \Plank\Mediable\Media::find($request->id);
+            $siteDevloper = SiteDevelopment::find($request->site_id);
+            if ($siteDevloper && $siteDevloper->developer) {
+                if ($media) {
+                    \App\ChatMessage::sendWithChatApi(
+                        $siteDevloper->developer->phone,
+                        null,
+                        "Please find attached file",
+                        $media->getUrl()
+                    );
+                    return response()->json(["code" => 200, "message" => "Document send succesfully"]);
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Sorry there is no attachment"]);
     }
 
 }

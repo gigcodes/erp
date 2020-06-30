@@ -5,6 +5,7 @@
 
 @section('styles')
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
 <style type="text/css">
 	.preview-category input.form-control {
 	  width: auto;
@@ -93,6 +94,7 @@
 						<th width="15%">Action</th>
 						<th width="25%">Communication</th>
 						<th width="5%">Created</th>
+						<th width="5%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -105,26 +107,76 @@
 	</div>
 </div>
 <div id="chat-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Communication</h4>
+                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
+</div>
+<div id="file-upload-area-section" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("site-development.upload-documents") }}" method="POST" enctype="multipart/form-data">
+	            <input type="hidden" name="store_website_id" id="hidden-store-website-id" value="">
+	            <input type="hidden" name="id" id="hidden-site-id" value="">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Upload File(s)</h4>
+	            </div>
+	            <div class="modal-body" style="background-color: #999999;">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Documents</label>
+					        <div class="needsclick dropzone" id="document-dropzone">
+
+					        </div>
+					    </div>
+					    
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+<div id="file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+        		<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				        <th>No</th>
+				        <th>Link</th>
+				        <th>Action</th>
+				      </tr>
+				    </thead>
+				    <tbody class="display-document-list">
+				    </tbody>
+				</table>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
 @endsection
 
 
 @section('scripts')
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
 
 	$('.infinite-scroll').jscroll({
@@ -325,6 +377,149 @@
 			});
 		}
 	});
+
+	$(document).on("click",".btn-file-upload",function() {
+		var $this = $(this);
+		$("#file-upload-area-section").modal("show");
+		$("#hidden-store-website-id").val($this.data("store-website-id"));
+		$("#hidden-site-id").val($this.data("site-id"));
+	});
+
+	$(document).on("click",".btn-file-list",function(e) {
+		e.preventDefault();
+		var $this = $(this);
+		var id = $(this).data("site-id");
+		$.ajax({
+			url: '/site-development/'+id+'/list-documents',
+			type: 'GET',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (response) {
+			$("#loading-image").hide();
+			var html = "";
+			$.each(response.data,function(k,v){
+				html += "<tr>";
+					html += "<td>"+v.id+"</td>";
+					html += "<td>"+v.url+"</td>";
+					html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-send-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-comment" aria-hidden="true"></i></a></td>';
+				html += "</tr>";
+			});
+			$(".display-document-list").html(html);
+			$("#file-upload-area-list").modal("show");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
+	});
+
+	$(document).on("click",".btn-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+			url: '/site-development/save-documents',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: $this.closest("form").serialize(),
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]("Document uploaded successfully");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
+	});
+
+	
+	$(document).on("click",".link-send-document",function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var site_id = $(this).data("site-id");
+		$.ajax({
+			url: '/site-development/send-document',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: { id : id , site_id : site_id},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]("Document sent successfully");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"]("Oops,something went wrong");
+			$("#loading-image").hide();
+		});
+
+	});
+
+	$(document).on("click",".link-delete-document",function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var $this = $(this);
+		if(confirm("Are you sure you want to delete records ?")) {
+			$.ajax({
+				url: '/site-development/delete-document',
+				type: 'POST',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+		    	dataType:"json",
+				data: { id : id},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (data) {
+				$("#loading-image").hide();
+				toastr["success"]("Document deleted successfully");
+				$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+		}
+	});
+
+	var uploadedDocumentMap = {}
+  	Dropzone.options.documentDropzone = {
+    	url: '{{ route("site-development.upload-documents") }}',
+    	maxFilesize: 20, // MB
+    	addRemoveLinks: true,
+    	headers: {
+      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    	},
+    	success: function (file, response) {
+      		$('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+      		uploadedDocumentMap[file.name] = response.name
+    	},
+    	removedfile: function (file) {
+      		file.previewElement.remove()
+      		var name = ''
+      		if (typeof file.file_name !== 'undefined') {
+        		name = file.file_name
+      		} else {
+        		name = uploadedDocumentMap[file.name]
+      		}
+      		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
+    	},
+    	init: function () {
+	      
+    	}
+  }
 
 </script>
 

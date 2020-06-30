@@ -146,6 +146,7 @@ return [
         Plank\Mediable\Media::TYPE_DOCUMENT => [
             'mime_types' => [
                 'text/plain',
+                'text/html',
                 'application/plain',
                 'text/xml',
                 'text/json',
@@ -160,6 +161,7 @@ return [
                 'text',
                 'xml',
                 'json',
+                'html',
             ]
         ],
         Plank\Mediable\Media::TYPE_SPREADSHEET => [

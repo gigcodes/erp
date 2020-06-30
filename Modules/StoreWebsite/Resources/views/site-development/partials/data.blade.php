@@ -49,6 +49,16 @@
                 </div>
     		</td>
     		<td>@if($site) {{ $site->created_at }}@endif</td>
+            <td>
+                <button type="button" data-site-id="@if($site) {{ $site->id }} @endif" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                </button>
+                @if($site)
+                    <button type="button" data-site-id="@if($site) {{ $site->id }} @endif" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list">
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                    </button>
+                @endif
+            </td>
     	</tr>
     <?php } ?>
 		@include("storewebsite::site-development.partials.edit-modal")	
