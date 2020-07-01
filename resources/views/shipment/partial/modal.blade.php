@@ -10,7 +10,7 @@
   
         <form action="{{ route('shipment/send/email') }}" method="POST" enctype="multipart/form-data">
           @csrf
-			<input type="hidden" name="order_id" value="2019" >
+			<input type="hidden" name="order_id" id="order_id" value="" >
           <div class="modal-body">
             <div class="form-group">
 				<label>To</label>

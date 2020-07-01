@@ -32,7 +32,7 @@
                     <td>{{ $item->actual_weight }}</td>
                     <td>{{ $item->dimension }}</td>
                     <td>
-                        <button type="button" class="btn btn-image" data-toggle="modal" data-target="#send_email_modal" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
+                        <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
@@ -85,6 +85,12 @@ $(document).on('click', '#view_mail_btn', function() {
             $('#view_sent_email_modal').modal('show');
         }
     });
+});
+
+$(document).on('click', '#send_email_btn', function() {
+    var orderId = $(this).data('order-id');
+    $("#order_id").val(orderId);
+    $('#send_email_modal').modal('show');
 });
 </script>
 @endsection
