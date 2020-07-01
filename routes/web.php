@@ -1824,3 +1824,12 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
 });
+
+/**
+ * Shipment module
+ */
+Route::group(['middleware' => 'auth'], function () {
+    Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
+    Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
+    Route::resource('shipment', 'ShipmentController');
+});

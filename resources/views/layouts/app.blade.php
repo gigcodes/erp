@@ -1394,6 +1394,12 @@
                                     </ul>
                                 </li>
 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Courier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         @endif
