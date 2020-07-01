@@ -67,9 +67,6 @@
             </div>
         </div>
     </div>
-    <div class="pull-right">
-                <a href="{{ action('OrderController@viewAllInvoices') }}" class="btn btn-success btn-xs">All invoices</a>
-            </div>
     @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
       <div class="row col-md-12">
@@ -87,7 +84,7 @@
     <?php } ?>  
 	</br> 
     <div class="infinite-scroll">
-	<div class="table-responsive mt-3">
+	<div class="table-responsive mt-2">
       <table class="table table-bordered">
         <thead>
           <tr>
@@ -245,6 +242,11 @@
                     {!! Form::close() !!}
                   @endif
                 </div>
+                @if(!$order->invoice_id)
+                <a title="Add invoice" class="btn btn-xs btn-info add-invoice-btn" data-id='{{$order->id}}'>
+                     +
+                </a>
+                @endif
               </td>
             </tr>
           @endforeach
@@ -260,6 +262,7 @@
 
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
+@include("partials.modals.add-invoice-modal")
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -362,6 +365,20 @@
            $("#loading-image").hide(); 
         }).fail(function(errObj) {
            $("#loading-image").hide();
+        });
+    });
+
+    $(document).on("click",".add-invoice-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          url: "/order/"+$this.data("id")+"/add-invoice",
+          type: "get"
+        }).done(function(response) {
+          $('#addInvoice').modal('show');
+           $("#add-invoice-content").html(response); 
+        }).fail(function(errObj) {
+           $("#addInvoice").hide();
         });
     });
 
