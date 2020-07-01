@@ -43,6 +43,11 @@
 		         <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
 		      </div>
 		      <div class="form-group">
+		         <label for="api_token">Api Token</label>
+		         <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
+		      </div>
+		      
+		      <div class="form-group">
 		         <label for="facebook">Facebook</label>
 		         <input type="text" name="facebook" value="{{if data}}{{:data.facebook}}{{/if}}" class="form-control" id="facebook" placeholder="Enter facebook profle">
 		      </div>

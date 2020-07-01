@@ -20,6 +20,7 @@ class StoreWebsite extends Model
         'magento_url',
         'magento_username',
         'magento_password',
+        'api_token',
         'cropper_color',
         'instagram',
         'instagram_remarks',
