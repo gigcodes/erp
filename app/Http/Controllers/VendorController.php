@@ -233,12 +233,12 @@ class VendorController extends Controller
 
     $replies = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-    if ($request->ajax()) {
+    /* if ($request->ajax()) {
       return response()->json([
         'tbody' => view('vendors.partials.data', compact('vendors', 'replies'))->render(),
         'links' => (string) $vendors->render()
       ], 200);
-    }
+    } */
 
     $updatedProducts = \App\Vendor::join("users as u","u.id","vendors.updated_by")
     ->groupBy("vendors.updated_by")

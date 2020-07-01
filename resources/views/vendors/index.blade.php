@@ -127,7 +127,7 @@
 
         </div>
     </div>
-
+    <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
@@ -169,7 +169,8 @@
         </table>
     </div>
 
-    {!! $vendors->render(); !!}
+    {!! $vendors->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
@@ -313,6 +314,7 @@
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 
     <script type="text/javascript">
 
@@ -1059,5 +1061,18 @@
             })
         });
 
+    $('ul.pagination').hide();
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+		// debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+			$('ul.pagination').hide();
+        }
+    });
     </script>
 @endsection
