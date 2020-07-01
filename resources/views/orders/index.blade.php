@@ -50,7 +50,7 @@
 
                     <div class="form-group ml-3">
                         <select class="form-control select2" name="store_website_id">
-                        <option value="">Select Registration Source</option>
+                        <option value="">Select Site Name</option>
                         @forelse ($registerSiteList as $key => $item)
                             <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
                         @empty
@@ -92,7 +92,7 @@
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
-            <th width="10%">Registration Source</th>
+            <th width="10%">Site Name</th>
             <th width="10%">Products</th>
             <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
