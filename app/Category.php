@@ -213,7 +213,7 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
-    public static function getCategoryTreeMagentoWithPosition( $id )
+    public static function getCategoryTreeMagentoWithPosition( $id , $storeWebsite = false)
     {
         // Load new category model
         $category = new Category();
@@ -228,7 +228,16 @@ class Category extends Model
         if ( $categoryInstance !== NULL ) {
 
             // Load initial category
-            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryInstance->magento_id];
+            if($storeWebsite) {
+                $storeWebsiteCat = \App\StoreWebsiteCategory::where("category_id",$categoryInstance->id)
+                ->where("store_website_id", $storeWebsite)->first();
+                if($storeWebsiteCat) {
+                    $categoryTree[] =   ['position' => 1 , 'category_id' => $storeWebsiteCat->remote_id];
+                }
+
+            }else{
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryInstance->magento_id];
+            }
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
@@ -239,14 +248,29 @@ class Category extends Model
                 $categoryInstance = $category->find( $parentId );
 
                 if($categoryInstance->parent_id == 0){
-                    $categoryTree[] = ['position' => 2, 'category_id' => $categoryInstance->magento_id];
+                    if($storeWebsite) {
+                        $storeWebsiteCat = \App\StoreWebsiteCategory::where("category_id",$categoryInstance->id)
+                        ->where("store_website_id", $storeWebsite)->first();
+                        if($storeWebsiteCat && $storeWebsiteCat->remote_id > 0) {
+                            $categoryTree[] = ['position' => 2, 'category_id' => $storeWebsiteCat->remote_id];
+                        }
+                    }else{
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryInstance->magento_id];
+                    }
                 }else{
-                    $categoryTree[] = ['position' => 3, 'category_id' => $categoryInstance->magento_id];
+                    if($storeWebsite) {
+                        $storeWebsiteCat = \App\StoreWebsiteCategory::where("category_id",$categoryInstance->id)
+                        ->where("store_website_id", $storeWebsite)->first();
+                        if($storeWebsiteCat && $storeWebsiteCat->remote_id > 0) {
+                            $categoryTree[] =   ['position' => 3 , 'category_id' => $storeWebsiteCat->remote_id];
+                        }
+                    }else{
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryInstance->magento_id];
+                    }
                 }
-                
   
                 // Add additional category to tree
-                if ( !empty( $categoryInstance->show_all_id ) )
+                if ( !empty( $categoryInstance->show_all_id ) && $storeWebsite == null)
                     $categoryTree[] = $categoryInstance->show_all_id;
 
                 // Set new parent ID
