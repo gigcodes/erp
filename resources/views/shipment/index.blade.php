@@ -31,11 +31,11 @@
             @forelse ($waybills_array as $key => $item)
                 <tr>
                     <td>{{ $item->awb }}</td>
-                    <td>{{ $item->order->customer->name }}</td>
+                    <td>{{ @$item->order->customer->name ?? ''}}</td>
                     <td>{{ ($item->created_at) ? date('d-m-Y', strtotime($item->created_at)) : '' }}</td>
-                    <td>{{ $item->order->order_status }}</td>
-                    <td>{{ $item->actual_weight }}</td>
-                    <td>{{ $item->dimension }}</td>
+                    <td>{{ @$item->order->order_status }}</td>
+                    <td>{{ @$item->actual_weight }}</td>
+                    <td>{{ @$item->dimension }}</td>
                     <td>
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
