@@ -1155,7 +1155,7 @@
                 vendors: vendors
             }
         }).done(function () {
-            window.location.reload();
+            // window.location.reload();
         }).fail(function (response) {
             $(thiss).text('No');
 
