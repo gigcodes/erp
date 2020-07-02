@@ -7,6 +7,11 @@
 @endsection
 
 @section('content')
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">Shipment List</h2>
+    </div>
+</div>
 <div class="infinite-scroll">
 	<div class="table-responsive mt-3">
       <table class="table table-bordered">
