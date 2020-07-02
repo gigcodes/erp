@@ -85,6 +85,7 @@
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+            <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
         </div>    
     </div>
 
@@ -305,6 +306,43 @@
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     </div>
             </div>
+        </div>
+    </div>
+
+    <div id="create_broadcast" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Message to Vendors</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+
+                            <strong>Schedule Date:</strong>
+                            <div class='input-group date' id='schedule-datetime'>
+                                <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required/>
+
+                                <span class="input-group-addon">
+                              <span class="glyphicon glyphicon-calendar"></span>
+                            </span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <strong>Message</strong>
+                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+
         </div>
     </div>
 @endsection
@@ -1073,6 +1111,57 @@
             $('ul.pagination').first().remove();
 			$('ul.pagination').hide();
         }
+    });
+
+    $(document).on('click', '.create_broadcast', function () {
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+        $("#create_broadcast").modal("show");
+    });
+
+    $("#send_message").submit(function (e) {
+        e.preventDefault();
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+
+        if ($("#send_message").find("#message_to_all_field").val() == "") {
+            alert('Please type message ');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('vendors/send/message') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                sending_time: $("#send_message").find("#sending_time_field").val(),
+                message: $("#send_message").find("#message_to_all_field").val(),
+                vendors: vendors
+            }
+        }).done(function () {
+            window.location.reload();
+        }).fail(function (response) {
+            $(thiss).text('No');
+
+            alert('Could not say No!');
+            console.log(response);
+        });
     });
     </script>
 @endsection

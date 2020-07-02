@@ -1112,4 +1112,16 @@ class VendorController extends Controller
 
       return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
   }
+
+	/* public function sendMessage(Request $request)
+	{
+		$vendors = Vendor::whereIn($request->vendors);
+
+		$message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
+		$requestData = new Request();
+		$requestData->setMethod('POST');
+		$requestData->request->add(['customer_id' => $customer->id, 'message' => $message]);
+
+		app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+	} */
 }
