@@ -1196,6 +1196,9 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif

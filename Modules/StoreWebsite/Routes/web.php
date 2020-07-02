@@ -99,3 +99,13 @@ Route::prefix('site-development-status')->group(function () {
         Route::get('delete', 'SiteDevelopmentStatusController@delete')->name('site-development-status.delete');
     });
 });
+
+Route::prefix('country-group')->group(function () {
+    Route::get('/', 'CountryGroupController@index')->name('store-website.country-group.index');
+    Route::get('records', 'CountryGroupController@records')->name('store-website.country-group.records');
+    Route::post('save', 'CountryGroupController@save')->name('store-website.country-group.save');
+    Route::prefix('{id}')->group(function () {
+        Route::get('edit', 'CountryGroupController@edit')->name('store-website.country-group.edit');
+        Route::get('delete', 'CountryGroupController@delete')->name('store-website.country-group.delete');
+    });
+});
