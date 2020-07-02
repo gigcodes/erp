@@ -1653,7 +1653,7 @@
 
             $.when.apply($, ajaxes)
                 .done(function () {
-                    location.reload();
+                    //location.reload();
                 });
         });
 
