@@ -46,7 +46,8 @@ class Order extends Model
         'whatsapp_number',
         'user_id',
         'is_priority',
-        'currency'
+        'currency',
+        'invoice_id'
     ];
 
     protected $appends = ['action'];

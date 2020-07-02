@@ -318,6 +318,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
+    Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
+    Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
+    Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
+    Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+    Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
