@@ -216,7 +216,7 @@
                                  <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->singleSubnotes->id }} , {{ $note->id }})" title="Archive Remark"><img src="/images/archive.png" /></button>
                                 
                                  <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}" title="Archive Remark History"><img src="/images/advance-link.png" /></button>
-                                <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
                                </th> 
                              
@@ -258,7 +258,7 @@
                                  <button type="button" class="btn btn-image" onclick="archiveRemarkRefresh()"><img src="/images/archive.png" /></button>
                                 
                                  <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}" title="Archive Remark History"><img src="/images/advance-link.png" /></button>
-								 <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+								 <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
                                </th> 
                              
