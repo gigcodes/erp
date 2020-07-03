@@ -2,11 +2,12 @@
 
 // Load the Google API PHP Client Library.
 require_once __DIR__.'/../../vendor/autoload.php';
-
+$data = [];
 $analytics = initializeAnalytics();
+if(!empty($analytics)) {
 $response = getReport($analytics, $request='');
 $data = printResults($response);
-
+}
 
 /**
  * Initializes an Analytics Reporting API V4 service object.
@@ -20,16 +21,16 @@ function initializeAnalytics()
   // credentials in JSON format. Place them in this directory or
   // change the key file location if necessary.
   $KEY_FILE_LOCATION = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
-
-
+  $analytics = '';
+  if(Storage::exists($KEY_FILE_LOCATION)) {
   // Create and configure a new client object.
   $client = new Google_Client();
   // $client->setApplicationName("Hello Analytics Reporting");
   $client->setAuthConfig($KEY_FILE_LOCATION);
   $client->setScopes(['https://www.googleapis.com/auth/analytics.readonly']);
   $analytics = new Google_Service_AnalyticsReporting($client);
-
-  return $analytics;
+}
+return $analytics;
 }
 
 
