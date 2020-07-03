@@ -25,7 +25,15 @@ class StoreWebsite extends Model
         'instagram_remarks',
         'facebook',
         'facebook_remarks',
-        'country_duty'
+        'server_ip',
+        'username',
+        'password',
+        'staging_username',
+        'staging_password',
+        'mysql_username',
+        'mysql_password',
+        'mysql_staging_username',
+        'mysql_staging_password',
     ];
 
     // Append attributes
