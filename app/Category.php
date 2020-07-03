@@ -247,10 +247,11 @@ class Category extends Model
                     }else{
                         $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
                     }
+                }else{
+                    // Add additional category to tree
+                    /*if ( !empty( $categoryInstance->show_all_id ) )
+                        $categoryTree[] = $categoryInstance->show_all_id;*/
                 }
-                // Add additional category to tree
-                if ( !empty( $categoryInstance->show_all_id ) )
-                    $categoryTree[] = $categoryInstance->show_all_id;
 
                 // Set new parent ID
                 $parentId = $categoryInstance->parent_id;
