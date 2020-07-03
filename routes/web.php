@@ -157,6 +157,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
+    Route::get('products/{id}/color-history', 'ProductColorController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
@@ -1775,6 +1776,13 @@ Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
     Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
     Route::post('/update-category-assigned', 'ProductCategoryController@updateCategoryAssigned')->name("product.category.update-assigned");
+});
+
+Route::prefix('product-color')->middleware('auth')->group(function () {
+    Route::get('/history', 'ProductColorController@history');
+    Route::get('/', 'ProductColorController@index')->name("product.color.index.list");
+    Route::get('/records', 'ProductColorController@records')->name("product.color.records");
+    Route::post('/update-color-assigned', 'ProductColorController@updateCategoryAssigned')->name("product.color.update-assigned");
 });
 
 Route::prefix('listing-history')->middleware('auth')->group(function () {

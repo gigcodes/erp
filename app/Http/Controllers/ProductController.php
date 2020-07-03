@@ -1086,9 +1086,20 @@ class ProductController extends Controller
     public function updateColor(Request $request, $id)
     {
         $product = Product::find($id);
+        
+        if($product) {
+           $productColHis = new \App\ProductColorHistory;
+           $productColHis->user_id     = \Auth::user()->id; 
+           $productColHis->color       = $request->color; 
+           $productColHis->old_color   = $product->color;
+           $productColHis->product_id  = $product->id;
+           $productColHis->save();
+        }
+
         $originalColor = $product->color;
         $product->color = $request->color;
         $product->save();
+
 
         \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
 
