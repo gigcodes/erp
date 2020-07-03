@@ -213,8 +213,10 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
-    public static function getCategoryTreeMagentoWithPosition( $id )
+    public static function getCategoryTreeMagentoWithPosition( $id , $website)
     {
+
+        $categoryMulti = StoreWebsiteCategory::where('category_id',$id)->where('store_website_id',$website->id)->first();
         // Load new category model
         $category = new Category();
 
@@ -228,7 +230,7 @@ class Category extends Model
         if ( $categoryInstance !== NULL ) {
 
             // Load initial category
-            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryInstance->magento_id];
+            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
@@ -238,10 +240,12 @@ class Category extends Model
                 // find next category
                 $categoryInstance = $category->find( $parentId );
 
+                $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
+        
                 if($categoryInstance->parent_id == 0){
-                    $categoryTree[] = ['position' => 2, 'category_id' => $categoryInstance->magento_id];
+                    $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
                 }else{
-                    $categoryTree[] = ['position' => 3, 'category_id' => $categoryInstance->magento_id];
+                    $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
                 }
                 
   
