@@ -321,17 +321,6 @@
                 <form id="send_message" method="POST">
                     <div class="modal-body">
                         <div class="form-group">
-
-                            <strong>Schedule Date:</strong>
-                            <div class='input-group date' id='schedule-datetime'>
-                                <input type='text' class="form-control" name="sending_time" id="sending_time_field" value="{{ date('Y-m-d H:i') }}" required/>
-
-                                <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                            </div>
-                        </div>
-                        <div class="form-group">
                             <strong>Message</strong>
                             <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
                         </div>
@@ -1150,12 +1139,11 @@
             url: "{{ route('vendors/send/message') }}",
             data: {
                 _token: "{{ csrf_token() }}",
-                sending_time: $("#send_message").find("#sending_time_field").val(),
                 message: $("#send_message").find("#message_to_all_field").val(),
                 vendors: vendors
             }
         }).done(function () {
-            // window.location.reload();
+            window.location.reload();
         }).fail(function (response) {
             $(thiss).text('No');
 
