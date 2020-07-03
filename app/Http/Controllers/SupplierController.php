@@ -10,6 +10,7 @@ use App\Brand;
 use App\SupplierBrandCount;
 use App\Supplier;
 use App\Agent;
+use App\ChatMessage;
 use App\Setting;
 use App\ReplyCategory;
 use App\User;
@@ -28,6 +29,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Marketing\WhatsappConfig;
+use Auth;
 use Validator;
 
 class SupplierController extends Controller
@@ -1434,5 +1436,28 @@ class SupplierController extends Controller
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a category!');
     }
+
+    public function sendMessage(Request $request)
+	{
+        // return $request->all();
+		$suppliers = Supplier::whereIn('id', $request->suppliers)->get();
+        $params = [];
+        if(count($suppliers)) {
+            foreach($suppliers as $key => $item) {
+                $params[] = [
+                    'supplier_id' => $item->id,
+                    'number' => null,
+                    'message' => $request->message,
+                    'user_id' => Auth::id(),
+                    'status' => 1,
+                    'is_queue' => 2,
+                ];
+            }
+        }
+        // return $params;
+        ChatMessage::insert($params);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+	}
 
 }

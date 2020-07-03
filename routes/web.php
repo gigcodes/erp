@@ -984,6 +984,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
     Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
+    Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
