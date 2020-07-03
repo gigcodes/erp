@@ -124,6 +124,7 @@
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
           <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
           <button type="button" class="btn btn-secondary ml-3" id="add_category_btn" data-toggle="modal" data-target="#categoryCreateModal">Add Category</button>
+          <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
         </div>   
     </div>
 
@@ -343,7 +344,8 @@
 						<button data-toggle="modal" data-target="#updateBrand" class="btn btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
-						@endif
+                        @endif
+                        <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
 					</div>
 				</td>
 				</tr>
@@ -1102,6 +1104,54 @@
         })
     });
 
-    // 
+    $(document).on('click', '.create_broadcast', function () {
+        var suppliers = [];
+        $(".supplier_message").each(function () {
+            if ($(this).prop("checked") == true) {
+                suppliers.push($(this).val());
+            }
+        });
+        if (suppliers.length == 0) {
+            alert('Please select supplier');
+            return false;
+        }
+        $("#create_broadcast").modal("show");
+    });
+
+    $("#send_message").submit(function (e) {
+        e.preventDefault();
+        var suppliers = [];
+        $(".supplier_message").each(function () {
+            if ($(this).prop("checked") == true) {
+                suppliers.push($(this).val());
+            }
+        });
+        if (suppliers.length == 0) {
+            alert('Please select supplier');
+            return false;
+        }
+
+        if ($("#send_message").find("#message_to_all_field").val() == "") {
+            alert('Please type message ');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/send/message') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                message: $("#send_message").find("#message_to_all_field").val(),
+                suppliers: suppliers
+            }
+        }).done(function () {
+            window.location.reload();
+        }).fail(function (response) {
+            $(thiss).text('No');
+
+            alert('Could not say No!');
+            console.log(response);
+        });
+    });
   </script>
 @endsection
