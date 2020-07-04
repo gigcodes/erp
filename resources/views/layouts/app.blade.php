@@ -302,7 +302,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-
+                                
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -493,7 +493,9 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1301,7 +1303,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
 
                                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>

@@ -48,6 +48,7 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
+use App\Product_translation;
 use seo2websites\GoogleVision\LogGoogleVision;
 
 
@@ -1222,6 +1223,38 @@ class ProductController extends Controller
             // Dispatch the job to the queue
             PushToMagento::dispatch($product)->onQueue('magento');
 
+            //translate product title and description
+            $languages = ['hi','ar'];
+            $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
+            if(!$isDefaultAvailable) {
+                $product_translation = new Product_translation;
+                $product_translation->title = $product->name;
+                $product_translation->description = $product->short_description;
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = 'en';
+                $product_translation->save();
+            }
+            foreach($languages as $language) {
+                $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+            if(!$isLocaleAvailable) {
+                $product_translation = new Product_translation;
+                $title_response = $product_translation->translate($language,$product->name);
+                $description_response = $product_translation->translate($language,$product->short_description);
+                if($title_response && $description_response) {
+                    $title_obj =  json_decode($title_response, true);
+                    $description_obj =  json_decode($description_response, true);
+                    if (array_key_exists("data",$title_obj) && array_key_exists("data",$description_obj)) {
+                        $title = $title_obj['data']['translations'][0]['translatedText'];
+                        $description = $description_obj['data']['translations'][0]['translatedText'];
+                        $product_translation->title = $title;
+                        $product_translation->description = $description;
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = $language;
+                        $product_translation->save();
+                    }
+                }
+            }
+        }
             // Update the product so it doesn't show up in final listing
             $product->isUploaded = 1;
             $product->save();
@@ -3065,5 +3098,51 @@ class ProductController extends Controller
         $group->save();
 
         return response()->json(['success' => 'success'], 200);
+    }
+
+
+    public function productTranslation(Request $request) {
+        $term = $request->term;
+        $query = Product_translation::where('locale','en');
+        if($term){
+            $query  = $query->where(function($q) use ($request) {
+            $q->where('title', 'LIKE','%'.$request->term.'%')
+            ->orWhere('description', 'LIKE', '%'.$request->term.'%');
+            });
+        }
+        $product_translations = $query->orderBy('product_id', 'desc')->paginate(2)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('products.translations.product-search', compact('product_translations','term'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$product_translations->render()
+            ], 200);
+        }
+        return view('products.translations.product-list', compact('product_translations','term'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+    } 
+
+    public function viewProductTranslation($id) {
+        $locales = Product_translation::groupBy('locale')->pluck('locale');
+        $product_translation = Product_translation::find($id);
+        return view('products.translations.view-or-edit', [
+            'product_translation' => $product_translation,
+            'locales' => $locales,
+        ]);
+    }
+
+    
+    public function getProductTranslationDetails($id,$locale) {
+        $product_translation = Product_translation::where('product_id',$id)->where('locale',$locale)->first();
+        return response()->json([
+            'product_translation' => $product_translation
+        ]);
+    }
+
+    public function editProductTranslation($id, Request $request) {
+        Product_translation::where('id',$id)->update(['title' => $request->title, 'description' => $request->description]);
+        return response()->json([
+            'message' => 'Successfully updated the data'
+        ]);
     }
 }
