@@ -25,7 +25,8 @@ class PriceOverrideController extends Controller
         $modal = PriceOverride::leftJoin("brands as b", "b.id", "price_overrides.brand_id")
             ->leftJoin("store_websites as sw", "sw.id", "price_overrides.store_website_id")
             ->leftJoin("categories as c", "c.id", "price_overrides.category_id")
-            ->leftJoin("simply_duty_countries as sc", "sc.country_code", "price_overrides.country_code");
+            ->leftJoin("simply_duty_countries as sc", "sc.country_code", "price_overrides.country_code")
+            ->leftJoin("country_groups as cg", "cg.id", "price_overrides.country_group_id");
 
         if (!empty($request->keyword)) {
             $modal = $modal->where(function ($q) use ($request) {
@@ -34,7 +35,15 @@ class PriceOverrideController extends Controller
             });
         }
 
-        $modal = $modal->select(["price_overrides.*", "b.name as brand_name", "c.title as category_name", "sc.country_name as country_name", "sw.website as store_website_name"]);
+        $modal = $modal->select([
+            "price_overrides.*", 
+            "b.name as brand_name", 
+            "c.title as category_name", 
+            "sc.country_name as country_name", 
+            "sw.website as store_website_name",
+            "cg.name as country_group_name"
+        ]);
+
         $modal = $modal->orderby("price_overrides.id", "DESC")->paginate(12);
 
         return response()->json([
@@ -133,7 +142,7 @@ class PriceOverrideController extends Controller
 
         if($product) {
             $price = $product->getPrice($request->store_website,$request->country_code);
-            $price["duty"] = $product->getDuty($request->store_website);
+            $price["duty"] = $product->getDuty($request->country_code);
 
             return response()->json(["code" => 200 , "data" => $price]);
         }

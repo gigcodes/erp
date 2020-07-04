@@ -811,33 +811,40 @@ class Product extends Model
     * Get price calculation
     * @return float
     **/
-    public function getPrice($websiteId,$countryId = null)
+    public function getPrice($websiteId,$countryId = null, $countryGroup = null)
     {
         $website        = \App\StoreWebsite::find($websiteId);
         $priceRecords   = null;
 
         if($website) {
 
-           $brand    = $this->brands->brand_segment;
+           $brand    = @$this->brands->brand_segment;
            $category = $this->category;
            $country  = $countryId;
+
+           if($countryGroup == null) {
+               $listOfGroups = \App\CountryGroup::join("country_group_items as cgi","cgi.country_group_id","country_groups.id")->where("cgi.country_code",$country)->first();
+               if($listOfGroups) {
+                  $countryGroup = $listOfGroups->country_group_id;
+               }
+           }
 
            $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
            $priceCModal = clone $priceModal;
 
-           if(!empty($brand) && !empty($category) && !empty($country))  {
-              $priceRecords = $priceModal->where("country_code",$country)->where("brand_segment",$brand)->where("category_id",$category)->first();
+           if(!empty($brand) && !empty($category) && !empty($countryGroup))  {
+              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->where("brand_segment",$brand)->where("category_id",$category)->first();
            }
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where(function($q) use($brand, $category, $country) {
+              $priceRecords = $priceModal->where(function($q) use($brand, $category, $countryGroup) {
                 $q->orWhere(function($q) use($brand, $category) {
                     $q->where("brand_segment", $brand)->where("category_id",$category);
-                })->orWhere(function($q) use($brand, $country) {
-                    $q->where("brand_segment", $brand)->where("country_code",$country);
-                })->orWhere(function($q) use($country, $category) {
-                    $q->where("country_code", $country)->where("category_id",$category);
+                })->orWhere(function($q) use($brand, $countryGroup) {
+                    $q->where("brand_segment", $brand)->where("country_group_id",$countryGroup);
+                })->orWhere(function($q) use($countryGroup, $category) {
+                    $q->where("country_group_id", $countryGroup)->where("category_id",$category);
                 });
               })->first();
            }
@@ -854,7 +861,7 @@ class Product extends Model
 
            if(!$priceRecords) {
               $priceModal = $priceCModal;
-              $priceRecords = $priceModal->where("country_code",$country)->first();
+              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->first();
            }
 
            if($priceRecords) {
@@ -880,30 +887,24 @@ class Product extends Model
         return ["original_price" => $this->price , "promotion" => "0.00", "total" =>  $this->price];
     }
 
-    public function getDuty($websiteId)
+    public function getDuty($countryCode)
     {
-        $website        = \App\StoreWebsite::find($websiteId);
-        $priceRecords   = null;
+       $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
+       if(!empty($hsCode)){
+            $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
+            ->where("country_duties.hs_code",$hsCode)
+            ->where("country_duties.destination",$countryCode)
+            ->select(["country_duties.*","dg.id as has_group","dg.duty as group_duty","dg.vat as group_vat"])
+            ->first();
 
-        if(!empty($website) && !empty($website->country_duty)) {
-           // check price if hs code exist 
-           $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
-           if(!empty($hsCode)){
-                $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
-                ->where("country_duties.hs_code",$hsCode)
-                ->where("country_duties.destination",$website->country_duty)
-                ->select(["country_duties.*","dg.id as has_group","dg.duty as group_duty","dg.vat as group_vat"])
-                ->first();
-
-                if($duty) {
-                    if($duty->has_group != null) {
-                        return $duty->group_duty + $duty->group_vat;
-                    }else{
-                        return $duty->duty_percentage + $duty->vat_percentage;
-                    }
+            if($duty) {
+                if($duty->has_group != null) {
+                    return $duty->group_duty + $duty->group_vat;
+                }else{
+                    return $duty->duty_percentage + $duty->vat_percentage;
                 }
-           }
-        }
+            }
+       }
         
         return (float)"0.00";
 
