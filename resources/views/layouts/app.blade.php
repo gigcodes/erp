@@ -408,6 +408,7 @@
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
+                                                <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -606,6 +607,9 @@
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -2154,7 +2158,7 @@
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-147736165-1');
+        gtag('config', 'UA-171553493-1');
     </script>
     @endif
     <script>

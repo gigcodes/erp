@@ -23,7 +23,7 @@
                     </div>
                     <div class="form-group">
                         <label for="task_asssigned_to">Assigned to</label>
-                        <?php echo Form::select("task_asssigned_to",\App\User::all()->pluck("name","id")->toArray(),null,["class" => "form-control select2-vendor" ,"style" => "width:100%;"]); ?>
+                        <?php echo Form::select("task_asssigned_to",\App\User::all()->pluck("name","id")->toArray(),null,["class" => "form-control select2-vendor task_asssigned_to" ,"style" => "width:100%;"]); ?>
                     </div>
                     <div class="form-group">
                         <button class="btn btn-secondary save-task-window">Save</button>

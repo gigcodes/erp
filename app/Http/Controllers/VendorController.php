@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ChatMessage;
 use App\Customer;
 use App\Email;
 use App\Mail\PurchaseEmail;
@@ -24,6 +25,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Webklex\IMAP\Client;
 use App\Role;
+use Auth;
 use Exception;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\RequestOptions;
@@ -233,12 +235,12 @@ class VendorController extends Controller
 
     $replies = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-    if ($request->ajax()) {
+    /* if ($request->ajax()) {
       return response()->json([
         'tbody' => view('vendors.partials.data', compact('vendors', 'replies'))->render(),
         'links' => (string) $vendors->render()
       ], 200);
-    }
+    } */
 
     $updatedProducts = \App\Vendor::join("users as u","u.id","vendors.updated_by")
     ->groupBy("vendors.updated_by")
@@ -1112,4 +1114,27 @@ class VendorController extends Controller
 
       return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
   }
+
+	public function sendMessage(Request $request)
+	{
+        // return $request->all();
+		$vendors = Vendor::whereIn('id', $request->vendors)->get();
+        $params = [];
+        if(count($vendors)) {
+            foreach($vendors as $key => $item) {
+                $params[] = [
+                    'vendor_id' => $item->id,
+                    'number' => null,
+                    'message' => $request->message,
+                    'user_id' => Auth::id(),
+                    'status' => 1,
+                    'is_queue' => 2,
+                ];
+            }
+        }
+        // return $params;
+        ChatMessage::insert($params);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+	}
 }

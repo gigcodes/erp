@@ -239,7 +239,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(2);
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
         if(!auth()->user()->isAdmin()) {
             if(!$newProducts->isEmpty()) {
                 $i = 1;
@@ -1086,9 +1086,20 @@ class ProductController extends Controller
     public function updateColor(Request $request, $id)
     {
         $product = Product::find($id);
+        
+        if($product) {
+           $productColHis = new \App\ProductColorHistory;
+           $productColHis->user_id     = \Auth::user()->id; 
+           $productColHis->color       = $request->color; 
+           $productColHis->old_color   = $product->color;
+           $productColHis->product_id  = $product->id;
+           $productColHis->save();
+        }
+
         $originalColor = $product->color;
         $product->color = $request->color;
         $product->save();
+
 
         \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
 
@@ -2374,7 +2385,7 @@ class ProductController extends Controller
 
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropApproval;
+                $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();

@@ -157,6 +157,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
+    Route::get('products/{id}/color-history', 'ProductColorController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
@@ -318,6 +319,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
+    Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
+    Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
+    Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
+    Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+    Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -865,6 +872,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendors.email.send.bulk');
     Route::post('vendors/create-user', 'VendorController@createUser')->name('vendors.create.user');
 
+    Route::post('vendors/send/message', 'VendorController@sendMessage')->name('vendors/send/message');
     Route::post('vendors/send/email', 'VendorController@sendEmail')->name('vendors.email.send');
     Route::get('vendors/email/inbox', 'VendorController@emailInbox')->name('vendors.email.inbox');
     Route::post('vendors/product', 'VendorController@productStore')->name('vendors.product.store');
@@ -982,6 +990,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
+    Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
+    Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
+    Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
@@ -1769,6 +1780,13 @@ Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::get('/', 'ProductCategoryController@index')->name("product.category.index.list");
     Route::get('/records', 'ProductCategoryController@records')->name("product.category.records");
     Route::post('/update-category-assigned', 'ProductCategoryController@updateCategoryAssigned')->name("product.category.update-assigned");
+});
+
+Route::prefix('product-color')->middleware('auth')->group(function () {
+    Route::get('/history', 'ProductColorController@history');
+    Route::get('/', 'ProductColorController@index')->name("product.color.index.list");
+    Route::get('/records', 'ProductColorController@records')->name("product.color.records");
+    Route::post('/update-color-assigned', 'ProductColorController@updateCategoryAssigned')->name("product.color.update-assigned");
 });
 
 Route::prefix('listing-history')->middleware('auth')->group(function () {

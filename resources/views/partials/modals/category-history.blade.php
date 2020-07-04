@@ -2,7 +2,7 @@
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header">
-          <h4 class="modal-title">Reschedule</span></h4>
+          <h4 class="modal-title">History</span></h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
@@ -10,8 +10,8 @@
             <thead class="thead-dark">
               <tr>
                 <th scope="col">#</th>
-                <th scope="col">Old Category</th>
-                <th scope="col">New Category</th>
+                <th scope="col">Old</th>
+                <th scope="col">New</th>
                 <th scope="col">Updated By</th>
                 <th scope="col">Created At</th>
               </tr>

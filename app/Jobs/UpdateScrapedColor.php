@@ -109,9 +109,18 @@ class UpdateScrapedColor implements ShouldQueue
                 self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
                 $oldProduct = Product::where('sku', $productSku)->first();
                 if ($oldProduct != null) {
+                    $oldColor = $oldProduct->color;
                     $oldProduct->color = $cat;
                     $oldProduct->save();
                     $totalUpdated++;
+
+                    $productColHis = new \App\ProductColorHistory;
+                    $productColHis->user_id     = \Auth::user()->id; 
+                    $productColHis->color       = $cat; 
+                    $productColHis->old_color   = $oldColor;
+                    $productColHis->product_id  = $oldProduct->id;
+                    $productColHis->save();
+
                     \App\ProductStatus::pushRecord($oldProduct->id,"MANUAL_COLOR");
                     self::putLog("Scrapeed Product {$productSku} update end time : ". date("Y-m-d H:i:s"));
                 }
