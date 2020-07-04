@@ -241,17 +241,17 @@ class Category extends Model
                 $categoryInstance = $category->find( $parentId );
 
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
-        
-                if($categoryInstance->parent_id == 0){
-                    $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                if($categoryMultiChild){
+                    if($categoryInstance->parent_id == 0){
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                    }else{
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                    }
                 }else{
-                    $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                    // Add additional category to tree
+                    /*if ( !empty( $categoryInstance->show_all_id ) )
+                        $categoryTree[] = $categoryInstance->show_all_id;*/
                 }
-                
-  
-                // Add additional category to tree
-                if ( !empty( $categoryInstance->show_all_id ) )
-                    $categoryTree[] = $categoryInstance->show_all_id;
 
                 // Set new parent ID
                 $parentId = $categoryInstance->parent_id;

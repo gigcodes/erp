@@ -408,6 +408,7 @@
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
+                                                <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
