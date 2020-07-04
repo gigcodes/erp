@@ -1080,7 +1080,7 @@ class LeadsController extends Controller
     public function customerSearch()
     {
         $term = request()->get("q",null);
-        $search = \App\Customer::where("name","like","%{$term}%")->orWhere("phone","like","%{$term}%")->get();
+        $search = \App\Customer::where("name","like","%{$term}%")->orWhere("phone","like","%{$term}%")->orWhere("id","like","%{$term}%")->get();
         return $search;
     }
 

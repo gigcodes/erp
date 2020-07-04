@@ -74,7 +74,11 @@ class ProductsCreator
             Log::channel('productUpdates')->debug("[validator] fails - sku exists " . ProductHelper::getSku($image->sku));
 
             // Try to get the product from the database
-            $product = Product::where('sku', $data[ 'sku' ])->first();
+            if($image->product_id > 0) {
+                $product = Product::where('id', $image->product_id)->first();
+            }else{
+                $product = Product::where('sku', $data[ 'sku' ])->first();
+            }
 
             // Does the product exist? This should not fail, since the validator told us it's there
             if (!$product) {
@@ -88,25 +92,25 @@ class ProductsCreator
             // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
                 // Check if we can update the title - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
@@ -119,8 +123,11 @@ class ProductsCreator
                     }
                 }
 
-                // Update the category
-                $product->category = $formattedDetails[ 'category' ];
+                $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where("product_id",$product->id)->first();
+                if ($manual == null || (int)$manual->value == 0) {
+                    // Update the category
+                    $product->category = $formattedDetails[ 'category' ];
+                }
             }
 
             // Get current sizes
@@ -238,7 +245,7 @@ class ProductsCreator
                 'status' => 1
             ];
 
-            ScrapActivity::create($params);
+            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug("[Success] Updated product");
 
@@ -301,6 +308,8 @@ class ProductsCreator
 
         try {
             $product->save();
+            $image->product_id = $product->id;
+            $image->save();
             $product->attachImagesToProduct();
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
@@ -397,7 +406,7 @@ class ProductsCreator
     public function getGeneralDetails($properties_array)
     {
         if (array_key_exists('material_used', $properties_array)) {
-            $composition = (string)$properties_array[ 'material_used' ];
+            $composition = (is_array($properties_array[ 'material_used' ])) ? implode(" ",$properties_array[ 'material_used' ]) : (string)$properties_array[ 'material_used' ];
         }
 
         if (array_key_exists('color', $properties_array)) {

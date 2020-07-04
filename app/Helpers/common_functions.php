@@ -113,25 +113,24 @@ if (!function_exists('getInstance')) {
     {
         $number = !empty($number) ? $number : 0;
         return isset(config("apiwha.instances")[$number])
-        ? config("apiwha.instances")[$number]
-        : config("apiwha.instances")[0];
+            ? config("apiwha.instances")[$number]
+            : config("apiwha.instances")[0];
     }
 }
 
- function human_error_array($errors)
- {
+function human_error_array($errors)
+{
     $list = [];
-    if(!empty($errors)) {
-        foreach($errors as $key => $berror) {
-            foreach($berror as $serror) {
-                $list[] = "{$key} : ".$serror;
+    if (!empty($errors)) {
+        foreach ($errors as $key => $berror) {
+            foreach ($berror as $serror) {
+                $list[] = "{$key} : " . $serror;
             }
         }
     }
 
     return $list;
-
- }
+}
 
 /**
  * Get all instances no with array list
@@ -140,17 +139,93 @@ if (!function_exists('getInstance')) {
 if (!function_exists('getInstanceNo')) {
     function getInstanceNo()
     {
-        $nos  = config("apiwha.instances");
-        
+        $nos = config("apiwha.instances");
+
         $list = [];
-        
-        if(!empty($nos)) {
+
+        if (!empty($nos)) {
             foreach ($nos as $key => $no) {
-                $n = ($key == 0) ? $no["number"] : $key;
+                $n        = ($key == 0) ? $no["number"] : $key;
                 $list[$n] = $n;
             }
         }
 
         return $list;
     }
+}
+
+/**
+ * Check if the date is valid
+ */
+function validateDate($date, $format = 'Y-m-d')
+{
+    $d = DateTime::createFromFormat($format, $date);
+    return $d && $d->format($format) === $date;
+}
+
+/**
+ * dropdown returns in helpers
+ *
+ */
+
+function drop_down_frequency()
+{
+    return [
+        "0"    => "Disabled",
+        "5"    => "Every 5 Minutes",
+        "10"   => "Every 10 Minutes",
+        "15"   => "Every 15 Minutes",
+        "20"   => "Every 20 Minutes",
+        "25"   => "Every 25 Minutes",
+        "30"   => "Every 30 Minutes",
+        "35"   => "Every 35 Minutes",
+        "40"   => "Every 40 Minutes",
+        "45"   => "Every 45 Minutes",
+        "50"   => "Every 50 Minutes",
+        "55"   => "Every 55 Minutes",
+        "60"   => "Every Hour",
+        "360"  => "Every 6 hr",
+        "1440" => "Every 24 hr",
+    ];
+}
+
+/**
+ * format the duration in Hour:minute:seconds format
+ */
+function formatDuration($seconds_time)
+{
+    if ($seconds_time < 24 * 60 * 60) {
+        return gmdate('H:i:s', $seconds_time);
+    } else {
+        $hours = floor($seconds_time / 3600);
+        $minutes = floor(($seconds_time - $hours * 3600) / 60);
+        $seconds = floor($seconds_time - ($hours * 3600) - ($minutes * 60));
+        return "$hours:$minutes:$seconds";
+    }
+}
+
+
+function get_field_by_number($no, $field = "name") 
+{
+    $no  = explode("@", $no);
+
+    if(!empty($no[0])) {
+        
+        $customer = \App\Customer::where("phone",$no[0])->first();
+        if($customer) {
+            return $customer->{$field}. " (Customer)";
+        }
+        
+        $vendor = \App\Vendor::where("phone",$no[0])->first();
+        if($vendor) {
+            return $vendor->{$field}. " (Vendor)";
+        }
+
+        $supplier = \App\Supplier::where("phone",$no[0])->first();
+        if($supplier) {
+            return $supplier->{$field}. "(Supplier)";
+        }
+    }
+
+    return "";
 }

@@ -25,7 +25,7 @@ class DailyCashFlowController extends Controller
         $query->where('date', 'LIKE', "%$filter_date%");
       })->paginate(Setting::get('pagination'));
 
-      $orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount', 'order_status', 'estimated_delivery_date'])->where(function ($query) use ($filter_date) {
+      $orders = Order::with('order_product')->select(['id', 'order_date', 'balance_amount', 'order_status_id', 'order_status', 'estimated_delivery_date'])->where(function ($query) use ($filter_date) {
         $query->where('order_date', $filter_date)->orWhere('estimated_delivery_date', 'LIKE', "%$filter_date%");
       })->paginate(Setting::get('pagination'), ['*'], 'order-page');
 

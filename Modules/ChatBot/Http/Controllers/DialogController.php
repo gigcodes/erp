@@ -69,6 +69,12 @@ class DialogController extends Controller
             $chatbotDialog = ChatbotDialog::where("id", $id)->first();
 
             if ($chatbotDialog) {
+                // check if it has any parent 
+                $hasChild = ChatbotDialog::where("parent_id",$id)->first();
+                if($hasChild) {
+                    return redirect()->back();
+                }
+
                 WatsonManager::deleteDialog($chatbotDialog->id);
                 ChatbotDialogResponse::where("chatbot_dialog_id", $id)->delete();
                 $chatbotDialog->delete();
@@ -453,6 +459,13 @@ class DialogController extends Controller
     {
         $chatbotDialog = ChatbotDialog::find($id);
         if (!empty($chatbotDialog)) {
+
+            // check if it has any parent 
+            $hasChild = ChatbotDialog::where("parent_id",$id)->first();
+            if($hasChild) {
+                return response()->json(["code" => 500 , "error" => "Parent node can not delete before child : {$hasChild->name}"]);
+            }
+
             // delete old values and send new again start
             $responseCondition = $chatbotDialog->parentResponse()->where("response_type", "response_condition")->get();
             if (!$responseCondition->isEmpty()) {
@@ -501,5 +514,11 @@ class DialogController extends Controller
 
         return response()->json(["incomplete_results" => false, "items"=> $allDialogList, "total_count" => count($allDialogList)]);
 
+    }
+
+    public function log(Request $request)
+    {
+        $log = WatsonManager::getLog();
+        return view('chatbot::dialog.log', compact('log'));
     }
 }

@@ -22,4 +22,23 @@ class ProductStatus extends Model
     {
         return $this->belongsTo( Product::class, 'product_id', 'id' );
     }
+
+    public static function pushRecord($product_id, $name, $value = 1) 
+    {
+
+        // save to product status history 
+       $productStatus = self::where("product_id",$product_id)
+       ->where("name",$name)
+       ->first();
+
+       if(!$productStatus) {
+          $productStatus = new self;
+       }
+
+       $productStatus->product_id = $product_id; 
+       $productStatus->name = $name;
+       $productStatus->value = $value;
+       $productStatus->save();
+       // end for save product status history
+    }
 }

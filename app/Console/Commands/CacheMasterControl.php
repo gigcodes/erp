@@ -95,7 +95,7 @@ class CacheMasterControl extends Command
             Cache::remember('result_scraped_product_in_stock', 15, function () {
                 $sqlScrapedProductsInStock = "
                     SELECT
-                        COUNT(DISTINCT(ls.sku)) as ttl
+                        COUNT(DISTINCT(sp.sku)) as ttl
                     FROM
                         suppliers s
                     JOIN
@@ -103,14 +103,14 @@ class CacheMasterControl extends Command
                     ON
                         s.id=sc.supplier_id
                     JOIN
-                        log_scraper ls
+                        scraped_products sp
                     ON
-                        ls.website=sc.scraper_name
+                        sp.website=sc.scraper_name
                     WHERE
                         s.supplier_status_id=1 AND
-                        ls.validated=1 AND
-                        ls.website!='internal_scraper' AND
-                        ls.updated_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)
+                        sp.validated=1 AND
+                        sp.website!='internal_scraper' AND
+                            
                 ";
 
                 return DB::select($sqlScrapedProductsInStock);

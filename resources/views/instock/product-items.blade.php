@@ -1,24 +1,5 @@
 {!! $products->appends(Request::except('page'))->links() !!}
-
-<?php
-  $query = http_build_query( Request::except('page' ) );
-  $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
-?>
-
-<div class="row">
-  <div class="col-2">
-    <div class="form-group">
-      Goto :
-      <select onchange="location.href = this.value;" class="form-control">
-        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-          <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-          @endfor
-      </select>
-    </div>
-  </div>
-</div>
-
-<div class="row">
+<div class="row col-md-12">
   @foreach ($products as $product)
   <div class="col-md-3 col-xs-6 text-left">
       <a href="{{ route('products.show', $product->id) }}">
@@ -32,8 +13,9 @@
       <p class="location_{{$product->id}}">Location : {{ ($product->location) ? $product->location : "" }}</p>
       <p>Sku : {{ $product->sku }}</p>
       <p>Id : {{ $product->id }}</p>
-      <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ $product->size}}</span></p>
+      <p>Size : <span class="text-editable" data-field-name="size" data-product-id="{{ $product->id }}">{{ ($product->size) ? $product->size : "N/A"}}</span></p>
       <p>Price : <span class="text-editable" data-field-name="price_inr_special" data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></p>
+      <p>Status : <?php echo Form::select("stock_status",[null => "- Select --"] + \App\Product::STOCK_STATUS,$product->stock_status,["class" => "form-control update-product-stock-status","data-product-id" => $product->id]); ?></p>
 
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction" title="Create Dispatch / Location Change"><img src="/images/support.png"></button>
       <button type="button" data-product-id="{{ $product->id }}" class="btn btn-image crt-instruction-history" title="Product Location History"><img src="/images/remark.png"></button>
@@ -77,18 +59,7 @@
     </div>
   </div>
 @endif
-
+<?php
+  request()->request->add(['instock' => 'yes']);
+?>
 {!! $products->appends(Request::except('page'))->links() !!}
-
-<div class="row">
-  <div class="col-2">
-    <div class="form-group">
-      Goto :
-      <select onchange="location.href = this.value;" class="form-control">
-        @for($i = 1 ; $i <= $products->lastPage() ; $i++ )
-          <option value="{{ $query.$i }}" {{ ($i == $products->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-          @endfor
-      </select>
-    </div>
-  </div>
-</div>

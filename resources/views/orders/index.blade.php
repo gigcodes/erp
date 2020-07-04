@@ -29,7 +29,7 @@
                       <option value="">Select a Status</option>
 
                       @foreach ($order_status_list as $id => $order_st)
-                        <option value="{{ $id }}" {{ isset($order_status) && in_array($order_st, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
                       @endforeach
                     </select>
                   </div>
@@ -48,6 +48,16 @@
                     </div>
                   </div>
 
+                    <div class="form-group ml-3">
+                        <select class="form-control select2" name="store_website_id">
+                        <option value="">Select Site Name</option>
+                        @forelse ($registerSiteList as $key => $item)
+                            <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
+                        @empty
+                        @endforelse
+                        </select>
+                    </div>
+
                   <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
                 </form>
             </div>
@@ -57,14 +67,13 @@
             </div>
         </div>
     </div>
-
     @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
       <div class="row col-md-12">
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
-                  <?php echo \App\Helpers\OrderHelper::getStatusNameById($listFilter["order_status"]); ?>
+                  <?php echo ucwords($listFilter["order_status"]); ?>
                 </div>
                 <div class="card-body">
                     <?php echo $listFilter["total"]; ?>
@@ -73,14 +82,16 @@
         <?php } ?>
       </div>
     <?php } ?>  
-    </br> 
-    <div class="table-responsive">
+	</br> 
+    <div class="infinite-scroll">
+	<div class="table-responsive mt-2">
       <table class="table table-bordered">
         <thead>
           <tr>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
+            <th width="10%">Site Name</th>
             <th width="10%">Products</th>
             <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
@@ -95,7 +106,7 @@
         </thead>
 
         <tbody>
-          @foreach ($orders_array as $key => $order)
+			@foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="table-hover-cell">
                 <div class="form-inline">
@@ -117,6 +128,19 @@
                   <span class="td-full-container hidden">
                     <a href="{{ route('customer.show', $order->customer->id) }}">{{ $order->customer->name }}</a>
                   </span>
+                @endif
+              </td>
+              <td class="expand-row table-hover-cell">
+                @if ($order->customer)
+                  @if ($order->customer->storeWebsite)
+                    <span class="td-mini-container">
+                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ strlen($order->customer->storeWebsite->website) > 15 ? substr($order->customer->storeWebsite->website, 0, 13) . '...' : $order->customer->storeWebsite->website }}</a>
+                    </span>
+
+                    <span class="td-full-container hidden">
+                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ $order->customer->storeWebsite->website }}</a>
+                    </span>
+                  @endif
                 @endif
               </td>
               <td class="expand-row table-hover-cell">
@@ -162,16 +186,14 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group">
-
                   <select data-placeholder="Order Status" class="form-control order-status-select select2" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
-                                    
-                                    <option value="{{ $id }}" {{ $order->order_status == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                    <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
                                 @endforeach
                             </optgroup>
-                        </select>
+                    </select>
                 </div>
               </td>
               <td>{{ $order->advance_detail }}</td>
@@ -185,43 +207,84 @@
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
-                    <img style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
+                    <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
-                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img src="/images/view.png" /></a>
+                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img title="View order" src="/images/view.png" /></a>
+                  <a class="btn btn-image send-invoice-btn" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                    <img title="Send Invoice" src="/images/purchase.png" />
+                  </a>
+                  <a title="Preview Order" class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
+                    <i class="fa fa-hourglass"></i>
+                  </a>
+                  @if ($order->waybill)
+                    <a title="Download Package Slip" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                        <i class="fa fa-download" aria-hidden="true"></i>
+                    </a>
+                    <a title="Track Package Slip" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                        <i class="fa fa fa-globe" aria-hidden="true"></i>
+                    </a>
+                  @else
+                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb" href="javascript:;">
+                      <i class="fa fa-truck" aria-hidden="true"></i>
+                    </a>
+                  @endif
                   {{-- @can('order-edit')
                   <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
                   @endcan --}}
 
                   {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img src="/images/archive.png" /></button>
+                  <button type="submit" class="btn btn-image"><img title="Archive Order" src="/images/archive.png" /></button>
                   {!! Form::close() !!}
 
                   @if(auth()->user()->checkPermission('order-delete'))
                     {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                    <button type="submit" class="btn btn-image"><img title="Delete Order" src="/images/delete.png" /></button>
                     {!! Form::close() !!}
                   @endif
                 </div>
+                @if(!$order->invoice_id)
+                <a title="Add invoice" class="btn btn-xs btn-info add-invoice-btn" data-id='{{$order->id}}'>
+                     +
+                </a>
+                @endif
               </td>
             </tr>
           @endforeach
         </tbody>
       </table>
+
+	{!! $orders_array->appends(Request::except('page'))->links() !!}
+	</div>
     </div>
-
-    {!! $orders_array->appends(Request::except('page'))->links() !!}
-    {{--{!! $orders->links() !!}--}}
-
-
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
+   </div>
 @endsection
+
+@include("partials.modals.tracking-event-modal")
+@include("partials.modals.generate-awb-modal")
+@include("partials.modals.add-invoice-modal")
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+  <script src="/js/order-awb.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
+      });
+
+      $(document).on("click",".generate-awb",function() {
+          var customer = $(this).data("customer");
+            if(typeof customer != "undefined" || customer != "") {
+               $(".input_customer_name").val(customer.name);
+               $(".input_customer_phone").val(customer.phone);
+               $(".input_customer_address1").val(customer.address);
+               $(".input_customer_address2").val(customer.city);
+               $(".input_customer_pincode").val(customer.pincode);
+            }
+            $("#generateAWBMODAL").modal("show");
       });
 
       $(document).on("change",".order-status-select",function() {
@@ -280,5 +343,59 @@
         $(this).find('.td-full-container').toggleClass('hidden');
       }
     });
+
+    $(document).on("click",".send-invoice-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: "/order/"+$this.data("id")+"/send-invoice",
+          type: "get",
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done(function(response) {
+           if(response.code == 200) {
+             toastr['success'](response.message);
+           }else{
+             toastr['error'](response.message);
+           }
+           $("#loading-image").hide(); 
+        }).fail(function(errObj) {
+           $("#loading-image").hide();
+        });
+    });
+
+    $(document).on("click",".add-invoice-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          url: "/order/"+$this.data("id")+"/add-invoice",
+          type: "get"
+        }).done(function(response) {
+          $('#addInvoice').modal('show');
+           $("#add-invoice-content").html(response); 
+        }).fail(function(errObj) {
+           $("#addInvoice").hide();
+        });
+    });
+
+	
+	$('ul.pagination').hide();
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+		// debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+			$('ul.pagination').hide();
+        }
+    });
+
   </script>
 @endsection

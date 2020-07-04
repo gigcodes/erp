@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\Events\ProformaConfirmed;
 use App\Vendor;
 use Dompdf\Dompdf;
-use App\Mail\ForwardEmail;
+use App\Mails\Manual\ForwardEmail;
 use Illuminate\Http\Request;
 use App\Order;
 use App\OrderProduct;
@@ -33,7 +33,7 @@ use App\Mail\PurchaseEmail;
 use App\Supplier;
 use App\Agent;
 use App\File;
-use App\Mail\PurchaseExport;
+use App\Mails\Manual\PurchaseExport;
 use Illuminate\Support\Facades\Mail;
 use App\Exports\PurchasesExport;
 use Illuminate\Support\Facades\Validator;
@@ -49,7 +49,7 @@ use Carbon\Carbon;
 use Storage;
 use Auth;
 use Webklex\IMAP\Client;
-use App\Mail\ReplyToEmail;
+use App\Mails\Manual\ReplyToEmail;
 use App\Category;
 use App\LogExcelImport;
 
@@ -240,7 +240,7 @@ class PurchaseController extends Controller
             }
         }
 
-        $skuNeed = Db::select("select p.id from order_products as op join products as p on p.sku = op.sku left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
+        $skuNeed = Db::select("select p.id from order_products as op join products as p on p.id = op.product_id left join purchase_products as pp on pp.order_product_id = op.id  where pp.order_product_id is null group by op.sku");
         $skuNeed = collect($skuNeed)->pluck("id")->toArray();
 
         $ignoreSku = array_diff($includedPurchases, $skuNeed);
@@ -250,7 +250,7 @@ class PurchaseController extends Controller
             $status = $request->status;
             $status_list = implode("','", $request->status ?? []);
             $orders = OrderProduct::join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku")
+                ->join("products as p", "p.id", "order_products.product_id")
                 ->whereIn("o.order_status", $status)
                 ->where('qty', '>=', 1);
 
@@ -270,7 +270,7 @@ class PurchaseController extends Controller
                 $status_list = implode("','", $request->status);
 
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id")
-                    ->join("products as p", "p.sku", "order_products.sku")
+                    ->join("products as p", "p.id", "order_products.product_id")
                     ->join("product_suppliers as ps", "ps.product_id", "p.id")
                     ->whereIn("o.order_status", $request->status)
                     ->whereIn("ps.supplier_id", $request->supplier)->where('qty', '>=', 1);
@@ -290,7 +290,7 @@ class PurchaseController extends Controller
 
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id");
                 if ($page == 'canceled-refunded') {
-                    $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
+                    $orders = $orders->whereIn("o.order_status_id",[\App\Helpers\OrderHelper::$cancel,\App\Helpers\OrderHelper::$refundToBeProcessed]);
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Cancel', 'Refund to be processed'))");*/
                     // ->whereHas('Order', function($q) {
@@ -299,16 +299,26 @@ class PurchaseController extends Controller
                 } elseif ($page == 'ordered') {
 
                 } elseif ($page == 'delivered') {
-                    $orders = $orders->whereIn("o.order_status", ['Delivered']);
+                    $orders = $orders->whereIn("o.order_status_id",[\App\Helpers\OrderHelper::$delivered]);
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status IN ('Delivered'))");*/
                     // ->whereHas('Order', function($q) {
                     //   $q->whereIn('order_status', ['Delivered']);
                     // });
                 } elseif ($page == 'non_ordered') {
-                    $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                    $orders = $orders->whereNotIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$followUpForAdvance,
+                        \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                        \App\Helpers\OrderHelper::$advanceRecieved,
+                        \App\Helpers\OrderHelper::$prepaid
+                    ]);
                 } else {
-                    $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                    $orders = $orders->whereIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$followUpForAdvance,
+                        \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                        \App\Helpers\OrderHelper::$advanceRecieved,
+                        \App\Helpers\OrderHelper::$prepaid
+                    ]);
 
                     /*$orders = $orders
                     ->whereRaw("order_products.order_id IN (SELECT orders.id FROM orders WHERE orders.order_status NOT IN ('Cancel', 'Refund to be processed', 'Delivered'))");*/
@@ -317,7 +327,7 @@ class PurchaseController extends Controller
                     // });
 
                 }
-                $orders = $orders->join("products as p", "p.sku", "order_products.sku")->join("product_suppliers as ps", "ps.product_id", "p.id")->whereIn("ps.supplier_id", $request->supplier)
+                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->join("product_suppliers as ps", "ps.product_id", "p.id")->whereIn("ps.supplier_id", $request->supplier)
                     /*$orders = $orders
                     ->whereRaw("order_products.sku IN (SELECT products.sku FROM products WHERE id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($supplier_list)))")*/
                     // ->whereHas('Product', function($q) use ($supplier_list) {
@@ -386,17 +396,32 @@ class PurchaseController extends Controller
 
                 $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])->join("orders as o", "o.id", "order_products.order_id");
                 if ($page == 'canceled-refunded') {
-                    $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
+                    $orders = $orders->whereIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$cancel,
+                        \App\Helpers\OrderHelper::$refundToBeProcessed
+                    ]);
                 } elseif ($page == 'ordered') {
                 } elseif ($page == 'delivered') {
-                    $orders = $orders->whereIn("o.order_status", ['Delivered']);
+                    $orders = $orders->whereIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$delivered
+                    ]);
                 } elseif ($page == 'non_ordered') {
-                    $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                    $orders = $orders->whereNotIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$followUpForAdvance,
+                        \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                        \App\Helpers\OrderHelper::$advanceRecieved,
+                        \App\Helpers\OrderHelper::$prepaid,
+                    ]);
                 } else {
-                    $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                    $orders = $orders->whereIn("o.order_status_id", [
+                        \App\Helpers\OrderHelper::$followUpForAdvance,
+                        \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                        \App\Helpers\OrderHelper::$advanceRecieved,
+                        \App\Helpers\OrderHelper::$prepaid,
+                    ]);
                 }
 
-                $orders = $orders->join("products as p", "p.sku", "order_products.sku")->where('brand', $brand)->where('qty', '>=', 1);
+                $orders = $orders->join("products as p", "p.id", "order_products.product_id")->where('brand', $brand)->where('qty', '>=', 1);
                 if ($customerId > 0) {
                     $orders = $orders->where("o.customer_id", $customerId);
                 }
@@ -409,16 +434,31 @@ class PurchaseController extends Controller
         if (!empty($request->order_id)) {
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
                 ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku");
+                ->join("products as p", "p.id", "order_products.product_id");
             if ($page == 'canceled-refunded') {
-                $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$cancel,
+                    \App\Helpers\OrderHelper::$refundToBeProcessed
+                ]);
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
-                $orders = $orders->whereIn("o.order_status", ['Delivered']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$delivered
+                ]);
             } elseif ($page == 'non_ordered') {
-                $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                $orders = $orders->whereNotIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$followUpForAdvance,
+                    \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                    \App\Helpers\OrderHelper::$advanceRecieved,
+                    \App\Helpers\OrderHelper::$prepaid,
+                ]);
             } else {
-                $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$followUpForAdvance,
+                    \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                    \App\Helpers\OrderHelper::$advanceRecieved,
+                    \App\Helpers\OrderHelper::$prepaid,
+                ]);
             }
 
             $orders = $orders->where('qty', '>=', 1)->where('o.id', '=', $request->order_id)->get();
@@ -450,16 +490,31 @@ class PurchaseController extends Controller
 
             $orders = OrderProduct::select(['order_products.sku', 'order_products.order_id', 'p.id'])
                 ->join("orders as o", "o.id", "order_products.order_id")
-                ->join("products as p", "p.sku", "order_products.sku");
+                ->join("products as p", "p.id", "order_products.product_id");
             if ($page == 'canceled-refunded') {
-                $orders = $orders->whereIn("o.order_status", ['Cancel', 'Refund to be processed']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$cancel,
+                    \App\Helpers\OrderHelper::$refundToBeProcessed
+                ]);
             } elseif ($page == 'ordered') {
             } elseif ($page == 'delivered') {
-                $orders = $orders->whereIn("o.order_status", ['Delivered']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$delivered
+                ]);
             } elseif ($page == 'non_ordered') {
-                $orders = $orders->whereNotIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                $orders = $orders->whereNotIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$followUpForAdvance,
+                    \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                    \App\Helpers\OrderHelper::$advanceRecieved,
+                    \App\Helpers\OrderHelper::$prepaid,
+                ]);
             } else {
-                $orders = $orders->whereIn("o.order_status", ['Follow up for advance', 'Proceed without Advance', 'Advance received', 'Prepaid']);
+                $orders = $orders->whereIn("o.order_status_id", [
+                    \App\Helpers\OrderHelper::$followUpForAdvance,
+                    \App\Helpers\OrderHelper::$proceedWithOutAdvance,
+                    \App\Helpers\OrderHelper::$advanceRecieved,
+                    \App\Helpers\OrderHelper::$prepaid,
+                ]);
             }
 
             $orders = $orders->where('qty', '>=', 1);
@@ -706,7 +761,7 @@ class PurchaseController extends Controller
         $suppliersQuery = DB::select('SELECT sp.id FROM `scraped_products` sp
             join scrapers sc on sc.scraper_name =  sp.website
             JOIN suppliers s ON s.id=sc.supplier_id 
-            inner join order_products op on op.sku = sp.sku where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
+            inner join order_products op on op.product_id = sp.product_id where last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY)');
         $cnt = count($suppliersQuery);
 
         if ($cnt > 0 && !empty($productIds)) {
@@ -1180,6 +1235,7 @@ class PurchaseController extends Controller
             $new_order = new OrderProduct;
             $new_order->order_id = $order_product->order_id;
             $new_order->sku = $new_product->sku;
+            $new_order->product_id = $new_product->id;
             $new_order->product_price = $new_product->price_inr_special;
             $new_order->size = $order_product->size;
             $new_order->color = $order_product->color;

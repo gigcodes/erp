@@ -111,5 +111,26 @@
       $('#broadcast_image').val(id);
       $('#sendAllModal').modal('show');
     }
+
+    $( "#platform" ).change(function() {
+      platform = $( "#platform option:selected" ).text().toLowerCase();;
+      if(platform == 'instagram'){
+          $('.gender').hide();
+          $('.shoe-size').hide();
+          $('.clothing-size').hide();
+          $('.select-group').hide();
+          $('#message').text('Please Enter Instagram Link');
+      }else if(platform == 'facebook'){
+          $('.gender').hide();
+          $('.shoe-size').hide();
+          $('.clothing-size').hide();
+          $('.select-group').hide();
+      }else{
+          $('.gender').show();
+          $('.shoe-size').show();
+          $('.clothing-size').show();
+          $('.select-group').show();
+      }
+  }); 
   </script>
 @endsection

@@ -74,8 +74,8 @@
                             <th><input type="text" name="email[{{$key}}]" placeholder="E-mail" class="form-control"></th>
                             <th><input type="text" name="password[{{$key}}]" placeholder="Password" class="form-control"></th>
                         </tr>
+                        @php $key++ @endphp
                     @endforeach
-                    @php $key++ @endphp
                     @foreach($accounts as $account)
                         <tr>
                             <th>{{$key+1}}</th>

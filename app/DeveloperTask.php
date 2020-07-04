@@ -60,9 +60,13 @@ class DeveloperTask extends Model
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+        
+        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function countUserTaskFromReference($id){

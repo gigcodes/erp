@@ -165,7 +165,12 @@
                             @endforeach
                         </select>
                     </div>
-
+                    @if(auth()->user()->isAdmin())
+                        <div class="form-group mr-3">
+                            <?php echo Form::checkbox("submit_for_approval",request('submit_for_approval'),["class" => "form-control"]); ?>
+                            <lable for="submit_for_approval">Submit For approval ?</lable>
+                        </div>
+                    @endif
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
                 </form>
@@ -250,9 +255,19 @@
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">EUR {{ number_format($product->price) }}</span> EUR {{ number_format($product->price_eur_special) }}
+
                                         </p>
-                                        <br/>
-                                        <p>
+                                        <?php
+                                            // check brand sengment
+                                            if($product->brands) {
+                                                $segmentPrice = \App\Brand::getSegmentPrice($product->brands->brand_segment, $product->category);
+                                                if($segmentPrice) {
+                                                    echo "<p class='same-color'>Min Segment Price : ".$segmentPrice->min_price."<br>
+                                                    Max Segment Price : ".$segmentPrice->max_price."</p>";
+                                                }
+                                            }
+                                        ?>
+                                        <p> 
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
@@ -277,12 +292,27 @@
                                             @endforeach
                                             <hr/>
                                         @endif
+                                        
+                                        @php 
+                                        //getting proper composition and hscode
+                                        $composition = $product->commonComposition($product->category , $product->composition);
 
+                                        $hscode =  $product->hsCode($product->category , $product->composition);    
+
+                                        @endphp
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ strtoupper($product->commonComposition($product->category , $product->composition)) }}
+                                                {{ strtoupper($composition) }}
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                            <strong class="same-color" style="text-decoration: underline;">HsCode</strong>
+                                            <br/>
+                                            <span class="same-color flex-column">
+                                                {{ strtoupper($hscode) }}
                                             </span>
                                         </p>
 
@@ -405,19 +435,21 @@
                                                 </tr>
                                             @endif
                                         </table>
-                                        <p class="text-right mt-5">
-                                            <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
-                                            @if ($product->status_id == 9)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                            @elseif ($product->status_id == 12)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                                            @endif
-                                        </p>
+                                        @if(auth()->user()->isAdmin())
+                                            <p class="text-right mt-5">
+                                                <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
+                                                @if ($product->status_id == 9)
+                                                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                                                @elseif ($product->status_id == 12)
+                                                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                                                @endif
+                                            </p>
+                                        @endif
                                         <div>
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                                         </div>
                                         @php
-                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
@@ -426,7 +458,7 @@
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
                                                         @if($logScraper->url != "N/A")
-                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->updated_at ?> )</li>
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->last_inventory_at ?> )</li>
                                                         @else
                                                             <li><?= $logScraper->website ?></li>
                                                         @endif
@@ -602,19 +634,21 @@
 
                                 <td>
                                     {{ $product->isUploaded }} {{ $product->isFinal }}
-
-                                    @if ($product->is_approved == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                                    @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                    @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                                    @if(auth()->user()->isAdmin())
+                                        @if ($product->is_approved == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                                        @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                                        @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                                        @else
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                                        @endif
+                                        @if ($product->product_user_id != null)
+                                            {{ \App\User::find($product->product_user_id)->name }}
+                                        @endif
                                     @else
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                                    @endif
-
-                                    @if ($product->product_user_id != null)
-                                        {{ \App\User::find($product->product_user_id)->name }}
+                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For Approval</button>
                                     @endif
                                 </td>
                                 <td style="min-width: 80px;">
@@ -1619,7 +1653,7 @@
 
             $.when.apply($, ajaxes)
                 .done(function () {
-                    location.reload();
+                    //location.reload();
                 });
         });
 
@@ -1635,6 +1669,8 @@
                 url = "{{ url('products') }}/" + id + '/listMagento';
             } else if (type == 'enable') {
                 url = "{{ url('products') }}/" + id + '/approveMagento';
+            } else if (type == 'submit_for_approval') {
+                url = "{{ url('products') }}/" + id + '/submitForApproval';
             } else {
                 url = "{{ url('products') }}/" + id + '/updateMagento';
             }

@@ -8,7 +8,19 @@
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
-    <td style="vertical-align: middle;">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</td>
+    <td style="vertical-align: middle;">    
+        <select name="module" class="form-control task-module"  onchange="changeModule(this , {{$issue->id}})">
+            <option value=''>Selecct Module..</option>
+            @foreach($modules as $module)
+
+             @if( isset($issue->module_id) && (int) $issue->module_id == $module->id )
+                <option value="{{$module->id}}" selected>{{$module->name}}</option>
+                @else
+                <option value="{{$module->id}}">{{$module->name}}</option>
+                @endif
+            @endforeach
+        </select>
+    </td>
     <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
     <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
     <td class="expand-row">
@@ -54,7 +66,7 @@
             <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
         </div>
     </td>
-    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? $issue->timeSpent->tracked : '' }}</td>
+    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
         <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">

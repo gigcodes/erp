@@ -23,7 +23,7 @@
            
            <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS : #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true)<spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif</h2>
+            <h2 class="page-heading">HASH TAG MONITORING AND COMMENTING  - MISC ACCOUNTS : @if(isset($hashtag)) #{{ $hashtag->hashtag }} ({{ count($medias) }} Posts) @if(env('INSTAGRAM_MAIN_ACCOUNT') == true) @endif <spam style="color: red;"> ADMIN ACCOUNT PLEASE COMMENT CAREFULLY</spam> @endif</h2>
             <div class="pull-left">
                 <form action="/instagram/hashtag/grid/{{ $hashtag->id }}" method="GET" class="form-inline align-items-start">
                     <div class="form-group mr-3 mb-3">
@@ -99,34 +99,22 @@
                     <thead>
                     <tr>
                         <th style="width:1%">SN</th>
-                        <th style="width:1%">Hastag</th>
+                        <th style="width:10%">Hastag</th>
                         <th style="width:5%">User</th>
-                        <th style="width:5%">Post URL</th>
                         <th style="width: 10%;">Image</th>
                         <th style="width:10%">Caption</th>
-                        <th style="width:2%;">#Comm</th>
-                        <th style="width:4%">Location</th>
-                        <th style="width:5%">Created At</th>
                         <th style="width:10%">Communication</th>
                         <th style="width:20%">Comments</th>
-                        <th style="width:1%;">Action</th>
-
                     </tr>
                     <tr>
                         <th></th>
                         <th></th>
                         <th><input type="text" id="username" class="search form-control" placeholder="Id" step="width : 10px"></th>
                         <th></th>
-                        <th></th>
                         <th><input type="text" class="form-control search" placeholder="Search Caption" id="caption"></th>
                         <th></th>
-                        <th></th>
-                        <th></th>
                         <th><input type="text" class="form-control search" placeholder="Search Comments" id="comment"></th>
-                        <th></th>
-                        <th></th>
-
-
+                        
                     </tr>
                    </thead>
                      <tbody>
@@ -225,11 +213,15 @@
         $('.comment-it').click(function() {
             
                 let id = $(this).attr('data-id');
+                let post_id = $(this).attr('data-post-id');
                 let message = $('#textbox_'+id).val();
                 let textbox = $('#textbox_'+id);
                 let accountId = $('#account_id_'+id).val();
+                let accountType = $('#account_id_'+id).data("type");
                 let narrative = $('#narrative_'+id).val();
                 let selectedusers = $('#selected_user_'+id).val();
+                console.log(accountId);
+                console.log(accountType);
                 if(accountId == 'Select User'){
                     alert('Please Select User to Comment');
                 }else{
@@ -243,15 +235,17 @@
                             message: message,
                             account_id: accountId,
                             id : id,
+                            post_id : post_id,
                             narrative: narrative,
+                            accountType : accountType,
                             hashtag: "{{$hashtag->hashtag}}",
                             _token: '{{ csrf_token() }}'
                         },beforeSend: function() {
                            $("#loading-image").show();
                         },
-                        success: function() {
+                        success: function(response) {
                             $("#loading-image").hide();
-                            alert('Comment added successfully!');
+                            alert(response.status);
                             $(self).removeAttr('disabled');
                             $(self).val('');
                         }

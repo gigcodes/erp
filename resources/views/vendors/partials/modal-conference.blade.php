@@ -8,7 +8,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
 
-            <form action="{{ route('vendor.email.send.bulk') }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('vendors.email.send.bulk') }}" method="POST" enctype="multipart/form-data">
                 @csrf
 
                 <div class="modal-body">
@@ -29,7 +29,7 @@
                     <div class="form-group">
                         <strong>Number</strong>
 
-                        <select class="form-control" data-context="vendors" data-id="{{ $vendor->id }}" data-phone="+918082488108" id="conference-number-selected" required>
+                        <select class="form-control" data-context="vendors" data-id="{{ isset($vendor) ? $vendor->id : 0 }}" data-phone="+918082488108" id="conference-number-selected" required>
                             <option disabled selected>Select Number</option>
                                 @foreach(\Config::get("twilio.caller_id") as $caller)
                                 <option value="{{ $caller }}">{{ $caller }}</option>

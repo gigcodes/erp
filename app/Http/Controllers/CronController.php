@@ -72,7 +72,6 @@ class CronController extends Controller
     public function runCommand(Request $request)
     {
         $command = $request->get("name");
-        
         if(!empty($command)) {
             \Artisan::call($command, []);
             return response()->json(["code" => 200 , "output" => \Artisan::output()]);

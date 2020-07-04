@@ -48,7 +48,11 @@
                     <tr>
                         <th>Username</th>
                         <th>Posts</th>
-                        <th>URL</th>
+                        <th>Phone</th>
+                        <th>Website</th>
+                        <th>Twitter</th>
+                        <th>Facebook</th>
+                        <th>Country</th>
                         <th>Followers</th>
                         <th>Following</th>
                         <th>Description</th>

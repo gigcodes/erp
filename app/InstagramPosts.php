@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
 use App\HashTag;
+use App\InstagramCommentQueue;
 
 class InstagramPosts extends Model
 {
@@ -25,5 +26,15 @@ class InstagramPosts extends Model
     public function hashTags()
     {
         return $this->belongsTo(HashTag::class, 'hashtag_id');
+    }
+
+    public function userDetail()
+    {
+        return $this->hasOne(InstagramUsersList::class,'user_id','user_id');
+    }
+
+    public function commentQueue()
+    {
+        return $this->hasMany(InstagramCommentQueue::class,'post_id','post_id');
     }
 }

@@ -75,6 +75,20 @@
             {!!Form::select('supplier_status_id', $supplierstatus, old('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
           </div>
 
+          <div class="form-group">
+            <strong>Scraper Name:</strong>
+            <input type="text" name="scraper_name" class="form-control" value="{{ old('scraper_name') }}">
+
+          </div>
+
+          <div class="form-group">
+            <strong>Inventory LifeTime:</strong>
+            <input type="text" name="inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}">
+
+          </div>
+
+
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -161,6 +175,18 @@
           <div class="form-group">
             <strong>Supplier Status:</strong>
             {!!Form::select('supplier_status_id', $supplierstatus, old('supplier_status_id'), ['class' => 'form-control form-control-sm', 'id' => 'supplier_status_id'])!!}
+          </div>
+
+          <div class="form-group">
+            <strong>Scraper Name:</strong>
+            <input type="text" name="scraper_name" class="form-control" value="{{ old('scraper_name') }}" id="scraper_name">
+
+            
+          </div>
+
+          <div class="form-group">
+            <strong>Inventory LifeTime:</strong>
+            <input type="text" name="inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}" id="inventory_lifetime">
           </div>
 
         </div>

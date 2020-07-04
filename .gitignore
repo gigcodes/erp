@@ -33,6 +33,7 @@ phpunit.phar
 /public/hot
 /public/storage
 /storage/*.key
+/storage/tmp
 /.vscode
 /.vagrant
 Homestead.json
@@ -61,3 +62,6 @@ public/zoom/*
 public/tmp_images/*
 
 /deployment_scripts_test
+
+# private files
+app/Console/Commands/DispatchJob.php 

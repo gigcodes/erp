@@ -317,17 +317,21 @@
             }
 
         });
-
+        var imgSrcSel = null;
         $(document).on('click','.put-index-here img',function () {
             $(this).addClass('img-fluid');
             $('.open-modal-img').click();
             $('.open-modal-img').attr('data-id',$(this).attr('id'));
+            imgSrcSel = $(this);
         });
 
         $('.modal-img-item').on('click',function () {
             var src = $(this).attr('src');
-            var id = $('.open-modal-img').attr('data-id');
-            $('img[id="'+id+'"]').attr('src',src);
+            if(imgSrcSel.length > 0) {
+                imgSrcSel.attr('src',src);
+            }
+            //var id = $('.open-modal-img').attr('data-id');
+            //$('img[id="'+id+'"]').attr('src',src);
             $('#exampleModalCenter').css('overflow-y','scroll');
             $('.close-images').click();
         });
@@ -358,7 +362,6 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
             }).done(function(data) {
-                console.log(data);
                 if(data.html){
                     $('.preview-body').html(data.html.html);
                 }
@@ -409,9 +412,7 @@
             e.preventDefault();
             $('.error-span').html('');
             var html =    $('.put-index-here').html();
-            var formData = $('#form-store').serialize() + '&html=' + html;
-
-
+            var formData = $('#form-store').serialize() + '&html=' + escape(html);
             $.ajax({
                 type: "POST",
                 url: "/marketing/mailinglist-ajax-store",

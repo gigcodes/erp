@@ -23,6 +23,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Services\Facebook\Facebook;
 use App\Priority;
+use App\Library\Instagram\Helper;
+use App\InstagramUsersList;
 
 class InstagramController extends Controller
 {
@@ -763,5 +765,40 @@ class InstagramController extends Controller
     {
         $priority = Priority::all();
         dd($priority);
+    }
+
+    public function addUserForPost(Request $request)
+    {
+        if (strpos($request->userlink, 'instagram.com') !== false) {
+           //Get username from link
+            $username = str_replace(['https://www.instagram.com/','/'], '', $request->userlink);
+            $username = Helper::getUserIdFromUsername($username);
+            if($username['status'] == 'ok'){
+                $user = $username['user'];
+                $userList = InstagramUsersList::where('user_id',$user['pk'])->first();
+                    if(empty($userList)){
+                        $userDetail = new InstagramUsersList;
+                        $userDetail->username = $user['username'];
+                        $userDetail->user_id = $user['pk'];
+                        $userDetail->image_url = $user['profile_pic_url'];
+                        $userDetail->bio = $user['biography'];
+                        $userDetail->rating = 0;
+                        $userDetail->location_id = 0;
+                        $userDetail->because_of = 'instagram_link';
+                        $userDetail->posts = $user['media_count'];
+                        $userDetail->followers = $user['follower_count'];
+                        $userDetail->following = $user['following_count'];
+                        $userDetail->is_manual = 1;
+                        $userDetail->save();
+                    }
+                return \Redirect::back()->withSuccess(['msg', 'User Saved']);
+            }else{
+                return \Redirect::back()->withErrors(['msg', 'No User Found !']);
+            }
+        
+        }else{
+            return \Redirect::back()->withErrors(['msg', 'Please enter full instagram url']);
+        }
+        
     }
 }

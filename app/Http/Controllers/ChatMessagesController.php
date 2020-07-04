@@ -12,6 +12,7 @@ use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\PublicKey;
+use App\SiteDevelopment;
 
 class ChatMessagesController extends Controller
 {
@@ -50,6 +51,9 @@ class ChatMessagesController extends Controller
             case 'old':
                 $object = Old::find($request->object_id);
                 break;
+            case 'site_development':
+                $object = SiteDevelopment::find($request->object_id);
+                break;    
             default:
                 $object = Customer::find($request->object);
         }
@@ -64,13 +68,26 @@ class ChatMessagesController extends Controller
         }
 
         // Get chat messages
-        $chatMessages = $object
-            ->whatsappAll()
-            ->whereRaw($rawWhere)
-            ->where('status', '!=', 10)
-            ->skip(0)->take($limit);
+        $currentPage = request("page",1);
+        $skip        = ($currentPage - 1) * $limit;
 
-        $loadType = $request->get('load_type');
+        $loadType       = $request->get('load_type');
+        $onlyBroadcast  = false;
+        
+        //  if loadtype is brodcast then get the images only
+        if($loadType == "broadcast") {
+           $onlyBroadcast   = true;
+           $loadType        = "images"; 
+        }
+
+        $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
+        
+        if(!$onlyBroadcast){
+           $chatMessages = $chatMessages->where('status', '!=', 10);
+        }
+
+        $chatMessages =  $chatMessages->skip($skip)->take($limit);   
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -155,6 +172,7 @@ class ChatMessagesController extends Controller
 
                         // Get media URL
                         $media[] = [
+                            'key' => $image->getKey(),
                             'image' => $image->getUrl(),
                             'product_id' => $productId
                         ];

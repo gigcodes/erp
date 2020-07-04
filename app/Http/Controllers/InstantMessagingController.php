@@ -22,13 +22,23 @@ class InstantMessagingController extends Controller
      */
     public function getMessage($client, $numberFrom, Request $request)
     {
-        // Get client class
-        $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
+        if($client == 'whatsapp'){
+            // Get client class
+            $clientClass = '\\App\\Marketing\\' . ucfirst($client) . 'Config';
 
-        // Check credentials
-        $whatsappConfig = $clientClass::where('number', $numberFrom)->first();
+            // Check credentials
+            $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
+        }else{
+            $clientClass = '\\App\\Account';
 
-        // Nothing found
+            // Check credentials
+            $whatsappConfig = $clientClass::where('last_name', $numberFrom)->first();
+            
+        }
+
+        
+
+        //Nothing found
          if ($whatsappConfig == null || Crypt::decrypt($whatsappConfig->password) != $request->token) {
              $message = ['error' => 'Invalid token'];
              return json_encode($message, 400);
@@ -39,7 +49,7 @@ class InstantMessagingController extends Controller
         if ($sentLast != null) {
             $sentLast = strtotime($sentLast);
         }
-
+        
 
         if ( $sentLast > time() - (3600 / $whatsappConfig->frequency) ) {
             $message = ['error' => 'Awaiting forced time gap'];
@@ -51,7 +61,7 @@ class InstantMessagingController extends Controller
             $send_start = $whatsappConfig->send_start;
             $send_end = $whatsappConfig->send_end;
         }else{
-            $send_start = 8;
+            $send_start = 4;
             $send_end = 19;
         }
 
@@ -248,7 +258,17 @@ class InstantMessagingController extends Controller
 
         //Adding Last Login
         $whatsappConfig->last_online = Carbon::now();
-        $whatsappConfig->is_connected = $request->status;
+        if($request->status == 1){
+            $whatsappConfig->is_connected = 1;
+        }
+
+        if($request->status == 0){
+            $whatsappConfig->is_connected = 0;
+        }
+
+
+        $whatsappConfig->status = $request->status;
+
 
         //Updating Whats App Config details
         $whatsappConfig->update();

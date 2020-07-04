@@ -44,6 +44,7 @@
                 </form>
             </div>
             <div class="pull-right">
+              <button type="button" class="btn btn-secondary" onclick="removeBlocked()" style="margin-right: 5px;">Remove 30 Cust From Block No.</a>  
               <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#whatsAppConfigCreateModal">+</a>
             </div>
         </div>
@@ -310,25 +311,74 @@
     } 
 
     function deleteChrome(id) {
-            $.ajax({
-            url: '/marketing/whatsapp-config/delete-chrome',
-            type: 'GET',
-            dataType: 'json',
-            data: {id: id},
-            }).done(function (data) {
-                $("#loading-image").hide();
-                if(data.success){
-                    $('#image_crop').attr('src',data.media);
-                    $('#largeImageModal').modal('show');
-                }else if(data.error){
-                    alert('Check if Barcode Server Is Running');
-                }else if(data.nobarcode){
-                    alert('No Screen Is Present')
-                }
-                
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                alert('No response from server');
-            });
-        }    
+            var result = confirm("Want to delete Chrome Data?");
+            if(result){
+                $.ajax({
+                url: '/marketing/whatsapp-config/delete-chrome',
+                type: 'GET',
+                dataType: 'json',
+                data: {id: id},
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    if(data.success){
+                        $('#image_crop').attr('src',data.media);
+                        $('#largeImageModal').modal('show');
+                    }else if(data.error){
+                        alert('Check if Barcode Server Is Running');
+                    }else if(data.nobarcode){
+                        alert('No Screen Is Present')
+                    }
+                    
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            }
+            
+        }
+
+    function restartScript(id) {
+          var result = confirm("Want to restart Script?");
+          if (result) {
+                $.ajax({
+                url: '/marketing/whatsapp-config/restart-script',
+                type: 'GET',
+                dataType: 'json',
+                data: {id: id},
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    if(data.success){
+                        alert('No Process Found');
+                    }else if(data.error){
+                        alert('Check if Server Is Running');
+                    }else if(data.nobarcode){
+                        alert('Device restart please checkback in 5-10 mins')
+                    }
+                    
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+            
+            }      
+    }
+
+    function removeBlocked() {
+        var result = confirm("Want to remove WhatsApp Blocked?");
+          if (result) {
+                $.ajax({
+                url: '/marketing/whatsapp-config/blocked-number',
+                type: 'GET',
+                dataType: 'json',
+                data: {},
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    if(data.success){
+                        alert('Blocked Number Disabled');
+                    }
+                    
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+          }       
+    }        
 </script>
 @endsection
