@@ -51,7 +51,7 @@ class CategoryPushStoreWebsite extends Command
             $category = \DB::table("categories")->leftJoin('store_website_categories as swc', function ($join) use ($sw) {
                 $join->on('categories.id', '=', 'swc.category_id');
                 $join->where('swc.store_website_id', '=', $sw->id);
-            })->whereNull("swc.remote_id")->select(["categories.*"])->limit(4)->pluck('id')->toArray();
+            })->whereNull("swc.remote_id")->select(["categories.*"])->pluck('id')->toArray();
 
             $myRequest = new Request();
             $myRequest->setMethod('POST');
