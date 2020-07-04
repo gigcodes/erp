@@ -154,6 +154,65 @@ class SendQueuePendingChatMessages extends Command
                 }
 
             }
+
+            //  For vendor
+            $this->waitingMessages = [];
+            if (!empty($numberList)) {
+                foreach ($numberList as $no) {
+                    $chatApi                    = new ChatApi;
+                    $waitingMessage             = $chatApi->waitingLimit($no);
+                    $this->waitingMessages[$no] = $waitingMessage;
+                }
+            }
+            if (!empty($numberList)) {
+                foreach ($numberList as $number) {
+                    $sendLimit = isset($limit[$number]) ? $limit[$number] : 0;
+
+                    $chatMessage = ChatMessage::where('is_queue', ">", 0)
+                        ->join("vendors as v", "v.id", "chat_messages.vendor_id")
+                        ->where("v.whatsapp_number", $number)
+                        ->select("chat_messages.*")
+                        ->limit($sendLimit)->get();
+
+                    if (!$chatMessage->isEmpty()) {
+                        foreach ($chatMessage as $value) {
+                            // check first if message need to be send from broadcast
+                            if ($value->is_queue > 1) {
+                                $sendNumber = \DB::table("whatsapp_configs")->where("id", $value->is_queue)->first();
+                                // if chat message has image then send as a multiple message
+                                if ($images = $value->getMedia(config('constants.media_tags'))) {
+                                    foreach ($images as $k => $image) {
+                                        \App\ImQueue::create([
+                                            "im_client"                 => "whatsapp",
+                                            "number_to"                 => $value->vendor->phone,
+                                            "number_from"               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                            "text"                      => ($k == 0) ? $value->message : "",
+                                            "image"                     => $image->getUrl(),
+                                            "priority"                  => self::BROADCAST_PRIORITY,
+                                            "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                        ]);
+                                    }
+                                } else {
+                                    \App\ImQueue::create([
+                                        "im_client"                 => "whatsapp",
+                                        "number_to"                 => $value->vendor->phone,
+                                        "number_from"               => ($sendNumber) ? $sendNumber->number : $value->vendor->whatsapp_number,
+                                        "text"                      => $value->message,
+                                        "priority"                  => self::BROADCAST_PRIORITY,
+                                        "marketing_message_type_id" => self::MARKETING_MESSAGE_TYPE_ID,
+                                    ]);
+                                }
+
+                                $value->is_queue = 0;
+                                $value->save();
+
+                            }
+                        }
+                    }
+
+                }
+            }
+
             $report->update(['end_time' => Carbon::now()]);
         /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
