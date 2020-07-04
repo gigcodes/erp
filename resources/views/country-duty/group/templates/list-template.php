@@ -18,6 +18,7 @@
 		        <th width="5%">Group Name</th>
 		        <th width="5%">Group Duty</th>
 		        <th width="5%">Group Vat</th>
+		        <th width="5%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -53,6 +54,11 @@
 			      	<td>{{:prop.group_name}}</td>
 			      	<td>{{:prop.group_duty}}</td>
 			      	<td>{{:prop.group_vat}}</td>
+			      	<td>
+			      		<a class="group-copy-another-country" data-id="{{:prop.id}}" href="javascript:;">Copy</a>
+			      		<a class="group-delete-country" data-id="{{:prop.id}}" href="javascript:;">Delete</a>
+			      	</td>
+
 			      </tr>
 			    {{/props}}  
 		    </tbody>
@@ -93,3 +99,70 @@
 	</div>
 </div>
 </script>
+
+<script type="text/x-jsrender" id="template-duty-group">
+<form name="form-create-forn" method="post">
+	<?php echo csrf_field(); ?>
+	<div class="modal-content">
+	   <div class="modal-header">
+	      <h5 class="modal-title">Create a Group</h5>
+	      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+	      <span aria-hidden="true">&times;</span>
+	      </button>
+	   </div>
+	   <div class="modal-body">
+	      <div class="form-row">
+	         <div class="form-group col-md-12">
+	            <label for="hs_code">HsCode</label>
+	            <input type="text" name="hs_code" value="{{if data}}{{:data.hs_code}}{{/if}}" class="form-control" id="title" placeholder="Enter Hscode">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="origin">Origin</label>
+	            <input type="text" name="origin" value="{{if data}}{{:data.origin}}{{/if}}" class="form-control" id="title" placeholder="Enter origin">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="destination">Destination</label>
+	            <input type="text" name="destination" value="{{if data}}{{:data.destination}}{{/if}}" class="form-control" id="title" placeholder="Enter destination">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="currency">Currency</label>
+	            <input type="text" name="currency" value="{{if data}}{{:data.currency}}{{/if}}" class="form-control" id="title" placeholder="Enter currency">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="price">Price</label>
+	            <input type="text" name="price" value="{{if data}}{{:data.price}}{{/if}}" class="form-control" id="title" placeholder="Enter price">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="duty">Duty</label>
+	            <input type="text" name="duty" value="{{if data}}{{:data.duty}}{{/if}}" class="form-control" id="title" placeholder="Enter duty">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="vat">VAT</label>
+	            <input type="text" name="vat" value="{{if data}}{{:data.vat}}{{/if}}" class="form-control" id="title" placeholder="Enter vat">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="duty_percentage">Duty percentage</label>
+	            <input type="text" name="duty_percentage" value="{{if data}}{{:data.duty_percentage}}{{/if}}" class="form-control" id="title" placeholder="Enter duty_percentage">
+	         </div>
+	         <div class="form-group col-md-12">
+	            <label for="vat_percentage">VAT percentage</label>
+	            <input type="text" name="vat_percentage" value="{{if data}}{{:data.vat_percentage}}{{/if}}" class="form-control" id="title" placeholder="Enter vat_percentage">
+	         </div>
+	          <div class="form-group col-md-12">
+	            <label for="duty_group_id">Duty Group</label>
+	            <select class="form-control" name="duty_group_id">
+		            <?php foreach(\App\DutyGroup::selectList() as $k => $dglist) { ?>
+		            	<option {{if data && data.duty_group_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $dglist; ?></option>
+		            <?php } ?>
+	        	</select>
+	         </div>
+	      </div>
+	   </div>
+	   <div class="modal-footer">
+	      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+	      <button type="button" class="btn btn-secondary submit-form">Save changes</button>
+	   </div>
+	</div>
+	</form>	
+</script>
+
