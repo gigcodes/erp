@@ -56,7 +56,7 @@ class CountryDutyController extends Controller
         $response     = [];
         if ($destination != null) {
             foreach (explode(",", $destination) as $dest) {
-                $dest = strtoupper($dest);
+                $dest   = strtoupper($dest);
                 $result = $simplyDuty->calculate(
                     $origin,
                     $dest,
@@ -69,10 +69,10 @@ class CountryDutyController extends Controller
                     $errorMessage[] = $result->error;
                     continue;
                 } else {
-                    $result = json_decode(json_encode($result),true);
-                    $result["Origin"]   = $origin;
-                    $result["Destination"] = $dest; 
-                    $response[] = $result;
+                    $result                = json_decode(json_encode($result), true);
+                    $result["Origin"]      = $origin;
+                    $result["Destination"] = $dest;
+                    $response[]            = $result;
                 }
             }
         }
@@ -145,8 +145,7 @@ class CountryDutyController extends Controller
 
     }
 
-    public function list(Request $request) 
-    { 
+    function list(Request $request) {
 
         $title = "Country Group List";
 
@@ -154,25 +153,78 @@ class CountryDutyController extends Controller
 
     }
 
-    public function records(Request $request) 
+    public function records(Request $request)
     {
-        $records = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id", "country_duties.duty_group_id");
-        
-        if($request->keyword != null) {
-            $records = $records->where("country_duties.hs_code","like", "%".$request->keyword."%");
+        $records = \App\CountryDuty::leftJoin("duty_groups as dg", "dg.id", "country_duties.duty_group_id");
+
+        if ($request->keyword != null) {
+            $records = $records->where("country_duties.hs_code", "like", "%" . $request->keyword . "%");
         }
 
-        if($request->destination != null) {
-            $records = $records->where("country_duties.destination","like", "%".$request->destination."%");
+        if ($request->destination != null) {
+            $records = $records->where("country_duties.destination", "like", "%" . $request->destination . "%");
         }
 
-        if($request->group_name != null) {
-            $records = $records->where("dg.name","like", "%".$request->group_name."%");
+        if ($request->group_name != null) {
+            $records = $records->where("dg.name", "like", "%" . $request->group_name . "%");
         }
 
-        $records = $records->select(["country_duties.*","dg.name as group_name","dg.duty as group_duty","dg.vat as group_vat"])->get();
+        $records = $records->select(["country_duties.*", "dg.name as group_name", "dg.duty as group_duty", "dg.vat as group_vat"])->get();
 
-        return response()->json(["code" => 200 , "data" => $records, "total" => $records->count()]);
+        return response()->json(["code" => 200, "data" => $records, "total" => $records->count()]);
+    }
+
+    /**
+     * Edit Page
+     * @param  Request $request [description]
+     * @return
+     */
+
+    public function edit(Request $request, $id)
+    {
+        $modal = \App\CountryDuty::where("id", $id)->first();
+
+        if ($modal) {
+            return response()->json(["code" => 200, "data" => $modal]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+    }
+
+    /**
+     * delete Page
+     * @param  Request $request [description]
+     * @return
+     */
+
+    public function delete(Request $request, $id)
+    {
+        $modal = \App\CountryDuty::where("id", $id)->first();
+
+        if ($modal) {
+            $modal->delete();
+            return response()->json(["code" => 200, "data" => $modal]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
+    }
+
+    
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        $data = $request->except('_token');
+
+        $data = \App\CountryDuty::create($data);
+
+        return response()->json(["code" => 200, "data" => $data]);
+
     }
 
 }
