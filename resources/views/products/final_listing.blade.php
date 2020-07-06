@@ -167,7 +167,7 @@
                     </div>
                     @if(auth()->user()->isAdmin())
                         <div class="form-group mr-3">
-                            <?php echo Form::checkbox("submit_for_approval",request('submit_for_approval'),["class" => "form-control"]); ?>
+                            <?php echo Form::checkbox("submit_for_approval","on",(bool)(request('submit_for_approval') == "on"),["class" => "form-control"]); ?>
                             <lable for="submit_for_approval">Submit For approval ?</lable>
                         </div>
                     @endif
