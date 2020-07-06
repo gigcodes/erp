@@ -644,6 +644,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
+    Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
 
     // Social Media Image Module
     Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
