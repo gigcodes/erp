@@ -140,7 +140,6 @@ class CategoryController extends Controller
 
         // check unique records    
         $unique = array_diff($categories, $ccat);
-
         if(!empty($unique) && is_array($unique)) {
             foreach ($unique as $cat) {
                 // StoreWebsiteCategory::create([
@@ -167,12 +166,10 @@ class CategoryController extends Controller
                     $parentId = 0;
 
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                
-                            $categ = MagentoHelper::createCategory($parentId,$data,$swi);
-
+                        $categ = MagentoHelper::createCategory($parentId,$data,$swi);
                     }
                     if($category){
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$category)->first();
+                        $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$categ)->first();
                         if(empty($checkIfExist)){
                             $storeWebsiteCategory = new StoreWebsiteCategory();
                             $storeWebsiteCategory->category_id = $category->id;
