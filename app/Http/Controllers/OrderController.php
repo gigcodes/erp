@@ -54,10 +54,13 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
+use App\Mail\ViewInvoice;
 use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
+use App\StoreWebsite;
+use App\Invoice;
 
 
 class OrderController extends Controller {
@@ -184,13 +187,12 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
-
 		$term = $request->input('term');
 		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
 		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
 		$brandIds = array_filter($request->get("brand_id",[]));
-
+		$registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -233,9 +235,8 @@ class OrderController extends Controller {
 					 $sortby = 'order_date';
 		}
 
-		$orders = (new Order())->newQuery()->with('customer');
-		
-
+		//$orders = (new Order())->newQuery()->with('customer');
+		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite');
 
 		if(empty($term))
 			$orders = $orders;
@@ -259,6 +260,12 @@ class OrderController extends Controller {
 
 		if ($date != '') {
 			$orders = $orders->where('order_date', $date);
+		}
+
+		if ($store_site = $request->store_website_id) {
+			$orders = $orders->whereHas('customer', function($query) use ($store_site) {
+				return $query->where('store_website_id', $store_site);
+			});
 		}
 
 		$statusFilterList =  clone($orders);
@@ -285,10 +292,10 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
-		
+
 		$orders_array = $orders->paginate(20);
-		
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
+		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
 
 	public function products(Request $request)
@@ -2123,7 +2130,6 @@ public function createProductOnMagento(Request $request, $id){
 	public function previewInvoice(Request $request, $id)
 	{
 		$order = \App\Order::where("id",$id)->first();
-
 		if($order) {
             $data["order"]      = $order;
             $data["customer"]   = $order->customer;
@@ -2273,6 +2279,126 @@ public function createProductOnMagento(Request $request, $id){
 		}
 
 		return response()->json(["code"=> 200, "_h" => "No records found"]);
+	}
+
+
+	public function viewAllInvoices() {
+		$invoices = Invoice::orderBy('id','desc')->paginate(10);
+		return view( 'orders.invoices.index', compact('invoices') );
+	}
+
+	public function addInvoice($id) {
+		$firstOrder = Order::find($id);
+		if($firstOrder->customer) {
+			if($firstOrder->customer->country) {
+				$prefix = substr($firstOrder->customer->country,0,3);
+			}
+			else {
+				$prefix = 'Lux';
+			}
+		}
+		else {
+			$prefix = 'Lux';
+		}
+		$lastInvoice = Invoice::where('invoice_number','like',$prefix.'%')->orderBy('id','desc')->first();
+		if($lastInvoice) {
+			$inoicePieces = explode('-',$lastInvoice->invoice_number);
+			$nextInvoiceNumber = $inoicePieces[1] + 1;
+		}
+		else {
+			$nextInvoiceNumber = '1001';
+		}
+		$invoice_number = $prefix.'-'.$nextInvoiceNumber;
+		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->where('id','!=',$firstOrder->id)->get();
+		return view( 'orders.invoices.add', compact('firstOrder','invoice_number','more_orders') );
+	}
+
+
+	public function submitInvoice(Request $request) {
+		if(!$request->invoice_number) {
+			return redirect()->back()->with('error','Invoice number is mandatory');
+		}
+		if(!$request->first_order_id) {
+			return redirect()->back()->with('error','Invalid approach');
+		}
+		$firstOrder = Order::where('invoice_id',null)->where('id',$request->first_order_id)->first();
+		if(!$firstOrder) {
+			return redirect()->back()->with('error','This order is already associated with an invoice');
+		}
+		$invoice = new Invoice;
+		$invoice->invoice_number = $request->invoice_number;
+		$invoice->invoice_date = $request->invoice_date;
+		$invoice->save();
+		$firstOrder->update(['invoice_id' => $invoice->id]);
+		if($request->order_ids && count($request->order_ids) > 0) {
+			$orders = Order::whereIn('id',$request->order_ids)->get();
+			foreach($orders as $order) {
+				$order->update(['invoice_id' => $invoice->id]);
+			}
+		}
+		return redirect()->action(
+			'OrderController@viewAllInvoices');
+	}
+
+	public function viewInvoice($id)
+	{
+		$invoice = Invoice::where("id",$id)->first();
+		if($invoice) {
+            $data["invoice"]      = $invoice;
+            $data["orders"]   = $invoice->orders;
+            if($invoice->orders) {
+            	$viewInvoice = new ViewInvoice($data);
+            	return $viewInvoice->preview();
+            }
+        }
+
+        return abort("404");
+	}
+
+	public function editInvoice($id) {
+		$invoice = Invoice::where("id",$id)->first();
+		$order = Order::where('invoice_id',$invoice['id'])->first();
+
+		$more_orders = Order::where('customer_id',$order['customer_id'])->where(function ($query) use ($id) {
+			$query->where('invoice_id',$id)
+			->orWhere('invoice_id',null);
+		})->get();
+		return view( 'orders.invoices.edit', compact('invoice','more_orders') );
+	}
+
+	public function submitEdit(Request $request) {
+		$invoice = Invoice::find($request->id);
+		if(!$request->invoice_date || $request->invoice_date == '') {
+			return redirect()->back()->with('error','Invalid approach');
+		}
+		$invoice->update(['invoice_date' => $request->invoice_date]);
+		Order::where('invoice_id',$request->id)->update(['invoice_id' => null]);
+		if($request->order_ids && count($request->order_ids) > 0) {
+			$orders = Order::whereIn('id',$request->order_ids)->get();
+			foreach($orders as $order) {
+				$order->update(['invoice_id' => $invoice->id]);
+			}
+		}
+		return redirect()->action(
+			'OrderController@viewAllInvoices');
+	}
+
+
+	public function mailInvoice(Request $request, $id)
+	{
+		$invoice = Invoice::where("id",$id)->first();
+
+		if($invoice) {
+
+            $data["invoice"]      = $invoice;
+            $data["orders"]   = $invoice->orders;
+            if($invoice->orders) {
+            	Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+            	return response()->json(["code" => 200 , "data" => [], "message" => "Email sent successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
 	}
 
 }

@@ -506,6 +506,7 @@
                                           <p>Supplier : ` + product['supplier'] + `</p>
                                           <p>Suppliers : ` + product['suppliers'] + `</p>
                                           <p><span class="badge category-history" data-id=`+ product['id'] +`>Category History</span></p>
+                                          <p><span class="badge color-history" data-id=`+ product['id'] +`>Color History</span></p>
                                           ` + is_scraped + is_imported + `
 
                                           <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `">
@@ -786,11 +787,11 @@
                     if(result.code == 200) {
                        var t = '';
                        $.each(result.data,function(k,v) {
-                          t += `<td>`+v.id+`</td>`;
+                          t += `<tr><td>`+v.id+`</td>`;
                           t += `<td>`+v.old_cat_name+`</td>`;
                           t += `<td>`+v.new_cat_name+`</td>`;
                           t += `<td>`+v.user_name+`</td>`;
-                          t += `<td>`+v.created_at+`</td>`;
+                          t += `<td>`+v.created_at+`</td></tr>`;
                        });
                     }
                     $("#category-history-modal").find(".show-list-records").html(t);
@@ -801,5 +802,39 @@
                 }
             });
        });
+
+       $(document).on("click",".color-history",function(e) {
+        e.preventDefault();
+            var product_id = $(this).data("id");
+            $.ajax({
+                url: '/products/'+product_id+'/color-history',
+                type: 'GET',
+                dataType: 'json',
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
+                success: function(result){
+                    $("#loading-image").hide();
+
+                    if(result.code == 200) {
+                       var t = '';
+                       $.each(result.data,function(k,v) {
+                          t += `<tr><td>`+v.id+`</td>`;
+                          t += `<td>`+v.old_color+`</td>`;
+                          t += `<td>`+v.color+`</td>`;
+                          t += `<td>`+v.user_name+`</td>`;
+                          t += `<td>`+v.created_at+`</td></tr>`;
+                       });
+                    }
+                    $("#category-history-modal").find(".show-list-records").html(t);
+                    $("#category-history-modal").modal("show");
+                },
+                error: function (){
+                    $("#loading-image").hide();
+                }
+            });
+       });
+
+       
   </script>
 @endsection

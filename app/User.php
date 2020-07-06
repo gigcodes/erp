@@ -14,6 +14,7 @@ use Cache;
 use App\UserLog;
 use DB;
 use Redirect;
+use Carbon\Carbon;
 
 
 class User extends Authenticatable
@@ -156,6 +157,19 @@ class User extends Authenticatable
 
         return false;
     }
+
+    public function isInCustomerService()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        if (in_array('crm', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
 
     /**
      * The attributes helps to check if User has Permission Using Route To Check Page.
@@ -366,8 +380,40 @@ class User extends Authenticatable
             ->latest();
     }
 
+    public function latestRate()
+    {
+        return $this->hasOne(
+            'App\UserRate',
+            'user_id',
+            'id'
+        )->latest('start_date');
+    }
+
     public static function selectList()
     {
         return self::pluck("name","id")->toArray();
     }
+
+
+    public function taskList()
+    {
+        return $this->hasMany(\App\ErpPriority::class, "user_id","id");
+    }
+
+    public function yesterdayHrs()
+    {
+        $records = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
+        ->where("hm.user_id",$this->id)
+        ->whereDate("starts_at",date("Y-m-d", strtotime('-1 days')))
+        ->groupBy('hubstaff_activities.user_id')
+        ->select(\DB::raw("sum(hubstaff_activities.tracked) as total_seconds"))
+        ->first();
+
+        if($records) {
+            return number_format((($records->total_seconds / 60) / 60),2,".",",");
+        }
+
+        return 0;
+    }
+
 }

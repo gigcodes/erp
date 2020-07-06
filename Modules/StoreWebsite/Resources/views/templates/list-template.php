@@ -20,8 +20,9 @@
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.title}}</td>
 			        <td>
-			        	<b>Website:</b>{{:prop.website}}<br>
-			        	<b>Description:</b>{{:prop.description}}<br>
+			        	<b>Website : </b>{{:prop.website}}<br>
+			        	<b>Country Duty : </b>{{:prop.country_duty}}<br>
+			        	<b>Description : </b>{{:prop.description}}<br>
 			        </td>
 			        <td>{{:prop.remote_software}}</td>
 			        <td>

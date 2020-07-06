@@ -146,7 +146,7 @@ class CroppedImageReferenceController extends Controller
             $query->whereHas('product', function ($qu) use ($request) {
                                 $qu->where('status_id','!=',StatusHelper::$cropRejected);
                             }); 
-            $products = $query->orderBy('id', 'desc')->paginate(50);
+            $products = $query->orderBy('id', 'desc')->groupBy('original_media_id')->paginate(50);
 
         }
         

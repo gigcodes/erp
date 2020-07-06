@@ -104,6 +104,8 @@ use App\Console\Commands\SendEventNotificationBefore2hr;
 use App\Console\Commands\SendEventNotificationBefore30Min;
 use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\GenerateProductPricingJson;
+use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 
 class Kernel extends ConsoleKernel
@@ -203,7 +205,9 @@ class Kernel extends ConsoleKernel
         SendEventNotificationBefore2hr::class,
         SendEventNotificationBefore30min::class,
         AccountHubstaffActivities::class,
-        DailyHubstaffActivityLevel::class
+        DailyHubstaffActivityLevel::class,
+        EmailExcelImporter::class,
+        GenerateProductPricingJson::class
     ];
 
     /**
@@ -431,6 +435,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('currencies:update_name')->monthly();
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
+        $schedule->command('generate:product-pricing-json')->daily();
         
     }
 

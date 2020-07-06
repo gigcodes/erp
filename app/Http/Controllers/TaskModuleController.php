@@ -786,12 +786,13 @@ class TaskModuleController extends Controller {
 		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
 		                                        ->renderAsDropdown();
-
+		$taskNotes = $task->notes()->paginate(20);
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
 			'categories'	=> $categories,
+			'taskNotes'	=> $taskNotes,
 		]);
 	}
 
@@ -1568,4 +1569,10 @@ class TaskModuleController extends Controller {
 
 	}
 
+	public function deleteTaskNote(Request $request)
+	{
+		$task = Remark::whereId($request->note_id)->delete();
+		session()->flash('success', 'Deleted successfully.');
+		return response(['success' => "Deleted"],200);
+	}
 }

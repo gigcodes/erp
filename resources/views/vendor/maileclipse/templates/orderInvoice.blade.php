@@ -1,149 +1,219 @@
 <!doctype html>
 <html>
    <head>
-      <meta charset="utf-8">
-      <title>Invoice of {{ $order->order_id }}</title>
-      <style>
-         .invoice-box {
-         max-width: 800px;
-         margin: auto;
-         padding: 30px;
-         border: 1px solid #eee;
-         box-shadow: 0 0 10px rgba(0, 0, 0, .15);
-         font-size: 16px;
-         line-height: 24px;
-         font-family: 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-         color: #555;
-         }
-         .invoice-box table {
-         width: 100%;
-         line-height: inherit;
-         text-align: left;
-         }
-         .invoice-box table td {
-         padding: 5px;
-         vertical-align: top;
-         }
-         .invoice-box table tr td:nth-child(2) {
-         text-align: right;
-         }
-         .invoice-box table tr.top table td {
-         padding-bottom: 20px;
-         }
-         .invoice-box table tr.top table td.title {
-         font-size: 45px;
-         line-height: 45px;
-         color: #333;
-         }
-         .invoice-box table tr.information table td {
-         padding-bottom: 40px;
-         }
-         .invoice-box table tr.heading td {
-         background: #eee;
-         border-bottom: 1px solid #ddd;
-         font-weight: bold;
-         }
-         .invoice-box table tr.details td {
-         padding-bottom: 20px;
-         }
-         .invoice-box table tr.item td{
-         border-bottom: 1px solid #eee;
-         }
-         .invoice-box table tr.item.last td {
-         border-bottom: none;
-         }
-         .invoice-box table tr.total td:nth-child(2) {
-         border-top: 2px solid #eee;
-         font-weight: bold;
-         }
-         @media  only screen and (max-width: 600px) {
-         .invoice-box table tr.top table td {
-         width: 100%;
-         display: block;
-         text-align: center;
-         }
-         .invoice-box table tr.information table td {
-         width: 100%;
-         display: block;
-         text-align: center;
-         }
-         }
-         /** RTL **/
-         .rtl {
-         direction: rtl;
-         font-family: Tahoma, 'Helvetica Neue', 'Helvetica', Helvetica, Arial, sans-serif;
-         }
-         .rtl table {
-         text-align: right;
-         }
-         .rtl table tr td:nth-child(2) {
-         text-align: left;
-         }
-         .div-table {
-           display: table;         
-           width: auto;         
-           background-color: #eee;         
-           border: 1px solid #666666;         
-           border-spacing: 5px; /* cellspacing:poor IE support for  this */
-         }
-         .div-table-row {
-           display: table-row;
-           width: auto;
-           clear: both;
-         }
-         .div-table-col {
-           float: left; /* fix for  buggy browsers */
-           display: table-column;         
-           width: 200px;         
-           background-color: #ccc;  
-         }
-      </style>
-   </head>
-   <body>
-<div class="invoice-box">
-<table style="height: 432px;" cellspacing="0" cellpadding="0">
-<tbody>
-<tr class="top" style="height: 97px;">
-<td style="height: 97px; width: 729px;" colspan="2">
-<table style="width: 696px;">
-<tbody>
-<tr>
-<td class="title" style="width: 416px;"><img style="width: 100%; max-width: 300px;" src="../../../../images/solo_logo.png" /></td>
-<td style="width: 260px;">Invoice #:{{ $order->order_id }}<br />Created: {{ $order->created_at }}<br /><br /></td>
-</tr>
-</tbody>
+	<meta http-equiv="content-type" content="text/html; charset=iso-8859-1"/>
+	<title>Invoice of {{ $order->order_id }}</title>
+	
+	<style type="text/css">
+		body,div,table,thead,tbody,tfoot,tr,th,td,p { font-family:"Arial"; font-size:x-small }
+		td {
+			padding: 1px 5px;
+		}
+		.bl {
+			border-left: 1px solid #000;
+		}
+		.br {
+			border-right: 1px solid #000;
+		}
+		.bt {
+			border-top: 1px solid #000;
+		}
+		.bb {
+			border-bottom: 1px solid #000;
+		}
+		.bg {
+			background: #808080
+		}
+		.vt {
+			vertical-align: top;
+		}
+		.vm {
+			vertical-align: middle;
+		}
+		.vb {
+			vertical-align: bottom;
+		}
+	</style>
+	
+</head>
+
+<body>
+<table cellspacing="0" border="0" align="center" style="max-width: 600px" cellspacing="0" cellpadding="0">
+	<tr>
+		<td class="bl br bb bt vm" style="padding:1px 6px" colspan=3 rowspan=3 height="89" align="left"><span style="font-weight: bold; font-size: 20px">LUXURY UNLIMITED</span></font></td>
+		<td class="br bb bt vm" colspan=3 rowspan=3 height="89" align="left"><span style="float: right; font-size: 12px; margin-top: 8px">105,5 EA, DAFZA DUBAI, UAE</span></font></td>
+		</tr>
+	<tr>
+		</tr>
+	<tr>
+		</tr>
+	<tr>
+		<td class="bl br bb bt bg vm" colspan=3 height="28" align="left"><font color="#FFFFFF">COMMERCIAL INVOICE</font></td>
+		<td class="br bb bt bg vm" colspan=3 height="28" align="left"></td>
+		</tr>
+	<tr>
+		<td class="bl br bg bb vm" colspan=3 height="30" align="left"><font color="#FFFFFF">Shipper/Exporter of Record</font></td>
+		<td class="br bb bg vm" colspan=3 align="left"><font color="#FFFFFF">SHIPMENTORDER</font></td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left">Luxury Unlimited </td>
+		<td class="br vb" colspan="3" align="left">INVOICE#: {{ $order->order_id }}</td>
+	</tr>
+	<tr>
+		<td class="bl br" height="17" colspan="3" align="left">Address: 105,5 EA, DAFZA DUBAI, UAE</td>
+		<td class="br" colspan="3" align="left">{{ $order->created_at }}</td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left">Order ID: {{$order->order_id}}</td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left"><br></td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left">Numbers of parcels: @if($order->order_product) {{$order->order_product->count()}} @else 0 @endif</td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"> </td>
+		<td class="br vb" colspan="3" align="left">Total actual weight 0.41 kg</td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left"><br></td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"> </td>
+		<td class="br vb" colspan="3" align="left"><br></td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left">Currency of sale: {{$order->currency}} </td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left">Incoterms : DDP</td>
+	</tr>
+	<tr>
+		<td class="bl br vb" height="17" colspan="3" align="left"></td>
+		<td class="br vb" colspan="3" align="left"><br></td>
+	</tr>
+	<tr>
+		<td class="bl bg vm" height="30" colspan="3" align="left"><font color="#FFFFFF">SHIP TOIGONSIGNEE</font></td>
+		<td class="bg vm bl br bb bt" align="left" colspan="3"><font color="#FFFFFF">SOLD TO PARTY</font></td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left">@if($order->customer) {{ $order->customer->name }} @endif</td>
+		<td class="bl br bt vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->name }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left">@if($order->customer) {{ $order->customer->address }} @endif</td>
+		<td class="bl br vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->address }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left">@if($order->customer) {{ $order->customer->city }} @endif</td>
+		<td class="bl br vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->city }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left">@if($order->customer) {{ $order->customer->country }} @endif</td>
+		<td class="bl br vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->country }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left">@if($order->customer) {{ $order->customer->pincode }} @endif </td>
+		<td class="bl br vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->pincode }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left" sdval="97142943242" sdnum="1033;">@if($order->customer) {{ $order->customer->phone }} @endif</td>
+		<td class="bl br vb" colspan="3" align="left">@if($order->customer) {{ $order->customer->phone }} @endif</td>
+	</tr>
+	<tr>
+		<td class="bl vb" height="17" colspan="3" align="left"><u><font color="#0000FF"><a href="mailto:YOGESHMORDANI@ICLOUD.COM">@if($order->customer) {{ $order->customer->email }} @endif</a></font></u></td>
+		<td class="bl br vb" colspan="3" align="left"><u><font color="#0000FF"><a href="mailto:YOGESHMORDANI@ICLOUD.COM">@if($order->customer) {{ $order->customer->email }} @endif</a></font></u></td>
+	</tr>
+	<tr>
+		<td class="bl vb" colspan="3" height="17" align="left"><br></td>
+		<td class="bl br bb vb" colspan="3" align="left"><br></td>
+	</tr>
+	<tr>
+		<td class="bl bb bt vm" height="31" align="left" bgcolor="#808080"><font color="#FFFFFF">DESCRIPTION </font></td>
+		<td class="bl bb bt bg vm" align="left"><font color="#FFFFFF">HS Code</font></td>
+		<td class="bl bb bt bg vm" align="left"><font color="#FFFFFF">Country of orgin</font></td>
+		<td class="bl bb bg vm" align="left"><font color="#FFFFFF">Units</font></td>
+		<td class="bl bb bg vm" align="left"><font color="#FFFFFF">UNIT VALUE</font></td>
+		<td class="bl br bb bg vm" align="left"><font color="#FFFFFF">TOTOAL VALUE</font></td>
+	</tr>
+	{!! $orderItems !!}
+	<!-- <tr>
+		<td class="bl br vm" height="34" align="left">000000060108527008-<br>Unisex cotton <br>rich Jumper</td>
+		<td class="vm" align="left" sdval="611020" sdnum="1033;">611020</td>
+		<td class="bl vm" align="left">BANGLADESH</td>
+		<td class="bl vm" align="left" sdval="1" sdnum="1033;">1</td>
+		<td class="bl vm" align="left">AED 66.04</td>
+		<td class="bl br vm" align="left">AED 66.04</td>
+	</tr> -->
+	<tr>
+		<td class="bl br bt" colspan=6 rowspan=2 height="34" align="center"><br></td>
+		</tr>
+	<tr>
+		</tr>
+	<tr>
+		<td class="bl br" colspan=6 height="17" align="left">DO NOT DIFFERENT COMMODITIES - UNDER A SINGAL HS CODE . USE HS COMMODITY CODES AS PROVIDED.</td>
+		</tr>
+	<tr>
+		<td class="bl bg vm br" colspan="3" height="29" align="left"><font color="#FFFFFF"><b>Notes on import duty &amp; taxes due</b></font></td>
+		<td class="bg vm" colspan="3" align="left"><font color="#fff"><b>Totals</b></font></td>
+	</tr>
+	<tr>
+		<td class="bl br vb bb" height="17" colspan="3" align="left">VALUE FOR CUSTOMERS</td>
+		<td class="br vb bb" colspan="3" align="left">
+			<table cellspacing="0" cellpadding="0" width="100%">
+				<tr>
+					<td>Total cost foods( FOB) Shipping</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>& handing insurance charges</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>Discount 50%</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>Final Price</td>
+					<td align="right">{{ $orderTotal }}</td>
+				</tr>
+				<tr>
+					<td>Total (CIF)</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>Import Duty & taxes due</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>Import Paid for the order</td>
+					<td align="right">-</td>
+				</tr>
+				<tr>
+					<td>CIF</td>
+					<td align="right">-</td>
+				</tr>
+			</table>
+		</td>
+	</tr>
+	
 </table>
-</td>
-</tr>
-<tr class="information" style="height: 72px;">
-<td style="height: 72px; width: 632px;">Dear {{ $order->customer->name }}, Thank you for your order. Your order will be assigned to a customer care executive who will be avaialable at all times to answer any queries. Our customer care executive will contact you shortly. Your order confirmation is below.</td>
-</tr>
-<tr class="information" style="height: 117px;">
-<td style="height: 117px; width: 729px;" colspan="2">
-<table>
-<tbody>
-<tr>
-<td>{{ $order->customer->address }}</td>
-<td>Solo luxury</td>
-</tr>
-</tbody>
-</table>
-</td>
-</tr>
-<tr class="heading" style="height: 24px;">
-<td style="height: 24px; width: 632px;">Item</td>
-<td style="height: 24px; width: 87px;">Price</td>
-</tr>
-<!-- loop -->
-<tr class="item last" style="height: 25px;">
-<td style="height: auto; width: 632px;">{!! $orderItems !!}</td>
-</tr>
-<tr class="total" style="height: 49px;">
-<td style="height: 49px; width: 632px;">&nbsp;</td>
-<td style="height: 49px; width: 87px;">Total: ₹ {{ $orderTotal }}</td>
-</tr>
-</tbody>
-</table>
-</div>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
+<br>
 </body>
+
 </html>

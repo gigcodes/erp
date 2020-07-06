@@ -213,6 +213,55 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
+    public static function getCategoryTreeMagentoWithPosition( $id , $website)
+    {
+
+        $categoryMulti = StoreWebsiteCategory::where('category_id',$id)->where('store_website_id',$website->id)->first();
+        // Load new category model
+        $category = new Category();
+
+        // Create category instance
+        $categoryInstance = $category->find( $id );
+
+        // Set empty category tree for holding categories
+        $categoryTree = [];
+
+        // Continue only if category is not null
+        if ( $categoryInstance !== NULL ) {
+
+            // Load initial category
+            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+
+            // Set parent ID
+            $parentId = $categoryInstance->parent_id;
+
+            // Loop until we found the top category
+            while ( $parentId != 0 ) {
+                // find next category
+                $categoryInstance = $category->find( $parentId );
+
+                $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
+                if($categoryMultiChild){
+                    if($categoryInstance->parent_id == 0){
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                    }else{
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                    }
+                }else{
+                    // Add additional category to tree
+                    /*if ( !empty( $categoryInstance->show_all_id ) )
+                        $categoryTree[] = $categoryInstance->show_all_id;*/
+                }
+
+                // Set new parent ID
+                $parentId = $categoryInstance->parent_id;
+            }
+        }
+
+        // Return reverse array
+        return array_reverse( $categoryTree );
+    }
+
     public static function getCroppingGridImageByCategoryId($categoryId)
     {
         $imagesForGrid = [
@@ -302,6 +351,11 @@ class Category extends Model
 
     public function suppliercategorycount(){
         return $this->hasOne(SupplierCategoryCount::class,'category_id','id');
+    }
+
+    public static function list()
+    {
+        return self::pluck("title","id")->toArray();
     }
 
 }

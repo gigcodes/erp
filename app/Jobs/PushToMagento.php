@@ -11,6 +11,7 @@ use seo2websites\MagentoHelper\MagentoHelper;
 use Illuminate\Support\Facades\Log;
 use App\MagentoSoapHelper;
 use App\Product;
+use App\Helpers\ProductHelper;
 
 class PushToMagento implements ShouldQueue
 {

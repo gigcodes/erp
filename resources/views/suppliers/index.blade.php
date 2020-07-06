@@ -43,69 +43,79 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Suppliers List</h2>
-              <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
-                  <div class="form-group">
-                    <input name="term" type="text" class="form-control"
-                         value="{{ isset($term) ? $term : '' }}"
-                         placeholder="Search">
-                  </div>
-                  <div class="form-group ml-3">
-                      <input type="text" class="form-control" name="source" id="source" placeholder="Source..">
-                  </div>
-                  <div class="form-group ml-3" style="width: 250px !important;">
-                      <select class="form-control select-multiple2" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
-                        @foreach($suppliers_all as $supplier)
-                            <option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
-                        @endforeach
-                      </select>
-                  </div>
-                  <div class="form-group ml-3">
-                    <select class="form-control" name="type">
-                      <option value="">Select Type</option>
-                      <option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                      <option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
-                      <option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
-                    </select>
-                  </div>
-                  <div class="form-group ml-3">
-                      <input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}> Active
-                  </div>
-                  <div class="form-group ml-3">
-                       {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
-                  </div>
-                  <div class="form-group ml-3">
-                       {!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
-                  </div>
-                  <div class="form-group ml-3" style="padding-top: 10px">
-                    <select class="form-control select-multiple2" name="brand[]" data-placeholder="Select brand.." multiple>
-                      <optgroup label="Brands">
-                        @foreach ($brands as $key => $value)
-                          <option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
-                        @endforeach
-                    </optgroup>
-                    </select>
-                  </div>
-                  <div class="form-group ml-3" style="padding-top: 10px">
-                    <select style="width: 250px !important;" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
-                      <optgroup label="Brands">
-                        @foreach ($scrapedBrands as $key => $value)
-                          @if(!in_array($value, $selectedBrands))
-                            <option value="{{ $value }}"> {{ $value}}</option>
-                          @endif
-                        @endforeach
-                    </optgroup>
-                    </select>
-                  </div>
-                  <div class="form-group ml-3">
-                      <?php echo Form::select("updated_by",
-                          ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
-                          request('updated_by'),
-                          ["class"=> "form-control select-multiple2"]
-                      ); ?>
-                  </div>
-                  <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
-              </form>
+            <h2 class="page-heading">Suppliers List ({{ $suppliers->total() }})</h2>
+			  <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
+				<div class="row">
+                  	<div class="form-group">
+						<div class="col-md-3">
+							<input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
+						</div>
+                  	</div>
+					{{-- <div class="form-group">
+						<div class="col-md-3">
+							<input type="text" class="form-control" name="source" id="source" placeholder="Source..">
+						</div>
+					</div> --}}
+					<div class="form-group col-md-3">
+							<select class="form-control select-multiple2" style="width:100%" name="supplier_filter[]" data-placeholder="Search Supplier By Name.." multiple>
+								@foreach($suppliers_all as $supplier)
+									<option value="{{ $supplier->id }}" @if(is_array($supplier_filter) && in_array($supplier->id,$supplier_filter)) selected @endif>{{ $supplier->supplier }}</option>
+								@endforeach
+							</select>
+					</div>
+					<div class="form-group col-md-3">
+							<select class="form-control" name="type">
+							<option value="">Select Type</option>
+							<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
+							<option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
+							<option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
+							</select>
+					</div>
+					<div class="form-group ml-3">
+						<div class="col-md-3">
+							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><span>Active</span>
+						</div>
+                    </div>
+                </div>
+                <div class="row">
+					<div class="form-group col-md-3">
+							{!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
+						
+					</div>
+					<div class="form-group col-md-3">
+							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
+						
+					</div>
+					{{-- <div class="form-group col-md-3">
+							<select class="form-control select-multiple2" style="width: 100%" name="brand[]" data-placeholder="Select brand.." multiple>
+							<optgroup label="Brands">
+								@foreach ($brands as $key => $value)
+								<option value="{{ $value->id }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $value->name }}</option>
+								@endforeach
+							</optgroup>
+							</select>
+					</div> --}}
+					{{-- <div class="form-group col-md-3">
+							<select  style="width: 100%" class="form-control select-multiple2" name="scrapedBrand[]" data-placeholder="Select ScrapedBrand.." multiple>
+							<optgroup label="Brands">
+								@foreach ($scrapedBrands as $key => $value)
+								@if(!in_array($value, $selectedBrands))
+									<option value="{{ $value }}"> {{ $value}}</option>
+								@endif
+								@endforeach
+							</optgroup>
+							</select>
+					</div> --}}
+					<div class="form-group col-md-3">
+						<?php echo Form::select("updated_by",
+							["" => "-- Select Updated By--"] +\App\User::pluck("name","id")->toArray(),
+							request('updated_by'),
+							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
+						); ?>
+					</div>
+					<button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+				</div>
+				</form>
         </div>
         <div class="col-lg-12 margin-tb mt-3">
           <button type="button" class="btn btn-secondary manage-scraped-brand-raw" data-toggle="modal" data-target="#manageScrapedBrandsRaw">
@@ -113,6 +123,8 @@
           </button>
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
           <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
+          <button type="button" class="btn btn-secondary ml-3" id="add_category_btn" data-toggle="modal" data-target="#categoryCreateModal">Add Category</button>
+          <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
         </div>   
     </div>
 
@@ -128,15 +140,16 @@
             <th width="5%">ID</th>
             <th width="10%">Name</th>
             <th width="10%">Address</th>
-              <th>Source</th>
+              {{-- <th>Source</th> --}}
               <th>Designers</th>
-              <th>No.of Brands</th>
-            <th width="10%">Social handle</th>
+              <th>Category</th>
+              {{-- <th>No.of Brands</th> --}}
+            {{-- <th width="10%">Social handle</th> --}}
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
-            <th width="20%">Order</th>
+            {{-- <th width="20%">Order</th> --}}
             {{-- <th width="20%">Emails</th> --}}
-            <th width="25%">Communication</th>
+            <th width="35%">Communication</th>
             <th>Status</th>
             <th>Created At</th>
             <th>Updated At</th>
@@ -147,185 +160,195 @@
 
         <tbody>
           @foreach ($suppliers as $supplier)
-            <tr>
-              <td>{{ $supplier->id }}</td>
-              <td>
-                {{ $supplier->supplier }}
+			<tr>
+				<td>{{ $supplier->id }}</td>
+				<td>
+					{{ $supplier->supplier }}
 
-                @if ($supplier->is_flagged == 1)
-                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
-                @else
-                  <button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
-                @endif
-                  @if($supplier->phone)
-                  <button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
-                  <div class="numberSend" id="show{{ $supplier->id }}">
-                  <select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
-                     <option disabled selected>Select Number</option>
-                    @foreach(\Config::get("twilio.caller_id") as $caller)
-                    <option value="{{ $caller }}">{{ $caller }}</option>
-                    @endforeach
-                  </select>
-                  </div>
-                  @if ($supplier->is_blocked == 1)
-                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
-                  @else
-                      <button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/unblocked-twilio.png"/></button>
-                  @endif
-                  @endif
-                  <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
-                      <img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
-                  </button>
+					@if ($supplier->is_flagged == 1)
+					<button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
+					@else
+					<button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/unflagged.png" /></button>
+					@endif
+					@if($supplier->phone)
+					<button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
+					<div class="numberSend" id="show{{ $supplier->id }}">
+					<select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
+						<option disabled selected>Select Number</option>
+						@foreach(\Config::get("twilio.caller_id") as $caller)
+						<option value="{{ $caller }}">{{ $caller }}</option>
+						@endforeach
+					</select>
+					</div>
+					@if ($supplier->is_blocked == 1)
+						<button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
+					@else
+						<button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/unblocked-twilio.png"/></button>
+					@endif
+					@endif
+					<button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
+						<img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
+					</button>
 
-                <br>
-                <span class="text-muted">
-                  {{ $supplier->phone }}
-                  <br>
-                  <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
-                  @if ($supplier->has_error == 1)
-                    <span class="text-danger">!!!</span>
-                  @endif
+					<br>
+					<span class="text-muted">
+					{{ $supplier->phone }}
+					<br>
+					<a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+					@if ($supplier->has_error == 1)
+						<span class="text-danger">!!!</span>
+					@endif
 
-                  <p>
-                    <div class="form-group">
-                        <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
-                            <option value="">-No Selected-</option>
-                            @foreach($whatsappConfigs as $whatsappConfig)
-                                @if($whatsappConfig->number != "0")
-                                    <option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                </p>
-                <p>
-                  <div class="form-group">
-                      <select name="autoTranslate" data-id="{{ $supplier->id }}" class="form-control input-sm mb-3 autoTranslate">
-                          <option value="">Translations Languages</option>
-                          <option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
-                          <option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
-                          <option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
-                      </select>
-                  </div>
-                </p>
-                </span>
-                <br>
-              </td>
-              <td class="expand-row">
-                  <div class="td-mini-container">
-                      {{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
-                  </div>
-                  <div class="td-full-container hidden">
-                      {{ $supplier->address }}
-                  </div>
-              </td>
-                <td>{{ $supplier->source }}</td>
-                <td class="expand-row">
-                    @if(strlen($supplier->brands) > 4)
-                        @php
-                            $dns = $supplier->brands;
-                            $dns = str_replace('"[', '', $dns);
-                            $dns = str_replace(']"', '', $dns);
-                        @endphp
+					<p>
+						<div class="form-group">
+							<select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+								<option value="">-No Selected-</option>
+								@foreach($whatsappConfigs as $whatsappConfig)
+									@if($whatsappConfig->number != "0")
+										<option {{ ($whatsappConfig->number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $whatsappConfig->number }}">{{ $whatsappConfig->number }}</option>
+									@endif
+								@endforeach
+							</select>
+						</div>
+					</p>
+					<p>
+					<div class="form-group">
+						<select name="autoTranslate" data-id="{{ $supplier->id }}" class="form-control input-sm mb-3 autoTranslate">
+							<option value="">Translations Languages</option>
+							<option value="fr" {{ $supplier->language === 'fr'  ? 'selected' : '' }}>French</option>
+							<option value="de" {{ $supplier->language === 'de'  ? 'selected' : '' }}>German</option>
+							<option value="it" {{ $supplier->language === 'it'  ? 'selected' : '' }}>Italian</option>
+						</select>
+					</div>
+					</p>
+					</span>
+					<br>
+				</td>
+				<td class="expand-row">
+					<div class="td-mini-container">
+						{{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
+					</div>
+					<div class="td-full-container hidden">
+						{{ $supplier->address }}
+					</div>
+				</td>
+				{{-- <td>{{ $supplier->source }}</td> --}}
+				<td class="expand-row">
+					@if(strlen($supplier->brands) > 4)
+						@php
+							$dns = $supplier->brands;
+							$dns = str_replace('"[', '', $dns);
+							$dns = str_replace(']"', '', $dns);
+						@endphp
 
-                        <div class="td-mini-container brand-supplier-mini-{{ $supplier->id }}">
-                            {{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
-                        </div>
-                        <div class="td-full-container hidden brand-supplier-full-{{ $supplier->id }}">
-                            {{ $dns }}
-                        </div>
-                    @else
-                        N/A
-                    @endif
+						<div class="td-mini-container brand-supplier-mini-{{ $supplier->id }}">
+							{{ strlen($dns) > 10 ? substr($dns, 0, 10).'...' : $dns }}
+						</div>
+						<div class="td-full-container hidden brand-supplier-full-{{ $supplier->id }}">
+							{{ $dns }}
+						</div>
+					@else
+						N/A
+					@endif
                 </td>
-                <td>{{count(array_filter(explode(',',$supplier->brands)))}}</td>
-              <td class="expand-row" style="word-break: break-all;">
-                  <div class="td-mini-container">
-                      {{ strlen($supplier->social_handle) > 10 ? substr($supplier->social_handle, 0, 10).'...' : $supplier->social_handle }}
-                  </div>
-                  <div class="td-full-container hidden">
-                      {{ $supplier->social_handle }}
-                  </div>
-              </td>
-              {{-- <td>
-                @if ($supplier->agents)
-                  <ul>
-                    @foreach ($supplier->agents as $agent)
-                      <li>
-                        <strong>{{ $agent->name }}</strong> <br>
-                        {{ $agent->phone }} - {{ $agent->email }} <br>
-                        <span class="text-muted">{{ $agent->address }}</span> <br>
-                        <button type="button" class="btn btn-xs btn-secondary edit-agent-button" data-toggle="modal" data-target="#editAgentModal" data-agent="{{ $agent }}">Edit</button>
-                      </li>
-                    @endforeach
-                  </ul>
-                @endif
-              </td> --}}
-
-              {{-- <td>{{ $supplier->gst }}</td> --}}
-              <td>
-                @if ($supplier->purchase_id != '')
-                  <a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
-                  <br>
-                  {{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
-                @endif
-              </td>
-              {{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
-                {{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
-              </td> --}}
-              <td class="expand-row {{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
-                  @if($supplier->phone)
-                      <input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">
-                  @endif
-                @if ($supplier->last_type == "email")
-                  Email
-                @elseif ($supplier->last_type == "message")
-                      <div class="td-mini-container">
-                          {{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
-                      </div>
-                      <div class="td-full-container hidden">
-                          {{ $supplier->message }}
-                      </div>
-
-                  @if ($supplier->message != '')
-                    <button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
-
-                    <ul class="more-communication-container">
-
-                    </ul>
-                  @endif
-                @endif
-                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-                <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
-              </td>
                 <td>
-                    <input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
+                    <select name="supplier_cat" class="form-control supplier_cat" data-supplier-id="{{ $supplier->id }}">
+                        <option value="">Select<option>
+                        @forelse ($suppliercategory as $key => $item)
+                            <option value="{{ $key }}" {{ ($supplier->supplier_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
+                        @empty
+                        @endforelse
+                    </select>
                 </td>
-                <td>{{ $supplier->created_at }}</td>
-                <td>{{ $supplier->updated_at }}</td>
-                <td>{{ $supplier->updated_by_name }}</td>
-              <td>
-                  <div style="min-width: 100px;">
-                      <a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>
+				{{-- <td>{{count(array_filter(explode(',',$supplier->brands)))}}</td> --}}
+				{{-- <td class="expand-row" style="word-break: break-all;">
+					<div class="td-mini-container">
+						{{ strlen($supplier->social_handle) > 10 ? substr($supplier->social_handle, 0, 10).'...' : $supplier->social_handle }}
+					</div>
+					<div class="td-full-container hidden">
+						{{ $supplier->social_handle }}
+					</div>
+				</td> --}}
+				{{-- <td>
+					@if ($supplier->agents)
+					<ul>
+						@foreach ($supplier->agents as $agent)
+						<li>
+							<strong>{{ $agent->name }}</strong> <br>
+							{{ $agent->phone }} - {{ $agent->email }} <br>
+							<span class="text-muted">{{ $agent->address }}</span> <br>
+							<button type="button" class="btn btn-xs btn-secondary edit-agent-button" data-toggle="modal" data-target="#editAgentModal" data-agent="{{ $agent }}">Edit</button>
+						</li>
+						@endforeach
+					</ul>
+					@endif
+				</td> --}}
 
-                      {{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
-                      <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
-                      <button type="button" class="btn btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
-                      <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
-                      
-                      {!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
-                      <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
-                      {!! Form::close() !!}
+				{{-- <td>{{ $supplier->gst }}</td> --}}
+				{{-- <td>
+					@if ($supplier->purchase_id != '')
+					<a href="{{ route('purchase.show', $supplier->purchase_id) }}" target="_blank">Purchase ID {{ $supplier->purchase_id }}</a>
+					<br>
+					{{ \Carbon\Carbon::parse($supplier->purchase_created_at)->format('H:m d-m') }}
+					@endif
+				</td> --}}
+				{{-- <td class="{{ $supplier->email_seen == 0 ? 'text-danger' : '' }}"  style="word-break: break-all;">
+					{{ strlen(strip_tags($supplier->email_message)) > 0 ? 'Email' : '' }}
+				</td> --}}
+				<td class="expand-row {{ $supplier->last_type == "email" && $supplier->email_seen == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+					@if($supplier->phone)
+						<input type="text" name="message" id="message_{{$supplier->id}}" placeholder="whatsapp message..." class="form-control send-message" data-id="{{$supplier->id}}">
+					@endif
+					@if ($supplier->last_type == "email")
+					Email
+					@elseif ($supplier->last_type == "message")
+						<div class="td-mini-container">
+							{{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
+						</div>
+						<div class="td-full-container hidden">
+							{{ $supplier->message }}
+						</div>
 
-                      @if ($supplier->scraped_brands_raw != '')
-                      <button data-toggle="modal" data-target="#updateBrand" class="btn btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
-                      <img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
-                      </button>
-                      @endif
-                  </div>
-              </td>
-            </tr>
+					@if ($supplier->message != '')
+						<button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
+
+						<ul class="more-communication-container">
+
+						</ul>
+					@endif
+					@endif
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+				</td>
+					<td>
+						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
+					</td>
+					<td>{{ $supplier->created_at }}</td>
+					<td>{{ $supplier->updated_at }}</td>
+					<td>{{ $supplier->updated_by_name }}</td>
+				<td>
+					<div style="min-width: 100px;">
+						<a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>
+
+						{{-- <button type="button" class="btn btn-xs create-agent" data-toggle="modal" data-target="#createAgentModal" data-id="{{ $supplier->id }}">Add Agent</button> --}}
+						<button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
+						<button type="button" class="btn btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
+						<button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
+						
+						{!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
+						<button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
+						{!! Form::close() !!}
+
+						@if ($supplier->scraped_brands_raw != '')
+						<button data-toggle="modal" data-target="#updateBrand" class="btn btn-image update-brand" data-id="{{ $supplier->id }}" title="Update Brands">
+						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
+						</button>
+                        @endif
+                        <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
+					</div>
+				</td>
+				</tr>
           @endforeach
         </tbody>
       </table>
@@ -337,6 +360,7 @@
 
     @include('suppliers.partials.supplier-modals')
     {{-- @include('suppliers.partials.agent-modals') --}}
+    @include('suppliers.partials.modals')
 
 
     <div id="reminderModal" class="modal fade" role="dialog">
@@ -1058,6 +1082,76 @@
             })
       });
 
-    
+    $(document).on('change', '.supplier_cat', function() {
+        var cat = $(this).val();
+        alert(cat);
+        var supplierId = $(this).data('supplier-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/category') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                supplier_category_id : cat
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            window.reload();
+        }).fail(function(error) {
+            
+        })
+    });
+
+    $(document).on('click', '.create_broadcast', function () {
+        var suppliers = [];
+        $(".supplier_message").each(function () {
+            if ($(this).prop("checked") == true) {
+                suppliers.push($(this).val());
+            }
+        });
+        if (suppliers.length == 0) {
+            alert('Please select supplier');
+            return false;
+        }
+        $("#create_broadcast").modal("show");
+    });
+
+    $("#send_message").submit(function (e) {
+        e.preventDefault();
+        var suppliers = [];
+        $(".supplier_message").each(function () {
+            if ($(this).prop("checked") == true) {
+                suppliers.push($(this).val());
+            }
+        });
+        if (suppliers.length == 0) {
+            alert('Please select supplier');
+            return false;
+        }
+
+        if ($("#send_message").find("#message_to_all_field").val() == "") {
+            alert('Please type message ');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/send/message') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                message: $("#send_message").find("#message_to_all_field").val(),
+                suppliers: suppliers
+            }
+        }).done(function () {
+            window.location.reload();
+        }).fail(function (response) {
+            $(thiss).text('No');
+
+            alert('Could not say No!');
+            console.log(response);
+        });
+    });
   </script>
 @endsection

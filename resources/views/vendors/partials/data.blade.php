@@ -64,8 +64,12 @@
     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
         <span class="td-full-container">
             <div class="chat_messages">
-                @if(isset($vendor->chat_messages[0])) {{ $vendor->chat_messages[0]->message }} @endif
-                @if(isset($vendor->message)) {{ $vendor->message }} @endif    
+                @if(isset($vendor->chat_messages[0])) 
+                    {{ strlen($vendor->chat_messages[0]->message) > 20 ? substr($vendor->chat_messages[0]->message, 0, 20) . '...' : $vendor->chat_messages[0]->message }}
+                @endif    
+                @if(isset($vendor->message)) 
+                    {{ strlen($vendor->message) > 20 ? substr($vendor->message, 0, 20) . '...' : $vendor->message }}
+                @endif    
             </div>
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>

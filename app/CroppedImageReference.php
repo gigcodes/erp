@@ -5,6 +5,7 @@ namespace App;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Media;
 use Plank\Mediable\Mediable;
+use App\StoreWebsite;
 use DB;
 
 class CroppedImageReference extends Model
@@ -15,6 +16,27 @@ class CroppedImageReference extends Model
 
     public function newMedia() {
         return $this->hasOne(Media::class, 'id', 'new_media_id');
+    }
+
+    public function getDifferentWebsiteImage($original_media_id) {
+        return $this->where('original_media_id',$original_media_id)->get();
+    }
+
+    public function getDifferentWebsiteName($media_id) {
+       $media =  DB::table('mediables')->select('tag')->where('media_id',$media_id)->first();
+       if($media->tag == 'gallery'){
+            return 'Default';
+       }else{
+            $colorCode = str_replace('gallery_','',$media->tag);
+            $site = StoreWebsite::select('title')->where('cropper_color',$colorCode)->first();
+            if($site){
+                return $site->title;
+            }else{
+                return 'Default';
+            }
+            
+       }
+        
     }
 
     public function product()

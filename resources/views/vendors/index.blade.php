@@ -85,6 +85,7 @@
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+            <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
         </div>    
     </div>
 
@@ -127,7 +128,7 @@
 
         </div>
     </div>
-
+    <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
@@ -169,7 +170,8 @@
         </table>
     </div>
 
-    {!! $vendors->render(); !!}
+    {!! $vendors->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
@@ -306,6 +308,32 @@
             </div>
         </div>
     </div>
+
+    <div id="create_broadcast" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Message to Vendors</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Message</strong>
+                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
@@ -313,6 +341,7 @@
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 
     <script type="text/javascript">
 
@@ -1041,7 +1070,6 @@
         });
 
         $(document).on("change",".vendor-update-status",function(){
-            console.log($(this).prop('checked'));
             var $this = $(this);
             $.ajax({
                 type: "POST",
@@ -1060,5 +1088,68 @@
             })
         });
 
+    $('ul.pagination').hide();
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+		// debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+			$('ul.pagination').hide();
+        }
+    });
+
+    $(document).on('click', '.create_broadcast', function () {
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+        $("#create_broadcast").modal("show");
+    });
+
+    $("#send_message").submit(function (e) {
+        e.preventDefault();
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+
+        if ($("#send_message").find("#message_to_all_field").val() == "") {
+            alert('Please type message ');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('vendors/send/message') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                message: $("#send_message").find("#message_to_all_field").val(),
+                vendors: vendors
+            }
+        }).done(function () {
+            window.location.reload();
+        }).fail(function (response) {
+            $(thiss).text('No');
+
+            alert('Could not say No!');
+            console.log(response);
+        });
+    });
     </script>
 @endsection

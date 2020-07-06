@@ -51,14 +51,14 @@ class SkuFormatController extends Controller
        $this->validate($request, [
            'category_id'   => 'required',
            'brand_id'       => 'required',
-           'sku_format'  => 'required|min:3|max:255',
+           //'sku_format'  => 'required|min:3|max:255',
        ]);
 
         $sku = new SkuFormat();
         $sku->category_id = $request->category_id;
         $sku->brand_id = $request->brand_id;
         $sku->sku_examples = $request->sku_examples;
-        $sku->sku_format = $request->sku_format;
+        $sku->sku_format = ($request->sku_format == null) ? "" : $request->sku_format;
         $sku->save();
 
        return redirect()->back()->withSuccess('You have successfully saved SKU');
@@ -100,14 +100,14 @@ class SkuFormatController extends Controller
        $this->validate($request, [
            'category_id'   => 'required',
            'brand_id'       => 'required',
-           'sku_format'  => 'required|min:3|max:255',
+           //'sku_format'  => 'required|min:3|max:255',
        ]);
 
         $sku = SkuFormat::findorfail($request->id);
         $sku->category_id = $request->category_id;
         $sku->brand_id = $request->brand_id;
         $sku->sku_examples = $request->sku_examples;
-        $sku->sku_format = $request->sku_format;
+        $sku->sku_format = ($request->sku_format == null) ? "" : $request->sku_format;
         $sku->update();
 
        return response()->json(['success' => 'success'], 200);

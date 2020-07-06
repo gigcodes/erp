@@ -158,6 +158,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
+    Route::get('products/{id}/color-history', 'ProductColorController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
@@ -232,6 +233,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
+    Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -317,6 +319,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
+    Route::get('order/invoices', 'OrderController@viewAllInvoices');
+    Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
+    Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
+    Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
+    Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
+    Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
+    Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -636,6 +645,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
+    Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
 
     // Social Media Image Module
     Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
@@ -864,6 +874,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendors/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendors.email.send.bulk');
     Route::post('vendors/create-user', 'VendorController@createUser')->name('vendors.create.user');
 
+    Route::post('vendors/send/message', 'VendorController@sendMessage')->name('vendors/send/message');
     Route::post('vendors/send/email', 'VendorController@sendEmail')->name('vendors.email.send');
     Route::get('vendors/email/inbox', 'VendorController@emailInbox')->name('vendors.email.inbox');
     Route::post('vendors/product', 'VendorController@productStore')->name('vendors.product.store');
@@ -905,6 +916,28 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'HubstaffPaymentController@edit')->name('hubstaff-payment.edit');
             Route::get('delete', 'HubstaffPaymentController@delete')->name('hubstaff-payment.delete');
+        });
+    });
+
+    Route::prefix('manage-modules')->group(function () {
+        Route::get('/', 'ManageModulesController@index')->name('manage-modules.index');
+        Route::get('records', 'ManageModulesController@records')->name('manage-modules.records');
+        Route::post('save', 'ManageModulesController@save')->name('manage-modules.save');
+        Route::post('merge-module', 'ManageModulesController@mergeModule')->name('manage-modules.merge-module');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'ManageModulesController@edit')->name('manage-modules.edit');
+            Route::get('delete', 'ManageModulesController@delete')->name('manage-modules.delete');
+        });
+    });
+
+    Route::prefix('manage-task-category')->group(function () {
+        Route::get('/', 'ManageTaskCategoryController@index')->name('manage-task-category.index');
+        Route::get('records', 'ManageTaskCategoryController@records')->name('manage-task-category.records');
+        Route::post('save', 'ManageTaskCategoryController@save')->name('manage-task-category.save');
+        Route::post('merge-module', 'ManageTaskCategoryController@mergeModule')->name('manage-task-category.merge-module');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'ManageTaskCategoryController@edit')->name('manage-task-category.edit');
+            Route::get('delete', 'ManageTaskCategoryController@delete')->name('manage-task-category.delete');
         });
     });
 
@@ -959,6 +992,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/block', 'SupplierController@block')->name('supplier.block');
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
+    Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
+    Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
+    Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
@@ -1342,6 +1378,21 @@ Route::middleware('auth')->group(function () {
 
     Route::get('display/back-link-details', 'BackLinkController@displayBackLinkDetails')->name('backLinkFilteredResults');
     Route::get('links-to-post', 'SEOAnalyticsController@linksToPost');
+
+    Route::prefix('country-duty')->group(function () {
+        Route::get('/', 'CountryDutyController@index')->name('country.duty.index');
+        Route::post('/search', 'CountryDutyController@search')->name('country.duty.search');
+        Route::post('/save-country-group', 'CountryDutyController@saveCountryGroup')->name('country.duty.search');
+        Route::prefix('list')->group(function () {
+            Route::get('/', 'CountryDutyController@list')->name('country.duty.list');
+            Route::get('/records', 'CountryDutyController@records')->name('country.duty.records');
+            Route::post('save', 'CountryDutyController@store')->name('country.duty.save');
+            Route::prefix('{id}')->group(function () {
+                Route::get('edit', 'CountryDutyController@edit')->name('country.duty.edit');
+                Route::get('delete', 'CountryDutyController@delete')->name('country.duty.delete');
+            });
+        });
+    });
 });
 
 //Blogger Module
@@ -1738,6 +1789,13 @@ Route::prefix('product-category')->middleware('auth')->group(function () {
     Route::post('/update-category-assigned', 'ProductCategoryController@updateCategoryAssigned')->name("product.category.update-assigned");
 });
 
+Route::prefix('product-color')->middleware('auth')->group(function () {
+    Route::get('/history', 'ProductColorController@history');
+    Route::get('/', 'ProductColorController@index')->name("product.color.index.list");
+    Route::get('/records', 'ProductColorController@records')->name("product.color.records");
+    Route::post('/update-color-assigned', 'ProductColorController@updateCategoryAssigned')->name("product.color.update-assigned");
+});
+
 Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/', 'ListingHistoryController@index')->name("listing.history.index");
     Route::get('/records', 'ListingHistoryController@records');
@@ -1790,4 +1848,13 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
         Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
+});
+
+/**
+ * Shipment module
+ */
+Route::group(['middleware' => 'auth'], function () {
+    Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
+    Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
+    Route::resource('shipment', 'ShipmentController');
 });

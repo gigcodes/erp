@@ -239,7 +239,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(2);
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
         if(!auth()->user()->isAdmin()) {
             if(!$newProducts->isEmpty()) {
                 $i = 1;
@@ -1086,9 +1086,20 @@ class ProductController extends Controller
     public function updateColor(Request $request, $id)
     {
         $product = Product::find($id);
+        
+        if($product) {
+           $productColHis = new \App\ProductColorHistory;
+           $productColHis->user_id     = \Auth::user()->id; 
+           $productColHis->color       = $request->color; 
+           $productColHis->old_color   = $product->color;
+           $productColHis->product_id  = $product->id;
+           $productColHis->save();
+        }
+
         $originalColor = $product->color;
         $product->color = $request->color;
         $product->save();
+
 
         \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
 
@@ -1268,7 +1279,7 @@ class ProductController extends Controller
 
         //check for hscode 
         $hsCode = $product->hsCode($product->category,$product->composition);
-
+        $hsCode = true;
         if($hsCode){
             // If we have a product, push it to Magento
             if ($product !== null) {
@@ -2172,7 +2183,7 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-        // Get next product
+         // Get next product
         $product = Product::where('status_id', StatusHelper::$autoCrop)
             ->where('category', '>', 3);
 
@@ -2267,7 +2278,10 @@ class ProductController extends Controller
                
                 $website = StoreWebsite::find($websiteArray);
                 if($website){
-                    $colors[] = array('code' => $website->cropper_color, 'color' => $website->cropper_color_name);
+
+                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                    $hexcode = '('.$r.','.$g.','.$b.')';
+                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
                 }
             }
         }
@@ -2287,7 +2301,7 @@ class ProductController extends Controller
             ]);
 
         }else{
-            // Set new status
+             // Set new status
             $product->status_id = StatusHelper::$isBeingCropped;
             $product->save();
              // Return product
@@ -2325,7 +2339,10 @@ class ProductController extends Controller
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
             if($request->get('color')){
-                $tag = 'gallery_'.$request->get('color');
+                $colorCode = str_replace(['(',')'],'',$request->get('color'));
+                $rgbarr = explode(",",$colorCode,3);
+                $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $tag = 'gallery_'.$hex;
             }else{
                 $tag = config('constants.media_gallery_tag');
             }    
@@ -2368,7 +2385,7 @@ class ProductController extends Controller
 
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropApproval;
+                $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();

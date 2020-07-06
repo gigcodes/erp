@@ -43,6 +43,11 @@
 		         <input type="text" name="magento_password" value="{{if data}}{{:data.magento_password}}{{/if}}" class="form-control" id="magento_password" placeholder="Enter Password">
 		      </div>
 		      <div class="form-group">
+		         <label for="api_token">Api Token</label>
+		         <input type="text" name="api_token" value="{{if data}}{{:data.api_token}}{{/if}}" class="form-control" id="api_token" placeholder="Enter Api token">
+		      </div>
+		      
+		      <div class="form-group">
 		         <label for="facebook">Facebook</label>
 		         <input type="text" name="facebook" value="{{if data}}{{:data.facebook}}{{/if}}" class="form-control" id="facebook" placeholder="Enter facebook profle">
 		      </div>
@@ -62,6 +67,17 @@
 		         <label for="cropper_color">Cropper color</label>
 		         <input type="text" name="cropper_color" value="{{if data}}{{:data.cropper_color}}{{/if}}" class="form-control" id="cropper_color" placeholder="Enter cropper color">
 		      </div>
+		      <div class="form-group">
+		         <label for="country_duty">Country Duty</label>
+		         <select name="country_duty" class="form-control">
+	            	<option value="">-- N/A --</option>
+		            <?php
+						foreach(\App\SimplyDutyCountry::all() as $k => $l) {
+							echo "<option {{if data.country_duty == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
+						}
+					?>
+		         </select>
+		      </div>
 		      <div class="form-row">
 		         <div class="form-group col-md-4">
 		            <label for="inputState">Is Published?</label>
@@ -70,6 +86,42 @@
 		               <option {{if data && data.is_published == 1}}selected{{/if}} value="1">Yes</option>
 		            </select>
 		         </div>
+			  </div>
+			  <div class="form-group">
+		         <label for="server_ip">Server IP</label>
+		         <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
+		      </div>
+			  <div class="form-group">
+		         <label for="username">Username</label>
+		         <input type="text" name="username" value="{{if data}}{{:data.username}}{{/if}}" class="form-control" id="username" placeholder="Enter Username">
+		      </div>
+			  <div class="form-group">
+		         <label for="password">Password</label>
+		         <input type="password" name="password" value="{{if data}}{{:data.password}}{{/if}}" class="form-control" id="password" placeholder="Enter Password">
+		      </div>
+			  <div class="form-group">
+		         <label for="staging_username">Staging Username</label>
+		         <input type="text" name="staging_username" value="{{if data}}{{:data.staging_username}}{{/if}}" class="form-control" id="staging_username" placeholder="Enter Staging Username">
+		      </div>
+			  <div class="form-group">
+		         <label for="staging_password">Staging Password</label>
+		         <input type="password" name="staging_password" value="{{if data}}{{:data.staging_password}}{{/if}}" class="form-control" id="staging_password" placeholder="Enter Staging Password">
+		      </div>
+			  <div class="form-group">
+		         <label for="mysql_username">Mysql Username</label>
+		         <input type="text" name="mysql_username" value="{{if data}}{{:data.mysql_username}}{{/if}}" class="form-control" id="mysql_username" placeholder="Enter Mysql Username">
+		      </div>
+			  <div class="form-group">
+		         <label for="mysql_password">Mysql Password</label>
+		         <input type="password" name="mysql_password" value="{{if data}}{{:data.mysql_password}}{{/if}}" class="form-control" id="mysql_password" placeholder="Enter Mysql Password">
+		      </div>
+			  <div class="form-group">
+		         <label for="mysql_staging_username">Mysql Staging Username</label>
+		         <input type="text" name="mysql_staging_username" value="{{if data}}{{:data.mysql_staging_username}}{{/if}}" class="form-control" id="mysql_staging_username" placeholder="Enter Mysql Staging Username">
+		      </div>
+			  <div class="form-group">
+		         <label for="mysql_staging_password">Mysql Staging Password</label>
+		         <input type="password" name="mysql_staging_password" value="{{if data}}{{:data.mysql_staging_password}}{{/if}}" class="form-control" id="mysql_staging_password" placeholder="Enter Mysql Staging Password">
 		      </div>
 		   </div>
 		   <div class="modal-footer">

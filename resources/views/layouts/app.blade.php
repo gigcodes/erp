@@ -408,6 +408,7 @@
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
+                                                <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -607,6 +608,9 @@
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -740,7 +744,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
                                         </li>
-
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Roles<span class="caret"></span></a>
 
@@ -760,6 +763,9 @@
 
 
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('user-management.index') }}">New Management</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1134,6 +1140,12 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1169,6 +1181,24 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1371,6 +1401,12 @@
                                     </ul>
                                 </li>
 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Courier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
+                                    </ul>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -1647,7 +1683,7 @@
         @elseif (trim($__env->yieldContent('core_content')))
             @yield('core_content')
         @else
-            <main class="container">
+            <main class="container" style="display: inline-block;">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
                 <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
@@ -2126,7 +2162,7 @@
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-147736165-1');
+        gtag('config', 'UA-171553493-1');
     </script>
     @endif
     <script>

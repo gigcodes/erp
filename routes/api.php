@@ -121,3 +121,11 @@ Route::post('magento/customer-reference','MagentoCustomerReferenceController@sto
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
+
+Route::prefix('v1')->group(function () {
+    Route::prefix('product')->group(function () {
+        Route::prefix('{sku}')->group(function () {
+            Route::get('price', '\App\Http\Controllers\Api\v1\ProductController@price');
+        });
+    });
+});

@@ -54,15 +54,39 @@ Route::prefix('store-website')->group(function () {
             });
         });
     });    
+
+    Route::prefix('brand')->group(function () {
+        Route::get('/', 'BrandController@list')->name("store-website.brand.list");
+        Route::get('records', 'BrandController@records')->name("store-website.brand.records");
+        Route::post('push-to-store', 'BrandController@pushToStore')->name("store-website.brand.push-to-store");
+    });
+
+    Route::prefix('price-override')->group(function () {
+        Route::get('/', 'PriceOverrideController@index')->name("store-website.price-override.index");
+        Route::get('records', 'PriceOverrideController@records')->name("store-website.price-override.records");
+        Route::post('save', 'PriceOverrideController@save')->name("store-website.price-override.save");
+        Route::get('calculate', 'PriceOverrideController@calculate')->name("store-website.price-override.calculate");
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'PriceOverrideController@edit')->name("store-website.price-override.edit");
+            Route::get('delete', 'PriceOverrideController@delete')->name("store-website.price-override.delete");
+        });
+    });
+
 });
 
 Route::prefix('site-development')->group(function () {
     Route::get('/{id?}', 'SiteDevelopmentController@index')->name("site-development.index");
     Route::post('/save-category', 'SiteDevelopmentController@addCategory')->name("site-development.category.save");
-
     Route::post('/edit-category', 'SiteDevelopmentController@editCategory')->name("site-development.category.edit");
-
     Route::post('/save-development', 'SiteDevelopmentController@addSiteDevelopment')->name("site-development.save");
+    Route::post('/disallow-category', 'SiteDevelopmentController@disallowCategory')->name("site-development.disallow.category");
+    Route::post('/upload-documents', 'SiteDevelopmentController@uploadDocuments')->name("site-development.upload-documents");
+    Route::post('/save-documents', 'SiteDevelopmentController@saveDocuments')->name("site-development.save-documents");
+    Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
+    Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    Route::prefix('{id}')->group(function () {
+        Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+    });
 });
 
 Route::prefix('site-development-status')->group(function () {
@@ -73,5 +97,15 @@ Route::prefix('site-development-status')->group(function () {
     Route::prefix('{id}')->group(function () {
         Route::get('edit', 'SiteDevelopmentStatusController@edit')->name('site-development-status.edit');
         Route::get('delete', 'SiteDevelopmentStatusController@delete')->name('site-development-status.delete');
+    });
+});
+
+Route::prefix('country-group')->group(function () {
+    Route::get('/', 'CountryGroupController@index')->name('store-website.country-group.index');
+    Route::get('records', 'CountryGroupController@records')->name('store-website.country-group.records');
+    Route::post('save', 'CountryGroupController@save')->name('store-website.country-group.save');
+    Route::prefix('{id}')->group(function () {
+        Route::get('edit', 'CountryGroupController@edit')->name('store-website.country-group.edit');
+        Route::get('delete', 'CountryGroupController@delete')->name('store-website.country-group.delete');
     });
 });
