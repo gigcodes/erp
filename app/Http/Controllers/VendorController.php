@@ -352,7 +352,14 @@ class VendorController extends Controller
       'gst'           => 'sometimes|nullable|max:255',
       'account_name'  => 'sometimes|nullable|max:255',
       'account_iban'  => 'sometimes|nullable|max:255',
-      'account_swift' => 'sometimes|nullable|max:255'
+	  'account_swift' => 'sometimes|nullable|max:255',
+	  'frequency_of_payment'   => 'sometimes|nullable|max:255',
+      'bank_name'   => 'sometimes|nullable|max:255',
+      'bank_address'   => 'sometimes|nullable|max:255',
+      'city'   => 'sometimes|nullable|max:255',
+      'country'   => 'sometimes|nullable|max:255',
+      'ifsc_code'   => 'sometimes|nullable|max:255',
+      'remark'   => 'sometimes|nullable|max:255',
     ]);
 
     $source = $request->get("source","");
@@ -517,7 +524,14 @@ class VendorController extends Controller
       'gst'             => 'sometimes|nullable|max:255',
       'account_name'    => 'sometimes|nullable|max:255',
       'account_iban'    => 'sometimes|nullable|max:255',
-      'account_swift'   => 'sometimes|nullable|max:255'
+      'account_swift'   => 'sometimes|nullable|max:255',
+      'frequency_of_payment'   => 'sometimes|nullable|max:255',
+      'bank_name'   => 'sometimes|nullable|max:255',
+      'bank_address'   => 'sometimes|nullable|max:255',
+      'city'   => 'sometimes|nullable|max:255',
+      'country'   => 'sometimes|nullable|max:255',
+      'ifsc_code'   => 'sometimes|nullable|max:255',
+      'remark'   => 'sometimes|nullable|max:255',
     ]);
 
     $data = $request->except('_token');
