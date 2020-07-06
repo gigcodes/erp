@@ -3238,6 +3238,7 @@ class ProductController extends Controller
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
+    }    
 
     public function published(Request $request)
     {
