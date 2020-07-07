@@ -2322,7 +2322,6 @@ class ProductController extends Controller
     {
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
-
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
@@ -2333,7 +2332,6 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-
             $media = MediaUploader::fromSource($image)
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
@@ -2382,7 +2380,6 @@ class ProductController extends Controller
             
 
             $cropCount = ($cropCount * $multi);
-
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
