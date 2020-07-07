@@ -356,17 +356,18 @@ margin-bottom: 15px !important;
 
 var accessToken = '';
 var websocket = false;
+var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance = AccountsSDK.init({
-	client_id: "babb4c2a30a83d68daf0ffc271ef1748",
+	client_id: client_id,
 	// response_type: "code",
 	onIdentityFetched: (error, data) => {
 		if (error){
-			//console.log(error)
+			console.log(error)
 		} 
 		if (data) {
 			//console.log("User authorized!");
-			// console.log(data);
+			 console.log(data);
 			accessToken = data.access_token;
 			setTimeout(instance, data.expires_in);
 			//console.log("License number: " + data.license);
