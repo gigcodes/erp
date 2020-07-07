@@ -1407,6 +1407,9 @@
                                         <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
                             </ul>
                         </li>
                         @endif

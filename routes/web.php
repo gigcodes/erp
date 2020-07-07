@@ -330,6 +330,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
 
+
+    //emails
+    Route::get('email/replyMail/{id}', 'EmailController@replyMail');
+    Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+    Route::post('email/resendMail/{id}', 'EmailController@resendMail');
+    Route::resource('email', 'EmailController');
+
+
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
     Route::post('meeting/create', 'Meeting\ZoomMeetingController@createMeeting');
