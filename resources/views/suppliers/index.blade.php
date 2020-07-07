@@ -44,10 +44,10 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List ({{ $suppliers->total() }})</h2>
-			  <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
+			  <form class="" action="{{ route('supplier.index') }}" method="GET">
 				<div class="row">
-                  	<div class="form-group">
-						<div class="col-md-3">
+                  	<div class="form-group col-md-3">
+						<div class="">
 							<input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
 						</div>
                   	</div>
@@ -71,17 +71,12 @@
 							<option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
 							</select>
 					</div>
-					<div class="form-group ml-3">
-						<div class="col-md-3">
-							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><span>Active</span>
-						</div>
+                    <div class="form-group col-md-3">
+                        {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
                     </div>
                 </div>
                 <div class="row">
-					<div class="form-group col-md-3">
-							{!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
-						
-					</div>
+					
 					<div class="form-group col-md-3">
 							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
 						
@@ -112,8 +107,16 @@
 							request('updated_by'),
 							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
 						); ?>
-					</div>
-					<button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    </div>
+                    
+					<div class="form-group ml-3">
+						<div class="col-md-3">
+							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><label for="status">Active</label>
+						</div>
+                    </div>
+                    <div class="form-group">
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    </div>
 				</div>
 				</form>
         </div>

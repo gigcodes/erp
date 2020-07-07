@@ -313,7 +313,7 @@ class SupplierController extends Controller
         $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
                                               ->renderAsDropdown();
 
-        return view('suppliers.show1', [
+        return view('suppliers.show', [
             'supplier' => $supplier,
             'reply_categories' => $reply_categories,
             'users_array' => $users_array,
