@@ -909,4 +909,9 @@ class Product extends Model
         return (float)"0.00";
 
     }
+
+    public function storeWebsiteProductAttributes($storeId = 0)
+    {
+        return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
+    }
 }
