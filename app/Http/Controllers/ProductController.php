@@ -2323,11 +2323,11 @@ class ProductController extends Controller
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
         // Check if this product is being cropped
-        if ($product->status_id != StatusHelper::$isBeingCropped) {
+        /*if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
                 'status' => 'unknown product'
             ], 400);
-        }
+        }*/
 
         // Check if we have a file
         if ($request->hasFile('file')) {
@@ -2361,7 +2361,7 @@ class ProductController extends Controller
 
 
             //Get the last image of the product
-            $productMediacount = $product->media()->count();
+            $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
@@ -2378,11 +2378,8 @@ class ProductController extends Controller
                 $multi = 1;
             }
 
-            \Log::info(print_r(["product_id" =>$product->id,"cropCount" => $cropCount,"multi" => $multi,'productMediacount' => $productMediacount],true));
-            
-
             $cropCount = ($cropCount * $multi);
-            if(($productMediacount - $cropCount) == 1){
+            if($productMediacount <= $cropCount){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
