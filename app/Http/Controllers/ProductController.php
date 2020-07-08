@@ -2378,7 +2378,7 @@ class ProductController extends Controller
                 $multi = 1;
             }
 
-            \Log::info(print_r(["cropCount" => $cropCount,"multi" => $multi,'productMediacount' => $productMediacount],true));
+            \Log::info(print_r(["product_id" =>$product->id,"cropCount" => $cropCount,"multi" => $multi,'productMediacount' => $productMediacount],true));
             
 
             $cropCount = ($cropCount * $multi);
