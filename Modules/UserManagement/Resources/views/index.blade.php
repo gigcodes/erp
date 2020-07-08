@@ -46,13 +46,15 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
-<div class="common-modal modal" role="dialog">
+<div class="common-modal modal modal-md" role="dialog">
     <div class="modal-dialog" role="document">
     </div>  
 </div>
 
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
+@include("usermanagement::templates.load-communication-history")
+
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>

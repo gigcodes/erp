@@ -13,5 +13,11 @@
 
 Route::prefix('user-management')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
+    Route::get('/edit/{id}', 'UserManagementController@edit')->name("user-management.edit");
+    Route::get('/show/{id}', 'UserManagementController@show')->name("user-management.show");
+    Route::patch('/update/{id}', 'UserManagementController@update')->name("user-management.update");
+    Route::post('{id}/activate', 'UserManagementController@activate')->name("user-management.activate");
+    Route::get('track/{id}', 'UserManagementController@usertrack')->name("user-management.usertrack");
+    Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
 });

@@ -4,7 +4,6 @@ var page = {
         page.config = {
             bodyView: settings.bodyView
         };
-
         $.extend(page.config, settings);
         
         page.config.mainUrl = page.config.baseUrl + "/user-management";
@@ -42,6 +41,10 @@ var page = {
 
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
+        });
+
+        page.config.bodyView.on("click",".load-communication-modal",function(e) {
+            page.chatListHistory($(this));
         });
     },
     validationRule : function(response) {
@@ -161,7 +164,21 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    chatListHistory : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/chat-messages/user/"+ele.data("id")+"/loadMoreMessages?limit=1000",
+            method: "get",
+        }
+        this.sendAjax(_z, 'chatListHistoryResult');
+    },
+    chatListHistoryResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-communication-history");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
 }
 
 $.extend(page, common);

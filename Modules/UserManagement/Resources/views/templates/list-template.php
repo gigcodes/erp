@@ -8,14 +8,15 @@
 				<th>Email</th> 
 				<th>Phone</th> 
 				<th>Rate per hour</th>
-				<th>Current task</th>
-				<th>Next task</th> 
+				<th>Salaried or fixed price</th>
+				<th>TASKS</th>
 				<th>Yesterday hours</th>
 				<th>Online now</th> 
 				<th>Payment frequency</th> 
-				<th>Last payment</th>
+				<th>Payment Due</th>
 				<th>Due date</th> 
 				<th>Paid on</th>
+				<th>Action</th>
 				
 			</tr>
 		    </thead>
@@ -27,14 +28,35 @@
 			        <td>{{:prop.email}}</td>
 			        <td>{{:prop.phone}}</td>
 			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
-			        <td>{{:prop.current_task}}</td>
-			        <td>{{:prop.next_task}}</td>
+			        <td> {{if prop.fixed_price_user_or_job == 1}} Salaried {{else prop.fixed_price_user_or_job == 2}} Fixed price Job {{/if}}</td>
+			        <td>
+						<p>Devtask: C-{{:prop.completedDevTask}}/P-{{:prop.pendingDevtask}} </p>
+						<p>Task: C-{{:prop.completedTask}}/P-{{:prop.pendingTask}}</p>
+						<p>Issue: C-{{:prop.completedIssue}}/P-{{:prop.pendingIssue}}</p>
+					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
 			        <td></td>
+			        <td>{{:prop.payment_frequency}}</td>
+			        <td>Starts at :{{:prop.starts_at}} <br> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td></td>
-			        <td></td>
-			        <td></td>
-			        <td></td>
+			        <td>
+					
+					</td>
+			        <td>
+					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
+					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
+					</button>
+					{{if prop.id == <?php echo Auth::id(); ?>}}
+					<a class="btn btn-image" href="/user-management/show/{{>prop.id}}"><img src="/images/view.png"/></a>
+					{{else}}
+					<a class="btn btn-image" href="/user-management/edit/{{>prop.id}}"><img src="/images/edit.png"/></a>
+					{{/if}}
+					<a href="/user-management/track/{{>prop.id}}">Info</a>
+					<a title="Payments" class="btn btn-image" href="/user-management/payments/{{>prop.id}}"><span class="glyphicon glyphicon-usd"></span></a>
+					
+
+					
+					</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

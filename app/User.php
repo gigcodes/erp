@@ -38,7 +38,9 @@ class User extends Authenticatable
         'agent_role',
         'whatsapp_number',
         'amount_assigned',
-        'auth_token_hubstaff'
+        'auth_token_hubstaff',
+        'payment_frequency',
+        'fixed_price_user_or_job'
     ];
 
     public function getIsAdminAttribute()
@@ -413,6 +415,25 @@ class User extends Authenticatable
             return number_format((($records->total_seconds / 60) / 60),2,".",",");
         }
 
+        return 0;
+    }
+
+    public function previousDue($starts_at)
+    {
+        $records = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
+        ->where("hm.user_id",$this->id)
+        ->whereDate("starts_at",$starts_at)
+        ->groupBy('hubstaff_activities.user_id')
+        ->select(\DB::raw("sum(hubstaff_activities.tracked) as total_seconds"))
+        ->first();
+
+        if($records) {
+            $totalHours = number_format((($records->total_seconds / 60) / 60),2,".",",");
+            $currentRate = $this->latestRate;
+            $rate = ($currentRate && $currentRate->hourly_rate) ? $currentRate->hourly_rate : 0;
+            $previousDue = $totalHours * $rate;
+            return $previousDue;
+        }
         return 0;
     }
 
