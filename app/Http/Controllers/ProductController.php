@@ -2377,6 +2377,8 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
+
+            \Log::info(print_r(["cropCount" => $cropCount,"multi" => $multi,'productMediacount' => $productMediacount],true));
             
 
             $cropCount = ($cropCount * $multi);
