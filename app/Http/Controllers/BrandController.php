@@ -292,4 +292,11 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => []]);
     }
+
+    public function createSizeChart()
+    {
+        $brands = Brand::orderBy('name', 'asc')->pluck('name', 'id');
+
+        return view('brand.size-chart.create', ['brands' => $brands]);
+    }
 }
