@@ -129,6 +129,15 @@ class SupplierController extends Controller
             }
         }
 
+        $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray();
+        if(count($userCategoryPermissionId)) {
+            $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
+            $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
+        }
+
+        $suppliers = [];
+
+        if(count($userCategoryPermissionId)) {
         $suppliers = DB::select('
 									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -165,7 +174,7 @@ class SupplierController extends Controller
                    suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
-
+        }
         $suppliers_all = Supplier::where(function ($query) {
             $query->whereNotNull('email')->orWhereNotNull('default_email');
         })->get();

@@ -416,4 +416,11 @@ class User extends Authenticatable
         return 0;
     }
 
+    /**
+     * Get supplier category permission
+     */
+    public function supplierCategoryPermission()
+    {
+        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permission', 'user_id', 'supplier_category_id');
+    }
 }

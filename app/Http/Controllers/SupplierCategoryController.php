@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\SupplierCategory;
 use App\Http\Controllers\Controller;
+use App\User;
 use DB;
 
 
@@ -105,5 +106,37 @@ class SupplierCategoryController extends Controller
         DB::table("supplier_category")->where('id', $id)->delete();
         return redirect()->route('supplier-category.index')
             ->with('success', 'Supplier Category deleted successfully');
+    }
+
+    public function usersPermission(Request $request)
+    {
+        $users = User::where('is_active',1)->orderBy('name','asc')->with('supplierCategoryPermission')->get();
+        $categories = SupplierCategory::orderBy('name','asc')->get();
+        return view('suppliers.supplier-category-permission.index',compact('users','categories'))->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    public function  updatePermission(Request $request){
+        $user_id =  $request->user_id;
+        $category_id = $request->supplier_category_id;
+        $check = $request->check;
+        $user = User::findorfail($user_id);
+        //ADD PERMISSION
+        if($check == 1){
+            $user->supplierCategoryPermission()->attach($category_id);
+            $message = "Permission added Successfully";
+        }
+        //REMOVE PERMISSION
+        if($check == 0){
+            $user->supplierCategoryPermission()->detach($category_id);
+            $message = "Permission removed Successfully";
+        }
+
+        $data = [
+            'success' => true,
+            'message'=> $message
+        ] ;
+        return response()->json($data);
+
+
     }
 }
