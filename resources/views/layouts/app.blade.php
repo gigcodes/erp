@@ -1636,8 +1636,10 @@
         @include('partials.modals.quick-create-task-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $key = \App\LivechatincSetting::first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
+        <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
         @endif
