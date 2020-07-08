@@ -1513,6 +1513,11 @@ class TaskModuleController extends Controller {
 			$data['task_details'] = $request->get("task_detail");
 			$data['task_subject'] = $request->get("task_subject");
 			$data['assign_to'] 	  = $request->get("task_asssigned_to");
+
+			if($request->category_id != null) {
+				$data['category'] 	  = $request->category_id;
+			}
+
 			$task = Task::create($data);
 			if(!empty($task)) {
 				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
