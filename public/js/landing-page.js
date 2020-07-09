@@ -25,6 +25,16 @@ var page = {
             page.createRecord();
         });
 
+        page.config.bodyView.on("click",".btn-push-icon",function(e) {
+            e.preventDefault();
+            page.pushShopifyProduct($(this));
+        });
+
+        page.config.bodyView.on("click",".btn-stock-status",function(e) {
+            e.preventDefault();
+            page.pushStockStatus($(this));
+        });
+
         $(".common-modal").on("click",".submit-platform",function() {
             page.submitPlatform($(this));
         });
@@ -237,12 +247,35 @@ var page = {
     },
     saveSite : function(response) {
         if(response.code  == 200) {
+            toastr["success"]("Product pushed successfully");
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
+    },
+    pushShopifyProduct : function(ele) {
+        console.log(ele);
+        var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
+            method: "GET",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
+    },
+    pushStockStatus : function(ele) {
+        var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
+            method: "GET",
+            data : {stock_status : ele.data("value")},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveSite");
     }
 }
 
