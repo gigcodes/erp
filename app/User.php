@@ -260,7 +260,7 @@ class User extends Authenticatable
         return false;
     }
 
-    public function hasRole($role)
+    /*public function hasRole($role)
     {
 
         $roles = Role::where('name', $role)->first();
@@ -276,7 +276,7 @@ class User extends Authenticatable
             }
         }
         return false;
-    }
+    }*/
 
     public function user_logs()
     {
