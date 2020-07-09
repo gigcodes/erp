@@ -9,17 +9,18 @@
             </div>
         </div>
     </div>
-
+    @include('partials.flash_messages')
     <div class="row">
         <div class="col-md-6">
-            <form action="{{ route('brand/size/chart')  }}" method="POST" enctype="multipart/form-data">
+            <form action="{{ route('brand/store/size/chart')  }}" method="POST" enctype="multipart/form-data">
                 @csrf
                 <div class="row">
 
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Brand</strong>
-                            <select name="brand_id" class="form-control selectpicker" id="brand_id">
+                            <select name="brand_id" class="form-control select2" id="brand_id" required>
+                                <option value="">Select Brand</option>
                                 @forelse ($brands as $key => $item)
                                     <option value="{{ $key }}">{{ $item }}</option>
                                 @empty
@@ -34,9 +35,9 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Upload Size Chart</strong>
-                            <input type="file" class="form-control" name="size_chart" />
-                            @if ($errors->has('size_chart'))
-                                <div class="alert alert-danger">{{$errors->first('size_chart')}}</div>
+                            <input type="file" class="form-control" name="size_img" required/>
+                            @if ($errors->has('size_img'))
+                                <div class="alert alert-danger">{{$errors->first('size_img')}}</div>
                             @endif
                         </div>
                     </div>
@@ -50,4 +51,10 @@
         </div>
     </div>
 
+@endsection
+
+@section('scripts')
+<script type="text/javascript">
+    $(".select2").select2();
+</script>
 @endsection
