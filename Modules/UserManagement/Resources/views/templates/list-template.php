@@ -24,7 +24,16 @@
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td>{{:prop.name}}</td>
+			      	<td>{{:prop.name}} <br>
+					  
+						{{if prop.is_active == 1}}
+						<a title="Add Permission" class="btn btn-secondary change-activation" data-id="{{:prop.id}}">Active</a>
+
+						{{else}}
+						<a title="Add Permission" class="btn btn-danger change-activation" data-id="{{:prop.id}}">Not Active</a>
+
+						{{/if}}
+					  </td>
 			        <td>{{:prop.email}}</td>
 			        <td>{{:prop.phone}}</td>
 			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
@@ -37,8 +46,8 @@
 			        <td>{{:prop.yesterday_hrs}}</td>
 			        <td></td>
 			        <td>{{:prop.payment_frequency}}</td>
-			        <td>Starts at :{{:prop.starts_at}} <br> {{:prop.previousDue}} {{:prop.currency}}</td>
-			        <td></td>
+			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
+			        <td>{{:prop.nextDue}}</td>
 			        <td>
 					
 					</td>
@@ -47,15 +56,15 @@
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
 					</button>
 					{{if prop.id == <?php echo Auth::id(); ?>}}
-					<a class="btn btn-image" href="/user-management/show/{{>prop.id}}"><img src="/images/view.png"/></a>
+					<a class="btn btn-image" href="#"><img src="/images/view.png"/></a>
 					{{else}}
-					<a class="btn btn-image" href="/user-management/edit/{{>prop.id}}"><img src="/images/edit.png"/></a>
+					<a class="btn btn-image" onclick="editUser({{>prop.id}})"><img src="/images/edit.png"/></a>
 					{{/if}}
 					<a href="/user-management/track/{{>prop.id}}">Info</a>
-					<a title="Payments" class="btn btn-image" href="/user-management/payments/{{>prop.id}}"><span class="glyphicon glyphicon-usd"></span></a>
+					<a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"></span></a>
 					
-
-					
+					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
+					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					</td>
 			      </tr>
 			    {{/props}}  

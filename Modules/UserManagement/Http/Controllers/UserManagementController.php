@@ -38,8 +38,14 @@ class UserManagementController extends Controller
 
     public function records(Request $request)
     {
-        $user = User::query();
-
+        $user = new User;
+       
+        if($request->is_active == 1) {
+            $user = $user->where('is_active',1);
+        }
+        if($request->is_active == 2) {
+            $user = $user->where('is_active',0);
+        }
         if($request->keyword != null) {
             $user = $user->where(function($q) use ($request) {
                 $q->where("email","like","%".$request->keyword."%")
@@ -48,6 +54,7 @@ class UserManagementController extends Controller
             });
         }
 
+    
 
         $user = $user->select(["users.*"])->paginate(12);
 
@@ -116,21 +123,34 @@ class UserManagementController extends Controller
                 }
 
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
-                $starts_at = date("Y-m-d");
+
+                $lastPaid = $u->payments()->orderBy('id','desc')->first();
+                if($lastPaid) {
+                    $lastPaidOn = $lastPaid->paid_upto;
+                }
+                else {
+                    $query = HubstaffPaymentAccount::where('user_id',$u->id)->first();
+                    if(!$query) {
+                        $lastPaidOn = date("Y-m-d"); 
+                    }
+                    else {
+                        $lastPaidOn =  date('Y-m-d',strtotime($query->billing_start . "-1 days"));
+                    }
+                }
+                $u["previousDue"] = $u->previousDue($lastPaidOn);
+                
                 if($u->payment_frequency == 'fornightly') {
-                    $starts_at = date("Y-m-d");
+                    $u["nextDue"] =  date('Y-m-d',strtotime($lastPaidOn . "+1 days"));
                 }
                 if($u->payment_frequency == 'weekly') {
-                    $starts_at = date("Y-m-d", strtotime('-7 days'));
+                    $u["nextDue"] = date('Y-m-d',strtotime($lastPaidOn . "+7 days"));
                 }
                 if($u->payment_frequency == 'biweekly') {
-                    $starts_at = date("Y-m-d", strtotime('-14 days'));
+                    $u["nextDue"] = date('Y-m-d',strtotime($lastPaidOn . "+14 days"));
                 }
                 if($u->payment_frequency == 'monthly') {
-                    $starts_at = date("Y-m-d", strtotime("-1 month"));
+                    $u["nextDue"] = date('Y-m-d',strtotime($lastPaidOn . "+30 days"));
                 }
-                $u["previousDue"] = $u->previousDue($starts_at);
-                $u["starts_at"] = $starts_at;
                 $items[] = $u;
             }
             
@@ -159,9 +179,18 @@ class UserManagementController extends Controller
 		$api_keys = ApiKey::select('number')->get();
 		$customers_all = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->whereRaw("customers.id NOT IN (SELECT customer_id FROM user_customers WHERE user_id != $id)")->get()->toArray();
 
-		$userRate = UserRate::getRateForUser($user->id);
+        $userRate = UserRate::getRateForUser($user->id);
+        // return response()->json([
+        //     "code"       => 200,
+        //     "user"       => $user,
+        //     "users"       => $users,
+        //     "agent_roles" => $agent_roles,
+        //     "api_keys"    => $api_keys,
+        //     "customers_all" => $customers_all,
+        //     "userRate" => $userRate,
+        // ]);
 
-        return view('usermanagement::edit-user.index', compact('user','userRole', 'users', 'roles', 'edit', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate'));
+        return view('usermanagement::templates.edit-user', compact('user','userRole', 'users', 'roles', 'edit', 'agent_roles', 'user_agent_roles', 'api_keys', 'customers_all', 'permission', 'userPermission', 'userRate'));
     }
 
 
@@ -171,11 +200,8 @@ class UserManagementController extends Controller
 			'name' => 'required',
 			'email' => 'required|email|unique:users,email,' . $id,
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
-			'password' => 'same:confirm-password',
-			'roles' => 'required',
+			'password' => 'same:confirm-password'
 		]);
-
-
 		$input = $request->all();
 		$hourly_rate = $input['hourly_rate'];
 		$currency = $input['currency'];
@@ -204,8 +230,6 @@ class UserManagementController extends Controller
 			$user->customers()->sync($request->customer);
 		}
 
-		$user->roles()->sync($request->input('roles'));
-		$user->permissions()->sync($request->input('permissions'));
 
 		$user->listing_approval_rate = $request->get('listing_approval_rate') ?? '0';
 		$user->listing_rejection_rate = $request->get('listing_rejection_rate') ?? '0';
@@ -218,8 +242,6 @@ class UserManagementController extends Controller
 		$userRate->currency = $currency;
 		$userRate->user_id = $user->id;
 		$userRate->save();
-
-
 		return redirect()->back()
 			->with('success', 'User updated successfully');
     }
@@ -229,7 +251,6 @@ class UserManagementController extends Controller
 	public function activate(Request $request, $id)
 	{
 		$user = User::find($id);
-
 		if ($user->is_active == 1) {
 			$user->is_active = 0;
 		} else {
@@ -238,7 +259,11 @@ class UserManagementController extends Controller
 
 		$user->save();
 
-		return redirect()->back()->withSuccess('You have successfully updated the user!');
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'User sucessfully updated',
+        ]);
+
     }
     public function show($id)
 	{
@@ -472,7 +497,221 @@ class UserManagementController extends Controller
 			'selectedWeek' => $week,
 			'paymentMethods' => $paymentMethods
 		]);
-	}
+    }
+    
+
+    public function getRoles($id) {
+        $user = User::find($id);
+		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
+		$userRole = $user->roles->pluck('name', 'id')->all();
+        
+        return response()->json([
+            "code"       => 200,
+            "user"       => $user,
+            "userRole"       => $userRole,
+            "roles"       => $roles
+        ]);
+    }
+
+        public function submitRoles($id, Request $request) {
+            $user = User::find($id);
+            if(Auth::user()->hasRole('Admin')) {
+                $user->roles()->sync($request->input('roles'));
+                return response()->json([
+                    "code"       => 200,
+                    "message"       => 'Role updated successfully'
+                ]);
+            }
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Unauthorized access'
+            ]);
+    }
+
+    public function getPermission($id) {
+        $user = User::find($id);
+		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+        $userPermission = $user->permissions->pluck('name', 'id')->all();
+        
+        return response()->json([
+            "code"       => 200,
+            "user"       => $user,
+            "userPermission"       => $userPermission,
+            "permissions"       => $permission
+        ]);
+    }
+
+    public function submitPermission($id, Request $request) {
+        $user = User::find($id);
+        if(Auth::user()->hasRole('Admin')) {
+            $user->permissions()->sync($request->input('permissions'));
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Permission updated successfully'
+            ]);
+        }
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'Unauthorized access'
+        ]);
+    }
+
+    public function addNewPermission(Request $request) {
+        
+        $this->validate($request, [
+            'name' => 'required|unique:roles,name',
+            'route' => 'required|unique:roles,name',
+            
+        ]);
+        $permission = new Permission();
+        $permission->name = $request->name;
+        $permission->route = $request->route;
+        $permission->save();
+        return response()->json([
+            "code"       => 200,
+            "permission"       => $permission
+        ]);    
+    }
+
+    public function paymentInfo($id) {
+        $user = User::find($id);
+        $lastPaid = $user->payments()->orderBy('id','desc')->first();
+        if($lastPaid) {
+            $lastPaidOn = $lastPaid->paid_upto;
+        }
+        else {
+            $query = HubstaffPaymentAccount::where('user_id',$id)->first();
+            if(!$query) {
+                return response()->json([
+                    "code"       => 500,
+                    "message"       => 'No data found'
+                ]); 
+            }
+            $lastPaidOn = date('Y-m-d',strtotime($query->billing_start . "-1 days"));
+        }
+        $pendingPyments = HubstaffPaymentAccount::where('user_id',$id)->where('billing_start','>',$lastPaidOn)->get();
+        if(!count($pendingPyments)) {
+            return response()->json([
+                "code"       => 500,
+                "message"       => 'No data found'
+            ]); 
+        }
+        $pendingTerms = [];
+        if($user->payment_frequency == 'fornightly') {
+            $totalPendingTerms = count($pendingPyments);
+            $perPacket = 1;
+        }
+        if($user->payment_frequency == 'weekly') {
+            $totalPendingTerms = floor(count($pendingPyments)/7);
+            $perPacket = 7;
+        }
+        if($user->payment_frequency == 'biweekly') {
+            $totalPendingTerms = floor(count($pendingPyments)/14);
+            $perPacket = 14;
+        }
+        if($user->payment_frequency == 'monthly') {
+            $totalPendingTerms = floor(count($pendingPyments)/30);
+            $perPacket = 30;
+        }
+        $count = 0;
+        $packetCount = 0;
+        $totalAmount = 0;
+        $totalAmountTobePaid = 0;
+        foreach($pendingPyments as $pending) {
+            if($count < $totalPendingTerms) {
+                $totalAmount = $totalAmount + ($pending->hrs * $pending->rate);
+                $totalAmountTobePaid = $totalAmountTobePaid + ($pending->hrs * $pending->rate * $pending->ex_rate);
+                $packetCount = $packetCount + 1;
+                if($packetCount == $perPacket) {
+                    $packetCount = 0;
+                    $count = $count + 1;
+                    $array = array(
+                        'totalAmount' => $totalAmount,
+                        'lastPaidOn' => $pending->billing_start,
+                        'currency' => $pending->currency,
+                        'totalAmountTobePaid' => $totalAmountTobePaid,
+                        'payment_currency' => $pending->payment_currency
+                    );
+
+                    $pendingTerms[] = $array;
+                    $totalAmount = 0;
+                    $totalAmountTobePaid = 0;
+                }
+            }
+            else {
+            break;
+            }
+        }
+        $paymentMethods = PaymentMethod::all();
+        return view('usermanagement::templates.add-payment', compact('user','pendingTerms','paymentMethods'));
+
+
+    }
+
+    public function addPaymentMethod(Request $request) {
+        
+        $paymentMethods = new PaymentMethod;
+        $paymentMethods->name = $request->name;
+        $paymentMethods->save();
+        $paymentMethods = PaymentMethod::all();
+        return view('usermanagement::templates.new-payment-methods', compact('paymentMethods'));
+    }
+
+    public function savePayments($id, Request $request) {
+        
+        $this->validate($request, [
+			'currency' => 'required',
+			'amounts' => 'required',
+			'payment_method_id' => 'required',
+        ]);
+        
+
+        $user = User::find($id);
+        $lastPaid = $user->payments()->orderBy('id','desc')->first();
+        if($lastPaid) {
+            $lastPaidOn = $lastPaid->paid_upto;
+        }
+        else {
+            $query = HubstaffPaymentAccount::where('user_id',$id)->first();
+            $lastPaidOn = date('Y-m-d',strtotime($query->billing_start . "-1 days"));
+        }
+        $pendingPyments = HubstaffPaymentAccount::where('user_id',$id)->where('billing_start','>',$lastPaidOn)->get();
+        $pendingTerms = [];
+        if($user->payment_frequency == 'fornightly') {
+            $perPacket = 1;
+        }
+        if($user->payment_frequency == 'weekly') {
+            $perPacket = 7;
+        }
+        if($user->payment_frequency == 'biweekly') {
+            $perPacket = 14;
+        }
+        if($user->payment_frequency == 'monthly') {
+            $perPacket = 30;
+        }
+        $count = 1;
+        $totalPendingRaws = $perPacket * count($request->amounts);
+        foreach($pendingPyments as $pending) {
+            if($count == $totalPendingRaws) {
+                $resetLastPaidOn = $pending->billing_start;
+            break;
+            }
+            $count++;
+        }
+        $totalAmount = 0;
+        foreach($request->amounts as $amount) {
+            $totalAmount = $totalAmount + $amount;
+        }
+        $payment = new Payment;
+        $payment->payment_method_id = $request->payment_method_id;
+        $payment->user_id = $id;
+        $payment->note = $request->note;
+        $payment->amount = $totalAmount;
+        $payment->currency = $request->currency;
+        $payment->paid_upto = $resetLastPaidOn;
+        $payment->save();
+        return redirect()->back()->with('success','Payment done successfully');
+    }
 
 
 }

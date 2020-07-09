@@ -46,6 +46,45 @@ var page = {
         page.config.bodyView.on("click",".load-communication-modal",function(e) {
             page.chatListHistory($(this));
         });
+
+        page.config.bodyView.on("click",".load-role-modal",function(e) {
+            page.roleModalOpen($(this));
+        });
+
+        page.config.bodyView.on("click",".load-permission-modal",function(e) {
+            page.permissionModalOpen($(this));
+        });
+
+        page.config.bodyView.on("click",".change-activation",function(e) {
+            page.userActivate($(this));
+        });
+
+
+
+        $(".common-modal").on("click",".submit-role",function() {
+            page.submitRole($(this));
+        });
+
+        $(".common-modal").on("click",".submit-permission",function() {
+            page.submitPermission($(this));
+        });
+
+        $(".common-modal").on("keyup",".search-role",function() {
+            page.roleSearch();
+        });
+
+        $(".common-modal").on("keyup",".search-permission",function() {
+            page.permissionSearch();
+        });
+
+        $(".common-modal").on("click",".open-permission-input",function() {
+            page.toggleDropdown();
+        });
+
+        $(".common-modal").on("click",".add-permission",function() {
+            page.addPermission();
+        });
+        
     },
     validationRule : function(response) {
          $(document).find("#product-template-from").validate({
@@ -179,6 +218,161 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
+    permissionModalOpen : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/permission/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'permissionResult');
+    },
+    permissionResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-add-permission");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    submitPermission : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/permission/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "savePermission");
+    },
+    savePermission : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Permission updated successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    roleModalOpen : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/role/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'roleResult');
+    },
+    roleResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-add-role");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    submitRole : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/role/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveRole");
+    },
+    saveRole : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Role updated successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    roleSearch : function() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInputRole");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myRole");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    },
+    permissionSearch : function() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    },
+    toggleDropdown : function() {
+        if ($('#permission-from').hasClass('hidden')) {
+            $('#permission-from').removeClass('hidden');
+        } else {
+            $('#permission-from').addClass('hidden');
+        }
+    },
+    addPermission : function() {
+        var name = $('#name').val();
+        var route = $('#route').val();
+        if(!name && !route) {
+            toastr["error"]('Both field is required',"");
+            return;
+        }
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/add-permission",
+            method: "post",
+            data : {
+                name : name,
+                route : route
+            }
+        }
+        this.sendAjax(_z, "permissionAdded");
+    },
+    permissionAdded : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('New Permission added successfully', 'success');
+            $("#myUL").append('<li style="list-style-type: none;"><a><input type="checkbox" name="permissions[]" value="'+response.permission.id+'"/><strong>'+response.permission.name+'</strong></a></li>');
+            $('#name').val('');
+            $('#route').val('');
+            $('#permission-from').addClass('hidden');
+        }
+    },
+    userActivate : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveActivate");
+    },
+    saveActivate : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Successfully updated', 'success');
+            page.loadFirst();
+        }else {
+            toastr["error"](response.error,"");
+        }
+    },
 }
+
 
 $.extend(page, common);

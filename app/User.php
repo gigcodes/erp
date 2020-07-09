@@ -14,6 +14,7 @@ use Cache;
 use App\UserLog;
 use DB;
 use Redirect;
+use App\Hubstaff\HubstaffPaymentAccount;
 use Carbon\Carbon;
 
 
@@ -396,6 +397,11 @@ class User extends Authenticatable
         return self::pluck("name","id")->toArray();
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
 
     public function taskList()
     {
@@ -418,23 +424,14 @@ class User extends Authenticatable
         return 0;
     }
 
-    public function previousDue($starts_at)
+    public function previousDue($lastPaidOn)
     {
-        $records = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
-        ->where("hm.user_id",$this->id)
-        ->whereDate("starts_at",$starts_at)
-        ->groupBy('hubstaff_activities.user_id')
-        ->select(\DB::raw("sum(hubstaff_activities.tracked) as total_seconds"))
-        ->first();
-
-        if($records) {
-            $totalHours = number_format((($records->total_seconds / 60) / 60),2,".",",");
-            $currentRate = $this->latestRate;
-            $rate = ($currentRate && $currentRate->hourly_rate) ? $currentRate->hourly_rate : 0;
-            $previousDue = $totalHours * $rate;
-            return $previousDue;
+        $pendingPyments = HubstaffPaymentAccount::where('user_id',$this->id)->where('billing_start','>',$lastPaidOn)->get();
+        $total = 0;
+        foreach($pendingPyments as $pending) {
+            $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
         }
-        return 0;
+        return $total;
     }
 
 }
