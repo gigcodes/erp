@@ -52,6 +52,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('hscode', 'ProductController@hsCodeIndex');
     Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
     Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
+    Route::post('store-website-description', 'ProductController@storeWebsiteDescription')->name('product.store.website.description');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
@@ -329,6 +330,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
+
+
+    //emails
+    Route::get('email/replyMail/{id}', 'EmailController@replyMail');
+    Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+    Route::post('email/resendMail/{id}', 'EmailController@resendMail');
+    Route::resource('email', 'EmailController');
+
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );

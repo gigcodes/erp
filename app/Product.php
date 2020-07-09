@@ -613,7 +613,18 @@ class Product extends Model
 
     public function attachImagesToProduct($arrImages = null)
     {
-        if (!$this->hasMedia(\Config('constants.media_original_tag')) || is_array($arrImages)) {
+
+        // check media exist or
+        $mediaRecords = false;
+        if ($this->hasMedia(\Config('constants.media_original_tag'))) {
+            foreach($this->getMedia(\Config('constants.media_original_tag')) as $mRecord) {
+                if(file_exists($mRecord->getAbsolutePath())) {
+                    $mediaRecords = true;
+                }
+            }
+        }
+        
+        if (!$mediaRecords || is_array($arrImages)) {
             // images given
             if (is_array($arrImages) && count($arrImages) > 0) {
                 $scrapedProduct = true;
@@ -908,5 +919,10 @@ class Product extends Model
         
         return (float)"0.00";
 
+    }
+
+    public function storeWebsiteProductAttributes($storeId = 0)
+    {
+        return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
     }
 }

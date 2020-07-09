@@ -2,7 +2,7 @@
 	@foreach($categories as $category)
 		<?php 
             $site = $category->getDevelopment($category->id,$website->id); 
-            if(auth()->user()->isAdmin() || ($site && $site->developer_id == auth()->user()->id)) {
+            if(auth()->user()->isAdmin() || auth()->user()->hasRole('Site-development') || ($site && $site->developer_id == auth()->user()->id)) {
         ?>
     	<tr>
     		<td>

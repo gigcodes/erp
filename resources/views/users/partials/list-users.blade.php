@@ -25,4 +25,4 @@
                         <a title="Payments" class="btn btn-image" href="/users/{{$user->id}}/payments"><span class="glyphicon glyphicon-usd"></span></a>
                     </td>
                 </tr>
-            @endforeach
+@endforeach
