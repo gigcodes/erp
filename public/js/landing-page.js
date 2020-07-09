@@ -252,7 +252,7 @@ var page = {
             $(".common-modal").modal("hide");
         }else {
             $("#loading-image").hide();
-            toastr["error"](response.error,"");
+            toastr["error"](response.message,"");
         }
     },
     pushShopifyProduct : function(ele) {

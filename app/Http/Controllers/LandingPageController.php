@@ -199,19 +199,15 @@ class LandingPageController extends Controller
 
             $errors = [];
             if (!empty($response->errors)) {
-                if (is_array($response->errors)) {
-                    foreach ($response->errors as $key => $message) {
-                        foreach ($message as $msg) {
-                            $errors[] = ucwords($key) . " " . $msg;
-                        }
+                foreach ((array)$response->errors as $key => $message) {
+                    foreach ($message as $msg) {
+                        $errors[] = ucwords($key) . " " . $msg;
                     }
-                } else {
-                    $errors[] = $response->errors;
                 }
             }
 
             if (!empty($errors)) {
-                return response()->json(["code" => 500, "data" => [], "message" => implode("<br>", $errors)]);
+                return response()->json(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]);
             }
 
             if (!empty($response->product)) {
