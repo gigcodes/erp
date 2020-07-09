@@ -44,7 +44,8 @@ class Product extends Model
         'has_mediables',
         'size_eu',
         'stock_status',
-        'shopify_id'
+        'shopify_id',
+        'scrap_priority'
     ];
 
     protected $dates = ['deleted_at'];
