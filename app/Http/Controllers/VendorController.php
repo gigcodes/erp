@@ -133,12 +133,12 @@ class VendorController extends Controller
       }
 
       $status = request('status');
-      if ($status != null) {
-        $query->where('status', $status);
+      if ($status != null && !request('with_archived')) {
+        $query->orWhere('status', $status);
       }
 
-      if (request('updated_by') != null) {
-          $query->where('updated_by', request('updated_by'));
+      if (request('updated_by') != null && !request('with_archived')) {
+          $query->orWhere('updated_by', request('updated_by'));
       }
 
       //if category is not nyll
@@ -150,22 +150,24 @@ class VendorController extends Controller
 
 
 
-      if (request('communication_history') != null) {
+      if (request('communication_history') != null && !request('with_archived')) {
         $communication_history = request('communication_history');
-        $query->whereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
+        $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
       }
 
       if ($request->with_archived != null && $request->with_archived != '') {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-        }
+		}
+		$totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
         $vendors = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
       } else {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-        }
+		}
+		$totalVendor = $query->orderby('name', 'asc')->count();
         $vendors = $query->orderby('name', 'asc')->paginate($pagination);
       }
     } else {
@@ -207,6 +209,8 @@ class VendorController extends Controller
               ');
 
       //dd($vendors);
+
+		$totalVendor = count($vendors);
 
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
@@ -254,7 +258,8 @@ class VendorController extends Controller
       'orderby'    => $orderby,
       'users' => $users,
       'replies' => $replies,
-      'updatedProducts' => $updatedProducts
+      'updatedProducts' => $updatedProducts,
+      'totalVendor' => $totalVendor,
     ]);
   }
 
