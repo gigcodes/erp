@@ -91,17 +91,53 @@ class RepositoryController extends Controller
 
     public function deployBranch($repoId)
     {
-        $repository = GithubRepository::find($repoId);
+        $source = 'master';
+        $destination = Input::get('branch');
 
-        $branch = Input::get('branch');
-        //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+        $url = "https://api.github.com/repositories/" . $repoId . "/merges";
 
-        $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+        try {
+            // Merge master into branch
+            $this->client->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        'base' => $destination,
+                        'head' => $source,
+                    ])
+                ]
+            );
+            echo 'done';
+            //Artisan::call('github:load_branch_state');
+            if($source == 'master'){
+                $this->updateBranchState($repoId, $destination);
+            }else if($destination == 'master'){
+                $this->updateBranchState($repoId, $source);
+            }
 
-        $allOutput = array();
-        $allOutput[] = $cmd;
-        $result = exec($cmd, $allOutput);
-        return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
+            // Deploy branch
+            $repository = GithubRepository::find($repoId);
+
+            $branch = Input::get('branch');
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+
+            $allOutput = array();
+            $allOutput[] = $cmd;
+            $result = exec($cmd, $allOutput);
+
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            return redirect(url('/github/pullRequests'))->with(
+                [
+                    'message' => 'Failed to Merge!',
+                    'alert-type' => 'error'
+                ]
+            );
+        }
+
+        return redirect(url('/github/pullRequests'))->with([
             'message' => print_r($allOutput, true),
             'alert-type' => 'success'
         ]);
@@ -151,16 +187,29 @@ class RepositoryController extends Controller
             }else if($destination == 'master'){
                 $this->updateBranchState($id, $source);
             }
+
+            // Deploy branch
+            $repository = GithubRepository::find($id);
+
+            $branch = 'master';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+
+            $allOutput = array();
+            $allOutput[] = $cmd;
+            $result = exec($cmd, $allOutput);
+
         } catch (Exception $e) {
             print_r($e->getMessage());
-            return redirect(url('/github/repos/' . $id . '/branches'))->with(
+            return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => 'Failed to Merge!',
                     'alert-type' => 'error'
                 ]
             );
         }
-        return redirect(url('/github/repos/' . $id . '/branches'))->with([
+        return redirect(url('/github/pullRequests'))->with([
             'message' => 'Branch merged successfully',
             'alert-type' => 'success'
         ]);
