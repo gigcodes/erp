@@ -1,19 +1,246 @@
+var currentChatParams = {};
+var workingOn =  null;
+var load_type =  null;
+
+var getMoreChatConvo = function(params) {
+
+    workingOn = $.ajax({
+        type: "GET",
+        url: params.url,
+        data: params.data,
+        beforeSend: function () {
+            var loadingIcon = '<div id="loading-image" style="position: relative;left: 0px;top: 0px;width: 100%;height: 120px;z-index: 9999;background: url(/images/pre-loader.gif)50% 50% no-repeat;"></div>';
+            if ($('#chat-list-history').length > 0) {
+                $("#chat-list-history").find(".modal-body").append(loadingIcon);
+            } else {
+                $("#chat-history").append(loadingIcon);
+            }
+        }
+    }).done(function (response) {
+        workingOn = null;
+        if(response.messages.length > 0) {
+            var li = getHtml(response);
+
+            if ($('#chat-list-history').length > 0) {
+                $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
+                $("#chat-list-history").find(".modal-body").append(li);
+                //$(thiss).html("<img src='/images/chat.png' alt=''>");
+                //$("#chat-list-history").modal("show");
+            } else {
+                $("#chat-history").find("#loading-image").remove();
+                $("#chat-history").append(li);
+            }
+        }else{
+            $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
+            $("#chat-history").find("#loading-image").remove();
+            currentChatParams.data.hasMore = false;
+        }
+
+    }).fail(function (response) {
+        workingOn = null;
+    });
+
+};
+
+var getHtml = function(response) {
+    var j = 0;
+    var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
+    var li = '<div class="speech-wrapper '+classMaster+'">';
+
+    if(load_type == "broadcast" || load_type == "images") {
+        $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
+    }else{
+        $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
+    }
+
+
+    (response.messages).forEach(function (message) {
+        // Set empty image var
+        var media = '';
+        var imgSrc = '';
+
+        // Check for attached media (ERP attached media)
+        if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
+            for (var i = 0; i < message.mediaWithDetails.length; i++) {
+                // Get image to display
+                imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
+                var productId = message.mediaWithDetails[i].product_id;
+
+                // Set media
+                if (imgSrc != '') {
+                    media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class=""><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
+                }
+            }
+        }
+
+        // check for media with details
+        var classFive = (load_type == "broadcast" || load_type == "images") ? "col-md-4" : "col-12";
+        if (currentChatParams.data.load_attached == 1 && message.media && message.media.length > 0) {
+            for (var i = 0; i < message.media.length; i++) {
+                // Get image to display
+                imgSrc = getImageToDisplay(message.media[i].image);
+
+                //console.log(message.media[i], message.product_id);
+
+                // Set media
+                if (imgSrc != '') {
+                    media = media + '<div class="'+classFive+'">';
+                    var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
+                    if (message.media[i].product_id) {
+
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info "><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        } else {
+                            media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        } 
+                    } else {
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            media = media + '<a class="" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        }else{
+                            media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                    }
+                    
+                    if (message.media[i].product_id > 0 && message.customer_id > 0) {
+                        media = media + '<br />';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
+                        media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-kyc-customer" data-media-key="'+message.media[i].key+'" data-customer-id="'+message.customer_id+'">+ KYC</a>';
+                    }
+                    media = media + '</div>';
+                }
+            }
+        }
+
+
+        // Do we have media sent with the message?
+        if (media != '') {
+            media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
+        }
+
+        // Check for media URL
+        if (message.media_url != null) {
+            // Get image to display
+            imgSrc = getImageToDisplay(message.media_url);
+
+            // Display media in chat
+            if (message.type == "supplier") {
+                media = '<input type="checkbox" class="form-control" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
+                j++;
+            } else {
+                media =  '<div style="margin-bottom:10px;">'; 
+                media += '<div class="row">'; 
+                media += '<div class="'+classFive+'">';
+                media += '<a href="' + message.media_url + '" class="show-product-info" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
+                media += '</div>';
+                media += '</div>';
+                media += '</div>';
+            }
+
+        }
+
+        // Set empty button var
+        var button = "";
+
+        if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
+            
+            if (message.status == 0 || message.status == 5 || message.status == 6) {
+                if (message.status == 0) {
+                    button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
+                }
+
+                if (message.status == 0 || message.status == 5) {                        
+                  button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
+                }
+                button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+            } else if (message.status == 4) {
+            } else {
+                if ( message.type == "customer") {
+                    if (message.error_status == 1) {
+                        button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                     } else if (message.error_status == 2) {
+                       button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                     }
+                     
+                     if (!message.approved) {
+                         if (is_admin || is_hod_crm) {
+                            approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
+                            button += approveBtn;
+                            button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
+                            button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
+                         }
+                     }
+                     button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+                } 
+
+                if (message.type == "task" || message.type == "vendor") {
+                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                    if(message.type != "vendor") {
+                        button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
+                    }
+                }
+
+                if (message.type == "vendor") {
+                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" />';
+                }
+            }
+        }
+        button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
+        if(message.is_queue == 1) {
+           button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
+        }
+
+        if (message.inout == 'out' || message.inout == 'in') {
+            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
+        }    
+
+        if (message.inout == 'in') {
+            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+        } else if (message.inout == 'out') {
+            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+        } else {
+            li += '<div>' + index + '</div>';
+        }
+    });
+
+    li += '</div>';
+
+    return li;
+}
+
 $(document).on('click', '.load-communication-modal', function () {
+    
     var thiss = $(this);
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
     var load_attached = $(this).data('attached');
     var load_all = $(this).data('all');
-    var load_type = $(this).data('load-type');
+        load_type = $(this).data('load-type');
     var is_admin = $(this).data('is_admin');
     var is_hod_crm = $(this).data('is_hod_crm');
+    var limit = 1000;
+    if(typeof $(this).data('limit') != "undefined") {
+        limit = $(this).data('limit');
+    }
+
+	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
+    currentChatParams.data = {
+        limit: limit,
+        load_all: load_all,
+        load_attached: load_attached,
+        load_type: load_type,
+        page : 1,
+        hasMore : true
+    }
 
 
     $.ajax({
         type: "GET",
         url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
         data: {
-            limit: 1000,
+            limit: limit,
             load_all: load_all,
             load_attached: load_attached,
             load_type: load_type,
@@ -22,153 +249,8 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
-        var j = 0;
-        var li = '<div class="speech-wrapper">';
-        (response.messages).forEach(function (message) {
-            // Set empty image var
-            var media = '';
-            var imgSrc = '';
-
-            // Check for attached media (ERP attached media)
-            if (load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
-                for (var i = 0; i < message.mediaWithDetails.length; i++) {
-                    // Get image to display
-                    imgSrc = getImageToDisplay(message.mediaWithDetails[i].image);
-                    var productId = message.mediaWithDetails[i].product_id;
-
-                    // Set media
-                    if (imgSrc != '') {
-                        media = media + '<div class="col-4"><a href="' + message.mediaWithDetails[i].image + '" target="_blank" class="show-thumbnail-image"><input type="checkbox" name="product" value="' + productId + '" id="cb1_' + i + '" /><label class="label-attached-img" for="cb1_' + i + '"><img src="' + imgSrc + '" style="max-width: 100%;"></label></a></div>';
-                    }
-                }
-            }
-
-            // check for media with details
-            if (load_attached == 1 && message.media && message.media.length > 0) {
-                for (var i = 0; i < message.media.length; i++) {
-                    // Get image to display
-                    imgSrc = getImageToDisplay(message.media[i].image);
-
-                    //console.log(message.media[i], message.product_id);
-
-                    // Set media
-                    if (imgSrc != '') {
-                        media = media + '<div class="col-12">';
-                        var imageType = (message.media[i].image).substr( (message.media[i].image).length - 4).toLowerCase();
-                        if (message.media[i].product_id) {
-
-                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                                media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info show-thumbnail-image"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            } else {
-                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            } 
-                        } else {
-                            if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
-                                media = media + '<a class="show-thumbnail-image" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            }else{
-                                media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                            }
-                        }
-                            
-
-                        if (message.media[i].product_id > 0 && message.customer_id > 0) {
-                            media = media + '<br />';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
-                            media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
-                        }
-                        media = media + '</div>';
-                    }
-                }
-            }
-
-
-            // Do we have media sent with the message?
-            if (media != '') {
-                media = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + media + '</div></div>';
-            }
-
-            // Check for media URL
-            if (message.media_url != null) {
-                // Get image to display
-                imgSrc = getImageToDisplay(message.media_url);
-
-                // Display media in chat
-                if (message.type == "supplier") {
-                    media = '<input type="checkbox" class="form-control" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                    j++;
-                } else {
-                    media = '<a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
-                }
-
-            }
-
-            // Set empty button var
-            var button = "";
-
-            if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
-                
-                if (message.status == 0 || message.status == 5 || message.status == 6) {
-                    if (message.status == 0) {
-                        button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
-                    }
-
-                    if (message.status == 0 || message.status == 5) {                        
-                      button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
-                    }
-                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
-                } else if (message.status == 4) {
-                } else {
-                    if ( message.type == "customer") {
-                        if (message.error_status == 1) {
-                            button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
-                         } else if (message.error_status == 2) {
-                           button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
-                         }
-                         
-                         if (!message.approved) {
-                             if (is_admin || is_hod_crm) {
-                                approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
-                                button += approveBtn;
-                                button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
-                                button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
-                             }
-                         }
-                         button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
-                    } 
-
-                    if (message.type == "task" || message.type == "vendor") {
-                        button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
-                        if(message.type != "vendor") {
-                            button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
-                        }
-                    }
-
-                    if (message.type == "vendor") {
-                        button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" />';
-                    }
-                }
-            }
-            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
-            if(message.is_queue == 1) {
-               button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
-            }
-
-            if (message.inout == 'out' || message.inout == 'in') {
-                button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
-            }    
-
-            if (message.inout == 'in') {
-                li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
-            } else if (message.inout == 'out') {
-                li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
-            } else {
-                li += '<div>' + index + '</div>';
-            }
-        });
-
-        li += '</div>';
+        
+        var li = getHtml(response);
 
         if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-body").html(li);
@@ -725,4 +807,50 @@ $(document).on("mouseover", '.show-thumbnail-image', function() {
 $(document).on('mouseout', '.show-thumbnail-image', function(e) { 
     $('#preview-image-model').modal('hide');
     $('#preview-image-model').remove();
+});
+
+$('#chat-list-history').on("scroll", function() {
+    
+    var $this = $(this);
+    
+    var modal_scrollTop = $this.scrollTop();
+    var modal_scrollHeight = $this.find('.modal-body').prop('scrollHeight');
+
+
+    // Bottom reached:
+    //console.log([modal_scrollTop,(modal_scrollHeight - 500), workingOn , currentChatParams.data.hasMore]);
+    if (modal_scrollTop > (modal_scrollHeight - 1000) && workingOn == null) {
+        if(currentChatParams.data.hasMore && workingOn == null) {
+            workingOn = true;
+            currentChatParams.data.page++; 
+            getMoreChatConvo(currentChatParams);
+        }
+    }
+
+});
+
+$(document).on("click",".create-kyc-customer",function(e) {
+    console.log("Hello world");
+    e.preventDefault();
+    var customerId = $(this).data("customer-id");
+    var mediaId    = $(this).data("media-key");
+    var thiss = $(this);
+    $.ajax({
+        type: 'POST',
+        url: "/customer/create-kyc",
+        data: {
+          _token: $('meta[name="csrf-token"]').attr('content'),
+          customer_id: customerId,
+          media_id: mediaId
+        },
+        beforeSend: function() {
+          $(thiss).text('Creating...');
+        },
+        success: function(response) {
+            toastr["success"]("File added into kyc", 'Message');
+        }
+      }).fail(function(error) {
+        $(thiss).text("+ KYC");
+        toastr["error"]("There was an error creating a order", 'Message');
+      });
 });

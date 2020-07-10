@@ -142,16 +142,25 @@ class ColdLeadsController extends Controller
     }
 
     public function sendMessage($leadId, Request $request) {
-        $this->validate($request, [
-            'account_id' => 'required'
-        ]);
+        
+        // $this->validate($request, [
+        //     'account_id' => 'required'
+        // ]);
 
         $lead = ColdLeads::find($leadId);
 
-        $account = Account::find($request->get('account_id'));
-        $senderUsername = $account->last_name;
+        //$account = Account::find($request->get('account_id'));
+
+        //Commenting to sending from other accounts now will only be sending from admin
+        //$senderUsername = $account->last_name;
+        //$password = $account->password;
+        
+        $senderUsername = env('IG_USERNAME');
+        $password = env('IG_PASSWORD');
+
+        
         $receiverId = $lead->platform_id;
-        $password = $account->password;
+        
         $message = $request->get('message');
 
         if (strlen($receiverId) < 5) {
@@ -171,11 +180,11 @@ class ColdLeadsController extends Controller
                 'error'
             ], 413);
         }
-
-        $thread = InstagramThread::where('account_id', $account->id)->where('cold_lead_id', $leadId)->first();
+        $accountId = 1;
+        $thread = InstagramThread::where('account_id', $accountId)->where('cold_lead_id', $leadId)->first();
         if (!$thread) {
             $thread = new InstagramThread();
-            $thread->account_id = $account->id;
+            $thread->account_id = $accountId;
             $thread->cold_lead_id = $leadId;
         }
         $thread->last_message = $message;
@@ -230,6 +239,7 @@ class ColdLeadsController extends Controller
     }
 
     private function sendMessageToInstagramUser($sender, $password,  $receiver, $message, $lead) {
+
         $i = new Instagram();
 
         try {
@@ -353,6 +363,35 @@ class ColdLeadsController extends Controller
             'status' => 'success'
         ]);
 
+    }
+
+    public function home(Request $request)
+    {
+            if (strlen($request->get('query')) >= 4) {
+            $query = $request->get('query');
+            $leads = ColdLeads::where('status', '>', 0)
+                ->where(function($q) use ($query) {
+                    $q->where('name', 'LIKE', "%$query%");
+                    $q->where('username', 'LIKE', "%$query%");
+                });
+        } else {
+            $leads = ColdLeads::where('status', '>', 0);
+        }
+
+        if ($request->get('gender') == 'm' || $request->get('gender') == 'f' || $request->get('gender') == 'o') {
+            $leads = $leads->where('gender', $request->get('gender'));
+        }
+
+        if ($request->get('acc') > 0) {
+            $leads = $leads->where('account_id', $request->get('acc'));
+        }
+
+        $leads = $leads->orderBy('updated_at', 'DESC')->with('account')->paginate($request->get('pagination'));
+
+        $accounts = Account::where('platform', 'instagram')->where('broadcast', 1)->get();
+
+        return view('instagram.direct-message.index',compact('leads','accounts'));
+    
     }
 
 }

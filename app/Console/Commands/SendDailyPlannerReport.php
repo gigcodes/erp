@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\CronJobReport;
 use App\DailyActivity;
-use App\Mail\SendDailyActivityReport;
+use App\Mails\Manual\SendDailyActivityReport;
 use App\Task;
 use App\User;
 use Carbon\Carbon;

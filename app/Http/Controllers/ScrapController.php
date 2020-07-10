@@ -117,7 +117,7 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
-
+        \Log::channel('scraper')->debug("##!!##".json_encode($request->all())."##!!##");
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
@@ -125,9 +125,9 @@ class ScrapController extends Controller
         $errorLog = LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Return error
-        if (!empty($errorLog)) {
+        if (!empty($errorLog["error"])) {
             return response()->json([
-                'error' => $errorLog
+                'error' => $errorLog["error"]
             ]);
         }
 
@@ -159,16 +159,34 @@ class ScrapController extends Controller
                 ]);
             }
         }
+
+        // fix property array
+        $requestedProperties = $request->get('properties');
+        if(!empty($requestedProperties)) {
+            foreach ($requestedProperties as $key => &$value) {
+                if($key == "category") {
+                   $requestedProperties[$key] = !is_array($value) ? [$value] : $value;
+                }
+            }
+        }
+
+        $request->request->add(["properties" => $requestedProperties]);
+        
+
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
         if(isset($propertiesExt["category"])) {
-            $categories = array_map("strtolower", $propertiesExt["category"]);
-            $strsku     =  strtolower($sku);
-            if(in_array($strsku, $categories)) {
-               $index = array_search($strsku, $categories);
-               unset($categories[$index]);
+            if(is_array($propertiesExt["category"])){
+                $categories = array_map("strtolower", $propertiesExt["category"]);
+                $strsku     =  strtolower($sku);
+                if(in_array($strsku, $categories)) {
+                   $index = array_search($strsku, $categories);
+                   unset($categories[$index]);
+                }
+                $propertiesExt["category"] = $categories;
+            }else{
+                $propertiesExt["category"] = '';
             }
-            $propertiesExt["category"] = $categories;
         }
 
         // Get this product from scraped products
@@ -176,13 +194,13 @@ class ScrapController extends Controller
 
         if ($scrapedProduct) {
             // Add scrape statistics
-            $scrapStatistics = new ScrapStatistics();
-            $scrapStatistics->supplier = $request->get('website');
-            $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-            $scrapStatistics->brand = $brand->name;
-            $scrapStatistics->url = $request->get('url');
-            $scrapStatistics->description = $request->get('sku');
-            $scrapStatistics->save();
+            // $scrapStatistics = new ScrapStatistics();
+            // $scrapStatistics->supplier = $request->get('website');
+            // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+            // $scrapStatistics->brand = $brand->name;
+            // $scrapStatistics->url = $request->get('url');
+            // $scrapStatistics->description = $request->get('sku');
+            // $scrapStatistics->save();
 
             // Set values for existing scraped product
             $scrapedProduct->url = $request->get('url');
@@ -199,17 +217,20 @@ class ScrapController extends Controller
             $scrapedProduct->discounted_price = $request->get('discounted_price');
             $scrapedProduct->original_sku = trim($request->get('sku'));
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
+            $scrapedProduct->validated = empty($errorLog["error"]) ? 1 : 0;
+            $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
+            $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
             $scrapedProduct->save();
             $scrapedProduct->touch();
         } else {
             // Add scrape statistics
-            $scrapStatistics = new ScrapStatistics();
-            $scrapStatistics->supplier = $request->get('website');
-            $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-            $scrapStatistics->brand = $brand->name;
-            $scrapStatistics->url = $request->get('url');
-            $scrapStatistics->description = $request->get('sku');
-            $scrapStatistics->save();
+            // $scrapStatistics = new ScrapStatistics();
+            // $scrapStatistics->supplier = $request->get('website');
+            // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+            // $scrapStatistics->brand = $brand->name;
+            // $scrapStatistics->url = $request->get('url');
+            // $scrapStatistics->description = $request->get('sku');
+            // $scrapStatistics->save();
 
             // Create new scraped product
             $scrapedProduct = new ScrapedProducts();
@@ -232,6 +253,9 @@ class ScrapController extends Controller
             $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
             $scrapedProduct->website = $request->get('website');
             $scrapedProduct->brand_id = $brand->id;
+            $scrapedProduct->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+            $scrapedProduct->validated = empty($errorLog) ? 1 : 0;
+            $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->save();
         }
 
@@ -472,7 +496,7 @@ class ScrapController extends Controller
         $request->website = 'internal_scraper';
 
         // Log before validating
-        LogScraper::LogScrapeValidationUsingRequest($request);
+        //LogScraper::LogScrapeValidationUsingRequest($request);
 
         // Find product
         $product = Product::find($request->get('id'));
@@ -568,28 +592,37 @@ class ScrapController extends Controller
         }
 
         if (is_array($links)) {
-            foreach ($links as $link) {
-                $logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
+            $scraper = Scraper::where('scraper_name', $website)->first();
+            if(!empty($scraper)){
+               if($scraper->full_scrape == 1){
+                    $scraper->full_scrape = 0;
+                    $scraper->save();
+                    return $links;
+                } 
+            }
+            
 
-                if ($logScraper != null) {
-                    Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
-                    $logScraper->touch();
-                    $logScraper->save();
+            foreach ($links as $link) {
+                //$logScraper = LogScraper::where('url', $link)->where('website', $website)->first();
+
+                //if ($logScraper != null) {
+                    //Log::channel('productUpdates')->debug("[log_scraper] Found existing product with url " . $link);
+                    //$logScraper->touch();
+                    //$logScraper->save();
 
                     // Load scraped product and update last_inventory_at
-                    $scrapedProduct = ScrapedProducts::where('sku', ProductHelper::getSku($logScraper->sku))->where('website', $website)->first();
-
+                    $scrapedProduct = ScrapedProducts::where('url', $link)->where('website', $website)->first();
                     if ($scrapedProduct != null) {
-                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($logScraper->sku));
+                        Log::channel('productUpdates')->debug("[scraped_product] Found existing product with sku " . ProductHelper::getSku($scrapedProduct->sku));
                         $scrapedProduct->url = $link;
                         $scrapedProduct->last_inventory_at = Carbon::now();
                         $scrapedProduct->save();
                     } else {
                         $pendingUrl[] = $link;
                     }
-                } else {
-                    $pendingUrl[] = $link;
-                }
+                //} else {
+                    //$pendingUrl[] = $link;
+                //}
             }
 
             //Getting Supplier by Scraper name
@@ -631,7 +664,7 @@ class ScrapController extends Controller
 
         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
 
-            $query = LogScraper::query();
+            $query = \App\ScrapedProducts::query();
 
             $dateRange = request("daterange","");
             $startDate = false;
@@ -727,8 +760,8 @@ class ScrapController extends Controller
                 $search[] = \DB::raw("'All' as date");
             }
 
-            $totalUniqueSkuRecords = \DB::table("log_scraper")->leftJoin("products as p",function($q){
-                $q->on("p.sku","log_scraper.sku")->where('stock','>=',1);
+            $totalUniqueSkuRecords = \DB::table("scraped_products")->leftJoin("products as p",function($q){
+                $q->on("p.id","scraped_products.product_id")->where('stock','>=',1);
             });
 
             if(!empty($startDate)) {
@@ -898,7 +931,7 @@ class ScrapController extends Controller
     }
 
     public function genericScraperSave(Request $request){
-
+        
         if($request->id){
             $scraper = Scraper::find($request->id);
         }else{
@@ -909,6 +942,7 @@ class ScrapController extends Controller
 
 
         $scraper->run_gap = $request->run_gap;
+        $scraper->full_scrape = $request->full_scrape;
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
@@ -991,9 +1025,19 @@ class ScrapController extends Controller
         $scraper->start_time = now();
         $scraper->save();
 
-        $json = json_encode(array("website" => $scraper->scraper_name , "timeout" => $scraper->time_out , "starting_urls" => $startingURLs , "designer_url_selector" => $scraper->designer_url_selector, "product_url_selector" => $scraper->product_url_selector,"map" => $mapArray));
+        return response()->json(
+            array(
+                'id' => $scraper->id,
+                "website" => $scraper->scraper_name,
+                "timeout" => $scraper->time_out,
+                "starting_urls" => $startingURLs,
+                "designer_url_selector" => $scraper->designer_url_selector,
+                "product_url_selector" => $scraper->product_url_selector,
+                "map" => $mapArray
+            )
+        );
 
-        return $json;
+        
 
     }
 
@@ -1014,5 +1058,15 @@ class ScrapController extends Controller
         $mapping = ScraperMapping::find($id);
         $mapping->delete();
         return response()->json(['success'],200);
+    }
+
+    public function scraperFullScrape(Request $request)
+    {
+       $scraper = Scraper::find($request->id);
+       if(!empty($scraper)){
+            $scraper->full_scrape = $request->value;
+            $scraper->save();
+       }
+       return response()->json(['success'],200);
     }
 }

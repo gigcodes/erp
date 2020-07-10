@@ -17,7 +17,12 @@ class Customer extends Model
         'phone',
         'city',
         'whatsapp_number',
-        'chat_session_id'
+        'chat_session_id',
+        'in_w_list',
+        'store_website_id',
+        'user_id',
+        'reminder_from',
+        'reminder_last_reply',
     ];
 
     protected $casts = [
@@ -151,9 +156,15 @@ class Customer extends Model
         return $count > 0 ? true : false;
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadcast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        if($needBroadcast) {
+            return $this->hasMany('App\ChatMessage', 'customer_id')->where(function($q){
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere("group_id",">",0);
+            })->latest();
+        }else{
+            return $this->hasMany('App\ChatMessage', 'customer_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        }
     }
 
     public function whatsapp_number_change_notified()
@@ -238,5 +249,34 @@ class Customer extends Model
         return ($this->do_not_disturb == 1) ? true : false;
     }
 
-    
+    public function kyc()
+    {
+        return $this->hasMany(App\CustomerKycDocument::class,"customer_id","id");
+    }
+
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
+    }
+
+    /**
+     * Get store website detail
+     */
+    public function storeWebsite()
+    {
+        return $this->belongsTo('App\StoreWebsite', 'store_website_id');
+    }
 }

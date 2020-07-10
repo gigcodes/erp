@@ -9,6 +9,8 @@ use App\Keywords;
 use App\Services\Instagram\Hashtags;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
+use App\InstagramUsersList;
+use App\InstagramPostsComments;
 
 class GetCommentsUsingHastTagPriority extends Command
 {
@@ -43,7 +45,7 @@ class GetCommentsUsingHastTagPriority extends Command
      */
     public function handle()
     {
-        try {
+       // try {
             $report = \App\CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -71,6 +73,7 @@ class GetCommentsUsingHastTagPriority extends Command
                 [$hashtagPosts, $maxId] = $hashtagPostsAll;
 
                 foreach ($hashtagPosts as $hashtagPost) {
+                    
                     $location = $hashtagPost['location'];
 
                     if (is_array($location)) {
@@ -81,6 +84,7 @@ class GetCommentsUsingHastTagPriority extends Command
 
                     $code   = $hashtagPost['code'];
                     $postId = $hashtagPost['media_id'];
+
 
                     $checkIfExist = InstagramPosts::where('post_id', $postId)->first();
 
@@ -97,77 +101,85 @@ class GetCommentsUsingHastTagPriority extends Command
                     $media->code       = $code;
                     $media->location   = $location_field;
                     $media->hashtag_id = $hashtagId;
+                    $media->likes = $hashtagPost['like_count'];
+                    $media->comments_count = $hashtagPost['comment_count'];
+
+
 
                     if (!is_array($hashtagPost['media'])) {
                         $hashtagPost['media'] = [$hashtagPost['media']];
                     }
 
-                    $media->media_url = $hashtagPost['media'];
+                    $media->media_url = json_encode($hashtagPost['media']);
                     $media->posted_at = $hashtagPost['posted_at'];
                     $media->save();
-                    dump('Post Saved Stored');
 
-                    // $comments = $hashtagPost['comments'] ?? [];
+                    echo "Sleeping for 15s...\n";
+                    dump('Getting Posts');
+                    sleep(15);
+                    //Getting Comments
 
-                    // if ($comments === []) {
-                    //     continue;
-                    // }
+                    $comments = $hash->instagram->media->getComments($hashtagPost['media_id'])->asArray();
+                    
+                    if(isset($comments['comments'])){
+                        foreach ($comments['comments'] as $comment) {
+                            
+                            $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
 
-                    // $comments = $hash->instagram->media->getComments($hashtagPost['media_id'])->asArray();
+                            if (!$commentEntry) {
+                                $commentEntry = new InstagramPostsComments();
+                            }
 
-                    // $comments = $comments['comments'];
+                            $commentEntry->user_id = $comment['user']['pk'];
+                            $commentEntry->name = $comment['user']['full_name'];
+                            $commentEntry->username = $comment['user']['username'];
+                            $commentEntry->instagram_post_id = $media->id;
+                            $commentEntry->comment_id = $comment['pk'];
+                            $commentEntry->comment = $comment['text'];
+                            $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
+                            $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
+                            $commentEntry->save();
 
-                    // foreach ($comments as $comment) {
-                    //     $commentText = $comment['text'];
+                            echo "Sleeping for 15s...\n";
+                            dump("Getting Comments");
+                            sleep(15);
+                        
 
-                    //     foreach ($keywords as $keyword) {
-                    //         if (strpos($commentText, $keyword) !== false) {
-                    //             $postId = $hashtagPost['media_id'];
+                        }
+                    }   
+                      
 
-                    //             $media = InstagramPosts::where('post_id', $postId)->first();
-                    //             dd($media);
-                    //             if ($media) {
-                    //                 continue;
-                    //             }
+                    //Get User Information 
+                    $user = $hash->getUserInfo($hashtagPost['user_id']);
+                    $info = $user['user'];
 
-                    //             $media->post_id = $postId;
-                    //             $media->caption = $hashtagPost['caption'];
-                    //             $media->user_id = $hashtagPost['user_id'];
-                    //             $media->username = $hashtagPost['username'];
-                    //             $media->media_type = $hashtagPost['media_type'];
-                    //             $media->code = $code;
-                    //             $media->location = $location_field;
-                    //             $media->hashtag_id = $hashtagId;
-
-                    //             if (!is_array($hashtagPost['media'])) {
-                    //                 $hashtagPost['media'] = [$hashtagPost['media']];
-                    //             }
-
-                    //             $media->media_url = $hashtagPost['media'];
-                    //             $media->posted_at = $hashtagPost['posted_at'];
-                    //             $media->save();
-                    //             dump('Post Saved Stored');
-                    //             //Post Comment Disable
-                    //             // $commentEntry = InstagramPostsComments::where('comment_id', $comment['pk'])->where('user_id', $comment['user']['pk'])->first();
-
-                    //             // if (!$commentEntry) {
-                    //             //     $commentEntry = new InstagramPostsComments();
-                    //             // }
-
-                    //             // $commentEntry->user_id = $comment['user']['pk'];
-                    //             // $commentEntry->name = $comment['user']['full_name'];
-                    //             // $commentEntry->username = $comment['user']['username'];
-                    //             // $commentEntry->instagram_post_id = $media->id;
-                    //             // $commentEntry->comment_id = $comment['pk'];
-                    //             // $commentEntry->comment = $comment['text'];
-                    //             // $commentEntry->profile_pic_url = $comment['user']['profile_pic_url'];
-                    //             // $commentEntry->posted_at = Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
-                    //             // $commentEntry->save();
-
-                    //         }
-                    //     }
-
-                    // }
+                    if(!isset($info['city_name'])){
+                        $cityName = '';
+                    }else{
+                        $cityName = $info['city_name'];
+                    }
+                    $userList = InstagramUsersList::where('user_id',$hashtagPost['user_id'])->first();
+                    if(empty($userList)){
+                        $user = new InstagramUsersList;
+                        $user->username = $info['username'];
+                        $user->user_id = $hashtagPost['user_id'];
+                        $user->image_url = $info['profile_pic_url'];
+                        $user->bio = $info['biography'];
+                        $user->rating = 0;
+                        $user->location_id = 0;
+                        $user->because_of = $hashtagText;
+                        $user->posts = $info['media_count'];
+                        $user->followers = $info['follower_count'];
+                        $user->following = $info['following_count'];
+                        $user->location = $cityName;
+                        $user->save(); 
+                    }
+                        
+                    
+                    echo "Sleeping for 15s...\n";
+                    sleep(15);
+                    
+                    dump('User Details Stored');
 
                 }
             } while ($maxId != 'END');
@@ -175,9 +187,9 @@ class GetCommentsUsingHastTagPriority extends Command
             $hashtag->is_processed = 1;
             $hashtag->save();
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        // } catch (\Exception $e) {
+        //     \App\CronJob::insertLastError($this->signature, $e->getMessage());
+        // }
 
     }
 }

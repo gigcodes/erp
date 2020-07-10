@@ -62,7 +62,13 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) {{ \App\Customer::find($customerId)->name }} @endif</h2>
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) 
+                    @if(auth()->user()->isInCustomerService())
+                        #{{ $customerId }} 
+                    @else
+                        {{ \App\Customer::find($customerId)->name }} 
+                    @endif
+                @endif</h2>
 
                 <!--pending products count-->
                 @if(auth()->user()->isAdmin())
@@ -261,6 +267,8 @@
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
             $action =  route('product.templates');
+        } else if ($model_type == 'landing-page') {
+            $action =  route('landing-page.save');
         }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
@@ -703,7 +711,6 @@
             @if ($model_type == 'purchase-replace')
             if (image_array.length > 1) {
                 alert('Please select only one product');
-
                 return;
             }
             @endif

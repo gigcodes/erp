@@ -11,6 +11,8 @@ class Order extends Model
 
     use SoftDeletes;
 
+    const ORDER_STATUS_TEMPLATE = 'Greetings from Solo Luxury Ref: order number #{order_id} we have updated your order with status : #{order_status}.';
+
     protected $fillable = [
         'order_id',
         'customer_id',
@@ -29,6 +31,7 @@ class Order extends Model
         'sales_person',
         'office_phone_number',
         'order_status',
+        'order_status_id',
         'estimated_delivery_date',
         'note_if_any',
 
@@ -42,7 +45,9 @@ class Order extends Model
         'remark',
         'whatsapp_number',
         'user_id',
-        'is_priority'
+        'is_priority',
+        'currency',
+        'invoice_id'
     ];
 
     protected $appends = ['action'];
@@ -178,4 +183,28 @@ class Order extends Model
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
+
+
+    // public function calculateTotal($order)
+    // {
+    //     $orderTotal = 0;
+
+    //     if (!empty($order)) {
+    //         foreach ($order->order_product as $products) {
+    //             if($products->product) {
+    //                 $string .= '<tr class="item last" style="height: 25px;">
+    //                           <td style="height: 25px; width: 300px; text-align: left;">' . $products->product->name . ' '. $products->product->short_description .'</td>
+    //                           <td style="height: 25px; width: 100px; text-align: left;"></td>
+    //                           <td style="height: 25px; width: 100px; text-align: left;">' . $products->product->made_in . '</td>
+    //                           <td style="height: 25px; width: 100px; text-align: left;">' . $products->qty . '</td>
+    //                           <td style="height: 25px; width: 100px; text-align: left;">1</td>
+    //                           <td style="height: 25px; width: 100px; text-align: left;">&#8377;' . $products->product_price . '</td>
+    //                        </tr>';
+    //             }
+    //             $orderTotal += $products->product_price;
+    //         }
+    //     }
+
+    //     return $string;
+    // }
 }

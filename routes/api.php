@@ -71,6 +71,12 @@ Route::post('product-template', 'ProductTemplatesController@apiSave');
 Route::get('{client}/{numberFrom}/get-im','InstantMessagingController@getMessage');
 Route::post('{client}/{numberFrom}/webhook','InstantMessagingController@processWebhook');
 Route::get('{client}/{numberFrom}/im-status-update','InstantMessagingController@updatePhoneStatus');
+Route::post('{client}/{numberFrom}/social-message','FacebookController@storeMessages');
+
+//Competitor Facebook
+Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor');
+
+Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor');
 
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
@@ -80,8 +86,8 @@ Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
 Route::post('instagram/post', 'InstagramPostsController@apiPost');
 
 Route::get('instagram/send-account/{token}', 'InstagramPostsController@sendAccount');
-Route::post('{username}/{password}/get-comments', 'InstagramPostsController@getComments');
-Route::post('{username}/{password}/send-comment', 'InstagramPostsController@commentSent');
+Route::get('instagram/get-comments-list/{username}', 'InstagramPostsController@getComments');
+Route::post('instagram/comment-sent', 'InstagramPostsController@commentSent');
 Route::get('instagram/get-hashtag-list','InstagramPostsController@getHashtagList');
 
 //Giving All Brands with Reference
@@ -95,6 +101,10 @@ Route::post('supplier/brands-raw', 'SupplierController@apiBrandsRaw');
 Route::get('google/keywords', 'GoogleSearchController@getKeywordsApi');
 Route::post('google/search-results', 'GoogleSearchController@apiPost');
 
+//Wetransfer
+Route::get('wetransfer', 'WeTransferController@getLink');
+Route::post('wetransfer-file-store', 'WeTransferController@storeFile');
+
 //Google affiliate search
 Route::get('google/affiliate/keywords', 'GoogleAffiliateController@getKeywordsApi');
 Route::post('google/affiliate/search-results', 'GoogleAffiliateController@apiPost');
@@ -104,3 +114,18 @@ Route::post('scraper/endtime','ScrapController@recieveScrapDetails');
 
 Route::get('search/{type}', 'SearchQueueController@index');
 Route::post('search/{type}', 'SearchQueueController@upload_content');
+
+//Magneto Customer Reference Store
+Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
+
+Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
+
+Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
+
+Route::prefix('v1')->group(function () {
+    Route::prefix('product')->group(function () {
+        Route::prefix('{sku}')->group(function () {
+            Route::get('price', '\App\Http\Controllers\Api\v1\ProductController@price');
+        });
+    });
+});

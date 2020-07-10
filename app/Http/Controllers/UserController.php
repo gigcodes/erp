@@ -197,7 +197,8 @@ class UserController extends Controller
 	{
 		$user = User::find($id);
 		$roles = Role::orderBy('name', 'asc')->pluck('name', 'id')->all();
-		$permission = Permission::orderBy('name', 'asc')->pluck('route', 'id')->all();
+		$permission = Permission::orderBy('name', 'asc')->pluck('name', 'id')->all();
+
 		$users = User::all();
 		$userRole = $user->roles->pluck('name', 'id')->all();
 		$userPermission = $user->permissions->pluck('name', 'id')->all();
@@ -235,7 +236,7 @@ class UserController extends Controller
 
 
 		$input = $request->all();
-
+		
 		$hourly_rate = $input['hourly_rate'];
 		$currency = $input['currency'];
 
@@ -446,7 +447,7 @@ class UserController extends Controller
 		$start = $result['week_start'];
 		$end = $result['week_end'];
 
-		$users = User::with(['currentRate'])->get();
+		$users = User::join('hubstaff_payment_accounts as hpa',"hpa.user_id","users.id")->with(['currentRate'])->get();
 		$usersRatesThisWeek = UserRate::ratesForWeek($week, $year);
 
 		$usersRatesPreviousWeek = UserRate::latestRatesForWeek($week - 1, $year);

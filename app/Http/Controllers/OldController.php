@@ -21,7 +21,7 @@ use App\Email;
 use Carbon\Carbon;
 use Mail;
 use Response;
-use App\Mail\PurchaseEmail;
+use App\Mails\Manual\PurchaseEmail;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 
@@ -481,7 +481,7 @@ class OldController extends Controller
             $olds = Old::whereIn('serial_no', $request->olds)->get();
         } else {
             if ($request->not_received != 'on' && $request->received != 'on') {
-                return redirect()->route('vendor.index')->withErrors(['Please select vendors']);
+                return redirect()->route('vendors.index')->withErrors(['Please select vendors']);
             }
         }
 

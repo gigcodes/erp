@@ -38,7 +38,7 @@ class PageNotesController extends Controller
         }
 
         $pageNotes->user_id = \Auth::user()->id;
-        $pageNotes->url     = $request->get("url", "");
+        $pageNotes->url     = $request->get("page", "");
         $pageNotes->category_id = $request->get("category_id", null);
         $pageNotes->note    = $request->get("note", "");
 
@@ -125,6 +125,22 @@ class PageNotesController extends Controller
             ->orderBy("page_notes.id","desc")
             ->select(["page_notes.*","users.name", "page_notes_categories.name as category_name"]
         )->get())->make();
+    }
+
+    public function instructionCreate(Request $request)
+    {
+        $page = \App\PageInstruction::where("page",$request->get("page"))->first();
+        if(!$page) {
+            $page = new \App\PageInstruction; 
+        }
+
+        $page->page = $request->get("page");
+        $page->instruction = $request->get("note");
+        $page->created_by = \Auth::user()->id;
+        $page->save();
+
+        return response()->json(["code" => 200, "data" => []]);
+
     }
 
 }

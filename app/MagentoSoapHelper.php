@@ -9,6 +9,9 @@ use App\Helpers\ProductHelper;
 use App\Loggers\LogListMagento;
 use App\HsCodeGroupsCategoriesComposition;
 use App\SimplyDutyCategory;
+use \App\Helpers\TranslationHelper;
+use App\Language;
+use App\TranslatedProduct;
 
 class MagentoSoapHelper
 {
@@ -152,7 +155,7 @@ class MagentoSoapHelper
     {
         // Create empty array to store SKUs
         $associatedSkus = [];
-
+        $productId = $product->id;
         // Get all the sizes
         $arrSizes = explode(',', $product->size);
         $hasEuSize = false;
@@ -171,6 +174,8 @@ class MagentoSoapHelper
 
             // Set SKU
             $sku = $product->sku . $product->color;
+
+            $productId = $product->id;
 
              //Getting Hscode Attribute    
             
@@ -217,7 +222,7 @@ class MagentoSoapHelper
             );
 
             // Push simple product to Magento
-            $result = $this->_pushProduct('simple', $sku, $productData, $size);
+            $result = $this->_pushProduct('simple', $sku, $productData, $size , $productId);
 
             // Successful
             if ($result) {
@@ -268,7 +273,7 @@ class MagentoSoapHelper
         );
 
         // Get result
-        $result = $this->_pushProduct('configurable', $sku, $productData);
+        $result = $this->_pushProduct('configurable', $sku, $productData,'',$productId);
 
         // Return result
         return $result;
@@ -278,6 +283,8 @@ class MagentoSoapHelper
     {
         // Set SKU
         $sku = $product->sku . $product->color;
+
+        $productId = $product->id;
 
         // Set measurement
         $measurement = ProductHelper::getMeasurements($product);
@@ -316,13 +323,13 @@ class MagentoSoapHelper
         );
 
         // Get result
-        $result = $this->_pushProduct('single', $sku, $productData);
+        $result = $this->_pushProduct('single', $sku, $productData ,'',$productId);
 
         // Return result
         return $result;
     }
 
-    private function _pushProduct($productType, $sku, $productData = [], $size = null)
+    private function _pushProduct($productType, $sku, $productData = [], $size = null , $productId = null)
     {
         // Set product specific SKU
         $sku = $sku . (!empty($size) ? '-' . $size : '');
@@ -340,9 +347,14 @@ class MagentoSoapHelper
 
             // Log info
             Log::channel('listMagento')->info("Product (" . $productType . ") with SKU " . $sku . " successfully pushed to Magento");
-
+            if($result){
+                $translated = $this->languageTranslate($result,$productData,$sku,$productId);
+                if($translated == true){
+                    return $result;
+                }
+            }
             // Return result
-            return $result;
+           // return $result;
         } catch (\Exception $e) {
             // Check exception message to see if the product already exists
             if ($e->getMessage() == 'The value of attribute "SKU" must be unique') {
@@ -448,5 +460,49 @@ class MagentoSoapHelper
 
         // Return result
         return $result;
+    }
+
+    public function languageTranslate($id,$productData,$sku,$productId)
+    {
+        $languages = Language::whereNotNull('locale')->get();
+        foreach ($languages as $language) {
+            $name = $productData['name'];
+            $name = TranslationHelper::translate('en', $language->locale, $name);
+
+            $description = $productData['description'];
+            $description = TranslationHelper::translate('en', $language->locale, $description);
+
+            $shortDescription = $productData['short_description'];
+            $shortDescription = TranslationHelper::translate('en', $language->locale, $shortDescription);
+
+            $product = Product::find($productId);
+
+            //Insert data into translation table
+            $translated = new TranslatedProduct;
+            $translated->product_id = $product->id;
+            $translated->description = $description;
+            $translated->short_description = $shortDescription;
+            $translated->name = $name;
+            $translated->language_id = $language->id;
+            $translated->save();
+
+            $updateProductData = array(
+                                'name' => $name, 
+                                'description' => $description,
+                                'short_description' => $shortDescription,
+                            );
+        
+            $result = $this->_proxy->catalogProductUpdate(
+                $this->_sessionId,
+                $id,
+                $updateProductData,
+                $language->code
+            );
+        }
+        
+        return true;
+        //save translated data
+        //update product on magento
+        
     }
 }

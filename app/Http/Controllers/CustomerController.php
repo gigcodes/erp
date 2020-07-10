@@ -10,11 +10,11 @@ use App\Imports\CustomerImport;
 use App\Exports\CustomersExport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
-use App\Mail\CustomerEmail;
-use App\Mail\RefundProcessed;
-use App\Mail\OrderConfirmation;
-use App\Mail\AdvanceReceipt;
-use App\Mail\IssueCredit;
+use App\Mails\Manual\CustomerEmail;
+use App\Mails\Manual\RefundProcessed;
+use App\Mails\Manual\OrderConfirmation;
+use App\Mails\Manual\AdvanceReceipt;
+use App\Mails\Manual\IssueCredit;
 use Illuminate\Support\Facades\Mail;
 use App\Customer;
 use App\Suggestion;
@@ -51,6 +51,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Auth;
 use App\QuickSellGroup;
 use GuzzleHttp\Client as GuzzleClient;
+use Plank\Mediable\Media as PlunkMediable;
 
 class CustomerController extends Controller
 {
@@ -74,7 +75,7 @@ class CustomerController extends Controller
     {
         $complaints = Complaint::whereNotNull('customer_id')->pluck('complaint', 'customer_id')->toArray();
         $instructions = Instruction::with('remarks')->orderBy('is_priority', 'DESC')->orderBy('created_at', 'DESC')->select(['id', 'instruction', 'customer_id', 'assigned_to', 'pending', 'completed_at', 'verified', 'is_priority', 'created_at'])->get()->groupBy('customer_id')->toArray();
-        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'created_at'])->get()->groupBy('customer_id')->toArray();
+        $orders = Order::latest()->select(['id', 'customer_id', 'order_status', 'order_status_id', 'created_at'])->get()->groupBy('customer_id')->toArray();
         $order_stats = DB::table('orders')->selectRaw('order_status, COUNT(*) as total')->whereNotNull('order_status')->groupBy('order_status')->get();
 
         $totalCount = 0;
@@ -1098,6 +1099,22 @@ class CustomerController extends Controller
         return response()->json(['is_flagged' => $customer->is_flagged]);
     }
 
+    public function addInWhatsappList(Request $request)
+    {
+        $customer = Customer::find($request->customer_id);
+
+        if ($customer->in_w_list == 0) {
+            $customer->in_w_list = 1;
+        } else {
+            $customer->in_w_list = 0;
+        }
+
+        $customer->save();
+
+        return response()->json(['in_w_list' => $customer->in_w_list]);
+    }
+    
+
     public function prioritize(Request $request)
     {
         $customer = Customer::find($request->customer_id);
@@ -1628,8 +1645,10 @@ class CustomerController extends Controller
     public function updateReminder(Request $request)
     {
         $customer = Customer::find($request->get('customer_id'));
-        $customer->frequency = $request->get('frequency');
-        $customer->reminder_message = $request->get('message');
+        $customer->frequency            = $request->get('frequency');
+        $customer->reminder_message     = $request->get('message');
+        $customer->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
+        $customer->reminder_last_reply  = $request->get('reminder_last_reply',0);
         $customer->save();
 
         return response()->json([
@@ -1811,10 +1830,13 @@ class CustomerController extends Controller
         }
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+            $categorySel = $request->category;
+            $category = \App\Category::whereIn("parent_id",$categorySel)->get()->pluck("id")->toArray();
+            $categorySelected = array_merge($categorySel,$category);
             if ($request->brand[ 0 ] != null) {
-                $products = $products->whereIn('category', $request->category);
+                $products = $products->whereIn('category', $categorySelected);
             } else {
-                $products = Product::whereIn('category', $request->category);
+                $products = Product::whereIn('category', $categorySelected);
             }
 
             $params[ 'category' ] = json_encode($request->category);
@@ -1844,21 +1866,27 @@ class CustomerController extends Controller
 
         if ($request->supplier[ 0 ] != null) {
             if ($request->brand[ 0 ] != null || ($request->category[ 0 ] != 1 && $request->category[ 0 ] != null) || $request->size[ 0 ] != null) {
-                $products = $products->whereHas('suppliers', function ($query) use ($request) {
+                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
+                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+                $products = $products->groupBy("products.id");
+                /*$products = $products->whereHas('suppliers', function ($query) use ($request) {
                     return $query->where(function ($q) use ($request) {
                         foreach ($request->supplier as $supplier) {
                             $q->orWhere('suppliers.id', $supplier);
                         }
                     });
-                });
+                });*/
             } else {
-                $products = Product::whereHas('suppliers', function ($query) use ($request) {
+                $products = $products->join("product_suppliers as ps","ps.sku","products.sku");
+                $products = $products->whereIn("ps.supplier_id",$request->supplier);
+                $products = $products->groupBy("products.id");
+                /*$products = Product::whereHas('suppliers', function ($query) use ($request) {
                     return $query->where(function ($q) use ($request) {
                         foreach ($request->supplier as $supplier) {
                             $q->orWhere('suppliers.id', $supplier);
                         }
                     });
-                });
+                });*/
             }
 
             $params[ 'supplier' ] = json_encode($request->supplier);
@@ -1872,7 +1900,7 @@ class CustomerController extends Controller
 
         $products = $products->whereBetween('price_inr_special', [$price[ 0 ], $price[ 1 ]]);
 
-        $products = $products->where('is_scraped', 1)->where('category', '!=', 1)->latest()->take($request->number)->get();
+        $products = $products->where('category', '!=', 1)->select(["products.*"])->latest()->take($request->number)->get();
 
         if ($customer->suggestion) {
             $suggestion = Suggestion::find($customer->suggestion->id);
@@ -1895,9 +1923,12 @@ class CustomerController extends Controller
 
             foreach ($products as $product) {
                 if (!$product->suggestions->contains($suggestion->id)) {
-                    if ($image = $product->getMedia(config('constants.media_tags'))->first()) {
+                    if ($image = $product->getMedia(config('constants.attach_image_tag'))->first()) {
                         if ($count == 0) {
+                            $params["status"] = ChatMessage::CHAT_SUGGESTED_IMAGES; 
                             $chat_message = ChatMessage::create($params);
+                            $suggestion->chat_message_id = $chat_message->id;
+                            $suggestion->save();
                         }
 
                         $chat_message->attachMedia($image->getKey(), config('constants.media_tags'));
@@ -1907,6 +1938,10 @@ class CustomerController extends Controller
                     $product->suggestions()->attach($suggestion->id);
                 }
             }
+        }
+
+        if($request->ajax()) {
+            return response()->json(["code" => 200, "data" => [], "message" => "Your records has been update successfully"]);
         }
 
         return redirect()->route('customer.show', $customer->id)->withSuccess('You have successfully created suggested message');
@@ -2528,6 +2563,55 @@ class CustomerController extends Controller
     {
         $customerDetails = Customer::find($request->id);
         return  response()->json(["data" => $customerDetails]);
+    }
+
+    public function updateField(Request $request)
+    {
+        $field = $request->get("field");
+        $value = $request->get("value");
+
+        $customerId = $request->get("customer_id");
+
+        if(!empty($customerId)) {
+            $customer = \App\Customer::find($customerId);
+            if(!empty($customer)) {
+                $customer->{$field} = $value;
+                $customer->save();
+            }
+
+            return response()->json(["code" => 200 , "data" => [], "message" => $field . " updated successfully"]);
+        }
+        
+        return response()->json(["code" => 200 , "data" => [] , "message" => "Sorry , no customer found"]);
+    }
+
+    public function  createKyc(Request $request )
+    {
+        $customer_id = $request->get("customer_id");
+        $media_id    = $request->get("media_id");
+
+        if(empty($customer_id)) {
+            return response()->json(["code" => 500 ,"message" => "Customer id is required"]);
+        }
+
+        if(empty($media_id)) {
+            return response()->json(["code" => 500 ,"message" => "Media id is required"]);
+        }
+
+        $media = PlunkMediable::find($media_id);
+        if(!empty($media)) {
+
+            $kycDoc = new \App\CustomerKycDocument;
+            $kycDoc->customer_id = $customer_id;
+            $kycDoc->url = $media->getUrl();
+            $kycDoc->path = $media->getAbsolutePath();
+            $kycDoc->type = 1;
+            $kycDoc->save();
+
+            return response()->json(["code" => 200 , "data" => [], "message" => "Kyc document added successfully"]);
+        }
+
+        return response()->json(["code" => 500 ,"message" => "Ooops, something went wrong"]);
     }
 
 }

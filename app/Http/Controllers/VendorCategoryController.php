@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\VendorCategory;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
 
 class VendorCategoryController extends Controller
 {
@@ -14,7 +15,60 @@ class VendorCategoryController extends Controller
      */
     public function index()
     {
-        //
+        $title = "Vendor Category";
+        
+        return view("vendor-category.index",compact('title'));
+
+    }
+
+    public function records()
+    {
+        $records = \App\VendorCategory::query();
+
+        $keyword = request("keyword");
+        if (!empty($keyword)) {
+            $records = $records->where(function ($q) use ($keyword) {
+                $q->where("title", "LIKE", "%$keyword%");
+            });
+        }
+
+        $records = $records->get();
+
+        return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
+    }
+
+    public function save(Request $request)
+    {
+        $post = $request->all();
+
+        $validator = Validator::make($post, [
+            'title'    => 'required'
+        ]);
+
+        if ($validator->fails()) {
+            $outputString = "";
+            $messages     = $validator->errors()->getMessages();
+            foreach ($messages as $k => $errr) {
+                foreach ($errr as $er) {
+                    $outputString .= "$k : " . $er . "<br>";
+                }
+            }
+            return response()->json(["code" => 500, "error" => $outputString]);
+        }
+
+        $id = $request->get("id", 0);
+
+        $records = VendorCategory::find($id);
+
+        if (!$records) {
+            $records = new VendorCategory;
+        }
+
+        $records->fill($post);
+        $records->save();
+
+        return response()->json(["code" => 200, "data" => $records]);
+
     }
 
     /**
@@ -43,7 +97,7 @@ class VendorCategoryController extends Controller
 
       VendorCategory::create($data);
 
-      return redirect()->route('vendor.index')->withSuccess('You have successfully created a vendor category!');
+      return redirect()->route('vendors.index')->withSuccess('You have successfully created a vendor category!');
     }
 
     /**
@@ -58,14 +112,20 @@ class VendorCategoryController extends Controller
     }
 
     /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
+     * Edit Page
+     * @param  Request $request [description]
+     * @return
      */
-    public function edit($id)
+
+    public function edit(Request $request, $id)
     {
-        //
+        $modal = VendorCategory::where("id", $id)->first();
+
+        if ($modal) {
+            return response()->json(["code" => 200, "data" => $modal]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
     }
 
     /**
@@ -90,4 +150,64 @@ class VendorCategoryController extends Controller
     {
         //
     }
+
+    /**
+     * delete Page
+     * @param  Request $request [description]
+     * @return
+     */
+
+    public function delete(Request $request, $id)
+    {
+        $vendorCategory = VendorCategory::where("id", $id)->first();
+
+        $isExist = \App\Vendor::where("category_id",$id)->first();
+        if($isExist) {
+            return response()->json(["code" => 500, "error" => "Category is attached to vendor , Please update vendor category before delete."]);
+        }
+
+        if ($vendorCategory) {
+            $vendorCategory->delete();
+            return response()->json(["code" => 200]);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong id!"]);
+    }
+
+    public function mergeCategory(Request $request) 
+    {
+        $toCategory     = $request->get("to_category");
+        $fromCategory   = $request->get("from_category");
+
+        if(empty($toCategory)) {
+            return response()->json(["code" => 500 , "error" => "Merge category is missing"]);
+        }
+
+        if(empty($fromCategory)) {
+            return response()->json(["code" => 500 , "error" => "Please select category before select merge category"]);
+        }
+
+        if(in_array($toCategory,$fromCategory)) {
+           return response()->json(["code" => 500 , "error" => "Merge category can not be same"]);
+        }
+
+        $category = \App\VendorCategory::where("id",$toCategory)->first();
+        $allMergeCategory = \App\Vendor::whereIn("category_id",$fromCategory)->get();
+
+        if($category) {
+            // start to merge first
+            if(!$allMergeCategory->isEmpty()) {
+                foreach($allMergeCategory as $amc) {
+                    $amc->category_id = $category->id;
+                    $amc->save();
+                }
+            }
+            // once all merged category store then delete that category from table
+            \App\VendorCategory::whereIn("id",$fromCategory)->delete();
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "messages" => "Category has been merged successfully"]);
+    }
+
+
 }

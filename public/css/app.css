@@ -10529,7 +10529,87 @@ a.text-dark:focus {
 .expanded .help-button {
     transform: scale(.5);
     color: rgba(255, 255, 255, .5);
-    background: #ffaa00;
+    background: #5A6267;
+}
+
+/*.instruction-button {
+    height: 3em;
+    width: 3em;
+    font-size: 14px;
+    border-radius: 50%;
+    border: 0 none;
+    background: #5A6267;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    transform: scale(1);
+    transition: all 200ms ease;
+}
+
+.instruction-button:hover,
+.instruction-button:focus,
+.instruction-button:active {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+    outline: 0;
+}
+
+.instruction-button span {
+    display: block;
+    font-size: 2em;
+    transform: scale(1);
+    transition: transform 100ms ease;
+}
+
+.instruction-button:hover span,
+.expanded .instruction-button span,
+.expanded .instruction-button span {
+    transform: scale(1.25);
+}*/
+
+.expanded .instruction-button {
+    transform: scale(.5);
+    color: rgba(255, 255, 255, .5);
+    background: #5A6267;
+}
+
+/*.notification-button {
+    height: 3em;
+    width: 3em;
+    font-size: 14px;
+    border-radius: 50%;
+    border: 0 none;
+    background: #5A6267;
+    color: #fff;
+    cursor: pointer;
+    box-shadow: 0 2px 5px 0 rgba(0, 0, 0, 0.26);
+    transform: scale(1);
+    transition: all 200ms ease;
+}
+
+.notification-button:hover,
+.notification-button:focus,
+.notification-button:active {
+    box-shadow: 0 8px 17px 0 rgba(0, 0, 0, 0.2);
+    outline: 0;
+}
+
+.notification-button span {
+    display: block;
+    font-size: 2em;
+    transform: scale(1);
+    transition: transform 100ms ease;
+}
+
+.notification-button:hover span,
+.expanded .notification-button span,
+.expanded .notification-button span {
+    transform: scale(1.25);
+}*/
+
+.expanded .notification-button {
+    transform: scale(.5);
+    color: rgba(255, 255, 255, .5);
+    background: #5A6267;
 }
 
 .help-list {
@@ -10732,4 +10812,49 @@ li.active{
 .speech-wrapper .bubble .bubble-arrow.alt:after {
     border-top: 9px solid #DDF7C8;
     transform: rotate(45deg) scaleY(-1);
+}
+
+/* Sidebar section started  */
+
+#quick-sidebar {
+    min-width: 50px;
+    max-width: 50px;
+    min-height: 100vh;
+    margin-left: 25px;
+    float:left;
+    display: table;
+}   
+
+#quick-sidebar a {
+    color: #6E6767;     
+}
+
+#quick-sidebar ul {
+    display: table-cell;
+    position: fixed;
+}
+
+
+#quick-sidebar.active {
+    margin-left: -50px;
+}
+
+@media (max-width: 768px) {
+    #quick-sidebar {
+        margin-left: -50px;
+    }
+    #sidebar.active {
+        margin-left: 0;
+    }
+}
+
+#quick-sidebar .quick-icon i { 
+    width: 25px;
+    height: 25px;
+}
+
+/* Sidebar section eended */
+
+.dis-none { 
+    display: none;
 }

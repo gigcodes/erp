@@ -35,6 +35,7 @@ use App\Console\Commands\SendBroadcastMessageToColdLeads;
 use App\Console\Commands\SendProductSuggestion;
 use App\Console\Commands\SendActivitiesListing;
 use App\Console\Commands\SendDailyPlannerReport;
+use App\Console\Commands\ProcessCommentsFromCompetitors;
 //use App\Console\Commands\SyncInstagramMessage;
 use App\Console\Commands\SendReminderToCustomerIfTheyHaventReplied;
 use App\Console\Commands\SendReminderToDubbizlesIfTheyHaventReplied;
@@ -57,6 +58,7 @@ use App\Console\Commands\RunMessageQueue;
 use App\Console\Commands\MonitorCronJobs;
 use App\Console\Commands\SendVoucherReminder;
 use App\Console\Commands\VisitorLogs;
+use App\Console\Commands\InfluencerDescription;
 
 use App\Console\Commands\MovePlannedTasks;
 use App\Console\Commands\ResetDailyPlanner;
@@ -95,7 +97,15 @@ use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
+use App\Console\Commands\SendEventNotificationBefore24hr;
+use App\Console\Commands\SendEventNotificationBefore2hr;
+use App\Console\Commands\SendEventNotificationBefore30Min;
+use App\Console\Commands\AccountHubstaffActivities;
+use App\Console\Commands\DailyHubstaffActivityLevel;
+use App\Console\Commands\GenerateProductPricingJson;
+use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 
 
 class Kernel extends ConsoleKernel
@@ -187,7 +197,17 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
-        CacheMasterControl::class
+        RunPriorityKeywordSearch::class,
+        CacheMasterControl::class,
+        InfluencerDescription::class,
+        ProcessCommentsFromCompetitors::class,
+        SendEventNotificationBefore24hr::class,
+        SendEventNotificationBefore2hr::class,
+        SendEventNotificationBefore30min::class,
+        AccountHubstaffActivities::class,
+        DailyHubstaffActivityLevel::class,
+        EmailExcelImporter::class,
+        GenerateProductPricingJson::class
     ];
 
     /**
@@ -213,12 +233,14 @@ class Kernel extends ConsoleKernel
         //Get list of schedule and put list in cron jobs table
         $schedule->command('schedule:list')->daily();
 
+        //This command will get the influencers details and get information from it
+        $schedule->command('influencer:description')->daily();
 
         //Get Orders From Magento
-        $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
+        //2020-02-17 $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every  five minutes checking and making keyword-customer relationship...
-        $schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
+        //2020-02-17 s$schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
         $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
@@ -237,10 +259,13 @@ class Kernel extends ConsoleKernel
         $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
-        $schedule->command('category:fix-by-supplier')->twiceDaily();
+        //$schedule->command('category:fix-by-supplier')->twiceDaily();
+
+        //Get Posts , Userdata as well as comments based on hastag
+        $schedule->command('competitors:process-users')->daily();
 
 
-        $schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
+        //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
 
         $schedule->call(function () {
@@ -268,33 +293,34 @@ class Kernel extends ConsoleKernel
             $report->update(['end_time' => Carbon::now()]);
         })->dailyAt('00:00');
 
-        $schedule->call(function () {
-            \Log::debug('deQueueNotficationNew Start');
-            NotificationQueueController::deQueueNotficationNew();
-        })->everyFiveMinutes();
+//2020-02-17        $schedule->call(function () {
+//            \Log::debug('deQueueNotficationNew Start');
+//            NotificationQueueController::deQueueNotficationNew();
+//        })->everyFiveMinutes();
 
-        $schedule->call(function () {
-            $report = CronJobReport::create([
-                'signature' => 'update:benchmark',
-                'start_time' => Carbon::now()
-            ]);
+// THE COMMAND BELOW SEEMS TO BE A DUPLICATE FROM ANOTHER CRON TO FETCH MAGENTO ORDERS
+//2020-02-17         $schedule->call(function () {
+//            $report = CronJobReport::create([
+//                'signature' => 'update:benchmark',
+//                'start_time' => Carbon::now()
+//            ]);
+//
+//            MagentoController::get_magento_orders();
+//            //fetched magento orders...
+//
+//            $report->update(['end_time' => Carbon::now()]);
+//        })->hourly();
 
-            MagentoController::get_magento_orders();
-            //fetched magento orders...
+        //2020-02-17 $schedule->command('product:replace-text')->everyFiveMinutes();
 
-            $report->update(['end_time' => Carbon::now()]);
-        })->hourly();
-
-        $schedule->command('product:replace-text')->everyFiveMinutes();
-
-        $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
+        //2020-02-17 $schedule->command('numberofimages:cropped')->hourly()->withoutOverlapping();
 
         //        $schedule->command('instagram:grow-accounts')->dailyAt('13:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
-        $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
         $schedule->command('run:message-queues')->everyFiveMinutes()->between('07:30', '17:00')->withoutOverlapping(10);
-        $schedule->command('monitor:cron-jobs')->everyMinute();
+        //2020-02-17 $schedule->command('monitor:cron-jobs')->everyMinute();
         //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
 
@@ -310,7 +336,7 @@ class Kernel extends ConsoleKernel
         //            ->everyMinute();
 
         //Getting SKU ERROR LOG
-        $schedule->command('sku-error:log')->hourly();
+        //2020-02-17 $schedule->command('sku-error:log')->hourly();
         // $schedule->command('check:user-logins')->everyFiveMinutes();
         $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
@@ -323,23 +349,24 @@ class Kernel extends ConsoleKernel
         $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Tasks
-        $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
         $schedule->command('move:planned-tasks')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Fetches Emails
-        $schedule->command('fetch:emails')->everyFifteenMinutes();
+        //2020-02-17 Changed command below from fifteen minutes to hourly
+        $schedule->command('fetch:emails')->hourly();
         $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
         $schedule->command('parse:log')->dailyAt('03:00')->timezone('Asia/Kolkata');
-        $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        //2020-02-17 $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
         $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
         $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
         $schedule->command('template:product')->dailyAt('22:00')->timezone('Asia/Kolkata');
 
-        $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
+        //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (every fifteen minutes)
         $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
@@ -348,7 +375,7 @@ class Kernel extends ConsoleKernel
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
 
         //This command saves the twilio call logs in call_busy_messages table...
-        $schedule->command('twilio:allcalls')->everyFifteenMinutes();
+        //2020-02-17 $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
         $schedule->command('meeting:getrecordings')->hourly();
         $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
@@ -369,8 +396,8 @@ class Kernel extends ConsoleKernel
 
 
         // need to run this both cron every minutes
-        $schedule->command('cronschedule:update')->everyMinute();
-        $schedule->command('erpevents:run')->everyMinute();
+        //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
+        //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
@@ -382,16 +409,34 @@ class Kernel extends ConsoleKernel
         // send hubstaff report
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
         $schedule->command('hubstaff:load_activities')->hourly();
+        $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
+        $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
-        $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
+        //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
         $schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
         $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('cache:master-control')->everyFiveMinutes()->withoutOverlapping();
+
+        //Run google priority scraper
+        $schedule->command('run:priority-keyword-search')->daily();
+        //2020-02-17 $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        //2020-02-17 Changed below to hourly
+        $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
+        $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+
+        //update currencies
+        $schedule->command('currencies:refresh')->hourly();
+        $schedule->command('send:event-notification2hr')->hourly();
+        $schedule->command('send:event-notification24hr')->hourly();
+        $schedule->command('currencies:update_name')->monthly();
+        $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
+        $schedule->command('send:event-notification30min')->everyFiveMinutes();
+        $schedule->command('generate:product-pricing-json')->daily();
+        
     }
 
     /**

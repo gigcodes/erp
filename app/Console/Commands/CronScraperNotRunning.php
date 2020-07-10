@@ -54,7 +54,7 @@ class CronScraperNotRunning extends Command
                 s.id,
                 s.supplier,
                 sp.scraper_name,
-                MAX(ls.updated_at) AS last_update,
+                MAX(ls.last_inventory_at) AS last_update,
                 sp.scraper_name,
                 sp.inventory_lifetime
             FROM
@@ -62,7 +62,7 @@ class CronScraperNotRunning extends Command
             JOIN
                 scrapers sp on sp.supplier_id = s.id
             LEFT JOIN
-                log_scraper ls
+                scraped_products ls
             ON
                 ls.website=sp.scraper_name
             WHERE

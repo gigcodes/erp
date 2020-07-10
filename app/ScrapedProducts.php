@@ -18,6 +18,7 @@ class ScrapedProducts extends Model
 
     protected $fillable = [
         'sku',
+        'product_id',
         'website',
         'images',
         'properties',
@@ -92,13 +93,13 @@ class ScrapedProducts extends Model
                     $scrapedProduct->save();
 
                     // Add to scrap statistics
-                    $scrapStatistics = new ScrapStatistics();
-                    $scrapStatistics->supplier = $json->website;
-                    $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
-                    $scrapStatistics->brand = $brandName;
-                    $scrapStatistics->url = $json->url;
-                    $scrapStatistics->description = $json->sku;
-                    $scrapStatistics->save();
+                    // $scrapStatistics = new ScrapStatistics();
+                    // $scrapStatistics->supplier = $json->website;
+                    // $scrapStatistics->type = 'EXISTING_SCRAP_PRODUCT';
+                    // $scrapStatistics->brand = $brandName;
+                    // $scrapStatistics->url = $json->url;
+                    // $scrapStatistics->description = $json->sku;
+                    // $scrapStatistics->save();
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
@@ -120,6 +121,7 @@ class ScrapedProducts extends Model
                     $scrapedProduct->description = $json->description;
                     $scrapedProduct->images = $json->images;
                     $scrapedProduct->price = $json->price;
+                    $scrapedProduct->last_inventory_at = Carbon::now()->toDateTimeString();
                     if ($json->sku != 'N/A') {
                         $scrapedProduct->has_sku = 1;
                     }
@@ -130,13 +132,13 @@ class ScrapedProducts extends Model
                     $scrapedProduct->save();
 
                     // Add to scrap statistics
-                    $scrapStatistics = new ScrapStatistics();
-                    $scrapStatistics->supplier = $json->website;
-                    $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
-                    $scrapStatistics->brand = $brandName;
-                    $scrapStatistics->url = $json->url;
-                    $scrapStatistics->description = $json->sku;
-                    $scrapStatistics->save();
+                    // $scrapStatistics = new ScrapStatistics();
+                    // $scrapStatistics->supplier = $json->website;
+                    // $scrapStatistics->type = 'NEW_SCRAP_PRODUCT';
+                    // $scrapStatistics->brand = $brandName;
+                    // $scrapStatistics->url = $json->url;
+                    // $scrapStatistics->description = $json->sku;
+                    // $scrapStatistics->save();
 
                     // Create the product
                     $productsCreatorResult = Product::createProductByJson($json, $isExcel, (int) $nextExcelStatus);
@@ -171,6 +173,6 @@ class ScrapedProducts extends Model
 
     public function product()
     {
-        return $this->hasOne('App\Product', 'sku', 'sku');
+        return $this->hasOne('App\Product', 'id', 'product_id');
     }
 }

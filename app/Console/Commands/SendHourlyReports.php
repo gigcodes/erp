@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use App\CronJobReport;
 use App\DailyActivity;
 use App\Exports\HourlyReportsExport;
-use App\Mail\HourlyReport;
+use App\Mails\Manual\HourlyReport;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Mail;

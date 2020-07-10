@@ -12,6 +12,8 @@ use Carbon\Carbon;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
+use qoraiche\mailEclipse\mailEclipse;
+use View;
 
 class MailinglistEmailController extends Controller
 {
@@ -30,10 +32,15 @@ class MailinglistEmailController extends Controller
         $data = $request->all();
         $content = null;
 
-        $template_html = MailingTemplateFile::where('mailing_id',$request->id)->where("path", "like", "%index.html%")->first();
+        $mtemplate = MailinglistTemplate::find($request->id);
+        if(!empty($mtemplate)) {
+            $content  = @(string)view($mtemplate->mail_tpl);
+        }
+
+        /*$template_html = MailingTemplateFile::where('mailing_id',$request->id)->where("path", "like", "%index.html%")->first();
         if($template_html){
             $content = file_get_contents($template_html->path);
-        }
+        }*/
 
         return response()->json([ 'template_html' => $content]);
     }
@@ -67,10 +74,11 @@ class MailinglistEmailController extends Controller
                     'name' => 'Luxury Unlimited',
                     'id' => 1,
                 ),
-                "htmlContent" => $mailing_item->html,
+                "htmlContent" => $this->utf8ize($mailing_item->html),
                 "templateName" =>  $mailing_item->subject,
                 'subject'=> $mailing_item->subject
             ];
+            
             curl_setopt_array($curl, array(
                 CURLOPT_URL => "https://api.sendinblue.com/v3/smtp/templates",
                 CURLOPT_RETURNTRANSFER => true,
@@ -81,13 +89,13 @@ class MailinglistEmailController extends Controller
                 CURLOPT_CUSTOMREQUEST => "POST",
                 CURLOPT_POSTFIELDS => json_encode($data),
                 CURLOPT_HTTPHEADER => array(
-                    "api-key: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",
+                    "api-key: ".getenv('SEND_IN_BLUE_API'),
                     "Content-Type: application/json"
                 ),
             ));
             $response = curl_exec($curl);
             $response = json_decode($response);
-            if($response->id){
+            if(!empty($response->id)){
                 $mailing_item->api_template_id = $response->id;
             }
             curl_close($curl);
@@ -100,6 +108,17 @@ class MailinglistEmailController extends Controller
                 'item' => $mailing_item
             ])->render(),
         ]);
+    }
+
+    public function utf8ize($d) {
+        if (is_array($d)) {
+            foreach ($d as $k => $v) {
+                $d[$k] = utf8ize($v);
+            }
+        } else if (is_string ($d)) {
+            return utf8_encode($d);
+        }
+        return $d;
     }
 
     public function show (Request $request) {

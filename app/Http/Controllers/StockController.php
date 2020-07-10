@@ -358,7 +358,8 @@ class StockController extends Controller
         'order_type'        => "offline",
         'convert_order'     => 'convert_order',
         'selected_product'  => $product_ids,
-        'order_status'      => "Follow up for advance"
+        'order_status'      => "Follow up for advance",
+        'order_status_id'   => \App\Helpers\OrderHelper::$followUpForAdvance
       ]);
 
 			$order = app('App\Http\Controllers\OrderController')->store($requestData);

@@ -77,9 +77,13 @@ class Supplier extends Model
         //return $this->hasMany('App\SupplierStatus');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'supplier_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
+        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function whoDid()
@@ -126,6 +130,23 @@ class Supplier extends Model
 
         return $supplier = 'master';
                   
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
     }
 
 }

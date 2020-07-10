@@ -86,10 +86,8 @@
 				                                <?php echo $no; ?>
 				                              </div>
 				                              <div class="card-body">
-				                                  <?php if($queue > 200) { ?>
-					                                  <a class="recall-api" data-no="<?php echo $no; ?>" href="javascript:;"><img title="Recall" src="/images/icons-refresh.png"></img></a>&nbsp;
-					                              <?php } ?>
-				                                  <?php echo $queue; ?>
+				                                    <a class="recall-api" data-no="<?php echo $no; ?>" href="javascript:;"><img title="Recall" src="/images/icons-refresh.png"></img></a>&nbsp;
+					                              <?php echo $queue; ?>
 				                              </div>
 				                          </div>
 				                       </div> 
@@ -188,7 +186,14 @@
 						  	</div>
 				  			<div class="form-group">
 							    <label for="from">From:</label>
-							    <?php echo Form::text("from",request("from"),["class"=> "form-control","placeholder" => "Enter Number from"]) ?>
+							    <select class="form-control" name="from" id="sending-number-from">
+							    	<option value="">-- Select --</option>
+								    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+				                        @if($number != "0")
+				                            <option value="{{ $number }}">{{ $number }}</option>
+				                        @endif
+				                    @endforeach
+							    </select>
 						  	</div>
 						  	<div class="form-group">
 							    <label for="to">To:</label>

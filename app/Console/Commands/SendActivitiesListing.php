@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use App\Benchmark;
 use App\CronJobReport;
-use App\Mail\ActivityListings;
+use App\Mails\Manual\ActivityListings;
 use Carbon\Carbon;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

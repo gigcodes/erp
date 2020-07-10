@@ -138,6 +138,7 @@ class RefundController extends Controller
 			$data['awb'] = '';
 		} else {
 			$order->order_status = 'Refund Dispatched';
+			$order->order_status_id = \App\Helpers\OrderHelper::$refundDispatched;
             $refund = Refund::find($id);
 			event(new RefundDispatched($refund));
 		}
@@ -146,6 +147,7 @@ class RefundController extends Controller
 			$data['credited'] = 1;
 
 			$order->order_status = 'Refund Credited';
+			$order->order_status_id = \App\Helpers\OrderHelper::$refundCredited;
 		}
 
 		$order->save();

@@ -4,4 +4,5 @@ cd $scriptPath;
 cd ../..
 git checkout $BRANCH_NAME;
 git pull;
+./artisan migrate
 echo $BRANCH_NAME;

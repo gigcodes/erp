@@ -80,12 +80,23 @@ class LogListMagentoController extends Controller
             $logListMagentos->where('categories.title', 'LIKE', '%' . $request->category . '%');
         }
 
-        if(!empty($request->status)){
-            $logListMagentos->where('log_list_magentos.magento_status', 'LIKE', '%' . $request->status . '%');
+        if (!empty($request->status)) {
+            if($request->status == 'available'){
+                $logListMagentos->where('products.stock', '>',  0);
+            }else if($request->status == 'out_of_stock'){
+                $logListMagentos->where('products.stock', '<=',  0);
+            }
         }
 
         // Get paginated result
-        $logListMagentos->select('log_list_magentos.*', 'products.*', 'brands.name as brand_name', 'categories.title as category_title', 'log_list_magentos.id as log_list_magento_id');
+        $logListMagentos->select(
+            'log_list_magentos.*',
+            'products.*',
+            'brands.name as brand_name',
+            'categories.title as category_title',
+            'log_list_magentos.id as log_list_magento_id',
+            'log_list_magentos.created_at as log_created_at'
+        );
         $logListMagentos = $logListMagentos->paginate(25);
 
         foreach ($logListMagentos as $key => $item) {
@@ -118,9 +129,9 @@ class LogListMagentoController extends Controller
 
         $status = $request->input('status');
 
-        
 
-        if(!$status){
+
+        if (!$status) {
             return response()->json(
                 [
                     'message' => 'Missing status'
@@ -129,7 +140,7 @@ class LogListMagentoController extends Controller
             );
         }
 
-        if(!in_array($status, LogListMagentoController::VALID_MAGENTO_STATUS)){
+        if (!in_array($status, LogListMagentoController::VALID_MAGENTO_STATUS)) {
             return response()->json(
                 [
                     'message' => 'Invalid status'
@@ -138,7 +149,7 @@ class LogListMagentoController extends Controller
             );
         }
 
-        LogListMagento::updateMagentoStatus($id,$status);
+        LogListMagento::updateMagentoStatus($id, $status);
 
         return response()->json(
             [

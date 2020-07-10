@@ -51,6 +51,8 @@ use App\SimplyDutyCountry;
 use App\Product_translation;
 use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
+use App\Helpers\ProductHelper;
+use App\StoreWebsite;
 
 
 class ProductController extends Controller
@@ -96,8 +98,9 @@ class ProductController extends Controller
         }
 
         $products = $products->paginate(Setting::get('pagination'));
+        $websiteList = \App\Helpers\ProductHelper::storeWebsite();
 
-        return view('products.index', compact('products', 'term', 'archived'))
+        return view('products.index', compact('products', 'term', 'archived','websiteList'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -138,7 +141,11 @@ class ProductController extends Controller
         if ((int)$request->get('status_id') > 0) {
             $newProducts = Product::where('status_id', (int)$request->get('status_id'));
         } else {
-            $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+            if ($request->get('submit_for_approval') == "on") {
+                $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+            }else{
+                $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+            }
         }
 
         // Run through query helper
@@ -221,11 +228,39 @@ class ProductController extends Controller
         }
 
 
+
+
         $selected_categories = $request->category ? $request->category : [1];
         $category_array = Category::renderAsArray();
         $users = User::all();
 
-        $newProducts = $newProducts->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->leftJoin("product_verifying_users as pvu",function($join) {
+            $join->on("pvu.product_id","products.id");
+            $join->where("pvu.user_id","!=",auth()->user()->id);
+        });
+        if(!auth()->user()->isAdmin()) {
+            $newProducts = $newProducts->whereNull("pvu.product_id");
+        }
+
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        if(!auth()->user()->isAdmin()) {
+            if(!$newProducts->isEmpty()) {
+                $i = 1;
+                foreach($newProducts as $product) {
+                    $productVerify = \App\ProductVerifyingUser::firstOrNew(array(
+                        'product_id' => $product->id
+                    ));
+                    $productVerify->product_id = $product->id; 
+                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->save();
+                    $i++;
+                    // if more then 15 records then break
+                    if($i > 25) {
+                        break;
+                    }
+                }
+            }
+        }
 
         return view('products.final_listing', [
             'products' => $newProducts,
@@ -1054,9 +1089,22 @@ class ProductController extends Controller
     public function updateColor(Request $request, $id)
     {
         $product = Product::find($id);
+        
+        if($product) {
+           $productColHis = new \App\ProductColorHistory;
+           $productColHis->user_id     = \Auth::user()->id; 
+           $productColHis->color       = $request->color; 
+           $productColHis->old_color   = $product->color;
+           $productColHis->product_id  = $product->id;
+           $productColHis->save();
+        }
+
         $originalColor = $product->color;
         $product->color = $request->color;
         $product->save();
+
+
+        \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
 
         $lh = new ListingHistory();
         $lh->user_id = Auth::user()->id;
@@ -1093,6 +1141,18 @@ class ProductController extends Controller
     {
 
         $product = Product::find($id);
+
+        if($product) {
+            $productCatHis = new \App\ProductCategoryHistory;
+            $productCatHis->user_id = \Auth::user()->id; 
+            $productCatHis->category_id = $request->category; 
+            $productCatHis->old_category_id = $product->category;
+            $productCatHis->product_id = $product->id;
+            $productCatHis->save(); 
+
+            \App\ProductStatus::pushRecord($product->id,"MANUAL_CATEGORY");
+        }    
+
         $product->category = $request->category;
         $product->save();
 
@@ -1220,10 +1280,18 @@ class ProductController extends Controller
         // Get product by ID
         $product = Product::find($id);
 
-        // If we have a product, push it to Magento
-        if ($product !== null) {
-            // Dispatch the job to the queue
-            PushToMagento::dispatch($product)->onQueue('magento');
+        //check for hscode 
+        $hsCode = $product->hsCode($product->category,$product->composition);
+        $hsCode = true;
+        if($hsCode){
+            // If we have a product, push it to Magento
+            if ($product !== null) {
+                // Dispatch the job to the queue
+                PushToMagento::dispatch($product)->onQueue('magento');
+
+                // Update the product so it doesn't show up in final listing
+                $product->isUploaded = 1;
+                $product->save();
 
             //translate product title and description
             $languages = ['hi','ar'];
@@ -1255,13 +1323,16 @@ class ProductController extends Controller
             // Update the product so it doesn't show up in final listing
             $product->isUploaded = 1;
             $product->save();
+                // Return response
+                return response()->json([
+                    'result' => 'queuedForDispatch',
+                    'status' => 'listed'
+                ]);
+            }
 
-            // Return response
-            return response()->json([
-                'result' => 'queuedForDispatch',
-                'status' => 'listed'
-            ]);
+
         }
+        
 
         // Return error response by default
         return response()->json([
@@ -1478,6 +1549,13 @@ class ProductController extends Controller
         $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
         $l->save();
 
+        // once product approved the remove from the edititing list
+        $productVUser = \App\ProductVerifyingUser::where("product_id",$id)->first();
+        if($productVUser) {
+            $productVUser->delete();
+        }
+
+
         ActivityConroller::create($product->id, 'productlister', 'create');
 
 //		if (Auth::user()->hasRole('Products Lister')) {
@@ -1495,6 +1573,25 @@ class ProductController extends Controller
         return response()->json([
             'result' => true,
             'status' => 'is_approved'
+        ]);
+    }
+
+    public function submitForApproval(Request $request, $id)
+    {
+        $product = Product::find($id);
+        $product->status = StatusHelper::$submitForApproval;
+        $product->save();
+
+        $l = new ListingHistory();
+        $l->user_id = Auth::user()->id;
+        $l->product_id = $product->id;
+        $l->action = 'SUBMIT_FOR_APPROVAL';
+        $l->content = ['action' => 'SUBMIT_FOR_APPROVAL', 'message' => 'User has submitted for approval!'];
+        $l->save();
+
+        return response()->json([
+            'result' => true,
+            'status' => 'submit_for_approval'
         ]);
     }
 
@@ -1572,61 +1669,13 @@ class ProductController extends Controller
 
     public function changeAllCategoryForAllSupplierProducts(Request $request, $id)
     {
-        $cat = $request->category;
-        
-        $product = Product::find($id);
-        if($product->scraped_products){
-            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null){
-                $category = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' ',$category);
-            }
-        }else{
-            return response()->json(['success','Scrapped Product Doesnt Not Exist']); 
-        }
+        \App\Jobs\UpdateScrapedCategory::dispatch([
+            "product_id"    => $id,
+            "category_id"   => $request->category,
+            "user_id"       => Auth::user()->id
+        ])->onQueue("supplier_products");
 
-        if(isset($referencesCategory)){
-
-            $productSupplier = $product->supplier;
-            $supplier = Supplier::where('supplier',$productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if(isset($scrapedProduct->properties['category'])) {
-                    $products = $scrapedProduct->properties['category'];
-                    if(is_array($products)) {
-                        $list = implode(' ',$products);
-                        if(strtolower($referencesCategory) == strtolower($list)){
-                            $scrapedProductSkuArray[] = $scrapedProduct->sku;
-                        }
-                    }
-                }
-            }
-
-            if(!isset($scrapedProductSkuArray)){
-                $scrapedProductSkuArray = [];
-            }
-
-            //Add reference to category 
-            $category = Category::find($cat);
-
-            if($product->product_category != null){
-                $reference = $category->references.','.$referencesCategory;
-                $category->references = $reference;
-                $category->save();
-            }
-            
-            //Update products with sku 
-            if(count($scrapedProductSkuArray) != 0){
-                foreach ($scrapedProductSkuArray as $productSku) {
-                    $oldProduct = Product::where('sku',$productSku)->first();
-                    if($oldProduct != null){
-                        $oldProduct->category = $cat;
-                        $oldProduct->save();
-                    }
-                }
-            }
-
-            return response()->json(['success','Product Got Updated']); 
-        }
+        return response()->json(['success','Product category has been sent for the update']);
     }
 
     public function attachProducts($model_type, $model_id, $type = null, $customer_id = null, Request $request)
@@ -1673,7 +1722,7 @@ class ProductController extends Controller
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
-             $customerId = null;
+            $customerId = null;
         }
 
         //\DB::enableQueryLog();
@@ -2145,6 +2194,7 @@ class ProductController extends Controller
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
+            $order_product->product_id = $product->id;
 
             $order_product->save();
 
@@ -2167,7 +2217,7 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-        // Get next product
+         // Get next product
         $product = Product::where('status_id', StatusHelper::$autoCrop)
             ->where('category', '>', 3);
 
@@ -2252,6 +2302,28 @@ class ProductController extends Controller
             //
         }
 
+        //Getting Website Color
+        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+        if(count($websiteArrays) == 0){
+            $colors = [];
+        }else{
+            foreach ($websiteArrays as $websiteArray) {
+               
+                $website = StoreWebsite::find($websiteArray);
+                if($website){
+
+                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                    $hexcode = '('.$r.','.$g.','.$b.')';
+                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                }
+            }
+        }
+
+        if(!isset($colors)){
+            $colors = [];
+        }
+        
         if($parent == null && $parent == ''){
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2263,7 +2335,7 @@ class ProductController extends Controller
             ]);
 
         }else{
-            // Set new status
+             // Set new status
             $product->status_id = StatusHelper::$isBeingCropped;
             $product->save();
              // Return product
@@ -2274,7 +2346,7 @@ class ProductController extends Controller
             'h_measurement' => $product->hmeasurement,
             'd_measurement' => $product->dmeasurement,
             'category' => "$parent $child",
-            '' => '',
+            'colors' => $colors,
         ]);
         }
     }
@@ -2300,7 +2372,15 @@ class ProductController extends Controller
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
-            $product->attachMedia($media, config('constants.media_gallery_tag'));
+            if($request->get('color')){
+                $colorCode = str_replace(['(',')'],'',$request->get('color'));
+                $rgbarr = explode(",",$colorCode,3);
+                $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $tag = 'gallery_'.$hex;
+            }else{
+                $tag = config('constants.media_gallery_tag');
+            }    
+            $product->attachMedia($media, $tag);
             $product->crop_count = $product->crop_count + 1;
             $product->save();
 
@@ -2321,9 +2401,25 @@ class ProductController extends Controller
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
+            //check website count using Product
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+
+            try {
+                if(count($websiteArrays) == 0){
+                $multi = 1;
+                }else{
+                    $multi = count($websiteArray);
+                }
+            } catch (\Exception $e) {
+                $multi = 1;
+            }
+            
+
+            $cropCount = ($cropCount * $multi);
+
             if(($productMediacount - $cropCount) == 1){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropApproval;
+                $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -2765,7 +2861,7 @@ class ProductController extends Controller
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
         
-        \App\Jobs\SendMessageToCustomer::dispatch($params);
+        \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {
             return response()->json(['msg' => 'success']);
@@ -2870,7 +2966,7 @@ class ProductController extends Controller
         $data[ 'customer_id' ] = $request->customer_id;
         $data[ 'status' ] = $request->status;
 
-        \App\Jobs\AttachImagesSend::dispatch($data);
+        \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
 
@@ -3096,8 +3192,6 @@ class ProductController extends Controller
 
         return response()->json(['success' => 'success'], 200);
     }
-
-
     public function productTranslation(Request $request) {
         $term = $request->term;
         $query = Product_translation::where('locale','en');
@@ -3141,5 +3235,98 @@ class ProductController extends Controller
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
+    }    
+
+    public function published(Request $request)
+    {
+        $id         = $request->get("id");
+        $website    = $request->get("website",[]);
+
+        \App\WebsiteProduct::where("product_id",$id)->delete();
+
+        if(!empty($website)) {
+            foreach($website as $web) {
+                $website                    = new \App\WebsiteProduct;
+                $website->product_id        = $id;
+                $website->store_website_id  = $web;
+                $website->save(); 
+            }
+        }
+
+        return response()->json(["code" => 200]);    
+
+    }    
+
+    public function originalColor($id)
+    {
+        $product = Product::find($id);
+        $referencesColor = "";
+        if(isset($product->scraped_products)){
+            
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                $color = $product->scraped_products->properties['colors'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+
+            // starting to see that howmany color we going to update
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['color']) != null){
+                $color = $product->scraped_products->properties['color'];
+                if(is_array($color)) {
+                    $referencesColor = implode(' > ',$color);
+                }else{
+                   $referencesColor = $color;
+                }
+            }
+            
+            $scrapedProductSkuArray = [];
+
+            if(!empty($referencesColor)){
+                $productSupplier = $product->supplier;
+                $supplier = Supplier::where('supplier',$productSupplier)->first();
+                if($supplier && $supplier->scraper) {
+                    $scrapedProducts = ScrapedProducts::where('website',$supplier->scraper->scraper_name)->get();
+                    foreach ($scrapedProducts as $scrapedProduct) {
+                        if(isset($scrapedProduct->properties['color'])){
+                           $products = $scrapedProduct->properties['color'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            } 
+                        }
+                        
+                        if (isset($scrapedProduct->properties['colors'])) {
+                            $products = $scrapedProduct->properties['colors'];
+                            if(!empty($products)){
+                                $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                            }
+                        }
+                        
+                    }
+                }
+            }
+            
+            if(isset($product->scraped_products->properties) && isset($product->scraped_products->properties['colors']) != null){
+                return response()->json(['success',$referencesColor,count($scrapedProductSkuArray)]);
+            }else{
+                return response()->json(['message','Color Is Not Present']); 
+            }
+            
+        }else{
+            return response()->json(['message','Color Is Not Present']); 
+        }
+    }
+
+    public function changeAllColorForAllSupplierProducts(Request $request, $id)
+    {
+        \App\Jobs\UpdateScrapedColor::dispatch([
+            "product_id"    => $id,
+            "color"         => $request->color
+        ])->onQueue("supplier_products");
+
+        return response()->json(['success','Product color has been sent for the update']);
     }
 }

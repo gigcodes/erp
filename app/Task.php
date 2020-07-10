@@ -20,12 +20,23 @@ class Task extends Model {
 		'assign_from',
 		'assign_to',
 		'is_statutory',
+		'actual_start_date',
 		'is_completed',
 		'sending_time',
 		'recurring_type',
 		'statutory_id',
 		'model_type',
 		'model_id',
+		'general_category_id'
+	];
+
+	const TASK_TYPES = [
+		"Other Task",
+		"Statutory Task",
+		"Calendar Task",
+		"Discussion Task",
+		"Developer Task",
+		"Developer Issue",
 	];
 
 	protected $dates = ['deleted_at'];
@@ -71,8 +82,12 @@ class Task extends Model {
 		return $this->hasOne(WhatsAppGroup::class);
 	}
 
-	public function whatsappAll()
+	public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    	if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
+        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 }

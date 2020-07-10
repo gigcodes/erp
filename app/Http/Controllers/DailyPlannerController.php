@@ -47,13 +47,20 @@ class DailyPlannerController extends Controller
       // dd($statutory);
 
       $time_slots = [
-        '08:00am - 10:00am' => [],
-        '10:00am - 12:00pm' => [],
-        '12:00pm - 02:00pm' => [],
-        '02:00pm - 04:00pm' => [],
-        '04:00pm - 06:00pm' => [],
-        '06:00pm - 08:00pm' => [],
-        '08:00pm - 10:00pm' => [],
+        '08:00am - 09:00am' => [],
+        '09:00am - 10:00am' => [],
+        '10:00am - 11:00am' => [],
+        '11:00am - 12:00pm' => [],
+        '12:00pm - 01:00pm' => [],
+        '01:00pm - 02:00pm' => [],
+        '02:00pm - 03:00pm' => [],
+        '03:00pm - 04:00pm' => [],
+        '04:00pm - 05:00pm' => [],
+        '05:00pm - 06:00pm' => [],
+        '06:00pm - 07:00pm' => [],
+        '07:00pm - 08:00pm' => [],
+        '08:00pm - 09:00pm' => [],
+        '09:00pm - 10:00pm' => []
       ];
 
       // foreach ($statutory as $task) {
@@ -64,7 +71,8 @@ class DailyPlannerController extends Controller
         $task = new Task;
         $task->task_subject = "Complete $statutory statutory tasks today";
         $task->is_completed = Carbon::now();
-        $time_slots['08:00am - 10:00am'][] = $task;
+        $time_slots['08:00am - 09:00am'][] = $task;
+        $time_slots['09:00am - 10:00am'][] = $task;
       }
 
       // dd($time_slots);
@@ -84,6 +92,32 @@ class DailyPlannerController extends Controller
       $call_instructions = Instruction::select(['id', 'category_id', 'instruction', 'assigned_to', 'created_at'])->where('category_id', 10)->where('created_at', 'LIKE', "%$planned_at%")->where('assigned_to', $userid)->get();
       $users_array = Helpers::getUserArray(User::all());
 
+      $generalCategories = \App\GeneralCategory::all()->pluck("name","id")->toArray();
+
+      // start calulation of all time spent
+      $taskCategoryWise = \App\Task::where("actual_start_date", "!=", "")
+      ->where("is_completed","!=" , "")
+      ->where("general_category_id","!=" , "")
+      ->select([\DB::raw("sum(TIMESTAMPDIFF(MINUTE,actual_start_date, is_completed)) as spent_time"),"general_category_id","is_completed", "actual_start_date"])
+      ->groupBy("general_category_id")->get()->pluck("spent_time","general_category_id")->toArray();
+
+      $activitiesCategoryWise = \App\DailyActivity::where("actual_start_date", "!=", "")
+      ->where("is_completed","!=" , "")
+      ->where("general_category_id","!=" , "")
+      ->select([\DB::raw("sum(TIMESTAMPDIFF(MINUTE, actual_start_date, is_completed)) as spent_time"),"general_category_id","is_completed", "actual_start_date"])
+      ->groupBy("general_category_id")->get()->pluck("spent_time","general_category_id")->toArray();
+
+      $spentTime = [];
+      if(!empty($generalCategories)) {
+        foreach($generalCategories as $id => $name) {
+              if(!isset($spentTime[$id])){
+                $spentTime[$id] = 0;
+              }
+              $spentTime[$id] += isset($taskCategoryWise[$id]) ? $taskCategoryWise[$id] : 0;
+              $spentTime[$id] += isset($activitiesCategoryWise[$id]) ? $activitiesCategoryWise[$id] : 0;
+        }
+      }
+
       return view('dailyplanner.index', [
         'tasks'             => $tasks,
         'time_slots'        => $time_slots,
@@ -91,6 +125,8 @@ class DailyPlannerController extends Controller
         'call_instructions' => $call_instructions,
         'userid'            => $userid,
         'planned_at'        => $planned_at,
+        'generalCategories' => $generalCategories,
+        'spentTime'         => $spentTime
       ]);
     }
 
@@ -167,5 +203,32 @@ class DailyPlannerController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function reschedule(Request $request) 
+    {
+      
+      $type       = $request->get("type");
+      $id         = $request->get("id");
+      $plannedAt  = $request->get("planned_at");
+
+      if($type == "task") {
+          $modal = \App\Task::find($id);
+      }else{
+          $modal = \App\DailyActivity::find($id);
+      }
+
+      if(!empty($modal)) {
+          if($type == "task") {
+            $modal->planned_at = $plannedAt;
+          }else{
+            $modal->for_date = $plannedAt;
+          }  
+          $modal->save();
+          return response()->json(["code" => 200 , "data" => [], "message" => "Your task has been rescheduled"]);
+      }
+
+      return response()->json(["code" => 500 , "data" => [], "message" => "Oops, somethign went wrong while rescheduling task"]);
+
     }
 }

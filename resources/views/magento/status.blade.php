@@ -30,6 +30,7 @@
             <th>ID</th>
             <th>Status</th>
             <th>Magento Status</th>
+            <th>Message Text Template</th>
           </tr>
         </thead>
 
@@ -39,6 +40,10 @@
               <td>{{ $orderStatus->id }}</td>
               <td>{{ $orderStatus->status }}</td>
               <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
+              <td>
+                <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ $orderStatus->message_text_tpl }}</textarea>
+                <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
+              </td>
             </tr>
           @endforeach
         </tbody>
@@ -50,6 +55,7 @@
 <script type="text/javascript">
   function updateStatus(id){
     status = $('#status'+id).val();
+    var tr = $('#status'+id).closest("tr");
     $.ajax({
         url: "{{ route('magento.save.status') }}",
         dataType: "json",
@@ -57,6 +63,7 @@
         data: {
              id: id,
              status : status,
+             message_text_tpl : tr.find(".message-text-tpl").val(),
              _token: "{{ csrf_token() }}",
         },
         beforeSend: function () {
@@ -64,7 +71,8 @@
         },
 
     }).done(function (data) {
-      console.log(data);
+      //console.log(data);
+      toastr['success']('Order status updated successfully', 'success');
     }).fail(function (jqXHR, ajaxOptions, thrownError) {
         alert('No response from server');
     });  

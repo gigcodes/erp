@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
 use App\Affiliates;
-use App\Mail\AffiliateEmail;
+use App\Mails\Manual\AffiliateEmail;
 use Illuminate\Support\Facades\Mail;
 
 class GoogleAffiliateController extends Controller
@@ -179,8 +179,9 @@ class GoogleAffiliateController extends Controller
             ], 400);
         }
         else {
+            $postedData = $payLoad['json'];
             // Loop over posts
-            foreach ($payLoad as $postJson) {
+            foreach ($postedData as $postJson) {
                 // Set tag
                 $tag = $postJson[ 'searchKeyword' ];
 
@@ -349,5 +350,51 @@ class GoogleAffiliateController extends Controller
         Email::create($params);
 
         return redirect()->route('affiliates.index', $customer->id)->withSuccess('You have successfully sent an email!');
+    }
+
+    /**
+    * function to call google scraper
+    *
+    * @param  \Illuminate\Http\Request $request, id of keyword to scrap
+    * @return success, failure
+    */
+    function callScraper(Request $request){
+        $id = $request->input('id');
+
+        $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
+
+        if (is_null($searchKeywords)){
+            // Return
+            return response()->json([
+                'error' => 'Keyword not found'
+            ], 400);
+        }
+        else{
+            $postData = ['data' => $searchKeywords];
+            $postData = json_encode($postData);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => env('NODE_SCRAPER_SERVER') . "api/googleSearchDetails",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+            ),
+            CURLOPT_POSTFIELDS => "$postData"
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+
+            // Return
+            return response()->json([
+                'success - scrapping initiated'
+            ], 200);
+        }
     }
 }

@@ -3,11 +3,11 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Google Affiliate Search Results</h2>
+            <h2 class="page-heading">Google Affiliate Search Results (<span>{{ $posts->total() }}</span>)</h2>
         </div>
         <div class="col-md-12 mt-4">
             {{ $posts->appends($request->all())->render() }}
-            <table id="table" class="table table-striped">
+            <table id="table" class="table table-striped table-bordered">
                 <thead>
                 <tr>
                     <th width="10%"><a href="/google/affiliate/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>

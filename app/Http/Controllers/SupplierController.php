@@ -10,6 +10,7 @@ use App\Brand;
 use App\SupplierBrandCount;
 use App\Supplier;
 use App\Agent;
+use App\ChatMessage;
 use App\Setting;
 use App\ReplyCategory;
 use App\User;
@@ -28,6 +29,8 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Marketing\WhatsappConfig;
+use Auth;
+use Validator;
 
 class SupplierController extends Controller
 {
@@ -57,9 +60,11 @@ class SupplierController extends Controller
         $solo_numbers = (new SoloNumbers)->all();
         $term = $request->term ?? '';
         $type = $request->type ?? '';
+        $supplier_filter = $request->supplier_filter ?? '';
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
+        $updated_by = $request->updated_by ?? '';
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
 
@@ -82,6 +87,14 @@ class SupplierController extends Controller
         }
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
+        }
+
+        if($updated_by != '') {
+           $typeWhereClause .= ' AND updated_by=' . $updated_by;
+        }
+
+        if($supplier_filter){
+            $typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
         }
         if(!empty($request->brand)) {
           $brands = array();
@@ -120,7 +133,7 @@ class SupplierController extends Controller
         }
 
         $suppliers = DB::select('
-									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,
+									SELECT suppliers.frequency, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -203,6 +216,7 @@ class SupplierController extends Controller
             'solo_numbers' => $solo_numbers,
             'term' => $term,
             'type' => $type,
+            'supplier_filter' => $supplier_filter,
             'source' => $source,
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,
@@ -238,7 +252,7 @@ class SupplierController extends Controller
     {
         $this->validate($request, [
             //'supplier_category_id' => 'required|string|max:255',
-            'supplier' => 'required|string|max:255',
+            'supplier' => 'required|string|unique:suppliers|max:255',
             'address' => 'sometimes|nullable|string',
             'phone' => 'sometimes|nullable|numeric',
             'default_phone' => 'sometimes|nullable|numeric',
@@ -255,6 +269,12 @@ class SupplierController extends Controller
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
 
+        $source  = $request->get("source","");
+
+        if(!empty($source)) {
+           $data["supplier_status_id"] = 0;
+        }  
+
         $supplier = Supplier::create($data);
 
         if ($supplier->id > 0) {
@@ -263,6 +283,10 @@ class SupplierController extends Controller
                 "scraper_name" => $request->get("scraper_name", ""),
                 "inventory_lifetime" => $request->get("inventory_lifetime", ""),
             ]);
+        }
+
+        if(!empty($source)) {
+          return redirect()->back()->withSuccess('You have successfully saved a supplier!');
         }
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier!');
@@ -283,6 +307,11 @@ class SupplierController extends Controller
         $emails = [];
         $suppliercategory = SupplierCategory::pluck('name', 'id');
         $supplierstatus = SupplierStatus::pluck('name', 'id');
+        $new_category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id' => 'category'])->renderAsDropdown();
+        $locations = \App\ProductLocation::pluck("name","name");
+
+        $category_selection = Category::attr(['name' => 'category','class' => 'form-control', 'id'  => 'category_selection'])
+                                              ->renderAsDropdown();
 
         return view('suppliers.show', [
             'supplier' => $supplier,
@@ -292,6 +321,10 @@ class SupplierController extends Controller
             'suppliercategory' => $suppliercategory,
             'supplierstatus' => $supplierstatus,
             'suppliers' => $suppliers,
+            'new_category_selection' => $new_category_selection,
+            'locations' => $locations,
+            'category_selection' => $category_selection,
+
         ]);
     }
 
@@ -903,7 +936,7 @@ class SupplierController extends Controller
                         $product->size = '';
                         $product->brand = $product->brand = $request->brand;
                         $product->color = '';
-                        $product->location = '';
+                        $product->location = request("location","");
                         if ($request->category == null) {
                             $product->category = '';
                         } else {
@@ -931,13 +964,15 @@ class SupplierController extends Controller
                         $product->is_pending = 1;
                         $product->save();
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                        $image = $match[ 0 ][ 0 ];
+                        $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                        if(!empty($image)) {
+                          $jpg = \Image::make($image)->encode('jpg');
+                          $filename = substr($image, strrpos($image, '/'));
+                          $filename = str_replace("/", "", $filename);
+                          $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                          $product->attachMedia($media, config('constants.media_tags'));
+                        }
 
-                        $jpg = \Image::make($image)->encode('jpg');
-                        $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace("/", "", $filename);
-                        $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                        $product->attachMedia($media, config('constants.media_tags'));
 
                         // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
@@ -945,7 +980,59 @@ class SupplierController extends Controller
                 return redirect()->back()->withSuccess('You have successfully saved product(s)!');
             }
             return redirect()->back()->withSuccess('Please Select Image');
-        } else {
+        }elseif ($request->type == 3) {
+          // Create Group ID with Product
+            $images = $request->images;
+            
+            $images = explode('"',$images);
+            if ($images) {
+                foreach ($images as $image) {
+
+                    if ($image != null) {
+                        if($image != '[' && $image != ']' && $image != ',' ){
+                          $product = new Product;
+                          $product->name = $request->name;
+                          $product->sku = $request->sku;
+                          $product->size = $request->size;
+                          $product->brand = $request->brand;
+                          $product->color = $request->color;
+                          $product->location = $request->location;
+                          $product->category = $request->category;
+                          $product->supplier = $request->supplier;
+                          
+                          if ($request->price == null) {
+                              $product->price = 0;
+                          } else {
+                              $product->price = $request->price;
+                          }
+
+                          if ($request->price_special == null) {
+                              $product->price_inr_special = 0;
+                          } else {
+                              $product->price_inr_special = $request->price_special;
+                          }
+                          $product->stock = 1;
+                          $product->purchase_status = 'InStock';
+                          $product->save();
+                          dd($product);
+                          preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
+                          $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
+                          if(!empty($image)) {
+                            $jpg = \Image::make($image)->encode('jpg');
+                            $filename = substr($image, strrpos($image, '/'));
+                            $filename = str_replace("/", "", $filename);
+                            $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                            $product->attachMedia($media, config('constants.media_tags'));
+                          }
+                       }   
+
+                    }
+                }
+               return response()->json(['success' => 'Product Created'], 200);
+        }
+      }
+
+         else {
 
             // Create Group ID with Product
             $images = explode(",", $request->checkbox[ 0 ]);
@@ -1001,7 +1088,7 @@ class SupplierController extends Controller
                     $product->size = '';
                     $product->brand = $request->brand;
                     $product->color = '';
-                    $product->location = '';
+                    $product->location = request("location","");
                     if ($request->category == null) {
                         $product->category = '';
                     } else {
@@ -1296,5 +1383,81 @@ class SupplierController extends Controller
       $supplier->update();
       return response()->json(['success' => 'Supplier Whatsapp updated'], 200);
     }
+
+    public function changeStatus(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $statusId = $request->get("supplier_status_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->supplier_status_id = ($statusId == "false") ? 0 : 1;
+              $supplier->save();
+           }
+        }
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
+    }
+
+    /**
+     * Change supplier category
+     */
+    public function changeCategory(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $categoryId = $request->get("supplier_category_id");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_category_id' => $categoryId])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Category updated successfully"]);
+    }
+
+    /**
+     * Add supplier category
+     */
+    public function addCategory(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        SupplierCategory::create($request->all());
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a category!');
+    }
+
+    public function sendMessage(Request $request)
+	{
+        // return $request->all();
+		$suppliers = Supplier::whereIn('id', $request->suppliers)->get();
+        $params = [];
+        if(count($suppliers)) {
+            foreach($suppliers as $key => $item) {
+                $params[] = [
+                    'supplier_id' => $item->id,
+                    'number' => null,
+                    'message' => $request->message,
+                    'user_id' => Auth::id(),
+                    'status' => 1,
+                    'is_queue' => 2,
+                ];
+            }
+        }
+        // return $params;
+        ChatMessage::insert($params);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+	}
 
 }
