@@ -26,13 +26,20 @@
       				"data-type" => "status",
       				"data-site" => ($site) ? $site->id : ""
       			]) ?>
-      			<br>
+      			<label style="margin-top: 5px;" for="developer_id" >Developer : </label>
     			<select class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
     				<option>Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
     				@endforeach
     			</select>
+                <label style="margin-top: 5px;" for="designer_id" >Designer : </label>
+                <select name="designer_id" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option>Select Designer</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select>
     		</td>
             <td>
     			@if($site)
