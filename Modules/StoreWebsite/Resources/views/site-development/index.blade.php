@@ -127,6 +127,7 @@
            <form action="{{ route("site-development.upload-documents") }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="store_website_id" id="hidden-store-website-id" value="">
 	            <input type="hidden" name="id" id="hidden-site-id" value="">
+	            <input type="hidden" name="site_development_category_id" id="hidden-site-category-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
 	            </div>
@@ -383,6 +384,7 @@
 		$("#file-upload-area-section").modal("show");
 		$("#hidden-store-website-id").val($this.data("store-website-id"));
 		$("#hidden-site-id").val($this.data("site-id"));
+		$("#hidden-site-category-id").val($this.data("site-category-id"));
 	});
 
 	$(document).on("click",".btn-file-list",function(e) {
@@ -435,6 +437,7 @@
 		}).done(function (data) {
 			$("#loading-image").hide();
 			toastr["success"]("Document uploaded successfully");
+			location.reload();
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			toastr["error"]("Oops,something went wrong");
 			$("#loading-image").hide();
