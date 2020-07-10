@@ -1,3 +1,6 @@
+var userRole;
+var userPermission;
+
 var page = {
     init: function(settings) {
         
@@ -118,6 +121,11 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     showResults : function(response) {
+        // $.each(response.replies, function (k, v) {
+        //     $("#page-view-result .quickComment").append("<option value='" + k + "'>" + v + "</option>");
+        // });
+        // $(".quickComment").select2({tags: true});
+        // console.log(response.replies);
         $("#loading-image").hide();
     	var addProductTpl = $.templates("#template-result-block");
         var tplHtml       = addProductTpl.render(response);
@@ -226,6 +234,7 @@ var page = {
         this.sendAjax(_z, 'permissionResult');
     },
     permissionResult : function(response) {
+        userPermission = response.userPermission;
         var communicationHistoryTemplate = $.templates("#template-add-permission");
         var tplHtml = communicationHistoryTemplate.render(response);
         var common =  $(".common-modal");
@@ -261,6 +270,7 @@ var page = {
         this.sendAjax(_z, 'roleResult');
     },
     roleResult : function(response) {
+        userRole = response.userRole;
         var communicationHistoryTemplate = $.templates("#template-add-role");
         var tplHtml = communicationHistoryTemplate.render(response);
         var common =  $(".common-modal");
@@ -376,3 +386,22 @@ var page = {
 
 
 $.extend(page, common);
+var template = $.templates("#template-add-role");
+$.views.helpers({
+    isSelected: function(role) {
+        if (Object.values(userRole).indexOf(role) > -1) {
+            return 'checked';
+         }
+         return '';
+    }
+  }, template);
+
+  var template = $.templates("#template-add-permission");
+$.views.helpers({
+    isPermissionSelected: function(permission) {
+        if (Object.values(userPermission).indexOf(permission) > -1) {
+            return 'checked';
+         }
+         return '';
+    }
+  }, template);

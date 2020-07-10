@@ -27,5 +27,8 @@ Route::prefix('user-management')->group(function() {
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
+
+    Route::post('/reply/add', 'UserManagementController@addReply')->name('user-management.reply.add');
+    Route::get('/reply/delete', 'UserManagementController@deleteReply')->name('user-management.reply.delete');
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
 });

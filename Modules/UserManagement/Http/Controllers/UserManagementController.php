@@ -138,6 +138,7 @@ class UserManagementController extends Controller
                     }
                 }
                 $u["previousDue"] = $u->previousDue($lastPaidOn);
+                $u["lastPaidOn"] = $lastPaidOn;
                 
                 if($u->payment_frequency == 'fornightly') {
                     $u["nextDue"] =  date('Y-m-d',strtotime($lastPaidOn . "+1 days"));
@@ -153,12 +154,13 @@ class UserManagementController extends Controller
                 }
                 $items[] = $u;
             }
-            
-        }
 
+            $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
+        }
         return response()->json([
             "code"       => 200,
             "data"       => $items,
+            "replies" => $replies,
             "pagination" => (string) $user->links(),
             "total"      => $user->total(),
             "page"       => $user->currentPage(),
@@ -711,6 +713,42 @@ class UserManagementController extends Controller
         $payment->paid_upto = $resetLastPaidOn;
         $payment->save();
         return redirect()->back()->with('success','Payment done successfully');
+    }
+
+
+    public function addReply(Request $request)
+    {
+      $reply = $request->get("reply");
+      $autoReply = [];
+      // add reply from here 
+      if (!empty($reply)) {
+  
+        $autoReply = \App\Reply::updateOrCreate(
+          ['reply' => $reply, 'model' => 'User', "category_id" => 1],
+          ['reply' => $reply]
+        );
+      }
+  
+      return response()->json(["code" => 200, 'data' => $autoReply]);
+    }
+
+    public function deleteReply(Request $request)
+    {
+      $id = $request->get("id");
+  
+      if ($id > 0) {
+        $autoReply = \App\Reply::where("id", $id)->first();
+        if ($autoReply) {
+          $autoReply->delete();
+        }
+      }
+  
+      return response()->json([
+        "code" => 200, "data" => \App\Reply::where("model", "User")
+          ->whereNull("deleted_at")
+          ->pluck("reply", "id")
+          ->toArray()
+      ]);
     }
 
 

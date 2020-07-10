@@ -13,6 +13,8 @@
 		   </div>
 		   <div class="modal-body">
            <p class="btn btn-primary open-permission-input pull-right">Add New</p><br>
+           <br>
+           <br>
           <div id="permission-from" class="dropdown-wrapper hidden">
               <div class="payment-dropdown-header">
                   <div class="form-group">
@@ -26,14 +28,14 @@
                   <button type="button" class="btn btn-sm btn-primary add-permission pull-right">Submit</button><br><br>
               </div>
           </div>
-           <div class="overflow-auto" id="collapse">
+           <div class="overflow-auto" id="collapse" style="height:400px;overflow-y:scroll;">
                     <strong>Permission:</strong>
                     <input type="text" id="myInput" placeholder="Search for permissions.." class="form-control search-permission">
                     <ul id="myUL" class="padding-left-zero">
                     {{props permissions}}
                            <li style="list-style-type: none;">
                             <a>
-                            <input type="checkbox" name="permissions[]" value="{{>key}}">
+                            <input type="checkbox" name="permissions[]" value="{{>key}}" {{:~isPermissionSelected(prop)}}>
                             <strong>{{>prop}}</strong></a>
                             </li>
                         {{/props}} 

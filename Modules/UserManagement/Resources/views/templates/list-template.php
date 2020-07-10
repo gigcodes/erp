@@ -1,9 +1,25 @@
 <script type="text/x-jsrender" id="template-result-block">
+<style>
+table {
+  table-layout: fixed;
+  border-collapse: collapse;
+  width: 100%;
+}
+td {
+  border: 1px solid #000;
+  width: 150px;
+  word-break: break-all;
+}
+td+td {
+  width: auto;
+}
+
+</style>
 	<div class="row">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>User ID</th> 
+		      	<th style="width:50px;">User ID</th> 
 		      	<th>User</th> 
 				<th>Email</th> 
 				<th>Phone</th> 
@@ -16,7 +32,10 @@
 				<th>Payment Due</th>
 				<th>Due date</th> 
 				<th>Paid on</th>
-				<th>Action</th>
+				<th style="width:200px;">Send</th>
+				{{if <?php echo Auth::user()->hasRole('Admin'); ?>}}
+				<th style="width:200px;">Action</th>
+				{{/if}}
 				
 			</tr>
 		    </thead>
@@ -49,8 +68,32 @@
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>
 			        <td>
-					
+					{{:prop.lastPaidOn}}
 					</td>
+					<td>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="d-flex">
+                    <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+                    <button class="btn btn-sm btn-image send-message" data-userid="{{:prop.id}}"><img src="/images/filled-sent.png"/></button>
+                </div>
+           </div>
+           <div style="margin-top:5px;" class="col-md-12">
+                <div class="d-flex">
+					<select name="quickComment" class="form-control quickComment select2-quick-reply" "style" => "width:100%">
+					<option value="">--Auto Reply--</option>
+					{{props replies}}
+						<option value="">{{>prop}}</option>
+					{{/props}}
+					</select>
+					<a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+                </div>
+            </div> 
+        </div>  
+        
+        
+    </td>
+					{{if <?php echo Auth::user()->hasRole('Admin'); ?>}}
 			        <td>
 					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
@@ -66,6 +109,7 @@
 					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					</td>
+					{{/if}}
 			      </tr>
 			    {{/props}}  
 		    </tbody>

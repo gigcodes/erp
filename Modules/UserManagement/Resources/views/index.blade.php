@@ -2,7 +2,7 @@
 @section('favicon' , 'task.png')
 
 
-@section('content')
+@section('large_content')
 <style type="text/css">
     .preview-category input.form-control {
       width: auto;
@@ -171,9 +171,14 @@
           url: "/user-management/paymentInfo/"+id,
           type: "get"
         }).done(function(response) {
-          $('.common-modal').modal('show');
-          console.log($(".modal-dialog"));
-           $(".modal-dialog").html(response); 
+            if(response.code == 500) {
+                toastr['error'](response.message, 'error');
+            }
+            else {
+                $('.common-modal').modal('show');
+                console.log($(".modal-dialog"));
+                $(".modal-dialog").html(response); 
+            }
         }).fail(function(errObj) {
             $('.common-modal').modal('hide');
         });
@@ -385,6 +390,102 @@
 
         return true;
     }
+
+
+
+
+    $(document).on("change", ".quickComment", function (e) {
+
+var message = $(this).val();
+
+if ($.isNumeric(message) == false) {
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: "/user-management/reply/add",
+        dataType: "json",
+        method: "POST",
+        data: {reply: message}
+    }).done(function (data) {
+
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        alert('No response from server');
+    });
+}
+$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+
+});
+
+$(".select2-quick-reply").select2({tags: true});
+
+$(document).on("click", ".delete_quick_comment", function (e) {
+var deleteAuto = $(this).closest(".d-flex").find(".quickComment").find("option:selected").val();
+if (typeof deleteAuto != "undefined") {
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+        },
+        url: "/user-management/reply/delete",
+        dataType: "json",
+        method: "GET",
+        data: {id: deleteAuto}
+    }).done(function (data) {
+        if (data.code == 200) {
+            $(".quickComment").empty();
+            $.each(data.data, function (k, v) {
+                $(".quickComment").append("<option value='" + k + "'>" + v + "</option>");
+            });
+            $(".quickComment").select2({tags: true});
+        }
+
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+        alert('No response from server');
+    });
+}
+});
+
+
+
+$(document).on('click', '.send-message', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var user_id = $(this).data('userid');
+            var message = $(this).siblings('input').val();
+
+            data.append("user_id", user_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/user',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        // thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
+                        $(thiss).siblings('input').val('');
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
 </script>
 
 @endsection

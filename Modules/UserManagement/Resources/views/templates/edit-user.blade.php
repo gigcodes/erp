@@ -8,14 +8,11 @@
 		      </button>
 		   </div>
 		   <div class="modal-body">
-    <div class="container">
-        <div class="row">
-            <div class="col-md-6">
                 <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-12">
-                        <div class="form-group">
-                            <strong>Name:</strong>
-                            {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
+                <div class="col-xs-12 col-sm-12 col-md-12">
+    <div class="form-group">
+    <strong>Name:</strong>
+    {!! Form::text('name', null, array('placeholder' => 'Name','class' => 'form-control')) !!}
                         </div>
                     </div>
                     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -24,6 +21,7 @@
                             {!! Form::text('email', null, array('placeholder' => 'Email','class' => 'form-control')) !!}
                         </div>
                     </div>
+
                     <div class="col-xs-12">
                         <div class="form-group">
                             <strong>Phone:</strong>
@@ -47,12 +45,14 @@
                             @endif
                         </div>
                     </div>
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Password:</strong>
                             {!! Form::password('password', array('placeholder' => 'Password','class' => 'form-control')) !!}
                         </div>
                     </div>
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Confirm Password:</strong>
@@ -135,6 +135,7 @@
                             </div>
                         </div>
                     @endif
+
                     <div class="col-xs-12 col-sm-12 col-md-12">
                     <div class="form-group padding-top-30">
                         <strong>Responsible User:</strong>
@@ -154,13 +155,8 @@
             </div>
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                         <button type="submit" class="btn btn-secondary">Save Changes</button>
-                    </div>
+                    </div>          
                 </div>
-            </div>
-        </div>
-    </div>
-
-    
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
