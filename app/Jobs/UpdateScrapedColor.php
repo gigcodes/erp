@@ -18,6 +18,7 @@ class UpdateScrapedColor implements ShouldQueue
     public $params;
     public $product_id;
     public $color;
+    public $user_id;
 
     /**
      * Create a new job instance.
@@ -28,6 +29,7 @@ class UpdateScrapedColor implements ShouldQueue
     {
         $this->product_id = $params["product_id"];
         $this->color      = $params["color"];
+        $this->user_id = isset($params["user_id"]) ? $params["user_id"] : 6;
     }
 
     public static function putLog($message)
@@ -51,7 +53,7 @@ class UpdateScrapedColor implements ShouldQueue
         $cat          = $this->color;
         $lastcategory = false;
         if($product) {
-            $scrapedProductSkuArray[] = $product->sku; 
+            $scrapedProductSkuArray[] = $product->id; 
         }
 
         if ($product->scraped_products) {
@@ -83,14 +85,14 @@ class UpdateScrapedColor implements ShouldQueue
                 if (isset($scrapedProduct->properties['colors'])) {
                     $colors = $scrapedProduct->properties['colors'];
                     if (strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                        $scrapedProductSkuArray[] = $scrapedProduct->product_id;
                     }
 
                 }
                 if (isset($scrapedProduct->properties['color'])) {
                     $colors = $scrapedProduct->properties['color'];
                     if (strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                        $scrapedProductSkuArray[] = $scrapedProduct->product_id;
                     }
                 }
             }
@@ -107,7 +109,7 @@ class UpdateScrapedColor implements ShouldQueue
         if (count($scrapedProductSkuArray) != 0) {
             foreach ($scrapedProductSkuArray as $productSku) {
                 self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
-                $oldProduct = Product::where('sku', $productSku)->first();
+                $oldProduct = Product::where('id', $productSku)->first();
                 if ($oldProduct != null) {
                     $oldColor = $oldProduct->color;
                     $oldProduct->color = $cat;
@@ -115,7 +117,7 @@ class UpdateScrapedColor implements ShouldQueue
                     $totalUpdated++;
 
                     $productColHis = new \App\ProductColorHistory;
-                    $productColHis->user_id     = \Auth::user()->id; 
+                    $productColHis->user_id     = ($this->user_id) ? $this->user_id : 6; 
                     $productColHis->color       = $cat; 
                     $productColHis->old_color   = $oldColor;
                     $productColHis->product_id  = $oldProduct->id;

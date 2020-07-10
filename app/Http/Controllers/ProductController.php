@@ -3242,7 +3242,8 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedColor::dispatch([
             "product_id"    => $id,
-            "color"         => $request->color
+            "color"         => $request->color,
+            "user_id"       => \Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product color has been sent for the update']);
