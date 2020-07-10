@@ -434,6 +434,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
         
+        // If scraper not completed, store alert
+        $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
     }
 
     /**
