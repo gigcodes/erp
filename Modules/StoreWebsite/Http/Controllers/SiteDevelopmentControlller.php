@@ -181,7 +181,7 @@ class SiteDevelopmentController extends Controller
 
     public function saveDocuments(Request $request)
     {
-        $site = null;
+        $site      = null;
         $documents = $request->input('document', []);
         if (!empty($documents)) {
             if ($request->id) {
@@ -189,10 +189,11 @@ class SiteDevelopmentController extends Controller
             }
 
             if (!$site || $request->id == null) {
-                $site                   = new SiteDevelopment;
-                $site->title            = "";
-                $site->description      = "";
-                $site->store_website_id = $request->store_website_id;
+                $site                               = new SiteDevelopment;
+                $site->title                        = "";
+                $site->description                  = "";
+                $site->website_id                   = $request->store_website_id;
+                $site->site_development_category_id = $request->site_development_category_id;
                 $site->save();
             }
 
