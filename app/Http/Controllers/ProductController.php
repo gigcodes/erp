@@ -49,6 +49,7 @@ use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
 use App\Product_translation;
+use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
 
 
@@ -103,6 +104,7 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+        
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -1236,16 +1238,12 @@ class ProductController extends Controller
             }
             foreach($languages as $language) {
                 $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-            if(!$isLocaleAvailable) {
-                $product_translation = new Product_translation;
-                $title_response = $product_translation->translate($language,$product->name);
-                $description_response = $product_translation->translate($language,$product->short_description);
-                if($title_response && $description_response) {
-                    $title_obj =  json_decode($title_response, true);
-                    $description_obj =  json_decode($description_response, true);
-                    if (array_key_exists("data",$title_obj) && array_key_exists("data",$description_obj)) {
-                        $title = $title_obj['data']['translations'][0]['translatedText'];
-                        $description = $description_obj['data']['translations'][0]['translatedText'];
+                if(!$isLocaleAvailable) {
+                    $product_translation = new Product_translation;
+                    $googleTranslate = new GoogleTranslate();
+                    $title = $googleTranslate->translate($language,$product->name);
+                    $description = $googleTranslate->translate($language,$product->short_description);
+                    if($title && $description) {
                         $product_translation->title = $title;
                         $product_translation->description = $description;
                         $product_translation->product_id = $product->id;
@@ -1254,7 +1252,6 @@ class ProductController extends Controller
                     }
                 }
             }
-        }
             // Update the product so it doesn't show up in final listing
             $product->isUploaded = 1;
             $product->save();
