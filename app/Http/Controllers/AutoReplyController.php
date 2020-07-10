@@ -308,6 +308,9 @@ class AutoReplyController extends Controller
                     $phraseSave->save();
 
                 }
+                $rec->deleted_by = \Auth::user()->id;
+                $rec->save();
+                $rec->delete();
              }
         }
        }
@@ -413,5 +416,39 @@ class AutoReplyController extends Controller
         return response()->json(["code" => 200 ,"data" => []]);
 
     }
+
+    public function mostUsedPhrasesDeleted(Request $request)
+    {
+        $title = "Most used pharases deleted";
+        return view("autoreplies.most-used-phrases.index",compact('title'));
+
+    }
+
+
+    public function mostUsedPhrasesDeletedRecords(Request $request) 
+    {
+        $history = \App\ChatMessagePhrase::leftJoin("users as u","u.id","chat_message_phrases.deleted_by")
+        ->whereNotNull("chat_message_phrases.deleted_at")
+        ->withTrashed()
+        ->orderBy("chat_message_phrases.deleted_at","desc")
+        ->select(["chat_message_phrases.*","u.name as user_name"]);
+        
+        if($request->keyword != null) {
+            $history = $history->where(function($q) use($request) {
+                $q->where("chat_message_phrases.phrase","like","%".$request->keyword."%")->orWhere("u.name","like","%".$request->keyword."%");
+            });
+        }
+
+        $history = $history->paginate(\App\Setting::get('pagination'));
+
+        return response()->json([
+            "code" => 200 , 
+            "data" => $history->items(),
+            "total" => $history->total(),
+            "pagination"  => (string) $history->render()
+        ]);
+    }
+
+
 
 }
