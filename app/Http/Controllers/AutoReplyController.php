@@ -318,9 +318,11 @@ class AutoReplyController extends Controller
                         $phraseSave->save();
 
                     }
+                    $value = $rec->phrase;
                     $rec->deleted_by = \Auth::user()->id;
                     $rec->save();
                     $rec->delete();
+                    ChatMessagePhrase::whereIn("phrase", $phrasesReq)->whereNotIn("id",[$rec->id])->forceDelete();
                 }
             }
         }
@@ -424,9 +426,8 @@ class AutoReplyController extends Controller
     {
         $id      = $request->id;
         $phrases = \App\ChatMessagePhrase::find($id);
-
         if ($phrases) {
-            $phrases->delete();
+            $phrases = \App\ChatMessagePhrase::where("phrase",$phrases->phrase)->forceDelete();
         }
 
         return response()->json(["code" => 200, "data" => []]);
