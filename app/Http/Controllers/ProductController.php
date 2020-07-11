@@ -2356,7 +2356,6 @@ class ProductController extends Controller
     {
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
-
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
@@ -2367,7 +2366,6 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-
             $media = MediaUploader::fromSource($image)
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
@@ -2397,7 +2395,7 @@ class ProductController extends Controller
 
 
             //Get the last image of the product
-            $productMediacount = $product->media()->count();
+            $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
@@ -2413,11 +2411,9 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
-            
 
             $cropCount = ($cropCount * $multi);
-
-            if(($productMediacount - $cropCount) == 1){
+            if($productMediacount <= $cropCount){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
@@ -3324,9 +3320,33 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedColor::dispatch([
             "product_id"    => $id,
-            "color"         => $request->color
+            "color"         => $request->color,
+            "user_id"       => \Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product color has been sent for the update']);
     }
+
+    public function storeWebsiteDescription(Request $request)
+    {
+        $websites = $request->store_wesites;
+        if(is_array($websites) && $request->product_id != null && $request->description != null) {
+            foreach($websites as $website)  {
+                $storeWebsitePA = \App\StoreWebsiteProductAttribute::where("product_id",$request->product_id)->where("store_website_id",$website)->first();
+                if(!$storeWebsitePA) {
+                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id = $request->product_id;
+                    $storeWebsitePA->store_website_id = $website;
+                }
+                $storeWebsitePA->store_website_id = $website;
+                $storeWebsitePA->description = $request->description;
+                $storeWebsitePA->save();
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Store website description stored successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Required field is missing"]);
+    }
+
 }

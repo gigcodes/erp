@@ -78,11 +78,14 @@
                 <div class="form-group mr-3 mb-3">
                    <input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category"><label for="without_category">Without Category?</label>
                 </div>
+                <div class="form-group mr-3 mb-3">
+                   <input {{ (request('final_approval')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="final_approval" id="final_approval"><label for="final_approval">Final Approved?</label>
+                </div>
                 @if (isset($customer_id) && $customer_id != null)
                   <input type="hidden" name="customer_id" value="{{ $customer_id }}">
                 @endif
-                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>	
-        	</form>	
+                <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+        	</form>
         </div>
         <div class="col-lg-12 margin-tb">
 	        <div class="productGrid " id="productGrid">
@@ -119,30 +122,8 @@
         $(document).on('mouseover', 'select.update-color', function() { 
             $(this).select2().select2('open');
         });
-
-        $(document).on("click",".push-in-shopify",function() {
-            var product_id  = $(this).data("id");
-            $.ajax({
-                url: '/product-inventory/'+product_id+'/push-in-shopify',
-                type: 'GET',
-                beforeSend: function () {
-                    $("#loading-image").show();
-                },
-                success: function(result){
-                    if(result.code == 200) {
-                        toastr['success']('Sent to store successfully', 'success');
-                    }else{
-                        toastr['error'](result.message, 'error');
-                    }
-                    $("#loading-image").hide();
-                }, 
-                error: function (){
-                    toastr['error']('Oops, Something went wrong', 'error');
-                    $("#loading-image").hide();
-                }
-            });     
-        });
-
+        
+        //$(document),on()
         $(function () {
             $('.infinite-scroll').jscroll({
                 autoTrigger: true,

@@ -1068,6 +1068,9 @@
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrases')}}">Most used phrases</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrasesDeleted')}}">Most used phrases Updated</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1409,6 +1412,9 @@
                                         <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -1634,8 +1640,10 @@
         @include('partials.modals.quick-create-task-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $key = \App\LivechatincSetting::first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
+        <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
         @endif
@@ -1858,7 +1866,8 @@
     <!-- Scripts -->
 
     {{-- @include('partials.chat') --}}
-
+    <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+    </div>
 
 
     <!-- Like page plugin script  -->

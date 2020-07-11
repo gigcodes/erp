@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
+use App\Category;
 
 class PriceOverrideController extends Controller
 {
@@ -17,7 +18,8 @@ class PriceOverrideController extends Controller
     public function index(Request $request)
     {
         $title = "Price override | Store Website";
-        return view('storewebsite::price-override.index', compact('title'));
+        $allCategoriesDropdown = Category::attr( [ 'name' => 'category_id', 'class' => 'form-control cat-selection-dropdown' ,'style' => 'width:100%;'] )->renderAsDropdown();
+        return view('storewebsite::price-override.index', compact('title','allCategoriesDropdown'));
     }
 
     public function records(Request $request)

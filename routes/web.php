@@ -52,6 +52,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::get('hscode', 'ProductController@hsCodeIndex');
     Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
     Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
+    Route::post('store-website-description', 'ProductController@storeWebsiteDescription')->name('product.store.website.description');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
@@ -185,6 +186,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::prefix('product-inventory')->group(function () {
         Route::get('/', 'NewProductInventoryController@index')->name('product-inventory.new');
+        Route::post('/push-in-shopify-records', 'NewProductInventoryController@pushInStore')->name('product-inventory.pushInStore');
         Route::prefix('{id}')->group(function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
@@ -229,6 +231,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('autoreply', 'AutoReplyController');
     Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
     Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
+    
+    Route::get('most-used-phrases/deleted', 'AutoReplyController@mostUsedPhrasesDeleted')->name("chatbot.mostUsedPhrasesDeleted");
+    Route::get('most-used-phrases/deleted/records', 'AutoReplyController@mostUsedPhrasesDeletedRecords')->name("chatbot.mostUsedPhrasesDeletedRecords");
 
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
@@ -333,6 +338,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
+
+
+    //emails
+    Route::get('email/replyMail/{id}', 'EmailController@replyMail');
+    Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+    Route::post('email/resendMail/{id}', 'EmailController@resendMail');
+    Route::resource('email', 'EmailController');
+
 
     // Zoom Meetings
     //Route::get( 'twilio/missedCallStatus', 'TwilioController@missedCallStatus' );
@@ -468,6 +481,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
+            Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
         });
     });
 
@@ -648,6 +662,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('task/export', 'TaskModuleController@exportTask')->name('task.export');
     Route::post('/task/addRemarkStatutory', 'TaskModuleController@addRemark')->name('task.addRemarkStatutory');
+    Route::get('delete/task/note', 'TaskModuleController@deleteTaskNote')->name('delete/task/note');
 
     // Social Media Image Module
     Route::get('lifestyle/images/grid', 'ImageController@index')->name('image.grid');
@@ -1388,6 +1403,11 @@ Route::middleware('auth')->group(function () {
         Route::prefix('list')->group(function () {
             Route::get('/', 'CountryDutyController@list')->name('country.duty.list');
             Route::get('/records', 'CountryDutyController@records')->name('country.duty.records');
+            Route::post('save', 'CountryDutyController@store')->name('country.duty.save');
+            Route::prefix('{id}')->group(function () {
+                Route::get('edit', 'CountryDutyController@edit')->name('country.duty.edit');
+                Route::get('delete', 'CountryDutyController@delete')->name('country.duty.delete');
+            });
         });
     });
 });

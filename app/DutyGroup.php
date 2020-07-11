@@ -12,6 +12,12 @@ class DutyGroup extends Model
         'duty',
         'vat',
         'created_at',
-        'updated_at'
+        'updated_at',
     ];
+
+    public static function selectList()
+    {
+        return self::pluck('name', 'id')->toArray();
+    }
+
 }

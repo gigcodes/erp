@@ -12,7 +12,7 @@ class SiteDevelopment extends Model
 {
     use Mediable;
 
-    protected $fillable = ['site_development_category_id','status','title','description','developer_id','website_id'];
+    protected $fillable = ['site_development_category_id','status','title','description','developer_id','designer_id','website_id'];
 
 
     public function category()
@@ -40,5 +40,12 @@ class SiteDevelopment extends Model
     {
         return $this->hasOne('App\User','id','developer_id');
     }
+
+    public function designer()
+    {
+        return $this->hasOne('App\User','id','designer_id');
+    }
+
+    
 
 }

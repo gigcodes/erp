@@ -27,7 +27,6 @@ class LiveChatController extends Controller
 		if(isset($receivedJson->event_type)){
 			//When customer Starts chat
 			if($receivedJson->event_type == 'chat_started'){
-				
 				///Getting the chat
 				$chat = $receivedJson->chat;
 				
@@ -187,9 +186,9 @@ class LiveChatController extends Controller
 				//Getting user
 				$userEmail = $chat->users[0]->email;
 				$userName = $chat->users[0]->name;
-				
+				$websiteURL = self::getDomain($chat->users[0]->last_visit->last_pages[0]->url);
+				//dd($websiteURL);
 				$customer = Customer::where('email',$userEmail)->first();
-				
 				
 				if($customer != '' && $customer != null){
 					//Find if its has ID
@@ -200,11 +199,13 @@ class LiveChatController extends Controller
 						$customerChatId->thread = $chatId;
 						$customerChatId->status = 1;
 						$customerChatId->seen = 0;
+						$customerChatId->website = $websiteURL;
 						$customerChatId->save();
 					}else{
 						$chatID->customer_id = $customer->id;
 						$chatID->thread = $chatId;
 						$chatID->status = 1;
+						$chatID->website = $websiteURL;
 						$chatID->seen = 0;
 						$chatID->update();
 					}
@@ -221,6 +222,7 @@ class LiveChatController extends Controller
 					$customerChatId->thread = $chatId;
 					$customerChatId->status = 1;
 					$customerChatId->seen = 0;
+					$customerChatId->website = $websiteURL;
 					$customerChatId->save();
 
 				}
@@ -530,13 +532,13 @@ class LiveChatController extends Controller
 			$customerInital = substr($customer->name, 0, 1);
 			if($liveChatCustomer->status == 0){
 				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon offline"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is offline</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+								</div><div class="user_info"><span>'.$customer->name.'</span><p style="margin-bottom: 0px;">'.$customer->name.' is offline</p><p style="margin-bottom: 0px;">'.$liveChatCustomer->website.'</p></div></div></li><li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}elseif($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0){
 				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+								</div><div class="user_info"><span>'.$customer->name.'</span><p style="margin-bottom: 0px;">'.$customer->name.' is online</p><p style="margin-bottom: 0px;">'.$liveChatCustomer->website.'</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}else{
 				$customers[] = '<li onclick="getChats('.$customer->id.')" id="user'.$customer->id.'" style="cursor: pointer;"><div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">'.$customerInital.'</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>'.$customer->name.'</span><p>'.$customer->name.' is online</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+								</div><div class="user_info"><span>'.$customer->name.'</span><p style="margin-bottom: 0px;">'.$customer->name.' is online</p><p style="margin-bottom: 0px;">'.$liveChatCustomer->website.'</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
 			}
 		}
 		if(empty($customers)){
@@ -797,5 +799,15 @@ class LiveChatController extends Controller
 				return response()->json(['status' => 'success', 'filename' => $filename, 'fileCDNPath' => $fileCDNPath, 'responseData' => $response], 200);
 			}
 		}
+	}
+
+	public static function getDomain($url)
+	{
+		$pieces = parse_url($url);
+		$domain = isset($pieces['host']) ? $pieces['host'] : $pieces['path'];
+			if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
+				return $regs['domain'];
+			}
+		return false;
 	}
 }

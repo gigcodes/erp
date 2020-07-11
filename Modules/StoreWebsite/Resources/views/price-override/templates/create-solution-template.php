@@ -36,16 +36,10 @@
 		         </div>
 		         <div class="form-group col-md-6">
 		            <label for="category_id">Category</label>
-		            <select name="category_id" class="form-control">
-		            	<option value="">-- N/A --</option>
-			            <?php
-			            	foreach(\App\Category::all() as $k => $l) {
-			            		$label = ($l->parent_id > 0) ? "&nbsp;&nbsp;".$l->title : $l->title;
-			            		echo "<option {{if data.category_id == ".$l->id."}} selected {{/if}} value='".$l->id."'>".$label."</option>";
-			            	}
+		                <?php
+			            	echo $allCategoriesDropdown;
 			             ?>
-			         </select>
-		         </div>
+			     </div>
 		         <div class="form-group col-md-6">
 		            <label for="country_group_id">Country Group</label>
 		            <select name="country_group_id" class="form-control">

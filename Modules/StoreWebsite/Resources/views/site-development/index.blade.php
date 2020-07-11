@@ -127,6 +127,7 @@
            <form action="{{ route("site-development.upload-documents") }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="store_website_id" id="hidden-store-website-id" value="">
 	            <input type="hidden" name="id" id="hidden-site-id" value="">
+	            <input type="hidden" name="site_development_category_id" id="hidden-site-category-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
 	            </div>
@@ -155,9 +156,10 @@
         		<table class="table table-bordered">
 				    <thead>
 				      <tr>
-				        <th>No</th>
-				        <th>Link</th>
-				        <th>Action</th>
+				        <th width="5%">No</th>
+				        <th width="45%">Link</th>
+				        <th width="25%">Send To</th>
+				        <th width="25%">Action</th>
 				      </tr>
 				    </thead>
 				    <tbody class="display-document-list">
@@ -383,6 +385,7 @@
 		$("#file-upload-area-section").modal("show");
 		$("#hidden-store-website-id").val($this.data("store-website-id"));
 		$("#hidden-site-id").val($this.data("site-id"));
+		$("#hidden-site-category-id").val($this.data("site-category-id"));
 	});
 
 	$(document).on("click",".btn-file-list",function(e) {
@@ -406,6 +409,7 @@
 				html += "<tr>";
 					html += "<td>"+v.id+"</td>";
 					html += "<td>"+v.url+"</td>";
+					html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
 					html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-send-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-comment" aria-hidden="true"></i></a></td>';
 				html += "</tr>";
 			});
@@ -435,8 +439,9 @@
 		}).done(function (data) {
 			$("#loading-image").hide();
 			toastr["success"]("Document uploaded successfully");
+			location.reload();
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
-			toastr["error"]("Oops,something went wrong");
+			toastr["error"](jqXHR.responseJSON.message);
 			$("#loading-image").hide();
 		});
 	});
@@ -446,6 +451,7 @@
 		e.preventDefault();
 		var id = $(this).data("id");
 		var site_id = $(this).data("site-id");
+		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
 		$.ajax({
 			url: '/site-development/send-document',
 			type: 'POST',
@@ -453,7 +459,7 @@
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
 	    	},
 	    	dataType:"json",
-			data: { id : id , site_id : site_id},
+			data: { id : id , site_id : site_id, user_id: user_id},
 			beforeSend: function() {
 				$("#loading-image").show();
            	}

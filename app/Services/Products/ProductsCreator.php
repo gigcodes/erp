@@ -260,8 +260,8 @@ class ProductsCreator
             Log::channel('productUpdates')->debug("[Skipped] Product is null");
             return;
         }
-
-        $product->status_id = 2;
+        // Changed status to auto crop now
+        $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
         $product->sku = str_replace(' ', '', $image->sku);
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;

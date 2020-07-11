@@ -39,15 +39,20 @@
   <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 @endsection
 
+@php
+    $isAdmin = \Auth::user()->hasRole('Admin');
+    $isHRM = \Auth::user()->hasRole('HOD of CRM');
+@endphp
+
 @section('content')
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Suppliers List ({{ $suppliers->total() }})</h2>
-			  <form class="form-inline" action="{{ route('supplier.index') }}" method="GET">
+			  <form class="" action="{{ route('supplier.index') }}" method="GET">
 				<div class="row">
-                  	<div class="form-group">
-						<div class="col-md-3">
+                  	<div class="form-group col-md-3">
+						<div class="">
 							<input name="term" type="text" class="form-control" value="{{ isset($term) ? $term : '' }}" placeholder="Search">
 						</div>
                   	</div>
@@ -71,17 +76,12 @@
 							<option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
 							</select>
 					</div>
-					<div class="form-group ml-3">
-						<div class="col-md-3">
-							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><span>Active</span>
-						</div>
+                    <div class="form-group col-md-3">
+                        {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
                     </div>
                 </div>
                 <div class="row">
-					<div class="form-group col-md-3">
-							{!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
-						
-					</div>
+					
 					<div class="form-group col-md-3">
 							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
 						
@@ -112,8 +112,16 @@
 							request('updated_by'),
 							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
 						); ?>
-					</div>
-					<button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    </div>
+                    
+					<div class="form-group ml-3">
+						<div class="col-md-3">
+							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><label for="status">Active</label>
+						</div>
+                    </div>
+                    <div class="form-group">
+                    <button type="submit" class="btn btn-image"><img src="/images/filter.png" /></button>
+                    </div>
 				</div>
 				</form>
         </div>
@@ -317,9 +325,9 @@
 						</ul>
 					@endif
 					@endif
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
-					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
+					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load Auto PDF"><img src="/images/icon-pdf.svg" alt=""></a>
 				</td>
 					<td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">

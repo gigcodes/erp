@@ -115,7 +115,8 @@ var page = {
         var tplHtml = createWebTemplate.render({data:{}});
         
         var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
+            common.find(".modal-dialog").html(tplHtml);
+            common.find(".cat-selection-dropdown").select2(); 
             common.modal("show");
     },
 
@@ -130,8 +131,15 @@ var page = {
     editResult : function(response) {
         var createWebTemplate = $.templates("#template-create-form");
         var tplHtml = createWebTemplate.render(response);
+
+
         var common =  $(".common-modal");
-            common.find(".modal-dialog").html(tplHtml); 
+            common.find(".modal-dialog").html(tplHtml);
+            common.find(".cat-selection-dropdown").val(response.data.category_id);
+            common.find(".cat-selection-dropdown").select2();
+
+            response
+            
             common.modal("show");
     },
 

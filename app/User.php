@@ -260,12 +260,12 @@ class User extends Authenticatable
         return false;
     }
 
-    public function hasRole($role)
+    /*public function hasRole($role)
     {
 
         $roles = Role::where('name', $role)->first();
 
-        $role = ($roles) ? $roles->toArray() : [];
+        $role = ($roles) ? [$roles->id] : [];
 
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
@@ -276,7 +276,7 @@ class User extends Authenticatable
             }
         }
         return false;
-    }
+    }*/
 
     public function user_logs()
     {
