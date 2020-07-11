@@ -322,7 +322,7 @@ class AutoReplyController extends Controller
                     $rec->deleted_by = \Auth::user()->id;
                     $rec->save();
                     $rec->delete();
-                    ChatMessagePhrase::whereIn("phrase", $phrasesReq)->whereNotIn("id",[$rec->id])->forceDelete();
+                    ChatMessagePhrase::where("phrase", $value)->whereNotIn("id",[$rec->id])->forceDelete();
                 }
             }
         }
