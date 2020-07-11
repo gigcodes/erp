@@ -326,7 +326,7 @@ class AutoReplyController extends Controller
         }
 
         // call api to store data
-        //WatsonManager::pushQuestion($groupId);
+        WatsonManager::pushQuestion($groupId);
 
         return response()->json(["response" => 200]);
     }
