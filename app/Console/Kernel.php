@@ -437,6 +437,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
         $schedule->command('generate:product-pricing-json')->daily();
         
+        // If scraper not completed, store alert
+        $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
     }
 
     /**

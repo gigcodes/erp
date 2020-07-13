@@ -3,9 +3,11 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 use App\Loggers\LogScraper;
+use Plank\Mediable\Mediable;
 
 class ScrapRemark extends Model
 {
+    use Mediable;
     protected $fillable = [
         'user_name',
         'scraper_name',
