@@ -84,14 +84,14 @@ class UpdateScrapedColor implements ShouldQueue
             foreach ($scrapedProducts as $scrapedProduct) {
                 if (isset($scrapedProduct->properties['colors'])) {
                     $colors = $scrapedProduct->properties['colors'];
-                    if (strtolower($referencesColor) == strtolower($colors)) {
+                    if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
                         $scrapedProductSkuArray[] = $scrapedProduct->product_id;
                     }
 
                 }
                 if (isset($scrapedProduct->properties['color'])) {
                     $colors = $scrapedProduct->properties['color'];
-                    if (strtolower($referencesColor) == strtolower($colors)) {
+                    if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
                         $scrapedProductSkuArray[] = $scrapedProduct->product_id;
                     }
                 }
@@ -118,8 +118,8 @@ class UpdateScrapedColor implements ShouldQueue
 
                     $productColHis = new \App\ProductColorHistory;
                     $productColHis->user_id     = ($this->user_id) ? $this->user_id : 6; 
-                    $productColHis->color       = $cat; 
-                    $productColHis->old_color   = $oldColor;
+                    $productColHis->color       = !empty($cat) ? $cat : ""; 
+                    $productColHis->old_color   = !empty($oldColor) ? $oldColor : "";
                     $productColHis->product_id  = $oldProduct->id;
                     $productColHis->save();
 
