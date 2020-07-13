@@ -845,6 +845,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //SKU
     Route::get('sku-format/datatables', 'SkuFormatController@getData')->name('skuFormat.datatable');
+    Route::get('sku-format/history', 'SkuFormatController@history')->name('skuFormat.history');
     Route::resource('sku-format', 'SkuFormatController');
     Route::post('sku-format/update', 'SkuFormatController@update')->name('sku.update');
     Route::get('sku/color-codes', 'SkuController@colorCodes')->name('sku.color-codes');
