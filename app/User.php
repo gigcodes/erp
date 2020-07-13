@@ -14,6 +14,7 @@ use Cache;
 use App\UserLog;
 use DB;
 use Redirect;
+use App\Hubstaff\HubstaffPaymentAccount;
 use Carbon\Carbon;
 
 
@@ -38,7 +39,9 @@ class User extends Authenticatable
         'agent_role',
         'whatsapp_number',
         'amount_assigned',
-        'auth_token_hubstaff'
+        'auth_token_hubstaff',
+        'payment_frequency',
+        'fixed_price_user_or_job'
     ];
 
     public function getIsAdminAttribute()
@@ -394,6 +397,11 @@ class User extends Authenticatable
         return self::pluck("name","id")->toArray();
     }
 
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
 
     public function taskList()
     {
@@ -414,6 +422,16 @@ class User extends Authenticatable
         }
 
         return 0;
+    }
+
+    public function previousDue($lastPaidOn)
+    {
+        $pendingPyments = HubstaffPaymentAccount::where('user_id',$this->id)->where('billing_start','>',$lastPaidOn)->get();
+        $total = 0;
+        foreach($pendingPyments as $pending) {
+            $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
+        }
+        return $total;
     }
 
 }
