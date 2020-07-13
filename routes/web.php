@@ -212,6 +212,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('deliveryapproval', 'DeliveryApprovalController');
 
     //	Route::resource('activity','ActivityConroller');
+
+    // For Brand size chart
+    Route::get('brand/size/chart', 'BrandController@createSizeChart')->name('brand/size/chart');
+    Route::post('brand/store/size/chart', 'BrandController@storeSizeChart')->name('brand/store/size/chart');
+
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');

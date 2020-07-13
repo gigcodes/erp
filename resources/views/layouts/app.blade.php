@@ -1483,6 +1483,9 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
+                                        </li>
                                         @if(auth()->user()->checkPermission('category-edit'))
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
