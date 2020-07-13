@@ -73,6 +73,7 @@ use \App\Helpers\TranslationHelper;
 use App\ImQueue;
 use App\Account;
 use App\BrandFans;
+use App\ChatMessagesQuickData;
 use App\ColdLeads;
 
 
@@ -162,6 +163,16 @@ class WhatsAppController extends FindByNumberController
 
                 $params = $this->modifyParamsWithMessage($params, $data);
                 $message = ChatMessage::create($params);
+
+                ChatMessagesQuickData::updateOrCreate([
+                    'model' => "\App\Customer",
+                    'model_id' => $params['customer_id']
+                    ], [
+                    'last_unread_message' => @$params['message'],
+                    'last_unread_message_at' => Carbon::now(),
+                    'last_communicated_message' => @$params['message'],
+                    'last_communicated_message_at' => Carbon::now(),
+                ]);
 
                 if ($params[ 'message' ]) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params[ 'message' ], $customer);
@@ -2491,6 +2502,18 @@ class WhatsAppController extends FindByNumberController
             $params[ 'approved' ] = 0;
             $params[ 'status' ] = 1;
             $chat_message = ChatMessage::create($data);
+        }
+
+        if ($context == 'customer') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => "App\Customer",
+                'model_id' => $data['customer_id']
+                ], [
+                'last_unread_message' => @$data['message'],
+                'last_unread_message_at' => Carbon::now(),
+                'last_communicated_message' => @$data['message'],
+                'last_communicated_message_at' => Carbon::now(),
+            ]);
         }
 
         // $data['status'] = 1;
