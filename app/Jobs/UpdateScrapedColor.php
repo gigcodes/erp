@@ -52,6 +52,7 @@ class UpdateScrapedColor implements ShouldQueue
         $product      = Product::find($this->product_id);
         $cat          = $this->color;
         $lastcategory = false;
+        $scrapedProductSkuArray = [];
         if($product) {
             $scrapedProductSkuArray[] = $product->id; 
         }
@@ -76,23 +77,25 @@ class UpdateScrapedColor implements ShouldQueue
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
+            if($supplier->scraper) {
+                $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
 
-            self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
-            self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
+                self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
+                self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
 
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if (isset($scrapedProduct->properties['colors'])) {
-                    $colors = $scrapedProduct->properties['colors'];
-                    if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                foreach ($scrapedProducts as $scrapedProduct) {
+                    if (isset($scrapedProduct->properties['colors'])) {
+                        $colors = $scrapedProduct->properties['colors'];
+                        if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
+                            $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                        }
+
                     }
-
-                }
-                if (isset($scrapedProduct->properties['color'])) {
-                    $colors = $scrapedProduct->properties['color'];
-                    if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                    if (isset($scrapedProduct->properties['color'])) {
+                        $colors = $scrapedProduct->properties['color'];
+                        if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
+                            $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                        }
                     }
                 }
             }
