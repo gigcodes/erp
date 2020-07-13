@@ -60,11 +60,11 @@
 
 @include("storewebsite::templates.list-template")
 @include("storewebsite::templates.create-website-template")
-<script type="text/javascript" src="/js/jsrender.min.js"></script>
-<script type="text/javascript" src="/js/jquery.validate.min.js"></script>
-<script src="/js/jquery-ui.js"></script>
-<script type="text/javascript" src="/js/common-helper.js"></script>
-<script type="text/javascript" src="/js/store-website.js"></script>
+<script type="text/javascript" src="{{ asset('/js/jsrender.min.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/jquery.validate.min.js') }}"></script>
+<script src="{{ asset('/js/jquery-ui.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/common-helper.js') }}"></script>
+<script type="text/javascript" src="{{ asset('/js/store-website.js') }}"></script>
 
 <script type="text/javascript">
 	page.init({

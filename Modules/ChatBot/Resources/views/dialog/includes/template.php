@@ -118,7 +118,7 @@
 <script id="single-response-condition" type="text/x-jsrender">
 	<div class="form-row">
 		<div class="form-group col-md-9">
-	      <input class="form-control" id="value" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+	      <input class="form-control response-value" id="value" placeholder="Enter a response" name="response_condition[0][value]" type="text">
 	    </div>
 	</div>
 </script>
@@ -231,10 +231,10 @@
 				      </select>
 				  	</div>
 				  	<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
-				     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+				     	<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
 				  	</div>
 				  	<div class="form-group col-md-9">
-				      	<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+				      	<input class="form-control response-value id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
 				  	</div>
 				  	<div class="form-group col-md-3">
 				  		<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
@@ -245,7 +245,7 @@
 		{{else}}
 			<div class="form-row">
 				<div class="form-group col-md-9">
-			      <input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+			      <input class="form-control response-value" placeholder="Enter a response" name="response_condition[0][value]" type="text">
 			    </div>
 			</div>
 		{{/if}}
@@ -390,10 +390,10 @@
 								</select>
 								</div>
 								<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
-									<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+									<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
 								</div>
 								<div class="form-group col-md-9">
-									<input class="form-control" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+									<input class="form-control response-value" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
 								</div>
 								<div class="form-group col-md-3">
 									<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>
@@ -404,7 +404,7 @@
 					{{else}}
 						<div class="form-row">
 							<div class="form-group col-md-9">
-							<input class="form-control" placeholder="Enter a response" name="response_condition[0][value]" type="text">
+							<input class="form-control response-value" placeholder="Enter a response" name="response_condition[0][value]" type="text">
 							</div>
 						</div>
 					{{/if}}

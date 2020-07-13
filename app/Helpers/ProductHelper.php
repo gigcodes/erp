@@ -759,7 +759,6 @@ class ProductHelper extends Model
         
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
-        
         $websiteArray = [];
         foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
@@ -767,7 +766,6 @@ class ProductHelper extends Model
                 foreach ($storeBrands as $storeBrand) {
                     $websiteArray[] = $storeBrand->store_website_id;
                 }
-               
             }
         }
 

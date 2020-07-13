@@ -77,12 +77,14 @@ return [
                 'image/jpeg',
                 'image/png',
                 'image/gif',
+                'image/vnd.adobe.photoshop'
             ],
             'extensions' => [
                 'jpg',
                 'jpeg',
                 'png',
                 'gif',
+                'psd'
             ]
         ],
         Plank\Mediable\Media::TYPE_IMAGE_VECTOR => [

@@ -167,7 +167,7 @@
                     </div>
                     @if(auth()->user()->isAdmin())
                         <div class="form-group mr-3">
-                            <?php echo Form::checkbox("submit_for_approval",request('submit_for_approval'),["class" => "form-control"]); ?>
+                            <?php echo Form::checkbox("submit_for_approval","on",(bool)(request('submit_for_approval') == "on"),["class" => "form-control"]); ?>
                             <lable for="submit_for_approval">Submit For approval ?</lable>
                         </div>
                     @endif
@@ -287,6 +287,8 @@
                                                     </span>
                                                     <p>
                                                         <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
+
+                                                        <button class="btn btn-default btn-sm set-description-site" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Set Description</button>
                                                     </p>
                                                 @endif
                                             @endforeach
@@ -787,6 +789,7 @@
     </div>
     @include('partials.modals.remarks')
     @include('partials.modals.image-expand')
+    @include('partials.modals.set-description-site-wise')
 
 @endsection
 
@@ -1653,7 +1656,7 @@
 
             $.when.apply($, ajaxes)
                 .done(function () {
-                    location.reload();
+                    //location.reload();
                 });
         });
 
@@ -1863,6 +1866,42 @@
 
             
         }
+
+        $(document).on("click",".set-description-site",function() {
+            var $this = $(this);
+            var modal = $("#set-description-site-wise");
+                modal.find("#store-product-id").val($this.data("id"));
+                modal.find("#store-product-description").val($this.data("description"));
+                modal.find("#show-description-summery").html($this.data("description"));
+                modal.modal("show");
+        });
+
+        $(document).on("click",".btn-save-store",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: '/product/store-website-description',
+                type: 'POST',
+                dataType: 'json',
+                beforeSend:function() {
+                    $("#loading-image-preview").show();
+                },
+                data: form.serialize(),
+                dataType:"json"
+            }).done(function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    $("#set-description-site-wise").modal("hide");
+                    toastr["success"](response.message);
+                }else{
+                    toastr["error"](response.message);
+                }
+            }).fail(function() {
+                $("#loading-image-preview").hide();
+                console.log("error");
+            });
+
+        })
 
     </script>
 @endsection

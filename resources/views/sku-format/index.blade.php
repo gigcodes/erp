@@ -47,11 +47,39 @@
         </tr>
         </thead>
     </table>
-
-
-
-
 @include('sku-format.edit')
+<div id="sku-format-history" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Sku History <span id="sku-format-history-text"> </span></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12">
+                        <table class="table table-bordered table-striped">
+                            <tr>
+                                <th width="10%">ID</th>
+                                <th width="30%">Old Value</th>
+                                <th width="30%">New Value</th>
+                                <th width="20%">Submitted By</th>
+                                <th width="10%">Created By</th>
+                            </tr>
+                            <tbody class="sku-format-history-records">
+
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
     @section('scripts')
@@ -186,9 +214,34 @@
 
         function editSKU(id){
             $("#skuEditModal"+id).modal();
-
         }
 
+        function showHistory(id){
+            $.ajax({
+                type: "get",
+                url: "sku-format/history",
+                data: {id: id}
+            }).done(function (response) {
+                var m = $("#sku-format-history");
+                if(response.code == 200) {
+                    var html = "";
+                    $.each(response.data,function(k, v) {
+                        html += "<tr>"; 
+                            html += "<td>"+v.id+"</td>"; 
+                            html += "<td>"+v.old_sku_format+"</td>"; 
+                            html += "<td>"+v.sku_format+"</td>"; 
+                            html += "<td>"+v.user_name+"</td>"; 
+                            html += "<td>"+v.created_at+"</td>"; 
+                        html += "</tr>";
+                    });
+                    m.find(".sku-format-history-records").html(html);
+                    m.modal("show");
+                }
+            }).fail(function (response) {
+               alert('failed');
+            });
+            //$("#skuEditModal"+id).modal();
+        }
 
         function updateEdit(id){
              

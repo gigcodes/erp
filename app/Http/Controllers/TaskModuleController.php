@@ -786,12 +786,15 @@ class TaskModuleController extends Controller {
 		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
 		                                        ->renderAsDropdown();
-
+		$taskNotes = $task->notes()->where('is_hide', 0)->paginate(20);
+		$hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
 			'categories'	=> $categories,
+			'taskNotes'	=> $taskNotes,
+			'hiddenRemarks'	=> $hiddenRemarks,
 		]);
 	}
 
@@ -1512,6 +1515,11 @@ class TaskModuleController extends Controller {
 			$data['task_details'] = $request->get("task_detail");
 			$data['task_subject'] = $request->get("task_subject");
 			$data['assign_to'] 	  = $request->get("task_asssigned_to");
+
+			if($request->category_id != null) {
+				$data['category'] 	  = $request->category_id;
+			}
+
 			$task = Task::create($data);
 			if(!empty($task)) {
 				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
@@ -1568,4 +1576,23 @@ class TaskModuleController extends Controller {
 
 	}
 
+	/***
+	 * Delete task note
+	 */
+	public function deleteTaskNote(Request $request)
+	{
+		$task = Remark::whereId($request->note_id)->delete();
+		session()->flash('success', 'Deleted successfully.');
+		return response(['success' => "Deleted"],200);
+	}
+
+	/**
+	 * Hide task note from list
+	 */
+	public function hideTaskRemark(Request $request)
+	{
+		$task = Remark::whereId($request->note_id)->update(['is_hide' => 1]);
+		session()->flash('success', 'Hide successfully.');
+		return response(['success' => "Hidden"],200);
+	}
 }

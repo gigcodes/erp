@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\ChatMessage;
 use App\Customer;
 use App\Email;
 use App\Mail\PurchaseEmail;
@@ -24,6 +25,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Webklex\IMAP\Client;
 use App\Role;
+use Auth;
 use Exception;
 use GuzzleHttp\Client as GuzzleHttpClient;
 use GuzzleHttp\RequestOptions;
@@ -131,12 +133,12 @@ class VendorController extends Controller
       }
 
       $status = request('status');
-      if ($status != null) {
-        $query->where('status', $status);
+      if ($status != null && !request('with_archived')) {
+        $query->orWhere('status', $status);
       }
 
-      if (request('updated_by') != null) {
-          $query->where('updated_by', request('updated_by'));
+      if (request('updated_by') != null && !request('with_archived')) {
+          $query->orWhere('updated_by', request('updated_by'));
       }
 
       //if category is not nyll
@@ -148,22 +150,24 @@ class VendorController extends Controller
 
 
 
-      if (request('communication_history') != null) {
+      if (request('communication_history') != null && !request('with_archived')) {
         $communication_history = request('communication_history');
-        $query->whereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
+        $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
       }
 
       if ($request->with_archived != null && $request->with_archived != '') {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-        }
+		}
+		$totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
         $vendors = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
       } else {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-        }
+		}
+		$totalVendor = $query->orderby('name', 'asc')->count();
         $vendors = $query->orderby('name', 'asc')->paginate($pagination);
       }
     } else {
@@ -206,6 +210,8 @@ class VendorController extends Controller
 
       //dd($vendors);
 
+		$totalVendor = count($vendors);
+
       $currentPage = LengthAwarePaginator::resolveCurrentPage();
       $perPage = Setting::get('pagination');
       if (request()->get('select_all') == 'true') {
@@ -233,12 +239,12 @@ class VendorController extends Controller
 
     $replies = \App\Reply::where("model", "Vendor")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
 
-    if ($request->ajax()) {
+    /* if ($request->ajax()) {
       return response()->json([
         'tbody' => view('vendors.partials.data', compact('vendors', 'replies'))->render(),
         'links' => (string) $vendors->render()
       ], 200);
-    }
+    } */
 
     $updatedProducts = \App\Vendor::join("users as u","u.id","vendors.updated_by")
     ->groupBy("vendors.updated_by")
@@ -252,7 +258,8 @@ class VendorController extends Controller
       'orderby'    => $orderby,
       'users' => $users,
       'replies' => $replies,
-      'updatedProducts' => $updatedProducts
+      'updatedProducts' => $updatedProducts,
+      'totalVendor' => $totalVendor,
     ]);
   }
 
@@ -350,7 +357,14 @@ class VendorController extends Controller
       'gst'           => 'sometimes|nullable|max:255',
       'account_name'  => 'sometimes|nullable|max:255',
       'account_iban'  => 'sometimes|nullable|max:255',
-      'account_swift' => 'sometimes|nullable|max:255'
+	  'account_swift' => 'sometimes|nullable|max:255',
+	  'frequency_of_payment'   => 'sometimes|nullable|max:255',
+      'bank_name'   => 'sometimes|nullable|max:255',
+      'bank_address'   => 'sometimes|nullable|max:255',
+      'city'   => 'sometimes|nullable|max:255',
+      'country'   => 'sometimes|nullable|max:255',
+      'ifsc_code'   => 'sometimes|nullable|max:255',
+      'remark'   => 'sometimes|nullable|max:255',
     ]);
 
     $source = $request->get("source","");
@@ -515,7 +529,14 @@ class VendorController extends Controller
       'gst'             => 'sometimes|nullable|max:255',
       'account_name'    => 'sometimes|nullable|max:255',
       'account_iban'    => 'sometimes|nullable|max:255',
-      'account_swift'   => 'sometimes|nullable|max:255'
+      'account_swift'   => 'sometimes|nullable|max:255',
+      'frequency_of_payment'   => 'sometimes|nullable|max:255',
+      'bank_name'   => 'sometimes|nullable|max:255',
+      'bank_address'   => 'sometimes|nullable|max:255',
+      'city'   => 'sometimes|nullable|max:255',
+      'country'   => 'sometimes|nullable|max:255',
+      'ifsc_code'   => 'sometimes|nullable|max:255',
+      'remark'   => 'sometimes|nullable|max:255',
     ]);
 
     $data = $request->except('_token');
@@ -1112,4 +1133,27 @@ class VendorController extends Controller
 
       return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
   }
+
+	public function sendMessage(Request $request)
+	{
+        // return $request->all();
+		$vendors = Vendor::whereIn('id', $request->vendors)->get();
+        $params = [];
+        if(count($vendors)) {
+            foreach($vendors as $key => $item) {
+                $params[] = [
+                    'vendor_id' => $item->id,
+                    'number' => null,
+                    'message' => $request->message,
+                    'user_id' => Auth::id(),
+                    'status' => 1,
+                    'is_queue' => 2,
+                ];
+            }
+        }
+        // return $params;
+        ChatMessage::insert($params);
+
+        return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
+	}
 }

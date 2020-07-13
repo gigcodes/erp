@@ -48,6 +48,8 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
+use App\Product_translation;
+use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
 use App\Helpers\ProductHelper;
 use App\StoreWebsite;
@@ -105,6 +107,7 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+        
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -239,7 +242,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(2);
+        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
         if(!auth()->user()->isAdmin()) {
             if(!$newProducts->isEmpty()) {
                 $i = 1;
@@ -1086,9 +1089,20 @@ class ProductController extends Controller
     public function updateColor(Request $request, $id)
     {
         $product = Product::find($id);
+        
+        if($product) {
+           $productColHis = new \App\ProductColorHistory;
+           $productColHis->user_id     = \Auth::user()->id; 
+           $productColHis->color       = $request->color; 
+           $productColHis->old_color   = $product->color;
+           $productColHis->product_id  = $product->id;
+           $productColHis->save();
+        }
+
         $originalColor = $product->color;
         $product->color = $request->color;
         $product->save();
+
 
         \App\ProductStatus::pushRecord($product->id,"MANUAL_COLOR");
 
@@ -1279,12 +1293,43 @@ class ProductController extends Controller
                 $product->isUploaded = 1;
                 $product->save();
 
+            //translate product title and description
+            $languages = ['hi','ar'];
+            $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
+            if(!$isDefaultAvailable) {
+                $product_translation = new Product_translation;
+                $product_translation->title = $product->name;
+                $product_translation->description = $product->short_description;
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = 'en';
+                $product_translation->save();
+            }
+            foreach($languages as $language) {
+                $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+                if(!$isLocaleAvailable) {
+                    $product_translation = new Product_translation;
+                    $googleTranslate = new GoogleTranslate();
+                    $title = $googleTranslate->translate($language,$product->name);
+                    $description = $googleTranslate->translate($language,$product->short_description);
+                    if($title && $description) {
+                        $product_translation->title = $title;
+                        $product_translation->description = $description;
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = $language;
+                        $product_translation->save();
+                    }
+                }
+            }
+            // Update the product so it doesn't show up in final listing
+            $product->isUploaded = 1;
+            $product->save();
                 // Return response
                 return response()->json([
                     'result' => 'queuedForDispatch',
                     'status' => 'listed'
                 ]);
             }
+
 
         }
         
@@ -2311,7 +2356,6 @@ class ProductController extends Controller
     {
         // Find the product or fail
         $product = Product::findOrFail($request->get('product_id'));
-
         // Check if this product is being cropped
         if ($product->status_id != StatusHelper::$isBeingCropped) {
             return response()->json([
@@ -2322,7 +2366,6 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
-
             $media = MediaUploader::fromSource($image)
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
@@ -2352,7 +2395,7 @@ class ProductController extends Controller
 
 
             //Get the last image of the product
-            $productMediacount = $product->media()->count();
+            $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id',$product->id)->whereDate('created_at', Carbon::today())->count();
 
@@ -2368,13 +2411,11 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
-            
 
             $cropCount = ($cropCount * $multi);
-
-            if(($productMediacount - $cropCount) == 1){
+            if($productMediacount <= $cropCount){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
-                $product->status_id = StatusHelper::$cropApproval;
+                $product->status_id = StatusHelper::$finalApproval;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -3147,6 +3188,50 @@ class ProductController extends Controller
 
         return response()->json(['success' => 'success'], 200);
     }
+    public function productTranslation(Request $request) {
+        $term = $request->term;
+        $query = Product_translation::where('locale','en');
+        if($term){
+            $query  = $query->where(function($q) use ($request) {
+            $q->where('title', 'LIKE','%'.$request->term.'%')
+            ->orWhere('description', 'LIKE', '%'.$request->term.'%');
+            });
+        }
+        $product_translations = $query->orderBy('product_id', 'desc')->paginate(2)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('products.translations.product-search', compact('product_translations','term'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$product_translations->render()
+            ], 200);
+        }
+        return view('products.translations.product-list', compact('product_translations','term'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+    } 
+
+    public function viewProductTranslation($id) {
+        $locales = Product_translation::groupBy('locale')->pluck('locale');
+        $product_translation = Product_translation::find($id);
+        return view('products.translations.view-or-edit', [
+            'product_translation' => $product_translation,
+            'locales' => $locales,
+        ]);
+    }
+
+    
+    public function getProductTranslationDetails($id,$locale) {
+        $product_translation = Product_translation::where('product_id',$id)->where('locale',$locale)->first();
+        return response()->json([
+            'product_translation' => $product_translation
+        ]);
+    }
+
+    public function editProductTranslation($id, Request $request) {
+        Product_translation::where('id',$id)->update(['title' => $request->title, 'description' => $request->description]);
+        return response()->json([
+            'message' => 'Successfully updated the data'
+        ]);
+    }    
 
     public function published(Request $request)
     {
@@ -3235,9 +3320,33 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedColor::dispatch([
             "product_id"    => $id,
-            "color"         => $request->color
+            "color"         => $request->color,
+            "user_id"       => \Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product color has been sent for the update']);
     }
+
+    public function storeWebsiteDescription(Request $request)
+    {
+        $websites = $request->store_wesites;
+        if(is_array($websites) && $request->product_id != null && $request->description != null) {
+            foreach($websites as $website)  {
+                $storeWebsitePA = \App\StoreWebsiteProductAttribute::where("product_id",$request->product_id)->where("store_website_id",$website)->first();
+                if(!$storeWebsitePA) {
+                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id = $request->product_id;
+                    $storeWebsitePA->store_website_id = $website;
+                }
+                $storeWebsitePA->store_website_id = $website;
+                $storeWebsitePA->description = $request->description;
+                $storeWebsitePA->save();
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Store website description stored successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Required field is missing"]);
+    }
+
 }

@@ -328,7 +328,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-
+                                
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -408,6 +408,7 @@
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
+                                                <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -531,7 +532,9 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -606,6 +609,9 @@
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1062,6 +1068,9 @@
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrases')}}">Most used phrases</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrasesDeleted')}}">Most used phrases Updated</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1192,6 +1201,9 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1400,6 +1412,9 @@
                                         <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -1442,7 +1457,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
 
                                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -1626,8 +1640,10 @@
         @include('partials.modals.quick-create-task-window')
         @php
             $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $key = \App\LivechatincSetting::first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
+        <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
         @endif
@@ -1850,7 +1866,8 @@
     <!-- Scripts -->
 
     {{-- @include('partials.chat') --}}
-
+    <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+    </div>
 
 
     <!-- Like page plugin script  -->
@@ -2154,7 +2171,7 @@
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-147736165-1');
+        gtag('config', 'UA-171553493-1');
     </script>
     @endif
     <script>
