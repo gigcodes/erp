@@ -27,7 +27,7 @@ class ResponsePurify
 
     public function __construct($response, $customer = null)
     {
-    	$this->response = $response->output;
+    	$this->response = isset($response->output) ? $response->output : null;
         $this->context  = isset($response->context) ? $response->context : null;
 
         $this->customer = $customer;
