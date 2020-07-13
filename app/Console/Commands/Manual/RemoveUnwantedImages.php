@@ -49,19 +49,27 @@ class RemoveUnwantedImages extends Command
                 // start to found mediable usage
                 $mediables = \DB::table("mediables")->where("media_id",$media->id)->get();
                 if(!$mediables->isEmpty()) {
+                    $recordExist = false;
                     foreach($mediables as $aModal) {
-
+                        $modal = (new $aModal->mediable_type)->find($aModal->mediable_id);
+                        if($modal != null) {
+                            $recordExist = true;
+                            break;
+                        }
+                    }
+                    if($recordExist == false) {
+                        \Log::info($media->getAbsolutePath() . " Deleted With no relation [DELETE_IMAGES]");
+                        $media->delete();
                     }
                 }else{
                     // check file exist or not 
+                    \Log::info($media->getAbsolutePath() . " Deleted with no relation mediables [DELETE_IMAGES]");
                     $media->delete();
                 }
             }else{
+                \Log::info($media->getAbsolutePath() . " Deleted not exist [DELETE_IMAGES]");
                 $media->delete();
             }
-            echo "<pre>"; print_r([$mediables,$media->id]);  echo "</pre>";die;
-            die;
-
         }
     }
 }
