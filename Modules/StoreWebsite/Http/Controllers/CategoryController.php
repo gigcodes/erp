@@ -340,4 +340,44 @@ class CategoryController extends Controller
         // return response
         return response()->json(["code" => 200 , "data" => ["store_website_id" => $swi] , "message" => "Category has been saved successfully"]);
     }
+
+
+    public function list(Request $request) {
+        $title        = "Store Category";
+        $categories       = Category::query();
+        
+        if($request->keyword != null) {
+            $categories = $categories->where("title","like","%".$request->keyword."%");
+        }
+
+        $categories = $categories->get();
+
+        $storeWebsite = StoreWebsite::all();
+        $appliedQ      = StoreWebsiteCategory::all();
+
+        return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite','appliedQ']));
+    }
+
+    public function saveStoreCategory(Request $request)
+    {
+        if ($request->category_id != null && $request->store != null) {
+            $categoryStore = StoreWebsiteCategory::where("category_id", $request->category_id)->where("store_website_id", $request->store)->first();
+            $msg = '';
+            if ($request->check == 0) {
+                if ($categoryStore) {
+                    $categoryStore->delete();
+                    $msg = "Remove successfully";
+                }
+            } else {
+                StoreWebsiteCategory::updateOrCreate(
+                    ['category_id' => $request->category_id, 'store_website_id' => $request->store],
+                    ['category_name' => $request->category_name]
+                );
+                $msg = "Added successfully";
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => $msg]);
+
+    }
 }
