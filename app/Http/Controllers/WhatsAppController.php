@@ -164,16 +164,6 @@ class WhatsAppController extends FindByNumberController
                 $params = $this->modifyParamsWithMessage($params, $data);
                 $message = ChatMessage::create($params);
 
-                ChatMessagesQuickData::updateOrCreate([
-                    'model' => "\App\Customer",
-                    'model_id' => $params['customer_id']
-                    ], [
-                    'last_unread_message' => @$params['message'],
-                    'last_unread_message_at' => Carbon::now(),
-                    'last_communicated_message' => @$params['message'],
-                    'last_communicated_message_at' => Carbon::now(),
-                ]);
-
                 if ($params[ 'message' ]) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params[ 'message' ], $customer);
                 }
@@ -1269,6 +1259,16 @@ class WhatsAppController extends FindByNumberController
                 ]);
                 $params["customer_id"] = $customer->id;
                 $message = ChatMessage::create($params);  
+            }
+
+            if($customer != null){
+                ChatMessagesQuickData::updateOrCreate([
+                    'model' => "\App\Customer",
+                    'model_id' => $params['customer_id']
+                    ], [
+                    'last_unread_message' => @$params['message'],
+                    'last_unread_message_at' => Carbon::now(),
+                ]);
             }
 
             // Is there a user linked to this number?
@@ -2509,8 +2509,6 @@ class WhatsAppController extends FindByNumberController
                 'model' => "App\Customer",
                 'model_id' => $data['customer_id']
                 ], [
-                'last_unread_message' => @$data['message'],
-                'last_unread_message_at' => Carbon::now(),
                 'last_communicated_message' => @$data['message'],
                 'last_communicated_message_at' => Carbon::now(),
             ]);
