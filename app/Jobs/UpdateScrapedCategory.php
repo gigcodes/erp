@@ -76,7 +76,7 @@ class UpdateScrapedCategory implements ShouldQueue
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
-            if($supplier->scraper) {
+            if($supplier && $supplier->scraper) {
                 $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
 
                 self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
