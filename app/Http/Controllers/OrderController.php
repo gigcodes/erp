@@ -61,6 +61,7 @@ use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
 use App\StoreWebsite;
 use App\Invoice;
+use seo2websites\MagentoHelper\MagentoHelperv2;
 
 
 class OrderController extends Controller {
@@ -2399,6 +2400,14 @@ public function createProductOnMagento(Request $request, $id){
         }
 
         return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
+	}
+
+
+	public function fetchOrders() {
+		$website = StoreWebsite::first();
+		$magentoHelper = new MagentoHelperv2;
+		$result = $magentoHelper->fetchOrders($website);
+		dd($result);
 	}
 
 }
