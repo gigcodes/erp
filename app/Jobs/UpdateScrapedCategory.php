@@ -62,8 +62,10 @@ class UpdateScrapedCategory implements ShouldQueue
         if ($product->scraped_products) {
             if (isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null) {
                 $category           = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' ', $category);
-                $lastcategory       = end($category);
+                if(is_array($category)) {
+                    $referencesCategory = implode(' ', $category);
+                    $lastcategory       = end($category);
+                }
             }
         } else {
             return;
