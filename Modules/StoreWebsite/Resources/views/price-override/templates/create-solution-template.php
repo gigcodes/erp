@@ -29,30 +29,24 @@
 		            	<option value="">-- Select --</option>
 			            <?php
 			            	foreach(\App\Brand::BRAND_SEGMENT as $k => $l) {
-			            		echo "<option {{if data.brand_segment == $k}} selected {{/if}}  value='".$k."'>".$l."</option>";
+			            		echo "<option {{if data.brand_segment == '$k'}} selected {{/if}}  value='".$k."'>".$l."</option>";
 			            	}
 			             ?>
 			         </select>
 		         </div>
 		         <div class="form-group col-md-6">
 		            <label for="category_id">Category</label>
-		            <select name="category_id" class="form-control">
-		            	<option value="">-- N/A --</option>
-			            <?php
-			            	foreach(\App\Category::all() as $k => $l) {
-			            		$label = ($l->parent_id > 0) ? "&nbsp;&nbsp;".$l->title : $l->title;
-			            		echo "<option {{if data.category_id == ".$l->id."}} selected {{/if}} value='".$l->id."'>".$label."</option>";
-			            	}
+		                <?php
+			            	echo $allCategoriesDropdown;
 			             ?>
-			         </select>
-		         </div>
+			     </div>
 		         <div class="form-group col-md-6">
-		            <label for="country_code">Country code</label>
-		            <select name="country_code" class="form-control">
+		            <label for="country_group_id">Country Group</label>
+		            <select name="country_group_id" class="form-control">
 		            	<option value="">-- N/A --</option>
 			            <?php
-							foreach(\App\SimplyDutyCountry::all() as $k => $l) {
-								echo "<option {{if data.country_code == '".$l->country_code."'}} selected {{/if}} value='".$l->country_code."'>".$l->country_name."</option>";
+							foreach(\App\CountryGroup::list() as $k => $l) {
+								echo "<option {{if data.country_group_id == '".$k."'}} selected {{/if}} value='".$k."'>".$l."</option>";
 							}
 						?>
 			         </select>

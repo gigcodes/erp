@@ -54,11 +54,14 @@ use Plank\Mediable\Media;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
+use App\Mail\ViewInvoice;
 use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
 use App\StoreWebsite;
+use App\Invoice;
+
 
 class OrderController extends Controller {
 
@@ -2280,8 +2283,122 @@ public function createProductOnMagento(Request $request, $id){
 
 
 	public function viewAllInvoices() {
-		$orders = (new Order())->with('customer','order_product')->paginate(10);
-		return view( 'orders.invoices.index', compact('orders') );
+		$invoices = Invoice::orderBy('id','desc')->paginate(10);
+		return view( 'orders.invoices.index', compact('invoices') );
+	}
+
+	public function addInvoice($id) {
+		$firstOrder = Order::find($id);
+		if($firstOrder->customer) {
+			if($firstOrder->customer->country) {
+				$prefix = substr($firstOrder->customer->country,0,3);
+			}
+			else {
+				$prefix = 'Lux';
+			}
+		}
+		else {
+			$prefix = 'Lux';
+		}
+		$lastInvoice = Invoice::where('invoice_number','like',$prefix.'%')->orderBy('id','desc')->first();
+		if($lastInvoice) {
+			$inoicePieces = explode('-',$lastInvoice->invoice_number);
+			$nextInvoiceNumber = $inoicePieces[1] + 1;
+		}
+		else {
+			$nextInvoiceNumber = '1001';
+		}
+		$invoice_number = $prefix.'-'.$nextInvoiceNumber;
+		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->where('id','!=',$firstOrder->id)->get();
+		return view( 'orders.invoices.add', compact('firstOrder','invoice_number','more_orders') );
+	}
+
+
+	public function submitInvoice(Request $request) {
+		if(!$request->invoice_number) {
+			return redirect()->back()->with('error','Invoice number is mandatory');
+		}
+		if(!$request->first_order_id) {
+			return redirect()->back()->with('error','Invalid approach');
+		}
+		$firstOrder = Order::where('invoice_id',null)->where('id',$request->first_order_id)->first();
+		if(!$firstOrder) {
+			return redirect()->back()->with('error','This order is already associated with an invoice');
+		}
+		$invoice = new Invoice;
+		$invoice->invoice_number = $request->invoice_number;
+		$invoice->invoice_date = $request->invoice_date;
+		$invoice->save();
+		$firstOrder->update(['invoice_id' => $invoice->id]);
+		if($request->order_ids && count($request->order_ids) > 0) {
+			$orders = Order::whereIn('id',$request->order_ids)->get();
+			foreach($orders as $order) {
+				$order->update(['invoice_id' => $invoice->id]);
+			}
+		}
+		return redirect()->action(
+			'OrderController@viewAllInvoices');
+	}
+
+	public function viewInvoice($id)
+	{
+		$invoice = Invoice::where("id",$id)->first();
+		if($invoice) {
+            $data["invoice"]      = $invoice;
+            $data["orders"]   = $invoice->orders;
+            if($invoice->orders) {
+            	$viewInvoice = new ViewInvoice($data);
+            	return $viewInvoice->preview();
+            }
+        }
+
+        return abort("404");
+	}
+
+	public function editInvoice($id) {
+		$invoice = Invoice::where("id",$id)->first();
+		$order = Order::where('invoice_id',$invoice['id'])->first();
+
+		$more_orders = Order::where('customer_id',$order['customer_id'])->where(function ($query) use ($id) {
+			$query->where('invoice_id',$id)
+			->orWhere('invoice_id',null);
+		})->get();
+		return view( 'orders.invoices.edit', compact('invoice','more_orders') );
+	}
+
+	public function submitEdit(Request $request) {
+		$invoice = Invoice::find($request->id);
+		if(!$request->invoice_date || $request->invoice_date == '') {
+			return redirect()->back()->with('error','Invalid approach');
+		}
+		$invoice->update(['invoice_date' => $request->invoice_date]);
+		Order::where('invoice_id',$request->id)->update(['invoice_id' => null]);
+		if($request->order_ids && count($request->order_ids) > 0) {
+			$orders = Order::whereIn('id',$request->order_ids)->get();
+			foreach($orders as $order) {
+				$order->update(['invoice_id' => $invoice->id]);
+			}
+		}
+		return redirect()->action(
+			'OrderController@viewAllInvoices');
+	}
+
+
+	public function mailInvoice(Request $request, $id)
+	{
+		$invoice = Invoice::where("id",$id)->first();
+
+		if($invoice) {
+
+            $data["invoice"]      = $invoice;
+            $data["orders"]   = $invoice->orders;
+            if($invoice->orders) {
+            	Mail::to($invoice->orders[0]->customer->email)->send(new ViewInvoice($data));
+            	return response()->json(["code" => 200 , "data" => [], "message" => "Email sent successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
 	}
 
 }

@@ -7,6 +7,7 @@ use App\Setting;
 use App\Product;
 use Illuminate\Http\Request;
 use \App\StoreWebsiteBrand;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BrandController extends Controller
 {
@@ -291,5 +292,37 @@ class BrandController extends Controller
         }
 
         return response()->json(["code" => 500 , "data" => []]);
+    }
+
+    /**
+     * Create size chart
+     */
+    public function createSizeChart()
+    {
+        $brands = Brand::orderBy('name', 'asc')->pluck('name', 'id');
+
+        return view('brand.size-chart.create', ['brands' => $brands]);
+    }
+
+    /**
+     * Store brand size chart
+     */
+    public function storeSizeChart(Request $request)
+    {
+        $this->validate($request, [
+            'brand_id' => 'required',
+            'size_img' => 'required|mimes:jpeg,jpg,png',
+        ]);
+        $brand = Brand::whereId($request->brand_id)->first();
+
+        if ($request->hasfile('size_img')) {
+            $media = MediaUploader::fromSource($request->file('size_img'))
+                        ->toDirectory('brand-size-chart')
+                        ->upload();
+            $brand->attachMedia($media, ['size_chart']);
+        }
+
+        session()->flash('success', 'Brand size chart uploaded successfully');
+        return redirect()->route('brand/size/chart');
     }
 }

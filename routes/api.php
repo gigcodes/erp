@@ -129,3 +129,6 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
+
+// Scraper ready api
+Route::post('scraper/ready','ScrapController@scraperReady');

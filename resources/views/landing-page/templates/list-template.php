@@ -4,7 +4,10 @@
 		    <thead>
 		      <tr>
 		      	<th width="2%">Id</th>
-		        <th width="10%">ProductId</th>
+		        <th width="10%">Product <I></I>d</th>
+		        <th width="10%">Name</th>
+		        <th width="10%">Description</th>
+		        <th width="10%">Price</th>
 		        <th width="10%">Start Date</th>
 		        <th width="10%">End Date</th>
 		        <th width="10%">Status</th>
@@ -17,13 +20,26 @@
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.product_id}}</td>
+			        <td>{{:prop.name}}</td>
+			        <td>{{:prop.description}}</td>
+			        <td>{{:prop.price}}</td>
 			        <td>{{:prop.start_date}}</td>
 			        <td>{{:prop.end_date}}</td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-			        	|<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
+			        	{{if prop.shopify_id != null}}
+			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+			        		{{if prop.stock_status == 1}}
+			        			<button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
+			        		{{else}}	
+			        			<button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
+			        		{{/if}}
+			        	{{else}}
+			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon"><i class="fa fa-upload" aria-hidden="true"></i></button>
+			        	{{/if}}
 			        </td>
 			      </tr>
 			    {{/props}}  

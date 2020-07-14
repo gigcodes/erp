@@ -18,6 +18,7 @@ class UpdateScrapedColor implements ShouldQueue
     public $params;
     public $product_id;
     public $color;
+    public $user_id;
 
     /**
      * Create a new job instance.
@@ -28,6 +29,7 @@ class UpdateScrapedColor implements ShouldQueue
     {
         $this->product_id = $params["product_id"];
         $this->color      = $params["color"];
+        $this->user_id = isset($params["user_id"]) ? $params["user_id"] : 6;
     }
 
     public static function putLog($message)
@@ -50,8 +52,9 @@ class UpdateScrapedColor implements ShouldQueue
         $product      = Product::find($this->product_id);
         $cat          = $this->color;
         $lastcategory = false;
+        $scrapedProductSkuArray = [];
         if($product) {
-            $scrapedProductSkuArray[] = $product->sku; 
+            $scrapedProductSkuArray[] = $product->id; 
         }
 
         if ($product->scraped_products) {
@@ -74,23 +77,25 @@ class UpdateScrapedColor implements ShouldQueue
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
+            if($supplier && $supplier->scraper) {
+                $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
 
-            self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
-            self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
+                self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
+                self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
 
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if (isset($scrapedProduct->properties['colors'])) {
-                    $colors = $scrapedProduct->properties['colors'];
-                    if (strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                foreach ($scrapedProducts as $scrapedProduct) {
+                    if (isset($scrapedProduct->properties['colors'])) {
+                        $colors = $scrapedProduct->properties['colors'];
+                        if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
+                            $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                        }
+
                     }
-
-                }
-                if (isset($scrapedProduct->properties['color'])) {
-                    $colors = $scrapedProduct->properties['color'];
-                    if (strtolower($referencesColor) == strtolower($colors)) {
-                        $scrapedProductSkuArray[] = $scrapedProduct->sku;
+                    if (isset($scrapedProduct->properties['color'])) {
+                        $colors = $scrapedProduct->properties['color'];
+                        if (is_string($colors) && strtolower($referencesColor) == strtolower($colors)) {
+                            $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                        }
                     }
                 }
             }
@@ -107,11 +112,20 @@ class UpdateScrapedColor implements ShouldQueue
         if (count($scrapedProductSkuArray) != 0) {
             foreach ($scrapedProductSkuArray as $productSku) {
                 self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
-                $oldProduct = Product::where('sku', $productSku)->first();
+                $oldProduct = Product::where('id', $productSku)->first();
                 if ($oldProduct != null) {
+                    $oldColor = $oldProduct->color;
                     $oldProduct->color = $cat;
                     $oldProduct->save();
                     $totalUpdated++;
+
+                    $productColHis = new \App\ProductColorHistory;
+                    $productColHis->user_id     = ($this->user_id) ? $this->user_id : 6; 
+                    $productColHis->color       = !empty($cat) ? $cat : ""; 
+                    $productColHis->old_color   = !empty($oldColor) ? $oldColor : "";
+                    $productColHis->product_id  = $oldProduct->id;
+                    $productColHis->save();
+
                     \App\ProductStatus::pushRecord($oldProduct->id,"MANUAL_COLOR");
                     self::putLog("Scrapeed Product {$productSku} update end time : ". date("Y-m-d H:i:s"));
                 }

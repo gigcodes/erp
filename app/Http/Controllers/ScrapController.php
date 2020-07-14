@@ -191,6 +191,7 @@ class ScrapController extends Controller
 
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
+        $images = $request->get('images') ?? [];
 
         if ($scrapedProduct) {
             // Add scrape statistics
@@ -203,6 +204,7 @@ class ScrapController extends Controller
             // $scrapStatistics->save();
 
             // Set values for existing scraped product
+            $scrapedProduct->images = $images;
             $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $propertiesExt;
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
@@ -234,7 +236,7 @@ class ScrapController extends Controller
 
             // Create new scraped product
             $scrapedProduct = new ScrapedProducts();
-            $images = $request->get('images') ?? [];
+            
             $scrapedProduct->images = $images;
             $scrapedProduct->sku = $sku;
             $scrapedProduct->original_sku = trim($request->get('sku'));
@@ -1067,6 +1069,19 @@ class ScrapController extends Controller
             $scraper->full_scrape = $request->value;
             $scraper->save();
        }
+       return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_completed_at = Carbon::now();
+                $scraper->save();
+        }
        return response()->json(['success'],200);
     }
 }

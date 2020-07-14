@@ -1,0 +1,32 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: mustafaflexwala
+ * Date: 13/10/18
+ * Time: 5:52 PM
+ */
+
+namespace App;
+
+
+use Google\Cloud\Translate\V2\TranslateClient;
+
+class GoogleTranslate
+{
+    protected $path;
+
+    function __construct() {
+        $this->path = public_path().'/google/translation_key.json';
+
+    }
+
+    public function translate($target, $text) {
+        $translate = new TranslateClient([
+            'keyFile' => json_decode(file_get_contents($this->path), true)
+        ]);
+        $result = $translate->translate($text, [
+            'target' => $target
+        ]);
+        return $result['text'];
+    }
+}

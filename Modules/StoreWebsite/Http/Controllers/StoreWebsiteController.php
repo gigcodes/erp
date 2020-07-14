@@ -2,7 +2,11 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use App\ChatMessage;
+use App\Http\Controllers\WhatsAppController;
 use App\StoreWebsite;
+use Auth;
+use Crypt;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -79,6 +83,34 @@ class StoreWebsiteController extends Controller
 
         $records->fill($post);
         $records->save();
+
+        if($request->username && $request->password) {
+            $message = 'Username: '.$request->username.', Password is: ' . $request->password;
+            $params['user_id'] = Auth::id();
+            $params['message'] = $message;
+            $chat_message = ChatMessage::create($params);
+        } 
+
+        if($request->staging_username && $request->staging_password) {
+            $message = 'Staging Username: '.$request->staging_username.', Staging Password is: ' . $request->staging_password;
+            $params['user_id'] = Auth::id();
+            $params['message'] = $message;
+            $chat_message = ChatMessage::create($params);
+        }
+        
+        if($request->mysql_username && $request->mysql_password) {
+            $message = 'Mysql Username: '.$request->mysql_username.', Mysql Password is: ' . $request->mysql_password;
+            $params['user_id'] = Auth::id();
+            $params['message'] = $message;
+            $chat_message = ChatMessage::create($params);
+        }
+
+        if($request->mysql_staging_username && $request->mysql_staging_password) {
+            $message = 'Mysql Staging Username: '.$request->mysql_staging_username.', Mysql Staging Password is: ' . $request->mysql_staging_password;
+            $params['user_id'] = Auth::id();
+            $params['message'] = $message;
+            $chat_message = ChatMessage::create($params);
+        }
 
         return response()->json(["code" => 200, "data" => $records]);
     }

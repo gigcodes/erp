@@ -204,6 +204,11 @@ class ProductSearch
                             $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $value) . ") ))");
                         }
                         break;
+                    case 'final_approval':
+                        if (!empty($value) && strtolower($value) == "on") {
+                            $products = $products->where("status_id",\App\Helpers\StatusHelper::$finalApproval);
+                        }
+                        break;    
                     default:
                         # code...
                         break;
