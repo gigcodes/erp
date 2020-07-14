@@ -14,7 +14,7 @@ class AddWebsiteSourceToStoreWebsiteTable extends Migration
     public function up()
     {
         Schema::table('store_websites', function (Blueprint $table) {
-            //
+            $table->string('website_source');
         });
     }
 
