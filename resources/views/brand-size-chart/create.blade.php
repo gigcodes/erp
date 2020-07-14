@@ -18,6 +18,22 @@
 
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
+                            <strong>Category</strong>
+                            <select name="category_id" class="form-control select2" id="category_id" required>
+                                <option value="">Select Category</option>
+                                @forelse ($category as $key => $item)
+                                    <option value="{{ $key }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                            @if ($errors->has('category_id'))
+                                <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
                             <strong>Brand</strong>
                             <select name="brand_id" class="form-control select2" id="brand_id" required>
                                 <option value="">Select Brand</option>
@@ -43,6 +59,7 @@
                     </div>
 
                     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
+                        <a href="{{ route('brand/size/chart') }}" class="btn btn-default">Cancel</a>
                         <button type="submit" class="btn btn-secondary">Save</button>
                     </div>
 
