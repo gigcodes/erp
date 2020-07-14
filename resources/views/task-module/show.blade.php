@@ -149,17 +149,18 @@
                                 @endif
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
-                                @foreach ($data['users'] as $user)
-                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                                @endforeach
-                            </select>
-                            @if ($errors->has('assign_to'))
-                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                            @endif
-                        </div>
+                        @if(auth()->user()->isAdmin())
+                            <div class="form-group">
+                                <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                                    @foreach ($data['users'] as $user)
+                                        <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('assign_to'))
+                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <div class="col-xs-12 col-md-4">
