@@ -421,6 +421,6 @@ class User extends Authenticatable
      */
     public function supplierCategoryPermission()
     {
-        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permission', 'user_id', 'supplier_category_id');
+        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permissions', 'user_id', 'supplier_category_id');
     }
 }
