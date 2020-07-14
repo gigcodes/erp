@@ -4502,6 +4502,16 @@ class WhatsAppController extends FindByNumberController
         $message->status = $request->get('status');
         $message->save();
 
+        if($request->id && $request->status == 5) {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => "\App\Customer",
+                'model_id' => $request->id
+                ], [
+                'last_unread_message' => '',
+                'last_unread_message_at' => null,
+            ]);
+        }
+
         return response('success');
     }
 
