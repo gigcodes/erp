@@ -236,7 +236,7 @@ class OrderController extends Controller {
 		}
 
 		//$orders = (new Order())->newQuery()->with('customer');
-		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite');
+		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
 
 		if(empty($term))
 			$orders = $orders;
