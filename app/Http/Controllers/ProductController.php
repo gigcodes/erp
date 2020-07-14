@@ -53,6 +53,8 @@ use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
 use App\Helpers\ProductHelper;
 use App\StoreWebsite;
+use seo2websites\MagentoHelper\MagentoHelper;
+
 
 
 class ProductController extends Controller
@@ -1344,8 +1346,9 @@ class ProductController extends Controller
     public function unlistMagento(Request $request, $id)
     {
         $product = Product::find($id);
-
-        $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUnlistProduct($product);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoUnlistProduct($product);
+        // $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUnlistProduct($product);
 
         return response()->json([
             'result' => $result,
@@ -1356,8 +1359,9 @@ class ProductController extends Controller
     public function approveMagento(Request $request, $id)
     {
         $product = Product::find($id);
-
-        $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUpdateStatus($product);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoUpdateStatus($product);
+        // $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUpdateStatus($product);
 
         return response()->json([
             'result' => $result,
@@ -1368,8 +1372,10 @@ class ProductController extends Controller
     public function updateMagento(Request $request, $id)
     {
         $product = Product::find($id);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoProductUpdate($product);
 
-        $result = app('App\Http\Controllers\ProductAttributeController')->magentoProductUpdate($product);
+        // $result = app('App\Http\Controllers\ProductAttributeController')->magentoProductUpdate($product);
 
         return response()->json([
             'result' => $result[ 1 ],
