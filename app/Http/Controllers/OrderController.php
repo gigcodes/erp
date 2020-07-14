@@ -25,6 +25,7 @@ use App\Email;
 use App\ChatMessage;
 use App\AutoReply;
 use App\CommunicationHistory;
+use App\Store_order_status;
 use Auth;
 use Cache;
 use Dompdf\Adapter\PDFLib;
@@ -2403,11 +2404,120 @@ public function createProductOnMagento(Request $request, $id){
 	}
 
 
-	public function fetchOrders() {
-		$website = StoreWebsite::first();
-		$magentoHelper = new MagentoHelperv2;
-		$result = $magentoHelper->fetchOrders($website);
-		dd($result);
+	// public function fetchOrders() {
+	// 	$website = StoreWebsite::first();
+	// 	$magentoHelper = new MagentoHelperv2;
+	// 	$result = $magentoHelper->fetchOrders($website);
+	// 	if($result) {
+	// 		$orders = $result->items;
+	// 		foreach($orders as $order) {
+	// 			$newOrder = new Order;
+	// 			$newOrder->customer_id = $order->customer_id;
+	// 			$newOrder->order_id = $order->ENTITY_ID;
+	// 			$newOrder->order_type = 'online';
+	// 			$newOrder->order_date = $order->created_at;
+	// 			$newOrder->awb = null;
+	// 			$newOrder->client_name = $order->customer_firstname.' '.$order->customer_lastname;
+	// 			$newOrder->city = $order->billing_address->city;
+	// 			$newOrder->contact_detail = $order->billing_address->telephone;
+	// 			$newOrder->clothing_size = null;
+	// 			$newOrder->shoe_size = null;
+	// 			$newOrder->advance_detail = null;
+	// 			$newOrder->advance_date = null;
+	// 			$newOrder->balance_amount = null;
+	// 			$newOrder->sales_person = null;
+	// 			$newOrder->office_phone_number = null;
+	// 			$newOrder->order_status = $order->status;
+	// 			$newOrder->order_status_id = null;
+	// 			$newOrder->date_of_delivery = null;
+	// 			$newOrder->estimated_delivery_date = null;
+	// 			$newOrder->note_if_any = null;
+	// 			$newOrder->payment_mode = $order->payment->method;
+	// 			$newOrder->received_by = null;
+	// 			$newOrder->assign_status = null;
+	// 			$newOrder->user_id = Auth::user()->id;
+	// 			$newOrder->refund_answer = null;
+	// 			$newOrder->refund_answer_date = null;
+	// 			$newOrder->auto_messaged = 0;
+	// 			$newOrder->auto_messaged_date = null;
+	// 			$newOrder->auto_emailed = 0;
+	// 			$newOrder->auto_emailed_date = null;
+	// 			$newOrder->remark = null;
+	// 			$newOrder->is_priority = 0;
+	// 			$newOrder->coupon_id = null;
+	// 			$newOrder->whatsapp_number = null;
+	// 			$newOrder->currency = null;
+	// 			$newOrder->invoice_id = null;
+	// 			$newOrder->save();
+	// 			return 'abc';
+	// 		}
+	// 	}
+	// 	else {
+	// 		//no result found
+	// 	}
+	// }
+
+
+	public function viewAllStatuses(Request $request) {
+		$request->order_status_id ? $erp_status = $request->order_status_id : 
+		$erp_status = null;
+		$store = null;
+		$query = Store_order_status::query();
+		if($request->order_status_id) {
+			$query = $query->where('order_status_id',$request->order_status_id);
+			$erp_status = $request->order_status_id;
+		}
+		if($request->store_website_id) {
+			$query = $query->where('store_website_id',$request->store_website_id);
+			$store = $request->store_website_id;
+		}
+		$store_order_statuses = $query->paginate(20);
+		$order_statuses = OrderStatus::all();
+		$store_website = StoreWebsite::all();
+		return view('orders.statuses.index',compact('store_order_statuses','order_statuses','store_website','erp_status','store'));
+	}
+
+
+	public function viewCreateStatus() {
+		$order_statuses = OrderStatus::all();
+		$store_website = StoreWebsite::all();
+		return view('orders.statuses.create',compact('order_statuses','store_website'));
+	}
+
+	public function createStatus(Request $request) {
+		$this->validate( $request, [
+			'order_status_id'    => 'required',
+			'store_website_id' => 'required',
+			'status' => 'required',
+		] );
+		$input = $request->except('_token');
+		$isExist = Store_order_status::where('order_status_id',$request->order_status_id)->where('store_website_id',$request->store_website_id)->where('status',$request->status)->first();
+		if(!$isExist) {
+			Store_order_status::create($input);
+			return redirect()->back();
+		}
+		else {
+			return redirect()->back()->with('error','Already exists');
+		}
+	}
+
+	public function viewEdit($id) {
+		$store_order_status = Store_order_status::find($id);
+		$order_statuses = OrderStatus::all();
+		$store_website = StoreWebsite::all();
+		return view('orders.statuses.edit',compact('store_order_status','order_statuses','store_website'));
+	}
+
+	public function editStatus($id, Request $request) {
+		$this->validate( $request, [
+			'order_status_id'    => 'required',
+			'store_website_id' => 'required',
+			'status' => 'required',
+		] );
+		$input = $request->except('_token');
+		$store_order_status = Store_order_status::find($id);
+		$store_order_status->update($input);
+		return redirect()->back();
 	}
 
 }

@@ -611,6 +611,9 @@
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="" href="{{ action('OrderController@viewAllStatuses') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
