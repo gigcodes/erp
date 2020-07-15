@@ -281,6 +281,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 
+    Route::prefix('store-website')->middleware('auth')->group(static function () {
+        Route::get('/status/all', 'OrderController@viewAllStatuses')->name('store-website.all.status');
+        Route::get('/status/edit/{id}', 'OrderController@viewEdit')->name('store-website.status.edit');
+        Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
+        Route::get('/status/create', 'OrderController@viewCreateStatus');
+        Route::post('/status/create', 'OrderController@createStatus')->name('store-website.submit.status');
+    });
+
+
+    Route::prefix('plesk')->middleware('auth')->group(static function () {
+        Route::get('/domains', 'PleskController@index')->name('plesk.domains');
+    });
+
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -324,12 +337,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
-    Route::get('order/status/all', 'OrderController@viewAllStatuses')->name('order.all.status');
-    Route::get('order/status/edit/{id}', 'OrderController@viewEdit')->name('order.status.edit');
-    Route::post('order/status/edit/{id}', 'OrderController@editStatus')->name('order.status.submitEdit');
-    Route::get('order/status/create', 'OrderController@viewCreateStatus');
-    Route::post('order/status/create', 'OrderController@createStatus')->name('order.submit.status');
-    // Route::get('order/fetch-orders', 'OrderController@fetchOrders')->name('order.fetch-orders');
+
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');

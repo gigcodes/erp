@@ -1,4 +1,4 @@
-<form action="{{ route('order.status.submitEdit', $store_order_status->id) }}" method="POST">
+<form action="{{ route('store-website.status.submitEdit', $store_order_status->id) }}" method="POST">
           @csrf
           <div class="modal-header">
             <h4 class="modal-title">Map Status</h4>

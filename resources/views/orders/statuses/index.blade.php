@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Orders List')
+@section('title', 'Store status list')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -16,7 +16,7 @@
 
           <div class="col-12 mb-3">
             <div class="pull-left">
-            <form class="form-inline" action="{{ route('order.all.status') }}" method="GET">
+            <form class="form-inline" action="{{ route('store-website.all.status') }}" method="GET">
 
 
                   <div class="form-group ml-3">
@@ -113,7 +113,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: "/order/status/edit/"+$(this).data("id"),
+          url: "/store-website/status/edit/"+$(this).data("id"),
           type: "get"
         }).done(function(response) {
           $('#edit-status').modal('show');
@@ -127,7 +127,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: "/order/status/create",
+          url: "/store-website/status/create",
           type: "get"
         }).done(function(response) {
           $('#addNew').modal('show');

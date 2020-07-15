@@ -612,7 +612,7 @@
                                             <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
-                                            <a class="" href="{{ action('OrderController@viewAllStatuses') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                            <a class="" href="{{ route('store-website.all.status') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1110,6 +1110,14 @@
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
                                     </a>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Plesk<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('plesk.domains')}}">Domains</a>
+                                                </li>
+                                            </ul>
+                                        </li> 
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
