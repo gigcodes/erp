@@ -68,7 +68,7 @@
                         </a>
                 </div>
             </div>
-            @if($title == 'devtask')
+            @if($title == 'devtask' && auth()->user()->isAdmin())
                 <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
             @endif
         </div>
