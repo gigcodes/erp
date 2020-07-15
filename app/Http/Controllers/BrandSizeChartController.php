@@ -5,10 +5,8 @@ namespace App\Http\Controllers;
 use App\Brand;
 use App\BrandCategorySizeChart;
 use App\Category;
-use App\Setting;
-use App\Product;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
-use \App\StoreWebsiteBrand;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BrandSizeChartController extends Controller
@@ -23,10 +21,9 @@ class BrandSizeChartController extends Controller
     public function index()
     {
         $storeWebsite = \App\StoreWebsite::with('brands', 'categories')->get();
+        $sizeChart    = BrandCategorySizeChart::get();
 
-        $sizeChart = BrandCategorySizeChart::get();
-
-        return view('brand-size-chart.index', compact('storeWebsite','sizeChart'));
+        return view('brand-size-chart.index', compact('storeWebsite', 'sizeChart'));
     }
 
     /**
@@ -34,10 +31,11 @@ class BrandSizeChartController extends Controller
      */
     public function createSizeChart()
     {
-        $brands = Brand::orderBy('name', 'asc')->pluck('name', 'id');
-        $category = Category::orderBy('name', 'asc')->pluck('title', 'id');
+        $brands       = Brand::orderBy('name', 'asc')->pluck('name', 'id');
+        $category     = Category::orderBy('name', 'asc')->pluck('title', 'id');
+        $storeWebsite = StoreWebsite::orderBy('website', 'asc')->pluck('website', 'id');
 
-        return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category]);
+        return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category , 'storeWebsite' => $storeWebsite]);
     }
 
     /**
@@ -50,14 +48,14 @@ class BrandSizeChartController extends Controller
             'size_img' => 'required|mimes:jpeg,jpg,png',
         ]);
         $brandCat = BrandCategorySizeChart::create([
-            'brand_id' => $request->brand_id,
+            'brand_id'    => $request->brand_id,
             'category_id' => $request->category_id,
         ]);
 
         if ($request->hasfile('size_img')) {
             $media = MediaUploader::fromSource($request->file('size_img'))
-                        ->toDirectory('brand-size-chart')
-                        ->upload();
+                ->toDirectory('brand-size-chart')
+                ->upload();
             $brandCat->attachMedia($media, ['size_chart']);
         }
 

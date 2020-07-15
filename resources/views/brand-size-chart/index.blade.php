@@ -1,6 +1,22 @@
 @extends('layouts.app')
 
 @section('content')
+    <style type="text/css">
+        .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
+            color: #fff;
+            background-color: #5A6267;
+        }
+
+        a {
+            color: #5A6267;
+            text-decoration: none;
+        }
+
+        a:focus, a:hover{
+            color: #5A6267;
+        }
+
+    </style>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Brand Size Chart List </h2>

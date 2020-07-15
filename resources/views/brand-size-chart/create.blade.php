@@ -50,6 +50,22 @@
 
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
+                            <strong>Store website</strong>
+                            <select name="store_website_id" class="form-control select2" id="brand_id" required>
+                                <option value="">Select Website</option>
+                                @forelse ($storeWebsite as $key => $item)
+                                    <option value="{{ $key }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                            @if ($errors->has('store_website_id'))
+                                <div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-sm-12 col-md-12">
+                        <div class="form-group">
                             <strong>Upload Size Chart</strong>
                             <input type="file" class="form-control" name="size_img" required/>
                             @if ($errors->has('size_img'))
