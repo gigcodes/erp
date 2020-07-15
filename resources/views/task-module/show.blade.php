@@ -289,9 +289,11 @@
                                 <th width="15%">Task Subject</th>
                                 <th width="5%" colspan="2">From / To</th>
                                 <th width="8%">ED</th>
-                                <th width="20%">Communication</th>
-                                <th width="20%">Send Message</th>
-                                <th width="10%">Action</th>
+                                <th width="40%">Communication</th>
+                                <th width="10%">Action&nbsp;
+                                    <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
+                                    <label>Finished</label>
+                                </th>
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view">
@@ -319,9 +321,11 @@
                                 <th width="5%" colspan="2">From / To</th>
                                 <th width="5%">Reccuring</th>
                                 <th width="8%">ED</th>
-                                <th width="20%">Communication</th>
-                                <th width="20%">Send Message</th>
-                                <th width="10%">Actions</th>
+                                <th width="40%">Communication</th>
+                                <th width="10%">Actions &nbsp;
+                                    <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
+                                    <label>Finished</label>
+                                </th>
                             </tr>
                             </thead>
                             <tbody class="statutory-row-render-view">
@@ -366,9 +370,7 @@
                         <div class="border">
                             <form action="{{ route('task.assign.messages') }}" method="POST">
                                 @csrf
-
                                 <input type="hidden" name="selected_messages" id="selected_messages" value="">
-
                                 <div class="form-group">
                                     <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="task_id" title="Choose a Task" required>
                                         @foreach ($data['task']['pending'] as $task)
@@ -1897,6 +1899,18 @@
                 });
             }
 
+        });
+
+        $(document).on("click",".show-finished-task",function(){
+            var $this = $(this);
+            if($this.is(":checked")) {
+                $this.closest("table").find("tbody tr").hide();
+                $this.closest("table").find("tbody tr").filter(function() {
+                    return $(this).find('.task-complete img').attr('src') === "/images/completed-green.png";
+                }).show();
+            }else{
+                $this.closest("table").find("tbody tr").show();
+            }
         });
 
     </script>
