@@ -236,7 +236,7 @@ class OrderController extends Controller {
 		}
 
 		//$orders = (new Order())->newQuery()->with('customer');
-		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite');
+		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
 
 		if(empty($term))
 			$orders = $orders;
@@ -295,7 +295,7 @@ class OrderController extends Controller {
 
 		$orders_array = $orders->paginate(20);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
 
 	public function products(Request $request)
@@ -2182,7 +2182,7 @@ public function createProductOnMagento(Request $request, $id){
 			$charges = $response->getChargesBreakDown();
 			return response()->json(["code"=> 200 , "data" => $charges]);
 		}else{
-            return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+            return response()->json(["code"=> 500 , "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Rate request not generated']);
 		}
 	}
 
@@ -2259,7 +2259,7 @@ public function createProductOnMagento(Request $request, $id){
 
 			return response()->json(["code"=> 200 , "data" => [], "message" => "Receipt Created successfully"]);
 		}else{
-			return response()->json(["code"=> 500 , "data" => [], "message" => implode("<br>", $response->getErrorMessage())]);
+			return response()->json(["code"=> 500 , "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Receipt not created']);
 		}
 
 	}
