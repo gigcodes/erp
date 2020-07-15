@@ -631,7 +631,7 @@ class Product extends Model
                 $scrapedProduct = true;
             } else {
                 //getting image details from scraped Products
-                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->orderBy('updated_at','desc')->first();
             }
 
             if ($scrapedProduct != null and $scrapedProduct != '') {
