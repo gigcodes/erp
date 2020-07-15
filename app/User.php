@@ -424,6 +424,13 @@ class User extends Authenticatable
         return 0;
     }
 
+    /**
+     * Get supplier category permission
+     */
+    public function supplierCategoryPermission()
+    {
+        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permissions', 'user_id', 'supplier_category_id');
+    }
     public function previousDue($lastPaidOn)
     {
         $pendingPyments = HubstaffPaymentAccount::where('user_id',$this->id)->where('billing_start','>',$lastPaidOn)->get();
@@ -433,5 +440,4 @@ class User extends Authenticatable
         }
         return $total;
     }
-
 }

@@ -1023,6 +1023,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
     Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
 
+    // Supplier Category Permission
+    Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
+    Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
+
+
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
 
