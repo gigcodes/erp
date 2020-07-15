@@ -53,16 +53,16 @@
                                 <table class="table table-bordered">
                                     <tr>
                                         <th></th>
-                                        @forelse ($item->categories as $catkey => $catitem)
+                                        @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
                                             <th>{{ $catitem->title }}</th>
                                         @empty
                                             <th></th>
                                         @endforelse
                                     </tr>
-                                    @forelse ($item->brands as $brandkey => $branditem)
+                                    @forelse ($item->sizeBrand->unique() as $brandkey => $branditem)
                                         <tr>
                                             <th>{{ $branditem->name }}</th>
-                                            @forelse ($item->categories as $catkey => $catitem)
+                                            @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
                                                 <td>
                                                 @forelse ($sizeChart as $chartitem)
                                                     @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)

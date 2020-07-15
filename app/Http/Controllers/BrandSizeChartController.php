@@ -20,7 +20,7 @@ class BrandSizeChartController extends Controller
 
     public function index()
     {
-        $storeWebsite = \App\StoreWebsite::with('brands', 'categories')->get();
+        $storeWebsite = \App\StoreWebsite::get();
         $sizeChart    = BrandCategorySizeChart::get();
 
         return view('brand-size-chart.index', compact('storeWebsite', 'sizeChart'));
@@ -35,7 +35,7 @@ class BrandSizeChartController extends Controller
         $category     = Category::orderBy('name', 'asc')->pluck('title', 'id');
         $storeWebsite = StoreWebsite::orderBy('website', 'asc')->pluck('website', 'id');
 
-        return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category , 'storeWebsite' => $storeWebsite]);
+        return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category, 'storeWebsite' => $storeWebsite]);
     }
 
     /**
@@ -48,8 +48,9 @@ class BrandSizeChartController extends Controller
             'size_img' => 'required|mimes:jpeg,jpg,png',
         ]);
         $brandCat = BrandCategorySizeChart::create([
-            'brand_id'    => $request->brand_id,
-            'category_id' => $request->category_id,
+            'brand_id'         => $request->brand_id,
+            'category_id'      => $request->category_id,
+            'store_website_id' => $request->store_website_id,
         ]);
 
         if ($request->hasfile('size_img')) {
