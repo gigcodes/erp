@@ -54,7 +54,7 @@
                                     <tr>
                                         <th></th>
                                         @forelse ($item->sizeCategory->unique() as $catkey => $catitem)
-                                            <th>{{ $catitem->title }}</th>
+                                            <th>@if(isset($catitem->parent->parent)) {{ $catitem->parent->parent->title }} @endif {{ $catitem->title }}</th>
                                         @empty
                                             <th></th>
                                         @endforelse
