@@ -1084,4 +1084,14 @@ class ScrapController extends Controller
         }
        return response()->json(['success'],200);
     }
+
+    public function needToStart(Request $request)
+    {
+        if($request->server_id != null) {
+            $scraper = Scraper::where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->pluck("scraper_name");
+            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+        }else{
+            return response()->json(["code" => 500, "message" => "Please send server id"]);
+        }
+    }
 }
