@@ -944,7 +944,7 @@ class ScrapController extends Controller
 
 
         $scraper->run_gap = $request->run_gap;
-        $scraper->full_scrape = $request->full_scrape;
+        $scraper->full_scrape = !empty($request->full_scrape) ? $request->full_scrape : "";
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
@@ -1008,6 +1008,8 @@ class ScrapController extends Controller
     {
 
         $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+
+        $scraper = Scraper::where("id",61)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
