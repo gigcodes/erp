@@ -360,8 +360,25 @@ class CategoryController extends Controller
 
     public function saveStoreCategory(Request $request)
     {
-        if ($request->category_id != null && $request->store != null) {
-            $categoryStore = StoreWebsiteCategory::where("category_id", $request->category_id)->where("store_website_id", $request->store)->first();
+        $storeId = $request->store;
+        $catId = $request->category_id;
+        if ($catId != null && $storeId != null) {
+            $categoryStore = StoreWebsiteCategory::where("category_id", $catId)->where("store_website_id", $storeId)->first();
+
+            $website = \App\StoreWebsite::find($storeId);
+            $category = Category::find($catId);
+            if($website && $category){
+                    $data['id'] = $category->id;
+                    $data['level'] = 1;
+                    $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                    $data['parentId'] = 0;
+                    $parentId = 0;
+
+                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                        $categ = MagentoHelper::createCategory($parentId,$data,$storeId);
+                    }
+            }
+
             $msg = '';
             if ($request->check == 0) {
                 if ($categoryStore) {
@@ -370,8 +387,8 @@ class CategoryController extends Controller
                 }
             } else {
                 StoreWebsiteCategory::updateOrCreate(
-                    ['category_id' => $request->category_id, 'store_website_id' => $request->store],
-                    ['category_name' => $request->category_name]
+                    ['category_id' => $catId, 'store_website_id' => $storeId],
+                    ['category_name' => $request->category_name, 'remote_id' => @$categ]
                 );
                 $msg = "Added successfully";
             }
