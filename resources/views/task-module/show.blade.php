@@ -57,10 +57,10 @@
                 @endif
                 <div class="form-group ml-3">
                     <select name="is_statutory_query" id="is_statutory_query" class="form-control">
-                        <option value="0">Other Task</option>
-                        <option value="1">Statutory Task</option>
-                        <option value="2">Calendar Task</option>
-                        <option value="3">Discussion Task</option>
+                        <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
+                        <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
+                        <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
+                        <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png"/></button>
