@@ -1,5 +1,9 @@
 @extends('layouts.app')
 
+@section('styles')
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+@endsection
+
 @section('content')
     <style type="text/css">
         .nav-pills>li.active>a, .nav-pills>li.active>a:focus, .nav-pills>li.active>a:hover {
@@ -67,12 +71,12 @@
                                                 @forelse ($sizeChart as $chartitem)
                                                     @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
                                                         @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
-                                                            <span class="td-mini-container">
-                                                                <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
-                                                            </span>
-                                                            <span class="td-full-container hidden">
-                                                                <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
-                                                            </span>
+                                                            <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
+                                                            {{-- <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox data-width="500" data-height="500"> --}}
+                                                                <span class="td-mini-container">
+                                                                    <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
+                                                                </span>
+                                                            </a>
                                                         @endif
                                                     @endif
                                                 @empty
@@ -99,7 +103,11 @@
 @endsection
 @section('scripts')
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+<script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
 <script type="text/javascript">
-
+$('[data-fancybox]').fancybox({
+    clickContent: 'close',
+    buttons: ['close']
+})
 </script>
 @endsection
