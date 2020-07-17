@@ -131,7 +131,10 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    $category_tree[ $parent->parent_id ][ $parent->id ][ $category->id ];
+                    if(!isset($category_tree[ $parent->parent_id ])) {
+                        $category_tree[ $parent->parent_id ] = [];
+                    }
+                    $category_tree[ $parent->parent_id ][ $parent->id ] = $category->id;
                 } else {
                     $category_tree[ $parent->id ][ $category->id ] = $category->id;
                 }
