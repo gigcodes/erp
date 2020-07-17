@@ -20,6 +20,7 @@ use App\DeveloperModule;
 use App\DeveloperComment;
 use App\DeveloperTaskComment;
 use App\DeveloperCost;
+use App\DeveloperTaskHistory;
 use App\Github\GithubRepository;
 use App\PushNotification;
 use App\User;
@@ -28,6 +29,7 @@ use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
 use App\Issue;
+use App\Task;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Client;
@@ -459,6 +461,7 @@ class DevelopmentController extends Controller
 
         $issues =  $issues->with('communications');
 
+        // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
@@ -1392,6 +1395,18 @@ class DevelopmentController extends Controller
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
+
+        if($issue && $request->estimate_minutes) {
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => "estimation_minute",
+                'old_value' => $issue->estimate_minutes,
+                'new_value' => $request->estimate_minutes,
+                'user_id' => $issue->user_id,
+            ]);
+        }
+
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -1727,5 +1742,15 @@ class DevelopmentController extends Controller
         }
 
         return response()->json($message);
+    }
+
+    public function getTimeHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::where('developer_task_id', $id)->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
     }
 }

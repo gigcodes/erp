@@ -19,6 +19,7 @@ use App\DocumentRemark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
+use App\DeveloperTaskHistory;
 use App\ScheduledMessage;
 use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
@@ -403,6 +404,18 @@ class TaskModuleController extends Controller {
 
 	public function updateApproximate(Request $request) {
 		$task = Task::find($request->task_id);
+
+		if($task && $request->approximate) {
+            DeveloperTaskHistory::create([
+				'developer_task_id' => $task->id,
+				'model' => 'App\Task',
+                'attribute' => "estimation_minute",
+                'old_value' => $task->approximate,
+                'new_value' => $request->approximate,
+                'user_id' => auth()->id(),
+            ]);
+        }
+
 		$task->approximate = $request->approximate;
 		$task->save();
 		return response()->json(['msg' => 'success']);
