@@ -72,7 +72,6 @@
                                                     @if($chartitem->category_id == $catitem->id && $chartitem->brand_id == $branditem->id)
                                                         @if ($chartitem->hasMedia(config('constants.size_chart_media_tag')))
                                                             <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox>
-                                                            {{-- <a href="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" data-fancybox data-width="500" data-height="500"> --}}
                                                                 <span class="td-mini-container">
                                                                     <img src="{{ $chartitem->getMedia(config('constants.size_chart_media_tag'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1">
                                                                 </span>
