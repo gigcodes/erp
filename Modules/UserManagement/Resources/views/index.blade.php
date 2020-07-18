@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('favicon' , 'task.png')
+@section('favicon' , 'user-management.png')
 
 
 @section('large_content')
@@ -125,8 +125,8 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
-<div class="common-modal modal modal-md" role="dialog">
-    <div class="modal-dialog" role="document" id="modalDialog">
+<div class="common-modal modal" role="dialog">
+    <div class="modal-dialog modal-lg" role="document" id="modalDialog">
     </div>  
 </div>
 
@@ -135,6 +135,9 @@
 @include("usermanagement::templates.load-communication-history")
 @include("usermanagement::templates.add-role")
 @include("usermanagement::templates.add-permission")
+@include("usermanagement::templates.load-task-history")
+@include("usermanagement::templates.add-team")
+@include("usermanagement::templates.edit-team")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>

@@ -145,6 +145,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Permission::class);
     }
 
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class);
+    }
+
+    public function teamLeads()
+    {
+        return $this->hasMany(Team::class);
+    }
+
     /**
      * The attributes helps to check if User is Admin.
      *
