@@ -494,6 +494,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+    @include("development.partials.time-history-modal")
 @endsection
 
 @section('scripts')
@@ -1802,7 +1803,7 @@
 
             })
         });
-        $(document).on("keypress",".update_approximate",function() {
+        $(document).on("keypress",".update_approximate",function(e) {
             var key = e.which;
             var thiss = $(this);
             if (key == 13) {
@@ -1829,6 +1830,30 @@
                     alert('Could not update!!');
                 });
             }
+        });
+
+        $(document).on('click', '.show-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_history_modal').modal('show');
         });
 
         $(document).on("change",".select2-task-disscussion",function() {

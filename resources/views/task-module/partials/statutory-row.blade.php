@@ -86,6 +86,7 @@
     <td>
         @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
             <input type="text" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+            <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
             <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
         @else
             <span class="apx-val">{{$task->approximate}}</span>
