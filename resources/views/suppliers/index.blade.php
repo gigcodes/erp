@@ -157,11 +157,12 @@
             {{-- <th width="5%">GST</th> --}}
             {{-- <th width="20%">Order</th> --}}
             {{-- <th width="20%">Emails</th> --}}
-            <th width="35%">Communication</th>
+            <th width="45%">Communication</th>
             <th>Status</th>
-            <th>Created At</th>
-            <th>Updated At</th>
+            {{-- <th>Created At</th> --}}
+            {{-- <th>Updated At</th> --}}
             <th>Updated By</th>
+            <th>Inventory Lifetime (Days)</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -332,9 +333,10 @@
 					<td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
 					</td>
-					<td>{{ $supplier->created_at }}</td>
-					<td>{{ $supplier->updated_at }}</td>
+					{{-- <td>{{ $supplier->created_at }}</td> --}}
+					{{-- <td>{{ $supplier->updated_at }}</td> --}}
 					<td>{{ $supplier->updated_by_name }}</td>
+					<td>{{ $supplier->inventory_lifetime }}</td>
 				<td>
 					<div style="min-width: 100px;">
 						<a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>

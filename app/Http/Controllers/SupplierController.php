@@ -93,6 +93,10 @@ class SupplierController extends Controller
            $typeWhereClause .= ' AND updated_by=' . $updated_by;
         }
 
+        if($request->status) {
+           $typeWhereClause .= ' AND suppliers.status=' . $request->status;
+        }
+
         if($supplier_filter){
             $typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
         }
