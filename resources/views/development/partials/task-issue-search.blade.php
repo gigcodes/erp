@@ -1,13 +1,15 @@
 <form action="{{ url("development/list/$title") }}" method="get">
     <div class="row">
-        <div class="col-md-1">
-            <select class="form-control" name="assigned_to" id="assigned_to">
-                <option value="">Assigned To</option>
-                @foreach($users as $id=>$user)
-                    <option {{$request->get('assigned_to')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
-                @endforeach
-            </select>
-        </div>
+        @if(auth()->user()->isAdmin())
+            <div class="col-md-1">
+                <select class="form-control" name="assigned_to" id="assigned_to">
+                    <option value="">Assigned To</option>
+                    @foreach($users as $id=>$user)
+                        <option {{$request->get('assigned_to')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
+                    @endforeach
+                </select>
+            </div>
+        @endif
         {{--
         <div class="col-md-1">
             <select class="form-control" name="responsible_user" id="responsible_user">

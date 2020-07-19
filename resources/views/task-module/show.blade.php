@@ -57,10 +57,10 @@
                 @endif
                 <div class="form-group ml-3">
                     <select name="is_statutory_query" id="is_statutory_query" class="form-control">
-                        <option value="0">Other Task</option>
-                        <option value="1">Statutory Task</option>
-                        <option value="2">Calendar Task</option>
-                        <option value="3">Discussion Task</option>
+                        <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
+                        <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
+                        <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
+                        <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option>
                     </select>
                 </div>
                 <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png"/></button>
@@ -149,17 +149,18 @@
                                 @endif
                             </div>
                         </div>
-
-                        <div class="form-group">
-                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
-                                @foreach ($data['users'] as $user)
-                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                                @endforeach
-                            </select>
-                            @if ($errors->has('assign_to'))
-                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                            @endif
-                        </div>
+                        @if(auth()->user()->isAdmin())
+                            <div class="form-group">
+                                <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                                    @foreach ($data['users'] as $user)
+                                        <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                                    @endforeach
+                                </select>
+                                @if ($errors->has('assign_to'))
+                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                                @endif
+                            </div>
+                        @endif
                     </div>
 
                     <div class="col-xs-12 col-md-4">
@@ -288,9 +289,11 @@
                                 <th width="15%">Task Subject</th>
                                 <th width="5%" colspan="2">From / To</th>
                                 <th width="8%">ED</th>
-                                <th width="20%">Communication</th>
-                                <th width="20%">Send Message</th>
-                                <th width="10%">Action</th>
+                                <th width="40%">Communication</th>
+                                <th width="10%">Action&nbsp;
+                                    <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
+                                    <label>Finished</label>
+                                </th>
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view">
@@ -318,9 +321,11 @@
                                 <th width="5%" colspan="2">From / To</th>
                                 <th width="5%">Reccuring</th>
                                 <th width="8%">ED</th>
-                                <th width="20%">Communication</th>
-                                <th width="20%">Send Message</th>
-                                <th width="10%">Actions</th>
+                                <th width="40%">Communication</th>
+                                <th width="10%">Actions &nbsp;
+                                    <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
+                                    <label>Finished</label>
+                                </th>
                             </tr>
                             </thead>
                             <tbody class="statutory-row-render-view">
@@ -365,9 +370,7 @@
                         <div class="border">
                             <form action="{{ route('task.assign.messages') }}" method="POST">
                                 @csrf
-
                                 <input type="hidden" name="selected_messages" id="selected_messages" value="">
-
                                 <div class="form-group">
                                     <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="task_id" title="Choose a Task" required>
                                         @foreach ($data['task']['pending'] as $task)
@@ -491,6 +494,7 @@
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
+    @include("development.partials.time-history-modal")
 @endsection
 
 @section('scripts')
@@ -1799,7 +1803,7 @@
 
             })
         });
-        $(document).on("keypress",".update_approximate",function() {
+        $(document).on("keypress",".update_approximate",function(e) {
             var key = e.which;
             var thiss = $(this);
             if (key == 13) {
@@ -1826,6 +1830,30 @@
                     alert('Could not update!!');
                 });
             }
+        });
+
+        $(document).on('click', '.show-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_history_modal').modal('show');
         });
 
         $(document).on("change",".select2-task-disscussion",function() {
@@ -1896,6 +1924,18 @@
                 });
             }
 
+        });
+
+        $(document).on("click",".show-finished-task",function(){
+            var $this = $(this);
+            if($this.is(":checked")) {
+                $this.closest("table").find("tbody tr").hide();
+                $this.closest("table").find("tbody tr").filter(function() {
+                    return $(this).find('.task-complete img').attr('src') === "/images/completed-green.png";
+                }).show();
+            }else{
+                $this.closest("table").find("tbody tr").show();
+            }
         });
 
     </script>

@@ -191,6 +191,7 @@ class ScrapController extends Controller
 
         // Get this product from scraped products
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
+        $images = $request->get('images') ?? [];
 
         if ($scrapedProduct) {
             // Add scrape statistics
@@ -203,6 +204,7 @@ class ScrapController extends Controller
             // $scrapStatistics->save();
 
             // Set values for existing scraped product
+            $scrapedProduct->images = $images;
             $scrapedProduct->url = $request->get('url');
             $scrapedProduct->properties = $propertiesExt;
             $scrapedProduct->is_sale = $request->get('is_sale') ?? 0;
@@ -234,7 +236,7 @@ class ScrapController extends Controller
 
             // Create new scraped product
             $scrapedProduct = new ScrapedProducts();
-            $images = $request->get('images') ?? [];
+            
             $scrapedProduct->images = $images;
             $scrapedProduct->sku = $sku;
             $scrapedProduct->original_sku = trim($request->get('sku'));
@@ -942,7 +944,7 @@ class ScrapController extends Controller
 
 
         $scraper->run_gap = $request->run_gap;
-        $scraper->full_scrape = $request->full_scrape;
+        $scraper->full_scrape = !empty($request->full_scrape) ? $request->full_scrape : "";
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
@@ -1007,6 +1009,8 @@ class ScrapController extends Controller
 
         $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
+        $scraper = Scraper::where("id",61)->first();
+
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
         }
@@ -1068,5 +1072,28 @@ class ScrapController extends Controller
             $scraper->save();
        }
        return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_completed_at = Carbon::now();
+                $scraper->save();
+        }
+       return response()->json(['success'],200);
+    }
+
+    public function needToStart(Request $request)
+    {
+        if($request->server_id != null) {
+            $scraper = Scraper::where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->pluck("scraper_name");
+            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+        }else{
+            return response()->json(["code" => 500, "message" => "Please send server id"]);
+        }
     }
 }

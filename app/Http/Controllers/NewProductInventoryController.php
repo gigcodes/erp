@@ -96,75 +96,34 @@ class NewProductInventoryController extends Controller
         return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors'));
     }
 
-    public function pushInShopify(Request $request, $id)
+    public function pushInStore(Request $request)
     {
-        if ($id > 0) {
-
-            $product = \App\Product::find($id);
-            if (!empty($product)) {
-                // Set data for Shopify
-                $productData = [
-                    'product' => [
-                        'body_html'       => $product->short_description,
-                        'images'          => [],
-                        'product_type'    => ($product->product_category && $product->category > 1) ? $product->product_category->title : "",
-                        'published_scope' => 'web',
-                        'title'           => $product->name,
-                        'variants'        => [],
-                        'vendor'          => ($product->brands) ? $product->brands->name : "",
-                    ],
-                ];
-
-                // Add images to product
-                if ($product->hasMedia(config('constants.attach_image_tag'))) {
-                    foreach ($product->getMedia(config('constants.attach_image_tag')) as $image) {
-                        $productData['product']['images'][] = ['src' => $image->getUrl()];
-                    }
-                }
-
-                $productData['product']['variants'][] = [
-                    'barcode'             => (string) $product->id,
-                    'fulfillment_service' => 'manual',
-                    'price'               => $product->price,
-                    'requires_shipping'   => true,
-                    'sku'                 => $product->sku,
-                    'title'               => (string) $product->name,
-                ];
-
-                $client   = new ShopifyClient();
-                if($product->shopify_id) {
-                    $response = $client->updateProduct($product->shopify_id,$productData);
-                }else{
-                    $response = $client->addProduct($productData);
-                }
-
-                $errors = [];
-                if (!empty($response->errors)) {
-                    if(is_array($response->errors)) {
-                        foreach ($response->errors as $key => $message) {
-                            foreach($message as $msg) {
-                                $errors[] = ucwords($key) . " " . $msg;
-                            }
+        if (!empty($request->product_ids)) {
+            if (is_array($request->product_ids)) {
+                foreach ($request->product_ids as $productId) {
+                    $product = \App\Product::find($productId);
+                    if ($product) {
+                        // check status if not cropped then send to the cropper first
+                        if ($product->status_id != \App\Helpers\StatusHelper::$finalApproval) {
+                            $product->scrap_priority = 1;
+                        } else {
+                            $product->scrap_priority = 0;
                         }
-                    }else{
-                        $errors[] = $response->errors;
+                        // save product
+                        $product->save();
+                        \App\LandingPageProduct::updateOrCreate(
+                            ["product_id" => $productId],
+                            ["product_id" => $productId , "name" => $product->name, "description" => $product->description , "price" => $product->price]
+                        );
                     }
                 }
 
-                if (!empty($errors)) {
-                    return response()->json(["code" => 500, "data" => [], "message" => implode("<br>", $errors)]);
-                }
-
-                if (!empty($response->product)) {
-                    $product->shopify_id = $response->product->id;
-                    $product->save();
-                    return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+                return response()->json(["code" => 200 , "data" => [], "message" => "Product updated Successfully"]);
             }
-
         }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "No product ids found"]);
 
     }
 
-    return response()->json(["code" => 500, "data" => [], "message" => "Oops, Something went wrong!"]);
-}
 }

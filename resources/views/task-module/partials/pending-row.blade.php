@@ -85,6 +85,7 @@
     <td>
         @if(auth()->user()->id == $task->assign_to || auth()->user()->isAdmin())
             <input type="text" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+            <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
             <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
         @else
             <span class="apx-val">{{$task->approximate}}</span>
@@ -93,6 +94,10 @@
     </td>
     <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+            <div class="d-flex">
+                <input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+            </div>
             @if (isset($task->message))
                 <div class="d-flex justify-content-between">
                     <span class="td-mini-container">
@@ -111,17 +116,6 @@
             Private
         @endif
     </td>
-    <td class="p-2">
-        @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
-            <div class="d-flex">
-                <input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
-            </div>
-        @else
-            Private
-        @endif
-    </td>
-
     <td class="p-2">
         <div class="d-flex">
             @if(auth()->user()->isAdmin())

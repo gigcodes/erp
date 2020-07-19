@@ -757,7 +757,6 @@ class ProductHelper extends Model
 
         $category = $product->category;
         
-        
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         $websiteArray = [];
         foreach ($storeCategories as $storeCategory) {

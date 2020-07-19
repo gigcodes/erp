@@ -12,11 +12,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\SupplierBrandCount;
 use App\SkuFormat;
+use Plank\Mediable\Mediable;
 
 class Brand extends Model
 {
 
     use SoftDeletes;
+    use Mediable;
 
     protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url'];
     protected $dates = [ 'deleted_at' ];

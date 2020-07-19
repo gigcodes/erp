@@ -14,7 +14,9 @@ use App\ScrapHistory;
 use App\Scraper;
 use App\User;
 use Auth;
+use Exception;
 use Illuminate\Support\Facades\File;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ScrapStatisticsController extends Controller
 {
@@ -115,9 +117,10 @@ class ScrapStatisticsController extends Controller
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
+        $allScrapper = Scraper::pluck('scraper_name', 'id')->toArray();
 
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt'));
+        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
     }
 
     /**
@@ -367,4 +370,34 @@ class ScrapStatisticsController extends Controller
         return response()->json(["code" => 200 , "data" => $lastRemark]);
     }
 
+    public function addNote(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'scraper_name' => 'required',
+                'remark' => 'required',
+            ]);
+            $remark = $request->remark;
+
+            if (!empty($remark)) {
+                $note = ScrapRemark::create([
+                    'scraper_name' => $request->scraper_name,
+                    'remark' => $request->remark,
+                    'user_name' => Auth::user()->name
+                ]);
+
+                if ($request->hasfile('image')) {
+                    $media = MediaUploader::fromSource($request->file('image'))
+                                            ->toDirectory('scrap-note')
+                                            ->upload();
+                    $note->attachMedia($media, config('constants.media_tags'));
+                }
+            }
+            session()->flash('success', 'Note added successfully.');
+            return redirect()->back();
+        } catch(Exception $e) {
+            session()->flash('error', $e->getMessage());
+            return redirect()->back();
+        }
+    }
 }

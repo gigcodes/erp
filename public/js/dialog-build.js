@@ -622,3 +622,26 @@ $(".form-save-btn").on("click", function(e) {
         }
     });
 });
+
+$(document).on("change",".search-alias",function(){
+    var $this = $(this);
+    var n = $this.val().indexOf("#");
+    if(n > -1) {
+        $.ajax({
+            type: "get",
+            url: "/autoreply/phrases/reply-response",
+            data: {keyword : $this.val()},
+            dataType: "json",
+            success: function(response) {
+                if (response.code == 200) {
+                     $(".response-value").val(response.data.message);
+                } else {
+                    toastr['error']('No reply set on group');
+                }
+            },
+            error: function() {
+                toastr['error']('Could not get data!');
+            }
+        });
+    }
+});

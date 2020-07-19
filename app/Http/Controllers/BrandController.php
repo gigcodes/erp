@@ -7,6 +7,7 @@ use App\Setting;
 use App\Product;
 use Illuminate\Http\Request;
 use \App\StoreWebsiteBrand;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BrandController extends Controller
 {

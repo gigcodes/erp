@@ -242,6 +242,28 @@
                             </div>
 
                             <div class="form-group">
+                                <input type="text" name="frequency_of_payment" id="vendor_frequency_of_payment" class="form-control" value="{{ $vendor->frequency_of_payment }}" placeholder="Frequency of Payment">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="bank_name" id="vendor_bank_name" class="form-control" value="{{ $vendor->bank_name }}" placeholder="Bank Name">
+                            </div>
+                            <div class="form-group">
+                                <textarea name="bank_address" id="vendor_bank_address" class="form-control" placeholder="Bank Address">{{ $vendor->bank_address }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="city" id="vendor_city" class="form-control" value="{{ $vendor->city }}" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="country" id="vendor_country" class="form-control" value="{{ $vendor->country }}" placeholder="Country">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="ifsc_code" id="vendor_ifsc_code" class="form-control" value="{{ $vendor->ifsc_code }}" placeholder="IFSC">
+                            </div>
+                            <div class="form-group">
+                                <textarea name="remark" id="vendor_remark" class="form-control" placeholder="Remark">{{ $vendor->remark }}</textarea>
+                            </div>
+
+                            <div class="form-group">
                                 <button type="button" id="updateVendorButton" class="btn btn-xs btn-secondary">Save</button>
                             </div>
                         </div>
@@ -1084,6 +1106,13 @@
             var account_name = $('#vendor_account_name').val();
             var account_iban = $('#vendor_account_iban').val();
             var account_swift = $('#vendor_account_swift').val();
+            var frequency_of_payment = $('#vendor_frequency_of_payment').val();
+            var bank_name = $('#vendor_bank_name').val();
+            var bank_address = $('#vendor_bank_address').val();
+            var city = $('#vendor_city').val();
+            var country = $('#vendor_country').val();
+            var ifsc_code = $('#vendor_ifsc_code').val();
+            var remark = $('#vendor_remark').val();
 
             $.ajax({
                 type: "POST",
@@ -1106,6 +1135,13 @@
                     account_name: account_name,
                     account_swift: account_swift,
                     account_iban: account_iban,
+                    frequency_of_payment: frequency_of_payment,
+                    bank_name: bank_name,
+                    bank_address: bank_address,
+                    city: city,
+                    country: country,
+                    ifsc_code: ifsc_code,
+                    remark: remark,
                 },
                 beforeSend: function () {
                     $(thiss).text('Saving...');
