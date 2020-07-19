@@ -14,6 +14,7 @@ use App\User;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\DeveloperTask;
 
 class VoucherController extends Controller
 {
@@ -27,17 +28,35 @@ class VoucherController extends Controller
         $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
         $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
 
+        $tasks = DeveloperTask::where('status','Done');
+
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
             if ($request->user[0] != null) {
-                $vouchers = Voucher::whereIn('user_id', $request->user)->whereBetween('date', [$start, $end]);
+                $tasks = $tasks->whereIn('assigned_to', $request->user)->whereBetween('end_time', [$start, $end]);
             } else {
-                $vouchers = Voucher::whereBetween('date', [$start, $end]);
+                $tasks = $tasks->whereBetween('end_time', [$start, $end]);
             }
         } else {
-            $vouchers = Voucher::where('user_id', Auth::id())->whereBetween('date', [$start, $end]);
+            $tasks = $tasks->where('assigned_to', Auth::id())->whereBetween('end_time', [$start, $end]);
         }
 
-        $vouchers = $vouchers->orderBy('date', 'DESC')->get();
+        $tasks = $tasks->paginate(10)->appends(request()->except('page'));
+
+        foreach($tasks as $task) {
+            $task->taskType;
+            $task->assignedUser;
+            if($task->assignedUser) {
+                $task->price = ($task->estimate_minutes/60) * $task->assignedUser->hourly_rate;
+                $task->price = number_format($task->price, 2);
+            }
+            else {
+                $task->price = 0;
+            }
+            
+        }
+
+
+        // $vouchers = $vouchers->orderBy('date', 'DESC')->get();
         // dd($vouchers);
         //
         // $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -51,9 +70,8 @@ class VoucherController extends Controller
         // dd($vouchers);
         // paginate(Setting::get('pagination'));
         $users_array = Helpers::getUserArray(User::all());
-
         return view('vouchers.index', [
-            'vouchers' => $vouchers,
+            'tasks' => $tasks,
             'users_array' => $users_array,
             'user' => $request->user
         ]);

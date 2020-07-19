@@ -87,4 +87,9 @@ class DeveloperTask extends Model
         ->selectRaw('task_id, SUM(tracked) as tracked')
         ->groupBy('task_id');
     }
+
+    public function taskType()
+    {
+        return $this->belongsTo(TaskTypes::class, 'task_type_id', 'id');
+    }
 }

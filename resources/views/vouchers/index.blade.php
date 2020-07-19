@@ -59,96 +59,32 @@
         <tr>
           <th width="10%">User</th>
           <th width="10%">Date</th>
-          <th width="10%">Travel Type</th>
+          <th width="10%">Details</th>
           <th width="10%">Category</th>
           <th width="20%">Description</th>
-          <th width="10%">Amount Spent</th>
+          <th width="10%">Time Spent</th>
+          <th width="10%">Amount</th>
           <th width="10%">Amount Paid</th>
           <th width="10%">Balance</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
-        {{-- @foreach ($vouchers as $user_id => $data) --}}
-          {{-- <tr>
-            <td colspan="9"><strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'Not Existing User' }}</strong></td>
-          </tr> --}}
-          @foreach ($vouchers as $voucher)
+          @foreach ($tasks as $task)
             <tr>
-              <td>{{ array_key_exists($voucher->user_id, $users_array) ? $users_array[$voucher->user_id] : 'Not Existing User' }}</td>
-              <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
-              <td>{{ ucwords($voucher->travel_type) }}</td>
-              <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  @if ($voucher->category)
-                    {{ strlen($voucher->category->title) > 7 ? substr($voucher->category->title, 0, 7) : $voucher->category->title }}
-                  @endif
-                </span>
-
-                <span class="td-full-container hidden">
-                  @if ($voucher->category)
-                    {{ $voucher->category->title }}
-                  @endif
-                </span>
-              </td>
-              <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  {{ strlen($voucher->description) > 20 ? (substr($voucher->description, 0, 17) . '...') : $voucher->description }}
-                </span>
-
-                <span class="td-full-container hidden">
-                  {{ $voucher->description }}
-                </span>
-              </td>
-              <td>{{ $voucher->amount }}</td>
-              <td>{{ $voucher->paid }}</td>
-              <td>
-                {{ ($voucher->amount - $voucher->paid) * -1 }}
-              </td>
-              <td>
-                @if ($voucher->approved == 2)
-                  <span class="badge">Approved</span>
-                @else
-                  @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                          @if($voucher->resubmit_count >= $voucher->reject_count)
-                    <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
-                      @csrf
-
-                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-
-                    </form>
-                      <button type="button" class="btn btn-xs btn-danger reject-voucher-request" data-toggle="modal" data-target="#rejectVoucherModal" data-voucher="{{ $voucher }}">Reject</button>
-                      @elseif($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
-                      <small>Rejected ({{$voucher->reject_reason}})</small>
-                      @endif
-                  @else
-                      @if($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
-                              <small>Rejected ({{$voucher->reject_reason}})</small>
-                              <form class="form-inline" action="{{ route('voucher.resubmit', $voucher->id) }}" method="POST">
-                                  @csrf
-
-                                  <button type="submit" class="btn btn-xs btn-info">Resubmit</button>
-                              </form>
-                      @else
-                              <span class="badge">Waiting for Approval</span>
-                      @endif
-                  @endif
-                @endif
-              </td>
-              <td>
-                <div class="d-flex">
-                  <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['voucher.destroy', $voucher->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                  {!! Form::close() !!}
-                </div>
-              </td>
-            </tr>
+            <td>@if(isset($task->assignedUser)) {{  $task->assignedUser->name }} @endif </td>
+              <td>{{ \Carbon\Carbon::parse($task->end_time)->format('d-m') }}</td>
+              <td>{{ str_limit($task->subject, $limit = 150, $end = '...') }}</td>
+              <td>@if(isset($task->taskType)) {{  $task->taskType->name }} @endif </td>
+              <td>{{ str_limit($task->task, $limit = 150, $end = '...') }}</td>
+              <td>{{ $task->estimate_minutes }}</td>
+              <td>{{ $task->price }}</td>
+              <td>{{ $task->amount_paid }}</td>
+              <td>{{ $task->balance }}</td>
+              <td></td>
           @endforeach
-        {{-- @endforeach --}}
       </table>
+      {{$tasks->links()}}
     </div>
 
-    {{-- {!! $vouchers->appends(Request::except('page'))->links() !!} --}}
     <div id="rejectVoucherModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -189,7 +125,9 @@
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
-       $(".select-multiple").multiselect();
+       $(".select-multiple").multiselect({
+        enableFiltering: true,
+       });
     });
 
     let r_s = '';
