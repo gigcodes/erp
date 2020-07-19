@@ -45,7 +45,8 @@ class Product extends Model
         'size_eu',
         'stock_status',
         'shopify_id',
-        'scrap_priority'
+        'scrap_priority',
+        'assigned_to'
     ];
 
     protected $dates = ['deleted_at'];

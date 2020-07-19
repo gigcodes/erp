@@ -127,6 +127,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
     Route::resource('users', 'UserController');
     Route::resource('listing-payments', 'ListingPaymentsController');
+
+    Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
+    Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+
+    
     Route::get('products/product-translation', 'ProductController@productTranslation')->name('products.product-translation');
     Route::get('products/product-translation/{id}', 'ProductController@viewProductTranslation')->name('products.product-translation.view');
     Route::post('products/product-translation/submit/{product_translation_id}', 'ProductController@editProductTranslation')->name('products.product-translation.edit');

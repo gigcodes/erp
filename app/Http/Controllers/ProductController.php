@@ -109,6 +109,8 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+
+        // dd($request->all());
         
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
@@ -152,10 +154,8 @@ class ProductController extends Controller
                 $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
             }
         }
-
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
-
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -3358,4 +3358,65 @@ class ProductController extends Controller
         return response()->json(["code" => 500 , "data" => [], "message" => "Required field is missing"]);
     }
 
+    public function getPreListProducts() {
+
+        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+
+        $newProducts =  $newProducts->select(DB::raw("brand,category,assigned_to,count(*) as total"))
+                        ->groupBy('brand','category')->paginate(50);
+        foreach($newProducts as $product) {
+            if($product->brand) {
+                $brand = Brand::find($product->brand);
+                if($brand) {
+                    $product->brandName = $brand->name;
+                } 
+                else {
+                    $product->brandName = '';
+                }
+            }
+            else {
+                $product->brandName = '';
+            }
+            if($product->category) {
+                $category= Category::find($product->category); 
+                if($category) {
+                    $product->categoryName = $category->title;
+                }
+                else {
+                    $product->categoryName = '';
+                }
+            }
+            else {
+                $product->categoryName = '';
+            }
+            if($product->assigned_to) {
+                $product->assignTo = User::find($product->assigned_to)->name;
+            }
+            else {
+                $product->assignTo = '';
+            }
+        }
+        $users = User::all()->pluck('name','id')->toArray();
+        return view('products.assign-products',compact('newProducts','users'));
+    } 
+
+    public function assignProduct(Request $request) {
+        
+        $category = $request->category;
+        $brand = $request->brand;
+        $assigned_to = $request->assigned_to;
+        if(!$assigned_to) {
+            return response()->json(['message' => 'Select one user']);
+        }
+        $products = Product::where('status_id', StatusHelper::$finalApproval)->where('category',$category)->where('brand',$brand);
+
+        $products = QueryHelper::approvedListingOrder($products);
+        $products = $products->get();
+        foreach($products as $product) {
+            $product->update(['assigned_to' => $assigned_to]);
+        }
+        $user = User::find($assigned_to)->name;
+        return response()->json(['message' => 'Successful','user' => $user]);
+    }
 }
