@@ -23,10 +23,17 @@ Route::prefix('user-management')->group(function() {
     Route::patch('/update/{id}', 'UserManagementController@update')->name("user-management.update");
     Route::post('/{id}/activate', 'UserManagementController@activate')->name("user-management.activate");
     Route::get('track/{id}', 'UserManagementController@usertrack')->name("user-management.usertrack");
+    Route::get('/user/team/{id}', 'UserManagementController@createTeam')->name("user-management.team");
+    Route::post('/user/team/{id}', 'UserManagementController@submitTeam')->name("user-management.team.submit");
+    Route::get('/user/teams/{id}', 'UserManagementController@getTeam')->name("user-management.team.info");
+    Route::post('/user/teams/{id}', 'UserManagementController@editTeam')->name("user-management.team.edit");
     Route::get('/paymentInfo/{id}', 'UserManagementController@paymentInfo')->name("user-management.payment-info");
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
+
+    Route::get('/task/user/{id}', 'UserManagementController@userTasks')->name("user-management.tasks");
+
 
     Route::post('/reply/add', 'UserManagementController@addReply')->name('user-management.reply.add');
     Route::get('/reply/delete', 'UserManagementController@deleteReply')->name('user-management.reply.delete');
