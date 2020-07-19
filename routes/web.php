@@ -290,13 +290,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
 
-    Route::prefix('plesk')->middleware('auth')->group(static function () {
-        Route::get('/domains', 'PleskController@index')->name('plesk.domains');
-        Route::get('/domains/mail/create/{id}', 'PleskController@create')->name('plesk.domains.view-mail-create');
-        Route::post('/domains/mail/create/{id}', 'PleskController@submitMail')->name('plesk.domains.submit-mail');
-        Route::get('/domains/mail/accounts/{id}', 'PleskController@getMailAccounts')->name('plesk.domains.mail-accounts');
-        Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
-    });
+
 
     //	Route::resource('task','TaskController');
 
