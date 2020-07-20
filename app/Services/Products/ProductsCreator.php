@@ -165,6 +165,9 @@ class ProductsCreator
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
             $product->attachImagesToProduct();
+            // check that if product has no title and everything then send to the external scraper
+            $product->checkExternalScraperNeed();
+
 
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
@@ -311,6 +314,10 @@ class ProductsCreator
             $image->product_id = $product->id;
             $image->save();
             $product->attachImagesToProduct();
+
+            // check that if product has no title and everything then send to the external scraper
+            $product->checkExternalScraperNeed();
+
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");

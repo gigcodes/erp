@@ -1096,4 +1096,15 @@ class ScrapController extends Controller
             return response()->json(["code" => 500, "message" => "Please send server id"]);
         }
     }
+
+    public function scraperNeeded(Request $request)
+    {
+        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        ->latest()
+        ->limit(10)
+        ->pluck("sku","id")
+        ->toArray();
+        
+        return response()->json(["code" => 200 , "data" => $products]);
+    }
 }
