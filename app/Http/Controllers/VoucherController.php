@@ -25,14 +25,14 @@ class VoucherController extends Controller
 
     public function index(Request $request)
     {
+        // dd($request->all());
         $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
         $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
-
+        $selectedUser = $request->user_id ? $request->user_id : null;
         $tasks = DeveloperTask::where('status','Done');
-
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
-            if ($request->user[0] != null) {
-                $tasks = $tasks->whereIn('assigned_to', $request->user)->whereBetween('end_time', [$start, $end]);
+            if ($request->user_id != null && $request->user_id != "") {
+                $tasks = $tasks->where('assigned_to', $request->user_id)->whereBetween('end_time', [$start, $end]);
             } else {
                 $tasks = $tasks->whereBetween('end_time', [$start, $end]);
             }
@@ -41,18 +41,22 @@ class VoucherController extends Controller
         }
 
         $tasks = $tasks->paginate(10)->appends(request()->except('page'));
-
         foreach($tasks as $task) {
             $task->taskType;
             $task->assignedUser;
             if($task->assignedUser) {
-                $task->price = ($task->estimate_minutes/60) * $task->assignedUser->hourly_rate;
-                $task->price = number_format($task->price, 2);
+                if($task->assignedUser->fixed_price_user_or_job == 1) {
+                    $task->price = $task->cost;
+                    $task->price = number_format($task->price, 2);
+                }
+                else {
+                    $task->price = ($task->estimate_minutes/60) * $task->assignedUser->hourly_rate;
+                    $task->price = number_format($task->price, 2); 
+                }
             }
             else {
                 $task->price = 0;
-            }
-            
+            }  
         }
 
 
@@ -69,11 +73,13 @@ class VoucherController extends Controller
         //
         // dd($vouchers);
         // paginate(Setting::get('pagination'));
-        $users_array = Helpers::getUserArray(User::all());
+        // $users_array = Helpers::getUserArray(User::all());
+        $users = User::all();
         return view('vouchers.index', [
             'tasks' => $tasks,
-            'users_array' => $users_array,
-            'user' => $request->user
+            'users' => $users,
+            'user' => $request->user,
+            'selectedUser' => $selectedUser
         ]);
     }
 
@@ -271,5 +277,14 @@ class VoucherController extends Controller
         Voucher::find($id)->delete();
 
         return redirect()->route('voucher.index')->with('success', 'You have successfully deleted a cash voucher');
+    }
+
+
+    public function userSearch()
+    {
+      $term = request()->get("q", null);
+      $search = User::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")->get();
+      return response()->json($search);
     }
 }
