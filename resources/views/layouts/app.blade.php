@@ -543,6 +543,9 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-assign')}}">Assign Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
