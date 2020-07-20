@@ -1,6 +1,6 @@
 @extends('layouts.app')
-
-@section('title', 'Convenience Vouchers')
+@section('favicon' , 'vendor-payments.png')
+@section('title', 'Vendor payments')
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -11,11 +11,11 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
-            <h2 class="page-heading">Convenience Vouchers</h2>
+            <h2 class="page-heading">Vendor payments</h2>
 
-            <div class="pull-right">
+            <!-- <div class="pull-right">
               <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a>
-            </div>
+            </div> -->
         </div>
     </div>
 
@@ -25,13 +25,12 @@
           <div class="row full-width" style="width: 100%;">
             @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="col-md-4 col-sm-12">
-                <div class="form-group mr-3">
-                  <select class="form-control select-multiple" name="user[]" multiple>
-                    @foreach ($users_array as $index => $name)
-                      <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
-                    @endforeach
-                  </select>
-                </div>
+              <select class="form-control select-multiple" name="user_id" id="user-select">
+                  <option value="">Select User</option>
+                  @foreach($users as $key => $user)
+                    <option value="{{ $user->id }}" {{($selectedUser == $user->id) ? 'selected' : ''}}>{{ $user->name }}</option>
+                  @endforeach
+                </select>
               </div>
             @endif
 
@@ -124,11 +123,13 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
-       $(".select-multiple").multiselect({
-        enableFiltering: true,
-       });
-    });
+    // $(document).ready(function() {
+    //    $(".select-multiple").multiselect({
+    //     enableFiltering: true,
+    //    });
+    // });
+
+    $('.select-multiple').select2({width: '100%'});
 
     let r_s = '';
     let r_e = '{{ date('y-m-d') }}';
@@ -180,5 +181,6 @@
         var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
         modal.find('form').attr('action', url);
     })
+
   </script>
 @endsection
