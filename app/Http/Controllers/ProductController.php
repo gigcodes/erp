@@ -156,9 +156,12 @@ class ProductController extends Controller
         //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
         //     }
         // }
-
-        $newProducts = Product::where('assigned_to',auth()->user()->id);
-
+	if(auth()->user()->isAdmin()) {
+	   $newProducts = Product::query();	
+	}else{
+	   $newProducts = Product::where('assigned_to',auth()->user()->id);	
+	}	
+        
         if ((int)$request->get('status_id') > 0) {
             $newProducts = $newProducts->where('status_id', (int)$request->get('status_id'));
         } else {
