@@ -46,10 +46,12 @@ class VoucherController extends Controller
             $task->assignedUser;
             if($task->assignedUser) {
                 if($task->assignedUser->fixed_price_user_or_job == 1) {
+                    // Fixed price task.
                     $task->price = $task->cost;
                     $task->price = number_format($task->price, 2);
                 }
                 else {
+                    //Task done by salaried user (estimate minutes * hourly rate)
                     $task->price = ($task->estimate_minutes/60) * $task->assignedUser->hourly_rate;
                     $task->price = number_format($task->price, 2); 
                 }
