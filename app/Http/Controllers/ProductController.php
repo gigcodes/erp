@@ -20,6 +20,7 @@ use App\Sop;
 use App\Stage;
 use App\Brand;
 use App\User;
+use App\ChatMessage;
 use App\Supplier;
 use App\Stock;
 use App\Colors;
@@ -53,6 +54,7 @@ use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
 use App\Helpers\ProductHelper;
 use App\StoreWebsite;
+use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 
 
@@ -145,15 +147,29 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
+        // if ((int)$request->get('status_id') > 0) {
+        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        // } else {
+        //     if ($request->get('submit_for_approval') == "on") {
+        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+        //     }else{
+        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        //     }
+        // }
+
+        $newProducts = Product::where('assigned_to',auth()->user()->id);
+
         if ((int)$request->get('status_id') > 0) {
-            $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+            $newProducts = $newProducts->where('status_id', (int)$request->get('status_id'));
         } else {
             if ($request->get('submit_for_approval') == "on") {
-                $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+                $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
             }else{
-                $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+                $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
             }
         }
+
+
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
         $term = $request->input('term');
@@ -3364,7 +3380,7 @@ class ProductController extends Controller
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
 
         $newProducts =  $newProducts->select(DB::raw("brand,category,assigned_to,count(*) as total"))
-                        ->groupBy('brand','category')->paginate(50);
+                        ->groupBy('brand','category','assigned_to')->paginate(50);
         foreach($newProducts as $product) {
             if($product->brand) {
                 $brand = Brand::find($product->brand);
@@ -3407,7 +3423,7 @@ class ProductController extends Controller
         $brand = $request->brand;
         $assigned_to = $request->assigned_to;
         if(!$assigned_to) {
-            return response()->json(['message' => 'Select one user']);
+            return response()->json(['message' => 'Select one user'],500);
         }
         $products = Product::where('status_id', StatusHelper::$finalApproval)->where('category',$category)->where('brand',$brand);
 
@@ -3416,7 +3432,55 @@ class ProductController extends Controller
         foreach($products as $product) {
             $product->update(['assigned_to' => $assigned_to]);
         }
-        $user = User::find($assigned_to)->name;
-        return response()->json(['message' => 'Successful','user' => $user]);
+
+
+        $data['assign_from']  = Auth::id();
+        $data['is_statutory'] = 2;
+        $data['task_details'] = 'Final Approval Assignment';
+        $data['task_subject'] = 'Final Approval Assignment';
+        $data['assign_to'] 	  = $assigned_to;
+
+
+
+        $task = Task::create($data);
+        if(!empty($task)) {
+            $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+        }
+
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $params = [
+             'number'       => NULL,
+             'user_id'      => Auth::id(),
+             'approved'     => 1,
+             'status'       => 2,
+             'task_id'	   => $task->id,
+             'message'      => $message
+        ];
+
+            // if ($task->assign_from == Auth::id()) {
+            //          if ($key == 0) {
+            //              $params['erp_user'] = $user->id;
+            //          } else {
+            //              app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+            //          }
+            //  }
+            $user = User::find($assigned_to);
+            $params['erp_user'] = $assigned_to;
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+
+        $chat_message = ChatMessage::create($params);
+
+          $myRequest = new Request();
+          $myRequest->setMethod('POST');
+          $myRequest->request->add(['messageId' => $chat_message->id]);
+          app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
+          $username = $user->name;
+        return response()->json(['message' => 'Successful','user' => $username]);
     }
 }

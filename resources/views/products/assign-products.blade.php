@@ -37,12 +37,12 @@
             <th>Brand</th>
             <th>Category</th>
             <th>Total</th>
-            <th>Action</th>
+            <th>Assign to</th>
           </tr>
         </thead>
 
         <tbody>
-          @foreach ($newProducts as $product)
+          @foreach ($newProducts as $key => $product)
             <tr>
               <td>{{ $product->brandName }}</td>
               <td>{{ $product->categoryName }}</td>
@@ -57,12 +57,12 @@
                     <?php echo Form::select("assigned_to",["" => "-- Select User --"]+$users,null,["class" => "form-control select2 assigned_to"]); ?>
                   </div>
 
-                  <button type="button" class="btn btn-image ml-3 assign-btn"><img src="/images/add.png" /></button>
+                  <button type="button" class="btn btn-image ml-3 assign-btn" data-id="{{$key}}"><img src="/images/add.png" /></button>
                 </form>
                 @else 
                 <p>{{$product->assignTo}}</p>
                 @endif
-                <p id="tempName"></p>
+                <p class="tempName{{$key}}"></p>
                 </td>
             </tr>
           @endforeach
@@ -82,6 +82,8 @@
 
  $(document).on('click', '.assign-btn', function () {
     var form = $(this).closest("form");
+    var classname = '.tempName'+$(this).data('id');
+console.log(classname);
     var url = '/products/assign-product';
             $.ajax({
                 type: 'POST',
@@ -92,9 +94,10 @@
                toastr["success"](response.message);
                var user = response.user;
                form.css('display','none');
-            //    $('#tempName').text(user);
+              //  console.log($(classname));
+               $(classname).text(user);
             }).fail(function(error) {
-                toastr["error"](error.message);
+                toastr["error"](error.responseJSON.message);
             });
         });
   </script>
