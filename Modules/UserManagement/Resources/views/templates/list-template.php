@@ -38,7 +38,7 @@ td+td {
 			</tr>
 		    </thead>
 		    <tbody>
-		    	{{props data ~teamLeads=data.team_leads}}
+		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			      	<td>
@@ -48,6 +48,16 @@ td+td {
 										<span>{{:prop.name}}</span><br>
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
+
+										{{if prop.team_leads}}
+										{{props prop.team_leads}}
+											{{if prop.name}}
+											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> {{:prop.name}}</span></span><br>
+											{{else}}
+											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> No name</span></span><br>
+											{{/if}}
+										{{/props}}
+										{{/if}}
 
 									<?php if(Auth::user()->isAdmin()) { ?>
 									{{if prop.is_active == 1}}

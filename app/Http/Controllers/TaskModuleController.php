@@ -38,7 +38,6 @@ class TaskModuleController extends Controller {
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
-
 		$categoryWhereClause = '';
 		$category = '';
 		if ($request->category != '' && $request->category != 1) {
@@ -143,7 +142,6 @@ class TaskModuleController extends Controller {
 		// }
 		//
 		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
-
 		$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,

@@ -70,7 +70,7 @@ class UserManagementController extends Controller
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
                 $currentRate = $u->latestRate;
-                $u->teamLeads;
+                $u["team_leads"] = $u->teamLeads->toArray();
 
                 $u["hourly_rate"] = ($currentRate) ? $currentRate->hourly_rate : 0;
                 $u["currency"]    = ($currentRate) ? $currentRate->currency : "USD";
@@ -714,12 +714,28 @@ class UserManagementController extends Controller
         $user = User::find($id);
         // $taskList = $user->taskList;
 
-        $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
-        $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
-        $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
-        $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
-        $taskList = $devTasks->union($pendingTasks)->get();
+        // $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
+        // $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
+        // $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
+        // $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
+        // $taskList = $devTasks->union($pendingTasks)->get();
 
+
+         $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->count();
+         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->count();
+         $taskList = [];
+         $tasks = [
+             'name' => 'TASK',
+             'total' => $pendingTasks
+         ];
+
+         $taskList[] = $tasks;
+
+         $tasks = [
+            'name' => 'DEVTASK',
+            'total' => $devTasks
+        ];
+        $taskList[] = $tasks;
        
             return response()->json([
                 "code"       => 200,
@@ -765,11 +781,13 @@ class UserManagementController extends Controller
         $team = Team::find($id);
         $team->user;
         $team->members = $team->users()->pluck('name','id');
+        $totalMembers =  $team->users()->count();
         $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
         return response()->json([
             "code"       => 200,
             "team"       => $team,
-            "users"       => $users
+            "users"       => $users,
+            "totalMembers"       => $totalMembers
         ]);
     }
 
