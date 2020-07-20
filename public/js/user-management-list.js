@@ -1,5 +1,7 @@
 var userRole;
 var userPermission;
+var teamLeads = "";
+var members;
 
 var page = {
     init: function(settings) {
@@ -62,6 +64,17 @@ var page = {
             page.userActivate($(this));
         });
 
+        page.config.bodyView.on("click",".load-task-modal",function(e) {
+            page.taskHistory($(this));
+        });
+
+        page.config.bodyView.on("click",".load-team-add-modal",function(e) {
+            page.teamAdd($(this));
+        });
+
+        page.config.bodyView.on("click",".load-team-modal",function(e) {
+            page.getTeamInfo($(this));
+        });
 
 
         $(".common-modal").on("click",".submit-role",function() {
@@ -72,12 +85,24 @@ var page = {
             page.submitPermission($(this));
         });
 
+        $(".common-modal").on("click",".submit-team",function() {
+            page.submitTeam($(this));
+        });
+
+        $(".common-modal").on("click",".edit-team",function() {
+            page.submitEditTeam($(this));
+        });
+
         $(".common-modal").on("keyup",".search-role",function() {
             page.roleSearch();
         });
 
         $(".common-modal").on("keyup",".search-permission",function() {
             page.permissionSearch();
+        });
+
+        $(".common-modal").on("keyup",".search-user",function() {
+            page.userSearch();
         });
 
         $(".common-modal").on("click",".open-permission-input",function() {
@@ -226,6 +251,92 @@ var page = {
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
     },
+    taskHistory : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/task/user/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'taskListHistoryResult');
+    },
+    taskListHistoryResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-task-history");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    teamAdd : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/team/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'teamResult');
+    },
+    teamResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-team-add");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    submitTeam : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/team/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveTeam");
+    },
+    saveTeam : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Team created successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    getTeamInfo : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/teams/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'teamInfoResult');
+    },
+    teamInfoResult : function(response) {
+        console.log(response);
+        members = response.team.members;
+        var communicationHistoryTemplate = $.templates("#template-team-edit");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    submitEditTeam : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/teams/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveEditTeam");
+    },
+    saveEditTeam : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Team updated successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
     permissionModalOpen : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/permission/"+ele.data("id"),
@@ -330,6 +441,22 @@ var page = {
             }
         }
     },
+    userSearch : function() {
+        var input, filter, ul, li, a, i, txtValue;
+        input = document.getElementById("myInput");
+        filter = input.value.toUpperCase();
+        ul = document.getElementById("myUL");
+        li = ul.getElementsByTagName("li");
+        for (i = 0; i < li.length; i++) {
+            a = li[i].getElementsByTagName("a")[0];
+            txtValue = a.textContent || a.innerText;
+            if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                li[i].style.display = "";
+            } else {
+                li[i].style.display = "none";
+            }
+        }
+    },
     toggleDropdown : function() {
         if ($('#permission-from').hasClass('hidden')) {
             $('#permission-from').removeClass('hidden');
@@ -382,6 +509,7 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+  
 }
 
 
@@ -405,3 +533,13 @@ $.views.helpers({
          return '';
     }
   }, template);
+
+  var template = $.templates("#template-team-edit");
+  $.views.helpers({
+    isMemberSelected: function(member) {
+          if (Object.values(members).indexOf(member) > -1) {
+              return 'checked';
+           }
+           return '';
+      }
+    }, template);

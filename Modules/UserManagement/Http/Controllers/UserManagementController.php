@@ -23,6 +23,10 @@ use App\Hubstaff\HubstaffActivity;
 use App\Hubstaff\HubstaffPaymentAccount;
 use App\Payment;
 use App\PaymentMethod;
+use App\Team;
+use App\DeveloperTask;
+
+use DB;
 
 class UserManagementController extends Controller
 {
@@ -39,6 +43,9 @@ class UserManagementController extends Controller
     public function records(Request $request)
     {
         $user = new User;
+        if(!Auth::user()->isAdmin()) {
+            $user = $user->where('id',Auth::user()->id);
+        }
        
         if($request->is_active == 1) {
             $user = $user->where('is_active',1);
@@ -53,76 +60,24 @@ class UserManagementController extends Controller
                 ->orWhere("phone","like","%".$request->keyword."%");
             });
         }
-
     
 
-        $user = $user->select(["users.*"])->paginate(12);
-
+        $user = $user->select(["users.*"])->orderBy('is_active','DESC')->paginate(12);
         $limitchacter = 50;
 
         $items = [];
+        $replies = null;
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
                 $currentRate = $u->latestRate;
+                $u->teamLeads;
 
                 $u["hourly_rate"] = ($currentRate) ? $currentRate->hourly_rate : 0;
                 $u["currency"]    = ($currentRate) ? $currentRate->currency : "USD";
 
-                // setup task list
-                $taskList = $u->taskList;
-                if (!$taskList->isEmpty()) {
-                    $pendingDevtask = 0;
-                    $pendingIssue = 0;
-                    $pendingTask = 0;
-                    $completedDevTask = 0;
-                    $completedIssue = 0;
-                    $completedTask = 0;
-
-                    foreach($taskList as $task) {
-                        if($task->model_type == 'App\DeveloperTask') {
-                            $devtask =  \App\DeveloperTask::where("id",$task->model_id)->first();
-                            if($devtask && $devtask->completed) {
-                                $completedDevTask++;
-                            }
-                            else {
-                                $pendingDevtask++;
-                            }
-                        }
-                        if($task->model_type == 'App\Issue') {
-                            $issue =  \App\Issue::where("id",$task->model_id)->first();
-                            if($issue && $issue->is_resolved) {
-                                $completedIssue++;
-                            }
-                            else {
-                                $pendingIssue++;
-                            }
-                        }
-                        if($task->model_type == 'App\Task') {
-                            $ts =  \App\Task::where("id",$task->model_id)->first();
-                            if($ts && $ts->is_completed) {
-                                $completedTask++;
-                            }
-                            else {
-                                $pendingTask++;
-                            }
-                        }
-                    }
-                    $u["completedDevTask"] = $completedDevTask;
-                    $u["pendingDevtask"] = $pendingDevtask;
-                    $u["completedIssue"] = $completedIssue;
-                    $u["pendingIssue"] = $pendingIssue;
-                    $u["completedTask"] = $completedTask;
-                    $u["pendingTask"] = $pendingTask;
-                    // $u["current_task_desc"] = isset($taskList[0]) ? $taskList[0]->detail()->task_id . "-" . $taskList[0]->detail()->task : "";
-
-                    // $u["next_task_desc"]    = isset($taskList[1]) ? $taskList[1]->detail()->task_id . "-" . $taskList[1]->detail()->task : "";
-
-                    // $u["current_task"]      = (strlen($u["current_task_desc"]) > $limitchacter) ? substr($u["current_task_desc"], 0, $limitchacter)."..." : $u["current_task_desc"];
-
-                    // $u["next_task"]         = (strlen($u["next_task"]) > $limitchacter) ? substr($u["next_task"], 0, $limitchacter)."..." : $u["next_task"];
-                }
 
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
+                $u["isAdmin"] = $u->isAdmin();
 
                 $lastPaid = $u->payments()->orderBy('id','desc')->first();
                 if($lastPaid) {
@@ -157,10 +112,13 @@ class UserManagementController extends Controller
 
             $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         }
+
+        $isAdmin = Auth::user()->isAdmin();
         return response()->json([
             "code"       => 200,
             "data"       => $items,
             "replies" => $replies,
+            'isAdmin' => $isAdmin,
             "pagination" => (string) $user->links(),
             "total"      => $user->total(),
             "page"       => $user->currentPage(),
@@ -749,6 +707,88 @@ class UserManagementController extends Controller
           ->pluck("reply", "id")
           ->toArray()
       ]);
+    }
+
+
+    public function userTasks($id) {
+        $user = User::find($id);
+        // $taskList = $user->taskList;
+
+        $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
+        $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
+        $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
+        $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
+        $taskList = $devTasks->union($pendingTasks)->get();
+
+       
+            return response()->json([
+                "code"       => 200,
+                "user"       => $user,
+                "taskList"       => $taskList
+            ]);
+
+    }
+
+
+    public function createTeam($id) {
+        $user = User::find($id);
+        $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
+        
+        return response()->json([
+            "code"       => 200,
+            "user"       => $user,
+            "users"       => $users
+        ]);
+    }
+
+    public function submitTeam($id, Request $request) {
+        $user = User::find($id);
+        $team = new Team;
+        $team->name = $request->name;
+        $team->user_id = $id;
+        $team->save();
+        if(Auth::user()->hasRole('Admin')) {
+            $team->users()->sync($request->input('members'));
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Team created successfully'
+            ]);
+        }
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'Unauthorized access'
+        ]);
+    }
+
+
+    public function getTeam($id) {
+        $team = Team::find($id);
+        $team->user;
+        $team->members = $team->users()->pluck('name','id');
+        $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
+        return response()->json([
+            "code"       => 200,
+            "team"       => $team,
+            "users"       => $users
+        ]);
+    }
+
+
+    public function editTeam($id, Request $request) {
+        $team = Team::find($id);
+
+        if(Auth::user()->hasRole('Admin')) {
+            $team->update(['name' => $request->name]);
+            $team->users()->sync($request->input('members'));
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Team updated successfully'
+            ]);
+        }
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'Unauthorized access'
+        ]);
     }
 
 
