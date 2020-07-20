@@ -284,12 +284,13 @@
                             <thead>
                             <tr>
                                 <th width="5%">ID</th>
-                                <th width="10%">Date</th>
-                                <th width="10%" class="category">Category</th>
+                                <th width="8%">Date</th>
+                                <th width="8%" class="category">Category</th>
                                 <th width="15%">Task Subject</th>
                                 <th width="5%" colspan="2">From / To</th>
-                                <th width="8%">ED</th>
-                                <th width="40%">Communication</th>
+                                <th width="5%">ED</th>
+                                <th width="6%">Cost</th>
+                                <th width="38%">Communication</th>
                                 <th width="10%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
@@ -1473,7 +1474,7 @@
                             $(thiss).html(image);
 
                             alert('Could not mark as completed!');
-
+                            toastr['error'](response.responseJSON.message);
                             console.log(response);
                         });
                     }
@@ -1824,6 +1825,36 @@
                     $(thiss).closest('td').find('.update_approximate_msg').fadeIn(400);
                     setTimeout(function () {
                         $(thiss).closest('td').find('.update_approximate_msg').fadeOut(400);
+                    }, 2000);
+
+                }).fail(function (response) {
+                    alert('Could not update!!');
+                });
+            }
+        });
+
+
+        $(document).on("keypress",".update_cost",function(e) {
+            var key = e.which;
+            var thiss = $(this);
+            if (key == 13) {
+                e.preventDefault();
+                var cost = $(thiss).val();
+                var task_id = $(thiss).data('id');
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('task.update.cost') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        cost: cost,
+                        task_id: task_id
+                    }
+                }).done(function () {
+                    $(thiss).closest("td").find(".cost-val").html(cost);
+                    $(thiss).closest('td').find('.update_cost_msg').fadeIn(400);
+                    setTimeout(function () {
+                        $(thiss).closest('td').find('.update_cost_msg').fadeOut(400);
                     }, 2000);
 
                 }).fail(function (response) {

@@ -24,6 +24,7 @@ use App\DeveloperTaskHistory;
 use App\Github\GithubRepository;
 use App\PushNotification;
 use App\User;
+use App\PaymentReceipt;
 use App\Helpers;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
@@ -1372,6 +1373,24 @@ class DevelopmentController extends Controller
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
         if (strtolower($request->get('is_resolved')) == "done") {
+            $assigned_to = User::find($issue->assigned_to);
+            if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
+                // Fixed price task.
+                if($issue->cost == null) {
+                    return response()->json([
+                        'message'	=> 'Please provide cost for fixed price task.'
+                    ],500);
+                }
+                $payment_receipt = new PaymentReceipt;
+                $payment_receipt->billing_start_date = date( 'Y-m-d' );
+                $payment_receipt->billing_end_date = date( 'Y-m-d' );;
+                $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                $payment_receipt->rate_estimated = $issue->cost;
+                $payment_receipt->status = 'Pending';
+                $payment_receipt->developer_task_id = $issue->id;
+                $payment_receipt->user_id = $issue->assigned_to;
+                $payment_receipt->save();
+            }
             $issue->responsible_user_id = $issue->assigned_to;
             $issue->is_resolved = 1;
         }
