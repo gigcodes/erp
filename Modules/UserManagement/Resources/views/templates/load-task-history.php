@@ -11,19 +11,23 @@
            <table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Task ID</th> 
-		      	<th>Task Type</th> 
-		      	<th>Subject</th> 
+		      	<th>Name</th> 
+		      	<th>Pending</th>
 				<th>Action</th> 
 			</tr>
 		    </thead>
 		    <tbody>
 				{{props taskList}}
 			      <tr>
-			      	<td>{{:prop.task_id}}</td>
-			      	<td>{{:prop.type}}</td>
-			      	<td>{{:prop.subject.substring(0, 150)}}...</td>
-			      	<td><a href="#">link</a></td>
+			      	<td>{{:prop.name}}</td>
+			      	<td>{{:prop.total}}</td>
+			      	<td>
+						  {{if prop.name == 'TASK'}}
+						  <a href="/task">Task</a>
+						  {{else}} 
+						  <a href="/development/list/devtask">Devtask</a>
+						  {{/if}}
+					  </td>
 				  </tr>
 				  {{/props}}
 		    </tbody>

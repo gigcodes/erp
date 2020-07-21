@@ -49,6 +49,16 @@ td+td {
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
 
+										{{if prop.team_leads}}
+										{{props prop.team_leads}}
+											{{if prop.name}}
+											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> {{:prop.name}}</span></span><br>
+											{{else}}
+											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> No name</span></span><br>
+											{{/if}}
+										{{/props}}
+										{{/if}}
+
 									<?php if(Auth::user()->isAdmin()) { ?>
 									{{if prop.is_active == 1}}
 									<button type="button" class="btn btn-image change-activation" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
