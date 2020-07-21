@@ -26,7 +26,7 @@ var page = {
             e.preventDefault();
             page.createRecord();
         });
-
+        
         page.config.bodyView.on("click",".btn-edit-reason",function(e) {
             e.preventDefault();
             var id = $(this).data("id");
@@ -34,10 +34,24 @@ var page = {
         });
 
 
+        page.config.bodyView.on("click",".btn-change-status",function(e) {
+            e.preventDefault();
+            var id = $(this).data("id");
+            page.showChangeStatus(id);
+        });
+
+
         $(".common-modal").on("click",".store-reason-btn",function(e) {
             e.preventDefault();
             page.submitReasonForm($(this));
         });
+
+        $(".common-modal").on("click",".submit-change-status",function(e) {
+            e.preventDefault();
+            page.submitChangeStatus($(this));
+        });
+
+
         // delete product templates
         page.config.bodyView.on("click",".btn-delete-template",function(e) {
             if(!confirm("Are you sure you want to delete record?")) {
@@ -177,6 +191,14 @@ var page = {
             common.modal("show");
     },
 
+    showChangeStatus : function(id) {
+        var createWebTemplate = $.templates("#template-change-status");
+        var tplHtml = createWebTemplate.render({"id":id});
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml);
+            common.modal("show");
+    },
+
     submitReasonForm : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl + "/save",
@@ -197,7 +219,27 @@ var page = {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
-    }
+    },
+    submitChangeStatus : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/change-status",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveStatus");
+    },
+    saveStatus : function(response) {
+        if(response.code  == 200) {
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
 }
 
 $.extend(page, common);
