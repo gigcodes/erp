@@ -57,10 +57,10 @@
         <table class="table table-bordered">
         <tr>
           <th width="10%">User</th>
-          <th width="10%">Date</th>
+          <th width="10%">From</th>
+          <th width="10%">To</th>
           <th width="10%">Details</th>
           <th width="10%">Category</th>
-          <th width="20%">Description</th>
           <th width="10%">Time Spent</th>
           <th width="10%">Amount</th>
           <th width="10%">Amount Paid</th>
@@ -69,14 +69,14 @@
         </tr>
           @foreach ($tasks as $task)
             <tr>
-            <td>@if(isset($task->assignedUser)) {{  $task->assignedUser->name }} @endif </td>
-              <td>{{ \Carbon\Carbon::parse($task->end_time)->format('d-m') }}</td>
-              <td>{{ str_limit($task->subject, $limit = 150, $end = '...') }}</td>
-              <td>@if(isset($task->taskType)) {{  $task->taskType->name }} @endif </td>
-              <td>{{ str_limit($task->task, $limit = 150, $end = '...') }}</td>
+            <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
+              <td>{{ \Carbon\Carbon::parse($task->billing_start_date)->format('d-m') }}</td>
+              <td>{{ \Carbon\Carbon::parse($task->billing_end_date)->format('d-m') }}</td>
+              <td>{{ str_limit($task->details, $limit = 150, $end = '...') }}</td>
+              <td>@if($task->task_id) Task @else Devtask @endif </td>
               <td>{{ $task->estimate_minutes }}</td>
-              <td>{{ $task->price }}</td>
-              <td>{{ $task->amount_paid }}</td>
+              <td>{{ $task->rate_estimated }}</td>
+              <td>{{ $task->payment }}</td>
               <td>{{ $task->balance }}</td>
               <td></td>
           @endforeach

@@ -15,6 +15,8 @@ use Auth;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
 use App\DeveloperTask;
+use App\Task;
+use App\PaymentReceipt;
 
 class VoucherController extends Controller
 {
@@ -26,38 +28,39 @@ class VoucherController extends Controller
     public function index(Request $request)
     {
         // dd($request->all());
+        // $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
+        // $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
         $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
         $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
         $selectedUser = $request->user_id ? $request->user_id : null;
-        $tasks = DeveloperTask::where('status','Done');
+        $tasks = PaymentReceipt::where('status','Pending');
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
             if ($request->user_id != null && $request->user_id != "") {
-                $tasks = $tasks->where('assigned_to', $request->user_id)->whereBetween('end_time', [$start, $end]);
+                $tasks = $tasks->where('user_id', $request->user_id)->where('billing_start_date', '>=' , $start)->where('billing_end_date', '<=' , $end);
             } else {
-                $tasks = $tasks->whereBetween('end_time', [$start, $end]);
+                $tasks = $tasks->where('billing_start_date', '>=' , $start)->where('billing_end_date', '<=' , $end);
             }
         } else {
-            $tasks = $tasks->where('assigned_to', Auth::id())->whereBetween('end_time', [$start, $end]);
+            $tasks = $tasks->where('user_id', Auth::id())->where('billing_start_date', '>=' , $start)->where('billing_end_date', '<=' , $end);
         }
 
         $tasks = $tasks->paginate(10)->appends(request()->except('page'));
         foreach($tasks as $task) {
-            $task->taskType;
-            $task->assignedUser;
-            if($task->assignedUser) {
-                if($task->assignedUser->fixed_price_user_or_job == 1) {
-                    // Fixed price task.
-                    $task->price = $task->cost;
-                    $task->price = number_format($task->price, 2);
-                }
-                else {
-                    //Task done by salaried user (estimate minutes * hourly rate)
-                    $task->price = ($task->estimate_minutes/60) * $task->assignedUser->hourly_rate;
-                    $task->price = number_format($task->price, 2); 
+            $task->user;
+            // $task->assignedUser;
+            if($task->task_id) {
+                $task->taskdetails = Task::find($task->task_id);
+                $task->details = $task->taskdetails->task_details;
+                if(!$task->estimate_minutes) {
+                    $task->estimate_minutes = $task->taskdetails->approximate;
                 }
             }
             else {
-                $task->price = 0;
+                $task->taskdetails = DeveloperTask::find($task->developer_task_id);
+                $task->details = $task->taskdetails->task;
+                if(!$task->estimate_minutes) {
+                    $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                }
             }  
         }
 

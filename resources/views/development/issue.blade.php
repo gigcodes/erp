@@ -593,6 +593,9 @@
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
                 }
             });
         }
