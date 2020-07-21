@@ -106,6 +106,7 @@ use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
+use App\Console\Commands\FetchStoreWebsiteOrder;
 
 
 class Kernel extends ConsoleKernel
@@ -208,6 +209,7 @@ class Kernel extends ConsoleKernel
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
         GenerateProductPricingJson::class
+        FetchStoreWebsiteOrder::class
     ];
 
     /**
@@ -436,6 +438,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
         $schedule->command('generate:product-pricing-json')->daily();
+        $schedule->command('fetch-store-website:orders')->hourly();
         
     }
 
