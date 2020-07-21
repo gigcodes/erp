@@ -10,14 +10,16 @@
             <table id="table" class="table table-striped table-bordered">
                 <thead>
                 <tr>
+                <th width="10%"><a href="">#</a></th>
                     <th width="10%"><a href="/google/affiliate/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>
                     <th width="12%"><a href="/google/affiliate/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=hashtag&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Keyword</a></th>
                     <th width="20%"><a href="/google/affiliate/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=title&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Title</a></th>
                     <th width="15%">Address</th>
-                    <th width="23%">Social Details</th> 
+                    <th width="23%">Social Details</th>
                     <th width="20%">Post</th>
                 </tr>
                 <tr>
+                    <th width="10%"><a href=""></a></th>
                     <th><input type="text" id="date" class="form-control" value="{{ isset($_GET['date']) ? $_GET['date'] : '' }}"></th>
                     <th><input type="text" id="hashtag" class="form-control" value="{{ isset($_GET['hashtag']) ? $_GET['hashtag'] : '' }}"></th>
                     <th><input type="text" id="title" class="form-control" value="{{ isset($_GET['title']) ? $_GET['title'] : '' }}"></th>
@@ -55,7 +57,7 @@
                 <div class="modal-body">
                     <div class="list-unstyled" id="affiliate-remark-list">
 
-                    </div>  
+                    </div>
                     <form id="affiliate-add-remark">
                         <input type="hidden" name="id" value="">
                         <div class="form-group">

@@ -43,7 +43,7 @@ class GoogleSearchController extends Controller
 		if($request->term || $request->priority ){
 
 			if($request->term != null && $request->priority == 'on'){
-                
+
 				$keywords  = HashTag::query()
                                 ->where('priority', '1')
 								->where('platforms_id', $this->platformsId)
@@ -55,7 +55,7 @@ class GoogleSearchController extends Controller
 			}
 			else if($request->priority == 'on'){
 				$keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
-            
+
                 $queryString = 'priority=' . $request->priority . '&';
 			}
 			else if($request->term != null){
@@ -64,7 +64,7 @@ class GoogleSearchController extends Controller
 								->where('platforms_id', $this->platformsId)
                                 ->orderBy($sortBy, $orderBy)
 								->paginate(Setting::get('pagination'));
-                
+
                 $queryString = 'term=' . $request->term . '&';
 			}
 
@@ -72,7 +72,7 @@ class GoogleSearchController extends Controller
 			$keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 		}
 
-		return view('google.search.index', compact('keywords', 'queryString', 'orderBy')); 
+		return view('google.search.index', compact('keywords', 'queryString', 'orderBy'));
     }
 
     /**
@@ -108,7 +108,7 @@ class GoogleSearchController extends Controller
     {
         //
     }
-    
+
     /**
      * Remove the specified resource from storage.
      *
@@ -139,7 +139,7 @@ class GoogleSearchController extends Controller
        $id = $request->id;
        //check if 30 limit is exceded
        $hashtags = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->get();
-      
+
        if(count($hashtags) >= 30 && $request->type == 1){
              return response()->json([
             'status' => 'error'
@@ -148,7 +148,7 @@ class GoogleSearchController extends Controller
 
        $hashtag = HashTag::findOrFail($id);
        $hashtag->priority = $request->type;
-       $hashtag->update(); 
+       $hashtag->update();
        return response()->json([
             'status' => 'success'
         ]);
@@ -167,15 +167,15 @@ class GoogleSearchController extends Controller
 
     /**
     * function to store google search results sent from scrapper
-    * JSON data posted to this api will be array of objects in below format 
+    * JSON data posted to this api will be array of objects in below format
     * [
-    *    {  "searchKeyword": "GKy1", 
-    *    "description": "This is description about web page in search result", 
-    *    "crawledAt": "2019-01-10", 
+    *    {  "searchKeyword": "GKy1",
+    *    "description": "This is description about web page in search result",
+    *    "crawledAt": "2019-01-10",
     *    "URL": "http://www.searchedweb1.com" },
-    *    { "searchKeyword": "GKy2", 
-    *    "description": "This is description about web page in search result", 
-    *    "crawledAt": "2019-01-10", 
+    *    { "searchKeyword": "GKy2",
+    *    "description": "This is description about web page in search result",
+    *    "crawledAt": "2019-01-10",
     *    "URL": "http://www.searchedweb2.com" }
     * ]
     *
@@ -184,7 +184,7 @@ class GoogleSearchController extends Controller
     */
     public function apiPost(Request $request)
     {
-        // Get raw body        
+        // Get raw body
         $payLoad = $request->all();
 
         $payLoad = json_decode(json_encode($payLoad), true);
@@ -222,7 +222,7 @@ class GoogleSearchController extends Controller
                     $instagramPost->media_type = 'other';
                     $instagramPost->media_url = $postJson[ 'URL' ];
                     $instagramPost->source = 'google';
-                    $instagramPost->save();                    
+                    $instagramPost->save();
                 }
             }
         }
@@ -364,5 +364,17 @@ class GoogleSearchController extends Controller
             // return response()->json($postData, 200);
             return response()->json(['success - scrapping initiated'], 200);
         }
+    }
+
+    public function deleteSearch($id)
+    {
+      $instaPost = InstagramPosts::find($id);
+
+      if($instaPost){
+        $instaPost->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
     }
 }

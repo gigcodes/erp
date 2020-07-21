@@ -38,7 +38,7 @@ class GoogleAffiliateController extends Controller
 		if($request->term || $request->priority ){
 
 			if($request->term != null && $request->priority == 'on'){
-                
+
 				$keywords  = HashTag::query()
                                 ->where('priority', '1')
 								->where('platforms_id', $this->platformsId)
@@ -50,7 +50,7 @@ class GoogleAffiliateController extends Controller
 			}
 			else if($request->priority == 'on'){
 				$keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
-            
+
                 $queryString = 'priority=' . $request->priority . '&';
 			}
 			else if($request->term != null){
@@ -59,7 +59,7 @@ class GoogleAffiliateController extends Controller
 								->where('platforms_id', $this->platformsId)
                                 ->orderBy($sortBy, $orderBy)
 								->paginate(Setting::get('pagination'));
-                
+
                 $queryString = 'term=' . $request->term . '&';
 			}
 
@@ -67,7 +67,7 @@ class GoogleAffiliateController extends Controller
 			$keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 		}
 
-		return view('google.affiliate.index', compact('keywords', 'queryString', 'orderBy')); 
+		return view('google.affiliate.index', compact('keywords', 'queryString', 'orderBy'));
     }
 
     /**
@@ -142,7 +142,7 @@ class GoogleAffiliateController extends Controller
 
         $hashtag = HashTag::findOrFail($id);
         $hashtag->priority = $request->type;
-        $hashtag->update(); 
+        $hashtag->update();
         return response()->json([
             'status' => 'success'
         ]);
@@ -167,7 +167,7 @@ class GoogleAffiliateController extends Controller
     */
     public function apiPost(Request $request)
     {
-        // Get raw body        
+        // Get raw body
         $payLoad = $request->all();
 
         $payLoad = json_decode(json_encode($payLoad), true);
@@ -211,7 +211,7 @@ class GoogleAffiliateController extends Controller
                     $affiliateResults->phone = (isset($postJson[ 'phone' ])) ? $postJson[ 'phone' ] : '';
                     $affiliateResults->emailaddress = (isset($postJson[ 'emailaddress' ])) ? $postJson[ 'emailaddress' ] : '';
                     $affiliateResults->source = 'google';
-                    $affiliateResults->save();                    
+                    $affiliateResults->save();
                 }
             }
         }
@@ -321,6 +321,18 @@ class GoogleAffiliateController extends Controller
         $affiliates->save();
 
         return response()->json(['is_flagged' => $affiliates->is_flagged]);
+    }
+
+    public function deleteSearch($id)
+    {
+      $affiliates = Affiliates::find($id);
+
+      if($affiliates){
+        $affiliates->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
     }
 
     public function emailSend(Request $request)

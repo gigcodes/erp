@@ -137,6 +137,7 @@ class DevelopmentController extends Controller
     }*/
     public function taskListByUserId(Request $request)
     {
+        echo "<pre>"; print_r(032);  echo "</pre>";die;
         $user_id = $request->get('user_id', 0);
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) {
@@ -410,7 +411,7 @@ class DevelopmentController extends Controller
             $issues = $issues->where('is_resolved', 0);
         }*/
 
-        if (!auth()->user()->isAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($q) {
                 $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
             });

@@ -15,7 +15,7 @@
 			</div>
 			<div class="form-group">
                   <strong>Team name</strong>
-                  <input type="text" id="name" name="name" value={{:team.name}} class="form-control">
+                  <input type="text" id="name" name="name" value="{{:team.name}}" class="form-control">
             </div>
            <div class="overflow-auto" id="collapse" style="height:400px;overflow-y:scroll;">
                     <strong>Members:</strong>
