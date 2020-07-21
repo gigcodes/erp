@@ -13,9 +13,10 @@
         <div class="col-lg-12 margin-tb mb-3">
             <h2 class="page-heading">Vendor payments</h2>
 
-            <!-- <div class="pull-right">
+            <div class="pull-right">
+              <a class="btn btn-secondary create-manual-payment" data-toggle="modal" data-target="#manualPayments">Manual request</a>
               <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a>
-            </div> -->
+            </div>
         </div>
     </div>
 
@@ -73,7 +74,7 @@
               <td>{{ \Carbon\Carbon::parse($task->billing_start_date)->format('d-m') }}</td>
               <td>{{ \Carbon\Carbon::parse($task->billing_end_date)->format('d-m') }}</td>
               <td>{{ str_limit($task->details, $limit = 150, $end = '...') }}</td>
-              <td>@if($task->task_id) Task @else Devtask @endif </td>
+              <td>@if($task->task_id) Task @elseif($task->developer_task_id) Devtask @else Manual @endif </td>
               <td>{{ $task->estimate_minutes }}</td>
               <td>{{ $task->rate_estimated }}</td>
               <td>{{ $task->payment }}</td>
@@ -111,6 +112,89 @@
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                         <button type="submit" class="btn btn-danger">Reject Voucher</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    
+    <div id="manualPayments" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="{{route('voucher.manual-payment-request') }}" method="POST" >
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Manual payment receipt</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+
+                     
+                        <div class="col-md-12 col-lg-12 @if($errors->has('reject_reason')) has-danger @elseif(count($errors->all())>0) has-success @endif">
+                            <div class="form-group">
+                                {!! Form::label('user_id', 'User', ['class' => 'form-control-label']) !!}
+                                <select class="form-control select-multiple" name="user_id" id="user-select" required>
+                                  <option value="">Select User</option>
+                                  @foreach($users as $key => $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                  @endforeach
+                                </select>
+                                    @if($errors->has('user_id'))
+                                      <div class="form-control-feedback">{{$errors->first('user_id')}}</div>
+                                    @endif
+                            </div>
+
+
+                            <div class="form-group">
+                                {!! Form::label('billing_start_date', 'Billing start date', ['class' => 'form-control-label']) !!}
+                                {!! Form::date('billing_start_date', null, ['class'=>'form-control  '.($errors->has('billing_start_date')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('billing_start_date'))
+                                      <div class="form-control-feedback">{{$errors->first('billing_start_date')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('billing_end_date', 'Billing end date', ['class' => 'form-control-label']) !!}
+                                {!! Form::date('billing_end_date', null, ['class'=>'form-control  '.($errors->has('billing_end_date')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('billing_end_date'))
+                                      <div class="form-control-feedback">{{$errors->first('billing_end_date')}}</div>
+                                    @endif
+                            </div>
+
+
+
+                            <div class="form-group">
+                                {!! Form::label('worked_minutes', 'Time spent (In minutes)', ['class' => 'form-control-label']) !!}
+                                {!! Form::number('worked_minutes', null, ['class'=>'form-control  '.($errors->has('worked_minutes')?'form-control-danger':(count($errors->all())>0?'form-control-success':''))]) !!}
+                                    @if($errors->has('worked_minutes'))
+                                      <div class="form-control-feedback">{{$errors->first('worked_minutes')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('rate_estimated', 'Amount', ['class' => 'form-control-label']) !!}
+                                {!! Form::number('rate_estimated', null, ['class'=>'form-control  '.($errors->has('rate_estimated')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('rate_estimated'))
+                                      <div class="form-control-feedback">{{$errors->first('rate_estimated')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('remarks', 'Remarks', ['class' => 'form-control-label']) !!}
+                                {!! Form::textarea('remarks', null, ['class'=>'form-control  '.($errors->has('remarks')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'rows'=>3]) !!}
+                                    @if($errors->has('remarks'))
+                                      <div class="form-control-feedback">{{$errors->first('remarks')}}</div>
+                                    @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Submit</button>
                     </div>
                 </form>
             </div>
@@ -181,6 +265,29 @@
         var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
         modal.find('form').attr('action', url);
     })
+
+
+    $(document).on('click', '.submit-manual-receipt', function(e) {
+      e.preventDefault();
+      var form = $(this).closest("form");
+      var thiss = $(this);
+      var type = 'POST';
+        $.ajax({
+          url: '/voucher/payment-request',
+          type: type,
+          dataType: 'json',
+          data: form.serialize(),
+          beforeSend: function() {
+            $(thiss).text('Loading');
+          }
+        }).done( function(response) {
+          // $(thiss).closest('tr').removeClass('row-highlight');
+          // $(thiss).prev('span').text('Approved');
+          // $(thiss).remove();
+        }).fail(function(errObj) {
+          alert("Could not change status");
+        });
+    });
 
   </script>
 @endsection

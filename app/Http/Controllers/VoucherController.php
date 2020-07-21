@@ -51,16 +51,20 @@ class VoucherController extends Controller
             if($task->task_id) {
                 $task->taskdetails = Task::find($task->task_id);
                 $task->details = $task->taskdetails->task_details;
-                if(!$task->estimate_minutes) {
+                if(!$task->worked_minutes) {
                     $task->estimate_minutes = $task->taskdetails->approximate;
                 }
             }
-            else {
+            else if($task->developer_task_id) {
                 $task->taskdetails = DeveloperTask::find($task->developer_task_id);
                 $task->details = $task->taskdetails->task;
-                if(!$task->estimate_minutes) {
+                if(!$task->worked_minutes) {
                     $task->estimate_minutes = $task->taskdetails->estimate_minutes;
                 }
+            }
+            else {
+                $task->details = $task->remarks;
+                $task->estimate_minutes = $task->worked_minutes;
             }  
         }
 
@@ -291,5 +295,20 @@ class VoucherController extends Controller
       $search = User::where('name', 'LIKE', "%" . $term . "%")
         ->orWhere('email', 'LIKE', "%" . $term . "%")->get();
       return response()->json($search);
+    }
+
+
+    public function createPaymentRequest(Request $request) {
+        $this->validate($request, [
+            'user_id' => 'required',
+            'billing_start_date' => 'required',
+            'billing_end_date' => 'required',
+            'rate_estimated' => 'required'
+        ]);
+
+        $input = $request->except('_token');
+        $input['status'] = 'Pending';
+        PaymentReceipt::create($input);
+        return redirect()->back()->with('success','Successfully created');
     }
 }
