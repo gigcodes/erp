@@ -68,7 +68,7 @@
                         </a>
                 </div>
             </div>
-            @if($title == 'devtask' && auth()->user()->isAdmin())
+            @if($title == 'devtask' && auth()->user()->isReviwerLikeAdmin())
                 <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
             @endif
         </div>
@@ -91,7 +91,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue' && auth()->user()->isAdmin())
+                @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
                         @include("development.partials.add-new-issue")
                     </tr>
@@ -112,7 +112,7 @@
                     <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isReviwerLikeAdmin())
                         @include("development.partials.admin-row-view")
                     @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
                         @include("development.partials.developer-row-view")
