@@ -714,12 +714,28 @@ class UserManagementController extends Controller
         $user = User::find($id);
         // $taskList = $user->taskList;
 
-        $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
-        $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
-        $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
-        $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
-        $taskList = $devTasks->union($pendingTasks)->get();
+        // $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
+        // $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
+        // $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
+        // $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
+        // $taskList = $devTasks->union($pendingTasks)->get();
 
+
+         $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->count();
+         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->count();
+         $taskList = [];
+         $tasks = [
+             'name' => 'TASK',
+             'total' => $pendingTasks
+         ];
+
+         $taskList[] = $tasks;
+
+         $tasks = [
+            'name' => 'DEVTASK',
+            'total' => $devTasks
+        ];
+        $taskList[] = $tasks;
        
             return response()->json([
                 "code"       => 200,
