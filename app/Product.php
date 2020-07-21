@@ -927,4 +927,12 @@ class Product extends Model
     {
         return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
     }
+
+    public function checkExternalScraperNeed()
+    {
+        if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
+            $this->status_id = StatusHelper::$requestForExternalScraper;
+            $this->save();
+        }
+    }
 }
