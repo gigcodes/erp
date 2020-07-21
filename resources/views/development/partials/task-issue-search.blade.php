@@ -53,6 +53,10 @@
                 <option {{$request->get('order')== "communication_desc" ? 'selected' : ''}} value="communication_desc">Order by Communication</option>
             </select>
         </div>
+        <div class="col-md-2">
+            <label class="for">Last Communicated</label>
+            <?php echo Form::checkbox("last_communicated","on",request()->get('last_communicated', "off") == "on",["class" => ""]); ?>
+        </div>
         <div class="col-md-1">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )

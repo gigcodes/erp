@@ -342,7 +342,6 @@
                     toastr["success"]("User assigned successfully!", "Message")
                 }
             });
-
         });
         $(document).on('change', '.assign-user', function () {
             let id = $(this).attr('data-id');
@@ -360,6 +359,27 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                }
+            });
+
+        });
+
+        $(document).on('change', '.task-module', function () {
+            let id = $(this).attr('data-id');
+            let moduleID = $(this).val();
+
+            if (moduleID == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@changeModule')}}",
+                data: {
+                    module_id: moduleID,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Module assigned successfully!", "Message")
                 }
             });
 
