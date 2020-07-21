@@ -171,6 +171,25 @@ class User extends Authenticatable
         return false;
     }
 
+    /**
+    * We can use this function to give same page rights like admin
+    *
+    */
+    public function isReviwerLikeAdmin()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        $needToBeCheck = ["Admin","master-developer"];
+
+        foreach($needToBeCheck as $nc) {
+            if (in_array($nc, $roles)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function isInCustomerService()
     {
         $roles = $this->roles->pluck('name')->toArray();

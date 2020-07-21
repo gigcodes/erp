@@ -156,7 +156,7 @@ class ProductController extends Controller
         //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
         //     }
         // }
-	if(auth()->user()->isAdmin()) {
+	if(auth()->user()->isReviwerLikeAdmin()) {
 	   $newProducts = Product::query();	
 	}else{
 	   $newProducts = Product::where('assigned_to',auth()->user()->id);	
