@@ -1,6 +1,6 @@
 <form action="{{ url("development/list/$title") }}" method="get">
     <div class="row">
-        @if(auth()->user()->isAdmin())
+        @if(auth()->user()->isReviwerLikeAdmin())
             <div class="col-md-1">
                 <select class="form-control" name="assigned_to" id="assigned_to">
                     <option value="">Assigned To</option>
