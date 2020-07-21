@@ -72,7 +72,7 @@ td+td {
 						</div>    	  
 					  </td>
 			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
-			        <td> {{if prop.fixed_price_user_or_job == 1}} Salaried {{else prop.fixed_price_user_or_job == 2}} Fixed price Job {{/if}}</td>
+			        <td>{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}</td>
 			        <td>
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">Task</a>
 					</td>
