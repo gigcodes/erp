@@ -517,7 +517,7 @@ class ScrapController extends Controller
         // Validate request
         $validator = Validator::make($request->toArray(), [
             'id' => 'required',
-            'website' => 'required',
+            //'website' => 'required',
             'images' => 'required|array',
             'description' => 'required'
         ]);
@@ -528,7 +528,7 @@ class ScrapController extends Controller
         }
 
         // Set proper website name
-        $website = str_replace(' ', '', $request->get('website'));
+        //$website = str_replace(' ', '', $request->get('website'));
 
         // If product is found, update it
         if ($product) {
@@ -1101,9 +1101,8 @@ class ScrapController extends Controller
     public function scraperNeeded(Request $request)
     {
        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
-        ->leftJoin("suppliers as s","s.id","products.supplier")
-        ->latest("products.created_at")
-        ->select(["products.id","sku","s.supplier as supplier_name"])
+        ->latest("created_at")
+        ->select(["id","sku","supplier"])
         ->limit(50)
         ->get()
         ->toArray(); 
