@@ -1388,8 +1388,7 @@ class DevelopmentController extends Controller
                     ],500);
                 }
                 $payment_receipt = new PaymentReceipt;
-                $payment_receipt->billing_start_date = date( 'Y-m-d' );
-                $payment_receipt->billing_end_date = date( 'Y-m-d' );;
+                $payment_receipt->date = date( 'Y-m-d' );
                 $payment_receipt->worked_minutes = $issue->estimate_minutes;
                 $payment_receipt->rate_estimated = $issue->cost;
                 $payment_receipt->status = 'Pending';
