@@ -555,7 +555,7 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
-            $product->status_id = StatusHelper::$finalApproval;
+            $product->status_id = StatusHelper::$autoCrop;
             // Save
             $product->save();
 
