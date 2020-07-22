@@ -1107,6 +1107,6 @@ class ScrapController extends Controller
         ->get()
         ->toArray(); 
         
-        return response()->json(["code" => 200 , "data" => $products]);
+        return response()->json($products);
     }
 }
