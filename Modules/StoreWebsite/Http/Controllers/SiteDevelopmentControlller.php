@@ -120,6 +120,10 @@ class SiteDevelopmentController extends Controller
             $site->designer_id = $request->text;
         }
 
+        if ($request->type == 'html_designer') {
+            $site->html_designer = $request->text;
+        }
+
         $site->site_development_category_id = $request->category;
         $site->website_id                   = $request->websiteId;
 
@@ -288,6 +292,31 @@ class SiteDevelopmentController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Sorry required fields is missing like id, siteid , userid"]);
+    }
+
+    public function remarks(Request $request, $id)
+    {
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+    }
+
+    public function saveRemarks(Request $request, $id)
+    {
+        \App\StoreDevelopmentRemark::create([
+            "remarks" => $request->remark,
+            "store_development_id" => $id,
+            "user_id" => \Auth::user()->id,
+        ]);
+
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+
     }
 
 }
