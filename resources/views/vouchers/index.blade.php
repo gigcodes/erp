@@ -14,12 +14,13 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              <a class="btn btn-secondary create-manual-payment" data-toggle="modal" data-target="#manualPayments">Manual request</a>
-              <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a>
+              <a class="btn btn-secondary" href="{{ route('voucher.payment.request') }}">Manual request</a>
+              <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
+
             </div>
         </div>
     </div>
-
+    @include('partials.flash_messages')
     <div class="row mb-3">
       <div class="col-sm-12">
         <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
@@ -52,37 +53,50 @@
       </div>
     </div>
 
-    @include('partials.flash_messages')
+
 
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
           <th width="10%">User</th>
-          <th width="10%">From</th>
-          <th width="10%">To</th>
-          <th width="10%">Details</th>
-          <th width="10%">Category</th>
-          <th width="10%">Time Spent</th>
-          <th width="10%">Amount</th>
-          <th width="10%">Amount Paid</th>
+          <th width="8%">Date</th>
+          <th width="25%">Details</th>
+          <th width="8%">Category</th>
+          <th width="7%">Time Spent</th>
+          <th width="7%">Amount</th>
+          <th width="7%">Currency</th>
+          <th width="8%">Amount Paid</th>
           <th width="10%">Balance</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
           @foreach ($tasks as $task)
             <tr>
             <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
-              <td>{{ \Carbon\Carbon::parse($task->billing_start_date)->format('d-m') }}</td>
-              <td>{{ \Carbon\Carbon::parse($task->billing_end_date)->format('d-m') }}</td>
-              <td>{{ str_limit($task->details, $limit = 150, $end = '...') }}</td>
+              <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
+              <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task @elseif($task->developer_task_id) Devtask @else Manual @endif </td>
               <td>{{ $task->estimate_minutes }}</td>
               <td>{{ $task->rate_estimated }}</td>
-              <td>{{ $task->payment }}</td>
+              <td>{{ $task->currency }}</td>
+              <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
-              <td></td>
+              <td><a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a></td>
           @endforeach
       </table>
       {{$tasks->links()}}
+    </div>
+
+
+
+    <div id="paymentModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content" id="payment-content">
+                
+            </div>
+
+        </div>
     </div>
 
     <div id="rejectVoucherModal" class="modal fade" role="dialog">
@@ -123,7 +137,7 @@
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content">
-                <form action="{{route('voucher.manual-payment-request') }}" method="POST" >
+                <form action="" method="POST" >
                     @csrf
 
                     <div class="modal-header">
@@ -201,6 +215,9 @@
 
         </div>
     </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @endsection
 
 @section('scripts')
@@ -265,29 +282,48 @@
         var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
         modal.find('form').attr('action', url);
     })
+    
 
-
-    $(document).on('click', '.submit-manual-receipt', function(e) {
+    $(document).on('click', '.create-payment', function(e) {
       e.preventDefault();
-      var form = $(this).closest("form");
       var thiss = $(this);
-      var type = 'POST';
+      var type = 'GET';
         $.ajax({
-          url: '/voucher/payment-request',
+          url: '/voucher/payment/'+thiss.data('id'),
           type: type,
-          dataType: 'json',
-          data: form.serialize(),
           beforeSend: function() {
-            $(thiss).text('Loading');
+            $("#loading-image").show();
           }
         }).done( function(response) {
-          // $(thiss).closest('tr').removeClass('row-highlight');
-          // $(thiss).prev('span').text('Approved');
-          // $(thiss).remove();
+          $("#loading-image").hide();
+          $('#paymentModal').modal('show');
+          $('#payment-content').html(response);
         }).fail(function(errObj) {
-          alert("Could not change status");
+          $("#loading-image").hide();
         });
     });
+
+    // $(document).on('click', '.submit-manual-receipt', function(e) {
+    //   e.preventDefault();
+    //   var form = $(this).closest("form");
+    //   var thiss = $(this);
+    //   var type = 'POST';
+    //     $.ajax({
+    //       url: '/voucher/payment-request',
+    //       type: type,
+    //       dataType: 'json',
+    //       data: form.serialize(),
+    //       beforeSend: function() {
+    //         $(thiss).text('Loading');
+    //       }
+    //     }).done( function(response) {
+    //       // $(thiss).closest('tr').removeClass('row-highlight');
+    //       // $(thiss).prev('span').text('Approved');
+    //       // $(thiss).remove();
+    //     }).fail(function(errObj) {
+    //       alert("Could not change status");
+    //     });
+    // });
 
   </script>
 @endsection
