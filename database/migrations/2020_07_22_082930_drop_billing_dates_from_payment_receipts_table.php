@@ -17,7 +17,7 @@ class DropBillingDatesFromPaymentReceiptsTable extends Migration
             $table->dropColumn('billing_start_date');
             $table->dropColumn('billing_end_date');
             $table->date('date');
-            $table->integer('user_id')->nullable()->change();
+            //$table->integer('user_id')->nullable()->change();
         });
     }
 

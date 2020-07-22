@@ -522,15 +522,15 @@ class ScrapController extends Controller
         }
         
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
+        $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
         $validator = Validator::make($request->toArray(), [
             'id' => 'required',
-            'website' => 'required',
+            //'website' => 'required',
             'images' => 'required|array',
-            'description' => 'required'
+            //'description' => 'required'
         ]);
 
         // Return an error if the validator fails
@@ -539,7 +539,7 @@ class ScrapController extends Controller
         }
 
         // Set proper website name
-        $website = str_replace(' ', '', $request->get('website'));
+        //$website = str_replace(' ', '', $request->get('website'));
 
         // If product is found, update it
         if ($product) {
@@ -566,6 +566,7 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
+            $product->status_id = StatusHelper::$autoCrop;
             // Save
             $product->save();
 
@@ -1110,12 +1111,13 @@ class ScrapController extends Controller
 
     public function scraperNeeded(Request $request)
     {
-        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
-        ->latest()
-        ->limit(10)
-        ->pluck("sku","id")
-        ->toArray();
+       $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        ->latest("created_at")
+        ->select(["id","sku","supplier"])
+        ->limit(50)
+        ->get()
+        ->toArray(); 
         
-        return response()->json(["code" => 200 , "data" => $products]);
+        return response()->json($products);
     }
 }
