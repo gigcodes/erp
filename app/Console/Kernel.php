@@ -208,7 +208,7 @@ class Kernel extends ConsoleKernel
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
-        GenerateProductPricingJson::class
+        GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class
     ];
 
