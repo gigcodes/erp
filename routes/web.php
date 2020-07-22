@@ -630,7 +630,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     // Cash Vouchers
-    Route::post('voucher/payment-request', 'VoucherController@createPaymentRequest')->name('voucher.manual-payment-request');
+    Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
+    Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
+    Route::get('/voucher/payment/{id}', 'VoucherController@viewPaymentModal')->name("voucher.payment");
+    Route::post('/voucher/payment/{id}', 'VoucherController@submitPayment')->name("voucher.payment.submit");
     Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
     Route::post('voucher/store/category', 'VoucherController@storeCategory')->name('voucher.store.category');
     Route::post('voucher/{id}/reject', 'VoucherController@reject')->name('voucher.reject');
@@ -1824,6 +1827,7 @@ Route::prefix('calendar/public')->group(function () {
     Route::get('/event/suggest-time/{invitationId}', 'UserEventController@suggestInvitationTiming');
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
+
 
 Route::get('/vendor-form', 'VendorSupplierController@vendorForm')->name("developer.vendor.form");
 Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("developer.supplier.form");
