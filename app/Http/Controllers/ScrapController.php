@@ -1099,11 +1099,13 @@ class ScrapController extends Controller
 
     public function scraperNeeded(Request $request)
     {
-        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
-        ->latest()
-        ->limit(10)
-        ->pluck("sku","id")
-        ->toArray();
+       $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        ->leftJoin("suppliers as s","s.id","products.supplier")
+        ->latest("products.created_at")
+        ->select(["products.id","sku","s.supplier as supplier_name"])
+        ->limit(50)
+        ->get()
+        ->toArray(); 
         
         return response()->json(["code" => 200 , "data" => $products]);
     }
