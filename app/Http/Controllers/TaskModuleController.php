@@ -926,9 +926,7 @@ class TaskModuleController extends Controller {
 		//
 		// 	$item->save();
 		// }
-		
 		if ($request->type == 'complete') {
-
 			if($task->assignedTo) {
 				if($task->assignedTo->fixed_price_user_or_job == 1) {
 					// Fixed price task.
@@ -943,8 +941,7 @@ class TaskModuleController extends Controller {
 										 ->with( 'error', 'Please provide cost for fixed price task.' );
 					}
 					$payment_receipt = new PaymentReceipt;
-					$payment_receipt->billing_start_date = date( 'Y-m-d' );
-					$payment_receipt->billing_end_date = date( 'Y-m-d' );;
+					$payment_receipt->date = date( 'Y-m-d' );
 					$payment_receipt->worked_minutes = $task->approximate;
 					$payment_receipt->rate_estimated = $task->cost;
 					$payment_receipt->status = 'Pending';
