@@ -86,7 +86,7 @@ class ViewInvoice extends Mailable
     }
 
     public function getCustomerDetails($order) {
-        if($order->customer) {
+        if(isset($order->customer)) {
             return $order->customer;
         }
         return false;

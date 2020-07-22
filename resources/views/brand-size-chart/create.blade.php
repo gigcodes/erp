@@ -19,13 +19,14 @@
                     <div class="col-xs-12 col-sm-12 col-md-12">
                         <div class="form-group">
                             <strong>Category</strong>
-                            <select name="category_id" class="form-control select2" id="category_id" required>
-                                <option value="">Select Category</option>
-                                @forelse ($category as $key => $item)
-                                    <option value="{{ $key }}">{{ $item }}</option>
-                                @empty
-                                @endforelse
-                            </select>
+                            {!!
+                                (new \App\Category)->attr([
+                                    'name' => 'category_id', 
+                                    'class' => 'form-control select2',
+                                    'data-placeholder' => 'Select Category'
+                                ])->selected(request('category'))->renderAsDropdown()
+                            !!}
+
                             @if ($errors->has('category_id'))
                                 <div class="alert alert-danger">{{$errors->first('category_id')}}</div>
                             @endif

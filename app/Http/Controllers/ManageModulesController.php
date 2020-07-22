@@ -24,7 +24,7 @@ class ManageModulesController extends Controller
 
     public function records()
     {
-        $records = \App\DeveloperModule::query();
+        $records = \App\DeveloperModule::leftJoin("developer_tasks as dt","dt.module_id","developer_modules.id");
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
@@ -33,7 +33,9 @@ class ManageModulesController extends Controller
             });
         }
 
-        $records = $records->get();
+        $records = $records->groupBy("developer_modules.id");
+
+        $records = $records->select(["developer_modules.*",\DB::raw("count(dt.id) as total_task")])->get();
 
         return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
     }

@@ -9,7 +9,7 @@
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td style="vertical-align: middle;">    
-        <select name="module" class="form-control task-module"  onchange="changeModule(this , {{$issue->id}})">
+        <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
             <option value=''>Selecct Module..</option>
             @foreach($modules as $module)
 
