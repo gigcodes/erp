@@ -86,6 +86,10 @@ Route::prefix('site-development')->group(function () {
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     Route::prefix('{id}')->group(function () {
         Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+        Route::prefix('remarks')->group(function () {
+            Route::get('/', 'SiteDevelopmentController@remarks')->name("site-development.remarks");
+            Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
+        });
     });
 });
 
