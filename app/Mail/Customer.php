@@ -7,11 +7,9 @@ use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Contracts\Queue\ShouldQueue;
 
-class WelcomeUser extends Mailable
+class Customer extends Mailable
 {
     use Queueable, SerializesModels;
-
-    public $orders;
 
     /**
      * Create a new message instance.
@@ -30,6 +28,6 @@ class WelcomeUser extends Mailable
      */
     public function build()
     {
-        return $this->view('maileclipse::templates.invoiceTemplate');
+        return $this->view('view.name');
     }
 }
