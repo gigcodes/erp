@@ -1,8 +1,14 @@
-
-	@foreach($categories as $category)
+    @php
+        $isAdmin            = auth()->user()->isAdmin();
+        $isHod              = auth()->user()->hasRole('HOD of CRM');
+        $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
+        $userId             = auth()->user()->id;
+    @endphp
+	
+    @foreach($categories as $category)
 		<?php 
             $site = $category->getDevelopment($category->id,$website->id); 
-            if(auth()->user()->isAdmin() || auth()->user()->hasRole('Site-development') || ($site && $site->developer_id == auth()->user()->id)) {
+            if($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
         ?>
     	<tr>
     		<td>
@@ -17,8 +23,8 @@
     		</td>
     		<td>
     			<input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
-    			<input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site) {{ $site->title }}@endif" data-site="@if($site) {{ $site->id }}@endif"></td>
-    		<td><input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="description" value="@if($site) {{ $site->description }}@endif" data-site="@if($site) {{ $site->id }}@endif"></td>
+    			<input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif"></td>
+    		<td><input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="description" value="@if($site){{ $site->description }}@endif" data-site="@if($site){{ $site->id }}@endif"></td>
     		<td>
     			<?php echo Form::select("status",["" => "-- Select --"] + $allStatus,($site) ? $site->status : 0,[
       				"class" => "form-control save-item-select" ,
@@ -26,7 +32,7 @@
       				"data-type" => "status",
       				"data-site" => ($site) ? $site->id : ""
       			]) ?>
-      			<select style="margin-top: 5px;" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+      			<select style="margin-top: 5px;" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" id="user-@if($site){{ $site->id }}@endif">
     				<option>Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
@@ -35,7 +41,7 @@
                 <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
                     <option>Select Designer</option>
                     @foreach($users as $user)
-                        <option value="{{ $user->id }}" @if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
+                        <option value="{{ $user->id }}"@if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
                 </select>
                 <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
@@ -48,7 +54,7 @@
             <td>
     			@if($site)
     				<div class="chat_messages expand-row table-hover-cell">
-    					<button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+    					<button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
     					<span class="chat-mini-container"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
     			     	<span class="chat-full-container hidden"></span>
     				</div>
