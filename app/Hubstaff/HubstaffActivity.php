@@ -15,7 +15,8 @@ class HubstaffActivity extends Model
         'keyboard',
         'mouse',
         'overall',
-        'hubstaff_payment_account_id'
+        'hubstaff_payment_account_id',
+        'status'
     ];
 
     public static function getActivitiesForWeek($week, $year)
