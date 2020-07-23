@@ -30,33 +30,29 @@ class HomeController extends Controller
     {
         //Read the favicon template from favicon.png
         //file from current directory
-        $im = imagecreatefrompng(public_path("favicon/favicon.png"));
-        $char = substr($request->get("title","U"), 0, 1);
+        //header('Content-type: image/png');
+        $im = imagecreatefrompng(public_path("favicon/favicon-30X30.png"));
+        $char = preg_split("/\s+/", $request->get("title","U"));
 
-        /* Read the character which needs to be added in favicon from
-         * get request
-         */
-        if(isset($char) && !empty($char)) {
-            $string = $char;
-        } else {
-            /* If no character is specified; add some default value */
-            $string = 'V';
+        $words = explode(" ", $request->get("title","U"));
+        $acronym = "";
+        foreach ($words as $w) {
+          $acronym .= $w[0];
         }
+        
 
-        /* background color for the favicon */
-        $bg = imagecolorallocate($im, 255, 255, 255);
+        // create Image from file
+        $img = \Image::make(public_path("favicon/favicon-30X30.png"));
+        // use callback to define details
+        $img->text(strtoupper($acronym), 16, 8, function($font) {
+            $font->file(public_path("fonts/Arial.ttf"));
+            $font->size(20);
+            $font->align('center');
+            $font->valign('top');
+            $font->color('#6E6767');
+        });
 
-        /* foreground (font) color for the favicon */
-        $black = imagecolorallocate($im, 0, 0, 0);
+        return $img->response('png');
 
-        /* Write the character in favicon
-         * arguements: image, fontsize, x-coordinate,
-         *              y-coordinate, characterstring, color
-         */
-        imagechar($im, 2, 5, 1, $string, $black);
-
-        header('Content-type: image/png');
-
-        imagepng($im);
     }
 }
