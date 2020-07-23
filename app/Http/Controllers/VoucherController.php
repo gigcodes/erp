@@ -29,6 +29,7 @@ class VoucherController extends Controller
 
     public function index(Request $request)
     {
+        // dd($request->all());
         // $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
         // $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
         $start = $request->range_start ? $request->range_start : date("Y-m-d", strtotime('monday this week'));
