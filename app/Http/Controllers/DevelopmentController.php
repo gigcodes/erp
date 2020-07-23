@@ -20,14 +20,17 @@ use App\DeveloperModule;
 use App\DeveloperComment;
 use App\DeveloperTaskComment;
 use App\DeveloperCost;
+use App\DeveloperTaskHistory;
 use App\Github\GithubRepository;
 use App\PushNotification;
 use App\User;
+use App\PaymentReceipt;
 use App\Helpers;
 use App\Hubstaff\HubstaffMember;
 use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
 use App\Issue;
+use App\Task;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Client;
@@ -134,6 +137,7 @@ class DevelopmentController extends Controller
     }*/
     public function taskListByUserId(Request $request)
     {
+        echo "<pre>"; print_r(032);  echo "</pre>";die;
         $user_id = $request->get('user_id', 0);
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) {
@@ -237,7 +241,7 @@ class DevelopmentController extends Controller
             $plannedTasks = DeveloperTask::where('user_id', $user);
             $completedTasks = DeveloperTask::where('user_id', $user);
         }
-        // Filter by date
+        // Filter by date/
         if ($request->get('range_start') != '') {
             $progressTasks = $progressTasks->whereBetween('created_at', [$start, $end]);
             $plannedTasks = $plannedTasks->whereBetween('created_at', [$start, $end]);
@@ -389,6 +393,11 @@ class DevelopmentController extends Controller
         }
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+
+        if ($request->get('last_communicated', "off") == "on") {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
         $issues = $issues->select("developer_tasks.*");
 
         // Set variables with modules and users
@@ -407,7 +416,7 @@ class DevelopmentController extends Controller
             $issues = $issues->where('is_resolved', 0);
         }*/
 
-        if (!auth()->user()->isAdmin()) {
+        if (!auth()->user()->isReviwerLikeAdmin()) {
             $issues = $issues->where(function ($q) {
                 $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
             });
@@ -459,6 +468,7 @@ class DevelopmentController extends Controller
 
         $issues =  $issues->with('communications');
 
+        // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
@@ -1369,6 +1379,23 @@ class DevelopmentController extends Controller
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
         if (strtolower($request->get('is_resolved')) == "done") {
+            $assigned_to = User::find($issue->assigned_to);
+            if($assigned_to && $assigned_to->fixed_price_user_or_job == 1) {
+                // Fixed price task.
+                if($issue->cost == null) {
+                    return response()->json([
+                        'message'	=> 'Please provide cost for fixed price task.'
+                    ],500);
+                }
+                $payment_receipt = new PaymentReceipt;
+                $payment_receipt->date = date( 'Y-m-d' );
+                $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                $payment_receipt->rate_estimated = $issue->cost;
+                $payment_receipt->status = 'Pending';
+                $payment_receipt->developer_task_id = $issue->id;
+                $payment_receipt->user_id = $issue->assigned_to;
+                $payment_receipt->save();
+            }
             $issue->responsible_user_id = $issue->assigned_to;
             $issue->is_resolved = 1;
         }
@@ -1392,6 +1419,18 @@ class DevelopmentController extends Controller
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
         //$issue = Issue::find($request->get('issue_id'));
+
+        if($issue && $request->estimate_minutes) {
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'model' => 'App\DeveloperTask',
+                'attribute' => "estimation_minute",
+                'old_value' => $issue->estimate_minutes,
+                'new_value' => $request->estimate_minutes,
+                'user_id' => $issue->user_id,
+            ]);
+        }
+
         $issue->estimate_minutes = $request->get('estimate_minutes');
         $issue->save();
 
@@ -1727,5 +1766,15 @@ class DevelopmentController extends Controller
         }
 
         return response()->json($message);
+    }
+
+    public function getTimeHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::where('developer_task_id', $id)->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
     }
 }

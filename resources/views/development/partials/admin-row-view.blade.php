@@ -9,7 +9,7 @@
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td style="vertical-align: middle;">    
-        <select name="module" class="form-control task-module"  onchange="changeModule(this , {{$issue->id}})">
+        <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
             <option value=''>Selecct Module..</option>
             @foreach($modules as $module)
 
@@ -64,6 +64,7 @@
                 <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
             </div>
             <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button>
+            <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
         </div>
     </td>
     <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>

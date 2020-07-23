@@ -10,7 +10,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @if (trim($__env->yieldContent('favicon')))
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @else    
+        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @endif 
+
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -328,7 +333,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-
+                                
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -470,7 +475,15 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
@@ -532,7 +545,12 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-assign')}}">Assign Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1066,6 +1084,9 @@
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrases')}}">Most used phrases</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrasesDeleted')}}">Most used phrases Updated</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1452,7 +1473,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
 
                                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -1478,6 +1498,9 @@
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
                                         </li>
                                         @if(auth()->user()->checkPermission('category-edit'))
                                         <li class="nav-item dropdown">

@@ -106,6 +106,7 @@ use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
+use App\Console\Commands\FetchStoreWebsiteOrder;
 
 
 class Kernel extends ConsoleKernel
@@ -207,7 +208,8 @@ class Kernel extends ConsoleKernel
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
-        GenerateProductPricingJson::class
+        GenerateProductPricingJson::class,
+        FetchStoreWebsiteOrder::class
     ];
 
     /**
@@ -439,7 +441,10 @@ class Kernel extends ConsoleKernel
 
         // Customer chat messages quick data
         $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
+        $schedule->command('fetch-store-website:orders')->hourly();
         
+        // If scraper not completed, store alert
+        $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
     }
 
     /**

@@ -11,7 +11,10 @@ class Payment extends Model{
         'payment_method_id',
         'note',
         'amount',
-        'paid'
+        'paid',
+        'payment_receipt_id',
+        'date',
+        'currency'
     ];
 
     public static function getConsidatedUserPayments(){

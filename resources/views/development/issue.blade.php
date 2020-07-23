@@ -68,7 +68,7 @@
                         </a>
                 </div>
             </div>
-            @if($title == 'devtask')
+            @if($title == 'devtask' && auth()->user()->isReviwerLikeAdmin())
                 <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
             @endif
         </div>
@@ -91,7 +91,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue' && auth()->user()->isAdmin())
+                @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
                         @include("development.partials.add-new-issue")
                     </tr>
@@ -112,7 +112,7 @@
                     <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isReviwerLikeAdmin())
                         @include("development.partials.admin-row-view")
                     @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
                         @include("development.partials.developer-row-view")
@@ -128,6 +128,7 @@
     @include("development.partials.chat-list-history-modal")
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
+    @include("development.partials.time-history-modal")
 
 @endsection
 
@@ -341,7 +342,6 @@
                     toastr["success"]("User assigned successfully!", "Message")
                 }
             });
-
         });
         $(document).on('change', '.assign-user', function () {
             let id = $(this).attr('data-id');
@@ -359,6 +359,27 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                }
+            });
+
+        });
+
+        $(document).on('change', '.task-module', function () {
+            let id = $(this).attr('data-id');
+            let moduleID = $(this).val();
+
+            if (moduleID == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@changeModule')}}",
+                data: {
+                    module_id: moduleID,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Module assigned successfully!", "Message")
                 }
             });
 
@@ -446,6 +467,30 @@
                 }
             });
 
+        });
+
+        $(document).on('click', '.show-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_history_modal').modal('show');
         });
 
         $(document).on('change', '.change-task-status', function () {
@@ -568,6 +613,9 @@
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
                 }
             });
         }
@@ -622,6 +670,7 @@
                 }
             });
         });
-
+    
+    
     </script>
 @endsection

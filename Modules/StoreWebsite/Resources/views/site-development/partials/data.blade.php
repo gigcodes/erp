@@ -26,13 +26,24 @@
       				"data-type" => "status",
       				"data-site" => ($site) ? $site->id : ""
       			]) ?>
-      			<br>
-    			<select class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+      			<select style="margin-top: 5px;" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
     				<option>Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
     				@endforeach
     			</select>
+                <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option>Select Designer</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select>
+                <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option>Select Html</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select>
     		</td>
             <td>
     			@if($site)
@@ -50,12 +61,15 @@
     		</td>
     		<td>@if($site) {{ $site->created_at }}@endif</td>
             <td>
-                <button type="button" data-site-id="@if($site) {{ $site->id }} @endif" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
                 @if($site)
-                    <button type="button" data-site-id="@if($site) {{ $site->id }} @endif" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list">
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list">
                         <i class="fa fa-list" aria-hidden="true"></i>
+                    </button>
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark">
+                        <i class="fa fa-comment" aria-hidden="true"></i>
                     </button>
                 @endif
             </td>

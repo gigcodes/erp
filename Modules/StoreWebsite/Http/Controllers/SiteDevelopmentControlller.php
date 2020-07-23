@@ -116,6 +116,14 @@ class SiteDevelopmentController extends Controller
             $site->developer_id = $request->text;
         }
 
+        if ($request->type == 'designer_id') {
+            $site->designer_id = $request->text;
+        }
+
+        if ($request->type == 'html_designer') {
+            $site->html_designer = $request->text;
+        }
+
         $site->site_development_category_id = $request->category;
         $site->website_id                   = $request->websiteId;
 
@@ -181,7 +189,7 @@ class SiteDevelopmentController extends Controller
 
     public function saveDocuments(Request $request)
     {
-        $site = null;
+        $site      = null;
         $documents = $request->input('document', []);
         if (!empty($documents)) {
             if ($request->id) {
@@ -189,10 +197,11 @@ class SiteDevelopmentController extends Controller
             }
 
             if (!$site || $request->id == null) {
-                $site                   = new SiteDevelopment;
-                $site->title            = "";
-                $site->description      = "";
-                $site->store_website_id = $request->store_website_id;
+                $site                               = new SiteDevelopment;
+                $site->title                        = "";
+                $site->description                  = "";
+                $site->website_id                   = $request->store_website_id;
+                $site->site_development_category_id = $request->site_development_category_id;
                 $site->save();
             }
 
@@ -213,15 +222,34 @@ class SiteDevelopmentController extends Controller
 
     public function listDocuments(Request $request, $id)
     {
-        $site    = SiteDevelopment::find($request->id);
+        $site = SiteDevelopment::find($request->id);
+
+        $userList = [];
+
+        if ($site->developer) {
+            $userList[$site->developer->id] = $site->developer->name;
+        }
+
+        if ($site->designer) {
+            $userList[$site->designer->id] = $site->designer->name;
+        }
+
+        $userList = array_filter($userList);
+        // create the select box design html here
+        $usrSelectBox = "";
+        if (!empty($userList)) {
+            $usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
+        }
+
         $records = [];
         if ($site) {
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
                     $records[] = [
-                        "id"      => $media->id,
-                        'url'     => $media->getUrl(),
-                        'site_id' => $site->id,
+                        "id"        => $media->id,
+                        'url'       => $media->getUrl(),
+                        'site_id'   => $site->id,
+                        'user_list' => $usrSelectBox,
                     ];
                 }
             }
@@ -245,23 +273,50 @@ class SiteDevelopmentController extends Controller
 
     public function sendDocument(Request $request)
     {
-        if ($request->id != null && $request->site_id != null) {
+        if ($request->id != null && $request->site_id != null && $request->user_id != null) {
             $media        = \Plank\Mediable\Media::find($request->id);
-            $siteDevloper = SiteDevelopment::find($request->site_id);
-            if ($siteDevloper && $siteDevloper->developer) {
+            $user         = \App\User::find($request->user_id);
+            if ($user) {
                 if ($media) {
                     \App\ChatMessage::sendWithChatApi(
-                        $siteDevloper->developer->phone,
+                        $user->phone,
                         null,
                         "Please find attached file",
                         $media->getUrl()
                     );
                     return response()->json(["code" => 200, "message" => "Document send succesfully"]);
                 }
+            }else{
+                return response()->json(["code" => 200, "message" => "User or site is not available"]);
             }
         }
 
-        return response()->json(["code" => 200, "message" => "Sorry there is no attachment"]);
+        return response()->json(["code" => 200, "message" => "Sorry required fields is missing like id, siteid , userid"]);
+    }
+
+    public function remarks(Request $request, $id)
+    {
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+    }
+
+    public function saveRemarks(Request $request, $id)
+    {
+        \App\StoreDevelopmentRemark::create([
+            "remarks" => $request->remark,
+            "store_development_id" => $id,
+            "user_id" => \Auth::user()->id,
+        ]);
+
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+
     }
 
 }

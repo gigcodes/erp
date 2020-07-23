@@ -127,6 +127,7 @@
            <form action="{{ route("site-development.upload-documents") }}" method="POST" enctype="multipart/form-data">
 	            <input type="hidden" name="store_website_id" id="hidden-store-website-id" value="">
 	            <input type="hidden" name="id" id="hidden-site-id" value="">
+	            <input type="hidden" name="site_development_category_id" id="hidden-site-category-id" value="">
 	            <div class="modal-header">
 	                <h4 class="modal-title">Upload File(s)</h4>
 	            </div>
@@ -155,9 +156,10 @@
         		<table class="table table-bordered">
 				    <thead>
 				      <tr>
-				        <th>No</th>
-				        <th>Link</th>
-				        <th>Action</th>
+				        <th width="5%">No</th>
+				        <th width="45%">Link</th>
+				        <th width="25%">Send To</th>
+				        <th width="25%">Action</th>
 				      </tr>
 				    </thead>
 				    <tbody class="display-document-list">
@@ -170,6 +172,41 @@
         </div>
     </div>
 </div>
+
+<div id="remark-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	    			<div class="col-md-8" style="padding-bottom: 10px;">
+	    				<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+	    			</div>
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
+						<img src="/images/send.png" style="cursor: default;" >
+					</button>
+				</div>
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th width="5%">No</th>
+					        <th width="45%">Remark</th>
+					        <th width="25%">BY</th>
+					        <th width="25%">Date</th>
+					      </tr>
+					    </thead>
+					    <tbody class="remark-action-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -267,6 +304,42 @@
 			.fail(function(data) {
 				console.log(data)
 				console.log("error");
+			});
+		});
+
+
+		$(document).on("click",".btn-remark-field",function() {
+			var id  = $("#remark-field").data("id");
+			var val = $("#remark-field").val();
+			$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'POST',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+		    	data : {remark : val},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				$("#remark-field").val("");
+				toastr["success"]("Remarks fetched successfully");
+				var html = "";
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				//$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
 			});
 		});
 	});
@@ -383,6 +456,7 @@
 		$("#file-upload-area-section").modal("show");
 		$("#hidden-store-website-id").val($this.data("store-website-id"));
 		$("#hidden-site-id").val($this.data("site-id"));
+		$("#hidden-site-category-id").val($this.data("site-category-id"));
 	});
 
 	$(document).on("click",".btn-file-list",function(e) {
@@ -406,6 +480,7 @@
 				html += "<tr>";
 					html += "<td>"+v.id+"</td>";
 					html += "<td>"+v.url+"</td>";
+					html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
 					html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-send-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-comment" aria-hidden="true"></i></a></td>';
 				html += "</tr>";
 			});
@@ -435,8 +510,9 @@
 		}).done(function (data) {
 			$("#loading-image").hide();
 			toastr["success"]("Document uploaded successfully");
+			location.reload();
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
-			toastr["error"]("Oops,something went wrong");
+			toastr["error"](jqXHR.responseJSON.message);
 			$("#loading-image").hide();
 		});
 	});
@@ -446,6 +522,7 @@
 		e.preventDefault();
 		var id = $(this).data("id");
 		var site_id = $(this).data("site-id");
+		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
 		$.ajax({
 			url: '/site-development/send-document',
 			type: 'POST',
@@ -453,7 +530,7 @@
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
 	    	},
 	    	dataType:"json",
-			data: { id : id , site_id : site_id},
+			data: { id : id , site_id : site_id, user_id: user_id},
 			beforeSend: function() {
 				$("#loading-image").show();
            	}
@@ -492,6 +569,42 @@
 				$("#loading-image").hide();
 			});
 		}
+	});
+
+	$(document).on("click",".btn-store-development-remark",function(e) {
+		var id = $(this).data("site-id");
+		$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'GET',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				toastr["success"]("Remarks fetched successfully");
+
+				var html = "";
+				
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+
+				$("#remark-area-list").find("#remark-field").attr("data-id",id);
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
 	});
 
 	var uploadedDocumentMap = {}

@@ -29,9 +29,7 @@ class HubstaffActivitiesController extends Controller
 
     public function notificationRecords(Request $request)
     {
-
         $records = \App\Hubstaff\HubstaffActivityNotification::join("users as u", "hubstaff_activity_notifications.user_id", "u.id");
-
         $keyword = request("keyword");
         if (!empty($keyword)) {
             $records = $records->where(function ($q) use ($keyword) {
@@ -48,7 +46,6 @@ class HubstaffActivitiesController extends Controller
         }
 
         $records = $records->select(["hubstaff_activity_notifications.*", "u.name as user_name"])->get();
-
         return response()->json(["code" => 200, "data" => $records, "total" => count($records)]);
     }
 
@@ -60,6 +57,22 @@ class HubstaffActivitiesController extends Controller
                 $hnotification->reason = $request->reason;
                 $hnotification->save();
                 return response()->json(["code" => 200, "data" => [], "message" => "Added succesfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => [], "message" => "Requested id is not in database"]);
+    }
+
+    public function changeStatus(Request $request) {
+        if(!auth()->user()->isAdmin()) {
+            return response()->json(["code" => 500, "data" => [], "message" => "only admin can change status."]);
+        }
+        if($request->id != null) {
+            $hnotification = \App\Hubstaff\HubstaffActivityNotification::find($request->id);
+            if($hnotification != null) {
+                $hnotification->status = $request->status;
+                $hnotification->save();
+                return response()->json(["code" => 200, "data" => [], "message" => "changed succesfully"]);
             }
         }
 

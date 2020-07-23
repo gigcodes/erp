@@ -510,14 +510,25 @@ class ScrapController extends Controller
             ], 400);
         }
 
+        if(isset($request->status)){
+
+            // Search For ScraperQueue
+            ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 2]);
+            $product->status_id = StatusHelper::$unableToScrape;
+            $product->save();
+            return response()->json([
+                'status' => 'Product processed for unable to scrap'
+            ]);
+        }
+        
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
+        $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
         $validator = Validator::make($request->toArray(), [
             'id' => 'required',
-            'website' => 'required',
+            //'website' => 'required',
             'images' => 'required|array',
             'description' => 'required'
         ]);
@@ -528,7 +539,7 @@ class ScrapController extends Controller
         }
 
         // Set proper website name
-        $website = str_replace(' ', '', $request->get('website'));
+        //$website = str_replace(' ', '', $request->get('website'));
 
         // If product is found, update it
         if ($product) {
@@ -555,6 +566,7 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
+            $product->status_id = StatusHelper::$autoCrop;
             // Save
             $product->save();
 
@@ -944,7 +956,7 @@ class ScrapController extends Controller
 
 
         $scraper->run_gap = $request->run_gap;
-        $scraper->full_scrape = $request->full_scrape;
+        $scraper->full_scrape = !empty($request->full_scrape) ? $request->full_scrape : "";
         $scraper->time_out = $request->time_out;
         $scraper->starting_urls = $request->starting_url;
         $scraper->product_url_selector = $request->product_url_selector;
@@ -1009,6 +1021,8 @@ class ScrapController extends Controller
 
         $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
+        $scraper = Scraper::where("id",61)->first();
+
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
         }
@@ -1070,5 +1084,40 @@ class ScrapController extends Controller
             $scraper->save();
        }
        return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_completed_at = Carbon::now();
+                $scraper->save();
+        }
+       return response()->json(['success'],200);
+    }
+
+    public function needToStart(Request $request)
+    {
+        if($request->server_id != null) {
+            $scraper = Scraper::where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->pluck("scraper_name");
+            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+        }else{
+            return response()->json(["code" => 500, "message" => "Please send server id"]);
+        }
+    }
+
+    public function scraperNeeded(Request $request)
+    {
+       $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        ->latest("created_at")
+        ->select(["id","sku","supplier"])
+        ->limit(50)
+        ->get()
+        ->toArray(); 
+        
+        return response()->json($products);
     }
 }

@@ -20,6 +20,7 @@ use App\Sop;
 use App\Stage;
 use App\Brand;
 use App\User;
+use App\ChatMessage;
 use App\Supplier;
 use App\Stock;
 use App\Colors;
@@ -48,9 +49,14 @@ use App\HsCodeGroupsCategoriesComposition;
 use App\HsCode;
 use App\HsCodeSetting;
 use App\SimplyDutyCountry;
+use App\Product_translation;
+use App\GoogleTranslate;
 use seo2websites\GoogleVision\LogGoogleVision;
 use App\Helpers\ProductHelper;
 use App\StoreWebsite;
+use App\Task;
+use seo2websites\MagentoHelper\MagentoHelper;
+
 
 
 class ProductController extends Controller
@@ -105,6 +111,9 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+
+        // dd($request->all());
+        
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -126,7 +135,10 @@ class ProductController extends Controller
             if ($category->parent_id != 0) {
                 $parent = $category->parent;
                 if ($parent->parent_id != 0) {
-                    $category_tree[ $parent->parent_id ][ $parent->id ][ $category->id ];
+                    if(!isset($category_tree[ $parent->parent_id ])) {
+                        $category_tree[ $parent->parent_id ] = [];
+                    }
+                    $category_tree[ $parent->parent_id ][ $parent->id ] = $category->id;
                 } else {
                     $category_tree[ $parent->id ][ $category->id ] = $category->id;
                 }
@@ -135,19 +147,34 @@ class ProductController extends Controller
             $categories_array[ $category->id ] = $category->parent_id;
         }
 
+        // if ((int)$request->get('status_id') > 0) {
+        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        // } else {
+        //     if ($request->get('submit_for_approval') == "on") {
+        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+        //     }else{
+        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        //     }
+        // }
+	if(auth()->user()->isReviwerLikeAdmin()) {
+	   $newProducts = Product::query();	
+	}else{
+	   $newProducts = Product::where('assigned_to',auth()->user()->id);	
+	}	
+        
         if ((int)$request->get('status_id') > 0) {
-            $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+            $newProducts = $newProducts->where('status_id', (int)$request->get('status_id'));
         } else {
             if ($request->get('submit_for_approval') == "on") {
-                $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+                $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
             }else{
-                $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+                $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
             }
         }
 
+
         // Run through query helper
         $newProducts = QueryHelper::approvedListingOrder($newProducts);
-
         $term = $request->input('term');
         $brand = '';
         $category = '';
@@ -1290,12 +1317,43 @@ class ProductController extends Controller
                 $product->isUploaded = 1;
                 $product->save();
 
+            //translate product title and description
+            $languages = ['hi','ar'];
+            $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
+            if(!$isDefaultAvailable) {
+                $product_translation = new Product_translation;
+                $product_translation->title = $product->name;
+                $product_translation->description = $product->short_description;
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = 'en';
+                $product_translation->save();
+            }
+            foreach($languages as $language) {
+                $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
+                if(!$isLocaleAvailable) {
+                    $product_translation = new Product_translation;
+                    $googleTranslate = new GoogleTranslate();
+                    $title = $googleTranslate->translate($language,$product->name);
+                    $description = $googleTranslate->translate($language,$product->short_description);
+                    if($title && $description) {
+                        $product_translation->title = $title;
+                        $product_translation->description = $description;
+                        $product_translation->product_id = $product->id;
+                        $product_translation->locale = $language;
+                        $product_translation->save();
+                    }
+                }
+            }
+            // Update the product so it doesn't show up in final listing
+            $product->isUploaded = 1;
+            $product->save();
                 // Return response
                 return response()->json([
                     'result' => 'queuedForDispatch',
                     'status' => 'listed'
                 ]);
             }
+
 
         }
         
@@ -1310,8 +1368,9 @@ class ProductController extends Controller
     public function unlistMagento(Request $request, $id)
     {
         $product = Product::find($id);
-
-        $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUnlistProduct($product);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoUnlistProduct($product);
+        // $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUnlistProduct($product);
 
         return response()->json([
             'result' => $result,
@@ -1322,8 +1381,9 @@ class ProductController extends Controller
     public function approveMagento(Request $request, $id)
     {
         $product = Product::find($id);
-
-        $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUpdateStatus($product);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoUpdateStatus($product);
+        // $result = app('App\Http\Controllers\ProductApproverController')->magentoSoapUpdateStatus($product);
 
         return response()->json([
             'result' => $result,
@@ -1334,8 +1394,10 @@ class ProductController extends Controller
     public function updateMagento(Request $request, $id)
     {
         $product = Product::find($id);
+        $magentoHelper = new MagentoHelper;
+        $result = $magentoHelper->magentoProductUpdate($product);
 
-        $result = app('App\Http\Controllers\ProductAttributeController')->magentoProductUpdate($product);
+        // $result = app('App\Http\Controllers\ProductAttributeController')->magentoProductUpdate($product);
 
         return response()->json([
             'result' => $result[ 1 ],
@@ -3154,6 +3216,50 @@ class ProductController extends Controller
 
         return response()->json(['success' => 'success'], 200);
     }
+    public function productTranslation(Request $request) {
+        $term = $request->term;
+        $query = Product_translation::where('locale','en');
+        if($term){
+            $query  = $query->where(function($q) use ($request) {
+            $q->where('title', 'LIKE','%'.$request->term.'%')
+            ->orWhere('description', 'LIKE', '%'.$request->term.'%');
+            });
+        }
+        $product_translations = $query->orderBy('product_id', 'desc')->paginate(2)->appends(request()->except(['page']));
+
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('products.translations.product-search', compact('product_translations','term'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$product_translations->render()
+            ], 200);
+        }
+        return view('products.translations.product-list', compact('product_translations','term'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+    } 
+
+    public function viewProductTranslation($id) {
+        $locales = Product_translation::groupBy('locale')->pluck('locale');
+        $product_translation = Product_translation::find($id);
+        return view('products.translations.view-or-edit', [
+            'product_translation' => $product_translation,
+            'locales' => $locales,
+        ]);
+    }
+
+    
+    public function getProductTranslationDetails($id,$locale) {
+        $product_translation = Product_translation::where('product_id',$id)->where('locale',$locale)->first();
+        return response()->json([
+            'product_translation' => $product_translation
+        ]);
+    }
+
+    public function editProductTranslation($id, Request $request) {
+        Product_translation::where('id',$id)->update(['title' => $request->title, 'description' => $request->description]);
+        return response()->json([
+            'message' => 'Successfully updated the data'
+        ]);
+    }    
 
     public function published(Request $request)
     {
@@ -3242,7 +3348,8 @@ class ProductController extends Controller
     {
         \App\Jobs\UpdateScrapedColor::dispatch([
             "product_id"    => $id,
-            "color"         => $request->color
+            "color"         => $request->color,
+            "user_id"       => \Auth::user()->id
         ])->onQueue("supplier_products");
 
         return response()->json(['success','Product color has been sent for the update']);
@@ -3270,4 +3377,113 @@ class ProductController extends Controller
         return response()->json(["code" => 500 , "data" => [], "message" => "Required field is missing"]);
     }
 
+    public function getPreListProducts() {
+
+        $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+
+        $newProducts =  $newProducts->select(DB::raw("brand,category,assigned_to,count(*) as total"))
+                        ->groupBy('brand','category','assigned_to')->paginate(50);
+        foreach($newProducts as $product) {
+            if($product->brand) {
+                $brand = Brand::find($product->brand);
+                if($brand) {
+                    $product->brandName = $brand->name;
+                } 
+                else {
+                    $product->brandName = '';
+                }
+            }
+            else {
+                $product->brandName = '';
+            }
+            if($product->category) {
+                $category= Category::find($product->category); 
+                if($category) {
+                    $product->categoryName = $category->title;
+                }
+                else {
+                    $product->categoryName = '';
+                }
+            }
+            else {
+                $product->categoryName = '';
+            }
+            if($product->assigned_to) {
+                $product->assignTo = User::find($product->assigned_to)->name;
+            }
+            else {
+                $product->assignTo = '';
+            }
+        }
+        $users = User::all()->pluck('name','id')->toArray();
+        return view('products.assign-products',compact('newProducts','users'));
+    } 
+
+    public function assignProduct(Request $request) {
+        
+        $category = $request->category;
+        $brand = $request->brand;
+        $assigned_to = $request->assigned_to;
+        if(!$assigned_to) {
+            return response()->json(['message' => 'Select one user'],500);
+        }
+        $products = Product::where('status_id', StatusHelper::$finalApproval)->where('category',$category)->where('brand',$brand);
+
+        $products = QueryHelper::approvedListingOrder($products);
+        $products = $products->get();
+        foreach($products as $product) {
+            $product->update(['assigned_to' => $assigned_to]);
+        }
+
+
+        $data['assign_from']  = Auth::id();
+        $data['is_statutory'] = 2;
+        $data['task_details'] = 'Final Approval Assignment';
+        $data['task_subject'] = 'Final Approval Assignment';
+        $data['assign_to'] 	  = $assigned_to;
+
+
+
+        $task = Task::create($data);
+        if(!empty($task)) {
+            $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+        }
+
+        if ($task->is_statutory != 1) {
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+        } else {
+            $message = $task->task_subject . ". " . $task->task_details;
+        }
+
+        $params = [
+             'number'       => NULL,
+             'user_id'      => Auth::id(),
+             'approved'     => 1,
+             'status'       => 2,
+             'task_id'	   => $task->id,
+             'message'      => $message
+        ];
+
+            // if ($task->assign_from == Auth::id()) {
+            //          if ($key == 0) {
+            //              $params['erp_user'] = $user->id;
+            //          } else {
+            //              app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+            //          }
+            //  }
+            $user = User::find($assigned_to);
+            $params['erp_user'] = $assigned_to;
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+
+        $chat_message = ChatMessage::create($params);
+
+          $myRequest = new Request();
+          $myRequest->setMethod('POST');
+          $myRequest->request->add(['messageId' => $chat_message->id]);
+          app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
+          $username = $user->name;
+        return response()->json(['message' => 'Successful','user' => $username]);
+    }
 }

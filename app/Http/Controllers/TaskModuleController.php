@@ -19,9 +19,11 @@ use App\DocumentRemark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
+use App\DeveloperTaskHistory;
 use App\ScheduledMessage;
 use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
+use App\PaymentReceipt;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
@@ -401,8 +403,39 @@ class TaskModuleController extends Controller {
 		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
 	}
 
+	public function updateCost(Request $request) {
+		$task = Task::find($request->task_id);
+
+		// if($task && $request->approximate) {
+        //     DeveloperTaskHistory::create([
+		// 		'developer_task_id' => $task->id,
+		// 		'model' => 'App\Task',
+        //         'attribute' => "estimation_minute",
+        //         'old_value' => $task->approximate,
+        //         'new_value' => $request->approximate,
+        //         'user_id' => auth()->id(),
+        //     ]);
+        // }
+
+		$task->cost = $request->cost;
+		$task->save();
+		return response()->json(['msg' => 'success']);
+	}
+
 	public function updateApproximate(Request $request) {
 		$task = Task::find($request->task_id);
+
+		if($task && $request->approximate) {
+            DeveloperTaskHistory::create([
+				'developer_task_id' => $task->id,
+				'model' => 'App\Task',
+                'attribute' => "estimation_minute",
+                'old_value' => $task->approximate,
+                'new_value' => $request->approximate,
+                'user_id' => auth()->id(),
+            ]);
+        }
+
 		$task->approximate = $request->approximate;
 		$task->save();
 		return response()->json(['msg' => 'success']);
@@ -786,13 +819,15 @@ class TaskModuleController extends Controller {
 		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
 		                                        ->renderAsDropdown();
-		$taskNotes = $task->notes()->paginate(20);
+		$taskNotes = $task->notes()->where('is_hide', 0)->paginate(20);
+		$hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
 			'categories'	=> $categories,
 			'taskNotes'	=> $taskNotes,
+			'hiddenRemarks'	=> $hiddenRemarks,
 		]);
 	}
 
@@ -867,7 +902,7 @@ class TaskModuleController extends Controller {
 
 	public function complete(Request $request, $taskid ) {
 
-		$task               = Task::find( $taskid );
+		$task  = Task::find( $taskid );
 		// $task->is_completed = date( 'Y-m-d H:i:s' );
 //		$task->deleted_at = null;
 
@@ -891,8 +926,32 @@ class TaskModuleController extends Controller {
 		//
 		// 	$item->save();
 		// }
-
 		if ($request->type == 'complete') {
+			if($task->assignedTo) {
+				if($task->assignedTo->fixed_price_user_or_job == 1) {
+					// Fixed price task.
+					if($task->cost == null) {
+						if ($request->ajax()) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+				
+						return redirect()->back()
+										 ->with( 'error', 'Please provide cost for fixed price task.' );
+					}
+					$payment_receipt = new PaymentReceipt;
+					$payment_receipt->date = date( 'Y-m-d' );
+					$payment_receipt->worked_minutes = $task->approximate;
+					$payment_receipt->rate_estimated = $task->cost;
+					$payment_receipt->status = 'Pending';
+					$payment_receipt->task_id = $task->id;
+					$payment_receipt->user_id = $task->assign_to;
+					$payment_receipt->save();
+				}
+			}
+
+
 			if ($task->is_completed == '') {
 				$task->is_completed = date( 'Y-m-d H:i:s' );
 			} else if ($task->is_verified == '') {
@@ -1513,6 +1572,11 @@ class TaskModuleController extends Controller {
 			$data['task_details'] = $request->get("task_detail");
 			$data['task_subject'] = $request->get("task_subject");
 			$data['assign_to'] 	  = $request->get("task_asssigned_to");
+
+			if($request->category_id != null) {
+				$data['category'] 	  = $request->category_id;
+			}
+
 			$task = Task::create($data);
 			if(!empty($task)) {
 				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
@@ -1569,10 +1633,23 @@ class TaskModuleController extends Controller {
 
 	}
 
+	/***
+	 * Delete task note
+	 */
 	public function deleteTaskNote(Request $request)
 	{
 		$task = Remark::whereId($request->note_id)->delete();
 		session()->flash('success', 'Deleted successfully.');
 		return response(['success' => "Deleted"],200);
+	}
+
+	/**
+	 * Hide task note from list
+	 */
+	public function hideTaskRemark(Request $request)
+	{
+		$task = Remark::whereId($request->note_id)->update(['is_hide' => 1]);
+		session()->flash('success', 'Hide successfully.');
+		return response(['success' => "Hidden"],200);
 	}
 }

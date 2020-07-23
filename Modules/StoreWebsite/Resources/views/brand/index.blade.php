@@ -50,10 +50,10 @@
 				<table class="table table-bordered">
 				    <thead>
 				      <tr>
-				      	<th>Id</th>
-				        <th>Brand</th>
+				      	<th width="5%">Id</th>
+				        <th width="10%">Brand</th>
 				        <?php foreach($storeWebsite as $sw) { ?>
-				        	<th><?php echo $sw->website; ?></th>
+				        	<th width="10%"><?php echo $sw->title; ?></th>
 				        <?php } ?>	
 				      </tr>
 				    </thead>
