@@ -2,6 +2,7 @@
 
 namespace Modules\StoreWebsite\Http\Controllers;
 
+use App\Category;
 use App\StoreWebsite;
 use App\StoreWebsiteCategory;
 use Illuminate\Http\Request;
@@ -9,7 +10,6 @@ use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use seo2websites\MagentoHelper\MagentoHelper;
-use App\Category;
 
 class CategoryController extends Controller
 {
@@ -99,7 +99,7 @@ class CategoryController extends Controller
         $return     = [];
         if ($categories) {
             $return[] = [
-                "id"   => $categories->id,
+                "id"    => $categories->id,
                 "title" => $categories->title,
             ];
 
@@ -118,9 +118,9 @@ class CategoryController extends Controller
     public function recursiveChildCat($categories, &$return = [])
     {
         foreach ($categories->childs as $cat) {
-            if($cat->title != "") {
+            if ($cat->title != "") {
                 $return[] = [
-                    "id"   => $cat->id,
+                    "id"    => $cat->id,
                     "title" => $cat->title,
                 ];
             }
@@ -138,245 +138,240 @@ class CategoryController extends Controller
             ->pluck("name")
             ->toArray();
 
-        // check unique records    
+        // check unique records
         $unique = array_diff($categories, $ccat);
-        if(!empty($unique) && is_array($unique)) {
+        if (!empty($unique) && is_array($unique)) {
             foreach ($unique as $cat) {
                 // StoreWebsiteCategory::create([
                 //     "store_website_id" => $swi,
-                //     "category_id" => $cat 
+                //     "category_id" => $cat
                 // ]);
 
                 $category = Category::find($cat);
-                
-                if($category->parent_id == 0){
+
+                if ($category->parent_id == 0) {
                     $case = 'single';
-                }elseif($category->parent->parent_id == 0){
+                } elseif ($category->parent->parent_id == 0) {
                     $case = 'second';
-                }else{
+                } else {
                     $case = 'third';
                 }
 
-                //Check if category 
-                if($case == 'single'){
-                    $data['id'] = $category->id;
-                    $data['level'] = 1;
-                    $data['name'] = ucwords($category->title);
+                //Check if category
+                if ($case == 'single') {
+                    $data['id']       = $category->id;
+                    $data['level']    = 1;
+                    $data['name']     = ucwords($category->title);
                     $data['parentId'] = 0;
-                    $parentId = 0;
+                    $parentId         = 0;
 
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        $categ = MagentoHelper::createCategory($parentId,$data,$swi);
+                        $categ = MagentoHelper::createCategory($parentId, $data, $swi);
                     }
-                    if($category){
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$categ)->first();
-                        if(empty($checkIfExist)){
-                            $storeWebsiteCategory = new StoreWebsiteCategory();
-                            $storeWebsiteCategory->category_id = $category->id;
+                    if ($category) {
+                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categ)->first();
+                        if (empty($checkIfExist)) {
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->id;
                             $storeWebsiteCategory->store_website_id = $swi;
-                            $storeWebsiteCategory->remote_id = $categ;
+                            $storeWebsiteCategory->remote_id        = $categ;
                             $storeWebsiteCategory->save();
-                        }    
+                        }
                     }
                 }
 
-
                 //if case second
-                if($case == 'second'){
-                    $parentCategory = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->parent->id)->whereNotNull('remote_id')->first();
+                if ($case == 'second') {
+                    $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->whereNotNull('remote_id')->first();
                     //if parent remote null then send to magento first
-                    if(empty($parentCategory)){
+                    if (empty($parentCategory)) {
 
-                        $data['id'] = $category->parent->id;
-                        $data['level'] = 1;
-                        $data['name'] = ucwords($category->parent->title);
+                        $data['id']       = $category->parent->id;
+                        $data['level']    = 1;
+                        $data['name']     = ucwords($category->parent->title);
                         $data['parentId'] = 0;
-                        $parentId = 0;
+                        $parentId         = 0;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                
-                            $parentCategoryDetails = MagentoHelper::createCategory($parentId,$data,$swi);
+
+                            $parentCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
                         }
-                        if($parentCategoryDetails){
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$parentCategoryDetails)->first();
-                            if(empty($checkIfExist)){
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
+                        if ($parentCategoryDetails) {
+                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $parentCategoryDetails)->first();
+                            if (empty($checkIfExist)) {
+                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                $storeWebsiteCategory->category_id      = $category->id;
                                 $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $parentCategoryDetails;
+                                $storeWebsiteCategory->remote_id        = $parentCategoryDetails;
                                 $storeWebsiteCategory->save();
-                            }    
+                            }
                         }
-                        
+
                         $parentRemoteId = $parentCategoryDetails;
 
-                    }else{
+                    } else {
                         $parentRemoteId = $parentCategory->remote_id;
                     }
 
-
-                    $data['id'] = $category->id;
-                    $data['level'] = 2;
-                    $data['name'] = ucwords($category->title);
+                    $data['id']       = $category->id;
+                    $data['level']    = 2;
+                    $data['name']     = ucwords($category->title);
                     $data['parentId'] = $parentRemoteId;
 
                     if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                
-                        $categoryDetail = MagentoHelper::createCategory($parentRemoteId,$data,$swi);
+
+                        $categoryDetail = MagentoHelper::createCategory($parentRemoteId, $data, $swi);
 
                     }
 
-                    if($categoryDetail){
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$categoryDetail)->first();
-                            if(empty($checkIfExist)){
-                                    $storeWebsiteCategory = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id = $category->id;
-                                    $storeWebsiteCategory->store_website_id = $swi;
-                                    $storeWebsiteCategory->remote_id = $categoryDetail;
-                                    $storeWebsiteCategory->save();
-                            }        
+                    if ($categoryDetail) {
+                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
+                        if (empty($checkIfExist)) {
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->id;
+                            $storeWebsiteCategory->store_website_id = $swi;
+                            $storeWebsiteCategory->remote_id        = $categoryDetail;
+                            $storeWebsiteCategory->save();
+                        }
                     }
                 }
 
-
-                //if case third 
-                if($case == 'third'){
-                    //Find Parent 
-                    $parentCategory = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->whereNotNull('remote_id')->first();
+                //if case third
+                if ($case == 'third') {
+                    //Find Parent
+                    $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
 
                     //Check if parent had remote id
-                    if(empty($parentCategory)){
+                    if (empty($parentCategory)) {
 
                         //check for grandparent
-                        $grandCategory = Category::find($category->parent->id);
-                        $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$grandCategory->parent->id)->whereNotNull('remote_id')->first();
+                        $grandCategory       = Category::find($category->parent->id);
+                        $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $grandCategory->parent->id)->whereNotNull('remote_id')->first();
 
-                        if(empty($grandCategoryDetail)){
+                        if (empty($grandCategoryDetail)) {
 
-                            $data['id'] = $grandCategory->parent->id;
-                            $data['level'] = 1;
-                            $data['name'] = ucwords($grandCategory->parent->title);
+                            $data['id']       = $grandCategory->parent->id;
+                            $data['level']    = 1;
+                            $data['name']     = ucwords($grandCategory->parent->title);
                             $data['parentId'] = 0;
-                            $parentId = 0;
+                            $parentId         = 0;
+
+                            if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+
+                                $grandCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
+
+                            }
+
+                            if ($grandCategoryDetails) {
+                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->where('remote_id', $grandCategoryDetails)->first();
+                                if (empty($checkIfExist)) {
+                                    $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                    $storeWebsiteCategory->category_id      = $category->parent->id;
+                                    $storeWebsiteCategory->store_website_id = $swi;
+                                    $storeWebsiteCategory->remote_id        = $grandCategoryDetails;
+                                    $storeWebsiteCategory->save();
+                                }
+
+                            }
+
+                            $grandRemoteId = $grandCategoryDetails;
+
+                        } else {
+                            $grandRemoteId = $grandCategoryDetail->remote_id;
+                        }
+                        //Search for child category
+
+                        $data['id']       = $category->parent->id;
+                        $data['level']    = 2;
+                        $data['name']     = ucwords($category->parent->title);
+                        $data['parentId'] = $grandRemoteId;
+                        $parentId         = $grandRemoteId;
 
                         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                
-                            $grandCategoryDetails = MagentoHelper::createCategory($parentId,$data,$swi);
+
+                            $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
 
                         }
 
-                        if($grandCategoryDetails){
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->parent->id)->where('remote_id',$grandCategoryDetails)->first();
-                            if(empty($checkIfExist)){
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->parent->id;
+                        $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->parent->id)->where('remote_id', $childCategoryDetails)->first();
+                        if (empty($checkIfExist)) {
+                            $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                            $storeWebsiteCategory->category_id      = $category->parent->id;
+                            $storeWebsiteCategory->store_website_id = $swi;
+                            $storeWebsiteCategory->remote_id        = $childCategoryDetails;
+                            $storeWebsiteCategory->save();
+                        }
+
+                        $data['id']       = $category->id;
+                        $data['level']    = 3;
+                        $data['name']     = ucwords($category->title);
+                        $data['parentId'] = $childCategoryDetails;
+
+                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+
+                            $categoryDetail = MagentoHelper::createCategory($childCategoryDetails, $data, $swi);
+
+                        }
+
+                        if ($categoryDetail) {
+                            $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categoryDetail)->first();
+                            if (empty($checkIfExist)) {
+                                $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                $storeWebsiteCategory->category_id      = $category->id;
                                 $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $grandCategoryDetails;
+                                $storeWebsiteCategory->remote_id        = $categoryDetail;
                                 $storeWebsiteCategory->save();
                             }
-                        
                         }
-                        
-                        $grandRemoteId = $grandCategoryDetails;
-                        
-                    }else{
-                        $grandRemoteId = $grandCategoryDetail->remote_id; 
-                    }
-                    //Search for child category
-
-                        $data['id'] = $category->parent->id;
-                        $data['level'] = 2;
-                        $data['name'] = ucwords($category->parent->title);
-                        $data['parentId'] = $grandRemoteId;
-                        $parentId = $grandRemoteId;
-
-                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                
-                            $childCategoryDetails = MagentoHelper::createCategory($parentId,$data,$swi);
-
-                        }
-
-                        $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->parent->id)->where('remote_id',$childCategoryDetails)->first();
-                            if(empty($checkIfExist)){
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->parent->id;
-                                $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $childCategoryDetails;
-                                $storeWebsiteCategory->save();
-                            }    
-
-                        $data['id'] = $category->id;
-                        $data['level'] = 3;
-                        $data['name'] = ucwords($category->title);
-                        $data['parentId'] = $childCategoryDetails;
-                        
-                        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-
-                            $categoryDetail = MagentoHelper::createCategory($childCategoryDetails,$data,$swi);
-
-                        }
-
-                        if($categoryDetail){
-                            $checkIfExist = StoreWebsiteCategory::where('store_website_id',$swi)->where('category_id',$category->id)->where('remote_id',$categoryDetail)->first();
-                            if(empty($checkIfExist)){
-                                $storeWebsiteCategory = new StoreWebsiteCategory();
-                                $storeWebsiteCategory->category_id = $category->id;
-                                $storeWebsiteCategory->store_website_id = $swi;
-                                $storeWebsiteCategory->remote_id = $categoryDetail;
-                                $storeWebsiteCategory->save();
-                            }    
-                        }
-
 
                     }
 
                 }
-
 
             }
         }
 
         // return response
-        return response()->json(["code" => 200 , "data" => ["store_website_id" => $swi] , "message" => "Category has been saved successfully"]);
+        return response()->json(["code" => 200, "data" => ["store_website_id" => $swi], "message" => "Category has been saved successfully"]);
     }
 
+    function list(Request $request) {
+        $title      = "Store Category";
+        $categories = Category::query();
 
-    public function list(Request $request) {
-        $title        = "Store Category";
-        $categories       = Category::query();
-        
-        if($request->keyword != null) {
-            $categories = $categories->where("title","like","%".$request->keyword."%");
+        if ($request->keyword != null) {
+            $categories = $categories->where("title", "like", "%" . $request->keyword . "%");
         }
+
+        $categories = $categories->whereIn("id", [3]);
 
         $categories = $categories->get();
 
         $storeWebsite = StoreWebsite::all();
-        $appliedQ      = StoreWebsiteCategory::all();
+        $appliedQ     = StoreWebsiteCategory::all();
 
-        return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite','appliedQ']));
+        return view("storewebsite::category.index", compact(['title', 'categories', 'storeWebsite', 'appliedQ']));
     }
 
     public function saveStoreCategory(Request $request)
     {
         $storeId = $request->store;
-        $catId = $request->category_id;
+        $catId   = $request->category_id;
         if ($catId != null && $storeId != null) {
             $categoryStore = StoreWebsiteCategory::where("category_id", $catId)->where("store_website_id", $storeId)->first();
+            $website       = \App\StoreWebsite::find($storeId);
+            $category      = Category::find($catId);
+            if ($website && $category) {
+                $data['id']       = $category->id;
+                $data['level']    = 1;
+                $data['name']     = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
+                $data['parentId'] = 0;
+                $parentId         = 0;
 
-            $website = \App\StoreWebsite::find($storeId);
-            $category = Category::find($catId);
-            if($website && $category){
-                    $data['id'] = $category->id;
-                    $data['level'] = 1;
-                    $data['name'] = ($request->category_name) ? ucwords($request->category_name) : ucwords($category->title);
-                    $data['parentId'] = 0;
-                    $parentId = 0;
-
-                    if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                        $categ = MagentoHelper::createCategory($parentId,$data,$storeId);
-                    }
+                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    $categ = MagentoHelper::createCategory($parentId, $data, $storeId);
+                }
             }
 
             $msg = '';

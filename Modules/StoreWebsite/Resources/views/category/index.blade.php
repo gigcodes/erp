@@ -134,7 +134,11 @@ function ajaxCall(catId, swId, check, catName) {
 		url: "{{ route('store-website.save.store.category') }}",
 		type: 'POST',
 		data:{category_id: catId, store: swId, check: check, category_name: catName, '_token': "{{ csrf_token()}}"},
+		beforeSend :  function() {
+			$("#loading-image").show();
+		},
 		success: function(data) {
+			$("#loading-image").hide();
 			if(data.message) {
 				$('#alert-msg p').text(data.message);
 				$('#alert-msg').show();
