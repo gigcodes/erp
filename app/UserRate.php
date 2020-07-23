@@ -90,4 +90,15 @@ class UserRate extends Model
     $rateData = DB::select($query);
     return self::hydrate($rateData);
   }
+
+
+  public static function latestRatesOnDate($time,$user_id)
+  {
+    return self::where('start_date', '<', $time)
+    ->where('user_id', $user_id)
+    ->orderBy('start_date','desc')
+    ->first();
+  }
+
+  
 }

@@ -28,8 +28,6 @@ class HubstaffActivitiesController extends Controller
 
     public function notification()
     {
-        // $a = Artisan::call('hubstaff:account');
-        // dd($a);
         $title = "Hubstaff Notification";
 
         return view("hubstaff.activities.notification.index", compact('title'));
