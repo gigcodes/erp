@@ -10,7 +10,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @if (trim($__env->yieldContent('favicon')))
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @else    
+        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @endif 
+
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
