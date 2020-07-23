@@ -510,6 +510,17 @@ class ScrapController extends Controller
             ], 400);
         }
 
+        if(isset($request->status)){
+
+            // Search For ScraperQueue
+            ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 2]);
+            $product->status_id = StatusHelper::$unableToScrape;
+            $product->save();
+            return response()->json([
+                'status' => 'Product processed for unable to scrap'
+            ]);
+        }
+        
         // Set product to unable to scrape - will be updated later if we have info
         $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
