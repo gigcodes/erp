@@ -36,8 +36,13 @@ class HomeController extends Controller
 
         $words = explode(" ", $request->get("title","U"));
         $acronym = "";
+        $i = 1;
         foreach ($words as $w) {
           $acronym .= $w[0];
+          if($i == 2) {
+            break;
+          }
+          $i++;
         }
         
 
