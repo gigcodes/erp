@@ -72,6 +72,11 @@ Route::prefix('store-website')->group(function () {
         });
     });
 
+    Route::prefix('category')->group(function () {
+        Route::get('/', 'CategoryController@list')->name("store-website.category.list");
+        Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
+    });
+
 });
 
 Route::prefix('site-development')->group(function () {
