@@ -1263,7 +1263,7 @@ class WhatsAppController extends FindByNumberController
 
             if($customer != null){
                 ChatMessagesQuickData::updateOrCreate([
-                    'model' => "\App\Customer",
+                    'model' => \App\Customer::class,
                     'model_id' => $params['customer_id']
                     ], [
                     'last_unread_message' => @$params['message'],
@@ -2506,7 +2506,7 @@ class WhatsAppController extends FindByNumberController
 
         if ($context == 'customer') {
             ChatMessagesQuickData::updateOrCreate([
-                'model' => "App\Customer",
+                'model' => \App\Customer::class,
                 'model_id' => $data['customer_id']
                 ], [
                 'last_communicated_message' => @$data['message'],

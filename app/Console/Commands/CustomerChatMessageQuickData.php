@@ -39,30 +39,29 @@ class CustomerChatMessageQuickData extends Command
      */
     public function handle()
     {
-        try {
-            $customers = Customer::with(['allMessages' => function($q) {
-                $q->latest()->first();
-            }])->get();
-    
-            if(count($customers)) {
-                foreach($customers as $key => $item) {
-                    if(count($item->allMessages)) {
-                        foreach($item->allMessages as $key1 => $item1) {
-                            $data['last_unread_message'] = ($item1->status == 0) ? $item1->message : '';
-                            $data['last_unread_message_at'] = ($item1->status == 0) ? $item1->created_at : '';
-                            $data['last_communicated_message'] = ($item1->status > 0) ? $item1->message : '';
-                            $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : '';
+        $customers = Customer::with(['allMessages' => function($qr) {
+            $qr->orderBy("created_at","desc");
+        }])->get();
+
+        if(count($customers)) {
+            foreach($customers as $key => $item) {
+                if(count($item->allMessages)) {
+                    foreach($item->allMessages as $key1 => $item1) {
+                        $data['last_unread_message'] = ($item1->status == 0) ? $item1->message : NULL;
+                        $data['last_unread_message_at'] = ($item1->status == 0) ? $item1->created_at : NULL;
+                        $data['last_communicated_message'] = ($item1->status > 0) ? $item1->message : NULL;
+                        $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : NULL;
+
+                        if(!empty($data['last_unread_message']) || !empty($data['last_communicated_message'])){
                             ChatMessagesQuickData::updateOrCreate([
-                                'model' => "\App\Customer",
+                                'model' => \App\Customer::class,
                                 'model_id' => $item->id
-                                ], $data);
+                            ], $data);
+                            break;
                         }
                     }
                 }
             }
-
-        } catch (\Exception $e) {
-            \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }
 }
