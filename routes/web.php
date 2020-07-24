@@ -385,6 +385,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
     Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+    Route::post('task/update/milestone', 'TaskModuleController@updateCost')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
@@ -749,6 +750,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
+    Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
     Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
     Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');

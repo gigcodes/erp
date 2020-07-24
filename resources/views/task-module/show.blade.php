@@ -221,6 +221,29 @@
                         <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
                     </div>
 
+                    
+                    <div class="form-group">
+                        <strong>Is Milestone ?:</strong>
+                        <select id="is_milestone" class="form-control" name="is_milestone" required>
+                            <option value="0" {{ old('is_milestone') == 0 ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('is_milestone') == 1 ? 'selected' : '' }}>Yes</option>
+                        </select>
+
+                        @if ($errors->has('is_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <strong>No of milestone:</strong>
+                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" />
+                        </select>
+
+                        @if ($errors->has('no_of_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
+                        @endif
+                    </div>
+
                     <div class="col-xs-12 text-center">
                         <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
                     </div>
@@ -290,7 +313,8 @@
                                 <th width="5%" colspan="2">From / To</th>
                                 <th width="5%">ED</th>
                                 <th width="6%">Cost</th>
-                                <th width="38%">Communication</th>
+                                <th width="8%">Milestone</th>
+                                <th width="30%">Communication</th>
                                 <th width="10%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
@@ -1863,6 +1887,32 @@
             }
         });
 
+
+        $(document).on('keyup', '.save-milestone', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).attr('data-id');
+            let total = $(this).val();
+
+            $.ajax({
+                url: "{{ route('task.update.milestone') }}",
+                _token: "{{ csrf_token() }}",
+                data: {
+                    total: total,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Milestone updated successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    console.log(error.responseJSON.message);
+                    
+                }
+            });
+        });
+
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
@@ -1968,6 +2018,18 @@
                 $this.closest("table").find("tbody tr").show();
             }
         });
+
+
+        $(document).on('change', '#is_milestone', function () {
+
+            var is_milestone = $('#is_milestone').val();
+            if(is_milestone == '1') {
+                $('#no_of_milestone').attr('required', 'required');
+            }
+            else {
+                $('#no_of_milestone').removeAttr('required');
+            }
+            });
 
     </script>
 @endsection
