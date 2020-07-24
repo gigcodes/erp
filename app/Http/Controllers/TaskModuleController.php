@@ -427,7 +427,7 @@ class TaskModuleController extends Controller {
 
 	public function saveMilestone(Request $request)
     {
-        $task = Task::find($request->task_id);
+		$task = Task::find($request->task_id);
         if(!$task->is_milestone) {
             return;
         }
@@ -463,7 +463,7 @@ class TaskModuleController extends Controller {
         $payment_receipt->rate_estimated = $totalCost;
         $payment_receipt->status = 'Pending';
         $payment_receipt->task_id = $task->id;
-        $payment_receipt->user_id = $task->assigned_to;
+        $payment_receipt->user_id = $task->assign_to;
 		$payment_receipt->save();
 		
         return response()->json([

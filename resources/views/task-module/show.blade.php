@@ -222,11 +222,11 @@
                     </div>
 
                     
-                    <div class="form-group">
-                        <strong>Is Milestone ?:</strong>
+                    <div class="form-group ml-3">
                         <select id="is_milestone" class="form-control" name="is_milestone" required>
-                            <option value="0" {{ old('is_milestone') == 0 ? 'selected' : '' }}>No</option>
-                            <option value="1" {{ old('is_milestone') == 1 ? 'selected' : '' }}>Yes</option>
+                            <option value="0">Is milestone</option>
+                            <option value="0" >No</option>
+                            <option value="1" >Yes</option>
                         </select>
 
                         @if ($errors->has('is_milestone'))
@@ -234,9 +234,8 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
-                        <strong>No of milestone:</strong>
-                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" />
+                    <div class="form-group ml-3">
+                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
                         </select>
 
                         @if ($errors->has('no_of_milestone'))
@@ -1896,11 +1895,10 @@
             let total = $(this).val();
 
             $.ajax({
-                url: "{{ route('task.update.milestone') }}",
-                _token: "{{ csrf_token() }}",
+                url: "{{action('TaskModuleController@saveMilestone')}}",
                 data: {
                     total: total,
-                    issue_id: id
+                    task_id: id
                 },
                 success: function () {
                     toastr["success"]("Milestone updated successfully!", "Message")
