@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class DropBillingDatesFromPaymentReceiptsTable extends Migration
+class AddUserIdToPaymentReceiptsTable extends Migration
 {
     /**
      * Run the migrations.
@@ -14,10 +14,7 @@ class DropBillingDatesFromPaymentReceiptsTable extends Migration
     public function up()
     {
         Schema::table('payment_receipts', function (Blueprint $table) {
-            $table->dropColumn('billing_start_date');
-            $table->dropColumn('billing_end_date');
-            $table->date('date');
-            //$table->integer('user_id')->nullable()->change();
+            $table->integer('user_id');
         });
     }
 

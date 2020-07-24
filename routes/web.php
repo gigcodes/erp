@@ -19,6 +19,7 @@ Route::get('/test/test', function(){
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
+Route::get('generate-favicon', 'HomeController@generateFavicon');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
