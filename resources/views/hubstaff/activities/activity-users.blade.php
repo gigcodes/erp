@@ -11,7 +11,11 @@
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
+        <div class="pull-right">
+        <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
     </div>
+    </div>
+   
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
@@ -51,6 +55,7 @@
           <th>User</th>
           <th>Time tracked</th>
           <th>Time approved</th>
+          <th>Pending payment time</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
           @foreach ($activityUsers as $user)
@@ -59,6 +64,8 @@
               <td>{{ $user->userName }}</td>
               <td>{{$user->total_tracked}} </td>
               <td><span class="replaceme">{{$user->totalApproved}}</span> </td>
+              <td><span>{{$user->totalNotPaid}}</td>
+
               <td>
                 <form action="">
                     <input type="hidden" class="user_id" name="user_id" value="{{$user->user_id}}">
