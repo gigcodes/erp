@@ -3404,6 +3404,7 @@ class ProductController extends Controller
 
         }
       }
+      return response()->json(["code" => 200 , "message" => "Push product successfully"]);
 
     }
 

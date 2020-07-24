@@ -810,7 +810,7 @@
            processData: false,
            url: "{{ url('products/listing/final/pushproduct') }}",
            success: function(html) {
-
+            swal(html.message);
            }
          })
           }
@@ -834,6 +834,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
 
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
