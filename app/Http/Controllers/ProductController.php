@@ -114,7 +114,7 @@ class ProductController extends Controller
     {
 
         // dd($request->all());
-        
+
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -3386,22 +3386,12 @@ class ProductController extends Controller
       ->get();
 
       $brandIds = array_unique($webData->pluck('brandId')->toArray());
-      $products = Product::select('*')->whereIn('brand',$brandIds)->get()->unique('brand');
+      $categoryIds = array_unique($webData->pluck('category_id')->toArray());
+      $products = Product::select('*')->whereIn('brand',$brandIds)->whereIn('category',$categoryIds)->get()->unique('brand');
       foreach($products as $key => $product){
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
           $result = MagentoHelper::uploadProduct($product);
-
-          $logListMagentos =  new LogListMagento;
-          $logListMagentos->product_id = $product->id;
-          if($result != false){
-            $logListMagentos->message = "success";
-          } else {
-            $logListMagentos->message = "No categories found for product ID".$product->id;
-          }
-          $logListMagentos->created_at = $product->updated_at = time();
-
-          $logListMagentos->save();
-
+          \Log::info($result);
         }
       }
       return response()->json(["code" => 200 , "message" => "Push product successfully"]);
