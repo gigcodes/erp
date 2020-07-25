@@ -82,6 +82,7 @@ class UserPayment extends Command
                 }
             }
             $yesterday = date('Y-m-d',strtotime("-1 days"));
+
             if($end == $yesterday) {
                     $activityrecords  = HubstaffActivity::getTrackedActivitiesBetween($start, $end, $user->id);
                     $total = 0;
@@ -91,7 +92,9 @@ class UserPayment extends Command
                         if($record->tracked > 0 && $latestRatesOnDate && $latestRatesOnDate->hourly_rate > 0) {
                             $total = $total + ($record->tracked/60)/60 * $latestRatesOnDate->hourly_rate;
                             $minutes = $minutes + $record->tracked/60;
-                        } 
+                            $record->paid = 1;
+                            $record->save(); 
+                        }
                     }
                     if($total > 0) {
                         $total = number_format($total,2);
@@ -101,6 +104,8 @@ class UserPayment extends Command
                         $paymentReceipt->rate_estimated = $total;
                         $paymentReceipt->date = $end;
                         $paymentReceipt->user_id = $user->id;
+                        $paymentReceipt->billing_start_date = $start;
+                        $paymentReceipt->billing_end_date = $end;
                         $paymentReceipt->currency = ''; //we need to change this.
                         $paymentReceipt->save();
                     }
