@@ -141,6 +141,28 @@
                         <div class="alert alert-danger">{{$errors->first('status')}}</div>
                         @endif
                     </div>
+
+                    <div class="form-group">
+                        <strong>Is Milestone ?:</strong>
+                        <select id="is_milestone" class="form-control" name="is_milestone" required>
+                            <option value="0" {{ old('is_milestone') == 0 ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('is_milestone') == 1 ? 'selected' : '' }}>Yes</option>
+                        </select>
+
+                        @if ($errors->has('is_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <strong>No of milestone:</strong>
+                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" />
+                        </select>
+
+                        @if ($errors->has('no_of_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
+                        @endif
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
