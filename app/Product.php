@@ -215,6 +215,9 @@ class Product extends Model
 
                 }
 
+                $product->checkExternalScraperNeed();
+
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
