@@ -108,6 +108,19 @@
         @endif
     </td>
     <td>
+    @if($issue->is_milestone)
+        <p style="margin-bottom:0px;">Milestone : @if($issue->is_milestone) Yes @else No @endif</p>
+        <p style="margin-bottom:0px;">Total : {{$issue->no_of_milestone}}</p>
+        @if($issue->no_of_milestone == $issue->milestone_completed) 
+        <p style="margin-bottom:0px;">Done : {{$issue->milestone_completed}}</p>
+        @else
+        <input type="number" name="milestone_completed" id="milestone_completed_{{$issue->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$issue->milestone_completed}}" data-id="{{$issue->id}}">
+        @endif
+    @else
+    No 
+    @endif
+    </td>
+    <td>
         <?php echo Form::select("language",["" => "N/A"] + $languages, $issue->language , ["class" => "form-control save-language select2", "data-id" => $issue->id , "id" => "language_".$issue->id]) ?>
     </td>
 </tr>

@@ -10,7 +10,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @if (trim($__env->yieldContent('favicon')))
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @else    
+        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @endif 
+
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -1200,6 +1205,9 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>

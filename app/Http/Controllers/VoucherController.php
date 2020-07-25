@@ -64,16 +64,22 @@ class VoucherController extends Controller
             // $task->assignedUser;
             if($task->task_id) {
                 $task->taskdetails = Task::find($task->task_id);
-                $task->details = $task->taskdetails->task_details;
-                if(!$task->worked_minutes) {
-                    $task->estimate_minutes = $task->taskdetails->approximate;
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task_details;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->approximate;
+                    }
                 }
             }
             else if($task->developer_task_id) {
                 $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                $task->details = $task->taskdetails->task;
-                if(!$task->worked_minutes) {
-                    $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                    }
                 }
             }
             else {

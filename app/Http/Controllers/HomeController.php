@@ -25,4 +25,39 @@ class HomeController extends Controller
     {
         return view('home');
     }
+
+    public function generateFavicon(Request $request)
+    {
+        //Read the favicon template from favicon.png
+        //file from current directory
+        //header('Content-type: image/png');
+        $im = imagecreatefrompng(public_path("favicon/favicon-30X30.png"));
+        $char = preg_split("/\s+/", $request->get("title","U"));
+
+        $words = explode(" ", $request->get("title","U"));
+        $acronym = "";
+        $i = 1;
+        foreach ($words as $w) {
+          $acronym .= $w[0];
+          if($i == 2) {
+            break;
+          }
+          $i++;
+        }
+        
+
+        // create Image from file
+        $img = \Image::make(public_path("favicon/favicon-30X30.png"));
+        // use callback to define details
+        $img->text(strtoupper($acronym), 16, 8, function($font) {
+            $font->file(public_path("fonts/Arial.ttf"));
+            $font->size(20);
+            $font->align('center');
+            $font->valign('top');
+            $font->color('#6E6767');
+        });
+
+        return $img->response('png');
+
+    }
 }

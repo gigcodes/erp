@@ -28,7 +28,10 @@ class Task extends Model {
 		'model_type',
 		'model_id',
 		'general_category_id',
-		'cost'
+		'cost',
+		'is_milestone',
+		'no_of_milestone',
+		'milestone_completed'
 	];
 
 	const TASK_TYPES = [
