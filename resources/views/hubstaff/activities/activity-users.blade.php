@@ -53,7 +53,7 @@
         <tr>
           <th>Date</th>
           <th>User</th>
-          <th>Time tracked</th>
+          <th>Time tracked (Minutes)</th>
           <th>Time approved</th>
           <th>Pending payment time</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
@@ -62,7 +62,7 @@
             <tr>
             <td>{{ \Carbon\Carbon::parse($user->date)->format('d-m') }} </td>
               <td>{{ $user->userName }}</td>
-              <td>{{$user->total_tracked}} </td>
+              <td>{{number_format($user->total_tracked / 60,2,".",",")}}</td>
               <td><span class="replaceme">{{$user->totalApproved}}</span> </td>
               <td><span>{{$user->totalNotPaid}}</td>
 

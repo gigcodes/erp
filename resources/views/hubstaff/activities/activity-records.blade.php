@@ -20,7 +20,7 @@
           @foreach ($activityrecords as $record)
             <tr>
             <td>{{ $record->starts_at }} </td>
-              <td>{{ $record->tracked }}</td>
+              <td>{{ number_format($record->tracked / 60,2,".",",") }}</td>
               <td>
                 <input type="checkbox" value="{{$record->id}}" name="activities[]" {{$record->status ? 'checked' : ''}}>
               </td>
