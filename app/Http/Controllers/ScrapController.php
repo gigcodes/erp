@@ -1120,4 +1120,24 @@ class ScrapController extends Controller
         
         return response()->json($products);
     }
+
+    public function restartNode(Request $request)
+    {
+        if($request->name && $request->server_id){
+            $url = $request->server_id.'/restart-script?filename='.$request->name.'.js';
+            //sample url
+            //localhost:8085/restart-script?filename=biffi.js
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if($response){
+                return response()->json(["code" => 200,"message" => "Script Restarted"]);
+            }else{
+                return response()->json(["code" => 500,"message" => "Check if Server is running"]);
+            }
+            
+        }
+    }
 }
