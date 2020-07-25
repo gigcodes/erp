@@ -49,7 +49,7 @@
           @foreach ($activityUsers as $user)
             <tr>
               <td>{{ $user->userName }}</td>
-              <td>{{$user->total_tracked}} </td>
+              <td>{{number_format($user->total_tracked / 60,2,".",",")}}</td>
               <td>{{$user->amount}} </td>
               <td>
                 <form action="">
