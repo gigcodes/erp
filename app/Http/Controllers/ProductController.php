@@ -3391,7 +3391,6 @@ class ProductController extends Controller
       foreach($products as $key => $product){
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
           $result = MagentoHelper::uploadProduct($product);
-          \Log::info($result);
         }
       }
       return response()->json(["code" => 200 , "message" => "Push product successfully"]);
