@@ -17,7 +17,7 @@
 			      		<input type="checkbox" class="manage-modules-ckbx" name="manage_module[]" value="{{:prop.id}}"/>
 			      	</td>
 			      	<td>{{:prop.id}}</td>
-			      	<td>{{:prop.name}}</td>
+			      	<td>{{:prop.name}} ({{:prop.total_task}})</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>

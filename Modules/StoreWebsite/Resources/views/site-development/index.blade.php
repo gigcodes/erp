@@ -172,6 +172,41 @@
         </div>
     </div>
 </div>
+
+<div id="remark-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	    			<div class="col-md-8" style="padding-bottom: 10px;">
+	    				<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+	    			</div>
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
+						<img src="/images/send.png" style="cursor: default;" >
+					</button>
+				</div>
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th width="5%">No</th>
+					        <th width="45%">Remark</th>
+					        <th width="25%">BY</th>
+					        <th width="25%">Date</th>
+					      </tr>
+					    </thead>
+					    <tbody class="remark-action-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -269,6 +304,42 @@
 			.fail(function(data) {
 				console.log(data)
 				console.log("error");
+			});
+		});
+
+
+		$(document).on("click",".btn-remark-field",function() {
+			var id  = $("#remark-field").data("id");
+			var val = $("#remark-field").val();
+			$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'POST',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+		    	data : {remark : val},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				$("#remark-field").val("");
+				toastr["success"]("Remarks fetched successfully");
+				var html = "";
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				//$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
 			});
 		});
 	});
@@ -498,6 +569,42 @@
 				$("#loading-image").hide();
 			});
 		}
+	});
+
+	$(document).on("click",".btn-store-development-remark",function(e) {
+		var id = $(this).data("site-id");
+		$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'GET',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				toastr["success"]("Remarks fetched successfully");
+
+				var html = "";
+				
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+
+				$("#remark-area-list").find("#remark-field").attr("data-id",id);
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
 	});
 
 	var uploadedDocumentMap = {}

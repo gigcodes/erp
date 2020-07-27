@@ -118,6 +118,8 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
 
+Route::post('node/restart-script','ScrapController@restartNode');
+
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
@@ -133,3 +135,4 @@ Route::prefix('v1')->group(function () {
 // Scraper ready api
 Route::post('scraper/ready','ScrapController@scraperReady');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
+Route::get('scraper-needed-products','ScrapController@scraperNeeded');

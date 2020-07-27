@@ -19,6 +19,7 @@ Route::get('/test/test', function(){
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
+Route::get('generate-favicon', 'HomeController@generateFavicon');
 
 
 Route::get('/products/affiliate', 'ProductController@affiliateProducts');
@@ -127,6 +128,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('users/{id}/activate', 'UserController@activate')->name('user.activate');
     Route::resource('users', 'UserController');
     Route::resource('listing-payments', 'ListingPaymentsController');
+
+    Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
+    Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+
+
     Route::get('products/product-translation', 'ProductController@productTranslation')->name('products.product-translation');
     Route::get('products/product-translation/{id}', 'ProductController@viewProductTranslation')->name('products.product-translation.view');
     Route::post('products/product-translation/submit/{product_translation_id}', 'ProductController@editProductTranslation')->name('products.product-translation.edit');
@@ -134,6 +140,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
     Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+    Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
@@ -240,7 +247,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('autoreply', 'AutoReplyController');
     Route::get('most-used-words', 'AutoReplyController@mostUsedWords')->name("chatbot.mostUsedWords");
     Route::get('most-used-phrases', 'AutoReplyController@mostUsedPhrases')->name("chatbot.mostUsedPhrases");
-    
+
     Route::get('most-used-phrases/deleted', 'AutoReplyController@mostUsedPhrasesDeleted')->name("chatbot.mostUsedPhrasesDeleted");
     Route::get('most-used-phrases/deleted/records', 'AutoReplyController@mostUsedPhrasesDeletedRecords')->name("chatbot.mostUsedPhrasesDeletedRecords");
 
@@ -378,6 +385,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
+    Route::get('task/update/milestone', 'TaskModuleController@saveMilestone')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
@@ -624,6 +633,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
     // Cash Vouchers
+    Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
+    Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
+    Route::get('/voucher/payment/{id}', 'VoucherController@viewPaymentModal')->name("voucher.payment");
+    Route::post('/voucher/payment/{id}', 'VoucherController@submitPayment')->name("voucher.payment.submit");
     Route::post('voucher/{id}/approve', 'VoucherController@approve')->name('voucher.approve');
     Route::post('voucher/store/category', 'VoucherController@storeCategory')->name('voucher.store.category');
     Route::post('voucher/{id}/reject', 'VoucherController@reject')->name('voucher.reject');
@@ -732,11 +745,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
+    Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
+    Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
     Route::get('development/issue/language/assign', 'DevelopmentController@saveLanguage');
     Route::post('development/{id}/assignIssue', 'DevelopmentController@issueAssign')->name('development.issue.assign');
     Route::delete('development/{id}/issueDestroy', 'DevelopmentController@issueDestroy')->name('development.issue.destroy');
@@ -939,6 +954,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/', 'HubstaffActivitiesController@notification')->name('hubstaff-acitivties.notification.index');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
             Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
+            Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
+        });
+        Route::prefix('activities')->group(function () {
+            Route::get('/', 'HubstaffActivitiesController@getActivityUsers')->name('hubstaff-acitivties.activities');
+            Route::get('/details', 'HubstaffActivitiesController@getActivityDetails')->name('hubstaff-acitivties.activity-details');
+            Route::post('/details', 'HubstaffActivitiesController@approveActivity')->name('hubstaff-acitivties.approve-activity');
+            Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
+            Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
+            Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
+            Route::get('/approved/pending-payments', 'HubstaffActivitiesController@approvedPendingPayments')->name('hubstaff-acitivties.pending-payments');
+            Route::post('/approved/payment', 'HubstaffActivitiesController@submitPaymentRequest')->name("hubstaff-acitivties.payment-request.submit");
+
+
         });
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
         Route::post('merge-category', 'HubstaffPaymentController@mergeCategory')->name('hubstaff-payment.merge-category');
@@ -1176,7 +1204,7 @@ Route::prefix('database')->middleware('auth')->group(function () {
     Route::get('/states', 'DatabaseController@states')->name("database.states");
     Route::get('/process-list', 'DatabaseController@processList')->name("database.process.list");
     Route::get('/process-kill', 'DatabaseController@processKill')->name("database.process.kill");
-    
+
 });
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
@@ -1254,7 +1282,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
      Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
      Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
-    
+
 });
 
 // logScraperVsAiController
@@ -1644,7 +1672,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('instagram-config/restart-script', 'InstagramConfigController@restartScript')->name('instagram.restart.script');
     Route::get('instagram-config/blocked-number', 'InstagramConfigController@blockedNumber')->name('instagram.block.number');
 
-    
+
     // Route::post('whatsapp-queue/switchBroadcast', 'BroadcastController@switchBroadcast')->name('whatsapp.config.switchBroadcast');
 
     // Marketing Platform
@@ -1694,8 +1722,8 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
-    });        
-    
+    });
+
 
     Route::get('mailinglist-emails', 'MailinglistEmailController@index')->name('mailingList-emails');
     Route::post('mailinglist-ajax-index', 'MailinglistEmailController@ajaxIndex');
@@ -1749,6 +1777,8 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::get('/affiliate/keyword', 'GoogleAffiliateController@index')->name('google.affiliate.keyword');
     Route::get('/affiliate/keyword-priority', 'GoogleAffiliateController@markPriority')->name('google.affiliate.keyword.priority');
     Route::get('/affiliate/results', 'GoogleAffiliateController@searchResults')->name('google.affiliate.results');
+    Route::delete('/affiliate/results/{id}', 'GoogleAffiliateController@deleteSearch');
+    Route::delete('/search/results/{id}', 'GoogleSearchController@deleteSearch');
     Route::post('affiliate/flag', 'GoogleAffiliateController@flag')->name('affiliate.flag');
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
     Route::get('/affiliate/scrap', 'GoogleAffiliateController@callScraper')->name('google.affiliate.keyword.scrap');
@@ -1814,6 +1844,7 @@ Route::prefix('calendar/public')->group(function () {
     Route::post('/event/suggest-time/{invitationId}', 'UserEventController@saveSuggestedInvitationTiming');
 });
 
+
 Route::get('/vendor-form', 'VendorSupplierController@vendorForm')->name("developer.vendor.form");
 Route::get('/supplier-form', 'VendorSupplierController@supplierForm')->name("developer.supplier.form");
 
@@ -1864,11 +1895,11 @@ Route::prefix('digital-marketing')->middleware('auth')->group(function () {
                         Route::get('/edit', 'DigitalMarketingController@researchEdit')->name("digital-marketing.solution.research.edit");
                         Route::get('/delete', 'DigitalMarketingController@researchDelete')->name("digital-marketing.solution.research.delete");
                     });
-                });     
+                });
 
-            });        
-        });    
-    }); 
+            });
+        });
+    });
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function() {
@@ -1876,7 +1907,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
-    
+
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');

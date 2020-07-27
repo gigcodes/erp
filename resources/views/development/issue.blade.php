@@ -68,7 +68,7 @@
                         </a>
                 </div>
             </div>
-            @if($title == 'devtask' && auth()->user()->isAdmin())
+            @if($title == 'devtask' && auth()->user()->isReviwerLikeAdmin())
                 <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
             @endif
         </div>
@@ -91,7 +91,7 @@
     <div class="infinite-scroll">
         <div class="table-responsive">
             <table class="table table-bordered table-striped">
-                @if($title == 'issue' && auth()->user()->isAdmin())
+                @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
                         @include("development.partials.add-new-issue")
                     </tr>
@@ -109,10 +109,11 @@
                     <th width="5%">Resolved</th>
                     <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
+                    <th width="5%">Milestone</th>
                     <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isReviwerLikeAdmin())
                         @include("development.partials.admin-row-view")
                     @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
                         @include("development.partials.developer-row-view")
@@ -129,7 +130,7 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-
+//
 @endsection
 
 @section('scripts')
@@ -342,7 +343,6 @@
                     toastr["success"]("User assigned successfully!", "Message")
                 }
             });
-
         });
         $(document).on('change', '.assign-user', function () {
             let id = $(this).attr('data-id');
@@ -360,6 +360,27 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                }
+            });
+
+        });
+
+        $(document).on('change', '.task-module', function () {
+            let id = $(this).attr('data-id');
+            let moduleID = $(this).val();
+
+            if (moduleID == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@changeModule')}}",
+                data: {
+                    module_id: moduleID,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Module assigned successfully!", "Message")
                 }
             });
 
@@ -403,6 +424,32 @@
                 },
                 success: function () {
                     toastr["success"]("Price updated successfully!", "Message")
+                }
+            });
+        });
+
+
+
+        $(document).on('keyup', '.save-milestone', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).attr('data-id');
+            let total = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveMilestone')}}",
+                data: {
+                    total: total,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Milestone updated successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    console.log(error.responseJSON.message);
+                    
                 }
             });
         });
@@ -593,6 +640,9 @@
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
                 }
             });
         }
@@ -646,6 +696,18 @@
                     }
                 }
             });
+        });
+
+
+        $(document).on('change', '#is_milestone', function () {
+
+            var is_milestone = $('#is_milestone').val();
+            if(is_milestone == '1') {
+                $('#no_of_milestone').attr('required', 'required');
+            }
+            else {
+                $('#no_of_milestone').removeAttr('required');
+            }
         });
     
     

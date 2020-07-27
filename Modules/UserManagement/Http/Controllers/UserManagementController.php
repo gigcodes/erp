@@ -92,7 +92,13 @@ class UserManagementController extends Controller
                         $lastPaidOn =  date('Y-m-d',strtotime($query->billing_start . "-1 days"));
                     }
                 }
-                $u["previousDue"] = $u->previousDue($lastPaidOn);
+                if($lastPaidOn) {
+                    $u["previousDue"] = $u->previousDue($lastPaidOn);
+                }
+                else {
+                    $u["previousDue"] = '';
+                }
+                
                 $u["lastPaidOn"] = $lastPaidOn;
                 
                 if($u->payment_frequency == 'fornightly') {
