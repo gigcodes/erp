@@ -1125,7 +1125,7 @@ class ScrapController extends Controller
     {
         if($request->name && $request->server_id){
             $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$request->name.'.js';
-            dd($url);
+            //dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
             $curl = curl_init();
