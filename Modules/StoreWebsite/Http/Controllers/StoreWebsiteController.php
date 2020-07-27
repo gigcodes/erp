@@ -11,7 +11,9 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
-
+use App\SocialStrategySubject;
+use App\Setting;
+use App\User;
 class StoreWebsiteController extends Controller
 {
     /**
@@ -174,5 +176,45 @@ class StoreWebsiteController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong site id!"]);
 
+    }
+
+    public function socialStrategy($id, Request $request)
+    {
+        $website = StoreWebsite::find($id);
+        $subjects = SocialStrategySubject::orderBy('id', 'desc');
+
+
+        $subjects = $subjects->paginate(Setting::get('pagination'));
+        $users = User::select('id', 'name')->get();
+
+        if ($request->ajax() && $request->pagination == null) {
+            return response()->json([
+                'tbody' => view('storewebsite::social-strategy.partials.data', compact('subjects', 'users', 'website'))->render(),
+                'links' => (string) $subjects->render(),
+            ], 200);
+        }
+
+        return view('storewebsite::social-strategy.index', compact('subjects', 'users', 'website'));
+    }
+
+    public function submitSubject(Request $request) {
+        if ($request->text) {
+        $subjectCheck = SocialStrategySubject::where('title', $request->text)->first();
+
+        if (empty($subjectCheck)) {
+            $subject        = new SocialStrategySubject;
+            $subject->title = $request->text;
+            $subject->save();
+
+            return response()->json(["code" => 200, "messages" => 'Subject Saved Sucessfully']);
+
+        } else {
+
+            return response()->json(["code" => 500, "messages" => 'Subject Already Exist']);
+        }
+
+        } else {
+            return response()->json(["code" => 500, "messages" => 'Please Enter Text']);
+        }
     }
 }
