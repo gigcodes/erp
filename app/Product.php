@@ -335,6 +335,7 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    $product->checkExternalScraperNeed();
                     //$json->product_id = $product->id;
                     //$json->save();
                 } catch (\Exception $exception) {
