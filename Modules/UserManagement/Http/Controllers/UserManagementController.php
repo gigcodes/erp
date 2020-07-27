@@ -79,6 +79,14 @@ class UserManagementController extends Controller
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
                 $u["isAdmin"] = $u->isAdmin();
 
+                $online_now = $u->lastOnline();
+                if($online_now) {
+                    $u["online_now"] =   \Carbon\Carbon::parse($online_now)->format('d-m H:i');
+                }
+                else {
+                    $u["online_now"] = null;
+                }
+
                 $lastPaid = $u->payments()->orderBy('id','desc')->first();
                 if($lastPaid) {
                     $lastPaidOn = $lastPaid->paid_upto;

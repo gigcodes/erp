@@ -15,6 +15,7 @@ use App\UserLog;
 use DB;
 use Redirect;
 use App\Hubstaff\HubstaffPaymentAccount;
+use App\Hubstaff\HubstaffActivity;
 use Carbon\Carbon;
 
 
@@ -429,6 +430,18 @@ class User extends Authenticatable
     public function payments()
     {
         return $this->hasMany(Payment::class);
+    }
+
+
+    public function lastOnline() {
+        $hubstaff_activity = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
+        if($hubstaff_activity) {
+            return $hubstaff_activity->starts_at;
+        }
+        else {
+            return false;
+        }
+         
     }
 
 
