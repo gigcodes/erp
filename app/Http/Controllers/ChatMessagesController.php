@@ -203,7 +203,7 @@ class ChatMessagesController extends Controller
                 'type' => $request->object,
                 'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
                 'sendBy'=> $object->name,
-                'sendTo'=> 'ERP',
+                'sendTo'=> $chatMessage->number != $object->phone ? $object->name : 'ERP',
                 'message' => $textMessage,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
