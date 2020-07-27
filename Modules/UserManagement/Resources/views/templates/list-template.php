@@ -25,11 +25,10 @@ td+td {
 				<th>Salaried or fixed price</th>
 				<th>TASKS</th>
 				<th>Yesterday hours</th>
-				<th>Online now</th> 
+				<th>Last seen</th> 
 				<th>Payment frequency</th> 
 				<th>Payment Due</th>
-				<th>Due date</th> 
-										
+				<th>Due date</th> 			
 				<th>Paid on</th>
 				<?php if(Auth::user()->isAdmin()) { ?>
 				<th style="width:200px;">Send</th>
