@@ -56,19 +56,20 @@ class LoadHubstaffActivities extends Command
             ]);
 
             $time      = strtotime(date("c"));
-            $time      = $time - (60 * 60); //one hour
-            $startTime = date("c", $time);
+            $time      = $time - ((60 * 60)); //one hour
+            $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
 
             $time     = strtotime($startTime);
             $time     = $time + (60 * 60); //one hour
             $stopTime = date("c", $time);
+
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
                 echo 'Error in activities' . PHP_EOL;
                 return;
             }
-
+            
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
