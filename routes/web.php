@@ -638,6 +638,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('voucher/store/category', 'VoucherController@storeCategory')->name('voucher.store.category');
     Route::post('voucher/{id}/reject', 'VoucherController@reject')->name('voucher.reject');
     Route::post('voucher/{id}/resubmit', 'VoucherController@resubmit')->name('voucher.resubmit');
+    Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
+    Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
+    
     Route::resource('voucher', 'VoucherController');
 
     // Budget

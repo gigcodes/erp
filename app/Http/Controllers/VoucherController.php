@@ -367,4 +367,25 @@ class VoucherController extends Controller
         }
         return redirect()->back()->with('success','Successfully submitted');
     }
+
+
+    public function viewManualPaymentModal() {
+        $users = User::all(); 
+        $paymentMethods = PaymentMethod::all();
+        return view("vouchers.manual-payment-modal",compact('users','paymentMethods'));
+    }
+
+
+    public function manualPaymentSubmit(Request $request) {
+        $this->validate($request, [
+            'date' => 'required',
+            'user_id' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
+            'payment_method_id' => 'required'
+        ]);
+        $input = $request->except('_token');       
+        Payment::create($input);
+        return redirect()->back()->with('success','Successfully submitted');
+    }
 }

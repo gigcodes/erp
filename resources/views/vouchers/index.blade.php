@@ -14,9 +14,9 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
+              <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
               <a class="btn btn-secondary" href="{{ route('voucher.payment.request') }}">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
-
             </div>
         </div>
     </div>
@@ -71,7 +71,7 @@
         </tr>
           @foreach ($tasks as $task)
             <tr>
-            <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
+              <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
               <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
               <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
               <td>@if($task->task_id) Task @elseif($task->developer_task_id) Devtask @else Manual @endif </td>
@@ -81,6 +81,7 @@
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               <td><a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a></td>
+            </tr>
           @endforeach
       </table>
       {{$tasks->links()}}
@@ -95,7 +96,6 @@
             <div class="modal-content" id="payment-content">
                 
             </div>
-
         </div>
     </div>
 
@@ -130,6 +130,17 @@
                 </form>
             </div>
 
+        </div>
+    </div>
+
+
+
+    <div id="create-manual-payment" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content" id="create-manual-payment-content">
+              
+            </div>
         </div>
     </div>
     
@@ -230,6 +241,8 @@
     //    });
     // });
 
+ 
+
     $('.select-multiple').select2({width: '100%'});
 
     let r_s = '';
@@ -302,6 +315,33 @@
           $("#loading-image").hide();
         });
     });
+
+
+    $(document).on('click', '.manual-payment-btn', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/manual-payment',
+          type: type,
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#create-manual-payment').modal('show');
+          $('#create-manual-payment-content').html(response);
+
+          $('#date_of_payment').datetimepicker({
+            format: 'YYYY-MM-DD'
+          });
+          $('.select-multiple').select2({width: '100%'});
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
+    
 
     // $(document).on('click', '.submit-manual-receipt', function(e) {
     //   e.preventDefault();
