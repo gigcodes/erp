@@ -198,12 +198,13 @@ class ChatMessagesController extends Controller
                 $textMessage = htmlentities($chatMessage->message);
             }
             //dd($object);
+            $isOut = ($chatMessage->number != $object->phone) ? true : false; 
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
-                'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
-                'sendBy'=> $object->name,
-                'sendTo'=> $chatMessage->number != $object->phone ? $object->name : 'ERP',
+                'inout' => ($isOut) ? 'out' : 'in',
+                'sendBy'=> ($isOut) ? 'ERP' : $object->name,
+                'sendTo'=> ($isOut) ? $object->name : 'ERP',
                 'message' => $textMessage,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
