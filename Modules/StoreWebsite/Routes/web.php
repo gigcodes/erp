@@ -26,6 +26,16 @@ Route::prefix('store-website')->group(function () {
         Route::prefix('social-strategy')->group(function () {
     		Route::get('/', 'StoreWebsiteController@socialStrategy')->name("store-website.social-strategy");   
     		Route::post('/add-subject', 'StoreWebsiteController@submitSubject')->name("store-website.social-strategy.add-subject");   
+            Route::post('/add-strategy', 'StoreWebsiteController@submitStrategy')->name("store-website.social-strategy.add-strategy");
+            Route::post('/upload-documents', 'StoreWebsiteController@uploadDocuments')->name("store-website.social-strategy.upload-documents");
+            Route::post('/save-documents', 'StoreWebsiteController@saveDocuments')->name("store-website.social-strategy.save-documents");
+            Route::get('/list-documents', 'StoreWebsiteController@listDocuments')->name("store-website.social-strategy.list-documents");
+            Route::post('/delete-document', 'StoreWebsiteController@deleteDocument')->name("store-website.social-strategy.delete-documents");
+            Route::post('/send-document', 'StoreWebsiteController@sendDocument')->name("store-website.social-strategy.send-documents");
+            Route::get('/remarks', 'StoreWebsiteController@remarks')->name("store-website.social-strategy.remarks");
+            Route::post('/remarks', 'StoreWebsiteController@saveRemarks')->name("store-website.social-strategy.saveRemarks"); 
+            Route::get('/edit-subject', 'StoreWebsiteController@viewSubject')->name("store-website.social-strategy.edit-subject"); 
+            Route::post('/edit-subject', 'StoreWebsiteController@submitSubjectChange')->name("store-website.social-strategy.submit-edit-subject"); 
     	});
 
 

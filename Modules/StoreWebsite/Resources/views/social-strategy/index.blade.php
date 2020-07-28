@@ -55,6 +55,22 @@
 				  		</div>
 					  </div>	
 					</form>		
+					<form class="form-inline handle-search">
+					  <div class="row">
+				  		<div class="col">
+				  			<div class="form-group">
+							    <label for="keyword">Search keyword:</label>
+							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
+						  	</div>
+						  	<div class="form-group">
+						  		<label for="button">&nbsp;</label>
+						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
+						  			<img src="/images/send.png" style="cursor: default;" >
+						  		</button>
+						  	</div>		
+				  		</div>
+					  </div>	
+					</form>	
 		    	</div>
 		    </div>
 	    </div>
@@ -68,6 +84,7 @@
 						<th width="15%">Action</th>
 						<th width="25%">Communication</th>
 						<th width="5%">Created</th>
+						<th width="5%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -79,6 +96,134 @@
 		</div>
 	</div>
 </div>
+
+
+<div id="editSubjectModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+		<form>
+	            <input type="hidden" name="subject_id" id="subject_id" value="">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Eit Subject</h4>
+	            </div>
+	            <div class="modal-body">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Name:</label>
+					        <input type="text" class="form-control" name="subject_title" id="subject_title">
+					    </div>
+					    
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default" onclick="submitSubjectChange()">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div id="chat-list-history" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Communication</h4>
+                <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+            </div>
+            <div class="modal-body" style="background-color: #999999;">
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+<div id="file-upload-area-section" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("store-website.social-strategy.upload-documents", $website->id) }}" method="POST" enctype="multipart/form-data">
+	            <input type="hidden" name="store_website_id" id="hidden-store-website-id" value="">
+	            <input type="hidden" name="id" id="hidden-site-id" value="">
+	            <input type="hidden" name="site_development_subject_id" id="hidden-site-subject-id" value="">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Upload File(s)</h4>
+	            </div>
+	            <div class="modal-body" style="background-color: #999999;">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Documents</label>
+					        <div class="needsclick dropzone" id="document-dropzone">
+
+					        </div>
+					    </div>
+					    
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+<div id="file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+        		<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				        <th width="5%">No</th>
+				        <th width="45%">Link</th>
+				        <th width="25%">Send To</th>
+				        <th width="25%">Action</th>
+				      </tr>
+				    </thead>
+				    <tbody class="display-document-list">
+				    </tbody>
+				</table>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="remark-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	    			<div class="col-md-8" style="padding-bottom: 10px;">
+	    				<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+	    			</div>
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
+						<img src="/images/send.png" style="cursor: default;" >
+					</button>
+				</div>
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th width="5%">No</th>
+					        <th width="45%">Remark</th>
+					        <th width="25%">BY</th>
+					        <th width="25%">Date</th>
+					      </tr>
+					    </thead>
+					    <tbody class="remark-action-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -131,22 +276,22 @@ function refreshPage(){
 
 	$(function(){
 		$(document).on("focusout" , ".save-item" , function() {
-			websiteId = $('#website_id').val()
-			category = $(this).data("category")
+			subject = $(this).data("subject")
 			type = $(this).data("type")
 			site = $(this).data("site")
 			var text = $(this).val();
 		    $.ajax({
-				url: '{{ route("site-development.save") }}',
+				url: '/store-website/'+{{$website->id}}+'/social-strategy/add-strategy',
 				type: 'POST',
 				dataType: 'json',
-				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text ,site : site},
+				data: {"_token": "{{ csrf_token() }}" , subject : subject , type : type , text : text ,site : site},
 				beforeSend: function () {
                     $("#loading-image").show();
                 },
 			})
 			.done(function(data) {
 				console.log(data)
+				refreshPage()
 				$("#loading-image").hide();
 				console.log("success");
 			})
@@ -158,19 +303,20 @@ function refreshPage(){
 		});
 
 		$(document).on("change" , ".save-item-select" , function() {
-			websiteId = $('#website_id').val()
-			category = $(this).data("category")
+			subject = $(this).data("subject")
 			type = $(this).data("type")
 			site = $(this).data("site")
 			var text = $(this).val();
+
 		    $.ajax({
-				url: '{{ route("site-development.save") }}',
+				url: '/store-website/'+{{$website->id}}+'/social-strategy/add-strategy',
 				type: 'POST',
 				dataType: 'json',
-				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text , site : site},
+				data: {"_token": "{{ csrf_token() }}" , subject : subject , type : type , text : text , site : site},
 			})
 			.done(function(data) {
 				console.log(data)
+				refreshPage()
 				console.log("success");
 			})
 			.fail(function(data) {
@@ -184,12 +330,12 @@ function refreshPage(){
 			var id  = $("#remark-field").data("id");
 			var val = $("#remark-field").val();
 			$.ajax({
-				url: '/site-development/'+id+'/remarks',
+				url: '/store-website/'+{{$website->id}}+'/social-strategy/remarks',
 				type: 'POST',
 				headers: {
 		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
 		    	},
-		    	data : {remark : val},
+		    	data : {remark : val,id : id},
 				beforeSend: function() {
 					$("#loading-image").show();
 	           	}
@@ -217,28 +363,46 @@ function refreshPage(){
 	});
 
 
-	function editCategory(id){
-		$('#editCategory'+id).modal('show');
-	}
-
-	function submitCategoryChange(id){
-		category = $('#category-name'+id).val()
-		categoryId = id
-		$.ajax({
-			url: '{{ route("site-development.category.edit") }}',
-			type: 'POST',
+	function editSubject(id){
+			$.ajax({
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/edit-subject?id='+id,
+			type: 'GET',
 			dataType: 'json',
-			data: {category: category , "_token": "{{ csrf_token() }}" , categoryId : categoryId},
 			beforeSend: function () {
                     $("#loading-image").show();
                 },
 		})
 		.done(function(data) {
+			$("#loading-image").hide();
+			$('#editSubjectModal').modal('show');
+			$('#subject_title').val(data.data.title);
+			$('#subject_id').val(data.data.id);
+			console.log("success");
+		})
+		.fail(function(data) {
 			console.log(data)
 			refreshPage()
+			console.log("error");
+		});
+	}
+
+	function submitSubjectChange(){
+
+		subject_title = $('#subject_title').val();
+		id = $('#subject_id').val();
+		$.ajax({
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/edit-subject',
+			type: 'POST',
+			dataType: 'json',
+			data: {subject_title: subject_title , "_token": "{{ csrf_token() }}" , id : id},
+			beforeSend: function () {
+                    $("#loading-image").show();
+                },
+		})
+		.done(function(data) {
+			refreshPage()
 			$("#loading-image").hide();
-			$('#editCategory'+id).modal('hide');
-			console.log("success");
+			$('#editSubjectModal').modal('hide');
 		})
 		.fail(function(data) {
 			console.log(data)
@@ -254,14 +418,12 @@ function refreshPage(){
 		site = $(this).data("id")
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
-		if(userId == 'Select Developer'){
-			alert('Please Select User');
-		}else if(site){
+		if(site){
 			$.ajax({
-				url: '/whatsapp/sendMessage/site_development',
+				url: '/whatsapp/sendMessage/social_strategy',
 				dataType: "json",
 				type: 'POST',
-				data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				data: { 'social_strategy_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
 				beforeSend: function() {
 					$('#message-'+site).attr('disabled', true);
                	}
@@ -276,42 +438,14 @@ function refreshPage(){
 		} 
     });
 
-    $(document).on("change",".fa-ignore-category",function() {
-		var $this = $(this);
-    	var msg = "allow";
-
-    	if($this.prop('checked')) {
-    	   msg = "disallow";
-    	}
-
-		if(confirm("Are you sure want to "+msg+" this category?")) {
-			var store_website_id = $this.data("site-id");
-			var category = $this.data("category-id");
-			$.ajax({
-				url: '/site-development/disallow-category',
-				dataType: "json",
-				type: 'POST',
-				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : $this.prop('checked')},
-				beforeSend: function() {
-					$("#loading-image").show();
-               	}
-			}).done(function (data) {
-				$("#loading-image").hide();
-				toastr["success"]("Category removed successfully");
-				$this.closest("tr").remove();
-			}).fail(function (jqXHR, ajaxOptions, thrownError) {
-				toastr["error"]("Oops,something went wrong");
-				$("#loading-image").hide();
-			});
-		}
-	});
+ 
 
 	$(document).on("click",".btn-file-upload",function() {
 		var $this = $(this);
 		$("#file-upload-area-section").modal("show");
 		$("#hidden-store-website-id").val($this.data("store-website-id"));
 		$("#hidden-site-id").val($this.data("site-id"));
-		$("#hidden-site-category-id").val($this.data("site-category-id"));
+		$("#hidden-site-subject-id").val($this.data("site-subject-id"));
 	});
 
 	$(document).on("click",".btn-file-list",function(e) {
@@ -319,7 +453,7 @@ function refreshPage(){
 		var $this = $(this);
 		var id = $(this).data("site-id");
 		$.ajax({
-			url: '/site-development/'+id+'/list-documents',
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/list-documents?id='+id,
 			type: 'GET',
 			headers: {
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -348,11 +482,12 @@ function refreshPage(){
 	});
 
 	$(document).on("click",".btn-save-documents",function(e){
+		var id = $("#hidden-site-id").val();
 		e.preventDefault();
 		var $this = $(this);
 		var formData = new FormData($this.closest("form")[0]);
 		$.ajax({
-			url: '/site-development/save-documents',
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/save-documents?id='+id,
 			type: 'POST',
 			headers: {
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -379,7 +514,7 @@ function refreshPage(){
 		var site_id = $(this).data("site-id");
 		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
 		$.ajax({
-			url: '/site-development/send-document',
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/send-document',
 			type: 'POST',
 			headers: {
 	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -405,7 +540,7 @@ function refreshPage(){
 		var $this = $(this);
 		if(confirm("Are you sure you want to delete records ?")) {
 			$.ajax({
-				url: '/site-development/delete-document',
+				url: '/store-website/'+{{$website->id}}+'/social-strategy/delete-document',
 				type: 'POST',
 				headers: {
 		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
@@ -429,11 +564,14 @@ function refreshPage(){
 	$(document).on("click",".btn-store-development-remark",function(e) {
 		var id = $(this).data("site-id");
 		$.ajax({
-				url: '/site-development/'+id+'/remarks',
+			url: '/store-website/'+{{$website->id}}+'/social-strategy/remarks',
 				type: 'GET',
 				headers: {
 		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
 		    	},
+				data: {
+					id:id
+				},
 				beforeSend: function() {
 					$("#loading-image").show();
 	           	}
@@ -464,7 +602,8 @@ function refreshPage(){
 
 	var uploadedDocumentMap = {}
   	Dropzone.options.documentDropzone = {
-    	url: '{{ route("site-development.upload-documents") }}',
+
+    	url: '{{ route("store-website.social-strategy.upload-documents", $website->id) }}',
     	maxFilesize: 20, // MB
     	addRemoveLinks: true,
     	headers: {
