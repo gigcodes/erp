@@ -87,6 +87,15 @@
 		            </select>
 		         </div>
 			  </div>
+			  <div class="form-row">
+		         <div class="form-group col-md-4">
+		            <label for="website_source">Website source?</label>
+		            <select name="website_source" id="website_source" class="form-control">
+		               <option {{if data && data.website_source == "magento"}}selected{{/if}} value="magento">Magento</option>
+		               <option {{if data && data.website_source == "shopify"}}selected{{/if}} value="shopify">Shopify</option>
+		            </select>
+		         </div>
+			  </div>
 			  <div class="form-group">
 		         <label for="server_ip">Server IP</label>
 		         <input type="text" name="server_ip" value="{{if data}}{{:data.server_ip}}{{/if}}" class="form-control" id="server_ip" placeholder="Enter Server IP">
