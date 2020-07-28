@@ -388,9 +388,9 @@ class DevelopmentController extends Controller
                     ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
             });
         }
-        if ($request->get('language') != '') {
-            $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
-        }
+        // if ($request->get('language') != '') {
+        //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
+        // }
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
@@ -470,9 +470,9 @@ class DevelopmentController extends Controller
 
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        // $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
+        // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -480,11 +480,11 @@ class DevelopmentController extends Controller
             'modules' => $modules,
             'request' => $request,
             'title' => $type,
-            'priority' => $priority,
+            // 'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
-            'languages' => $languages
+            // 'languages' => $languages
         ]);
     }
     public function issueIndex(Request $request)
@@ -780,6 +780,7 @@ class DevelopmentController extends Controller
             'status' => 'required',
             'repository_id' => 'required',
             'hubstaff_project' => 'required',
+            'module_id' => 'required',
         ]);
         $data = $request->except('_token');
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
@@ -1421,6 +1422,11 @@ class DevelopmentController extends Controller
     public function resolveIssue(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+        if($issue->is_resolved == 1) {
+            return response()->json([
+                'message'	=> 'DONE Status can not change further.'
+            ],500);
+        }
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
