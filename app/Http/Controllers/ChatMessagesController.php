@@ -22,7 +22,7 @@ class ChatMessagesController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
     public function loadMoreMessages(Request $request)
-    {
+    {   
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -76,20 +76,20 @@ class ChatMessagesController extends Controller
 
         $loadType       = $request->get('load_type');
         $onlyBroadcast  = false;
-        
+
         //  if loadtype is brodcast then get the images only
         if($loadType == "broadcast") {
            $onlyBroadcast   = true;
-           $loadType        = "images"; 
+           $loadType        = "images";
         }
 
         $chatMessages = $object->whatsappAll($onlyBroadcast)->whereRaw($rawWhere);
-        
+
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
 
-        $chatMessages =  $chatMessages->skip($skip)->take($limit);   
+        $chatMessages =  $chatMessages->skip($skip)->take($limit);
 
         switch ($loadType) {
             case 'text':
@@ -99,23 +99,23 @@ class ChatMessagesController extends Controller
                 break;
             case 'images':
                 $chatMessages = $chatMessages->whereRaw("(media_url is not null or id in (
-                    select 
-                        mediable_id 
-                    from 
-                        mediables 
+                    select
+                        mediable_id
+                    from
+                        mediables
                         join media on id = media_id and extension != 'pdf'
-                    WHERE 
+                    WHERE
                         mediable_type LIKE 'App%ChatMessage'
                 ) )");
                 break;
             case 'pdf':
                 $chatMessages = $chatMessages->whereRaw("(id in (
-                    select 
-                        mediable_id 
-                    from 
-                        mediables 
+                    select
+                        mediable_id
+                    from
+                        mediables
                         join media on id = media_id and extension = 'pdf'
-                    WHERE 
+                    WHERE
                         mediable_type LIKE 'App%ChatMessage'
                 ) )");
                 break;
@@ -200,11 +200,14 @@ class ChatMessagesController extends Controller
             }else{
                 $textMessage = htmlentities($chatMessage->message);
             }
-            
+            //dd($object);
+            $isOut = ($chatMessage->number != $object->phone) ? true : false; 
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
-                'inout' => $chatMessage->number != $object->phone ? 'out' : 'in',
+                'inout' => ($isOut) ? 'out' : 'in',
+                'sendBy'=> ($isOut) ? 'ERP' : $object->name,
+                'sendTo'=> ($isOut) ? $object->name : 'ERP',
                 'message' => $textMessage,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,

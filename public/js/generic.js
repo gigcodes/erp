@@ -92,7 +92,7 @@ var getHtml = function(response) {
                             media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info "><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         } else {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                        } 
+                        }
                     } else {
                         if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
                             media = media + '<a class="" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
@@ -100,7 +100,7 @@ var getHtml = function(response) {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
                     }
-                    
+
                     if (message.media[i].product_id > 0 && message.customer_id > 0) {
                         media = media + '<br />';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
@@ -130,8 +130,8 @@ var getHtml = function(response) {
                 media = '<input type="checkbox" class="form-control" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                 j++;
             } else {
-                media =  '<div style="margin-bottom:10px;">'; 
-                media += '<div class="row">'; 
+                media =  '<div style="margin-bottom:10px;">';
+                media += '<div class="row">';
                 media += '<div class="'+classFive+'">';
                 media += '<a href="' + message.media_url + '" class="show-product-info" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
                 media += '</div>';
@@ -145,13 +145,13 @@ var getHtml = function(response) {
         var button = "";
 
         if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
-            
+
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
                     button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
                 }
 
-                if (message.status == 0 || message.status == 5) {                        
+                if (message.status == 0 || message.status == 5) {
                   button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
                 }
                 button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
@@ -163,7 +163,7 @@ var getHtml = function(response) {
                      } else if (message.error_status == 2) {
                        button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
                      }
-                     
+
                      if (!message.approved) {
                          if (is_admin || is_hod_crm) {
                             approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
@@ -173,7 +173,9 @@ var getHtml = function(response) {
                          }
                      }
                      button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
-                } 
+                }
+
+
 
                 if (message.type == "task" || message.type == "vendor") {
                     button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
@@ -189,17 +191,17 @@ var getHtml = function(response) {
         }
         button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
         if(message.is_queue == 1) {
-           button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
+           button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
 
         if (message.inout == 'out' || message.inout == 'in') {
-            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
-        }    
+            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>';
+        }
 
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
         } else {
             li += '<div>' + index + '</div>';
         }
@@ -211,7 +213,6 @@ var getHtml = function(response) {
 }
 
 $(document).on('click', '.load-communication-modal', function () {
-    
     var thiss = $(this);
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
@@ -249,9 +250,9 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
-        
-        var li = getHtml(response);
 
+      console.log("li",response);
+        var li = getHtml(response);
         if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-body").html(li);
             //$(thiss).html("<img src='/images/chat.png' alt=''>");
@@ -388,7 +389,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    createLead (this,{auto_approve: 1}); 
+    createLead (this,{auto_approve: 1});
 });
 
 $(document).on('click','.delete-message',function(e) {
@@ -400,7 +401,7 @@ $(document).on('click','.delete-message',function(e) {
     }).done(response => {
         $this.closest(".bubble").remove();
     }).fail(function(response) {
-    
+
     });
 })
 
@@ -469,7 +470,7 @@ function createLead (thiss,dataSending) {
     }
 
     var text = $(thiss).text();
-    
+
     if (selected_product_images.length > 0) {
         if ($('#add_lead').length > 0 && $(thiss).hasClass('create-product-lead')) {
             $.ajax({
@@ -488,7 +489,7 @@ function createLead (thiss,dataSending) {
                 $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
                 $('#add_lead').find('select[name="gender"]').val(response.gender).trigger('change');
                 $('#add_lead').find('input[name="size"]').val(response.shoe_size);
-                
+
                 var showImageHtml = "";
                 if(typeof response.price != "undefined" && response.price > 0) {
                     showImageHtml += '<div class="col-sm-12" style="padding-bottom: 10px;"><span>Price : '+response.price+'</span></div>';
@@ -502,7 +503,7 @@ function createLead (thiss,dataSending) {
                 }
 
                 $('#add_lead').find('.show-product-image').html(showImageHtml);
-                
+
                 if (!dataSending) {
                     dataSending = {};
                 }
@@ -516,7 +517,7 @@ function createLead (thiss,dataSending) {
                         name: 'product_id',
                         type: 'hidden',
                         'data-object' : JSON.stringify(dataSending),
-                    }));    
+                    }));
                 }
             })
             return false;
@@ -592,12 +593,12 @@ $(document).on('hidden.bs.modal','#forwardModal', function () {
 
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
-        createLead (this,{dimension: true , auto_approve: 1});         
+        createLead (this,{dimension: true , auto_approve: 1});
 });
 
 $(document).on('click', '.create-detail_image', function(e) {
     e.preventDefault();
-    createLead (this,{detailed: true , auto_approve: 1}); 
+    createLead (this,{detailed: true , auto_approve: 1});
 });
 
 $(document).on('click', '.resend-message-js', function(e) {
@@ -678,7 +679,7 @@ $(document).on('click', '.create-product-order', function(e) {
                     value: product_id,
                     name: 'selected_product[]',
                     type: 'hidden'
-                }));    
+                }));
             }
 
             if ($('#add_order').find('input[name="convert_order"]').length > 0) {
@@ -688,9 +689,9 @@ $(document).on('click', '.create-product-order', function(e) {
                     value: 'convert_order',
                     name: 'convert_order',
                     type: 'hidden'
-                }));    
+                }));
             }
-            
+
             $('#add_order').modal('show');
             return false;
         }
@@ -766,7 +767,7 @@ $(document).on("click", '.show-product-info', function() {
         $('body').append(show_product_info_model);
     }
 
-    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');           
+    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');
     $('#show_product_info_model').modal('show');
 
 });
@@ -786,9 +787,9 @@ $(document).on("mouseover", '.show-thumbnail-image', function() {
                                     '</div>';
             $('body').append(preview_image_model);
             $('#preview-image-model').modal('show');
-                                       
+
         }else{
-            
+
             var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
                                     '  <span class="close">×</span>'+
                                     '  <div class="row">'+
@@ -804,15 +805,15 @@ $(document).on("mouseover", '.show-thumbnail-image', function() {
 
 });
 
-$(document).on('mouseout', '.show-thumbnail-image', function(e) { 
+$(document).on('mouseout', '.show-thumbnail-image', function(e) {
     $('#preview-image-model').modal('hide');
     $('#preview-image-model').remove();
 });
 
 $('#chat-list-history').on("scroll", function() {
-    
+
     var $this = $(this);
-    
+
     var modal_scrollTop = $this.scrollTop();
     var modal_scrollHeight = $this.find('.modal-body').prop('scrollHeight');
 
@@ -822,7 +823,7 @@ $('#chat-list-history').on("scroll", function() {
     if (modal_scrollTop > (modal_scrollHeight - 1000) && workingOn == null) {
         if(currentChatParams.data.hasMore && workingOn == null) {
             workingOn = true;
-            currentChatParams.data.page++; 
+            currentChatParams.data.page++;
             getMoreChatConvo(currentChatParams);
         }
     }
