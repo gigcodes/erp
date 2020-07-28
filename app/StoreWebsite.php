@@ -35,6 +35,7 @@ class StoreWebsite extends Model
         'mysql_password',
         'mysql_staging_username',
         'mysql_staging_password',
+        'website_source',
     ];
 
     // Append attributes
