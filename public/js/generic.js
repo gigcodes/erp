@@ -201,7 +201,7 @@ var getHtml = function(response) {
         if (message.inout == 'in') {
             li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendTo + ' to ' + message.sendBy + ' on '  + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
         } else {
             li += '<div>' + index + '</div>';
         }

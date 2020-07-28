@@ -70,7 +70,7 @@ class UserManagementController extends Controller
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
                 $currentRate = $u->latestRate;
-                $u->teamLeads;
+                $u["team_leads"] = $u->teamLeads->toArray();
 
                 $u["hourly_rate"] = ($currentRate) ? $currentRate->hourly_rate : 0;
                 $u["currency"]    = ($currentRate) ? $currentRate->currency : "USD";
@@ -78,6 +78,14 @@ class UserManagementController extends Controller
 
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
                 $u["isAdmin"] = $u->isAdmin();
+
+                $online_now = $u->lastOnline();
+                if($online_now) {
+                    $u["online_now"] =   \Carbon\Carbon::parse($online_now)->format('d-m H:i');
+                }
+                else {
+                    $u["online_now"] = null;
+                }
 
                 $lastPaid = $u->payments()->orderBy('id','desc')->first();
                 if($lastPaid) {
@@ -92,7 +100,13 @@ class UserManagementController extends Controller
                         $lastPaidOn =  date('Y-m-d',strtotime($query->billing_start . "-1 days"));
                     }
                 }
-                $u["previousDue"] = $u->previousDue($lastPaidOn);
+                if($lastPaidOn) {
+                    $u["previousDue"] = $u->previousDue($lastPaidOn);
+                }
+                else {
+                    $u["previousDue"] = '';
+                }
+                
                 $u["lastPaidOn"] = $lastPaidOn;
                 
                 if($u->payment_frequency == 'fornightly') {
@@ -781,11 +795,13 @@ class UserManagementController extends Controller
         $team = Team::find($id);
         $team->user;
         $team->members = $team->users()->pluck('name','id');
+        $totalMembers =  $team->users()->count();
         $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
         return response()->json([
             "code"       => 200,
             "team"       => $team,
-            "users"       => $users
+            "users"       => $users,
+            "totalMembers"       => $totalMembers
         ]);
     }
 

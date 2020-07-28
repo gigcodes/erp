@@ -109,6 +109,7 @@
                     <th width="5%">Resolved</th>
                     <th width="5%">Master Developer</th>
                     <th width="5%">Cost</th>
+                    <th width="5%">Milestone</th>
                     <th width="5%">Language</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
@@ -129,7 +130,7 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-
+//
 @endsection
 
 @section('scripts')
@@ -427,6 +428,32 @@
             });
         });
 
+
+
+        $(document).on('keyup', '.save-milestone', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).attr('data-id');
+            let total = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveMilestone')}}",
+                data: {
+                    total: total,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Milestone updated successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    console.log(error.responseJSON.message);
+                    
+                }
+            });
+        });
+
         $(document).on('change', '.save-language', function (event) {
             
             let id = $(this).attr('data-id');
@@ -669,6 +696,18 @@
                     }
                 }
             });
+        });
+
+
+        $(document).on('change', '#is_milestone', function () {
+
+            var is_milestone = $('#is_milestone').val();
+            if(is_milestone == '1') {
+                $('#no_of_milestone').attr('required', 'required');
+            }
+            else {
+                $('#no_of_milestone').removeAttr('required');
+            }
         });
     
     

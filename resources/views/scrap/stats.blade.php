@@ -238,6 +238,8 @@
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
+                                <button type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
+                                
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -684,6 +686,30 @@
 
             });
         });
+
+        function restartScript(name,server_id) {
+            var x = confirm("Are you sure you want to restart script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/restart-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script Restarted Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                })
+                .error(function() {
+                    alert('Please check if server is running')
+                });
+            else
+                return false;    
+            
+        }
 
         $(".select2").select2();
     </script>

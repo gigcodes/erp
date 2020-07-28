@@ -510,14 +510,25 @@ class ScrapController extends Controller
             ], 400);
         }
 
+        if(isset($request->status)){
+
+            // Search For ScraperQueue
+            ScrapeQueues::where('done', 0)->where('product_id', $product->id)->update(['done' => 2]);
+            $product->status_id = StatusHelper::$unableToScrape;
+            $product->save();
+            return response()->json([
+                'status' => 'Product processed for unable to scrap'
+            ]);
+        }
+        
         // Set product to unable to scrape - will be updated later if we have info
-        $product->status_id = $product->status_id == StatusHelper::$isBeingScraped ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
+        $product->status_id = in_array($product->status_id,[StatusHelper::$isBeingScraped, StatusHelper::$requestForExternalScraper]) ? StatusHelper::$unableToScrape : StatusHelper::$unableToScrapeImages;
         $product->save();
 
         // Validate request
         $validator = Validator::make($request->toArray(), [
             'id' => 'required',
-            'website' => 'required',
+            //'website' => 'required',
             'images' => 'required|array',
             'description' => 'required'
         ]);
@@ -528,7 +539,7 @@ class ScrapController extends Controller
         }
 
         // Set proper website name
-        $website = str_replace(' ', '', $request->get('website'));
+        //$website = str_replace(' ', '', $request->get('website'));
 
         // If product is found, update it
         if ($product) {
@@ -555,6 +566,7 @@ class ScrapController extends Controller
                 $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
             }
 
+            $product->status_id = StatusHelper::$autoCrop;
             // Save
             $product->save();
 
@@ -1009,7 +1021,7 @@ class ScrapController extends Controller
 
         $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
-        $scraper = Scraper::where("id",61)->first();
+        //$scraper = Scraper::where("id",61)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
@@ -1090,7 +1102,7 @@ class ScrapController extends Controller
     public function needToStart(Request $request)
     {
         if($request->server_id != null) {
-            $scraper = Scraper::where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->pluck("scraper_name");
+            $scraper = Scraper::where('server_id', $request->server_id)->pluck("scraper_name");
             return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
         }else{
             return response()->json(["code" => 500, "message" => "Please send server id"]);
@@ -1099,12 +1111,34 @@ class ScrapController extends Controller
 
     public function scraperNeeded(Request $request)
     {
-        $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
-        ->latest()
-        ->limit(10)
-        ->pluck("sku","id")
-        ->toArray();
+       $products = Product::where("status_id", StatusHelper::$requestForExternalScraper)
+        ->latest("created_at")
+        ->select(["id","sku","supplier"])
+        ->limit(50)
+        ->get()
+        ->toArray(); 
         
-        return response()->json(["code" => 200 , "data" => $products]);
+        return response()->json($products);
+    }
+
+    public function restartNode(Request $request)
+    {
+        if($request->name && $request->server_id){
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$request->name.'.js';
+            //dd($url);
+            //sample url
+            //localhost:8085/restart-script?filename=biffi.js
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if($response){
+                return response()->json(["code" => 200,"message" => "Script Restarted"]);
+            }else{
+                return response()->json(["code" => 500,"message" => "Check if Server is running"]);
+            }
+            
+        }
     }
 }

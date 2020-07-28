@@ -70,6 +70,16 @@
         @endif
     </td>
     <td>
+    @if($issue->is_milestone)
+        <p style="margin-bottom:0px;">Milestone : @if($issue->is_milestone) Yes @else No @endif</p>
+        <p style="margin-bottom:0px;">Total : {{$issue->no_of_milestone}}</p>
+        <p style="margin-bottom:0px;">Completed : {{$issue->milestone_completed}}</p>
+    @else
+    No 
+    @endif
+    </td>
+
+    <td>
         <?php echo $issue->language; ?>
     </td>
     </tr>

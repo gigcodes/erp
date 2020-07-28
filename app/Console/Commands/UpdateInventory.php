@@ -74,7 +74,7 @@ class UpdateInventory extends Command
                     }
 
                     if (!$hasInventory) {
-                        \DB::statement("update LOW_PRIORITY `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
+                        \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
                     }
                 }
             }
