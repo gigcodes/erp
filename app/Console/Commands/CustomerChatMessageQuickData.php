@@ -51,6 +51,16 @@ class CustomerChatMessageQuickData extends Command
                         $data['last_unread_message_at'] = ($item1->status == 0) ? $item1->created_at : NULL;
                         $data['last_communicated_message'] = ($item1->status > 0) ? $item1->message : NULL;
                         $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : NULL;
+                        $data['last_communicated_message_at'] = ($item1->status > 0) ? $item1->created_at : NULL;
+                        $data['last_unread_message_id'] = NULL;
+                        $data['last_communicated_message_id'] = NULL;
+
+                        if (!empty($data['last_unread_message'])) {
+                            $data['last_unread_message_id'] = $item1->id;
+                        }
+                        if (!empty($data['last_communicated_message'])) {
+                            $data['last_communicated_message_id'] = $item1->id;
+                        }
 
                         if(!empty($data['last_unread_message']) || !empty($data['last_communicated_message'])){
                             ChatMessagesQuickData::updateOrCreate([
