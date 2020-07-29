@@ -62,6 +62,7 @@ class SupplierController extends Controller
         $term = $request->term ?? '';
         $type = $request->type ?? '';
         $supplier_filter = $request->supplier_filter ?? '';
+        $scrappertype = $request->scrappertype ?? '' ;
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
@@ -89,8 +90,10 @@ class SupplierController extends Controller
         if ($supplier_status_id != '') {
             $typeWhereClause .= ' AND supplier_status_id=' . $supplier_status_id;
         }
-
-        if($updated_by != '') {
+        if ($scrappertype != '') {
+          $typeWhereClause .= ' AND suppliers.scrapper=' . $scrappertype;
+      }
+      if($updated_by != '') {
            $typeWhereClause .= ' AND updated_by=' . $updated_by;
         }
 
@@ -153,7 +156,7 @@ class SupplierController extends Controller
 
         if($runQuery) {
         $suppliers = DB::select('
-									SELECT suppliers.frequency,suppliers.supplier_sub_category_id, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
+									SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -192,7 +195,6 @@ class SupplierController extends Controller
         $suppliers_all = Supplier::where(function ($query) {
             $query->whereNotNull('email')->orWhereNotNull('default_email');
         })->get();
-
         // print_r($suppliers_all);
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -230,13 +232,13 @@ class SupplierController extends Controller
         $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
 
 
-
         return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
             'solo_numbers' => $solo_numbers,
             'term' => $term,
             'type' => $type,
+            'scrappertype' => $scrappertype,
             'supplier_filter' => $supplier_filter,
             'source' => $source,
             'suppliercategory' => $suppliercategory,
@@ -1450,7 +1452,7 @@ class SupplierController extends Controller
               $supplier->fill(['supplier_sub_category_id' => $categoryId])->save();
            }
         }
-        return response()->json(["code" => 200, "data" => [], "message" => "Category updated successfully"]);
+        return response()->json(["code" => 200, "data" => [], "message" => "Sub Category updated successfully"]);
     }
 
 
@@ -1478,7 +1480,7 @@ class SupplierController extends Controller
               $supplier->fill(['scrapper' => $scrapper])->save();
            }
         }
-        return response()->json(["code" => 200, "data" => [], "message" => "Category updated successfully"]);
+        return response()->json(["code" => 200, "data" => [], "message" => "Scrapper updated successfully"]);
     }
 
     /**

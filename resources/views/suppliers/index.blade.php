@@ -30,7 +30,9 @@
         word-break: break-all;
         white-space: normal;
     }
-
+    .erp-btn-list{
+      display: flex;
+    }
   </style>
 
 
@@ -115,11 +117,11 @@
 						); ?>
                     </div>
           <div class="form-group col-md-3">
-							<select class="form-control" name="type">
+							<select class="form-control" name="scrappertype">
 							<option value="">Select Scrapper</option>
-							<option value="SCRAPPER">SCRAPPER</option>
-							<option value="EXCEL">EXCEL</option>
-							<option value="NONE">NONE</option>
+							<option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
+							<option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
+							<option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
 							</select>
 					</div>
 
@@ -187,7 +189,7 @@
         </td>
 				<td>
 					{{ $supplier->supplier }} <br>
-
+            <div class="erp-btn-list">
 					@if ($supplier->is_flagged == 1)
 					<button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
 					@else
@@ -195,14 +197,7 @@
 					@endif
 					@if($supplier->phone)
 					<button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
-					<div class="numberSend" id="show{{ $supplier->id }}">
-					<select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
-						<option disabled selected>Select Number</option>
-						@foreach(\Config::get("twilio.caller_id") as $caller)
-						<option value="{{ $caller }}">{{ $caller }}</option>
-						@endforeach
-					</select>
-					</div>
+
 					@if ($supplier->is_blocked == 1)
 						<button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
 					@else
@@ -211,8 +206,16 @@
 					@endif
 					<button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
 						<img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
-					</button>
-					<br>
+          </button>
+          </div>
+          <div class="numberSend" id="show{{ $supplier->id }}">
+					<select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
+						<option disabled selected>Select Number</option>
+						@foreach(\Config::get("twilio.caller_id") as $caller)
+						<option value="{{ $caller }}">{{ $caller }}</option>
+						@endforeach
+					</select>
+					</div>
 					@if ($supplier->has_error == 1)
 						<span class="text-danger">!!!</span>
 					@endif
@@ -240,7 +243,6 @@
 					</div>
 					</p>
 					</span>
-					<br>
 				</td>
 				<td class="expand-row">
 					<div class="td-mini-container">
@@ -260,9 +262,9 @@
         <td>
         <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
               <option value="">Select<option>
-              <option value="scrapper">SCRAPPER</option>
-              <option value="excel">EXCEL</option>
-              <option value="none">NONE</option>
+              <option value="scrapper" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
+              <option value="excel" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
+              <option value="none" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
         </select>
         </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
@@ -1170,7 +1172,6 @@
 
     $(document).on('change', '.supplier_cat', function() {
         var cat = $(this).val();
-        alert(cat);
         var supplierId = $(this).data('supplier-id');
         $.ajax({
             type: "POST",
@@ -1193,7 +1194,6 @@
     $(document).on('change', '.scrapper', function() {
         var scrapper = $(this).val();
         var supplierId = $(this).data('scrapper-id');
-        alert(supplierId);
         $.ajax({
             type: "POST",
             url: "{{ route('supplier/change/scrapper') }}",
