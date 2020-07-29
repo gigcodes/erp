@@ -75,6 +75,12 @@
     @else
     No 
     @endif
+
+    </td>
+
+    <td>
+        <?php echo $issue->language; ?>
+
     </td>
     </tr>
     <tr>

@@ -109,6 +109,9 @@
                     <th width="5%">Lead</th>
                     <th width="5%">Cost</th>
                     <th width="5%">Milestone</th>
+
+                    <th width="5%">Language</th>
+
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isReviwerLikeAdmin())
