@@ -1,5 +1,7 @@
+
+
 <tr>
-    <td>
+    <td  >
         <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
         </a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
