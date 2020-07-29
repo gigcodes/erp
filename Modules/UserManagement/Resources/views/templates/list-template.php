@@ -38,7 +38,7 @@ td+td {
 			</tr>
 		    </thead>
 		    <tbody>
-		    	{{props data ~teamLeads=data.team_leads}}
+		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
 			      	<td>
@@ -77,7 +77,7 @@ td+td {
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">Task</a>
 					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
-			        <td></td>
+			        <td>{{:prop.online_now}}</td>
 			        <td>{{:prop.payment_frequency}}</td>
 			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
 			        <td>{{:prop.nextDue}}</td>

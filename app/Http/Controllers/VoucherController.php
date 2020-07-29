@@ -64,16 +64,22 @@ class VoucherController extends Controller
             // $task->assignedUser;
             if($task->task_id) {
                 $task->taskdetails = Task::find($task->task_id);
-                $task->details = $task->taskdetails->task_details;
-                if(!$task->worked_minutes) {
-                    $task->estimate_minutes = $task->taskdetails->approximate;
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task_details;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->approximate;
+                    }
                 }
             }
             else if($task->developer_task_id) {
                 $task->taskdetails = DeveloperTask::find($task->developer_task_id);
-                $task->details = $task->taskdetails->task;
-                if(!$task->worked_minutes) {
-                    $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                    }
                 }
             }
             else {
@@ -365,6 +371,27 @@ class VoucherController extends Controller
         if($newTotal >= $preceipt->rate_estimated) {
             $preceipt->update(['status' => 'Done']);
         }
+        return redirect()->back()->with('success','Successfully submitted');
+    }
+
+
+    public function viewManualPaymentModal() {
+        $users = User::all(); 
+        $paymentMethods = PaymentMethod::all();
+        return view("vouchers.manual-payment-modal",compact('users','paymentMethods'));
+    }
+
+
+    public function manualPaymentSubmit(Request $request) {
+        $this->validate($request, [
+            'date' => 'required',
+            'user_id' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
+            'payment_method_id' => 'required'
+        ]);
+        $input = $request->except('_token');       
+        Payment::create($input);
         return redirect()->back()->with('success','Successfully submitted');
     }
 }

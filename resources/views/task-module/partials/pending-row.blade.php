@@ -100,6 +100,19 @@
             <span class="cost-val">{{$task->cost}}</span>
         @endif
     </td>
+    <td>
+    @if($task->is_milestone)
+        <p style="margin-bottom:0px;">Milestone : @if($task->is_milestone) Yes @else No @endif</p>
+        <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
+        @if($task->no_of_milestone == $task->milestone_completed) 
+        <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
+        @else
+        <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+        @endif
+    @else
+    No 
+    @endif
+    </td>
 
     <td class="expand-row table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))

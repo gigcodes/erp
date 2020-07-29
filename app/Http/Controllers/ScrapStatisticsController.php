@@ -38,7 +38,7 @@ class ScrapStatisticsController extends Controller
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
             ->select('scrapers.*', "s.*", "scrapers.full_scrape as scrapers_status")
-            ->where('supplier_status_id', 1);
+            ->where('supplier_status_id', 1)->whereNull('parent_id');
 
         if (!empty($keyWord)) {
             $activeSuppliers->where(function ($q) use ($keyWord) {
@@ -87,12 +87,13 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scrapers sc
             ON 
-                sc.supplier_id = s.id    
+                sc.supplier_id = s.id
             JOIN
                 scraped_products ls 
             ON  
                 sc.scraper_name=ls.website
             WHERE
+                sc.scraper_name IS NOT NULL AND
                 ls.website != "internal_scraper" AND 
                 ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
@@ -117,7 +118,7 @@ class ScrapStatisticsController extends Controller
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
-        $allScrapper = Scraper::pluck('scraper_name', 'id')->toArray();
+        $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         
         // Return view
         return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
@@ -263,8 +264,14 @@ class ScrapStatisticsController extends Controller
         $fieldName = request()->get("field");
         $fieldValue = request()->get("field_value");
         $search = request()->get("search");
-
+        //dd($search);
         $suplier = \App\Scraper::where("supplier_id", $search)->first();
+        
+        if(!$suplier){
+            $suplier = \App\Scraper::find($search);
+        }
+
+            
         if ($suplier) {
             $oldValue = $suplier->{$fieldName};
 
@@ -279,7 +286,14 @@ class ScrapStatisticsController extends Controller
             $suplier->{$fieldName} = $fieldValue;
             $suplier->save();
 
+            
             $suplier = \App\Scraper::where("supplier_id", $search)->first();
+            
+            if(!$suplier){
+                $suplier = \App\Scraper::find($search);
+            }
+
+
 
             $newValue = $fieldValue;
 
