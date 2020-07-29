@@ -169,6 +169,46 @@ var parentDialog = function(ele) {
     }
 };
 
+
+$(document).on("change", ".dynamic-row .search-alias", function() {
+    var selectedIntentOrEntity = $(this).val();
+    if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
+        var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+        if (!(isEntity === undefined)) {
+            allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
+            selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
+            $.ajax({
+                type: "post",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
+                data: isEntity ? { 
+                    keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
+                } : { 
+                    value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                },
+                dataType: "json",
+                success: function(response) {
+                    var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"
+                    toastr["success"](successMessage);
+                },
+                error: function() {
+                    toastr["error"]("Could not add intent/entity!");
+                }
+            });
+        }
+        else {
+            toastr["error"]("Invalid intent/entity format. Entities should be prefixed with @ and intents should be prefixed with #");
+            var aliasTemplate = $.templates("#search-alias-template");
+            var aliasTemplateHtml = aliasTemplate.render({
+                "allSuggestedOptions": allSuggestedOptions
+            });
+            $("#leaf-editor-model").find(".search-alias").html(aliasTemplateHtml);
+        }
+    }
+});
+
 var searchForDialog = function(ele) {
     var dialogBox = ele.find(".search-dialog");
     var intentOrEntityBox = ele.find(".search-alias");
@@ -408,7 +448,9 @@ $(document).on("click", ".add-more-condition-btn", function() {
     $(".show-more-conditions").append(buttonOptions.render({
         "allSuggestedOptions": allSuggestedOptions
     }));
-    $(".search-alias").select2();
+    $(".search-alias").select2({
+        tags: true
+    });
 });
 $(document).on("click", ".remove-more-condition-btn", function() {
     $(this).closest(".form-row").remove();
@@ -572,6 +614,7 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
 $(document).on("click", ".save-dialog-btn", function(e) {
     e.preventDefault();
     var form = $("#dialog-save-response-form");
+
     $.ajax({
         type: form.attr("method"),
         url: form.attr("action"),

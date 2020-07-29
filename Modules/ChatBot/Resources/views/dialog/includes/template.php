@@ -124,7 +124,7 @@
 </script>
 
 <script id="add-more-condition" type="text/x-jsrender">
-	<div class="form-row">
+	<div class="form-row dynamic-row">
 		<div class="form-group col-md-3">
 	      <select name="conditions[]" class="form-control">
 	      	<option value="&&">AND</option>
