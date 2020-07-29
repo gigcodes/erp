@@ -4558,11 +4558,14 @@ class WhatsAppController extends FindByNumberController
             $chat_message->update([
                 'resent' => $chat_message->resent + 1
             ]);
+
+            return response()->json([
+                'resent' => $chat_message->resent
+            ]);
         }
 
         if ($chat_message->erp_user != '' || $chat_message->contact_id != '') {
             $sender = User::find($chat_message->user_id);
-
             if ($chat_message->erp_user != '') {
                 $receiver = User::find($chat_message->erp_user);
             } else {
@@ -4570,7 +4573,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             $phone = $receiver->phone;
-            $whatsapp_number = $sender->whatsapp_number;
+            $whatsapp_number = ($sender) ? $sender->whatsapp_number : null;
             $sending_message = $chat_message->message;
 
             if (preg_match_all("/Resent ([\d]+) times/i", $sending_message, $match)) {
