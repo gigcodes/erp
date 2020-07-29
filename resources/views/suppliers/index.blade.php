@@ -1149,7 +1149,8 @@
         })
     });
 
-   $(document).on('change keydown paste input', '.inventory_lifetime', function() {
+   $(document).on('keypress', '.inventory_lifetime', function(e) {
+    if(e.which == 13) {
         var inventory_lifetime = $(this).val();
         var supplierId = $(this).data('supplier-id');
         $.ajax({
@@ -1164,10 +1165,11 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-           // location.reload();
+            location.reload();
         }).fail(function(error) {
 
         })
+      }
     });
 
     $(document).on('change', '.supplier_cat', function() {
