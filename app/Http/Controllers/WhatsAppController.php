@@ -2044,7 +2044,7 @@ class WhatsAppController extends FindByNumberController
                           $userId  = $issue->master_user_id;
                        }
                     }
-
+                    
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];
                     $params[ 'sent_to_user_id' ] = $userId;

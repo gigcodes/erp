@@ -1,16 +1,14 @@
 <tr>
     <td>
         <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
-            @if($issue->is_resolved==0)
-                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
-            @endif
         </a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a></td>
+
     <td>{{ $issue->subject }}</td>
-    <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+    
     <td>
         {{ $issue->task }}
         @if ($issue->getMedia(config('constants.media_tags'))->first())
@@ -45,7 +43,7 @@
     </td>
     <td>
         @if($issue->is_resolved)
-            <strong>Resolved</strong>
+            <strong>Done</strong>
         @else
             <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
                 <option value="">Please Select</option>
@@ -77,10 +75,6 @@
     @else
     No 
     @endif
-    </td>
-
-    <td>
-        <?php echo $issue->language; ?>
     </td>
     </tr>
     <tr>

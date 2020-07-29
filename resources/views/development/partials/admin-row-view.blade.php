@@ -1,16 +1,13 @@
 <tr>
     <td>
-        <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
-            @if($issue->is_resolved==0)
-                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
-            @endif
+        <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
         </a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
     </td>
     <td style="vertical-align: middle;">    
         <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
-            <option value=''>Selecct Module..</option>
+            <option value=''>Select Module..</option>
             @foreach($modules as $module)
 
              @if( isset($issue->module_id) && (int) $issue->module_id == $module->id )
@@ -22,14 +19,19 @@
         </select>
     </td>
     <td style="vertical-align: middle;">{{ $issue->subject ?? 'N/A' }}</td>
-    <td style="vertical-align: middle;">{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
     <td class="expand-row">
+    <!-- class="expand-row" -->
+    <textarea class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}"></textarea>
+    <?php echo Form::select("send_message_".$issue->id,[
+                        "to_developer" => "Send To Developer",
+                        "to_master" => "Send To Master Developer"
+                    ],null,["class" => "form-control send-message-number"]); ?>
+    <button type="submit" id="submit_message" class="btn btn-secondary btn-xs send-message-open" data-id="{{$issue->id}}" style="float: right;margin-top: 2%;">Send</button>
+    <br>
         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
-        <div class="td-mini-container">
-            {{ strlen($issue->task) > 20 ? substr($issue->task, 0, 20).'...' : $issue->task }}
-        </div>
+    <br>
         <div class="td-full-container hidden">
-            {!! nl2br($issue->task) !!}
+            <!-- {!! nl2br($issue->task) !!} -->
             @if ($issue->getMedia(config('constants.media_tags'))->first())
                 <br/>
                 @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -55,6 +57,7 @@
                         </div>
                     </div>
                 </div>
+            </div>
             </div>
     </td>
     <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }} </td>
@@ -83,7 +86,7 @@
     </td>
     <td>
         @if($issue->is_resolved)
-            <strong>Resolved</strong>
+            <strong>Done</strong>
         @else
             <?php echo Form::select("task_status",$statusList,$issue->status,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$issue->id.")"]); ?>
         @endif
@@ -119,9 +122,6 @@
     @else
     No 
     @endif
-    </td>
-    <td>
-        <?php echo Form::select("language",["" => "N/A"] + $languages, $issue->language , ["class" => "form-control save-language select2", "data-id" => $issue->id , "id" => "language_".$issue->id]) ?>
     </td>
 </tr>
 <tr>
