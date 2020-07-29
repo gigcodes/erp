@@ -100,17 +100,18 @@
                     <th width="1%">ID</th>
                     <th width="5%">Module</th>
                     <th width="10%">Subject</th>
-                    <th width="5%">Priority</th>
-                    <th width="15%">Issue</th>
+                    <th width="15%">Communication</th>
                     <th width="5%">Date Created</th>
                     <th width="5%">Est Completion Time</th>
                     <th width="5%">Tracked Time</th>
                     <th width="5%">Assigned To</th>
-                    <th width="5%">Resolved</th>
-                    <th width="5%">Master Developer</th>
+                    <th width="5%">Status</th>
+                    <th width="5%">Lead</th>
                     <th width="5%">Cost</th>
                     <th width="5%">Milestone</th>
+
                     <th width="5%">Language</th>
+
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isReviwerLikeAdmin())
@@ -282,12 +283,52 @@
         });
         
         $(document).on('click', '.send-message', function (event) {
-            /*if (event.which != 13) {
-                return;
-            }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
+
+
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '.send-message-open', function (event) {
+
+            var textBox = $(".send-message-textbox");
+            var sendToStr  = $(".send-message-number").val();
 
             let issueId = textBox.attr('data-id');
             let message = textBox.val();

@@ -1102,6 +1102,7 @@ class ScrapController extends Controller
     public function needToStart(Request $request)
     {
         if($request->server_id != null) {
+
             $totalScraper = [];
             $scrapers = Scraper::select('parent_id','scraper_name')->where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->get();
             foreach($scrapers as $scraper){
@@ -1152,6 +1153,7 @@ class ScrapController extends Controller
         }
     }
 
+
     public function saveChildScraper(Request $request)
     {
         $scraper = Scraper::where('scraper_name',$request->scraper_name)->whereNull('parent_id')->first();
@@ -1170,13 +1172,14 @@ class ScrapController extends Controller
                 $scraperChild->server_id = $request->server_id;
                 $scraperChild->save();
             }else{
-                return \Redirect::back()->withErrors(['msg', 'Scraper Already Exist']);
+                 return redirect()->back()->with('message', 'Scraper Already Exist');
             }
-            
-                return \Redirect::back()->withSuccess(['msg', 'Child Scraper Saved']);
+                return redirect()->back()->with('message', 'Child Scraper Saved');
         }
-            return \Redirect::back()->withErrors(['msg', 'Scraper Not Found']);
+                return redirect()->back()->with('message', 'Scraper Not Found');
+          
             
         
     }
 }
+
