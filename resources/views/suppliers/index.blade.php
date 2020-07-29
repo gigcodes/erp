@@ -261,10 +261,10 @@
         </td>
         <td>
         <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
-              <option value="">Select<option>
-              <option value="scrapper" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
-              <option value="excel" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
-              <option value="none" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
+              <option value="">Select</option>
+              <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
+              <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
+              <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
         </select>
         </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
@@ -288,7 +288,7 @@
                 </td>
                 <td>
                     <select name="supplier_cat" class="form-control supplier_cat" data-supplier-id="{{ $supplier->id }}">
-                        <option value="">Select<option>
+                        <option value="">Select</option>
                         @forelse ($suppliercategory as $key => $item)
                             <option value="{{ $key }}" {{ ($supplier->supplier_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
                         @empty
@@ -297,7 +297,7 @@
                 </td>
                 <td>
                     <select name="supplier_subcat" class="form-control supplier_subcat" data-supplier-id="{{ $supplier->id }}">
-                        <option value="">Select<option>
+                        <option value="">Select</option>
                         @forelse ($suppliersubcategory as $key => $item)
                             <option value="{{ $key }}" {{ ($supplier->supplier_sub_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
                         @empty
@@ -1165,7 +1165,7 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            location.reload();
+            //location.reload();
         }).fail(function(error) {
 
         })
@@ -1187,7 +1187,7 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            window.reload();
+            location.reload();
         }).fail(function(error) {
 
         })
@@ -1208,7 +1208,7 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            window.reload();
+            location.reload();
         }).fail(function(error) {
 
         })
