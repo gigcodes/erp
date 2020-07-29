@@ -611,6 +611,45 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
         });
     }
 });
+
+$(document).on("click", ".save-example", function(e) {
+    e.preventDefault();
+    var example = $(".example-insert").val();
+    var question = $(".question-insert").val();
+
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: 'post',
+        url: '/chatbot/question',
+        data: {
+            question: example,
+            value: question
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log(response);
+            $(".example-insert").val('');
+            $(".question-insert").val('');
+
+            if (response.code == 200) {
+                toastr['success']('question created successfully!');
+                $(".example-insert").val('');
+                $(".question-insert").val('');
+                $("#leaf-editor-model").modal("hide");
+            } else {
+                errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
+            }
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+});
+
+
 $(document).on("click", ".save-dialog-btn", function(e) {
     e.preventDefault();
     var form = $("#dialog-save-response-form");
