@@ -1902,6 +1902,7 @@ class WhatsAppController extends FindByNumberController
             'quicksell_id' => 'sometimes|nullable|numeric',
             'old_id' => 'sometimes|nullable|numeric',
             'site_development_id' => 'sometimes|nullable|numeric',
+            'social_strategy_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -2043,7 +2044,7 @@ class WhatsAppController extends FindByNumberController
                           $userId  = $issue->master_user_id;
                        }
                     }
-
+                    
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];
                     $params[ 'sent_to_user_id' ] = $userId;
@@ -2440,6 +2441,23 @@ class WhatsAppController extends FindByNumberController
                     $params[ 'message' ] = $request->get('message');
                     
                     $params[ 'site_development_id' ] = $request->get('site_development_id');
+                    $params[ 'approved' ] = 1;
+                    
+                    $params[ 'status' ] = 2;
+
+                    $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                    
+                    $chat_message = ChatMessage::create($params);
+                    
+                    return response()->json(['message' => $chat_message]);
+                
+                }
+                elseif ($context == 'social_strategy') {
+                    $user = User::find($request->get('user_id'));
+                    
+                    $params[ 'message' ] = $request->get('message');
+                    
+                    $params[ 'social_strategy_id' ] = $request->get('social_strategy_id');
                     $params[ 'approved' ] = 1;
                     
                     $params[ 'status' ] = 2;
@@ -4540,11 +4558,14 @@ class WhatsAppController extends FindByNumberController
             $chat_message->update([
                 'resent' => $chat_message->resent + 1
             ]);
+
+            return response()->json([
+                'resent' => $chat_message->resent
+            ]);
         }
 
         if ($chat_message->erp_user != '' || $chat_message->contact_id != '') {
             $sender = User::find($chat_message->user_id);
-
             if ($chat_message->erp_user != '') {
                 $receiver = User::find($chat_message->erp_user);
             } else {
@@ -4552,7 +4573,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             $phone = $receiver->phone;
-            $whatsapp_number = $sender->whatsapp_number;
+            $whatsapp_number = ($sender) ? $sender->whatsapp_number : null;
             $sending_message = $chat_message->message;
 
             if (preg_match_all("/Resent ([\d]+) times/i", $sending_message, $match)) {

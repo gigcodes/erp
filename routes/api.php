@@ -118,9 +118,13 @@ Route::post('search/{type}', 'SearchQueueController@upload_content');
 //Magneto Customer Reference Store
 Route::post('magento/customer-reference','MagentoCustomerReferenceController@store');
 
+Route::post('node/restart-script','ScrapController@restartNode');
+
 Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
+
+Route::post('node/restart-script','ScrapController@restartNode');
 
 Route::prefix('v1')->group(function () {
     Route::prefix('product')->group(function () {

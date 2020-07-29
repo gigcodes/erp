@@ -1021,7 +1021,7 @@ class ScrapController extends Controller
 
         $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
-        $scraper = Scraper::where("id",61)->first();
+        //$scraper = Scraper::where("id",61)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
@@ -1102,8 +1102,19 @@ class ScrapController extends Controller
     public function needToStart(Request $request)
     {
         if($request->server_id != null) {
-            $scraper = Scraper::where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->pluck("scraper_name");
-            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+
+            $totalScraper = [];
+            $scrapers = Scraper::select('parent_id','scraper_name')->where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->get();
+            foreach($scrapers as $scraper){
+                if(!$scraper->parent_id){
+                    $totalScraper[] = $scraper->scraper_name;
+                }else{
+                    $totalScraper[] = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                }
+                
+            }
+            //dd($scraper);
+            return response()->json(["code" => 200, "data" => $totalScraper, "message" => ""]);
         }else{
             return response()->json(["code" => 500, "message" => "Please send server id"]);
         }
@@ -1120,4 +1131,55 @@ class ScrapController extends Controller
         
         return response()->json($products);
     }
+
+    public function restartNode(Request $request)
+    {
+        if($request->name && $request->server_id){
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$request->name.'.js';
+            //dd($url);
+            //sample url
+            //localhost:8085/restart-script?filename=biffi.js
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if($response){
+                return response()->json(["code" => 200,"message" => "Script Restarted"]);
+            }else{
+                return response()->json(["code" => 500,"message" => "Check if Server is running"]);
+            }
+            
+        }
+    }
+
+
+    public function saveChildScraper(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name',$request->scraper_name)->whereNull('parent_id')->first();
+        //dd($scraper);
+        if($scraper){
+            $parentId = $scraper->id;
+            $checkIfChildScraperExist = Scraper::where('parent_id',$parentId)->where('scraper_name',$request->name)->first();
+            if(!$checkIfChildScraperExist){
+                $scraperChild = new Scraper;
+                $scraperChild->scraper_name = $request->name;
+                $scraperChild->supplier_id =  $scraper->supplier_id;
+                $scraperChild->parent_id = $parentId;
+                $scraperChild->run_gap = $request->run_gap;
+                $scraperChild->start_time = $request->start_time;
+                $scraperChild->scraper_made_by = $request->scraper_made_by;
+                $scraperChild->server_id = $request->server_id;
+                $scraperChild->save();
+            }else{
+                 return redirect()->back()->with('message', 'Scraper Already Exist');
+            }
+                return redirect()->back()->with('message', 'Child Scraper Saved');
+        }
+                return redirect()->back()->with('message', 'Scraper Not Found');
+          
+            
+        
+    }
 }
+
