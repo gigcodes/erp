@@ -4,10 +4,10 @@
         $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         $userId             = auth()->user()->id;
     @endphp
-	
+
     @foreach($categories as $category)
-		<?php 
-            $site = $category->getDevelopment($category->id,$website->id); 
+		<?php
+            $site = $category->getDevelopment($category->id,$website->id);
             if($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
         ?>
     	<tr>
@@ -17,7 +17,7 @@
     			{{ $category->title }}
     			<br>
     			<button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;"><i class="fa fa-edit"></i></button>
-                <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?> 
+                <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?>
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="150">
     		</td>
@@ -32,19 +32,19 @@
       				"data-type" => "status",
       				"data-site" => ($site) ? $site->id : ""
       			]) ?>
-      			<select style="margin-top: 5px;" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" id="user-@if($site){{ $site->id }}@endif">
+      			<select style="margin-top: 5px;" class="form-control save-item-select developer" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
     				<option>Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
     				@endforeach
     			</select>
-                <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
                     <option>Select Designer</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}"@if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
                 </select>
-                <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
                     <option>Select Html</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
@@ -64,6 +64,12 @@
                     <button class="btn btn-sm btn-image send-message-site" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
                     <br/>
                 </div>
+                <input type="checkbox" id="developer" name="developer" value="developer">
+                <label for="developer">Developer</label><br>
+                <input type="checkbox" id="designer" name="designer" value="designer">
+                <label for="designer">Designer</label><br>
+                <input type="checkbox" id="html" name="html" value="html">
+                <label for="html">Html</label><br><br>
     		</td>
     		<td>@if($site) {{ $site->created_at }}@endif</td>
             <td>
@@ -81,5 +87,5 @@
             </td>
     	</tr>
     <?php } ?>
-		@include("storewebsite::site-development.partials.edit-modal")	
-	@endforeach  
+		@include("storewebsite::site-development.partials.edit-modal")
+  @endforeach
