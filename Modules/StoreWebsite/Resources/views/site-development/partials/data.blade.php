@@ -89,22 +89,3 @@
     <?php } ?>
 		@include("storewebsite::site-development.partials.edit-modal")
   @endforeach
-
-  @section('scripts')
-  <script type="text/javascript">
-  $(document).ready(function(){
-    $( ".developer" ).change(function() {
-      $('#developer').prop('checked', true)
-    });
-
-    $( ".designer" ).change(function() {
-      $('#designer').prop('checked', true)
-    });
-
-    $( ".html" ).change(function() {
-      $('#html').prop('checked', true)
-    });
-  });
-  </script>
-
-  @endsection
