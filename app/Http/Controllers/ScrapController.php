@@ -1102,8 +1102,19 @@ class ScrapController extends Controller
     public function needToStart(Request $request)
     {
         if($request->server_id != null) {
-            $scraper = Scraper::where('server_id', $request->server_id)->pluck("scraper_name");
-            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+
+            $totalScraper = [];
+            $scrapers = Scraper::select('parent_id','scraper_name')->where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->get();
+            foreach($scrapers as $scraper){
+                if(!$scraper->parent_id){
+                    $totalScraper[] = $scraper->scraper_name;
+                }else{
+                    $totalScraper[] = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                }
+                
+            }
+            //dd($scraper);
+            return response()->json(["code" => 200, "data" => $totalScraper, "message" => ""]);
         }else{
             return response()->json(["code" => 500, "message" => "Please send server id"]);
         }
@@ -1141,4 +1152,34 @@ class ScrapController extends Controller
             
         }
     }
+
+
+    public function saveChildScraper(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name',$request->scraper_name)->whereNull('parent_id')->first();
+        //dd($scraper);
+        if($scraper){
+            $parentId = $scraper->id;
+            $checkIfChildScraperExist = Scraper::where('parent_id',$parentId)->where('scraper_name',$request->name)->first();
+            if(!$checkIfChildScraperExist){
+                $scraperChild = new Scraper;
+                $scraperChild->scraper_name = $request->name;
+                $scraperChild->supplier_id =  $scraper->supplier_id;
+                $scraperChild->parent_id = $parentId;
+                $scraperChild->run_gap = $request->run_gap;
+                $scraperChild->start_time = $request->start_time;
+                $scraperChild->scraper_made_by = $request->scraper_made_by;
+                $scraperChild->server_id = $request->server_id;
+                $scraperChild->save();
+            }else{
+                 return redirect()->back()->with('message', 'Scraper Already Exist');
+            }
+                return redirect()->back()->with('message', 'Child Scraper Saved');
+        }
+                return redirect()->back()->with('message', 'Scraper Not Found');
+          
+            
+        
+    }
 }
+

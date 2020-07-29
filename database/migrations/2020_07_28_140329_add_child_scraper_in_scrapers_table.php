@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateTeamUserTable extends Migration
+class AddChildScraperInScrapersTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,10 +13,9 @@ class CreateTeamUserTable extends Migration
      */
     public function up()
     {
-        // Schema::create('team_user', function (Blueprint $table) {
-        //     $table->integer('team_id');
-        //     $table->integer('user_id');
-        // });
+        Schema::table('scrapers', function (Blueprint $table) {
+            $table->integer('parent_id')->nullable()->after('starting_urls');
+        });
     }
 
     /**
@@ -26,6 +25,8 @@ class CreateTeamUserTable extends Migration
      */
     public function down()
     {
-        //Schema::dropIfExists('team_user');
+        Schema::table('scrapers', function (Blueprint $table) {
+            $table->dropColumn('parent_id');
+        });
     }
 }

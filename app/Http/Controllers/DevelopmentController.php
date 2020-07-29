@@ -781,6 +781,7 @@ class DevelopmentController extends Controller
             'repository_id' => 'required',
             'hubstaff_project' => 'required',
             'module_id' => 'required',
+
         ]);
         $data = $request->except('_token');
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
