@@ -4538,20 +4538,12 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ($chat_message->message != '') {
-                if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
-                    $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
-                } else {
-                    $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
-                }
+                $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
             }
 
             if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
-                    if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
-                        $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
-                    } else {
-                        $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
-                    }
+                    $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number,$chat_message->message,$image->getUrl(), $chat_message->id);
                 }
             }
 
@@ -4596,8 +4588,8 @@ class WhatsAppController extends FindByNumberController
 
             $new_message = ChatMessage::create($params);
 
-            if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
                     $new_message->attachMedia($image, config('constants.media_tags'));
                 }
             }
@@ -4632,8 +4624,8 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if ($new_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {
+            if ($new_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($new_message->getMedia(config('constants.attach_image_tag')) as $image) {
                     $this->sendWithThirdApi($phone, $whatsapp_number, null, $image->getUrl(), $new_message->id);
                 }
             }
@@ -4650,20 +4642,12 @@ class WhatsAppController extends FindByNumberController
 
             if ($vendor) {
                 if ($chat_message->message != '') {
-                    if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
-                        $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
-                    } else {
-                        $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $chat_message->message, true, $chat_message->id);
-                    }
+                    $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 }
 
-                if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                    foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                        if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
-                            $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, null, $image->getUrl(), $chat_message->id);
-                        } else {
-                            $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
-                        }
+                if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                    foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
+                        $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, $image->getUrl(), $chat_message->id);
                     }
                 }
 
