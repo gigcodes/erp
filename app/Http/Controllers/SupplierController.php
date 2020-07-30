@@ -1532,8 +1532,8 @@ class SupplierController extends Controller
                     'number' => null,
                     'message' => $request->message,
                     'user_id' => Auth::id(),
-                    'status' => 1,
-                    'is_queue' => 2,
+                    'status' => \App\ChatMessage::CHAT_AUTO_BROADCAST,
+                    'is_queue' => 1,
                 ];
             }
         }
