@@ -51,6 +51,36 @@ class MessageQueueController extends Controller
      * Display a listing of the resource.
      * @return Response Json
      */
+
+    public function approve(Request $request)
+    {
+
+    $group_id = $request->group_id;
+    $customer_name = $request->customer_name;
+    $groupList = ChatMessage::select('group_id')->distinct('group_id')->where("is_queue" , 0)->where("group_id" , '!=' ,'')->get();
+
+    $messageData = ChatMessage::select('c.name','chat_messages.*')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
+    ->where("group_id" , '!=' ,NULL)
+    ->where("group_id" , '!=' ,'')
+    ->when($group_id != '', function ($q) use($group_id) {
+      return $q->where('group_id', $group_id);
+    })
+    ->when($customer_name != '', function ($q) use($customer_name) {
+      return $q->where("c.name",'LIKE', '%' . $customer_name . '%');
+    })
+    ->groupBy("group_id")->get();
+
+    return view('messagequeue::approve', compact('groupList','messageData','group_id'));
+
+    }
+
+    public function approved(Request $request)
+    {
+
+      $groupIdApprove = ChatMessage::where('group_id',$request->group_id)->update(["is_queue"=>1]);
+      return response()->json(["code" => 200, "message" => "Approved Successfully"]);
+    }
+
     public function records()
     {
         $from         = request("from", "");
