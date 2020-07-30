@@ -2863,11 +2863,12 @@ class ProductController extends Controller
 
         $params = request()->all();
         $params["user_id"] = \Auth::id();
-        $params["is_queue"] = 1;
+        //$params["is_queue"] = 1;
         $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request("customer_token","");
         
+
         if(!empty($token)) {
             $customerIds = json_decode(session($token));
             if(empty($customerIds)) {
