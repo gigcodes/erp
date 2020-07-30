@@ -741,13 +741,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
+    Route::get('development/issue/master/assign', 'DevelopmentController@assignMasterUser');
     Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');

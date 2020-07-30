@@ -352,12 +352,22 @@ class DevelopmentController extends Controller
             'success'
         ]);
     }
-    public function issueTaskIndex(Request $request, $type)
+    public function issueTaskIndex(Request $request)
     {
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
-        $issues = DeveloperTask::with('timeSpent')->where('developer_tasks.task_type_id', $type == 'issue' ? '3' : '1');
+        $type = $request->tasktype ? $request->tasktype : 'all';
 
+        $title = 'Task List';
+
+        $issues = DeveloperTask::with('timeSpent');
+        
+        if($type == 'issue') {
+            $issues = $issues->where('developer_tasks.task_type_id', '3');
+        }
+        if($type == 'devtask') {
+            $issues = $issues->where('developer_tasks.task_type_id', '1');
+        }
         if ((int) $request->get('submitted_by') > 0) {
             $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
         }
@@ -479,7 +489,8 @@ class DevelopmentController extends Controller
             'users' => $users,
             'modules' => $modules,
             'request' => $request,
-            'title' => $type,
+            'title' => $title,
+            'type' => $type,
             // 'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
@@ -773,7 +784,6 @@ class DevelopmentController extends Controller
     public function store(Request $request)
     {
         $this->validate($request, [
-            'priority' => 'required|integer',
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
             'cost' => 'sometimes|nullable|integer',
@@ -783,21 +793,23 @@ class DevelopmentController extends Controller
             'module_id' => 'required',
 
         ]);
+
         $data = $request->except('_token');
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
         $data['created_by'] = Auth::id();
+        $data['priority'] = 0;
         //$data[ 'submitted_by' ] = Auth::id();
-        $module = $request->get('module_id');
-        if (!empty($module)) {
-            $module = DeveloperModule::find($module);
-            if (!$module) {
-                $module = new DeveloperModule();
-                $module->name = $request->get('module_id');
-                $module->save();
-                $data['module_id'] = $module->id;
-            }
-        }
+        // $module = $request->get('module_id');
+        // if (!empty($module)) {
+        //     $module = DeveloperModule::find($module);
+        //     if (!$module) {
+        //         $module = new DeveloperModule();
+        //         $module->name = $request->get('module_id');
+        //         $module->save();
+        //         $data['module_id'] = $module->id;
+        //     }
+        // }
         $task = DeveloperTask::create($data);
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
@@ -1329,11 +1341,19 @@ class DevelopmentController extends Controller
 
     public function assignUser(Request $request)
     {
-        $masterUserId = $request->get("master_user_id", 0);
-        // $issue = Issue::find($request->get('issue_id'));
         $issue = DeveloperTask::find($request->get('issue_id'));
 
+        $user = User::find($request->get('assigned_to'));
+
+        if(!$user) {
+            return response()->json([
+                'status' => 'success', 'message' =>'user not found'
+            ],500);
+        }
+       
+
         $hubstaffUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
+
 
         if ($hubstaffUser) {
             $this->updateHubstaffAssignee(
@@ -1342,11 +1362,30 @@ class DevelopmentController extends Controller
             );
         }
 
-        if ($masterUserId > 0) {
-            $issue->master_user_id = $masterUserId;
-        } else {
-            $issue->assigned_to = $request->get('assigned_to');
+        $issue->assigned_to = $request->get('assigned_to');
+        $issue->save();
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+
+    public function assignMasterUser(Request $request)
+    {
+        $masterUserId = $request->get("master_user_id");
+        $issue = DeveloperTask::find($request->get('issue_id'));
+
+        $user = User::find($masterUserId);
+
+        if(!$user) {
+            return response()->json([
+                'status' => 'success', 'message' =>'user not found'
+            ],500);
         }
+       
+
+        $issue->master_user_id = $masterUserId;
+
         $issue->save();
         return response()->json([
             'status' => 'success'
