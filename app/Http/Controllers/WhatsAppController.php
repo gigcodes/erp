@@ -2021,7 +2021,13 @@ class WhatsAppController extends FindByNumberController
 
                     return response()->json(['message' => $chat_message]);
 
-                } elseif ($context == 'user') {
+                }elseif ($context == 'activity') {
+                    $data[ 'erp_user' ] = $request->user_id;
+                    $module_id = $request->user_id;
+                    $user = User::find($request->user_id);
+                    $this->sendWithThirdApi($user->phone, null, $request->message);
+                }
+                 elseif ($context == 'user') {
                     $data[ 'erp_user' ] = $request->user_id;
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);

@@ -772,6 +772,7 @@ class DevelopmentController extends Controller
      */
     public function store(Request $request)
     {
+      
         $this->validate($request, [
             'priority' => 'required|integer',
             'subject' => 'sometimes|nullable|string',
@@ -798,6 +799,7 @@ class DevelopmentController extends Controller
                 $data['module_id'] = $module->id;
             }
         }
+        $data['hubstaff_task_id'] = 0;
         $task = DeveloperTask::create($data);
         if ($request->hasfile('images')) {
             foreach ($request->file('images') as $image) {
@@ -854,20 +856,26 @@ class DevelopmentController extends Controller
         //   ]);
         // }
 
-        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
         $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 
         $hubstaffUserId = null;
         if ($assignedUser) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
+        $summary = substr($request->input('task'), 0, 200);
+        $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
 
         $hubstaffTaskId = $this->createHubstaffTask(
-            $request->input('task'),
+            $taskSummery,
             $hubstaffUserId,
             $hubstaffProject->hubstaff_project_id
         );
 
+        if($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
         if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
@@ -946,6 +954,7 @@ class DevelopmentController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+        
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
     public function moduleStore(Request $request)
