@@ -1527,18 +1527,22 @@ class SupplierController extends Controller
         $params = [];
         if(count($suppliers)) {
             foreach($suppliers as $key => $item) {
-                $params[] = [
+                $params = [
                     'supplier_id' => $item->id,
                     'number' => null,
                     'message' => $request->message,
                     'user_id' => Auth::id(),
-                    'status' => \App\ChatMessage::CHAT_AUTO_BROADCAST,
-                    'is_queue' => 1,
+                    'status' => 1
                 ];
+                $chat_message = ChatMessage::create($params);
+                $approveRequest = new Request();
+                $approveRequest->setMethod('GET');
+                $approveRequest->request->add(['messageId' => $chat_message->id]);
+
+                app(WhatsAppController::class)->approveMessage("supplier",$approveRequest);
             }
         }
         // return $params;
-        ChatMessage::insert($params);
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
 	}
