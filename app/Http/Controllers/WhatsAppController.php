@@ -4545,8 +4545,8 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
                     if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
                         $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
                     } else {
