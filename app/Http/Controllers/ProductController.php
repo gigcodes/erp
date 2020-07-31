@@ -2864,7 +2864,7 @@ class ProductController extends Controller
 
         $params = request()->all();
         $params["user_id"] = \Auth::id();
-        $params["is_queue"] = 1;
+        //$params["is_queue"] = 1;
         $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request("customer_token","");
@@ -2885,7 +2885,8 @@ class ProductController extends Controller
 
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
-
+        $params["is_queue"] = request("is_queue",0);
+        
         \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {

@@ -215,7 +215,9 @@
                             <td width="10%">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
                                     {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                    <br/>
                                 @endif
+                                {{ $supplier->last_completed_at }} 
                             </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
@@ -568,19 +570,19 @@
                         <div class="form-group">
                             <strong>Start Time:</strong>
                             <div class="input-group">
-                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown,'', ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
                             </div>
                         </div>
                         <div class="form-group">
                             <strong>Made By:</strong>
                             <div class="form-group">
-                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, '', ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
                             </div>
                         </div>
                         <div class="form-group">
                             <strong>Server Id:</strong>
                             <div class="form-group">
-                                <?php echo Form::text("server_id",$supplier->server_id, ["class" => "form-control server-id-update"]); ?>
+                                <?php echo Form::text("server_id",'', ["class" => "form-control server-id-update"]); ?>
                             </div>
                         </div>
                     </div>

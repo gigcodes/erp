@@ -482,4 +482,10 @@ class User extends Authenticatable
         }
         return $total;
     }
+
+
+    public function vendorCategoryPermission()
+    {
+        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
+    }
 }

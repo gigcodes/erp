@@ -1,15 +1,19 @@
-<tr>
+<tr style="color:grey;">
     <td>
         <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
         </a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
+        <br>
+        {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
+        @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
     </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a></td>
 
     <td>{{ $issue->subject }}</td>
     
     <td>
+    {{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}
         {{ $issue->task }}
         @if ($issue->getMedia(config('constants.media_tags'))->first())
             <br>
@@ -31,14 +35,20 @@
             </div>
         </div>
     </td>
-    <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
     <td>&nbsp;</td>
     <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>
     <td>
+    <label for="" style="font-size: 12px;">Assigned To :</label>
         @if($issue->assignedUser)
-            {{ $issue->assignedUser->name }}
+            <p>{{ $issue->assignedUser->name }}</p>
         @else
-            Unassigned
+            <p>Unassigned</p>
+        @endif
+        <label for="" style="font-size: 12px;">Lead :</label>
+        @if($issue->masterUser)
+            <p>{{ $issue->masterUser->name  }}</p>
+        @else
+            <p>N/A</p>
         @endif
     </td>
     <td>
@@ -51,13 +61,6 @@
                 <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
                 <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
             </select>
-        @endif
-    </td>
-    <td>
-        @if($issue->masterUser)
-            {{ $issue->masterUser->name  }}
-        @else
-            N/A
         @endif
     </td>
     <td>
