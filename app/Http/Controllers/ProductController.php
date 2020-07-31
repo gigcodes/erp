@@ -2885,6 +2885,7 @@ class ProductController extends Controller
 
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
+        $params["group_id"] = request("is_queue",0);
         
         \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 

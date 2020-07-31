@@ -68,7 +68,9 @@ class MessageQueueController extends Controller
     ->when($customer_name != '', function ($q) use($customer_name) {
       return $q->where("c.name",'LIKE', '%' . $customer_name . '%');
     })
-    ->groupBy("group_id")->get();
+    ->groupBy("group_id")
+    ->orderBy("group_id","desc")
+    ->get();
 
     return view('messagequeue::approve', compact('groupList','messageData','group_id'));
 

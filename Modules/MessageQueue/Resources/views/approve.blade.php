@@ -143,12 +143,13 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Id</th>
-		        <th>Customer Name</th>
-		        <th>Group</th>
-		        <th>Message</th>
-		        <th>Created At</th>
-		        <th>Action</th>
+		      	<th width="5%">Id</th>
+		        <th width="10%">Customer Name</th>
+		        <th width="5%">Group</th>
+		        <th width="10%">Message</th>
+                <th width="30%">Media</th>
+		        <th width="10%">Created At</th>
+		        <th width="10%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -158,6 +159,11 @@
 			      	<td>{{$data->name}}</td>
 			        <td>{{$data->group_id}}</td>
 			        <td>{{$data->message}}</td>
+                    <td>
+                        @foreach($data->getMedia(config("constants.attach_image_tag")) as $media)
+                            <img width="75px" heigh="75px" src="{{ $media->getUrl() }}">
+                        @endforeach
+                    </td>
 			        <td>{{$data->created_at}}</td>
               <td><input type="button" id="approve-group" data-group-id="{{$data->group_id}}" value="approve" onsubmit="return false" /></td>
             </tr>
@@ -173,8 +179,7 @@
     $(document).on('click', '#approve-group', function(e) {
         e.preventDefault();
         var group_id = $(this).data('group-id');
-
-         console.log("group_id",group_id);
+        var $this = $(this);
         $.ajax({
             type: "POST",
             url: '/message-queue/approve/approved',
@@ -185,6 +190,7 @@
         }).done(function(data){
             if(data.code == 200) {
                 toastr["success"](data.message);
+                $this.closest("tr").remove();
             }
             //location.reload();
         }).fail(function(error) {
