@@ -88,10 +88,9 @@ class VendorController extends Controller
 
     $isAdmin = Auth::user()->isAdmin();
     if($isAdmin) {
-      $permittedCategories = VendorCategory::pluck('id')->all();
-    }
-    else {
-      $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all();
+      $permittedCategories = [];
+    }else {
+      $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
     }
     //getting request 
     if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
@@ -99,7 +98,11 @@ class VendorController extends Controller
     ) {
 
       //Query Initiate
-      $query  = Vendor::whereIn('category_id',$permittedCategories);
+      if($isAdmin) {
+        $query  = Vendor::query();
+      }else{
+        $query  = Vendor::whereIn('category_id',$permittedCategories);
+      }
 
       if (request('term') != null) {
         $query->where('name', 'LIKE', "%{$request->term}%")
@@ -185,8 +188,14 @@ class VendorController extends Controller
         $vendors = $query->orderby('name', 'asc')->paginate($pagination);
       }
     } else {
-
-      $permittedCategories = implode(',',$permittedCategories);
+      if($isAdmin) {
+        $permittedCategories = "";
+      }else{
+        if(empty($permittedCategories)) {
+          $permittedCategories = [0];
+        }
+        $permittedCategories = 'and vendors.category_id in (' .implode(',',$permittedCategories). ')';
+      }
       $vendors = DB::select('
                   SELECT *,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -218,7 +227,7 @@ class VendorController extends Controller
                   address LIKE "%' . $term . '%" OR
                   social_handle LIKE "%' . $term . '%" OR
                   category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) and vendors.category_id in (' .$permittedCategories. ')
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
                   ORDER BY ' . $sortByClause . ' message_created_at DESC;
               ');
 
