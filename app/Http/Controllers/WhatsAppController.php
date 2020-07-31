@@ -1268,6 +1268,7 @@ class WhatsAppController extends FindByNumberController
                     ], [
                     'last_unread_message' => @$params['message'],
                     'last_unread_message_at' => Carbon::now(),
+                    'last_unread_message_id' => $message->id,
                 ]);
             }
 
@@ -2529,6 +2530,7 @@ class WhatsAppController extends FindByNumberController
                 ], [
                 'last_communicated_message' => @$data['message'],
                 'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
         }
 
@@ -4527,6 +4529,7 @@ class WhatsAppController extends FindByNumberController
                 ], [
                 'last_unread_message' => '',
                 'last_unread_message_at' => null,
+                'last_unread_message_id' => null,
             ]);
         }
 
