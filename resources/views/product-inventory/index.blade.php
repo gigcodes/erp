@@ -89,11 +89,14 @@
         </div>
         <div class="col-lg-12 margin-tb">
 	        <div class="productGrid " id="productGrid">
-        		<div class="infinite-scroll">
-	               @include("product-inventory.partials.grid")
+        		<div class="infinite-scroll-products" style="padding-bottom: 60px">
+	               <div class="infinite-scroll-products-inner">
+                       @include("product-inventory.partials.grid")
+                   </div>
             	   <div class="row">
             	   		{!! $products->appends(Request::except('page'))->links() !!}
-            	   </div>	
+            	   </div>
+                   <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
             	</div>  
 	        </div>
         </div>
@@ -107,8 +110,10 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+{{--  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>--}}
   <script>
+
+        var isLoadingProducts = false;
     	
     	$(document).ready(function() {
        		$(".select-multiple").multiselect();
@@ -125,18 +130,25 @@
         
         //$(document),on()
         $(function () {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                	$('ul.pagination').not(":last").remove();
-                   	//$(".select-multiple").multiselect();
-       				//$(".select-multiple2").select2();
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMoreProducts();
                 }
             });
+
+            // $('.infinite-scroll').jscroll({
+            //     debug: true,
+            //     autoTrigger: true,
+            //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            //     padding: 2500,
+            //     nextSelector: '.pagination li.active + li a',
+            //     contentSelector: 'div.infinite-scroll',
+            //     callback: function () {
+            //     	$('ul.pagination').not(":last").remove();
+            //        	//$(".select-multiple").multiselect();
+       		// 		//$(".select-multiple2").select2();
+            //     }
+            // });
         });
 
         $(document).on('change', '.update-product', function () {    
@@ -186,6 +198,38 @@
             });
         });
 
+      function loadMoreProducts() {
+          if (isLoadingProducts)
+              return;
+
+          isLoadingProducts = true;
+
+          var $loader = $('.infinite-scroll-products-loader');
+
+          $.ajax({
+              url: $('.pagination li.active + li a').attr('href'),
+              type: 'GET',
+              beforeSend: function() {
+                  $loader.show();
+                  $('ul.pagination').remove();
+              }
+          })
+          .done(function(data) {
+              if('' === data.trim())
+                  return;
+
+              $loader.hide();
+
+              $('.infinite-scroll-products-inner').append(data);
+
+              isLoadingProducts = false;
+          })
+          .fail(function(jqXHR, ajaxOptions, thrownError) {
+              console.error('something went wrong');
+
+              isLoadingProducts = false;
+          });
+      }
 
       function changeSelected(){
             product_id 	= $('#product_id').val();

@@ -93,6 +93,10 @@ class NewProductInventoryController extends Controller
         $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
         $sampleColors  = ColorReference::select('erp_color')->groupBy('erp_color')->get()->pluck("erp_color", "erp_color")->toArray();
 
+        if ( request()->ajax() ) {
+			return view("product-inventory.partials.load-more", compact('products', 'items', 'categoryArray', 'sampleColors'));
+        }
+
         return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors'));
     }
 
