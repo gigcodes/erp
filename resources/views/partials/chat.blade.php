@@ -356,7 +356,7 @@ margin-bottom: 15px !important;
 
 var accessToken = '';
 var websocket = false;
-var client_id = 'ab324a63655b244bf23cf73187602202';
+var client_id = $('#live_chat_key').val();
 var wsUri = "wss://api.livechatinc.com/v3.1/agent/rtm/ws";
 const instance = AccountsSDK.init({
 	client_id: client_id,
