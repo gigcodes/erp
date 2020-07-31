@@ -115,7 +115,7 @@ var page = {
     },
     deleteImages : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/landing-page/image/"+ele.data("id")+"/delete",
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/landing-page/image/"+ele.data("id")+"/"+ele.data("productid")+"/delete",
             method: "get",
             beforeSend : function() {
                 $("#loading-image").show();

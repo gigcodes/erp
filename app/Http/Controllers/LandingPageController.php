@@ -49,7 +49,7 @@ class LandingPageController extends Controller
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id]);
+                    array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
                 }
             }
             $rec->images = $productData['images'];
@@ -264,9 +264,12 @@ class LandingPageController extends Controller
     }
 
 
-    public function deleteImage($id)
+    public function deleteImage($id, $productId)
     {
-        Media::where('id','=',$id)->delete();
+        \DB::table('mediables')->where('mediable_type', 'App\Product')
+            ->where('media_id', $id)
+            ->where('mediable_id', $productId)
+            ->delete();
         return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
     }
 
