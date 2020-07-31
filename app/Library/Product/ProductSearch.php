@@ -211,7 +211,10 @@ class ProductSearch
                         if (!empty($value) && strtolower($value) == "on") {
                             $products = $products->where("status_id",\App\Helpers\StatusHelper::$finalApproval);
                         }
-                        break;    
+                        break;
+	                case 'is_on_sale';
+	                    $products = $products->where('is_on_sale', 1);
+	                    break;
                     default:
                         # code...
                         break;
