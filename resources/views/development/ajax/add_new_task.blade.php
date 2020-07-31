@@ -6,7 +6,7 @@
         <div class="modal-content">
             <div style="padding: 10px;border-bottom: 1px solid #e5e5e5;">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add Development Task</h4>
+                <h4 class="modal-title">Add New Task</h4>
             </div>
             <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -73,7 +73,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="priority">Priority:</label>
                         <select class="form-control" name="priority" id="priority" required>
                             <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
@@ -84,7 +84,7 @@
                         @if ($errors->has('priority'))
                         <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                         @endif
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label for="priority">Type:</label>
