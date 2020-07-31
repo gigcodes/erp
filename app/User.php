@@ -213,7 +213,7 @@ class User extends Authenticatable
     {
         if ($name == '/') {
             $genUrl = 'mastercontrol';
-            header("Location: /development/list/devtask");
+            header("Location: /development/list");
         } else {
             $url = explode('/', $name);
             $model = $url[0];
