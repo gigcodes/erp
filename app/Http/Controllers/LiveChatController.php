@@ -57,16 +57,16 @@ class LiveChatController extends Controller
 
 				$customer = Customer::where('email',$email)->first();
 				
-				if($customer == '' && $customer == null && $phone != ''){
-					$customer = Customer::where('phone',$phone)->first();
-				}	
+				// if($customer == '' && $customer == null && $phone != ''){
+				// 	//$customer = Customer::where('phone',$phone)->first();
+				// }	
 
 				//Save Customer
 				if($customer == null && $customer == ''){
 					$customer = new Customer;
 					$customer->name = $name;
 					$customer->email = $email;
-					$customer->phone = $phone;
+					$customer->phone = null;
 					$customer->save();
 				}
 				
@@ -192,7 +192,7 @@ class LiveChatController extends Controller
 				
 				if($customer != '' && $customer != null){
 					//Find if its has ID
-					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->first();
+					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->where('thread',$chatId)->first();
 					if($chatID == null && $chatID == ''){
 						$customerChatId = new CustomerLiveChat;
 						$customerChatId->customer_id = $customer->id;
@@ -285,7 +285,7 @@ class LiveChatController extends Controller
 			CURLOPT_CUSTOMREQUEST => "POST",
 			CURLOPT_POSTFIELDS => "$post",
 			CURLOPT_HTTPHEADER => array(
-				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDpsNFR2Mi12a1RvLW0yeHN2NTcwbGZn",
 				"Content-Type: application/json",
 			),
 			));
