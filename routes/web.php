@@ -1008,6 +1008,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('records', 'VendorCategoryController@records')->name('vendor-category.records');
         Route::post('save', 'VendorCategoryController@save')->name('vendor-category.save');
         Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
+        Route::get('/permission', 'VendorCategoryController@usersPermission')->name('vendor-category.permission');
+        Route::post('/update/permission', 'VendorCategoryController@updatePermission')->name('vendor-category.update.permission');
+        
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
             Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
@@ -1935,3 +1938,4 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::resource('shipment', 'ShipmentController');
 });
+Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
