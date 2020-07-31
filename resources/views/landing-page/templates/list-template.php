@@ -32,12 +32,12 @@
 			        <td>{{:prop.status_name}}</td>
 			        <td>
 			        {{props prop.images}}
-			        <div data-id="{{:prop.id}}" class="l-container">
-						<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
-						<div class="l-middle btn-delete-image" data-id="{{:prop.id}}">
-							<div class="l-text"><i class="fa fa-trash"></i></div>
-						</div>
-  					</div>
+				        <div data-id="{{:prop.id}}" class="l-container">
+							<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
+							<div class="l-middle btn-delete-image" data-id="{{:prop.id}}">
+								<div class="l-text"><i class="fa fa-trash"></i></div>
+							</div>
+	  					</div>
 			        {{/props}}
 			        </td>
 			        <td>{{:prop.productStatus}}</td>

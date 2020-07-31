@@ -173,8 +173,7 @@ class LandingPageController extends Controller
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
-
-            if (! StatusHelper::isApproved($landingPageProduct->status_id)) {
+            if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
             if ($landingPageProduct) {
