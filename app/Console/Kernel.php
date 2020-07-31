@@ -107,7 +107,7 @@ use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
-
+use App\Console\Commands\UserPayment;
 
 class Kernel extends ConsoleKernel
 {
@@ -209,7 +209,8 @@ class Kernel extends ConsoleKernel
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
-        FetchStoreWebsiteOrder::class
+        FetchStoreWebsiteOrder::class,
+        UserPayment::class
     ];
 
     /**
@@ -225,6 +226,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        
+       
 
         // Store unknown categories on a daily basis
         $schedule->command('category:missing-references')->daily();
@@ -445,6 +448,10 @@ class Kernel extends ConsoleKernel
         
         // If scraper not completed, store alert
         $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
+
+
+         // make payment receipt for hourly associates on daily basis.
+         $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
     }
 
     /**

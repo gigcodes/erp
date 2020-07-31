@@ -36,4 +36,25 @@ class Scraper extends Model
         return $this->hasMany('App\ScraperMapping', "scrapers_id", "id");
     }
 
+    public function parent()
+    {
+        return $this->hasOne( 'App\Scraper', 'id', 'parent_id' );
+    }
+
+    public function getChildrenScraper($name)
+    {
+        $scraper = $this->where('scraper_name',$name)->first();
+        return $parentScraper = $this->where('parent_id',$scraper->id)->get();
+    }
+
+     public function getChildrenScraperCount($name)
+    {
+        $scraper = $this->where('scraper_name',$name)->first();
+        return $parentScraper = $this->where('parent_id',$scraper->id)->count();
+    }
+
+    
+
+    
+
 }

@@ -1913,6 +1913,7 @@ class WhatsAppController extends FindByNumberController
             'quicksell_id' => 'sometimes|nullable|numeric',
             'old_id' => 'sometimes|nullable|numeric',
             'site_development_id' => 'sometimes|nullable|numeric',
+            'social_strategy_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -2054,7 +2055,7 @@ class WhatsAppController extends FindByNumberController
                           $userId  = $issue->master_user_id;
                        }
                     }
-
+                    
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];
                     $params[ 'sent_to_user_id' ] = $userId;
@@ -2445,12 +2446,29 @@ class WhatsAppController extends FindByNumberController
                     }
 
                 }elseif ($context == 'site_development') {
-
+                    $chat_message = null;
+                    $users = $request->get('users',[$request->get("user_id",0)]);
+                    if(!empty($users)) {
+                        foreach($users as $user) {
+                            $user = User::find($user);
+                            $params[ 'message' ] = $request->get('message');
+                            $params[ 'site_development_id' ] = $request->get('site_development_id');
+                            $params[ 'approved' ] = 1;
+                            $params[ 'status' ] = 2;
+                            $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                            $chat_message = ChatMessage::create($params);
+                        }
+                    }
+                    
+                    return response()->json(['message' => $chat_message]);
+                
+                }
+                elseif ($context == 'social_strategy') {
                     $user = User::find($request->get('user_id'));
                     
                     $params[ 'message' ] = $request->get('message');
                     
-                    $params[ 'site_development_id' ] = $request->get('site_development_id');
+                    $params[ 'social_strategy_id' ] = $request->get('social_strategy_id');
                     $params[ 'approved' ] = 1;
                     
                     $params[ 'status' ] = 2;
@@ -4551,31 +4569,26 @@ class WhatsAppController extends FindByNumberController
             // $additional_message = ChatMessage::create($params);
 
             if ($chat_message->message != '') {
-                if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
-                    $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
-                } else {
-                    $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, $chat_message->message, true, $chat_message->id);
-                }
+                $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $chat_message->message, null, $chat_message->id);
             }
 
-            if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                    if ($customer->whatsapp_number == '971547763482' || $customer->whatsapp_number == '971562744570') {
-                        $data = $this->sendWithNewApi($customer->phone, $customer->whatsapp_number, null, $image->getUrl(), $chat_message->id);
-                    } else {
-                        $this->sendWithWhatsApp($customer->phone, $customer->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
-                    }
+            if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
+                    $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number,$chat_message->message,$image->getUrl(), $chat_message->id);
                 }
             }
 
             $chat_message->update([
                 'resent' => $chat_message->resent + 1
             ]);
+
+            return response()->json([
+                'resent' => $chat_message->resent
+            ]);
         }
 
         if ($chat_message->erp_user != '' || $chat_message->contact_id != '') {
             $sender = User::find($chat_message->user_id);
-
             if ($chat_message->erp_user != '') {
                 $receiver = User::find($chat_message->erp_user);
             } else {
@@ -4583,7 +4596,7 @@ class WhatsAppController extends FindByNumberController
             }
 
             $phone = $receiver->phone;
-            $whatsapp_number = $sender->whatsapp_number;
+            $whatsapp_number = ($sender) ? $sender->whatsapp_number : null;
             $sending_message = $chat_message->message;
 
             if (preg_match_all("/Resent ([\d]+) times/i", $sending_message, $match)) {
@@ -4606,8 +4619,8 @@ class WhatsAppController extends FindByNumberController
 
             $new_message = ChatMessage::create($params);
 
-            if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
+            if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
                     $new_message->attachMedia($image, config('constants.media_tags'));
                 }
             }
@@ -4642,8 +4655,8 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if ($new_message->hasMedia(config('constants.media_tags'))) {
-                foreach ($new_message->getMedia(config('constants.media_tags')) as $image) {
+            if ($new_message->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($new_message->getMedia(config('constants.attach_image_tag')) as $image) {
                     $this->sendWithThirdApi($phone, $whatsapp_number, null, $image->getUrl(), $new_message->id);
                 }
             }
@@ -4660,20 +4673,12 @@ class WhatsAppController extends FindByNumberController
 
             if ($vendor) {
                 if ($chat_message->message != '') {
-                    if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
-                        $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
-                    } else {
-                        $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, $chat_message->message, true, $chat_message->id);
-                    }
+                    $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, null, $chat_message->id);
                 }
 
-                if ($chat_message->hasMedia(config('constants.media_tags'))) {
-                    foreach ($chat_message->getMedia(config('constants.media_tags')) as $image) {
-                        if ($vendor->whatsapp_number == '971547763482' || $vendor->whatsapp_number == '971562744570') {
-                            $data = $this->sendWithNewApi($vendor->phone, $vendor->whatsapp_number, null, $image->getUrl(), $chat_message->id);
-                        } else {
-                            $this->sendWithWhatsApp($vendor->phone, $vendor->whatsapp_number, str_replace(' ', '%20', $image->getUrl()), true, $chat_message->id);
-                        }
+                if ($chat_message->hasMedia(config('constants.attach_image_tag'))) {
+                    foreach ($chat_message->getMedia(config('constants.attach_image_tag')) as $image) {
+                        $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $chat_message->message, $image->getUrl(), $chat_message->id);
                     }
                 }
 

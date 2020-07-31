@@ -215,6 +215,9 @@ class Product extends Model
 
                 }
 
+                $product->checkExternalScraperNeed();
+
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -332,6 +335,7 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    $product->checkExternalScraperNeed();
                     //$json->product_id = $product->id;
                     //$json->save();
                 } catch (\Exception $exception) {

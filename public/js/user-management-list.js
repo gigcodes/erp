@@ -311,7 +311,6 @@ var page = {
         this.sendAjax(_z, 'teamInfoResult');
     },
     teamInfoResult : function(response) {
-        console.log(response);
         members = response.team.members;
         var communicationHistoryTemplate = $.templates("#template-team-edit");
         var tplHtml = communicationHistoryTemplate.render(response);
