@@ -783,7 +783,6 @@ class DevelopmentController extends Controller
      */
     public function store(Request $request)
     {
-      
         $this->validate($request, [
             'subject' => 'sometimes|nullable|string',
             'task' => 'required|string|min:3',
@@ -796,6 +795,7 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
+        
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
         $data['created_by'] = Auth::id();
@@ -840,7 +840,6 @@ class DevelopmentController extends Controller
         } else {
             $message = $request->input('task');
         }
-
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
@@ -876,7 +875,13 @@ class DevelopmentController extends Controller
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
         $summary = substr($request->input('task'), 0, 200);
-        $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+        if($data['task_type_id'] == 1) {
+            $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+        }
+        else {
+            $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
+        }
+        
 
         $hubstaffTaskId = $this->createHubstaffTask(
             $taskSummery,
@@ -900,7 +905,7 @@ class DevelopmentController extends Controller
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
         }
-        return redirect(url('development/list/devtask'))->with('success', 'You have successfully added task!');
+        return redirect(url('development/list'))->with('success', 'You have successfully added task!');
     }
 
     public function issueStore(Request $request)

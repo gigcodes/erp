@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use App\Helpers\hubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
+use App\Hubstaff\HubstaffMember;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
@@ -49,8 +50,6 @@ class LoadHubstaffActivities extends Command
      */
     public function handle()
     {
-
-     
         //
         try {
             $report = \App\CronJobReport::create([
@@ -61,9 +60,11 @@ class LoadHubstaffActivities extends Command
             $time      = strtotime(date("c"));
             $time      = $time - ((60 * 60)); //one hour
             $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
+
             $time     = strtotime($startTime);
             $time     = $time + (60 * 60); //one hour
             $stopTime = date("c", $time);
+
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
@@ -72,7 +73,6 @@ class LoadHubstaffActivities extends Command
             }
             
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
-            $noTaskAssigned = 0;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
                     [
@@ -88,6 +88,7 @@ class LoadHubstaffActivities extends Command
                         'overall'   => $data['overall'],
                     ]
                 );
+
                 if(is_null($data['task_id'])) {
                     $user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
                     if($user) {
@@ -95,7 +96,7 @@ class LoadHubstaffActivities extends Command
 
                         $requestData = new Request();
                         $requestData->setMethod('POST');
-                        $requestData->request->add(['user_id' => 1, 'message' => $message, 'status' => 1]);
+                        $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);
                         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
                     }
                 }
