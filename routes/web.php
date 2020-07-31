@@ -15,7 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', function(){
-    return view('instagram.new.media.index');
+   dd(\Cache::get('key'));
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
@@ -1139,6 +1139,7 @@ Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessag
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
 Route::post('livechat/sendFile', 'LiveChatController@sendFile')->name('livechat.send.file');
 Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('livechat.get.userlist');
+Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.get.userlist');
 
 /* ---------------------------------------------------------------------------------- */
 
