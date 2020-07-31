@@ -89,27 +89,26 @@
         </select>
     </div>
     <div class="infinite-scroll">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
+        <div >
+            <table class="table table-bordered table-striped" style="table-layout:fixed;">
                 @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
                         @include("development.partials.add-new-issue")
                     </tr>
                 @endif
                 <tr>
-                    <th width="1%">ID</th>
-                    <th width="5%">Module</th>
-                    <th width="10%">Subject</th>
-                    <th width="5%">Priority</th>
-                    <th width="15%">Issue</th>
-                    <th width="5%">Date Created</th>
-                    <th width="5%">Est Completion Time</th>
-                    <th width="5%">Tracked Time</th>
-                    <th width="5%">Assigned To</th>
-                    <th width="5%">Resolved</th>
-                    <th width="5%">Master Developer</th>
-                    <th width="5%">Cost</th>
-                    <th width="5%">Language</th>
+                    <th style="width:3%;">ID</th>
+                    <th style="width:7%;">Module</th>
+                    <th style="width:12%;">Subject</th>
+                    <th style="width:24%;">Communication</th>
+                    <th style="width:5%;">Date Created</th>
+                    <th style="width:7%;">Est Completion Time</th>
+                    <th style="width:5%;">Tracked Time</th>
+                    <th style="width:8%;">Assigned To</th>
+                    <th style="width:7%;">Status</th>
+                    <th style="width:8%;">Lead</th>
+                    <th style="width:6%;">Cost</th>
+                    <th style="width:8%;">Milestone</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isReviwerLikeAdmin())
@@ -129,7 +128,7 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-
+//
 @endsection
 
 @section('scripts')
@@ -281,16 +280,54 @@
         });
         
         $(document).on('click', '.send-message', function (event) {
-            /*if (event.which != 13) {
-                return;
-            }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
+
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
+            if (message == '') {
+                return;
+            }
 
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
+
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
             if (message == '') {
                 return;
             }
@@ -423,6 +460,32 @@
                 },
                 success: function () {
                     toastr["success"]("Price updated successfully!", "Message")
+                }
+            });
+        });
+
+
+
+        $(document).on('keyup', '.save-milestone', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).attr('data-id');
+            let total = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveMilestone')}}",
+                data: {
+                    total: total,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Milestone updated successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    console.log(error.responseJSON.message);
+                    
                 }
             });
         });
@@ -669,6 +732,18 @@
                     }
                 }
             });
+        });
+
+
+        $(document).on('change', '#is_milestone', function () {
+
+            var is_milestone = $('#is_milestone').val();
+            if(is_milestone == '1') {
+                $('#no_of_milestone').attr('required', 'required');
+            }
+            else {
+                $('#no_of_milestone').removeAttr('required');
+            }
         });
     
     

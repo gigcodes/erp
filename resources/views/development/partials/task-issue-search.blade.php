@@ -19,7 +19,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-2">
             <select class="form-control" name="corrected_by" id="corrected_by">
                 <option value="">Correction by</option>
                 @foreach($users as $id=>$user)
@@ -28,7 +28,7 @@
             </select>
         </div>
         --}}
-        <div class="col-md-1">
+        <div class="col-md-2">
             <select name="module" id="module_id" class="form-control">
                 <option value="">Module</option>
                 @foreach($modules as $module)
@@ -38,9 +38,6 @@
         </div>
         <div class="col-md-2">
             <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
-        </div>
-        <div class="col-md-2">
-            <?php echo Form::select("language",["" => "N/A"] + $languages, app('request')->input('language') , ["class" => "form-control select2", "id" => "language_query"]) ?>
         </div>
         <div class="col-md-2">
             <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>

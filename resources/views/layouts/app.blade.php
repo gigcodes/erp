@@ -738,6 +738,9 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1401,7 +1404,10 @@
                                             <a class="dropdown-item" href="{{ url('hubstaff-payment') }}">Payments Report</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activtiy Notofication</a>
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activity Notofication</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
                                         </li>
                                     </ul>
                                 </li>

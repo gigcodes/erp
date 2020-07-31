@@ -34,8 +34,8 @@
     	<div class="row">
 	    	<div class="col col-md-9">
 		    	<div class="row">
-	    			
-				 </div> 		
+
+				 </div>
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
@@ -51,10 +51,10 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/send.png" style="cursor: default;" >
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 					<form class="form-inline handle-search">
 					  <div class="row">
 				  		<div class="col">
@@ -69,10 +69,10 @@
 						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 						  			<img src="/images/send.png" style="cursor: default;" >
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 		    	</div>
 		    </div>
 	    </div>
@@ -101,7 +101,7 @@
 					@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
-				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}	
+				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
 			</div>
 		</div>
 	</div>
@@ -139,7 +139,7 @@
 
 					        </div>
 					    </div>
-					    
+
 	            </div>
 	            <div class="modal-footer">
 	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
@@ -226,7 +226,7 @@
             $('ul.pagination').first().remove();
         }
     });
-	
+
 	function saveCategory() {
 		var text = $('#add-category').val()
 		if(text === ''){
@@ -253,7 +253,7 @@
 				console.log(data)
 				console.log("error");
 			});
-			
+
 		}
 	}
 
@@ -388,25 +388,41 @@
 		    } else {
 		        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
 		    }
-		    
+
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 		    alert('No response from server');
 		});
 	}
 
-	
+
 	$(document).on('click', '.send-message-site', function() {
+		var $this = $(this);
 		site = $(this).data("id")
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
-		if(userId == 'Select Developer'){
+
+		var users = [];
+		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='developer_id']").val();
+			users.push(value);
+		}
+		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='designer_id']").val();
+			users.push(value);
+		}
+		if($this.closest("tr").find("input[name='html']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='html_designer']").val();
+			users.push(value);
+		}
+
+		if(users.length <= 0){
 			alert('Please Select User');
 		}else if(site){
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
 				type: 'POST',
-				data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				data: { 'site_development_id' : site , 'message' : message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
 				beforeSend: function() {
 					$('#message-'+site).attr('disabled', true);
                	}
@@ -418,7 +434,7 @@
 			});
 		}else{
 			alert('Site is not saved please enter value or select User');
-		} 
+		}
     });
 
     $(document).on("change",".fa-ignore-category",function() {
@@ -517,7 +533,7 @@
 		});
 	});
 
-	
+
 	$(document).on("click",".link-send-document",function(e) {
 		e.preventDefault();
 		var id = $(this).data("id");
@@ -587,7 +603,7 @@
 				toastr["success"]("Remarks fetched successfully");
 
 				var html = "";
-				
+
 				$.each(response.data,function(k,v){
 					html += "<tr>";
 						html += "<td>"+v.id+"</td>";
@@ -630,10 +646,24 @@
       		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
     	},
     	init: function () {
-	      
+
     	}
   }
 
 </script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $( ".developer" ).change(function() {
+      $(this).closest("tr").find("input[name='developer']").prop('checked', true)
+    });
 
+    $( ".designer" ).change(function() {
+      $(this).closest("tr").find("input[name='designer']").prop('checked', true)
+    });
+
+    $( ".html" ).change(function() {
+      $(this).closest("tr").find("input[name='html']").prop('checked', true)
+    });
+  });
+  </script>
 @endsection

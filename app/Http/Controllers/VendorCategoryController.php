@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use App\VendorCategory;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-
+use App\User;
 class VendorCategoryController extends Controller
 {
     /**
@@ -207,6 +207,38 @@ class VendorCategoryController extends Controller
         }
 
         return response()->json(["code" => 200 , "data" => [], "messages" => "Category has been merged successfully"]);
+    }
+
+
+    public function usersPermission(Request $request)
+    {
+        $users = User::where('is_active',1)->orderBy('name','asc')->with('vendorCategoryPermission')->get();
+        $categories = VendorCategory::orderBy('title','asc')->get();
+        return view('vendors.category-permission',compact('users','categories'))->with('i', ($request->input('page', 1) - 1) * 10);
+    }
+
+    
+    public function  updatePermission(Request $request){
+        $user_id =  $request->user_id;
+        $category_id = $request->category_id;
+        $check = $request->check;
+        $user = User::findorfail($user_id);
+        //ADD PERMISSION
+        if($check == 1){
+            $user->vendorCategoryPermission()->attach($category_id);
+            $message = "Permission added Successfully";
+        }
+        //REMOVE PERMISSION
+        if($check == 0){
+            $user->vendorCategoryPermission()->detach($category_id);
+            $message = "Permission removed Successfully";
+        }
+
+        $data = [
+            'success' => true,
+            'message'=> $message
+        ] ;
+        return response()->json($data);
     }
 
 

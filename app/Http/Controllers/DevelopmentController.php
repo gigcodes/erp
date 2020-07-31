@@ -388,9 +388,9 @@ class DevelopmentController extends Controller
                     ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
             });
         }
-        if ($request->get('language') != '') {
-            $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
-        }
+        // if ($request->get('language') != '') {
+        //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
+        // }
         $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
@@ -470,9 +470,9 @@ class DevelopmentController extends Controller
 
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
-        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        // $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
-        $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
+        // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         return view('development.issue', [
             'issues' => $issues,
@@ -480,11 +480,11 @@ class DevelopmentController extends Controller
             'modules' => $modules,
             'request' => $request,
             'title' => $type,
-            'priority' => $priority,
+            // 'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
             'statusList' => $statusList,
-            'languages' => $languages
+            // 'languages' => $languages
         ]);
     }
     public function issueIndex(Request $request)
@@ -772,7 +772,6 @@ class DevelopmentController extends Controller
      */
     public function store(Request $request)
     {
-
         $this->validate($request, [
             'priority' => 'required|integer',
             'subject' => 'sometimes|nullable|string',
@@ -780,7 +779,9 @@ class DevelopmentController extends Controller
             'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
-            'hubstaff_project' => 'required'
+            'hubstaff_project' => 'required',
+            'module_id' => 'required',
+
         ]);
         $data = $request->except('_token');
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
@@ -1372,9 +1373,61 @@ class DevelopmentController extends Controller
             'status' => 'success'
         ]);
     }
+
+
+    public function saveMilestone(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        if(!$issue->is_milestone) {
+            return;
+        }
+        $total = $request->total;
+        if($issue->milestone_completed) {
+            if($total <= $issue->milestone_completed) {
+                return response()->json([
+                    'message' => 'Milestone no can\'t be reduced'
+                ],500);
+            }
+        }
+
+        if($total > $issue->no_of_milestone) {
+            return response()->json([
+                'message' => 'Estimated milestone exceeded'
+            ],500);
+        }
+        if(!$issue->cost || $issue->cost == '') {
+            return response()->json([
+                'message' => 'Please provide cost first'
+            ],500);
+        }
+
+        $newCompleted = $total - $issue->milestone_completed;
+        $individualPrice = $issue->cost / $issue->no_of_milestone;
+        $totalCost = $individualPrice * $newCompleted;
+
+        $issue->milestone_completed = $total;
+        $issue->save();
+        $payment_receipt = new PaymentReceipt;
+        $payment_receipt->date = date( 'Y-m-d' );
+        $payment_receipt->worked_minutes = $issue->estimate_minutes;
+        $payment_receipt->rate_estimated = $totalCost;
+        $payment_receipt->status = 'Pending';
+        $payment_receipt->developer_task_id = $issue->id;
+        $payment_receipt->user_id = $issue->assigned_to;
+        $payment_receipt->save();
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
     public function resolveIssue(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
+        if($issue->is_resolved == 1) {
+            return response()->json([
+                'message'	=> 'DONE Status can not change further.'
+            ],500);
+        }
         //$issue = Issue::find($request->get('issue_id'));
         //$issue->is_resolved = $request->get('is_resolved');
         $issue->status = $request->get('is_resolved');
@@ -1387,14 +1440,16 @@ class DevelopmentController extends Controller
                         'message'	=> 'Please provide cost for fixed price task.'
                     ],500);
                 }
-                $payment_receipt = new PaymentReceipt;
-                $payment_receipt->date = date( 'Y-m-d' );
-                $payment_receipt->worked_minutes = $issue->estimate_minutes;
-                $payment_receipt->rate_estimated = $issue->cost;
-                $payment_receipt->status = 'Pending';
-                $payment_receipt->developer_task_id = $issue->id;
-                $payment_receipt->user_id = $issue->assigned_to;
-                $payment_receipt->save();
+                if(!$issue->is_milestone) {
+                    $payment_receipt = new PaymentReceipt;
+                    $payment_receipt->date = date( 'Y-m-d' );
+                    $payment_receipt->worked_minutes = $issue->estimate_minutes;
+                    $payment_receipt->rate_estimated = $issue->cost;
+                    $payment_receipt->status = 'Pending';
+                    $payment_receipt->developer_task_id = $issue->id;
+                    $payment_receipt->user_id = $issue->assigned_to;
+                    $payment_receipt->save();
+                }
             }
             $issue->responsible_user_id = $issue->assigned_to;
             $issue->is_resolved = 1;
