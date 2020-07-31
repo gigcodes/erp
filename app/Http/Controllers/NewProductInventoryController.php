@@ -44,7 +44,10 @@ class NewProductInventoryController extends Controller
 
         $params = request()->all();
 
-        $products = (new ProductSearch($params))->getQuery()->paginate(24);
+        $products = (new ProductSearch($params))
+	        ->getQuery()
+	        ->with(['scraped_products', 'suppliers'])
+	        ->paginate(24);
 
         $items = [];
         foreach ($products->items() as $product) {
@@ -101,6 +104,10 @@ class NewProductInventoryController extends Controller
 
         $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
         $sampleColors  = ColorReference::select('erp_color')->groupBy('erp_color')->get()->pluck("erp_color", "erp_color")->toArray();
+
+        if ( request()->ajax() ) {
+			return view("product-inventory.partials.load-more", compact('products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
+        }
 
         return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
     }
