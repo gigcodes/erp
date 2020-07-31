@@ -1,5 +1,7 @@
+
+
 <tr>
-    <td>
+    <td  >
         <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
         </a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
@@ -122,12 +124,6 @@
     @else
     No 
     @endif
-<<<<<<< HEAD
-    </td>
-    <td>
-        <?php echo Form::select("language",["" => "N/A"] + $languages, $issue->language , ["class" => "form-control save-language select2", "data-id" => $issue->id , "id" => "language_".$issue->id]) ?>
-=======
->>>>>>> ad2879ab9afa49a014acba565c8e9b506ae88e57
     </td>
 </tr>
 <tr>

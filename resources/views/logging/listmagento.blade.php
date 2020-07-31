@@ -81,6 +81,7 @@
                         <th>Price</th>
                         <th>Message</th>
                         <th>Date/Time</th>
+                        <th>Website</th>
                         <th>Status</th>
                         <th>Action</th>
                     </thead>
@@ -98,6 +99,7 @@
                                 {{ date('M d, Y',strtotime($item->log_created_at))}}
                                 @endif
                             </td>
+                            <td> {{$item->website}} </td>
                             <td>
                                 {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                             </td>
