@@ -64,11 +64,11 @@
                     <button class="btn btn-sm btn-image send-message-site" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
                     <br/>
                 </div>
-                <input type="checkbox" id="developer" name="developer" value="developer">
+                <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
                 <label for="developer">Developer</label><br>
-                <input type="checkbox" id="designer" name="designer" value="designer">
+                <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
                 <label for="designer">Designer</label><br>
-                <input type="checkbox" id="html" name="html" value="html">
+                <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
                 <label for="html">Html</label><br><br>
     		</td>
     		<td>@if($site) {{ $site->created_at }}@endif</td>
