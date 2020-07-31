@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
@@ -36,7 +38,21 @@ class LandingPageController extends Controller
         $records = $records->paginate();
 
         $items = [];
+        $allStatus = StatusHelper::getStatus();
         foreach ($records->items() as &$rec) {
+            $landingPageProduct = $rec->product;
+            if(array_key_exists($landingPageProduct->status_id, $allStatus)){
+                $rec->productStatus = $allStatus[$landingPageProduct->status_id];
+            }else{
+                $rec->productStatus = '';
+            }
+            $productData['images'] = [];
+            if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
+                    array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id]);
+                }
+            }
+            $rec->images = $productData['images'];
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $items[]          = $rec;
         }
@@ -157,6 +173,9 @@ class LandingPageController extends Controller
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
+            if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
+                return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
+            }
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
@@ -167,6 +186,7 @@ class LandingPageController extends Controller
                         'title'           => $landingPage->name,
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
+                        'tags'            => 'flash_sales'
                     ],
                 ];
             }
@@ -178,17 +198,28 @@ class LandingPageController extends Controller
                 }
             }
 
-            $productData['product']['variants'][] = [
-                'barcode'              => (string) $landingPage->product_id,
-                'fulfillment_service'  => 'manual',
-                'price'                => $landingPage->price,
-                'requires_shipping'    => true,
-                'sku'                  => $landingPageProduct->sku,
-                'title'                => (string) $landingPage->name,
-                'inventory_management' => 'shopify',
-                'inventory_policy'     => 'deny',
-                'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
+            $productSizes = explode(',', $landingPageProduct->size);
+            $values = [];
+            foreach ($productSizes as $size) {
+                array_push($values, (string)$size);
+                $productData['product']['variants'][] = [
+                    'option1'              => $size,
+                    'barcode'              => (string) $landingPage->product_id,
+                    'fulfillment_service'  => 'manual',
+                    'price'                => $landingPage->price,
+                    'requires_shipping'    => true,
+                    'sku'                  => $landingPageProduct->sku,
+                    'title'                => (string) $landingPage->name,
+                    'inventory_management' => 'shopify',
+                    'inventory_policy'     => 'deny',
+                    'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
+                ];
+            }
+            $variantsOption = [
+                'name' => 'sizes',
+                'values' => $values
             ];
+            $productData['product']['options'] = $variantsOption;
 
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
@@ -220,6 +251,22 @@ class LandingPageController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "message" => "Records not found"]);
 
+    }
+
+    public function updateTime(Request $request)
+    {
+        $productIds = explode(',', $request->product_id);
+        foreach ($productIds as $productId) {
+            LandingPageProduct::where('product_id','=',$productId)->update(['start_date' => $request->start_date, 'end_date' => $request->end_date]);
+        }
+        return redirect()->back();
+    }
+
+
+    public function deleteImage($id)
+    {
+        Media::where('id','=',$id)->delete();
+        return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
     }
 
 }

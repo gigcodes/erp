@@ -496,6 +496,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save', 'LandingPageController@save')->name('landing-page.save');
         Route::get('/records', 'LandingPageController@records')->name('landing-page.records');
         Route::post('/store', 'LandingPageController@store')->name('landing-page.store');
+        Route::post('/update-time', 'LandingPageController@updateTime')->name('landing-page.updateTime');
+        Route::get('/image/{id}/delete', 'LandingPageController@deleteImage')->name('landing-page.deleteImage');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
