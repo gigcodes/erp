@@ -35,7 +35,10 @@ class NewProductInventoryController extends Controller
 
         $params = request()->all();
 
-        $products = (new ProductSearch($params))->getQuery()->paginate(24);
+        $products = (new ProductSearch($params))
+	        ->getQuery()
+	        ->with(['scraped_products', 'suppliers'])
+	        ->paginate(24);
 
         $items = [];
         foreach ($products->items() as $product) {
