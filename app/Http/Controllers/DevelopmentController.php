@@ -401,14 +401,14 @@ class DevelopmentController extends Controller
         // if ($request->get('language') != '') {
         //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
         // }
-        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
         $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
 
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
 
-        $issues = $issues->select("developer_tasks.*");
+        $issues = $issues->select("developer_tasks.*","chat_messages.message");
 
         // Set variables with modules and users
         $modules = DeveloperModule::all();
@@ -473,7 +473,7 @@ class DevelopmentController extends Controller
         } else if ($request->order == 'communication_desc') {
             $issues = $issues->orderBy('chat_messages.id', 'DESC');
         } else {
-            $issues = $issues->orderBy('developer_tasks.created_at', 'DESC');
+            $issues = $issues->orderBy('chat_messages.id', "desc");
         }
 
         $issues =  $issues->with('communications');

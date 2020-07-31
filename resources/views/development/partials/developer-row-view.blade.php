@@ -1,4 +1,4 @@
-<tr class="text-primary">
+<tr style="color:grey;">
     <td>
         <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
         </a>
@@ -13,6 +13,7 @@
     <td>{{ $issue->subject }}</td>
     
     <td>
+    {{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}
         {{ $issue->task }}
         @if ($issue->getMedia(config('constants.media_tags'))->first())
             <br>

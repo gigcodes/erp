@@ -1144,9 +1144,6 @@
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list') }}">Issue list</a>
-                                </li>
-                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                 </li>
                                 <li class="nav-item">

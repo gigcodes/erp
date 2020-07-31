@@ -143,7 +143,6 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-//
 @endsection
 
 @section('scripts')
@@ -165,33 +164,33 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
-            // $('.infinite-scroll').jscroll({
-            //     debug: true,
-            //     autoTrigger: true,
-            //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-            //     padding: 0,
-            //     nextSelector: '.pagination li.active + li a',
-            //     contentSelector: '.infinite-scroll',
-            //     callback: function () {
-            //         $('ul.pagination:visible:first').remove();
-            //         var next_page = $('.pagination li.active');
-            //         if (next_page.length > 0) {
-            //             var current_page = next_page.find("span").html();
-            //             $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
-            //         }
+            $('.infinite-scroll').jscroll({
+                debug: true,
+                autoTrigger: true,
+                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                padding: 0,
+                nextSelector: '.pagination li.active + li a',
+                contentSelector: '.infinite-scroll',
+                callback: function () {
+                    $('ul.pagination:visible:first').remove();
+                    var next_page = $('.pagination li.active');
+                    if (next_page.length > 0) {
+                        var current_page = next_page.find("span").html();
+                        $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+                    }
 
 
-            //         $.each($("select.resolve-issue"),function(k,v){
-            //             if (!$(v).hasClass("select2-hidden-accessible")) {
-            //                 $(v).select2({width:"100%", tags:true});
-            //             }
-            //         });
-            //         $('select.select2').select2({
-            //             tags: true,
-            //             width: "100%"
-            //         });
-            //     }
-            // });
+                    $.each($("select.resolve-issue"),function(k,v){
+                        if (!$(v).hasClass("select2-hidden-accessible")) {
+                            $(v).select2({width:"100%", tags:true});
+                        }
+                    });
+                    $('select.select2').select2({
+                        tags: true,
+                        width: "100%"
+                    });
+                }
+            });
 
             $('select.select2').select2({
                 tags: true,
