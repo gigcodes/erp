@@ -76,13 +76,44 @@
 		    	</div>
 		    </div>
 	    </div>
-	    <div class="row">
+	    <div class="row" style="margin-bottom: 10px;">
 	    	<a href="{{ route('site-development-status.index') }}" target="__blank">
 		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
 		  			+ Add Status
 		  		</button>
 		  	</a>
+		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+		  		Status Count
+            </a>
 	    </div>
+
+	    <div class="row">
+		    <div class="col-md-12">
+		        <div class="collapse" id="statusFilterCount">
+		            <div class="card card-body">
+		              <?php if(!empty($statusCount)) { ?>
+		                <div class="row col-md-12">
+		                    <?php foreach($statusCount as $sC) { ?>
+		                      <div class="col-md-2">
+		                            <div class="card">
+		                              <div class="card-header">
+		                                <?php echo $sC->name; ?>
+		                              </div>
+		                              <div class="card-body">
+		                                  <?php echo $sC->total; ?>
+		                              </div>
+		                          </div>
+		                       </div> 
+		                  <?php } ?>
+		                </div>
+		              <?php } else  { 
+		                echo "Sorry , No data available";
+		              } ?>
+		            </div>
+		        </div>
+		    </div>    
+		</div>
+
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">

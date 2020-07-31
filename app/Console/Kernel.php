@@ -449,6 +449,7 @@ class Kernel extends ConsoleKernel
 
          // make payment receipt for hourly associates on daily basis.
          $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        $schedule->command('check:landing-page')->everyMinute();
     }
 
     /**
