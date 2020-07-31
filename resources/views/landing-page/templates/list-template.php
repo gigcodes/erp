@@ -3,6 +3,7 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
+		      	<th width="2%">#</th>
 		      	<th width="2%">Id</th>
 		        <th width="10%">Product <I></I>d</th>
 		        <th width="10%">Name</th>
@@ -11,6 +12,8 @@
 		        <th width="10%">Start Date</th>
 		        <th width="10%">End Date</th>
 		        <th width="10%">Status</th>
+		        <th width="20%">Image</th>
+		        <th width="10%">Product Status</th>
 		        <th width="8%">Created At</th>
 		        <th width="18%">Action</th>
 		      </tr>
@@ -18,6 +21,7 @@
 		    <tbody>
 		    	{{props data}}
 			      <tr>
+			      	<td><input type="checkbox" value="{{:prop.product_id}}" name="check-product" class="check-product"></td>
 			      	<td>{{:prop.id}}</td>
 			        <td>{{:prop.product_id}}</td>
 			        <td>{{:prop.name}}</td>
@@ -26,6 +30,17 @@
 			        <td>{{:prop.start_date}}</td>
 			        <td>{{:prop.end_date}}</td>
 			        <td>{{:prop.status_name}}</td>
+			        <td>
+			        {{props prop.images}}
+			        <div data-id="{{:prop.id}}" class="l-container">
+						<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
+						<div class="l-middle btn-delete-image" data-id="{{:prop.id}}">
+							<div class="l-text"><i class="fa fa-trash"></i></div>
+						</div>
+  					</div>
+			        {{/props}}
+			        </td>
+			        <td>{{:prop.productStatus}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>

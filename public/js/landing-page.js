@@ -48,6 +48,14 @@ var page = {
             }
         });
 
+        page.config.bodyView.on("click",".btn-delete-image",function(e) {
+            if(!confirm("Are you sure you want to delete image?")) {
+                return false;
+            }else {
+                page.deleteImages($(this));
+            }
+        });
+
         page.config.bodyView.on("click",".btn-edit-template",function(e) {
             page.editRecord($(this));
         }); 
@@ -98,6 +106,16 @@ var page = {
     deleteRecord : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/landing-page/"+ele.data("id")+"/delete",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'deleteResults');
+    },
+    deleteImages : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/landing-page/image/"+ele.data("id")+"/delete",
             method: "get",
             beforeSend : function() {
                 $("#loading-image").show();
@@ -280,3 +298,21 @@ var page = {
 }
 
 $.extend(page, common);
+
+$(document).ready(function(){
+    $("body").delegate("#pr-start-time, #pr-end-time", "focusin", function(){
+        $('#pr-start-time, #pr-end-time').datetimepicker({format: 'YYYY-MM-DD HH:mm:00'});
+    });
+});
+$(document).on('click', '.check-product', function() {
+    var productArr = [];
+    $("input:checkbox[name='check-product']:checked").each(function(){
+        productArr.push($(this).val());
+    });
+    if(productArr.length) {
+        $('#update-time-btn').show();
+    }else{
+        $('#update-time-btn').hide();
+    }
+    $('input:hidden[name=product_id]').val(productArr);
+});
