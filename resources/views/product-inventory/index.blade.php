@@ -54,6 +54,9 @@
                 	{!! Form::select('supplier[]',$suppliersDropList, request("supplier",[]), ['data-placeholder' => 'Select a Supplier','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">
+                	{!! Form::select('scrapper[]',$scrapperDropList, request("scrapper",[]), ['data-placeholder' => 'Select a Scrapper','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                </div>
+                <div class="form-group mr-3 mb-3">
                 	{!! Form::select('type[]',$typeList, request("type",[]), ['data-placeholder' => 'Select a Type','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
                 </div>
                 <div class="form-group mr-3 mb-3">

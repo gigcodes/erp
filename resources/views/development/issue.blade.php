@@ -17,10 +17,27 @@
     </style>
 @endsection
 
+<style> 
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+    .status-selection .multiselect {
+        width : 100%;
+    }
+    .pd-sm {
+        padding: 0px 8px !important;
+    }
+    tr {
+        background-color: #f9f9f9;
+    }
+</style>
+
+
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ ucfirst($title) }} List</h2>
+            <h2 class="page-heading">{{ ucfirst($title) }}</h2>
         </div>
     </div>
 
@@ -54,23 +71,23 @@
     <div class="row mb-4">
         <div class="col-md-12">
             @include("development.partials.task-issue-search")
-            <div class="row" style="margin-top: 10px;">
-                <div class="col-md-2">
-                    <a class="btn btn-secondary" 
+            <div class="pull-right mt-4">
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
                            Show Planned count
-                        </a>
-                </div>
-                <div class="col-md-2">
-                     <a class="btn btn-secondary" 
+            </a>
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#inProgressFilterCount" role="button" aria-expanded="false" aria-controls="inProgressFilterCount">
                            Show In Progress count
-                        </a>
-                </div>
-            </div>
-            @if($title == 'devtask' && auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
-            @endif
+            </a>
+            <a style="color:white;" class="btn btn-secondary  priority_model_btn">Priority</a>
+            @if(auth()->user()->isReviwerLikeAdmin())
+                    <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
+                @endif
+        </div>
+
+
+         
         </div>
     </div>
     @include("development.partials.task-issue-counter")
@@ -89,28 +106,24 @@
         </select>
     </div>
     <div class="infinite-scroll">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
+        <div >
+            <table class="table table-bordered table-striped" style="table-layout:fixed;">
+                <!-- @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
                         @include("development.partials.add-new-issue")
                     </tr>
-                @endif
+                @endif -->
                 <tr>
-                    <th width="1%">ID</th>
-                    <th width="5%">Module</th>
-                    <th width="10%">Subject</th>
-                    <th width="5%">Priority</th>
-                    <th width="15%">Issue</th>
-                    <th width="5%">Date Created</th>
-                    <th width="5%">Est Completion Time</th>
-                    <th width="5%">Tracked Time</th>
-                    <th width="5%">Assigned To</th>
-                    <th width="5%">Resolved</th>
-                    <th width="5%">Master Developer</th>
-                    <th width="5%">Cost</th>
-                    <th width="5%">Milestone</th>
-                    <th width="5%">Language</th>
+                    <th style="width:5%;">ID</th>
+                    <th style="width:8%;">Module</th>
+                    <th style="width:12%;">Subject</th>
+                    <th style="width:22%;">Communication</th>
+                    <th style="width:7%;">Est Completion Time</th>
+                    <th style="width:5%;">Tracked Time</th>
+                    <th style="width:15%;">Developers</th>
+                    <th style="width:12%;">Status</th>
+                    <th style="width:6%;">Cost</th>
+                    <th style="width:8%;">Milestone</th>
                 </tr>
                 @foreach ($issues as $key => $issue)
                     @if(auth()->user()->isReviwerLikeAdmin())
@@ -130,7 +143,6 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-//
 @endsection
 
 @section('scripts')
@@ -185,9 +197,18 @@
                 width: "100%"
             });
 
+
+            $('.assign-master-user.select2').select2({
+                width: "100%"
+            });
+
+            $('.assign-user.select2').select2({
+                width: "100%"
+            });
+
             $.each($(".resolve-issue"),function(k,v){
                 if (!$(v).hasClass("select2-hidden-accessible")) {
-                    $(v).select2({width:"100%", tags:true});
+                    $(v).select2({width:"100%"});
                 }
             });
 
@@ -282,16 +303,54 @@
         });
         
         $(document).on('click', '.send-message', function (event) {
-            /*if (event.which != 13) {
-                return;
-            }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
+
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
+            if (message == '') {
+                return;
+            }
 
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
+
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
             if (message == '') {
                 return;
             }
@@ -360,6 +419,10 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
 
@@ -395,13 +458,17 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignMasterUser')}}",
                 data: {
                     master_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
                     toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
 
@@ -479,10 +546,12 @@
             }
         });
 
-        $(document).on('click', '.estimate-time-change', function () {
+        $(document).on('keyup', '.estimate-time-change', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
             let issueId = $(this).data('id');
             let estimate_minutes = $("#estimate_minutes_" + issueId).val();
-
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
                 data: {

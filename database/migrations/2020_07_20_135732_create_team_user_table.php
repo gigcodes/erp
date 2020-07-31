@@ -13,10 +13,10 @@ class CreateTeamUserTable extends Migration
      */
     public function up()
     {
-        Schema::create('team_user', function (Blueprint $table) {
-            $table->integer('team_id');
-            $table->integer('user_id');
-        });
+        // Schema::create('team_user', function (Blueprint $table) {
+        //     $table->integer('team_id');
+        //     $table->integer('user_id');
+        // });
     }
 
     /**
@@ -26,6 +26,6 @@ class CreateTeamUserTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('team_user');
+        //Schema::dropIfExists('team_user');
     }
 }

@@ -107,7 +107,7 @@ class SupplierCategoryController extends Controller
         return redirect()->route('supplier-category.index')
             ->with('success', 'Supplier Category deleted successfully');
     }
-
+//
     public function usersPermission(Request $request)
     {
         $users = User::where('is_active',1)->orderBy('name','asc')->with('supplierCategoryPermission')->get();
