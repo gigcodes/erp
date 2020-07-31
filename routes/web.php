@@ -1937,3 +1937,4 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::resource('shipment', 'ShipmentController');
 });
+Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');

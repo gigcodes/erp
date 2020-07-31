@@ -285,6 +285,7 @@
 
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
+        <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
@@ -301,6 +302,14 @@
                     <div class="form-group mr-3"
                         <strong class="mr-3">Custom File Name</strong>
                         <input type="text" name="file_name" id="pdf-file-name" />
+                    </div>
+                    <div class="form-group mr-3"
+                        <strong class="mr-3">Is Queue?</strong>
+                        <select class="form-control" id="is_queue_option" name="is_queue_option">
+                            <option>Select queue</option>
+                            <option value="1">in Queue</option>
+                            <option value="0">Send later</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -731,12 +740,14 @@
 
         $(".btn-approve-pdf").on("click",function() {
             $("#send_pdf").val("1");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
 
         $(".btn-ignore-pdf").on("click",function() {
             $("#send_pdf").val("0");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
