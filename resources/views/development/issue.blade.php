@@ -115,11 +115,6 @@
         </table>
         @endif
             <table class="table table-bordered table-striped" style="table-layout:fixed;">
-                <!-- @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
-                    <tr class="add-new-issue">
-                        @include("development.partials.add-new-issue")
-                    </tr>
-                @endif -->
                 <tr>
                     <th style="width:5%;">ID</th>
                     <th style="width:8%;">Module</th>
@@ -132,10 +127,14 @@
                     <th style="width:6%;">Cost</th>
                     <th style="width:8%;">Milestone</th>
                 </tr>
+                <?php
+                   $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
+                   $userID =  Auth::user()->id;
+                ?>
                 @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isReviwerLikeAdmin())
+                    @if($isReviwerLikeAdmin)
                         @include("development.partials.admin-row-view")
-                    @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
+                    @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
                         @include("development.partials.developer-row-view")
                     @endif
                 @endforeach
@@ -171,11 +170,12 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
+
             $('.infinite-scroll').jscroll({
-                debug: true,
+                debug: false,
                 autoTrigger: true,
                 loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 0,
+                padding: 20,
                 nextSelector: '.pagination li.active + li a',
                 contentSelector: '.infinite-scroll',
                 callback: function () {
@@ -185,8 +185,6 @@
                         var current_page = next_page.find("span").html();
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
-
-
                     $.each($("select.resolve-issue"),function(k,v){
                         if (!$(v).hasClass("select2-hidden-accessible")) {
                             $(v).select2({width:"100%", tags:true});
@@ -198,7 +196,7 @@
                     });
                 }
             });
-
+            
             $('select.select2').select2({
                 tags: true,
                 width: "100%"
@@ -785,7 +783,5 @@
                 $('#no_of_milestone').removeAttr('required');
             }
         });
-    
-    
     </script>
 @endsection
