@@ -137,7 +137,6 @@ class DevelopmentController extends Controller
     }*/
     public function taskListByUserId(Request $request)
     {
-        echo "<pre>"; print_r(032);  echo "</pre>";die;
         $user_id = $request->get('user_id', 0);
         $issues = DeveloperTask::select('developer_tasks.id', 'developer_tasks.module_id', 'developer_tasks.subject', 'developer_tasks.task', 'developer_tasks.created_by')
             ->leftJoin('erp_priorities', function ($query) {
@@ -494,7 +493,7 @@ class DevelopmentController extends Controller
             // 'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
-            'statusList' => $statusList,
+            'statusList' => $statusList
             // 'languages' => $languages
         ]);
     }
