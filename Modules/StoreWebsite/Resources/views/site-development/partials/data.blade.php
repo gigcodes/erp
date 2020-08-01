@@ -4,7 +4,6 @@
         $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         $userId             = auth()->user()->id;
     @endphp
-
     @foreach($categories as $category)
 		<?php
             $site = $category->getDevelopment($category->id,$website->id);

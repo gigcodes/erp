@@ -441,6 +441,9 @@ class Kernel extends ConsoleKernel
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
         $schedule->command('generate:product-pricing-json')->daily();
+
+        // Customer chat messages quick data
+        $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
         $schedule->command('fetch-store-website:orders')->hourly();
         
         // If scraper not completed, store alert
