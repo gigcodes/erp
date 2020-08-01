@@ -795,11 +795,13 @@ class DevelopmentController extends Controller
         ]);
 
         $data = $request->except('_token');
+        
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
         $data['created_by'] = Auth::id();
         $data['priority'] = 0;
         //$data[ 'submitted_by' ] = Auth::id();
+        $data['hubstaff_task_id'] = 0;
         // $module = $request->get('module_id');
         // if (!empty($module)) {
         //     $module = DeveloperModule::find($module);
@@ -838,7 +840,6 @@ class DevelopmentController extends Controller
         } else {
             $message = $request->input('task');
         }
-
         $requestData = new Request();
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
@@ -866,20 +867,32 @@ class DevelopmentController extends Controller
         //   ]);
         // }
 
-        $assignedUser = HubstaffMember::where('user_id', $request->input('user_id'))->first();
+        $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
         $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 
         $hubstaffUserId = null;
         if ($assignedUser) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
+        $summary = substr($request->input('task'), 0, 200);
+        if($data['task_type_id'] == 1) {
+            $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+        }
+        else {
+            $taskSummery = '#TASK-' . $task->id . ' => ' . $summary;
+        }
+        
 
         $hubstaffTaskId = $this->createHubstaffTask(
-            $request->input('task'),
+            $taskSummery,
             $hubstaffUserId,
             $hubstaffProject->hubstaff_project_id
         );
 
+        if($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
         if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
@@ -892,7 +905,7 @@ class DevelopmentController extends Controller
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
         }
-        return redirect(url('development/list/devtask'))->with('success', 'You have successfully added task!');
+        return redirect(url('development/list'))->with('success', 'You have successfully added task!');
     }
 
     public function issueStore(Request $request)
@@ -958,6 +971,7 @@ class DevelopmentController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add(['issue_id' => $task->id, 'message' => $request->input('issue'), 'status' => 1]);
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+        
         return redirect()->back()->with('success', 'You have successfully submitted an issue!');
     }
     public function moduleStore(Request $request)

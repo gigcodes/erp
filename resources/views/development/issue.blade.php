@@ -107,6 +107,13 @@
     </div>
     <div class="infinite-scroll">
         <div >
+        @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
+        <table class="table table-bordered table-striped">
+            <tr class="add-new-issue">
+                @include("development.partials.add-new-issue")
+            </tr>
+        </table>
+        @endif
             <table class="table table-bordered table-striped" style="table-layout:fixed;">
                 <!-- @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
                     <tr class="add-new-issue">
