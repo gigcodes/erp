@@ -354,23 +354,56 @@ class TaskModuleController extends Controller {
 		}
 
 		$search_term_suggestions = [];
-		foreach ($data['task']['pending'] as $task) {
-			$search_term_suggestions[] = User::find($task->assign_from)->name;
-			$special_task = Task::find($task->id);
+		$assign_from_arr = array();
+		$special_task_arr = array();
+		$assign_to_arr = array();
+		
 
-			if (count($special_task->users) > 0) {
+		foreach ($data['task']['pending'] as $task) {
+			//$search_term_suggestions[] = User::find($task->assign_from)->name;
+			array_push($assign_to_arr, $task->assign_to);
+			array_push($assign_from_arr, $task->assign_from);
+			array_push($special_task_arr, $task->id);
+
+			//$special_task = Task::find($task->id);
+			
+			/*if (count($special_task->users) > 0) {
 				foreach ($special_task->users as $user) {
 					$search_term_suggestions[] = $user->name;
 				}
-			}
+			}*/
 
+			/*$search_term_suggestions[] = "$task->id";
+			$search_term_suggestions[] = $task->task_subject;
+			$search_term_suggestions[] = $task->task_details;*/
+		}
+
+		$user_ids_from = implode(",", array_unique($assign_from_arr));
+		$var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
+
+		$user_ids_to = implode(",", array_unique($assign_to_arr));
+		$var_user_name_to = DB::select('SELECT id,name from users where id IN ('.$user_ids_to.')');
+		$search_term_suggestions = [];
+		foreach ($data['task']['pending'] as $task) {
+			foreach ($var_user_name as $row_from) {
+				if($row_from->id == $task->assign_from)
+				{
+					$search_term_suggestions[] = $row_from->name;
+				}
+			}
+			foreach ($var_user_name_to as $row_to) {
+				if($row_to->id == $task->assign_to)
+				{
+					$search_term_suggestions[] = $row_to->name;
+				}
+			}
+			
+			//$search_term_suggestions[] = $var_user_name_to[0]->name;
 			$search_term_suggestions[] = "$task->id";
 			$search_term_suggestions[] = $task->task_subject;
 			$search_term_suggestions[] = $task->task_details;
 		}
-
 		// $category = '';
-
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
