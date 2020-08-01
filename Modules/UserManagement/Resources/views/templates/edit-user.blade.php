@@ -112,8 +112,8 @@
                             <strong>Salaried or fixed price job:</strong>
                             <select class="form-control"  name="fixed_price_user_or_job">
                             <option value="">Select</option>
-                            <option value="1" {{ $user->fixed_price_user_or_job == 1 ? 'selected' : '' }}>Salaried</option>
-                            <option value="2" {{ $user->fixed_price_user_or_job == 2 ? 'selected' : '' }}>Fixed price job</option>
+                            <option value="1" {{ $user->fixed_price_user_or_job == 1 ? 'selected' : '' }}>Fixed Price job</option>
+                            <option value="2" {{ $user->fixed_price_user_or_job == 2 ? 'selected' : '' }}>Salaried</option>
     
                             </select>
                         </div>

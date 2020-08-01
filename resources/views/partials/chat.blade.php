@@ -367,9 +367,23 @@ const instance = AccountsSDK.init({
 		} 
 		if (data) {
 			//console.log("User authorized!");
-			 console.log(data);
 			accessToken = data.access_token;
+			console.log(accessToken)
 			setTimeout(instance, data.expires_in);
+			$.ajax({
+				url: '/livechat/save-token',
+				type: 'POST',
+				dataType: 'json',
+				data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
+			})
+			.done(function() {
+				console.log("AccessToken Saved In Session");
+			})
+			.fail(function() {
+				console.log("Cannot Save AccessToken In Session");
+			})
+			
+			
 			//console.log("License number: " + data.license);
 		}
 	}

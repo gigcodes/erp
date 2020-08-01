@@ -23,6 +23,7 @@ use App\DeveloperTaskHistory;
 use App\ScheduledMessage;
 use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
+use App\PaymentReceipt;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
@@ -38,7 +39,6 @@ class TaskModuleController extends Controller {
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
-
 		$categoryWhereClause = '';
 		$category = '';
 		if ($request->category != '' && $request->category != 1) {
@@ -143,7 +143,6 @@ class TaskModuleController extends Controller {
 		// }
 		//
 		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
-
 		$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -402,6 +401,74 @@ class TaskModuleController extends Controller {
 		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
 	}
 
+	public function updateCost(Request $request) {
+		$task = Task::find($request->task_id);
+
+		// if($task && $request->approximate) {
+        //     DeveloperTaskHistory::create([
+		// 		'developer_task_id' => $task->id,
+		// 		'model' => 'App\Task',
+        //         'attribute' => "estimation_minute",
+        //         'old_value' => $task->approximate,
+        //         'new_value' => $request->approximate,
+        //         'user_id' => auth()->id(),
+        //     ]);
+        // }
+
+		$task->cost = $request->cost;
+		$task->save();
+		return response()->json(['msg' => 'success']);
+	}
+
+
+
+
+	public function saveMilestone(Request $request)
+    {
+		$task = Task::find($request->task_id);
+        if(!$task->is_milestone) {
+            return;
+        }
+        $total = $request->total;
+        if($task->milestone_completed) {
+            if($total <= $task->milestone_completed) {
+                return response()->json([
+                    'message' => 'Milestone no can\'t be reduced'
+                ],500);
+            }
+        }
+
+        if($total > $task->no_of_milestone) {
+            return response()->json([
+                'message' => 'Estimated milestone exceeded'
+            ],500);
+        }
+        if(!$task->cost || $task->cost == '') {
+            return response()->json([
+                'message' => 'Please provide cost first'
+            ],500);
+        }
+
+        $newCompleted = $total - $task->milestone_completed;
+        $individualPrice = $task->cost / $task->no_of_milestone;
+        $totalCost = $individualPrice * $newCompleted;
+
+        $task->milestone_completed = $total;
+        $task->save();
+        $payment_receipt = new PaymentReceipt;
+        $payment_receipt->date = date( 'Y-m-d' );
+        $payment_receipt->worked_minutes = $task->approximate;
+        $payment_receipt->rate_estimated = $totalCost;
+        $payment_receipt->status = 'Pending';
+        $payment_receipt->task_id = $task->id;
+        $payment_receipt->user_id = $task->assign_to;
+		$payment_receipt->save();
+		
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
 	public function updateApproximate(Request $request) {
 		$task = Task::find($request->task_id);
 
@@ -520,7 +587,6 @@ class TaskModuleController extends Controller {
 			'task_details'	=> 'required',
 			'assign_to' => 'required_without:assign_to_contacts'
 		]);
-		
 		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
 
@@ -882,7 +948,7 @@ class TaskModuleController extends Controller {
 
 	public function complete(Request $request, $taskid ) {
 
-		$task               = Task::find( $taskid );
+		$task  = Task::find( $taskid );
 		// $task->is_completed = date( 'Y-m-d H:i:s' );
 //		$task->deleted_at = null;
 
@@ -906,8 +972,34 @@ class TaskModuleController extends Controller {
 		//
 		// 	$item->save();
 		// }
-
 		if ($request->type == 'complete') {
+			if($task->assignedTo) {
+				if($task->assignedTo->fixed_price_user_or_job == 1) {
+					// Fixed price task.
+					if($task->cost == null) {
+						if ($request->ajax()) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+				
+						return redirect()->back()
+										 ->with( 'error', 'Please provide cost for fixed price task.' );
+					}
+					if(!$task->is_milestone) {
+						$payment_receipt = new PaymentReceipt;
+						$payment_receipt->date = date( 'Y-m-d' );
+						$payment_receipt->worked_minutes = $task->approximate;
+						$payment_receipt->rate_estimated = $task->cost;
+						$payment_receipt->status = 'Pending';
+						$payment_receipt->task_id = $task->id;
+						$payment_receipt->user_id = $task->assign_to;
+						$payment_receipt->save();
+					}
+				}
+			}
+
+
 			if ($task->is_completed == '') {
 				$task->is_completed = date( 'Y-m-d H:i:s' );
 			} else if ($task->is_verified == '') {

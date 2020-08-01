@@ -15,6 +15,7 @@ use App\UserLog;
 use DB;
 use Redirect;
 use App\Hubstaff\HubstaffPaymentAccount;
+use App\Hubstaff\HubstaffActivity;
 use Carbon\Carbon;
 
 
@@ -171,6 +172,25 @@ class User extends Authenticatable
         return false;
     }
 
+    /**
+    * We can use this function to give same page rights like admin
+    *
+    */
+    public function isReviwerLikeAdmin()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        $needToBeCheck = ["Admin","master-developer"];
+
+        foreach($needToBeCheck as $nc) {
+            if (in_array($nc, $roles)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
     public function isInCustomerService()
     {
         $roles = $this->roles->pluck('name')->toArray();
@@ -193,7 +213,7 @@ class User extends Authenticatable
     {
         if ($name == '/') {
             $genUrl = 'mastercontrol';
-            header("Location: /development/list/devtask");
+            header("Location: /development/list");
         } else {
             $url = explode('/', $name);
             $model = $url[0];
@@ -413,6 +433,18 @@ class User extends Authenticatable
     }
 
 
+    public function lastOnline() {
+        $hubstaff_activity = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
+        if($hubstaff_activity) {
+            return $hubstaff_activity->starts_at;
+        }
+        else {
+            return false;
+        }
+         
+    }
+
+
     public function taskList()
     {
         return $this->hasMany(\App\ErpPriority::class, "user_id","id");
@@ -449,5 +481,11 @@ class User extends Authenticatable
             $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
         }
         return $total;
+    }
+
+
+    public function vendorCategoryPermission()
+    {
+        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
     }
 }

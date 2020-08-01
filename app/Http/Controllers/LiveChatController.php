@@ -57,16 +57,16 @@ class LiveChatController extends Controller
 
 				$customer = Customer::where('email',$email)->first();
 				
-				if($customer == '' && $customer == null && $phone != ''){
-					$customer = Customer::where('phone',$phone)->first();
-				}	
+				// if($customer == '' && $customer == null && $phone != ''){
+				// 	//$customer = Customer::where('phone',$phone)->first();
+				// }	
 
 				//Save Customer
 				if($customer == null && $customer == ''){
 					$customer = new Customer;
 					$customer->name = $name;
 					$customer->email = $email;
-					$customer->phone = $phone;
+					$customer->phone = null;
 					$customer->save();
 				}
 				
@@ -192,7 +192,7 @@ class LiveChatController extends Controller
 				
 				if($customer != '' && $customer != null){
 					//Find if its has ID
-					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->first();
+					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->where('thread',$chatId)->first();
 					if($chatID == null && $chatID == ''){
 						$customerChatId = new CustomerLiveChat;
 						$customerChatId->customer_id = $customer->id;
@@ -247,11 +247,9 @@ class LiveChatController extends Controller
 
 	public function sendMessage(Request $request){
 			
-		    $login = \Config('livechat.account_id');
-            $password = \Config('livechat.password');
+		    
 			$chatId = $request->id;
 			$message = $request->message;
-
 			$customerDetails = Customer::find($chatId);
             $language = $customerDetails->language;
             if($language !=null)
@@ -270,6 +268,7 @@ class LiveChatController extends Controller
             	'status' => 'errors'
         		]);
 			}
+			//dd($thread);
 			$post = array('chat_id' => $thread,'event' => array('type' => 'message','text' => $message,'recipients' => 'all',));
 		    $post = json_encode($post);
 			
@@ -285,7 +284,7 @@ class LiveChatController extends Controller
 			CURLOPT_CUSTOMREQUEST => "POST",
 			CURLOPT_POSTFIELDS => "$post",
 			CURLOPT_HTTPHEADER => array(
-				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Authorization: Bearer ".\Cache::get('key')."",
 				"Content-Type: application/json",
 			),
 			));
@@ -294,7 +293,7 @@ class LiveChatController extends Controller
 			$err = curl_error($curl);
 
 			curl_close($curl);
-
+			
 			if ($err) {
 				return response()->json([
             	'status' => 'errors'
@@ -725,7 +724,7 @@ class LiveChatController extends Controller
 		if($contentType){
 			$curlData[CURLOPT_HTTPHEADER] = [];
 			if($defaultAuthorization){
-				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13");
+				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Bearer ".\Cache::get('key')."");
 			}
 			// $curlData[CURLOPT_HTTPHEADER] = array(
 			// 	"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
@@ -809,5 +808,33 @@ class LiveChatController extends Controller
 				return $regs['domain'];
 			}
 		return false;
+	}
+
+	public function saveToken(Request $request)
+	{
+		if($request->accessToken){
+			//dd($request->accessToken);
+			$storedCache = \Cache::get('key');
+			if($storedCache){
+				if($storedCache != $request->accessToken){
+					try {
+						\Cache::put('key', $request->accessToken, $request->seconds);
+					} catch (Exception $e) {
+						\Cache::add('key', $request->accessToken, $request->seconds);
+					}
+				}
+			}else{
+				try {
+						\Cache::put('key', $request->accessToken, $request->seconds);
+					} catch (Exception $e) {
+						\Cache::add('key', $request->accessToken, $request->seconds);
+					}
+			}
+			//session()->put('livechat_accesstoken', $request->accessToken);
+			//\Session::put('livechat_accesstoken', $request->accessToken);
+			//$request->session()->put('livechat_accesstoken', $request->accessToken);
+			return response()->json(['status' => 'success', 'message' => 'AccessToken saved'], 200);
+		}
+		return response()->json(['status' => 'error', 'message' => 'AccessToken cannot be saved'], 500);
 	}
 }

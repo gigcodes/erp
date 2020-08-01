@@ -4,18 +4,16 @@ namespace App\Console\Commands;
 
 use App\Helpers\hubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
+use App\Hubstaff\HubstaffMember;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
-use Storage;
 
 class LoadHubstaffActivities extends Command
 {
-
-    private $HUBSTAFF_ACTIVITY_LAST_SYNC_FILE_NAME = 'hubstaff_activity_sync.json';
-
     use hubstaffTrait;
 
     private $client;
@@ -58,31 +56,22 @@ class LoadHubstaffActivities extends Command
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
-            if (Storage::disk('local')->exists($this->HUBSTAFF_ACTIVITY_LAST_SYNC_FILE_NAME)) {
-                $startTime = json_decode(Storage::disk('local')->get($this->HUBSTAFF_ACTIVITY_LAST_SYNC_FILE_NAME))->time;
-            } else {
-                $time      = strtotime(date("c"));
-                $time      = $time - (60 * 60); //one hour
-                $startTime = date("c", $time);
-            }
+
+            $time      = strtotime(date("c"));
+            $time      = $time - ((60 * 60)); //one hour
+            $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
 
             $time     = strtotime($startTime);
             $time     = $time + (60 * 60); //one hour
             $stopTime = date("c", $time);
+
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
                 echo 'Error in activities' . PHP_EOL;
                 return;
             }
-
-            Storage::disk('local')->put(
-                $this->HUBSTAFF_ACTIVITY_LAST_SYNC_FILE_NAME,
-                json_encode([
-                    'time' => $stopTime,
-                ])
-            );
-
+            
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
@@ -99,6 +88,18 @@ class LoadHubstaffActivities extends Command
                         'overall'   => $data['overall'],
                     ]
                 );
+
+                if(is_null($data['task_id'])) {
+                    $user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
+                    if($user) {
+                        $message = "You haven't selected any task on your last activity period ".$startTime. " to ".$stopTime." , Please select appropriate task or put notes on it.";
+
+                        $requestData = new Request();
+                        $requestData->setMethod('POST');
+                        $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);
+                        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
+                    }
+                }
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {

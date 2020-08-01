@@ -45,7 +45,8 @@ class Product extends Model
         'size_eu',
         'stock_status',
         'shopify_id',
-        'scrap_priority'
+        'scrap_priority',
+        'assigned_to'
     ];
 
     protected $dates = ['deleted_at'];
@@ -214,6 +215,9 @@ class Product extends Model
 
                 }
 
+                $product->checkExternalScraperNeed();
+
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -331,6 +335,7 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    $product->checkExternalScraperNeed();
                     //$json->product_id = $product->id;
                     //$json->save();
                 } catch (\Exception $exception) {
@@ -925,5 +930,13 @@ class Product extends Model
     public function storeWebsiteProductAttributes($storeId = 0)
     {
         return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
+    }
+
+    public function checkExternalScraperNeed()
+    {
+        if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
+            $this->status_id = StatusHelper::$requestForExternalScraper;
+            $this->save();
+        }
     }
 }

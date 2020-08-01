@@ -13,5 +13,6 @@ class HubstaffActivityNotification extends Model
         'min_percentage',
         'actual_percentage',
         'reason',
+        'status'
     ];
 }

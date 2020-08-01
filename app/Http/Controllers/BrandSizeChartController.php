@@ -32,7 +32,7 @@ class BrandSizeChartController extends Controller
     public function createSizeChart()
     {
         $brands       = Brand::orderBy('name', 'asc')->pluck('name', 'id');
-        $category     = Category::orderBy('name', 'asc')->pluck('title', 'id');
+        $category     = Category::orderBy('title', 'asc')->pluck('title', 'id');
         $storeWebsite = StoreWebsite::orderBy('website', 'asc')->pluck('website', 'id');
 
         return view('brand-size-chart.create', ['brands' => $brands, 'category' => $category, 'storeWebsite' => $storeWebsite]);
