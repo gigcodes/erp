@@ -1139,7 +1139,8 @@ Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessag
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
 Route::post('livechat/sendFile', 'LiveChatController@sendFile')->name('livechat.send.file');
 Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('livechat.get.userlist');
-Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.get.userlist');
+Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.save.token');
+Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 /* ---------------------------------------------------------------------------------- */
 
