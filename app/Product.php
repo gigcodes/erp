@@ -939,4 +939,9 @@ class Product extends Model
             $this->save();
         }
     }
+
+    public function landingPageProduct()
+    {
+        return $this->hasOne('App\LandingPageProduct','product_id','id');
+    }
 }
