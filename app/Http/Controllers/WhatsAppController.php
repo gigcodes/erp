@@ -73,6 +73,7 @@ use \App\Helpers\TranslationHelper;
 use App\ImQueue;
 use App\Account;
 use App\BrandFans;
+use App\ChatMessagesQuickData;
 use App\ColdLeads;
 
 
@@ -1260,6 +1261,17 @@ class WhatsAppController extends FindByNumberController
                 $message = ChatMessage::create($params);  
             }
 
+            if($customer != null){
+                ChatMessagesQuickData::updateOrCreate([
+                    'model' => \App\Customer::class,
+                    'model_id' => $params['customer_id']
+                    ], [
+                    'last_unread_message' => @$params['message'],
+                    'last_unread_message_at' => Carbon::now(),
+                    'last_unread_message_id' => $message->id,
+                ]);
+            }
+
             // Is there a user linked to this number?
             if ($user) {
                 // Add user ID to params
@@ -2021,7 +2033,13 @@ class WhatsAppController extends FindByNumberController
 
                     return response()->json(['message' => $chat_message]);
 
-                } elseif ($context == 'user') {
+                }elseif ($context == 'activity') {
+                    $data[ 'erp_user' ] = $request->user_id;
+                    $module_id = $request->user_id;
+                    $user = User::find($request->user_id);
+                    $this->sendWithThirdApi($user->phone, null, $request->message);
+                }
+                 elseif ($context == 'user') {
                     $data[ 'erp_user' ] = $request->user_id;
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);
@@ -2509,6 +2527,17 @@ class WhatsAppController extends FindByNumberController
             $params[ 'approved' ] = 0;
             $params[ 'status' ] = 1;
             $chat_message = ChatMessage::create($data);
+        }
+
+        if ($context == 'customer') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Customer::class,
+                'model_id' => $data['customer_id']
+                ], [
+                'last_communicated_message' => @$data['message'],
+                'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
         }
 
         // $data['status'] = 1;
@@ -4498,6 +4527,17 @@ class WhatsAppController extends FindByNumberController
         $message = ChatMessage::find($request->get('id'));
         $message->status = $request->get('status');
         $message->save();
+
+        if($request->id && $request->status == 5) {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => "\App\Customer",
+                'model_id' => $request->id
+                ], [
+                'last_unread_message' => '',
+                'last_unread_message_at' => null,
+                'last_unread_message_id' => null,
+            ]);
+        }
 
         return response('success');
     }
