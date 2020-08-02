@@ -2247,22 +2247,23 @@ class ProductController extends Controller
     public function giveImage()
     {
          // Get next product
-        $product = Product::find('227844');
+        $product = Product::where('status_id', StatusHelper::$autoCrop)
+            ->where('category', '>', 3);
 
-        // // Add order
-        // $product = QueryHelper::approvedListingOrder($product);
+        // Add order
+        $product = QueryHelper::approvedListingOrder($product);
 
-        // // Get first product
-        // $product = $product->whereHasMedia('original')->first();
+        // Get first product
+        $product = $product->whereHasMedia('original')->first();
 
-        // if (!$product) {
-        //     // Return JSON
-        //     return response()->json([
-        //         'status' => 'no_product'
-        //     ]);
-        // }
+        if (!$product) {
+            // Return JSON
+            return response()->json([
+                'status' => 'no_product'
+            ]);
+        }
 
-        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id',$product->id)->where('mediable_type','App\Product')->get();
+        $mediables = DB::table('mediables')->select('media_id')->where('mediable_id',$product->id)->where('mediable_type','App\Product')->where('tag','original')->get();
 
         foreach ($mediables as $mediable) {
             $mediableArray[] = $mediable->media_id;
