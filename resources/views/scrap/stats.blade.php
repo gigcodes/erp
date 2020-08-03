@@ -49,7 +49,7 @@
     </style>
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
@@ -139,7 +139,7 @@
                     <tr>
                         <th>#</th>
                         <th>Supplier</th>
-                        <th>Server</th>
+                        <!-- <th>Server</th> -->
                         <th>Server ID</th>
                         <th>Run Time</th>
                         <th>Last Scraped</th>
@@ -150,10 +150,10 @@
                         <th>URL Count Scraper</th>
                         <th>Existing URLs</th>
                         <th>New URLs</th>
-                        <th>Made By</th>
+                        <!-- <th>Made By</th>
                         <th>Type</th>
                         <th>Parent Scrapper</th>
-                        <th>Next Step</th>
+                        <th>Next Step</th> -->
                         <th>Status</th>
                         <th>Functions</th>
                     </tr>
@@ -207,10 +207,22 @@
                                 <i style="color: orange;" class="fa fa-exclamation-triangle"></i>
                                 <?php } ?>
                             </td>
-                            <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
-                            <td width="10%">{{ $supplier->server_id }}</td>
+                            <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
+                            <td width="10%">{{ $supplier->server_id }}
+                            <div class="form-group">
+                                        <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
+                            </div>
+                            </td>
                             <td width="10%" style="text-right">
-                                {{ $supplier->scraper_start_time }}h
+                                <div class="form-group">
+                                        <select name="scraper_start_time" class="form-control scraper_start_time_change" data-id="{{$supplier->scrapper_id}}">
+                                        <option value="">Select</option>
+                                        @for($i=1; $i<=24;$i++)
+                                        <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
+                                        @endfor
+                                        </select>
+                                        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
+                                </div>
                             </td>
                             <td width="10%">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
@@ -227,7 +239,7 @@
                             <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
                             <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
-                            <td width="10%">
+                            <!-- <td width="10%">
                                 {{ ($supplier->scraperMadeBy) ? $supplier->scraperMadeBy->name : "N/A" }}
                             </td>
                             <td width="10%">
@@ -238,7 +250,7 @@
                             </td>
                             <td width="10%">
                                 {{ isset(\App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$supplier->next_step_in_product_flow] : "N/A" }}
-                            </td>
+                            </td> -->
                             <td width="10%">
                                 {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
                             </td>
@@ -251,20 +263,20 @@
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Logic:</label>
                                     <div class="input-group">
                                         <textarea class="form-control scraper_logic" name="scraper_logic"><?php echo $supplier->scraper_logic; ?></textarea>
                                         <button class="btn btn-sm btn-image submit-logic" data-vendorid="1"><img src="/images/filled-sent.png"></button>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="1">
                                     <label>Start Time:</label>
                                     <div class="input-group">
                                         <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $supplier->scraper_start_time, ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
                                     </div>
                                 </td>
-                                <td colspan="3">
+                                <td colspan="2">
                                     <label>Made By:</label>
                                     <div class="form-group">
                                         <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $supplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
@@ -765,6 +777,45 @@
 
             });
         });
+
+        $(document).on("change", ".scraper_start_time_change", function () {
+            // var tr = $(this).closest("tr");
+            var id = $(this).data("id");
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/update-scrap-field',
+                data: {
+                    search: id,
+                    field: "scraper_start_time",
+                    field_value: $(this).val()
+                },
+            }).done(function (response) {
+                toastr['success']('Data updated Successfully', 'success');
+            }).fail(function (response) {
+                toastr['error']('Data not updated', 'error');
+            });
+        });
+
+        
+        $('.show-history').on('click', function () {
+            var id = $(this).data("id");
+            var field = $(this).data("field");
+            return;
+            $.ajax({
+                type: 'GET',
+                url: '/scrap/statistics/show-history',
+                data: {
+                    search: id,
+                    field: field
+                },
+            }).done(function (response) {
+                console.log(remarks);
+            }).fail(function (response) {
+            });
+        });
+
+
+        
 
         $(document).on("click", ".submit-logic", function () {
             var tr = $(this).closest("tr");
