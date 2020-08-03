@@ -11,9 +11,13 @@ $(document).on("click",".btn-rate-request",function(e) {
       headers: {
         'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
       },
-      url: '/order/generate/awb/rate-request',
+      url: BASE_URL+'/order/generate/awb/rate-request',
       data: form.serialize(),
+      beforeSend: function() {
+        $('.ajax-loader').show();
+      },
     }).done(response => {
+      $('.ajax-loader').hide();
       if(response.code == 200) {
         toastr['success'](response.message, 'success');
         var htmlReturn = "<ul style='list-style:none;'>";
@@ -31,7 +35,7 @@ $(document).on("click",".btn-rate-request",function(e) {
         htmlReturn += "</ul>";
         $(".price-break-down").html(htmlReturn);
     }else{
-      toastr['error'](response.message, 'error');
+	  toastr['error'](response.message, 'error');
     }
   });
 });
@@ -45,9 +49,13 @@ $(document).on("click",".btn-rate-request",function(e) {
         headers: {
             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
         },
-        url: '/order/generate/awb/dhl',
-        data: form.serialize(),
+        url: BASE_URL+'/order/generate/awb/dhl',
+		data: form.serialize(),
+		beforeSend: function() {
+			$('.ajax-loader').show();
+		},
       }).done(response => {
+			$('.ajax-loader').hide();
           if(response.code == 200) {
             toastr['success'](response.message, 'success');
             location.reload();

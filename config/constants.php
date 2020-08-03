@@ -40,4 +40,6 @@ return array(
             "*" => "Every WeekDay",
         ] + $weeks,
     'google_text_search' => 'googletextsearch',
+
+    'size_chart_media_tag' => 'size_chart',
 );

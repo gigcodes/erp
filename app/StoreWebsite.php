@@ -35,6 +35,7 @@ class StoreWebsite extends Model
         'mysql_password',
         'mysql_staging_username',
         'mysql_staging_password',
+        'website_source',
     ];
 
     // Append attributes
@@ -56,5 +57,31 @@ class StoreWebsite extends Model
             return $urlStr = 'http://' . ltrim($url, '/');
         }
         return $url;
+    }
+
+    /**
+     * Get store brand
+     */
+    public function brands()
+    {
+        return $this->belongsToMany('App\Brand', 'store_website_brands', 'store_website_id', 'brand_id');
+    }
+
+    /**
+     * Get store categories
+     */
+    public function categories()
+    {
+        return $this->belongsToMany('App\Category', 'store_website_categories', 'store_website_id', 'category_id');
+    }
+
+    public function sizeCategory()
+    {
+        return $this->belongsToMany('App\Category', 'brand_category_size_charts', 'store_website_id', 'category_id');
+    }
+
+    public function sizeBrand()
+    {
+        return $this->belongsToMany('App\Brand', 'brand_category_size_charts', 'store_website_id', 'brand_id');
     }
 }

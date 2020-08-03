@@ -10,7 +10,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @if (trim($__env->yieldContent('favicon')))
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @else    
+        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @endif 
+
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -328,7 +333,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-
+                                
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -470,7 +475,15 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
@@ -532,7 +545,12 @@
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-assign')}}">Assign Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -722,6 +740,9 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
                                 </li>
                             </ul>
                         </li>
@@ -1123,13 +1144,10 @@
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/devtask') }}">Tasks</a>
+                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/issue') }}">Issue list</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
@@ -1178,6 +1196,9 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1190,6 +1211,9 @@
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
@@ -1383,7 +1407,10 @@
                                             <a class="dropdown-item" href="{{ url('hubstaff-payment') }}">Payments Report</a>
                                         </li>
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activtiy Notofication</a>
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activity Notofication</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1458,7 +1485,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
 
                                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -1484,6 +1510,9 @@
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
                                         </li>
                                         @if(auth()->user()->checkPermission('category-edit'))
                                         <li class="nav-item dropdown">
@@ -1667,7 +1696,7 @@
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
                         <a id="message-chat-data-box" class="quick-icon"> 
-                           <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
                         </a>

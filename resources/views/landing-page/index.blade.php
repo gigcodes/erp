@@ -33,7 +33,10 @@
 			  				<img src="/images/attach.png" style="cursor: default;">
 			  			</button>
 			  		</a>
-				 </div> 		
+					<button id="update-time-btn" style="color:black;display: none;width: 10%" class="btn btn-sm" data-toggle="modal" data-target="#start-time">
+						Update Time
+					</button>
+				 </div>
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
@@ -68,9 +71,9 @@
   	<div class="modal-dialog" role="document">
   	</div>	
 </div>
-
 @include("landing-page.templates.list-template")
 @include("landing-page.templates.create-website-template")
+@include("landing-page.templates.update-time")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>

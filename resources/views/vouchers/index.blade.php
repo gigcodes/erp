@@ -1,6 +1,6 @@
 @extends('layouts.app')
-
-@section('title', 'Convenience Vouchers')
+@section('favicon' , 'vendor-payments.png')
+@section('title', 'Vendor payments')
 
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
@@ -11,27 +11,28 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb mb-3">
-            <h2 class="page-heading">Convenience Vouchers</h2>
+            <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a>
+              <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+              <a class="btn btn-secondary" href="{{ route('voucher.payment.request') }}">Manual request</a>
+              <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
         </div>
     </div>
-
+    @include('partials.flash_messages')
     <div class="row mb-3">
       <div class="col-sm-12">
         <form action="{{ route('voucher.index') }}" method="GET" class="form-inline align-items-start" id="searchForm">
           <div class="row full-width" style="width: 100%;">
             @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
               <div class="col-md-4 col-sm-12">
-                <div class="form-group mr-3">
-                  <select class="form-control select-multiple" name="user[]" multiple>
-                    @foreach ($users_array as $index => $name)
-                      <option value="{{ $index }}" {{ isset($user) && in_array($index, $user) ? 'selected' : '' }}>{{ $name }}</option>
-                    @endforeach
-                  </select>
-                </div>
+              <select class="form-control select-multiple" name="user_id" id="user-select">
+                  <option value="">Select User</option>
+                  @foreach($users as $key => $user)
+                    <option value="{{ $user->id }}" {{($selectedUser == $user->id) ? 'selected' : ''}}>{{ $user->name }}</option>
+                  @endforeach
+                </select>
               </div>
             @endif
 
@@ -52,103 +53,52 @@
       </div>
     </div>
 
-    @include('partials.flash_messages')
+
 
     <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
           <th width="10%">User</th>
-          <th width="10%">Date</th>
-          <th width="10%">Travel Type</th>
-          <th width="10%">Category</th>
-          <th width="20%">Description</th>
-          <th width="10%">Amount Spent</th>
-          <th width="10%">Amount Paid</th>
+          <th width="8%">Date</th>
+          <th width="25%">Details</th>
+          <th width="8%">Category</th>
+          <th width="7%">Time Spent</th>
+          <th width="7%">Amount</th>
+          <th width="7%">Currency</th>
+          <th width="8%">Amount Paid</th>
           <th width="10%">Balance</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
-        {{-- @foreach ($vouchers as $user_id => $data) --}}
-          {{-- <tr>
-            <td colspan="9"><strong>{{ array_key_exists($user_id, $users_array) ? $users_array[$user_id] : 'Not Existing User' }}</strong></td>
-          </tr> --}}
-          @foreach ($vouchers as $voucher)
+          @foreach ($tasks as $task)
             <tr>
-              <td>{{ array_key_exists($voucher->user_id, $users_array) ? $users_array[$voucher->user_id] : 'Not Existing User' }}</td>
-              <td>{{ \Carbon\Carbon::parse($voucher->date)->format('d-m') }}</td>
-              <td>{{ ucwords($voucher->travel_type) }}</td>
-              <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  @if ($voucher->category)
-                    {{ strlen($voucher->category->title) > 7 ? substr($voucher->category->title, 0, 7) : $voucher->category->title }}
-                  @endif
-                </span>
-
-                <span class="td-full-container hidden">
-                  @if ($voucher->category)
-                    {{ $voucher->category->title }}
-                  @endif
-                </span>
-              </td>
-              <td class="expand-row table-hover-cell">
-                <span class="td-mini-container">
-                  {{ strlen($voucher->description) > 20 ? (substr($voucher->description, 0, 17) . '...') : $voucher->description }}
-                </span>
-
-                <span class="td-full-container hidden">
-                  {{ $voucher->description }}
-                </span>
-              </td>
-              <td>{{ $voucher->amount }}</td>
-              <td>{{ $voucher->paid }}</td>
-              <td>
-                {{ ($voucher->amount - $voucher->paid) * -1 }}
-              </td>
-              <td>
-                @if ($voucher->approved == 2)
-                  <span class="badge">Approved</span>
-                @else
-                  @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                          @if($voucher->resubmit_count >= $voucher->reject_count)
-                    <form class="form-inline" action="{{ route('voucher.approve', $voucher->id) }}" method="POST">
-                      @csrf
-
-                      <button type="submit" class="btn btn-xs btn-secondary">Approve</button>
-
-                    </form>
-                      <button type="button" class="btn btn-xs btn-danger reject-voucher-request" data-toggle="modal" data-target="#rejectVoucherModal" data-voucher="{{ $voucher }}">Reject</button>
-                      @elseif($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
-                      <small>Rejected ({{$voucher->reject_reason}})</small>
-                      @endif
-                  @else
-                      @if($voucher->reject_reason && $voucher->resubmit_count < $voucher->reject_count)
-                              <small>Rejected ({{$voucher->reject_reason}})</small>
-                              <form class="form-inline" action="{{ route('voucher.resubmit', $voucher->id) }}" method="POST">
-                                  @csrf
-
-                                  <button type="submit" class="btn btn-xs btn-info">Resubmit</button>
-                              </form>
-                      @else
-                              <span class="badge">Waiting for Approval</span>
-                      @endif
-                  @endif
-                @endif
-              </td>
-              <td>
-                <div class="d-flex">
-                  <a class="btn btn-image" href="{{ route('voucher.edit', $voucher->id) }}"><img src="/images/edit.png" /></a>
-
-                  {!! Form::open(['method' => 'DELETE','route' => ['voucher.destroy', $voucher->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
-                  {!! Form::close() !!}
-                </div>
-              </td>
+              <td>@if(isset($task->user)) {{  $task->user->name }} @endif </td>
+              <td>{{ \Carbon\Carbon::parse($task->date)->format('d-m') }}</td>
+              <td>{{ str_limit($task->details, $limit = 100, $end = '...') }}</td>
+              <td>@if($task->task_id) Task @elseif($task->developer_task_id) Devtask @else Manual @endif </td>
+              <td>{{ $task->estimate_minutes }}</td>
+              <td>{{ $task->rate_estimated }}</td>
+              <td>{{ $task->currency }}</td>
+              <td>{{ $task->paid_amount }}</td>
+              <td>{{ $task->balance }}</td>
+              <td><a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a></td>
             </tr>
           @endforeach
-        {{-- @endforeach --}}
       </table>
+      {{$tasks->links()}}
     </div>
 
-    {{-- {!! $vouchers->appends(Request::except('page'))->links() !!} --}}
+
+
+    <div id="paymentModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content" id="payment-content">
+                
+            </div>
+        </div>
+    </div>
+
     <div id="rejectVoucherModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
 
@@ -182,15 +132,118 @@
 
         </div>
     </div>
+
+
+
+    <div id="create-manual-payment" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content" id="create-manual-payment-content">
+              
+            </div>
+        </div>
+    </div>
+    
+    <div id="manualPayments" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <form action="" method="POST" >
+                    @csrf
+
+                    <div class="modal-header">
+                        <h4 class="modal-title">Manual payment receipt</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+
+
+                     
+                        <div class="col-md-12 col-lg-12 @if($errors->has('reject_reason')) has-danger @elseif(count($errors->all())>0) has-success @endif">
+                            <div class="form-group">
+                                {!! Form::label('user_id', 'User', ['class' => 'form-control-label']) !!}
+                                <select class="form-control select-multiple" name="user_id" id="user-select" required>
+                                  <option value="">Select User</option>
+                                  @foreach($users as $key => $user)
+                                    <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                  @endforeach
+                                </select>
+                                    @if($errors->has('user_id'))
+                                      <div class="form-control-feedback">{{$errors->first('user_id')}}</div>
+                                    @endif
+                            </div>
+
+
+                            <div class="form-group">
+                                {!! Form::label('billing_start_date', 'Billing start date', ['class' => 'form-control-label']) !!}
+                                {!! Form::date('billing_start_date', null, ['class'=>'form-control  '.($errors->has('billing_start_date')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('billing_start_date'))
+                                      <div class="form-control-feedback">{{$errors->first('billing_start_date')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('billing_end_date', 'Billing end date', ['class' => 'form-control-label']) !!}
+                                {!! Form::date('billing_end_date', null, ['class'=>'form-control  '.($errors->has('billing_end_date')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('billing_end_date'))
+                                      <div class="form-control-feedback">{{$errors->first('billing_end_date')}}</div>
+                                    @endif
+                            </div>
+
+
+
+                            <div class="form-group">
+                                {!! Form::label('worked_minutes', 'Time spent (In minutes)', ['class' => 'form-control-label']) !!}
+                                {!! Form::number('worked_minutes', null, ['class'=>'form-control  '.($errors->has('worked_minutes')?'form-control-danger':(count($errors->all())>0?'form-control-success':''))]) !!}
+                                    @if($errors->has('worked_minutes'))
+                                      <div class="form-control-feedback">{{$errors->first('worked_minutes')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('rate_estimated', 'Amount', ['class' => 'form-control-label']) !!}
+                                {!! Form::number('rate_estimated', null, ['class'=>'form-control  '.($errors->has('rate_estimated')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'required']) !!}
+                                    @if($errors->has('rate_estimated'))
+                                      <div class="form-control-feedback">{{$errors->first('rate_estimated')}}</div>
+                                    @endif
+                            </div>
+
+                            <div class="form-group">
+                                {!! Form::label('remarks', 'Remarks', ['class' => 'form-control-label']) !!}
+                                {!! Form::textarea('remarks', null, ['class'=>'form-control  '.($errors->has('remarks')?'form-control-danger':(count($errors->all())>0?'form-control-success':'')),'rows'=>3]) !!}
+                                    @if($errors->has('remarks'))
+                                      <div class="form-control-feedback">{{$errors->first('remarks')}}</div>
+                                    @endif
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-danger">Submit</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
   <script type="text/javascript">
-    $(document).ready(function() {
-       $(".select-multiple").multiselect();
-    });
+    // $(document).ready(function() {
+    //    $(".select-multiple").multiselect({
+    //     enableFiltering: true,
+    //    });
+    // });
+
+ 
+
+    $('.select-multiple').select2({width: '100%'});
 
     let r_s = '';
     let r_e = '{{ date('y-m-d') }}';
@@ -242,5 +295,75 @@
         var url = "{{ url('voucher') }}/" + voucher.id + '/reject';
         modal.find('form').attr('action', url);
     })
+    
+
+    $(document).on('click', '.create-payment', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/payment/'+thiss.data('id'),
+          type: type,
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#paymentModal').modal('show');
+          $('#payment-content').html(response);
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
+
+    $(document).on('click', '.manual-payment-btn', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/manual-payment',
+          type: type,
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#create-manual-payment').modal('show');
+          $('#create-manual-payment-content').html(response);
+
+          $('#date_of_payment').datetimepicker({
+            format: 'YYYY-MM-DD'
+          });
+          $('.select-multiple').select2({width: '100%'});
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    });
+
+    
+
+    // $(document).on('click', '.submit-manual-receipt', function(e) {
+    //   e.preventDefault();
+    //   var form = $(this).closest("form");
+    //   var thiss = $(this);
+    //   var type = 'POST';
+    //     $.ajax({
+    //       url: '/voucher/payment-request',
+    //       type: type,
+    //       dataType: 'json',
+    //       data: form.serialize(),
+    //       beforeSend: function() {
+    //         $(thiss).text('Loading');
+    //       }
+    //     }).done( function(response) {
+    //       // $(thiss).closest('tr').removeClass('row-highlight');
+    //       // $(thiss).prev('span').text('Approved');
+    //       // $(thiss).remove();
+    //     }).fail(function(errObj) {
+    //       alert("Could not change status");
+    //     });
+    // });
+
   </script>
 @endsection

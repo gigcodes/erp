@@ -12,6 +12,7 @@
 		        <th width="10%">Reason</th>
 		        <th width="10%">Created at</th>
 		        <th width="10%">Updated at</th>
+		        <th width="10%">Status</th>
 		        <th width="10%">Action</th>
 		      </tr>
 		    </thead>
@@ -29,9 +30,15 @@
 			        <td>{{:prop.reason}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>{{:prop.updated_at}}</td>
-			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-edit-reason">
+			        <td>{{if prop.status == 1}} Approved {{else}} Pending {{/if}}</td>
+			        <td>
+					<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-reason">
 			        	<i class="fa fa-comment"></i>
-			        </button></td>
+			        </button>
+					<button type="button" data-id="{{>prop.id}}" class="btn btn-change-status">
+			        	<i class="fa fa-edit"></i>
+			        </button>
+					</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
@@ -63,6 +70,40 @@
 				        <div class="col-md-12">
 					    	<div class="form-group">
 					      		<button class="btn btn-secondary store-reason-btn">Save</button>
+					    	</div>
+				    	</div>
+				  	</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+</script>
+
+
+<script type="text/x-jsrender" id="template-change-status">
+<div class="modal-content">
+   <div class="modal-header">
+      <h5 class="modal-title">Change Status</h5>
+      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+      	<span aria-hidden="true">&times;</span>
+      </button>
+   </div>
+   <div class="modal-body">
+		<div class="row">
+			<div class="col-lg-12">
+				<form>
+					<?php echo csrf_field(); ?>
+					<input type="hidden" name="id" value="{{:id}}">
+					<div class="row">
+				  		<div class="col-md-12">
+				    		<div class="form-group">
+					         	<?php echo Form::select("status",["0" => "Pending","1" => "Approved"],null,["class" => "form-control"]); ?>
+					         </div>
+				        </div> 
+				        <div class="col-md-12">
+					    	<div class="form-group">
+					      		<button class="btn btn-secondary submit-change-status">Change</button>
 					    	</div>
 				    	</div>
 				  	</div>

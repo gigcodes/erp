@@ -14,6 +14,11 @@ use App\User;
 use Auth;
 use Carbon\Carbon;
 use Illuminate\Pagination\LengthAwarePaginator;
+use App\DeveloperTask;
+use App\Task;
+use App\PaymentReceipt;
+use App\PaymentMethod;
+use App\Payment;
 
 class VoucherController extends Controller
 {
@@ -24,20 +29,67 @@ class VoucherController extends Controller
 
     public function index(Request $request)
     {
-        $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
-        $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
-
+        // dd($request->all());
+        // $start = $request->range_start ? $request->range_start : Carbon::now()->startOfWeek();
+        // $end = $request->range_end ? $request->range_end : Carbon::now()->endOfWeek();
+        $start = $request->range_start ? $request->range_start : date("Y-m-d", strtotime('monday this week'));
+        $end = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
+        $selectedUser = $request->user_id ? $request->user_id : null;
+        $tasks = PaymentReceipt::where('status','Pending');
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
-            if ($request->user[0] != null) {
-                $vouchers = Voucher::whereIn('user_id', $request->user)->whereBetween('date', [$start, $end]);
+            if ($request->user_id != null && $request->user_id != "") {
+                $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=' , $start)->where('date', '<=' , $end);
             } else {
-                $vouchers = Voucher::whereBetween('date', [$start, $end]);
+                $tasks = $tasks->where('date', '>=' , $start)->where('date', '<=' , $end);
             }
         } else {
-            $vouchers = Voucher::where('user_id', Auth::id())->whereBetween('date', [$start, $end]);
+            $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=' , $start)->where('date', '<=' , $end);
         }
 
-        $vouchers = $vouchers->orderBy('date', 'DESC')->get();
+        $tasks = $tasks->orderBy('id','desc')->paginate(10)->appends(request()->except('page'));
+        foreach($tasks as $task) {
+            $task->user;
+
+            $totalPaid = Payment::where('payment_receipt_id',$task->id)->sum('amount');
+            if($totalPaid) {
+                $task->paid_amount = number_format($totalPaid,2);
+                $task->balance = $task->rate_estimated - $totalPaid; 
+                $task->balance = number_format($task->balance,2);
+            }
+            else {
+                $task->paid_amount = 0; 
+                $task->balance = $task->rate_estimated;
+                $task->balance = number_format($task->balance,2); 
+            }
+            // $task->assignedUser;
+            if($task->task_id) {
+                $task->taskdetails = Task::find($task->task_id);
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task_details;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->approximate;
+                    }
+                }
+            }
+            else if($task->developer_task_id) {
+                $task->taskdetails = DeveloperTask::find($task->developer_task_id);
+                $task->estimate_minutes = 0;
+                if($task->taskdetails) {
+                    $task->details = $task->taskdetails->task;
+                    if(!$task->worked_minutes) {
+                        $task->estimate_minutes = $task->taskdetails->estimate_minutes;
+                    }
+                }
+            }
+            else {
+                $task->details = $task->remarks;
+                $task->estimate_minutes = $task->worked_minutes;
+            }  
+        }
+
+
+        // $vouchers = $vouchers->orderBy('date', 'DESC')->get();
         // dd($vouchers);
         //
         // $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -50,12 +102,13 @@ class VoucherController extends Controller
         //
         // dd($vouchers);
         // paginate(Setting::get('pagination'));
-        $users_array = Helpers::getUserArray(User::all());
-
+        // $users_array = Helpers::getUserArray(User::all());
+        $users = User::all();
         return view('vouchers.index', [
-            'vouchers' => $vouchers,
-            'users_array' => $users_array,
-            'user' => $request->user
+            'tasks' => $tasks,
+            'users' => $users,
+            'user' => $request->user,
+            'selectedUser' => $selectedUser
         ]);
     }
 
@@ -253,5 +306,92 @@ class VoucherController extends Controller
         Voucher::find($id)->delete();
 
         return redirect()->route('voucher.index')->with('success', 'You have successfully deleted a cash voucher');
+    }
+
+
+    public function userSearch()
+    {
+      $term = request()->get("q", null);
+      $search = User::where('name', 'LIKE', "%" . $term . "%")
+        ->orWhere('email', 'LIKE', "%" . $term . "%")->get();
+      return response()->json($search);
+    }
+
+
+    public function createPaymentRequest(Request $request) {
+        $this->validate($request, [
+            'date' => 'required',
+            'amount' => 'required',
+            'currency' => 'required'
+        ]);
+
+        $input = $request->except('_token');
+        $input['status'] = 'Pending';
+        $input['rate_estimated'] = $input['amount'];
+        PaymentReceipt::create($input);
+        return redirect()->back()->with('success','Successfully created');
+    }
+
+    public function paymentRequest() {
+        $users = User::all();
+        return view("vouchers.payment-request",compact('users'));
+    }
+
+    public function viewPaymentModal($id) {
+        $task = PaymentReceipt::find($id);
+        if($task->user_id) {
+            $task->userName = User::find($task->user_id)->name;
+        }
+        $paymentMethods = PaymentMethod::all();
+        return view("vouchers.payment-modal",compact('task','paymentMethods'));
+    }
+
+    public function submitPayment($id, Request $request) {
+        $this->validate($request, [
+            'date' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
+            'payment_method_id' => 'required'
+        ]);
+        $preceipt = PaymentReceipt::find($id);
+        if(!$preceipt) {
+            return redirect()->back()->with('warning','Payment receipt not found');
+        }
+        $totalPaid = Payment::where('payment_receipt_id',$preceipt->id)->sum('amount');
+        $newTotal = $totalPaid + $request->amount;
+        if($newTotal > $preceipt->rate_estimated) {
+            return redirect()->back()->with('warning','Amount can not be greater than receipt amount');
+        }
+        $input = $request->except('_token');
+        $input['payment_receipt_id'] = $preceipt->id;
+       
+        Payment::create($input);
+        
+      
+        if($newTotal >= $preceipt->rate_estimated) {
+            $preceipt->update(['status' => 'Done']);
+        }
+        return redirect()->back()->with('success','Successfully submitted');
+    }
+
+
+    public function viewManualPaymentModal() {
+        $users = User::all(); 
+        $paymentMethods = PaymentMethod::all();
+        return view("vouchers.manual-payment-modal",compact('users','paymentMethods'));
+    }
+
+
+    public function manualPaymentSubmit(Request $request) {
+        $this->validate($request, [
+            'date' => 'required',
+            'user_id' => 'required',
+            'amount' => 'required',
+            'currency' => 'required',
+            'payment_method_id' => 'required'
+        ]);
+        $input = $request->except('_token');       
+        Payment::create($input);
+        return redirect()->back()->with('success','Successfully submitted');
     }
 }

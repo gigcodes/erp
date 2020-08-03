@@ -100,23 +100,34 @@
         </div>
     </form>
     <div class="row">
-        <div class="col col-md-9">
-            <div class="col-md-3">
+        <div class="col col-md-7">
+            <div class="col-md-4">
                 Status Ok count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Ok')->where('supplier_status_id', 1)->count()}}
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 Status Rework count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'Rework')->where('supplier_status_id', 1)->count()}}
             </div>
-            <div class="col-md-3">
+            <div class="col-md-4">
                 Status In Process count = {{\App\Scraper::join("suppliers as s","s.id","scrapers.supplier_id")->where('scrapers.status', 'In Process')->where('supplier_status_id', 1)->count()}}
             </div>
         </div>    
-        <div class="col">
-            <div style="float: right;" class="col-md-3">
+        <div class="col col-md-5">
+            <div class="col-md-4">
+                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildScraper">
+                  <span class="glyphicon glyphicon-th-plus"></span> Add Child Scraper
+                </button>
+            </div>
+            <div class="col-md-4">
                 <button type="button" class="btn btn-default btn-sm get-latest-remark">
                   <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
                 </button>
             </div>
+            <div class="col-md-4">
+                <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addRemarkModal">
+                  <span class="glyphicon glyphicon-th-plus"></span> Add Note
+                </button>
+            </div>
+            
          </div>   
     </div>
     <?php $totalCountedUrl = 0; ?>
@@ -184,7 +195,7 @@
 
                                 $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
                             @endphp
-                            <td width="1%">{{ ++$i }}</td>
+                            <td width="1%">{{ ++$i }} <br>@if($supplier->getChildrenScraperCount($supplier->scraper_name) != 0) <button onclick="showHidden('{{ $supplier->scraper_name }}')" class="btn btn-link"><i class="fa fa-caret-down" style="font-size:24px"></i>  </button> @endif</td>
                             <td width="8%"><a href="/supplier/{{$supplier->id}}">{{ ucwords(strtolower($supplier->supplier)) }}<br>{{ \App\Helpers\ProductHelper::getScraperIcon($supplier->scraper_name) }}</a>
                                 @if(substr(strtolower($supplier->supplier), 0, 6)  == 'excel_')
                                     &nbsp;<i class="fa fa-file-excel-o" aria-hidden="true"></i>
@@ -204,7 +215,9 @@
                             <td width="10%">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
                                     {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
+                                    <br/>
                                 @endif
+                                {{ $supplier->last_completed_at }} 
                             </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
@@ -233,6 +246,8 @@
                                 <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
                                 <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
+                                <button type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
+                                
                             </td>
                             </tr>
                             <tr class="hidden_row_{{ $supplier->id  }} dis-none" data-eleid="{{ $supplier->id }}">
@@ -287,6 +302,146 @@
                                     </div>
                                 </td>
                             </tr>
+                            @if($supplier->getChildrenScraper($supplier->scraper_name))
+                                @if(count($supplier->getChildrenScraper($supplier->scraper_name)) != 0)
+                                    {{ $childCount = 0 }}
+                                    @foreach($supplier->getChildrenScraper($supplier->scraper_name) as $childSupplier)
+                                    @php $data = null; @endphp
+                                    @foreach($scrapeData as $tmpData)
+                                        @if ( !empty($tmpData->website) && $tmpData->website == $childSupplier->scraper_name )
+                                            @php $data = $tmpData; $arMatchedScrapers[] = $childSupplier->scraper_name @endphp
+                                        @endif
+                                    @endforeach
+                                    @php
+                                        // Set percentage
+                                        if ( isset($data->errors) && isset($data->total) ) {
+                                            $percentage = ($data->errors * 100) / $data->total;
+                                        } else {
+                                            $percentage = 0;
+                                        }
+
+                                        // Show correct background color
+                                        $hasError =  false;
+                                        $hasWarning = false;
+                                        if ( (!empty($data) && $data->running == 0) || $data == null ) {
+                                            $hasError =  true;
+                                            echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                        } elseif ( $percentage > 25 ) {
+                                            $hasWarning = true;
+                                            echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                        } else {
+                                            echo '<tr class="history-item-scrap" data-priority = "'.$supplier->scraper_priority.'" data-id="'.$supplier->id.'">';
+                                        }
+
+                                        if($status == 1 && !$hasError) {
+                                            continue;
+                                        }
+
+                                        $remark = \App\ScrapRemark::select('remark')->where('scraper_name',$supplier->scraper_name)->orderBy('created_at','desc')->first();
+                                    @endphp
+                                    <tr style="display: none;" class="{{ $supplier->scraper_name }}">
+                                    <td width="1%">{{ ++$childCount }}</td>
+                                    <td width="8%"><a href="/supplier/{{$childSupplier->supplier_id}}">{{ ucwords(strtolower($childSupplier->scraper_name)) }}
+                                    </td>
+                                    <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
+                                    <td width="10%">{{ $childSupplier->server_id }}</td>
+                            
+                                    <td width="10%" style="text-right">
+                                        {{ $childSupplier->scraper_start_time }}h
+                                    </td>
+                                    <td width="10%">
+                                        @if(isset($childSupplier->scraper_name) && !empty($childSupplier->scraper_name) &&  isset($lastRunAt[$childSupplier->scraper_name]))
+                                            {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
+                                        @endif
+                                    </td>
+                                    
+                                    <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
+                                    <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
+                                    <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
+                                    <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
+                                    <td width="10%">
+                                        {{ ($childSupplier->scraperMadeBy) ? $childSupplier->scraperMadeBy->name : "N/A" }}
+                                    </td>
+                                    <td width="10%">
+                                        {{ \App\Helpers\DevelopmentHelper::scrapTypeById($childSupplier->scraper_type) }}
+                                    </td>
+                                    <td width="10%">
+                                        {{ ($childSupplier->scraperParent) ? $childSupplier->scraperParent->scraper_name : "N/A" }}
+                                    </td>
+                                    <td width="10%">
+                                        {{ isset(\App\Helpers\StatusHelper::getStatus()[$childSupplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$childSupplier->next_step_in_product_flow] : "N/A" }}
+                                    </td>
+                                    <td width="10%">
+                                        {{ !empty($childSupplier->scrapers_status) ? $childSupplier->scrapers_status : "N/A" }}
+                                    </td>
+                                    <td width="10%">
+                                        <button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $childSupplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
+                                        <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $childSupplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
+                                        <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($childSupplier->scraper_name,$childSupplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
+                                        <button type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $childSupplier->scraper_name }}' , '{{ $childSupplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
+                                        
+                                    </td>
+                                    </tr>
+                                    <tr class="hidden_row_{{ $childSupplier->id  }} dis-none" data-eleid="{{ $childSupplier->id }}">
+                                        <td colspan="3">
+                                            <label>Logic:</label>
+                                            <div class="input-group">
+                                                <textarea class="form-control scraper_logic" name="scraper_logic"><?php echo $childSupplier->scraper_logic; ?></textarea>
+                                                <button class="btn btn-sm btn-image submit-logic" data-vendorid="1"><img src="/images/filled-sent.png"></button>
+                                            </div>
+                                        </td>
+                                        <td colspan="3">
+                                            <label>Start Time:</label>
+                                            <div class="input-group">
+                                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown, $childSupplier->scraper_start_time, ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                                            </div>
+                                        </td>
+                                        <td colspan="3">
+                                            <label>Made By:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, $childSupplier->scraper_made_by, ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                                            </div>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>Type:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $childSupplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
+                                            </div>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>Parent Scrapper:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::select("parent_supplier_id", [0 => "N/A"] + $allScrapperName, $childSupplier->parent_supplier_id, ["class" => "form-control parent_supplier_id select2", "style" => "width:100%;"]); ?>
+                                            </div>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>Next Step:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::select("next_step_in_product_flow", [0 => "N/A"] + \App\Helpers\StatusHelper::getStatus(), $childSupplier->next_step_in_product_flow, ["class" => "form-control next_step_in_product_flow select2", "style" => "width:100%;"]); ?>
+                                            </div>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>Server Id:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::text("server_id",$childSupplier->server_id, ["class" => "form-control server-id-update"]); ?>
+                                                <button class="btn btn-sm btn-image server-id-update-btn" data-vendorid="<?php echo $childSupplier->id; ?>"><img src="/images/filled-sent.png" style="cursor: default;"></button>
+                                            </div>
+                                        </td>
+                                        <td colspan="2">
+                                            <label>Status:</label>
+                                            <div class="form-group">
+                                                <?php echo Form::select("status", ['' => "N/A", 'Ok' => 'Ok', 'Rework' => 'Rework', 'In Process' => 'In Process'], $childSupplier->scrapers_status, ["class" => "form-control scrapers_status", "style" => "width:100%;"]); ?>
+                                            </div>
+                                        </td>
+                                     </tr>
+                                    @endforeach
+                                   
+                                @endif
+                            @endif
                     @endif
                     @endforeach
                 </table>
@@ -343,6 +498,103 @@
             </div>
         </div>
     </div>
+
+    <div id="addRemarkModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Note</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="{{ route('scrap/add/note') }}" method="POST" enctype="multipart/form-data">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="form-group">
+                            <label>Scraper Name</label>
+                            <select name="scraper_name" class="form-control select2" required>
+                                @forelse ($allScrapper as $item)
+                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Note</label>
+                            <textarea rows="2" name="remark" class="form-control" placeholder="Note" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Screenshot</label>
+                            <input type="file" class="form-control" name="image">
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>
+
+    <div id="addChildScraper" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Add Child Scraper</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                <form action="{{ route('save.childrenScraper') }}" method="POST">
+                    <div class="modal-body">
+                        @csrf
+                        <div class="form-group">
+                            <label>Select Scraper</label>
+                            <select name="scraper_name" class="form-control select2" required>
+                                @forelse ($allScrapper as $item)
+                                    <option value="{{ $item }}">{{ $item }}</option>
+                                @empty
+                                @endforelse
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Scraper Name</label>
+                            <input type="integer" name="name" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <strong>Run Gap:</strong>
+                            <input type="integer" name="run_gap" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <strong>Start Time:</strong>
+                            <div class="input-group">
+                                <?php echo Form::select("start_time", ['' => "--Time--"] + $timeDropDown,'', ["class" => "form-control start_time select2", "style" => "width:100%;"]); ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <strong>Made By:</strong>
+                            <div class="form-group">
+                                <?php echo Form::select("scraper_made_by", ["" => "N/A"] + $users, '', ["class" => "form-control scraper_made_by select2", "style" => "width:100%;"]); ?>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <strong>Server Id:</strong>
+                            <div class="form-group">
+                                <?php echo Form::text("server_id",'', ["class" => "form-control server-id-update"]); ?>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-default">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+      </div>  
+      
 @endsection
 
 @section('scripts')
@@ -403,6 +655,8 @@
 
             var name = $(this).data('name');
 
+            console.log(name)
+            
             $('#add-remark input[name="id"]').val(name);
 
             $.ajax({
@@ -639,6 +893,36 @@
 
             });
         });
+
+        function restartScript(name,server_id) {
+            var x = confirm("Are you sure you want to restart script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/restart-script',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert('Script Restarted Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                })
+                .error(function() {
+                    alert('Please check if server is running')
+                });
+            else
+                return false;    
+            
+        }
+
+
+        function showHidden(name) {
+            $("."+name).toggle();
+        }
+
 
         $(".select2").select2();
     </script>

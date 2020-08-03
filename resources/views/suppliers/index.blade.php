@@ -22,7 +22,7 @@
 
     .wrapword {
         white-space: -moz-pre-wrap !important;  /* Mozilla, since 1999 */
-        white-space: -webkit-pre-wrap;          /* Chrome & Safari */ 
+        white-space: -webkit-pre-wrap;          /* Chrome & Safari */
         white-space: -pre-wrap;                 /* Opera 4-6 */
         white-space: -o-pre-wrap;               /* Opera 7 */
         white-space: pre-wrap;                  /* CSS3 */
@@ -30,7 +30,9 @@
         word-break: break-all;
         white-space: normal;
     }
-
+    .erp-btn-list{
+      display: flex;
+    }
   </style>
 
 
@@ -75,16 +77,17 @@
 							<option value="not_updated" {{ isset($type) && $type == 'not_updated' ? 'selected' : '' }}>Not Updated</option>
 							<option value="updated" {{ isset($type) && $type == 'updated' ? 'selected' : '' }}>Updated</option>
 							</select>
-					</div>
+          </div>
+
                     <div class="form-group col-md-3">
                         {!!Form::select('supplier_status_id', ["" => "select supplier status"] + $supplierstatus,request()->get('supplier_status_id'), ['class' => 'form-control form-control-sm'])!!}
                     </div>
                 </div>
                 <div class="row">
-					
+
 					<div class="form-group col-md-3">
 							{!!Form::select('supplier_category_id', ["" => "select category"] + $suppliercategory, request()->get('supplier_category_id'), ['class' => 'form-control form-control-sm'])!!}
-						
+
 					</div>
 					{{-- <div class="form-group col-md-3">
 							<select class="form-control select-multiple2" style="width: 100%" name="brand[]" data-placeholder="Select brand.." multiple>
@@ -113,7 +116,15 @@
 							["class"=> "form-control select-multiple2", "style" => "width: 100%"]
 						); ?>
                     </div>
-                    
+          <div class="form-group col-md-3">
+							<select class="form-control" name="scrappertype">
+							<option value="">Select Scrapper</option>
+							<option value="1" {{ isset($scrappertype) && $scrappertype == '1' ? 'selected' : '' }}>SCRAPPER</option>
+							<option value="2" {{ isset($scrappertype) && $scrappertype == '2' ? 'selected' : '' }}>EXCEL</option>
+							<option value="3" {{ isset($scrappertype) && $scrappertype == '3' ? 'selected' : '' }}>NONE</option>
+							</select>
+					</div>
+
 					<div class="form-group ml-3">
 						<div class="col-md-3">
 							<input type="checkbox" name="status" id="status" value="1" {{ request()->get('status') == '1' ? 'checked' : ''}}><label for="status">Active</label>
@@ -132,8 +143,9 @@
           <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
           <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
           <button type="button" class="btn btn-secondary ml-3" id="add_category_btn" data-toggle="modal" data-target="#categoryCreateModal">Add Category</button>
+          <button type="button" class="btn btn-secondary ml-3" id="add_subcategory_btn" data-toggle="modal" data-target="#subcategoryCreateModal">Add Sub Category</button>
           <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
-        </div>   
+        </div>
     </div>
 
     @include('partials.flash_messages')
@@ -148,20 +160,23 @@
             <th width="5%">ID</th>
             <th width="10%">Name</th>
             <th width="10%">Address</th>
+            <th width="5%">Scrapper</th>
               {{-- <th>Source</th> --}}
               <th>Designers</th>
               <th>Category</th>
+              <th>Sub Category</th>
               {{-- <th>No.of Brands</th> --}}
             {{-- <th width="10%">Social handle</th> --}}
             {{-- <th>Agents</th> --}}
             {{-- <th width="5%">GST</th> --}}
             {{-- <th width="20%">Order</th> --}}
             {{-- <th width="20%">Emails</th> --}}
-            <th width="35%">Communication</th>
+            <th width="45%">Communication</th>
             <th>Status</th>
-            <th>Created At</th>
-            <th>Updated At</th>
+            {{-- <th>Created At</th> --}}
+            {{-- <th>Updated At</th> --}}
             <th>Updated By</th>
+            <th>Inventory Lifetime (Days)</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
@@ -169,10 +184,12 @@
         <tbody>
           @foreach ($suppliers as $supplier)
 			<tr>
-				<td>{{ $supplier->id }}</td>
+				<td>{{ $supplier->id }}
+        <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
+        </td>
 				<td>
-					{{ $supplier->supplier }}
-
+					{{ $supplier->supplier }} <br>
+            <div class="erp-btn-list">
 					@if ($supplier->is_flagged == 1)
 					<button type="button" class="btn btn-image flag-supplier" data-id="{{ $supplier->id }}"><img src="/images/flagged.png" /></button>
 					@else
@@ -180,14 +197,7 @@
 					@endif
 					@if($supplier->phone)
 					<button type="button" class="btn btn-image call-select popup" data-id="{{ $supplier->id }}"><img src="/images/call.png"/></button>
-					<div class="numberSend" id="show{{ $supplier->id }}">
-					<select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
-						<option disabled selected>Select Number</option>
-						@foreach(\Config::get("twilio.caller_id") as $caller)
-						<option value="{{ $caller }}">{{ $caller }}</option>
-						@endforeach
-					</select>
-					</div>
+
 					@if ($supplier->is_blocked == 1)
 						<button type="button" class="btn btn-image block-twilio" data-id="{{ $supplier->id }}"><img src="/images/blocked-twilio.png"/></button>
 					@else
@@ -196,13 +206,16 @@
 					@endif
 					<button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder" data-id="{{ $supplier->id }}" data-frequency="{{ $supplier->frequency ?? '0' }}" data-reminder_message="{{ $supplier->reminder_message }}">
 						<img src="{{ asset('images/alarm.png') }}" alt=""  style="width: 18px;">
-					</button>
-
-					<br>
-					<span class="text-muted">
-					{{ $supplier->phone }}
-					<br>
-					<a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+          </button>
+          </div>
+          <div class="numberSend" id="show{{ $supplier->id }}">
+					<select class="form-control call-twilio" data-context="suppliers" data-id="{{ $supplier->id }}" data-phone="{{ $supplier->phone }}">
+						<option disabled selected>Select Number</option>
+						@foreach(\Config::get("twilio.caller_id") as $caller)
+						<option value="{{ $caller }}">{{ $caller }}</option>
+						@endforeach
+					</select>
+					</div>
 					@if ($supplier->has_error == 1)
 						<span class="text-danger">!!!</span>
 					@endif
@@ -230,16 +243,30 @@
 					</div>
 					</p>
 					</span>
-					<br>
 				</td>
 				<td class="expand-row">
 					<div class="td-mini-container">
 						{{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
 					</div>
+          <div>
+          <span class="text-muted">
+					{{ $supplier->phone }}</span>
+          </div>
+          <div>
+          <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+          </div>
 					<div class="td-full-container hidden">
 						{{ $supplier->address }}
 					</div>
-				</td>
+        </td>
+        <td>
+        <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
+              <option value="">Select</option>
+              <option value="1" {{ ($supplier->scrapper == '1') ? 'selected' : ''}} >SCRAPPER</option>
+              <option value="2" {{ ($supplier->scrapper == '2') ? 'selected' : ''}}>EXCEL</option>
+              <option value="3" {{ ($supplier->scrapper == '3') ? 'selected' : ''}}>NONE</option>
+        </select>
+        </td>
 				{{-- <td>{{ $supplier->source }}</td> --}}
 				<td class="expand-row">
 					@if(strlen($supplier->brands) > 4)
@@ -261,9 +288,18 @@
                 </td>
                 <td>
                     <select name="supplier_cat" class="form-control supplier_cat" data-supplier-id="{{ $supplier->id }}">
-                        <option value="">Select<option>
+                        <option value="">Select</option>
                         @forelse ($suppliercategory as $key => $item)
                             <option value="{{ $key }}" {{ ($supplier->supplier_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </td>
+                <td>
+                    <select name="supplier_subcat" class="form-control supplier_subcat" data-supplier-id="{{ $supplier->id }}">
+                        <option value="">Select</option>
+                        @forelse ($suppliersubcategory as $key => $item)
+                            <option value="{{ $key }}" {{ ($supplier->supplier_sub_category_id == $key) ? 'selected' : ''}} >{{ $item }}</option>
                         @empty
                         @endforelse
                     </select>
@@ -332,9 +368,12 @@
 					<td>
 						<input class="supplier-update-status" type="checkbox" data-id="{{ $supplier->id }}" <?php echo ($supplier->supplier_status_id == 1) ? "checked" : "" ?> data-toggle="toggle" data-onstyle="secondary" data-width="10">
 					</td>
-					<td>{{ $supplier->created_at }}</td>
-					<td>{{ $supplier->updated_at }}</td>
+					{{-- <td>{{ $supplier->created_at }}</td> --}}
+					{{-- <td>{{ $supplier->updated_at }}</td> --}}
 					<td>{{ $supplier->updated_by_name }}</td>
+					<td>
+          <input class="inventory_lifetime" style="width:50px;"  type="text" data-supplier-id="{{ $supplier->id }}" value="{{ $supplier->inventory_lifetime }}" data-width="10">
+          </td>
 				<td>
 					<div style="min-width: 100px;">
 						<a href="{{ route('supplier.show', $supplier->id) }}" class="btn  d-inline btn-image" href=""><img src="/images/view.png" /></a>
@@ -343,7 +382,7 @@
 						<button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-id="{{ $supplier->id }}" data-type="supplier"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
 						<button type="button" class="btn btn-image edit-supplier d-inline" data-toggle="modal" data-target="#supplierEditModal" data-supplier="{{ json_encode($supplier) }}"><img src="/images/edit.png" /></button>
 						<button type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $supplier->id }}"><img src="/images/remark.png" /></button>
-						
+
 						{!! Form::open(['method' => 'DELETE','route' => ['supplier.destroy', $supplier->id],'style'=>'display:inline']) !!}
 						<button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
 						{!! Form::close() !!}
@@ -353,7 +392,6 @@
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
                         @endif
-                        <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
 					</div>
 				</td>
 				</tr>
@@ -876,7 +914,7 @@
       });
 
       // $(document).on('change', '.call-twilio1', function() {
-        
+
       //   console.log('hello');
       //   var id = $(this).data('id');
       //   var numberToCall = $(this).data('phone');
@@ -926,7 +964,7 @@
 
               rawBrands = selectAllBrands + ' ' + rawBrands;
           }
-          
+
           $('#brandRawList').html(rawBrands);
       }
 
@@ -977,7 +1015,7 @@
                   id: brandUpdateSupplierId,
                   newBrandData: newBrands,
                   _token: "{{ csrf_token() }}"
-              },            
+              },
               success: function() {
                   alert('Brands updated successfully');
                   $('#updateBrand').modal('hide');
@@ -999,7 +1037,7 @@
                       id: brandUpdateSupplierId,
                       removeBrandData: removeBrand,
                       _token: "{{ csrf_token() }}"
-                  },            
+                  },
                   success: function(data) {
                       showScrapedBrands(data.scrapedBrands);
                       showRawScrapedBrands(data.scrapedBrands, data.scrapedBrandsRaw);
@@ -1012,7 +1050,7 @@
       $(document).ready(function() {
           $(".select-multiple").multiselect();
           $(".select-multiple2").select2();
-      }); 
+      });
 
       $('.manageScrapedBrandsSave').on('click', function() {
         if(confirm("Are you sure you want to perform this operation?")){
@@ -1022,17 +1060,17 @@
                 type: 'POST',
                 data: {
                     selectedBrands: $('.newBrandSelection:checked').serializeArray
-                    ().map(function(obj) { 
+                    ().map(function(obj) {
                       return obj.value;
                     }),
-                    _token: "{{ csrf_token() }}" 
-                },            
+                    _token: "{{ csrf_token() }}"
+                },
                 success: function(data) {
                    alert(data);
                    location.reload();
                 }
             });
-          }  
+          }
       });
 
       $(document).on('change', '.change-whatsapp-no', function () {
@@ -1086,13 +1124,56 @@
                     toastr["success"](data.message);
                 }
             }).fail(function(error) {
-                
+
             })
       });
 
+    $(document).on('change', '.supplier_subcat', function() {
+        var sub_cat = $(this).val();
+        var supplierId = $(this).data('supplier-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/subcategory') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                supplier_sub_category_id : sub_cat
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            location.reload();
+        }).fail(function(error) {
+
+        })
+    });
+
+   $(document).on('keypress', '.inventory_lifetime', function(e) {
+    if(e.which == 13) {
+        var inventory_lifetime = $(this).val();
+        var supplierId = $(this).data('supplier-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/inventorylifetime') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                inventory_lifetime : inventory_lifetime
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+
+        })
+      }
+    });
+
     $(document).on('change', '.supplier_cat', function() {
         var cat = $(this).val();
-        alert(cat);
         var supplierId = $(this).data('supplier-id');
         $.ajax({
             type: "POST",
@@ -1106,9 +1187,30 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            window.reload();
+            location.reload();
         }).fail(function(error) {
-            
+
+        })
+    });
+
+    $(document).on('change', '.scrapper', function() {
+        var scrapper = $(this).val();
+        var supplierId = $(this).data('scrapper-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/scrapper') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                scrapper : scrapper
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            location.reload();
+        }).fail(function(error) {
+
         })
     });
 
