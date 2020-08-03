@@ -14,7 +14,7 @@ class AddScrapFieldInScrapRemarksTable extends Migration
     public function up()
     {
         Schema::table('scrap_remarks', function (Blueprint $table) {
-            //
+            $table->string('scrap_field')->nullable();
         });
     }
 

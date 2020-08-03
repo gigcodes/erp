@@ -35,6 +35,8 @@ class ScrapStatisticsController extends Controller
 
         $timeDropDown = self::get_times();
 
+        $serverIds = Scraper::groupBy('server_id')->where('server_id','!=',NULL)->pluck('server_id');
+
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
             ->select('scrapers.id as scrapper_id','scrapers.*', "s.*", "scrapers.full_scrape as scrapers_status")
@@ -120,7 +122,7 @@ class ScrapStatisticsController extends Controller
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
         
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
+        return view('scrap.stats', compact('activeSuppliers','serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
     }
 
     /**
@@ -216,10 +218,8 @@ class ScrapStatisticsController extends Controller
 
     public function showHistory(Request $request)
     {
-        dd($request->all());
-        $name = $request->input('name');
 
-        $remarks = ScrapRemark::where('id', $request->search)->where('scrap_field',$request->field)->get();
+        $remarks = ScrapRemark::where('scrap_id', $request->search)->where('scrap_field',$request->field)->get();
 
         return response()->json($remarks, 200);
     }
@@ -319,7 +319,8 @@ class ScrapStatisticsController extends Controller
             $remark_entry = ScrapRemark::create([
                 'scraper_name' => $suplier->scraper_name,
                 'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                'user_name' => Auth::user()->name
+                'user_name' => Auth::user()->name,
+                'scrap_field' => $fieldName
             ]);
 
         }
@@ -380,7 +381,8 @@ class ScrapStatisticsController extends Controller
                 'scrap_id' => $suplier->id,
                 'scraper_name' => $suplier->scraper_name,
                 'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                'user_name' => Auth::user()->name
+                'user_name' => Auth::user()->name,
+                'scrap_field' => $fieldName
             ]);
 
         }

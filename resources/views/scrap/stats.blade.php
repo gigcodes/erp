@@ -208,14 +208,20 @@
                                 <?php } ?>
                             </td>
                             <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td> -->
-                            <td width="10%">{{ $supplier->server_id }}
+                            <td width="10%">
                             <div class="form-group">
-                                        <?php echo Form::select("scraper_type", ['' => '-- Select Type --'] + \App\Helpers\DevelopmentHelper::scrapTypes(), $supplier->scraper_type, ["class" => "form-control scraper_type select2", "style" => "width:100%;"]) ?>
+                                    <select style="width:100%;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="server_id">
+                                        <option value="">Select</option>
+                                        @foreach($serverIds as $serverId)
+                                        <option value="{{$serverId}}" {{$supplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
+                                        @endforeach
+                                    </select>
+                                      <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                             </div>
                             </td>
                             <td width="10%" style="text-right">
                                 <div class="form-group">
-                                        <select name="scraper_start_time" class="form-control scraper_start_time_change" data-id="{{$supplier->scrapper_id}}">
+                                        <select name="scraper_start_time" class="form-control scraper_field_change" data-id="{{$supplier->scrapper_id}}" data-field="scraper_start_time">
                                         <option value="">Select</option>
                                         @for($i=1; $i<=24;$i++)
                                         <option value="{{$i}}" {{$supplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
@@ -550,6 +556,29 @@
         </div>
       </div>
 
+
+
+      <div id="remarkHistory" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Remark History</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+
+                    <div class="modal-body" id="remark-history-content">
+                      
+                        
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    </div>
+            </div>
+        </div>
+      </div>
+
+
     <div id="addChildScraper" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <!-- Modal content-->
@@ -778,16 +807,21 @@
             });
         });
 
-        $(document).on("change", ".scraper_start_time_change", function () {
+        $(document).on("change", ".scraper_field_change", function () {
             // var tr = $(this).closest("tr");
             var id = $(this).data("id");
+            var field = $(this).data("field");
+            var value = $(this).val();
+            if(!value || value == '') {
+                return;
+            }
             $.ajax({
                 type: 'GET',
                 url: '/scrap/statistics/update-scrap-field',
                 data: {
                     search: id,
-                    field: "scraper_start_time",
-                    field_value: $(this).val()
+                    field: field,
+                    field_value: value
                 },
             }).done(function (response) {
                 toastr['success']('Data updated Successfully', 'success');
@@ -797,10 +831,9 @@
         });
 
         
-        $('.show-history').on('click', function () {
+        $(document).on("click", ".show-history", function () {
             var id = $(this).data("id");
             var field = $(this).data("field");
-            return;
             $.ajax({
                 type: 'GET',
                 url: '/scrap/statistics/show-history',
@@ -809,7 +842,16 @@
                     field: field
                 },
             }).done(function (response) {
-                console.log(remarks);
+                $("#remarkHistory").modal("show");
+                var table = '';
+                table = table + '<table class="table table-bordered table-striped" ><tr><th>From/To</th><th>Date</th><th>By</th></tr>';
+
+                for(var i=0;i<response.length;i++) {
+                    table = table + '<tr><td>'+response[i].remark+'</td><td>'+response[i].created_at+'</td><td>'+response[i].user_name+'</td></tr>';
+                }
+                table = table + '</table>';
+
+                $("#remark-history-content").html(table);
             }).fail(function (response) {
             });
         });
