@@ -1332,6 +1332,8 @@ Route::prefix('comments')->group(function () {
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
+    Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
+    Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');
     Route::post('statistics/update-priority', 'ScrapStatisticsController@updatePriority');
     Route::get('statistics/history', 'ScrapStatisticsController@getHistory');
     Route::resource('statistics', 'ScrapStatisticsController');
