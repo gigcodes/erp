@@ -13,9 +13,9 @@ class PleskHelper
     function __construct()
     {
         $this->_options = [
-            'username' => 'admin',
-            'password' => '01Va2jc%',
-            'ip' => '167.71.10.70',
+            'username' => getenv('PLESK_USERNAME'),
+            'password' => getenv('PLESK_PASSWORD'),
+            'ip' => getenv('PLESK_IP'),
         ];
     }
 
@@ -77,6 +77,12 @@ class PleskHelper
 
 
     public function viewDomain($domain_id) {
-
+        
+    }
+    public function deleteMailAccount($site_id, $name) {
+        $client = new \PleskX\Api\Client($this->_options['ip']);
+        $client->setCredentials($this->_options['username'], $this->_options['password']);
+        $response = $client->mail()->delete('name',$name,$site_id);
+        return $response;
     }
 }

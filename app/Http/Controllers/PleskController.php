@@ -20,7 +20,6 @@ class PleskController extends Controller
             return view('plesk.index',compact('domains'));
         }
         return response()->with('error','Something went wrong');
-        
     }
 
     /**
@@ -46,15 +45,16 @@ class PleskController extends Controller
         }
         catch (\Exception $e) {
             $msg = $e->getMessage();
-            $type = 'error';
+            $type = 'warning';
         }
+
         return redirect()->back()->with($type,$msg);
     }
 
 
     public function getMailAccounts($id) {
         $pleskHelper = new PleskHelper;
-        $mailAccount = $pleskHelper->getMailAccounts($id);
+        // $mailAccount = $pleskHelper->getMailAccounts($id);
         try {
             $mailAccount = $pleskHelper->getMailAccounts($id);
             $msg = 'Successful';
@@ -62,9 +62,23 @@ class PleskController extends Controller
         }
         catch (\Exception $e) {
             $msg = $e->getMessage();
-            $type = 'error';
+            $type = 'warning';
         }
-        return view('plesk.mail-list',compact('mailAccount'));
+        return view('plesk.mail-list',compact('mailAccount','id'));
+    }
+
+    public function deleteMail($id, Request $request) {
+        $pleskHelper = new PleskHelper;
+        try {
+            $pleskHelper->deleteMailAccount($id,$request->name);
+            $msg = 'Successful';
+            $type = 'success';
+        }
+        catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['message' => $msg],500);
+        }
+        return response()->json(['message' => 'Successful'],200);
     }
 
     /**
