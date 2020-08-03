@@ -47,10 +47,9 @@
         <div class="row" style="margin-top:10px;">
         <div class="col-md-3 pd-sm">
             <select name="order" id="order_query" class="form-control">
-                <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
-                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="">Order by priority</option>
-                <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
-                <option {{$request->get('order')== "communication_desc" ? 'selected' : ''}} value="communication_desc">Order by Communication</option>
+                <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
+                <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
+                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
             </select>
         </div>
         <div class="col-md-3 pd-sm">

@@ -466,11 +466,8 @@ class DevelopmentController extends Controller
         if ($request->order == 'priority') {
             $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
         }
-
-        if ($request->order == 'create_asc') {
-            $issues = $issues->orderBy('developer_tasks.created_at', 'ASC');
-        } else if ($request->order == 'communication_desc') {
-            $issues = $issues->orderBy('chat_messages.id', 'DESC');
+        else if ($request->order == 'latest_task_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'DESC');
         } else {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
