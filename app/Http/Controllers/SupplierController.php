@@ -141,17 +141,24 @@ class SupplierController extends Controller
         }
 
         $runQuery = 0;
-        $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray();
-        if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
+        $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
+        // if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
+        //     $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
+        //     $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
+        //     $runQuery = 1;
+        // } else {
+        //     if(auth()->user()->isAdmin()) {
+        //         $runQuery = 1;
+        //     }
+        // }
+        
+          if(!auth()->user()->isAdmin()) {
             $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
             $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
             $runQuery = 1;
         } else {
-            if(auth()->user()->isAdmin()) {
-                $runQuery = 1;
-            }
+            $runQuery = 1;
         }
-
         $suppliers = [];
 
         if($runQuery) {
