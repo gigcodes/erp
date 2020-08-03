@@ -57,16 +57,16 @@ class LiveChatController extends Controller
 
 				$customer = Customer::where('email',$email)->first();
 				
-				if($customer == '' && $customer == null && $phone != ''){
-					$customer = Customer::where('phone',$phone)->first();
-				}	
+				// if($customer == '' && $customer == null && $phone != ''){
+				// 	//$customer = Customer::where('phone',$phone)->first();
+				// }	
 
 				//Save Customer
 				if($customer == null && $customer == ''){
 					$customer = new Customer;
 					$customer->name = $name;
 					$customer->email = $email;
-					$customer->phone = $phone;
+					$customer->phone = null;
 					$customer->save();
 				}
 				
@@ -112,12 +112,17 @@ class LiveChatController extends Controller
 	                    $message = $result.' -- '.$message;
 	                }
 					
+					if($author_id == 'buying@amourint.com'){
+						$messageStatus = 2;
+					}else{
+						$messageStatus = 9;
+					}
 					$params = [
                     	'unique_id' => $chatDetails->chat_id,
                     	'message' => $message,
                     	'customer_id' => $customerLiveChat->customer_id,
                     	'approved' => 1,
-                    	'status' => 2,
+                    	'status' => $messageStatus,
 						'is_delivered' => 1,
 						'user_id' => $userID,
 						'message_application_id' => 2,
@@ -145,25 +150,44 @@ class LiveChatController extends Controller
 						$userID = null;
 					}
 
+					if($author_id == 'buying@amourint.com'){
+						$messageStatus = 2;
+					}else{
+						$messageStatus = 9;
+					}
+
 					//creating message
 					$params = [
                     	'unique_id' => $chatDetails->chat_id,
                     	'customer_id' => $customerLiveChat->customer_id,
                     	'approved' => 1,
-                    	'status' => 2,
+                    	'status' => $messageStatus,
 						'is_delivered' => 1,
 						'user_id' => $userID,
 						'message_application_id' => 2,
 					];
 					
+					$from = 'livechat';
 					// Create chat message
 					$chatMessage = ChatMessage::create($params);
-					$numberPath = substr($from, 0, 3) . '/' . substr($from, 3);
+
+					$numberPath = date('d');
 					$url = $chatDetails->event->url;
-					$jpg = \Image::make($url)->encode('jpg');
-					$filename = $chatDetails->event->name;
-                    $media = MediaUploader::fromString($jpg)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
-                    $chatMessage->attachMedia($media, config('constants.media_tags'));
+					try {
+						$jpg = \Image::make($url)->encode('jpg');
+						$filename = $chatDetails->event->name;
+                    	$media = MediaUploader::fromString($jpg)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
+                    	$chatMessage->attachMedia($media, config('constants.media_tags'));
+					} catch (\Exception $e) {
+						$file = @file_get_contents($url);
+                        if (!empty($file)) {
+                        	$filename = $chatDetails->event->name;
+                            $media = MediaUploader::fromString($file)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
+                            $chatMessage->attachMedia($media, config('constants.media_tags'));
+                        }
+					}
+					
+					
 				}
 
 				if($chatDetails->event->type == 'system_message'){
@@ -186,14 +210,27 @@ class LiveChatController extends Controller
 				//Getting user
 				$userEmail = $chat->users[0]->email;
 				$userName = $chat->users[0]->name;
-				$websiteURL = self::getDomain($chat->users[0]->last_visit->last_pages[0]->url);
+				try {
+					$websiteURL = self::getDomain($chat->users[0]->last_visit->last_pages[0]->url);
+				} catch (\Exception $e) {
+					$websiteURL = '';
+				}
 				//dd($websiteURL);
 				$customer = Customer::where('email',$userEmail)->first();
 				
 				if($customer != '' && $customer != null){
 					//Find if its has ID
-					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->first();
+					$chatID = CustomerLiveChat::where('customer_id',$customer->id)->where('thread',$chatId)->first();
 					if($chatID == null && $chatID == ''){
+
+						//check if only thread exist and make it null
+						$onlyThreadCheck = CustomerLiveChat::where('thread',$chatId)->first();
+						if($onlyThreadCheck){
+							$onlyThreadCheck->thread = null;
+							$chatID->seen = 1;
+							$onlyThreadCheck->save();	
+						}
+
 						$customerChatId = new CustomerLiveChat;
 						$customerChatId->customer_id = $customer->id;
 						$customerChatId->thread = $chatId;
@@ -210,6 +247,15 @@ class LiveChatController extends Controller
 						$chatID->update();
 					}
 				}else{
+
+					//check if only thread exist and make it null
+					$onlyThreadCheck = CustomerLiveChat::where('thread',$chatId)->first();
+					if($onlyThreadCheck){
+						$onlyThreadCheck->thread = null;
+						$chatID->seen = 1;
+						$onlyThreadCheck->save();	
+					}
+
 					$customer = new Customer;
 					$customer->name = $userName;
 					$customer->email = $userEmail;
@@ -247,11 +293,9 @@ class LiveChatController extends Controller
 
 	public function sendMessage(Request $request){
 			
-		    $login = \Config('livechat.account_id');
-            $password = \Config('livechat.password');
+		    
 			$chatId = $request->id;
 			$message = $request->message;
-
 			$customerDetails = Customer::find($chatId);
             $language = $customerDetails->language;
             if($language !=null)
@@ -270,6 +314,7 @@ class LiveChatController extends Controller
             	'status' => 'errors'
         		]);
 			}
+			//dd($thread);
 			$post = array('chat_id' => $thread,'event' => array('type' => 'message','text' => $message,'recipients' => 'all',));
 		    $post = json_encode($post);
 			
@@ -285,7 +330,7 @@ class LiveChatController extends Controller
 			CURLOPT_CUSTOMREQUEST => "POST",
 			CURLOPT_POSTFIELDS => "$post",
 			CURLOPT_HTTPHEADER => array(
-				"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+				"Authorization: Bearer ".\Cache::get('key')."",
 				"Content-Type: application/json",
 			),
 			));
@@ -294,7 +339,7 @@ class LiveChatController extends Controller
 			$err = curl_error($curl);
 
 			curl_close($curl);
-
+			
 			if ($err) {
 				return response()->json([
             	'status' => 'errors'
@@ -364,70 +409,35 @@ class LiveChatController extends Controller
 
 		return redirect()->back()->withSuccess(['msg', 'Saved']);
 	}
-	//Send 
-	// public function sendFile(Request $request){
-			
-	// 		$img = self::sendImage($request);
-	// 		dd($img);
-	// 		//get LIVE CHAT URL FROM PATH
-			
-	// 		$chatId = $request->id;
-	// 		$message = $request->file;
 
-	// 		$file = 'https://cdn.livechat-static.com/api/file/lc/tmp/attachments/11434003/c9f86c49804ea3ebee7cadbafa5d779a/Screen%20Shot%202019-12-01%20at%2012.46.12%20AM.png';
-	// 		//Get Thread ID From Customer Live Chat
-	// 		$customer = CustomerLiveChat::where('customer_id',$chatId)->first();
-			
-	// 		if($customer != '' && $customer != null){
-	// 			$thread = $customer->thread;
-				
-	// 		}else{
-	// 			return response()->json([
-    //         	'status' => 'errors'
-    //     		]);
-	// 		}
-	// 		$post = array('chat_id' => $thread,'event' => array('type' => 'file','content_type' => $file,'created_at' => '2017-10-12T15:19:21.010200Z', 'url' => $file , 'recipients' => 'all'));
-	// 	    $post = json_encode($post);
-			
-	// 		$curl = curl_init();
 
-	// 		curl_setopt_array($curl, array(
-	// 		CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
-	// 		CURLOPT_RETURNTRANSFER => true,
-	// 		CURLOPT_ENCODING => "",
-	// 		CURLOPT_MAXREDIRS => 10,
-	// 		CURLOPT_TIMEOUT => 30,
-	// 		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-	// 		CURLOPT_CUSTOMREQUEST => "POST",
-	// 		CURLOPT_POSTFIELDS => "$post",
-	// 		CURLOPT_HTTPHEADER => array(
-	// 			"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-	// 			"Content-Type: application/json",
-	// 		),
-	// 		));
+	public function uploadFileToLiveChat($image)
+	{
+		//Save file to path 
+		//send path to Live chat
+		$curl = curl_init();
+		curl_setopt_array($curl, array(
+		CURLOPT_URL => "https://api.livechatinc.com/v3.2/agent/action/upload_file",
+		CURLOPT_RETURNTRANSFER => true,
+		CURLOPT_ENCODING => "",
+		CURLOPT_MAXREDIRS => 10,
+		CURLOPT_TIMEOUT => 0,
+		CURLOPT_FOLLOWLOCATION => true,
+		CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+		CURLOPT_CUSTOMREQUEST => "POST",
+		CURLOPT_POSTFIELDS => array('file'=> new CURLFILE('/Users/satyamtripathi/PhpstormProjects/untitled/images/1592232591.png')),
+		CURLOPT_HTTPHEADER => array(
+				"Authorization: Bearer ".\Cache::get('key')."",
+				"Content-Type: application/json",
+			),
+		));
 
-	// 		$response = curl_exec($curl);
-	// 		$err = curl_error($curl);
+		$response = curl_exec($curl);
 
-	// 		curl_close($curl);
+		curl_close($curl);
+		echo $response;
+	}
 
-	// 		if ($err) {
-	// 			return response()->json([
-    //         	'status' => 'errors'
-    //     		]);
-	// 		} else {
-	// 			$response = json_decode($response);
-	// 			if(isset($response->error)){
-	// 				return response()->json([
-    //         			'status' => 'errors'
-    //     			]);
-	// 			}else{
-	// 				return response()->json([
-    //         			'status' => 'success'
-    //     			]);
-	// 			}
-	// 		}
-	// }
 
 	public function getChats(Request $request)
 	{
@@ -499,14 +509,61 @@ class LiveChatController extends Controller
 					
 			}else{
 				foreach ($messages as $message) {
+
 					if($message->user_id != 0){
 						// Finding Agent 
 						$agent = User::where('email', $message->user_id)->first();
 						$agentInital = substr($agent->name, 0, 1);
 
-						$messagess[] = '<div class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+						if ($message->hasMedia(config('constants.media_tags'))) {
+			                    foreach ($message->getMedia(config('constants.media_tags')) as $image) {
+			                    	if($message->status == 2){
+			                    		$type = 'end';
+	                    			}else{
+	                    				$type = 'start';
+	                    			}
+
+	                    			$messagess[] = '<div class="d-flex justify-content-'.$type.' mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer"><span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div><div class="msg_cotainer_send"><img src="'.$image->getUrl().'" class="rounded-circle-livechat user_img_msg"></div></div>'; 
+
+								}
+                		}else{
+                			if($message->status == 2){
+			                    $type = 'end';
+	                    	}else{
+	                    		$type = 'start';
+	                    	}
+                			$messagess[] = '<div class="d-flex justify-content-'.$type.' mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+
+                		}
+						
+
+						
 					}else{
-						$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+
+						if ($message->hasMedia(config('constants.media_tags'))) {
+			                    foreach ($message->getMedia(config('constants.media_tags')) as $image) {
+			                    	if (strpos($image->getUrl(), 'jpeg') !== false) {
+    									$attachment = '<a href="" download><img src="'.$image->getUrl().'" class="rounded-circle-livechat user_img_msg"></a>';
+									}else{
+										$attachment = '<a href="" download>'.$image->filename.'</a>';
+									}
+			                    	if($message->status == 2){
+					                    $type = 'end';
+			                    	}else{
+			                    		$type = 'start';
+			                    	}
+
+			                    	$messagess[] = '<div class="d-flex justify-content-'.$type.' mb-4"><div class="msg_cotainer"><span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div><div class="msg_cotainer_send">'.$attachment.'</div></div>';
+								}
+                		}else{
+                			if($message->status == 2){
+					            $type = 'end';
+	                    	}else{
+	                    		$type = 'start';
+	                    	}
+                			$messagess[] = '<div class="d-flex justify-content-'.$type.' mb-4"><div class="rounded-circle-livechat user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$message->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                		}
+						
 					}
 				}
 
@@ -556,39 +613,15 @@ class LiveChatController extends Controller
 	}
 
 
-	//Upload FIle COde 
-	// public function sendImage($request){
-	// 	$uploadedFile = $request->file('file');
-	// 	$filename = $uploadedFile->getPathname().'/'.$uploadedFile->getClientOriginalName();
-	// 	$target_url = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
-	// 	$cFile = curl_file_create($uploadedFile);
-	// 	$post = array('file'=> $cFile);
-	// 	$ch = curl_init();
-		
-	// 	curl_setopt($ch, CURLOPT_URL,$target_url);
-	// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-	// 	curl_setopt($ch, CURLOPT_POST,1);
-	// 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-	// 	curl_setopt($ch, CURLOPT_HTTPHEADER,  array(
-	// 			"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-	// 			"Content-Type: multipart/form-data",));
-	// 	$response = curl_exec($ch);
-	// 	$err = curl_error($ch);
-	// 	curl_close ($ch);
-	// 	if ($err) {
-	// 			return false;
-	// 		} else {
-	// 			$response = json_decode($response);
-	// 			if(isset($response->error)){
-	// 				return false;
-	// 			}else{
-	// 				return $response->url;
-	// 			}
-	// 		}	
+	public function checkNewChat()
+	{
+		$count = CustomerLiveChat::where('seen',0)->count();
+		return response()->json([
+						'status' => 'success',
+						'data' => array('count' => $count),
+        			]);
+	}
 
-		
-		
-	// }
 
 	/**
 	* function to get customer details from livechatinc
@@ -725,7 +758,7 @@ class LiveChatController extends Controller
 		if($contentType){
 			$curlData[CURLOPT_HTTPHEADER] = [];
 			if($defaultAuthorization){
-				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13");
+				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Bearer ".\Cache::get('key')."");
 			}
 			// $curlData[CURLOPT_HTTPHEADER] = array(
 			// 	"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
@@ -809,5 +842,33 @@ class LiveChatController extends Controller
 				return $regs['domain'];
 			}
 		return false;
+	}
+
+	public function saveToken(Request $request)
+	{
+		if($request->accessToken){
+			//dd($request->accessToken);
+			$storedCache = \Cache::get('key');
+			if($storedCache){
+				if($storedCache != $request->accessToken){
+					try {
+						\Cache::put('key', $request->accessToken, $request->seconds);
+					} catch (Exception $e) {
+						\Cache::add('key', $request->accessToken, $request->seconds);
+					}
+				}
+			}else{
+				try {
+						\Cache::put('key', $request->accessToken, $request->seconds);
+					} catch (Exception $e) {
+						\Cache::add('key', $request->accessToken, $request->seconds);
+					}
+			}
+			//session()->put('livechat_accesstoken', $request->accessToken);
+			//\Session::put('livechat_accesstoken', $request->accessToken);
+			//$request->session()->put('livechat_accesstoken', $request->accessToken);
+			return response()->json(['status' => 'success', 'message' => 'AccessToken saved'], 200);
+		}
+		return response()->json(['status' => 'error', 'message' => 'AccessToken cannot be saved'], 500);
 	}
 }

@@ -34,8 +34,8 @@
     	<div class="row">
 	    	<div class="col col-md-9">
 		    	<div class="row">
-	    			
-				 </div> 		
+
+				 </div>
 		    </div>
 		    <div class="col">
 		    	<div class="h" style="margin-bottom:10px;">
@@ -51,10 +51,10 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/send.png" style="cursor: default;" >
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 					<form class="form-inline handle-search">
 					  <div class="row">
 				  		<div class="col">
@@ -69,20 +69,51 @@
 						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 						  			<img src="/images/send.png" style="cursor: default;" >
 						  		</button>
-						  	</div>		
+						  	</div>
 				  		</div>
-					  </div>	
-					</form>	
+					  </div>
+					</form>
 		    	</div>
 		    </div>
 	    </div>
-	    <div class="row">
+	    <div class="row" style="margin-bottom: 10px;">
 	    	<a href="{{ route('site-development-status.index') }}" target="__blank">
 		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
 		  			+ Add Status
 		  		</button>
 		  	</a>
+		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+		  		Status Count
+            </a>
 	    </div>
+
+	    <div class="row">
+		    <div class="col-md-12">
+		        <div class="collapse" id="statusFilterCount">
+		            <div class="card card-body">
+		              <?php if(!empty($statusCount)) { ?>
+		                <div class="row col-md-12">
+		                    <?php foreach($statusCount as $sC) { ?>
+		                      <div class="col-md-2">
+		                            <div class="card">
+		                              <div class="card-header">
+		                                <?php echo $sC->name; ?>
+		                              </div>
+		                              <div class="card-body">
+		                                  <?php echo $sC->total; ?>
+		                              </div>
+		                          </div>
+		                       </div> 
+		                  <?php } ?>
+		                </div>
+		              <?php } else  { 
+		                echo "Sorry , No data available";
+		              } ?>
+		            </div>
+		        </div>
+		    </div>    
+		</div>
+
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">
@@ -101,7 +132,7 @@
 					@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
-				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}	
+				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
 			</div>
 		</div>
 	</div>
@@ -139,7 +170,7 @@
 
 					        </div>
 					    </div>
-					    
+
 	            </div>
 	            <div class="modal-footer">
 	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
@@ -172,6 +203,41 @@
         </div>
     </div>
 </div>
+
+<div id="remark-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	    			<div class="col-md-8" style="padding-bottom: 10px;">
+	    				<textarea class="form-control" col="5" name="remarks" data-id="" id="remark-field"></textarea>
+	    			</div>
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-remark-field">
+						<img src="/images/send.png" style="cursor: default;" >
+					</button>
+				</div>
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th width="5%">No</th>
+					        <th width="45%">Remark</th>
+					        <th width="25%">BY</th>
+					        <th width="25%">Date</th>
+					      </tr>
+					    </thead>
+					    <tbody class="remark-action-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -191,7 +257,7 @@
             $('ul.pagination').first().remove();
         }
     });
-	
+
 	function saveCategory() {
 		var text = $('#add-category').val()
 		if(text === ''){
@@ -218,7 +284,7 @@
 				console.log(data)
 				console.log("error");
 			});
-			
+
 		}
 	}
 
@@ -271,6 +337,42 @@
 				console.log("error");
 			});
 		});
+
+
+		$(document).on("click",".btn-remark-field",function() {
+			var id  = $("#remark-field").data("id");
+			var val = $("#remark-field").val();
+			$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'POST',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+		    	data : {remark : val},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				$("#remark-field").val("");
+				toastr["success"]("Remarks fetched successfully");
+				var html = "";
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				//$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+		});
 	});
 
 
@@ -317,25 +419,41 @@
 		    } else {
 		        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
 		    }
-		    
+
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 		    alert('No response from server');
 		});
 	}
 
-	
+
 	$(document).on('click', '.send-message-site', function() {
+		var $this = $(this);
 		site = $(this).data("id")
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
-		if(userId == 'Select Developer'){
+
+		var users = [];
+		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='developer_id']").val();
+			users.push(value);
+		}
+		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='designer_id']").val();
+			users.push(value);
+		}
+		if($this.closest("tr").find("input[name='html']:checked").length > 0){
+			var value = $this.closest("tr").find("select[name='html_designer']").val();
+			users.push(value);
+		}
+
+		if(users.length <= 0){
 			alert('Please Select User');
 		}else if(site){
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
 				type: 'POST',
-				data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				data: { 'site_development_id' : site , 'message' : message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
 				beforeSend: function() {
 					$('#message-'+site).attr('disabled', true);
                	}
@@ -347,7 +465,7 @@
 			});
 		}else{
 			alert('Site is not saved please enter value or select User');
-		} 
+		}
     });
 
     $(document).on("change",".fa-ignore-category",function() {
@@ -446,7 +564,7 @@
 		});
 	});
 
-	
+
 	$(document).on("click",".link-send-document",function(e) {
 		e.preventDefault();
 		var id = $(this).data("id");
@@ -500,6 +618,42 @@
 		}
 	});
 
+	$(document).on("click",".btn-store-development-remark",function(e) {
+		var id = $(this).data("site-id");
+		$.ajax({
+				url: '/site-development/'+id+'/remarks',
+				type: 'GET',
+				headers: {
+		      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+		    	},
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	}
+			}).done(function (response) {
+				$("#loading-image").hide();
+				toastr["success"]("Remarks fetched successfully");
+
+				var html = "";
+
+				$.each(response.data,function(k,v){
+					html += "<tr>";
+						html += "<td>"+v.id+"</td>";
+						html += "<td>"+v.remarks+"</td>";
+						html += "<td>"+v.created_by+"</td>";
+						html += "<td>"+v.created_at+"</td>";
+					html += "</tr>";
+				});
+
+				$("#remark-area-list").find("#remark-field").attr("data-id",id);
+				$("#remark-area-list").find(".remark-action-list-view").html(html);
+				$("#remark-area-list").modal("show");
+				//$this.closest("tr").remove();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				toastr["error"]("Oops,something went wrong");
+				$("#loading-image").hide();
+			});
+	});
+
 	var uploadedDocumentMap = {}
   	Dropzone.options.documentDropzone = {
     	url: '{{ route("site-development.upload-documents") }}',
@@ -523,10 +677,24 @@
       		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
     	},
     	init: function () {
-	      
+
     	}
   }
 
 </script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $( ".developer" ).change(function() {
+      $(this).closest("tr").find("input[name='developer']").prop('checked', true)
+    });
 
+    $( ".designer" ).change(function() {
+      $(this).closest("tr").find("input[name='designer']").prop('checked', true)
+    });
+
+    $( ".html" ).change(function() {
+      $(this).closest("tr").find("input[name='html']").prop('checked', true)
+    });
+  });
+  </script>
 @endsection

@@ -304,17 +304,20 @@ var page = {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/teams/"+ele.data("id"),
             method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
         }
         this.sendAjax(_z, 'teamInfoResult');
     },
     teamInfoResult : function(response) {
-        console.log(response);
         members = response.team.members;
         var communicationHistoryTemplate = $.templates("#template-team-edit");
         var tplHtml = communicationHistoryTemplate.render(response);
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
+            $("#loading-image").hide();
     },
     submitEditTeam : function(ele) {
         var _z = {

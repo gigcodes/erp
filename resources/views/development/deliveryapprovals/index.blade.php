@@ -104,7 +104,7 @@
                   <form action="{{ route('order.delivery.approve', $delivery_approval->id) }}" method="POST">
                     @csrf
 
-                    <button type="submit" class="btn btn-xs btn-secondary" {{ !Auth::user()->hasRole('Admin') ? "disabled" : "" }}>Approve</button>
+                    <button type="submit" class="btn btn-xs btn-secondary" {{ !Auth::user()->isReviwerLikeAdmin() ? "disabled" : "" }}>Approve</button>
                   </form>
                 @endif
               </td>

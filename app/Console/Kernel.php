@@ -106,7 +106,8 @@ use App\Console\Commands\AccountHubstaffActivities;
 use App\Console\Commands\DailyHubstaffActivityLevel;
 use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
-
+use App\Console\Commands\FetchStoreWebsiteOrder;
+use App\Console\Commands\UserPayment;
 
 class Kernel extends ConsoleKernel
 {
@@ -207,7 +208,9 @@ class Kernel extends ConsoleKernel
         AccountHubstaffActivities::class,
         DailyHubstaffActivityLevel::class,
         EmailExcelImporter::class,
-        GenerateProductPricingJson::class
+        GenerateProductPricingJson::class,
+        FetchStoreWebsiteOrder::class,
+        UserPayment::class
     ];
 
     /**
@@ -223,6 +226,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        
+       
 
         // Store unknown categories on a daily basis
         $schedule->command('category:missing-references')->daily();
@@ -436,9 +441,18 @@ class Kernel extends ConsoleKernel
         $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
         $schedule->command('send:event-notification30min')->everyFiveMinutes();
         $schedule->command('generate:product-pricing-json')->daily();
+
+        // Customer chat messages quick data
+        $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
+        $schedule->command('fetch-store-website:orders')->hourly();
         
         // If scraper not completed, store alert
         $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
+
+
+         // make payment receipt for hourly associates on daily basis.
+         $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        $schedule->command('check:landing-page')->everyMinute();
     }
 
     /**
