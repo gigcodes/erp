@@ -94,15 +94,15 @@ class TaskModuleController extends Controller {
                  	FROM chat_messages 
                  ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
                ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1;
+               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+			   AND (message_id = (
+				 SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
+				 ) OR message_id IS NULL)
+	ORDER BY is_flagged DESC, message_created_at DESC;
 						');
 
 
-			// 			AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-			// 			AND (message_id = (
-			// 			  SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-			// 			  ) OR message_id IS NULL)
-			//  ORDER BY is_flagged DESC, message_created_at DESC
+			
 
 
 
