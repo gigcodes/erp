@@ -671,7 +671,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     // Complete the task
-    Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
+    // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
     Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');

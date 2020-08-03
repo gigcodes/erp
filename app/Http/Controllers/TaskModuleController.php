@@ -1704,15 +1704,4 @@ class TaskModuleController extends Controller {
 		session()->flash('success', 'Hide successfully.');
 		return response(['success' => "Hidden"],200);
 	}
-
-	public function taskCount($customer_id) {
-		$taskStatistics['Devtask']['pending'] = DeveloperTask::where('status','!=','Done')->count();
-		$taskStatistics['Devtask']['completed'] = DeveloperTask::where('status','Done')->count();
-
-		$taskStatistics['Task']['pending'] = Task::where('is_completed',NULL)->count();
-		$taskStatistics['Task']['completed'] = Task::where('is_completed','!=',NULL)->count();
-
-		return response(['success' => "Hidden"],200);
-		
-	}
 }
