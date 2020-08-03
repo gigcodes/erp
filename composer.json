@@ -45,6 +45,7 @@
         "phpoffice/phpspreadsheet": "^1.6",
         "picqer/php-barcode-generator": "^0.3.0",
         "plank/laravel-mediable": "^2.7",
+        "plesk/api-php-lib": "^1.0",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
         "qoraiche/laravel-mail-editor": "^2.0",
