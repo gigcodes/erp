@@ -13,9 +13,9 @@ class PleskHelper
     function __construct()
     {
         $this->_options = [
-            'username' => 'admin',
-            'password' => '01Va2jc%',
-            'ip' => '167.71.10.70',
+            'username' => getenv('PLESK_USERNAME'),
+            'password' => getenv('PLESK_PASSWORD'),
+            'ip' => getenv('PLESK_IP'),
         ];
     }
 
