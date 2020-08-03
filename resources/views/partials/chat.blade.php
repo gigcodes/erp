@@ -96,8 +96,8 @@ background-color: rgba(0,0,0,0.3) !important;
 
 }
 .user_img_msg{
-	height: 40px;
-	width: 40px;
+	height: 200px;
+	width: 200px;
 	border:1.5px solid #f5f6fa;
 
 }
@@ -147,6 +147,7 @@ cursor: pointer;
 margin-right: 20px;
 }
 .msg_cotainer{
+min-width: 80px;	
 margin-top: auto;
 margin-bottom: auto;
 margin-left: 10px;
@@ -217,6 +218,9 @@ padding-right: 10px;
 .action_menu ul li:hover{
 cursor: pointer;
 background-color: rgba(0,0,0,0.2);
+}
+.rounded-circle-livechat{
+	border-radius: 15% !important;
 }
 .new_message_icon{
 height: 15px;
@@ -370,18 +374,22 @@ const instance = AccountsSDK.init({
 			accessToken = data.access_token;
 			console.log(accessToken)
 			setTimeout(instance, data.expires_in);
-			$.ajax({
-				url: '/livechat/save-token',
-				type: 'POST',
-				dataType: 'json',
-				data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
-			})
-			.done(function() {
-				console.log("AccessToken Saved In Session");
-			})
-			.fail(function() {
-				console.log("Cannot Save AccessToken In Session");
-			})
+			try{
+				$.ajax({
+					url: '/livechat/save-token',
+					type: 'POST',
+					dataType: 'json',
+					data: {accessToken: accessToken ,'seconds' : data.expires_in, "_token": "{{ csrf_token() }}"},
+				})
+				.done(function() {
+					console.log("AccessToken Saved In Session");
+				})
+				.fail(function() {
+					console.log("Cannot Save AccessToken In Session");
+				})
+			}catch{
+
+			}	
 			
 			
 			//console.log("License number: " + data.license);
@@ -431,13 +439,12 @@ function openChatBox(show){
 		if(currentChatId != 0){
 			runWebSocket(currentChatId);
 		}
-
-		getChatsWithoutRefresh();
 		getUserList();
+		getChatsWithoutRefresh();
 		chatTimerObj = setInterval(function(){
-			getChatsWithoutRefresh();
 			getUserList();
-		}, 5000);
+			getChatsWithoutRefresh();
+		}, 3000);
 	}
 	else{
 		clearInterval(chatTimerObj);
@@ -662,7 +669,7 @@ function getUserList(){
 	})
 	.done(function(data) {
 		 $('#customer-list-chat').empty().html(data.data.message);
-		 $('#new_message_count').text(data.data.count);
+		 $('#new_message').text(data.data.count);
 		 console.log(data);
 	})
 	.fail(function() {
@@ -698,46 +705,6 @@ function sendMessage(){
     	alert('Chat Not Active');
     });
 }
-//Send File
-// function sendFile(){
-//     id = $('#message-id').val();
-// 	file = $('#imgupload').prop('files')[0];
-// 	var fd = new FormData();
-// 		fd.append("id", id);
-// 		fd.append("file", file);
-// 		fd.append("_token", "{{ csrf_token() }}" );
-// 	var scrolled=0;
-//     $.ajax({
-//     	url: "{{ route('livechat.send.file') }}",
-//     	type: 'POST',
-//     	dataType: 'json',
-//     	data: fd,
-// 		cache: false,
-//         contentType: false,
-//         processData: false   
-//     })
-//     .done(function(data) {
-//        console.log(data);
-// 		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>';
-// 		$('#message-recieve').append(chat_message);
-// 		$('#message').val('');
-// 		scrolled=scrolled+300;
-//         $(".cover").animate({
-// 			scrollTop:  scrolled
-// 		});
-// 	})
-//     .fail(function() {
-//     	alert('Chat Not Active');
-//     });
-// }
-
-
-// function sendImage() {
-// 	$('#imgupload').trigger('click');
-// }
-
-
-
 
 function sendImage() {
 	$('#imgupload').trigger('click');
@@ -761,17 +728,44 @@ $(document).ready(function() {
 	        contentType: false,
 	        processData: false,
 	        success: function(data){
-	        	//alert(data);
+	        	//alert(data.fileCDNPath);
 				// chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div><div class="msg_cotainer">'+data.filename+' uploaded<br><a href="'+data.fileCDNPath+'" target="_blank">'+data.fileCDNPath+'</a><span class="msg_time"></span></div></div>';
-				// $('#message-recieve').append(chat_message);
-				// //$('#message').val('');
-				// scrolled=scrolled+300;
-				// $(".cover").animate({
-				// 	scrollTop:  scrolled
-				// });	        	
+				chat_message = '<div class="msg_cotainer_send"><img src="'+data.fileCDNPath+'" class="rounded-circle user_img_msg"></div>';
+				$('#message-recieve').append(chat_message);
+				$('#message').val('');
+				scrolled=scrolled+300;
+				$(".cover").animate({
+					scrollTop:  scrolled
+				});	        	
 	        }
 	    });
 	});
 });
+
+
+function checkChatCount(){
+	$.ajax({
+		url: "{{ route('livechat.new.chat') }}",
+		type: 'POST',
+		dataType: 'json',
+		data: { _token: "{{ csrf_token() }}" },
+	})
+	.done(function(data) {
+		$('#new_message').attr('data-count', data.data.count);
+	})
+	.fail(function() {
+		console.log("error");
+	});
+
+}
+
+$( document ).ready(function() {
+    setInterval(function(){
+		checkChatCount();
+	}, 5000);
+});
+
+
+checkChatCount();
 
 </script>

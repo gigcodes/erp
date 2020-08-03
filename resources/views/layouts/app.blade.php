@@ -1701,7 +1701,7 @@
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
                         <a id="message-chat-data-box" class="quick-icon"> 
-                           <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
                         </a>

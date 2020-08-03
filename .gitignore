@@ -65,3 +65,6 @@ public/tmp_images/*
 
 # private files
 app/Console/Commands/DispatchJob.php 
+.env.example
+.htaccess
+app/Http/Composers/GlobalComposer.php
