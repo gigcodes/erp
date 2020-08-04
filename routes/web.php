@@ -300,7 +300,15 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
-
+    //plesk
+    Route::prefix('plesk')->middleware('auth')->group(static function () {
+        Route::get('/domains', 'PleskController@index')->name('plesk.domains');
+        Route::get('/domains/mail/create/{id}', 'PleskController@create')->name('plesk.domains.view-mail-create');
+        Route::post('/domains/mail/create/{id}', 'PleskController@submitMail')->name('plesk.domains.submit-mail');
+        Route::get('/domains/mail/accounts/{id}', 'PleskController@getMailAccounts')->name('plesk.domains.mail-accounts');
+        Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
+    });
+    
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -1139,7 +1147,8 @@ Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessag
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
 Route::post('livechat/sendFile', 'LiveChatController@sendFile')->name('livechat.send.file');
 Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('livechat.get.userlist');
-Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.get.userlist');
+Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.save.token');
+Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 /* ---------------------------------------------------------------------------------- */
 
@@ -1323,6 +1332,8 @@ Route::prefix('comments')->group(function () {
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
+    Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
+    Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');
     Route::post('statistics/update-priority', 'ScrapStatisticsController@updatePriority');
     Route::get('statistics/history', 'ScrapStatisticsController@getHistory');
     Route::resource('statistics', 'ScrapStatisticsController');
