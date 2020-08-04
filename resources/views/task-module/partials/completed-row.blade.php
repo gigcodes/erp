@@ -20,7 +20,7 @@
                 {{ $task->task_details }}
           </span>
     </td>
-    <td class="expand-row table-hover-cell p-2">
+    <!-- <td class="expand-row table-hover-cell p-2">
         @if (array_key_exists($task->assign_from, $users))
             @if ($task->assign_from == Auth::id())
                 <span class="td-mini-container">
@@ -40,7 +40,7 @@
         @else
             Doesn't Exist
         @endif
-    </td>
+    </td> -->
     <td class="expand-row table-hover-cell p-2">
         @php
             $special_task = \App\Task::find($task->id);
@@ -87,7 +87,7 @@
                         {{ $task->message }}
                     </span>
                     @if ($task->message_status != 0)
-                        <a href='#' class='btn btn-image p-0 resend-message' data-id="{{ $task->message_id }}"><img src="/images/resend.png"/></a>
+                        <a href='#' title="Resend message" class='btn btn-image p-0 resend-message' data-id="{{ $task->message_id }}"><img src="/images/resend.png"/></a>
                     @endif
                 </div>
             @endif
@@ -96,27 +96,27 @@
         @endif
     </td>
     <td class="p-2">
-        <div class="d-flex">
+        <div class="row" style="margin:0px;">
             @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                 @if ($task->is_private == 1)
-                    <button disabled type="button" class="btn btn-image"><img src="/images/private.png"/></button>
+                    <button disabled type="button" class="btn btn-image pd-5"><img src="/images/private.png"/></button>
                 @endif
             @endif
 
             @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                <a href="{{ route('task.show', $task->id) }}" class="btn btn-image" href=""><img src="/images/view.png"/></a>
+                <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="/images/view.png"/></a>
             @endif
 
             @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
                 @if ($task->is_private == 1)
-                    <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/private.png"/></button>
+                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/private.png"/></button>
                 @else
-                    <button type="button" class="btn btn-image make-private-task" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
+                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
                 @endif
             @endif
             <form action="{{ route('task.archive', $task->id) }}" method="POST">
                 @csrf
-                <button type="submit" class="btn btn-image"><img src="/images/archive.png"/></button>
+                <button type="submit" class="btn btn-image pd-5"><img src="/images/archive.png"/></button>
             </form>
         </div>
     </td>
