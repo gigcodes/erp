@@ -5,6 +5,7 @@
             <button type="button" class="close" data-dismiss="modal">&times;</button>
           </div>
           <div class="modal-body">
+          <input type="hidden" name="site_name" value={{$sitename}}>
           <div class="row">
               <div class="col">
                 <div class="form-group">
