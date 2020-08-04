@@ -138,3 +138,6 @@ Route::prefix('v1')->group(function () {
 Route::post('scraper/ready','ScrapController@scraperReady');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
 Route::get('scraper-needed-products','ScrapController@scraperNeeded');
+
+Route::post('shopify/customer/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyCustomers');
+Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyOrders');
