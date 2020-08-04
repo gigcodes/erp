@@ -98,7 +98,7 @@ class RepositoryController extends Controller
 
         try {
             // Merge master into branch
-            /*$this->client->post(
+            $this->client->post(
                 $url,
                 [
                     RequestOptions::BODY => json_encode([
@@ -113,7 +113,7 @@ class RepositoryController extends Controller
                 $this->updateBranchState($repoId, $destination);
             }else if($destination == 'master'){
                 $this->updateBranchState($repoId, $source);
-            }*/
+            }
 
             // Deploy branch
             $repository = GithubRepository::find($repoId);
@@ -123,7 +123,7 @@ class RepositoryController extends Controller
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' '.$composerupdate. ' 2>&1';
-            echo $cmd;die;
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $allOutput = array();
             $allOutput[] = $cmd;
