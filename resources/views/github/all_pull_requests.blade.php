@@ -56,6 +56,9 @@
                 <td>{{date('Y-m-d H:i:s', strtotime($pullRequest['updated_at']))}}</td>
                 <td>
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}">Deploy</a>
+                    @if($pullRequest['repository']['name'] == "erp")
+                        <a style="margin-top: 5px;" class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$pullRequest['repository']['id'].'/deploy?branch='.urlencode($pullRequest['source'])) }}&composer=true">Deploy + Composer</a>
+                    @endif
                 </td>
                 <td>
                     {{-- <div>

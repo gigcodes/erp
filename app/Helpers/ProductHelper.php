@@ -770,7 +770,7 @@ class ProductHelper extends Model
         }
 
          //Exception for o-labels
-        if($product->landingPageProduct()){
+        if($product->landingPageProduct){
             $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title','LIKE','%o-labels%')->first();
             if($websiteForLandingPage){
                 if(!in_array($websiteForLandingPage->id,$websiteArray))

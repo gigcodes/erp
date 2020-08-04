@@ -92,6 +92,9 @@
                     <span class="badge badge-pill badge-light">Deployed</span>
                     @else
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($branch->branch_name)) }}">Deploy</a>
+                        @if($repository->name == "erp")
+                            <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($branch->branch_name)) }}&composer=true">Deploy + Composer</a>
+                        @endif
                     @endif
                 </td>
                 <td>
