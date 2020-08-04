@@ -117,7 +117,7 @@ class ShopifyHelper
         $full_name      = $firstName . ' ' . $lastName;
         $customer_phone = isset($order["customer"])? (isset($order["customer"]["phone"]) ? $order["customer"]["phone"] : '') : '';
 
-        $customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
+        $customer = Customer::where('email', $order["customer"]["email"])->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
@@ -233,7 +233,7 @@ class ShopifyHelper
         $customer_zip = isset($store_customer["address1"])? (isset($store_customer["address1"]["zip"]) ? $store_customer["address1"]["zip"] : '') : '';
         $customer_phone = isset($store_customer)? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
 
-        $customer = Customer::where('name', 'LIKE', "%$full_name%")->first();
+        $customer = Customer::where('email', $store_customer["email"])->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
