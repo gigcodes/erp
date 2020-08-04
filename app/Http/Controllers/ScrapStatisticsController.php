@@ -40,7 +40,9 @@ class ScrapStatisticsController extends Controller
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
             ->select('scrapers.id as scrapper_id','scrapers.*', "s.*", "scrapers.full_scrape as scrapers_status")
-            ->where('supplier_status_id', 1)->whereNull('parent_id');
+            ->where('supplier_status_id', 1)
+            ->whereIn("scrapper",[1,2])
+            ->whereNull('parent_id');
 
         if (!empty($keyWord)) {
             $activeSuppliers->where(function ($q) use ($keyWord) {
