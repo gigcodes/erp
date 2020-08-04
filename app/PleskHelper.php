@@ -77,12 +77,32 @@ class PleskHelper
 
 
     public function viewDomain($domain_id) {
-        
+        $client = new \App\plesk\PleskClient($this->_options['ip']);
+        $client->setCredentials($this->_options['username'], $this->_options['password']);
+
+        $field = null;
+        $value = null;
+        $d = $client->server()->getDomainById($domain_id);
+        dd($d);
+        $temp = [];
+        $temp['id'] = $d['id'];
+        $temp['name'] = $d['filter-id'];
+
+        return $temp;
     }
     public function deleteMailAccount($site_id, $name) {
         $client = new \PleskX\Api\Client($this->_options['ip']);
         $client->setCredentials($this->_options['username'], $this->_options['password']);
         $response = $client->mail()->delete('name',$name,$site_id);
+        return $response;
+    }
+
+    public function changePassword($site_id, $name,$password) {
+        $client = new \App\plesk\PleskClient($this->_options['ip']);
+        $client->setCredentials($this->_options['username'], $this->_options['password']);
+
+
+        $response = $client->mail()->changePassword($site_id, $name,$password);
         return $response;
     }
 }

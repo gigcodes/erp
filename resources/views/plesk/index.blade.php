@@ -41,8 +41,8 @@
             <td>{{$domain['name']}}</td>
             <td>
               <!-- <a class="btn btn-image view-btn" data-id="{{ $domain['id'] }}"><img src="/images/view.png" /></a> -->
-              <a class="btn btn-image add-mail-btn" data-id="{{ $domain['id'] }}">+</a>
-              <a class="btn" href="{{ route('plesk.domains.mail-accounts', $domain['id']) }}">Accounts</a>
+              <a class="btn btn-image add-mail-btn" data-name="{{$domain['name']}}" data-id="{{ $domain['id'] }}">+</a>
+              <a class="btn" href="/plesk/domains/mail/accounts/{{$domain['id']}}?name={{$domain['name']}}">Accounts</a>
             </td>
             </tr>
             @endforeach
@@ -103,7 +103,10 @@
        var $this = $(this);
        $.ajax({
           url: "/plesk/domains/mail/create/"+$(this).data("id"),
-          type: "get"
+          type: "get",
+          data: {
+            sitename : $(this).data("name")
+          }
         }).done(function(response) {
           $('#loading-image').hide();
           $('#addMail').modal('show');

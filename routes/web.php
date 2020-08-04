@@ -307,6 +307,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/domains/mail/create/{id}', 'PleskController@submitMail')->name('plesk.domains.submit-mail');
         Route::post('/domains/mail/delete/{id}', 'PleskController@deleteMail')->name('plesk.domains.delete-mail');
         Route::get('/domains/mail/accounts/{id}', 'PleskController@getMailAccounts')->name('plesk.domains.mail-accounts');
+        Route::post('/domains/mail/change-password', 'PleskController@changePassword')->name('plesk.domains.mail-accounts.change-password');
         Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
     });
     
