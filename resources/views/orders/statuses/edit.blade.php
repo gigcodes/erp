@@ -11,8 +11,8 @@
                   <strong>ERP status</strong>
                     <select class="form-control" name="order_status_id">
                         <option  value="">Select</option>
-                        @foreach($order_statuses as $status)
-                        <option value="{{ $status->id }}" {{ $status->id == $store_order_status->order_status_id ? 'selected' : '' }}>{{ $status->status }}</option>
+                        @foreach($order_statuses as $erp)
+                        <option value="{{ $erp->id }}" {{ $erp->id == $store_order_status->order_status_id ? 'selected' : '' }}>{{ $erp->status }}</option>
                         @endforeach
                     </select>
                 </div>
@@ -22,7 +22,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>Store</strong>
-                    <select class="form-control" name="store_website_id">
+                    <select class="form-control store_website_id" name="store_website_id" id="store_website_id">
                         <option  value="">Select</option>
                         @foreach($store_website as $website)
                         <option value="{{ $website->id }}" {{ $website->id == $store_order_status->store_website_id ? 'selected' : '' }}>{{$website->title}} ({{$website->website_source}})</option>
@@ -34,11 +34,15 @@
             <div class="row">
               <div class="col">
                 <div class="form-group">
-                  <strong>Store status</strong>
-                    <input type="text" value="{{$store_order_status->status}}" class="form-control" name="status">
+                  <strong>Store Status</strong>
+                    <select class="form-control" name="store_master_status_id" id="store_master_status_id">
+                      <option  value="">Select</option>
+                        @foreach($store_master_statuses as $status)
+                        <option  value="{{$status->id}}" {{$status->id == $store_order_status->store_master_status_id ? 'selected' : ''}} >{{$status->label}}</option>
+                        @endforeach
+                    </select>
                 </div>
               </div>
-            </div>
             </div>
           <div class="modal-footer">
             <div class="row" style="margin:0px;">

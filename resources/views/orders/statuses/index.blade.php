@@ -43,6 +43,7 @@
                 </form>
             </div>
             <div class="pull-right">
+                <a class="btn btn-secondary fetch-store-status">Fetch Store Status</a>
                 <a class="btn btn-secondary add-new-btn">+</a>
             </div>
         </div>
@@ -67,7 +68,7 @@
             <tr>
             <td>{{$status->order_status->status}}</td>
             <td>{{$status->store_website->title}} ({{$status->store_website->website_source}})</td>
-            <td>{{$status->status}}</td>
+            <td>{{$status->store_master_status->label}}</td>
             <td>
               <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>
             </td>
@@ -88,6 +89,17 @@
       <!-- Modal content-->
       <div class="modal-content ">
         <div id="add-new-content">
+        
+        </div>
+      </div>
+    </div>
+</div>
+
+<div id="fetchStoreStatus" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+        <div id="fetch-store-status-content">
         
         </div>
       </div>
@@ -136,6 +148,43 @@
            $("#addNew").hide();
         });
     });
+
+    $(document).on("click",".fetch-store-status",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          url: "/store-website/status/fetch",
+          type: "get"
+        }).done(function(response) {
+          $('#fetchStoreStatus').modal('show');
+           $("#fetch-store-status-content").html(response); 
+        }).fail(function(errObj) {
+           $("#fetchStoreStatus").hide();
+        });
+    });
+
+    $(document).on("change",".store_website_id",function(e){
+      console.log("changed");
+       e.preventDefault();
+       var id = $(this).val();
+       $.ajax({
+          url: "/store-website/status/fetchMasterStatus/"+id,
+          type: "get"
+        }).done(function(response) {
+          var option = '';
+          for(var i=0;i<response.length;i++) {
+            option = option + '<option value="'+response[i].id+'">'+response[i].label+'</option>';
+          }
+          console.log(option);
+          if(option != '') {
+            $("#store_master_status_id").html(option);
+          }
+        }).fail(function(errObj) {
+           $("#fetchStoreStatus").hide();
+        });
+    });
+
+    
 
 
   </script>

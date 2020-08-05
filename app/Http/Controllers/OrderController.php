@@ -46,6 +46,7 @@ use App\Mails\Manual\OrderInvoicePDF;
 use App\Mails\Manual\OrderConfirmation;
 use Illuminate\Support\Facades\Mail;
 use Dompdf\Dompdf;
+use App\StoreMasterStatus;
 use App\Helpers\OrderHelper;
 
 use App\Services\BlueDart\BlueDart;
@@ -2457,7 +2458,7 @@ public function createProductOnMagento(Request $request, $id){
 	// 	}
 	// }
 
-
+	// 
 	public function viewAllStatuses(Request $request) {
 		$request->order_status_id ? $erp_status = $request->order_status_id : 
 		$erp_status = null;
@@ -2477,27 +2478,52 @@ public function createProductOnMagento(Request $request, $id){
 		return view('orders.statuses.index',compact('store_order_statuses','order_statuses','store_website','erp_status','store'));
 	}
 
+	public function viewFetchStatus() {
+		$store_website = StoreWebsite::all();
+		return view('orders.statuses.fetch-order-status',compact('store_website'));
+	}
+
+	public function fetchStatus(Request $request) {
+		$website = StoreWebsite::find($request->store_website_id);
+		$magentoHelper = new MagentoHelperv2;
+		$result = $magentoHelper->fetchOrderStatus($website);
+		dd($result);
+		if($result) {
+			$statuses = $result;
+			foreach($statuses as $status) {
+				StoreMasterStatus::updateOrCreate([
+					'store_website_id' => $request->store_website_id,
+					'value' => $status->value
+					], [
+					'label' => $status->label
+				]);
+			}
+		}
+		return redirect()->back()->with('success','Status successfully updated');
+	}
+
 
 	public function viewCreateStatus() {
 		$order_statuses = OrderStatus::all();
 		$store_website = StoreWebsite::all();
-		return view('orders.statuses.create',compact('order_statuses','store_website'));
+		$store_master_statuses = StoreMasterStatus::all();
+		return view('orders.statuses.create',compact('order_statuses','store_website','store_master_statuses'));
 	}
 
 	public function createStatus(Request $request) {
 		$this->validate( $request, [
 			'order_status_id'    => 'required',
 			'store_website_id' => 'required',
-			'status' => 'required',
+			'store_master_status_id' => 'required',
 		] );
 		$input = $request->except('_token');
-		$isExist = Store_order_status::where('order_status_id',$request->order_status_id)->where('store_website_id',$request->store_website_id)->where('status',$request->status)->first();
+		$isExist = Store_order_status::where('order_status_id',$request->order_status_id)->where('store_website_id',$request->store_website_id)->where('store_master_status_id',$request->store_master_status_id)->first();
 		if(!$isExist) {
 			Store_order_status::create($input);
 			return redirect()->back();
 		}
 		else {
-			return redirect()->back()->with('error','Already exists');
+			return redirect()->back()->with('warning','Already exists');
 		}
 	}
 
@@ -2505,19 +2531,33 @@ public function createProductOnMagento(Request $request, $id){
 		$store_order_status = Store_order_status::find($id);
 		$order_statuses = OrderStatus::all();
 		$store_website = StoreWebsite::all();
-		return view('orders.statuses.edit',compact('store_order_status','order_statuses','store_website'));
+		$store_master_statuses = StoreMasterStatus::where('store_website_id',$store_order_status->store_website_id)->get();
+		return view('orders.statuses.edit',compact('store_order_status','order_statuses','store_website','store_master_statuses'));
 	}
 
 	public function editStatus($id, Request $request) {
 		$this->validate( $request, [
 			'order_status_id'    => 'required',
 			'store_website_id' => 'required',
-			'status' => 'required',
+			'store_master_status_id' => 'required',
 		] );
 		$input = $request->except('_token');
-		$store_order_status = Store_order_status::find($id);
-		$store_order_status->update($input);
-		return redirect()->back();
+		$isExist = Store_order_status::where('order_status_id',$request->order_status_id)->where('store_website_id',$request->store_website_id)->where('store_master_status_id',$request->store_master_status_id)->first();
+
+		if(!$isExist) {
+			$store_order_status = Store_order_status::find($id);
+			$store_order_status->update($input);
+			return redirect()->back();
+		}
+		else {
+			return redirect()->back()->with('warning','Already exists');
+		}
+		
+	}
+
+	public function fetchMasterStatus($id) {
+		$store_master_statuses = StoreMasterStatus::where('store_website_id',$id)->get();
+		return $store_master_statuses;
 	}
 
 }

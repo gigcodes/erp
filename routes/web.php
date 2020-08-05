@@ -306,6 +306,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
         Route::get('/status/create', 'OrderController@viewCreateStatus');
         Route::post('/status/create', 'OrderController@createStatus')->name('store-website.submit.status');
+        Route::get('/status/fetch', 'OrderController@viewFetchStatus');
+        Route::post('/status/fetch', 'OrderController@fetchStatus')->name('store-website.fetch.status');
+        Route::get('/status/fetchMasterStatus/{id}', 'OrderController@fetchMasterStatus');
     });
 
 

@@ -22,7 +22,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>Store</strong>
-                    <select class="form-control" name="store_website_id">
+                    <select class="form-control store_website_id" name="store_website_id">
                         <option  value="">Select</option>
                         @foreach($store_website as $website)
                         <option  value="{{$website->id}}">{{$website->title}} ({{$website->website_source}})</option>
@@ -34,11 +34,12 @@
             <div class="row">
               <div class="col">
                 <div class="form-group">
-                  <strong>Store status</strong>
-                    <input type="text" class="form-control" name="status">
+                  <strong>Store Status</strong>
+                    <select class="form-control" name="store_master_status_id" id="store_master_status_id">
+                        
+                    </select>
                 </div>
               </div>
-            </div>
             </div>
           <div class="modal-footer">
             <div class="row" style="margin:0px;">
@@ -46,4 +47,9 @@
             </div>
           </div>
 </form>
+
+<!-- <option  value="">Select</option>
+                        @foreach($store_master_statuses as $status)
+                        <option  value="{{$status->id}}">{{$status->label}}</option>
+                        @endforeach -->
 
