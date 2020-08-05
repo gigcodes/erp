@@ -48,8 +48,10 @@ class LandingPageController extends Controller
             }
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach($medias as $image) {
+                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                    }
                 }
             }
             $rec->images = $productData['images'];
@@ -179,7 +181,6 @@ class LandingPageController extends Controller
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
-                        'body_html'       => $landingPage->description,
                         'images'          => [],
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
@@ -193,8 +194,11 @@ class LandingPageController extends Controller
 
             // Add images to product
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    $productData['product']['images'][] = ['src' => $image->getUrl()];
+                
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach ($medias as $image) {
+                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                    }
                 }
             }
 
