@@ -55,6 +55,7 @@
 			    <tr>
 			      <th class="th-sm">Id</th>
 			      <th class="th-sm">Intent</th>
+                  <th class="th-sm">Suggested Reply</th>
 			      <th class="th-sm">User Example</th>
 			      <th class="th-sm">Category</th>
 			      <th class="th-sm">Action</th>
@@ -65,6 +66,7 @@
 				    <tr>
 				      <td><?php echo $chatQuestion->id; ?></td>
 				      <td><?php echo $chatQuestion->value; ?></td>
+                      <td><?php echo $chatQuestion->suggested_reply; ?></td>
 				      <td><?php echo $chatQuestion->questions; ?></td>
 				      <td><?php echo $chatQuestion->category_name; ?></td>
 				      <td>
@@ -78,7 +80,8 @@
 			    <tr>
 			      <th>Id</th>
 			      <th>Intent</th>
-			      <th>User Example</th>
+			      <th>Suggested Reply</th>
+                  <th>User Example</th>
 			      <th>Category</th>
 			      <th>Action</th>
 			    </tr>

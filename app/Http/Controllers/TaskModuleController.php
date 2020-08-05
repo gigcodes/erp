@@ -19,9 +19,11 @@ use App\DocumentRemark;
 use App\DeveloperTask;
 use App\NotificationQueue;
 use App\ChatMessage;
+use App\DeveloperTaskHistory;
 use App\ScheduledMessage;
 use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
+use App\PaymentReceipt;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
@@ -37,7 +39,6 @@ class TaskModuleController extends Controller {
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
-
 		$categoryWhereClause = '';
 		$category = '';
 		if ($request->category != '' && $request->category != 1) {
@@ -142,7 +143,6 @@ class TaskModuleController extends Controller {
 		// }
 		//
 		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
-
 		$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -354,23 +354,56 @@ class TaskModuleController extends Controller {
 		}
 
 		$search_term_suggestions = [];
-		foreach ($data['task']['pending'] as $task) {
-			$search_term_suggestions[] = User::find($task->assign_from)->name;
-			$special_task = Task::find($task->id);
+		$assign_from_arr = array();
+		$special_task_arr = array();
+		$assign_to_arr = array();
+		
 
-			if (count($special_task->users) > 0) {
+		foreach ($data['task']['pending'] as $task) {
+			//$search_term_suggestions[] = User::find($task->assign_from)->name;
+			array_push($assign_to_arr, $task->assign_to);
+			array_push($assign_from_arr, $task->assign_from);
+			array_push($special_task_arr, $task->id);
+
+			//$special_task = Task::find($task->id);
+			
+			/*if (count($special_task->users) > 0) {
 				foreach ($special_task->users as $user) {
 					$search_term_suggestions[] = $user->name;
 				}
-			}
+			}*/
 
+			/*$search_term_suggestions[] = "$task->id";
+			$search_term_suggestions[] = $task->task_subject;
+			$search_term_suggestions[] = $task->task_details;*/
+		}
+
+		$user_ids_from = implode(",", array_unique($assign_from_arr));
+		$var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
+
+		$user_ids_to = implode(",", array_unique($assign_to_arr));
+		$var_user_name_to = DB::select('SELECT id,name from users where id IN ('.$user_ids_to.')');
+		$search_term_suggestions = [];
+		foreach ($data['task']['pending'] as $task) {
+			foreach ($var_user_name as $row_from) {
+				if($row_from->id == $task->assign_from)
+				{
+					$search_term_suggestions[] = $row_from->name;
+				}
+			}
+			foreach ($var_user_name_to as $row_to) {
+				if($row_to->id == $task->assign_to)
+				{
+					$search_term_suggestions[] = $row_to->name;
+				}
+			}
+			
+			//$search_term_suggestions[] = $var_user_name_to[0]->name;
 			$search_term_suggestions[] = "$task->id";
 			$search_term_suggestions[] = $task->task_subject;
 			$search_term_suggestions[] = $task->task_details;
 		}
-
 		// $category = '';
-
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
 		$users         = Helpers::getUserArray( User::all() );
@@ -401,8 +434,88 @@ class TaskModuleController extends Controller {
 		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
 	}
 
+	public function updateCost(Request $request) {
+		$task = Task::find($request->task_id);
+
+		// if($task && $request->approximate) {
+        //     DeveloperTaskHistory::create([
+		// 		'developer_task_id' => $task->id,
+		// 		'model' => 'App\Task',
+        //         'attribute' => "estimation_minute",
+        //         'old_value' => $task->approximate,
+        //         'new_value' => $request->approximate,
+        //         'user_id' => auth()->id(),
+        //     ]);
+        // }
+
+		$task->cost = $request->cost;
+		$task->save();
+		return response()->json(['msg' => 'success']);
+	}
+
+
+
+
+	public function saveMilestone(Request $request)
+    {
+		$task = Task::find($request->task_id);
+        if(!$task->is_milestone) {
+            return;
+        }
+        $total = $request->total;
+        if($task->milestone_completed) {
+            if($total <= $task->milestone_completed) {
+                return response()->json([
+                    'message' => 'Milestone no can\'t be reduced'
+                ],500);
+            }
+        }
+
+        if($total > $task->no_of_milestone) {
+            return response()->json([
+                'message' => 'Estimated milestone exceeded'
+            ],500);
+        }
+        if(!$task->cost || $task->cost == '') {
+            return response()->json([
+                'message' => 'Please provide cost first'
+            ],500);
+        }
+
+        $newCompleted = $total - $task->milestone_completed;
+        $individualPrice = $task->cost / $task->no_of_milestone;
+        $totalCost = $individualPrice * $newCompleted;
+
+        $task->milestone_completed = $total;
+        $task->save();
+        $payment_receipt = new PaymentReceipt;
+        $payment_receipt->date = date( 'Y-m-d' );
+        $payment_receipt->worked_minutes = $task->approximate;
+        $payment_receipt->rate_estimated = $totalCost;
+        $payment_receipt->status = 'Pending';
+        $payment_receipt->task_id = $task->id;
+        $payment_receipt->user_id = $task->assign_to;
+		$payment_receipt->save();
+		
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
 	public function updateApproximate(Request $request) {
 		$task = Task::find($request->task_id);
+
+		if($task && $request->approximate) {
+            DeveloperTaskHistory::create([
+				'developer_task_id' => $task->id,
+				'model' => 'App\Task',
+                'attribute' => "estimation_minute",
+                'old_value' => $task->approximate,
+                'new_value' => $request->approximate,
+                'user_id' => auth()->id(),
+            ]);
+        }
+
 		$task->approximate = $request->approximate;
 		$task->save();
 		return response()->json(['msg' => 'success']);
@@ -507,7 +620,6 @@ class TaskModuleController extends Controller {
 			'task_details'	=> 'required',
 			'assign_to' => 'required_without:assign_to_contacts'
 		]);
-		
 		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
 
@@ -786,13 +898,15 @@ class TaskModuleController extends Controller {
 		$categories = TaskCategory::attr(['title' => 'category','class' => 'form-control input-sm', 'placeholder' => 'Select a Category', 'id' => 'task_category'])
 																						->selected($task->category)
 		                                        ->renderAsDropdown();
-		$taskNotes = $task->notes()->paginate(20);
+		$taskNotes = $task->notes()->where('is_hide', 0)->paginate(20);
+		$hiddenRemarks = $task->notes()->where('is_hide', 1)->get();
 		return view('task-module.task-show', [
 			'task'	=> $task,
 			'users'	=> $users,
 			'users_array'	=> $users_array,
 			'categories'	=> $categories,
 			'taskNotes'	=> $taskNotes,
+			'hiddenRemarks'	=> $hiddenRemarks,
 		]);
 	}
 
@@ -867,7 +981,7 @@ class TaskModuleController extends Controller {
 
 	public function complete(Request $request, $taskid ) {
 
-		$task               = Task::find( $taskid );
+		$task  = Task::find( $taskid );
 		// $task->is_completed = date( 'Y-m-d H:i:s' );
 //		$task->deleted_at = null;
 
@@ -891,8 +1005,34 @@ class TaskModuleController extends Controller {
 		//
 		// 	$item->save();
 		// }
-
 		if ($request->type == 'complete') {
+			if($task->assignedTo) {
+				if($task->assignedTo->fixed_price_user_or_job == 1) {
+					// Fixed price task.
+					if($task->cost == null) {
+						if ($request->ajax()) {
+							return response()->json([
+								'message'	=> 'Please provide cost for fixed price task.'
+							],500);
+						}
+				
+						return redirect()->back()
+										 ->with( 'error', 'Please provide cost for fixed price task.' );
+					}
+					if(!$task->is_milestone) {
+						$payment_receipt = new PaymentReceipt;
+						$payment_receipt->date = date( 'Y-m-d' );
+						$payment_receipt->worked_minutes = $task->approximate;
+						$payment_receipt->rate_estimated = $task->cost;
+						$payment_receipt->status = 'Pending';
+						$payment_receipt->task_id = $task->id;
+						$payment_receipt->user_id = $task->assign_to;
+						$payment_receipt->save();
+					}
+				}
+			}
+
+
 			if ($task->is_completed == '') {
 				$task->is_completed = date( 'Y-m-d H:i:s' );
 			} else if ($task->is_verified == '') {
@@ -1574,10 +1714,23 @@ class TaskModuleController extends Controller {
 
 	}
 
+	/***
+	 * Delete task note
+	 */
 	public function deleteTaskNote(Request $request)
 	{
 		$task = Remark::whereId($request->note_id)->delete();
 		session()->flash('success', 'Deleted successfully.');
 		return response(['success' => "Deleted"],200);
+	}
+
+	/**
+	 * Hide task note from list
+	 */
+	public function hideTaskRemark(Request $request)
+	{
+		$task = Remark::whereId($request->note_id)->update(['is_hide' => 1]);
+		session()->flash('success', 'Hide successfully.');
+		return response(['success' => "Hidden"],200);
 	}
 }

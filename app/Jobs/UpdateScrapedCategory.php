@@ -62,8 +62,10 @@ class UpdateScrapedCategory implements ShouldQueue
         if ($product->scraped_products) {
             if (isset($product->scraped_products->properties) && isset($product->scraped_products->properties['category']) != null) {
                 $category           = $product->scraped_products->properties['category'];
-                $referencesCategory = implode(' ', $category);
-                $lastcategory       = end($category);
+                if(is_array($category)) {
+                    $referencesCategory = implode(' ', $category);
+                    $lastcategory       = end($category);
+                }
             }
         } else {
             return;
@@ -76,18 +78,20 @@ class UpdateScrapedCategory implements ShouldQueue
 
             $productSupplier = $product->supplier;
             $supplier        = Supplier::where('supplier', $productSupplier)->first();
-            $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
+            if($supplier && $supplier->scraper) {
+                $scrapedProducts = ScrapedProducts::where('website', $supplier->scraper->scraper_name)->get();
 
-            self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
-            self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
+                self::putLog("Scrapeed Product Query time : ". date("Y-m-d H:i:s"));
+                self::putLog("supplier : " . $productSupplier . " ||  Scraped Product Found : ".$scrapedProducts->count());
 
-            foreach ($scrapedProducts as $scrapedProduct) {
-                if (isset($scrapedProduct->properties['category'])) {
-                    $products = $scrapedProduct->properties['category'];
-                    if (is_array($products)) {
-                        $list = implode(' ', $products);
-                        if (strtolower($referencesCategory) == strtolower($list)) {
-                            $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                foreach ($scrapedProducts as $scrapedProduct) {
+                    if (isset($scrapedProduct->properties['category'])) {
+                        $products = $scrapedProduct->properties['category'];
+                        if (is_array($products)) {
+                            $list = implode(' ', $products);
+                            if (strtolower($referencesCategory) == strtolower($list)) {
+                                $scrapedProductSkuArray[] = $scrapedProduct->product_id;
+                            }
                         }
                     }
                 }

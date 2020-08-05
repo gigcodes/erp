@@ -17,10 +17,27 @@
     </style>
 @endsection
 
+<style> 
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+    .status-selection .multiselect {
+        width : 100%;
+    }
+    .pd-sm {
+        padding: 0px 8px !important;
+    }
+    tr {
+        background-color: #f9f9f9;
+    }
+</style>
+
+
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ ucfirst($title) }} List</h2>
+            <h2 class="page-heading">{{ ucfirst($title) }}</h2>
         </div>
     </div>
 
@@ -54,23 +71,23 @@
     <div class="row mb-4">
         <div class="col-md-12">
             @include("development.partials.task-issue-search")
-            <div class="row" style="margin-top: 10px;">
-                <div class="col-md-2">
-                    <a class="btn btn-secondary" 
+            <div class="pull-right mt-4">
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
                            Show Planned count
-                        </a>
-                </div>
-                <div class="col-md-2">
-                     <a class="btn btn-secondary" 
+            </a>
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#inProgressFilterCount" role="button" aria-expanded="false" aria-controls="inProgressFilterCount">
                            Show In Progress count
-                        </a>
-                </div>
-            </div>
-            @if($title == 'devtask')
-                <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
-            @endif
+            </a>
+            <a style="color:white;" class="btn btn-secondary  priority_model_btn">Priority</a>
+            @if(auth()->user()->isReviwerLikeAdmin())
+                    <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
+                @endif
+        </div>
+
+
+         
         </div>
     </div>
     @include("development.partials.task-issue-counter")
@@ -89,32 +106,35 @@
         </select>
     </div>
     <div class="infinite-scroll">
-        <div class="table-responsive">
-            <table class="table table-bordered table-striped">
-                @if($title == 'issue' && auth()->user()->isAdmin())
-                    <tr class="add-new-issue">
-                        @include("development.partials.add-new-issue")
-                    </tr>
-                @endif
+        <div >
+        @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
+        <table class="table table-bordered table-striped">
+            <tr class="add-new-issue">
+                @include("development.partials.add-new-issue")
+            </tr>
+        </table>
+        @endif
+            <table class="table table-bordered table-striped" style="table-layout:fixed;">
                 <tr>
-                    <th width="1%">ID</th>
-                    <th width="5%">Module</th>
-                    <th width="10%">Subject</th>
-                    <th width="5%">Priority</th>
-                    <th width="15%">Issue</th>
-                    <th width="5%">Date Created</th>
-                    <th width="5%">Est Completion Time</th>
-                    <th width="5%">Tracked Time</th>
-                    <th width="5%">Assigned To</th>
-                    <th width="5%">Resolved</th>
-                    <th width="5%">Master Developer</th>
-                    <th width="5%">Cost</th>
-                    <th width="5%">Language</th>
+                    <th style="width:5%;">ID</th>
+                    <th style="width:8%;">Module</th>
+                    <th style="width:12%;">Subject</th>
+                    <th style="width:22%;">Communication</th>
+                    <th style="width:7%;">Est Completion Time</th>
+                    <th style="width:5%;">Tracked Time</th>
+                    <th style="width:15%;">Developers</th>
+                    <th style="width:12%;">Status</th>
+                    <th style="width:6%;">Cost</th>
+                    <th style="width:8%;">Milestone</th>
                 </tr>
+                <?php
+                   $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
+                   $userID =  Auth::user()->id;
+                ?>
                 @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isAdmin())
+                    @if($isReviwerLikeAdmin)
                         @include("development.partials.admin-row-view")
-                    @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
+                    @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
                         @include("development.partials.developer-row-view")
                     @endif
                 @endforeach
@@ -128,7 +148,7 @@
     @include("development.partials.chat-list-history-modal")
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
-
+    @include("development.partials.time-history-modal")
 @endsection
 
 @section('scripts')
@@ -150,11 +170,12 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
+
             $('.infinite-scroll').jscroll({
-                debug: true,
+                debug: false,
                 autoTrigger: true,
                 loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 0,
+                padding: 20,
                 nextSelector: '.pagination li.active + li a',
                 contentSelector: '.infinite-scroll',
                 callback: function () {
@@ -164,8 +185,6 @@
                         var current_page = next_page.find("span").html();
                         $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
                     }
-
-
                     $.each($("select.resolve-issue"),function(k,v){
                         if (!$(v).hasClass("select2-hidden-accessible")) {
                             $(v).select2({width:"100%", tags:true});
@@ -177,15 +196,24 @@
                     });
                 }
             });
-
+            
             $('select.select2').select2({
                 tags: true,
                 width: "100%"
             });
 
+
+            $('.assign-master-user.select2').select2({
+                width: "100%"
+            });
+
+            $('.assign-user.select2').select2({
+                width: "100%"
+            });
+
             $.each($(".resolve-issue"),function(k,v){
                 if (!$(v).hasClass("select2-hidden-accessible")) {
-                    $(v).select2({width:"100%", tags:true});
+                    $(v).select2({width:"100%"});
                 }
             });
 
@@ -280,16 +308,54 @@
         });
         
         $(document).on('click', '.send-message', function (event) {
-            /*if (event.which != 13) {
-                return;
-            }*/
 
             var textBox = $(this).closest(".panel-footer").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".panel-footer").find(".send-message-number").val();
 
+
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
+            if (message == '') {
+                return;
+            }
 
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
+
+
+        $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
+
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
             if (message == '') {
                 return;
             }
@@ -341,7 +407,6 @@
                     toastr["success"]("User assigned successfully!", "Message")
                 }
             });
-
         });
         $(document).on('change', '.assign-user', function () {
             let id = $(this).attr('data-id');
@@ -359,6 +424,31 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+        $(document).on('change', '.task-module', function () {
+            let id = $(this).attr('data-id');
+            let moduleID = $(this).val();
+
+            if (moduleID == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@changeModule')}}",
+                data: {
+                    module_id: moduleID,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Module assigned successfully!", "Message")
                 }
             });
 
@@ -373,13 +463,17 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignMasterUser')}}",
                 data: {
                     master_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
                     toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
 
@@ -402,6 +496,32 @@
                 },
                 success: function () {
                     toastr["success"]("Price updated successfully!", "Message")
+                }
+            });
+        });
+
+
+
+        $(document).on('keyup', '.save-milestone', function (event) {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let id = $(this).attr('data-id');
+            let total = $(this).val();
+
+            $.ajax({
+                url: "{{action('DevelopmentController@saveMilestone')}}",
+                data: {
+                    total: total,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Milestone updated successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    console.log(error.responseJSON.message);
+                    
                 }
             });
         });
@@ -431,10 +551,12 @@
             }
         });
 
-        $(document).on('click', '.estimate-time-change', function () {
+        $(document).on('keyup', '.estimate-time-change', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
             let issueId = $(this).data('id');
             let estimate_minutes = $("#estimate_minutes_" + issueId).val();
-
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
                 data: {
@@ -446,6 +568,30 @@
                 }
             });
 
+        });
+
+        $(document).on('click', '.show-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data, function(i, item) {
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_history_modal').modal('show');
         });
 
         $(document).on('change', '.change-task-status', function () {
@@ -568,6 +714,9 @@
                 },
                 success: function () {
                     toastr["success"]("Status updated!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
                 }
             });
         }
@@ -623,5 +772,16 @@
             });
         });
 
+
+        $(document).on('change', '#is_milestone', function () {
+
+            var is_milestone = $('#is_milestone').val();
+            if(is_milestone == '1') {
+                $('#no_of_milestone').attr('required', 'required');
+            }
+            else {
+                $('#no_of_milestone').removeAttr('required');
+            }
+        });
     </script>
 @endsection

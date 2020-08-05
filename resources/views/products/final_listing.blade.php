@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
-    
+
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
     <style>
@@ -82,6 +82,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) <a href="{{ action('ProductController@showSOP') }}?type=ListingApproved" class="pull-right">SOP</a></h2>
 
             <div class="pull-left">
+
                 <form class="form-inline" action="{{ action('ProductController@approvedListing') }}" method="GET">
 
                     <div class="form-group mr-3 mb-3">
@@ -171,12 +172,15 @@
                             <lable for="submit_for_approval">Submit For approval ?</lable>
                         </div>
                     @endif
+
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
                 </form>
-            </div>
+              </div>
         </div>
     </div>
+
+    <input type="button" onclick="pushProduct()" class="btn btn-danger btn-lg" value="Push product"/>
 
     {{-- @include('development.partials.modal-task')
     @include('development.partials.modal-quick-task') --}}
@@ -246,7 +250,7 @@
                                             </div>
                                             <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
                                             <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
-                                            
+
                                         @endif
                                     </div>
                                     <div class="col-md-3">
@@ -267,7 +271,7 @@
                                                 }
                                             }
                                         ?>
-                                        <p> 
+                                        <p>
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
                                             <span id="description{{ $product->id }}" class="same-color">
@@ -294,12 +298,12 @@
                                             @endforeach
                                             <hr/>
                                         @endif
-                                        
-                                        @php 
+
+                                        @php
                                         //getting proper composition and hscode
                                         $composition = $product->commonComposition($product->category , $product->composition);
 
-                                        $hscode =  $product->hsCode($product->category , $product->composition);    
+                                        $hscode =  $product->hsCode($product->category , $product->composition);
 
                                         @endphp
                                         <p>
@@ -794,6 +798,23 @@
 @endsection
 
 @section('scripts')
+        <script>
+          function pushProduct(){
+            $.ajax({
+           type: "POST",
+           headers: {
+             "X-CSRF-TOKEN": "{{csrf_token()}}"
+           },
+           cache: false,
+           contentType: false,
+           processData: false,
+           url: "{{ url('products/listing/final/pushproduct') }}",
+           success: function(html) {
+            swal(html.message);
+           }
+         })
+          }
+        </script>
     <style>
         .same-color {
             color: #898989;
@@ -813,7 +834,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
-   
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
 
@@ -1797,7 +1819,7 @@
             }
         });
 
-        
+
 
         function bigImg(img) {
             $('#large-image').attr("src", img);
@@ -1813,7 +1835,7 @@
             $('#image'+id).removeAttr("style");
             $('#image'+id).prop("onclick", null).off("click");
             $('#image'+id).height('336');
-           
+
            var example = $('#image'+id).cropme();
             example.cropme('bind', {
                 url: img,
@@ -1848,23 +1870,23 @@
                 var n  = d.toLocaleTimeString();
                 newurl = img+'?version='+n;
                 html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+img+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+img+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
-        
+
                 $('#col-large-image'+id).empty().append(html);
                 alert('Image Cropped and Saved Successfully');
             })
             .fail(function() {
                 console.log("error");
             });
-            
+
         }
 
         function replaceThumbnail(id,url,gridImage){
             html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
-        
-        $('#col-large-image'+id).empty().append(html);
-           
 
-            
+        $('#col-large-image'+id).empty().append(html);
+
+
+
         }
 
         $(document).on("click",".set-description-site",function() {

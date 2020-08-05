@@ -54,16 +54,23 @@ class SiteDevelopmentController extends Controller
         }
 
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
+
+
+        $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
+        ->groupBy("sds.id")
+        ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+        ->get();
+
         $users     = User::select('id', 'name')->whereIn('id', $userIDs)->get();
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'));
+        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount'));
     }
 
     public function addCategory(Request $request)
@@ -118,6 +125,10 @@ class SiteDevelopmentController extends Controller
 
         if ($request->type == 'designer_id') {
             $site->designer_id = $request->text;
+        }
+
+        if ($request->type == 'html_designer') {
+            $site->html_designer = $request->text;
         }
 
         $site->site_development_category_id = $request->category;
@@ -288,6 +299,31 @@ class SiteDevelopmentController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Sorry required fields is missing like id, siteid , userid"]);
+    }
+
+    public function remarks(Request $request, $id)
+    {
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+    }
+
+    public function saveRemarks(Request $request, $id)
+    {
+        \App\StoreDevelopmentRemark::create([
+            "remarks" => $request->remark,
+            "store_development_id" => $id,
+            "user_id" => \Auth::user()->id,
+        ]);
+
+        $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        ->orderBy("store_development_remarks.created_at","desc")
+        ->get();
+        return response()->json(["code" => 200 , "data" => $response]);
+
     }
 
 }

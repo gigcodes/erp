@@ -169,6 +169,46 @@ var parentDialog = function(ele) {
     }
 };
 
+
+$(document).on("change", ".dynamic-row .search-alias", function() {
+    var selectedIntentOrEntity = $(this).val();
+    if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
+        var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+        if (!(isEntity === undefined)) {
+            allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
+            selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
+            $.ajax({
+                type: "post",
+                headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
+                data: isEntity ? { 
+                    keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
+                } : { 
+                    value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                },
+                dataType: "json",
+                success: function(response) {
+                    var successMessage = isEntity ? "Entity Created Successfully" : "Intent Created SuccessFully"
+                    toastr["success"](successMessage);
+                },
+                error: function() {
+                    toastr["error"]("Could not add intent/entity!");
+                }
+            });
+        }
+        else {
+            toastr["error"]("Invalid intent/entity format. Entities should be prefixed with @ and intents should be prefixed with #");
+            var aliasTemplate = $.templates("#search-alias-template");
+            var aliasTemplateHtml = aliasTemplate.render({
+                "allSuggestedOptions": allSuggestedOptions
+            });
+            $("#leaf-editor-model").find(".search-alias").html(aliasTemplateHtml);
+        }
+    }
+});
+
 var searchForDialog = function(ele) {
     var dialogBox = ele.find(".search-dialog");
     var intentOrEntityBox = ele.find(".search-alias");
@@ -408,7 +448,9 @@ $(document).on("click", ".add-more-condition-btn", function() {
     $(".show-more-conditions").append(buttonOptions.render({
         "allSuggestedOptions": allSuggestedOptions
     }));
-    $(".search-alias").select2();
+    $(".search-alias").select2({
+        tags: true
+    });
 });
 $(document).on("click", ".remove-more-condition-btn", function() {
     $(this).closest(".form-row").remove();
@@ -569,9 +611,49 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
         });
     }
 });
+
+$(document).on("click", ".save-example", function(e) {
+    e.preventDefault();
+    var example = $(".example-insert").val();
+    var question = $(".question-insert").val();
+
+    $.ajax({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        },
+        type: 'post',
+        url: '/chatbot/question',
+        data: {
+            question: example,
+            value: question
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log(response);
+            $(".example-insert").val('');
+            $(".question-insert").val('');
+
+            if (response.code == 200) {
+                toastr['success']('question created successfully!');
+                $(".example-insert").val('');
+                $(".question-insert").val('');
+                $("#leaf-editor-model").modal("hide");
+            } else {
+                errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
+            }
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+});
+
+
 $(document).on("click", ".save-dialog-btn", function(e) {
     e.preventDefault();
     var form = $("#dialog-save-response-form");
+
     $.ajax({
         type: form.attr("method"),
         url: form.attr("action"),
@@ -621,4 +703,27 @@ $(".form-save-btn").on("click", function(e) {
             toastr['error']('Could not change module!');
         }
     });
+});
+
+$(document).on("change",".search-alias",function(){
+    var $this = $(this);
+    var n = $this.val().indexOf("#");
+    if(n > -1) {
+        $.ajax({
+            type: "get",
+            url: "/autoreply/phrases/reply-response",
+            data: {keyword : $this.val()},
+            dataType: "json",
+            success: function(response) {
+                if (response.code == 200) {
+                     $(".response-value").val(response.data.message);
+                } else {
+                    toastr['error']('No reply set on group');
+                }
+            },
+            error: function() {
+                toastr['error']('Could not get data!');
+            }
+        });
+    }
 });

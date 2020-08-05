@@ -6,7 +6,7 @@
         <div class="modal-content">
             <div style="padding: 10px;border-bottom: 1px solid #e5e5e5;">
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Add Development Task</h4>
+                <h4 class="modal-title">Add New Task</h4>
             </div>
             <form action="{{ route('development.store') }}" method="POST" enctype="multipart/form-data">
                 @csrf
@@ -51,7 +51,7 @@
                     <div class="form-group">
                         <label for="module_id">Module:</label>
                         <br>
-                        <select style="width:100%" class="form-control select2" id="module_id" name="module_id">
+                        <select style="width:100%" class="form-control" id="module_id" name="module_id" required>
                             <option value>Select a Module</option>
                             @foreach ($modules as $module)
                             <option value="{{ $module->id }}" {{ $module->id == old('module_id') ? 'selected' : '' }}>{{ $module->name }}</option>
@@ -73,7 +73,7 @@
                         </select>
                     </div>
 
-                    <div class="form-group">
+                    <!-- <div class="form-group">
                         <label for="priority">Priority:</label>
                         <select class="form-control" name="priority" id="priority" required>
                             <option value="3" {{ old('priority') == '3' ? 'selected' : '' }}>Normal</option>
@@ -84,7 +84,7 @@
                         @if ($errors->has('priority'))
                         <div class="alert alert-danger">{{$errors->first('priority')}}</div>
                         @endif
-                    </div>
+                    </div> -->
 
                     <div class="form-group">
                         <label for="priority">Type:</label>
@@ -139,6 +139,28 @@
 
                         @if ($errors->has('status'))
                         <div class="alert alert-danger">{{$errors->first('status')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Is Milestone ?:</strong>
+                        <select id="is_milestone" class="form-control" name="is_milestone" required>
+                            <option value="0" {{ old('is_milestone') == 0 ? 'selected' : '' }}>No</option>
+                            <option value="1" {{ old('is_milestone') == 1 ? 'selected' : '' }}>Yes</option>
+                        </select>
+
+                        @if ($errors->has('is_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                        @endif
+                    </div>
+
+                    <div class="form-group">
+                        <strong>No of milestone:</strong>
+                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" />
+                        </select>
+
+                        @if ($errors->has('no_of_milestone'))
+                        <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
                         @endif
                     </div>
                 </div>

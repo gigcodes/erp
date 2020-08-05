@@ -17,7 +17,7 @@
             <div class="form-inline">
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-rest">Create</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-folder-btn-rest">Create Folder</button>
-        	</div>
+        	  </div>
         </div>
     </div>
 </div>

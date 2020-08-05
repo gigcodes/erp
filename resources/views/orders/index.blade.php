@@ -5,10 +5,34 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+<style>
+.ajax-loader{
+    position: fixed;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.2);
+    z-index: 1060;
+}
+.inner_loader {
+	top: 30%;
+    position: absolute;
+    left: 40%;
+    width: 100%;
+    height: 100%;
+}
+</style>
 @endsection
 
 @section('content')
-
+	<div class="ajax-loader" style="display: none;">
+		<div class="inner_loader">
+		<img src="{{ asset('/images/loading2.gif') }}">
+		</div>
+	</div>
     <div class="row">
         <div class="col-12">
             <h2 class="page-heading">Orders List</h2>
@@ -267,7 +291,7 @@
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
-  <script src="/js/order-awb.js"></script>
+  <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
@@ -282,6 +306,7 @@
                $(".input_customer_phone").val(customer.phone);
                $(".input_customer_address1").val(customer.address);
                $(".input_customer_address2").val(customer.city);
+               $(".input_customer_city").val(customer.city);
                $(".input_customer_pincode").val(customer.pincode);
             }
             $("#generateAWBMODAL").modal("show");

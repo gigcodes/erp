@@ -6,16 +6,18 @@
             <h2 class="page-heading">Google Search Results (<span>{{ $posts->total() }}</span>)</h2>
         </div>
         <div class="col-md-12 mt-4">
-            {{ $posts->appends($request->all())->render() }}
+            {{ $posts->appends($request->all())->render()}}
             <table id="table" class="table table-striped table-bordered">
                 <thead>
                 <tr>
+                    <th width="16%"><a href="#">#</a></th>
                     <th width="16%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=posted_at&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Date</a></th>
                     <th width="16%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=hashtag&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Keyword</a></th>
                     <th width="26%"><a href="/google/search/results{{ ($queryString) ? '?'.$queryString : '?' }}sortby=location&orderby={{ ($orderBy == 'ASC') ? 'DESC' : 'ASC' }}">Location</a></th>
                     <th width="42%">Post</th>
                 </tr>
                 <tr>
+                    <th width="10%"><a href=""></a></th>
                     <th><input type="text" id="date" class="form-control" value="{{ isset($_GET['date']) ? $_GET['date'] : '' }}"></th>
                     <th><input type="text" id="hashtag" class="form-control" value="{{ isset($_GET['hashtag']) ? $_GET['hashtag'] : '' }}"></th>
                     <th><input type="text" id="location" class="form-control" value="{{ isset($_GET['location']) ? $_GET['location'] : '' }}"></th>
@@ -63,7 +65,7 @@
                 if(queryString != ''){
                     queryString = '?' + queryString;
                 }
-                
+
                 window.location.href = '/google/search/results' + queryString;
             });
         });

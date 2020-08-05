@@ -14,7 +14,9 @@ use App\ScrapHistory;
 use App\Scraper;
 use App\User;
 use Auth;
+use Exception;
 use Illuminate\Support\Facades\File;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ScrapStatisticsController extends Controller
 {
@@ -33,10 +35,14 @@ class ScrapStatisticsController extends Controller
 
         $timeDropDown = self::get_times();
 
+        $serverIds = Scraper::groupBy('server_id')->where('server_id','!=',NULL)->pluck('server_id');
+
         // Get active suppliers
         $activeSuppliers = Scraper::join("suppliers as s", "s.id", "scrapers.supplier_id")
-            ->select('scrapers.*', "s.*", "scrapers.status as scrapers_status")
-            ->where('supplier_status_id', 1);
+            ->select('scrapers.id as scrapper_id','scrapers.*', "s.*", "scrapers.full_scrape as scrapers_status")
+            ->where('supplier_status_id', 1)
+            ->whereIn("scrapper",[1,2])
+            ->whereNull('parent_id');
 
         if (!empty($keyWord)) {
             $activeSuppliers->where(function ($q) use ($keyWord) {
@@ -48,16 +54,15 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scrapers.scraper_made_by", $madeby);
         }
 
-        if ($request->get("scrapers_status", "") != '') {
-            $activeSuppliers->where("scrapers.status", $request->get("scrapers_status", ""));
-        }
+        // if ($request->get("scrapers_status", "") != '') {
+        //     $activeSuppliers->where("scrapers.status", $request->get("scrapers_status", ""));
+        // }
 
         if ($scrapeType > 0) {
             $activeSuppliers->where("scraper_type", $scrapeType);
         }
 
         $activeSuppliers = $activeSuppliers->orderby('scraper_priority', 'desc')->get();
-
         // Get scrape data
         $sql = '
             SELECT
@@ -85,12 +90,13 @@ class ScrapStatisticsController extends Controller
             JOIN
                 scrapers sc
             ON 
-                sc.supplier_id = s.id    
+                sc.supplier_id = s.id
             JOIN
                 scraped_products ls 
             ON  
                 sc.scraper_name=ls.website
             WHERE
+                sc.scraper_name IS NOT NULL AND
                 ls.website != "internal_scraper" AND 
                 ' . ($request->excelOnly == 1 ? 'ls.website LIKE "%_excel" AND' : '') . '
                 ' . ($request->excelOnly == -1 ? 'ls.website NOT LIKE "%_excel" AND' : '') . '
@@ -115,9 +121,10 @@ class ScrapStatisticsController extends Controller
         $lastRunAt = \DB::table("scraped_products")->groupBy("website")->select([\DB::raw("MAX(last_inventory_at) as last_run_at"),"website"])->pluck("last_run_at","website")->toArray();
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
-
+        $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
+        
         // Return view
-        return view('scrap.stats', compact('activeSuppliers', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt'));
+        return view('scrap.stats', compact('activeSuppliers','serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
     }
 
     /**
@@ -210,6 +217,15 @@ class ScrapStatisticsController extends Controller
         return view('scrap.asset-manager');
     }
 
+
+    public function showHistory(Request $request)
+    {
+
+        $remarks = ScrapRemark::where('scrap_id', $request->search)->where('scrap_field',$request->field)->get();
+
+        return response()->json($remarks, 200);
+    }
+
     public function getRemark(Request $request)
     {
         $name = $request->input('name');
@@ -260,8 +276,14 @@ class ScrapStatisticsController extends Controller
         $fieldName = request()->get("field");
         $fieldValue = request()->get("field_value");
         $search = request()->get("search");
-
+        //dd($search);
         $suplier = \App\Scraper::where("supplier_id", $search)->first();
+        
+        if(!$suplier){
+            $suplier = \App\Scraper::find($search);
+        }
+
+            
         if ($suplier) {
             $oldValue = $suplier->{$fieldName};
 
@@ -276,7 +298,14 @@ class ScrapStatisticsController extends Controller
             $suplier->{$fieldName} = $fieldValue;
             $suplier->save();
 
+            
             $suplier = \App\Scraper::where("supplier_id", $search)->first();
+            
+            if(!$suplier){
+                $suplier = \App\Scraper::find($search);
+            }
+
+
 
             $newValue = $fieldValue;
 
@@ -292,7 +321,70 @@ class ScrapStatisticsController extends Controller
             $remark_entry = ScrapRemark::create([
                 'scraper_name' => $suplier->scraper_name,
                 'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
-                'user_name' => Auth::user()->name
+                'user_name' => Auth::user()->name,
+                'scrap_field' => $fieldName
+            ]);
+
+        }
+
+        return response()->json(["code" => 200]);
+
+    }
+
+
+    public function updateScrapperField(Request $request)
+    {
+        $fieldName = request()->get("field");
+        $fieldValue = request()->get("field_value");
+        $search = request()->get("search");
+
+        $suplier = \App\Scraper::find($search);
+        
+        if(!$suplier){
+            return response()->json(["code" => 500]);
+        }
+
+            
+        if ($suplier) {
+            $oldValue = $suplier->{$fieldName};
+
+            if ($fieldName == "scraper_made_by") {
+                $oldValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
+            }
+
+            if ($fieldName == "parent_supplier_id") {
+                $oldValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
+            }
+
+            $suplier->{$fieldName} = $fieldValue;
+            $suplier->save();
+
+            
+            $suplier = \App\Scraper::where("supplier_id", $search)->first();
+            
+            if(!$suplier){
+                $suplier = \App\Scraper::find($search);
+            }
+
+
+
+            $newValue = $fieldValue;
+
+            if ($fieldName == "scraper_made_by") {
+                $newValue = ($suplier->scraperMadeBy) ? $suplier->scraperMadeBy->name : "";
+            }
+
+            if ($fieldName == "parent_supplier_id") {
+                $newValue = ($suplier->scraperParent) ? $suplier->scraperParent->scraper_name : "";
+            }
+
+
+            $remark_entry = ScrapRemark::create([
+                'scrap_id' => $suplier->id,
+                'scraper_name' => $suplier->scraper_name,
+                'remark' => "{$fieldName} updated old value was $oldValue and new value is $newValue",
+                'user_name' => Auth::user()->name,
+                'scrap_field' => $fieldName
             ]);
 
         }
@@ -367,4 +459,34 @@ class ScrapStatisticsController extends Controller
         return response()->json(["code" => 200 , "data" => $lastRemark]);
     }
 
+    public function addNote(Request $request)
+    {
+        try {
+            $this->validate($request, [
+                'scraper_name' => 'required',
+                'remark' => 'required',
+            ]);
+            $remark = $request->remark;
+
+            if (!empty($remark)) {
+                $note = ScrapRemark::create([
+                    'scraper_name' => $request->scraper_name,
+                    'remark' => $request->remark,
+                    'user_name' => Auth::user()->name
+                ]);
+
+                if ($request->hasfile('image')) {
+                    $media = MediaUploader::fromSource($request->file('image'))
+                                            ->toDirectory('scrap-note')
+                                            ->upload();
+                    $note->attachMedia($media, config('constants.media_tags'));
+                }
+            }
+            session()->flash('success', 'Note added successfully.');
+            return redirect()->back();
+        } catch(Exception $e) {
+            session()->flash('error', $e->getMessage());
+            return redirect()->back();
+        }
+    }
 }
