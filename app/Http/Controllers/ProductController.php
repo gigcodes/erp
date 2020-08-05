@@ -3391,16 +3391,17 @@ class ProductController extends Controller
       $webData = StoreWebsite::select(['store_websites.id',DB::raw('store_website_brands.brand_id as brandId'),'store_website_categories.*'])
       ->join('store_website_brands','store_websites.id','store_website_brands.store_website_id')
       ->join('store_website_categories','store_websites.id','store_website_categories.store_website_id')
+      ->where("website_source","!=","")
       ->get();
 
       $brandIds = array_unique($webData->pluck('brandId')->toArray());
       $categoryIds = array_unique($webData->pluck('category_id')->toArray());
-      $products = Product::select('*')->where("short_description","!=","")->where("status_id",StatusHelper::$finalApproval)
+      $products = Product::select('*')->where("short_description","!=","")->where("name","!=","")->where("status_id",StatusHelper::$finalApproval)
       ->whereIn('brand',$brandIds)
       ->whereIn('category',$categoryIds)
-      ->get()
-      ->unique('brand');
-      
+      ->groupBy("brand","category")
+      ->get();
+
       foreach($products as $key => $product){
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
           $result = MagentoHelper::uploadProduct($product);
