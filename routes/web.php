@@ -1790,6 +1790,8 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('fetchlog', 'ScrapLogsController@fetchlog');
+Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
