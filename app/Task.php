@@ -31,7 +31,8 @@ class Task extends Model {
 		'cost',
 		'is_milestone',
 		'no_of_milestone',
-		'milestone_completed'
+		'milestone_completed',
+		'customer_id'
 	];
 
 	const TASK_TYPES = [
@@ -98,5 +99,10 @@ class Task extends Model {
         }
 
         return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
-    }
+	}
+	
+	public function customer()
+	{
+		return $this->belongsTo('App\Customer', 'customer_id', 'id');
+	}
 }

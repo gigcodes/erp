@@ -79,7 +79,7 @@ class LandingPageController extends Controller
                     $product->save();
                     \App\LandingPageProduct::updateOrCreate(
                         ["product_id" => $productId],
-                        ["product_id" => $productId, "name" => $product->name, "description" => $product->description, "price" => $product->price]
+                        ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
                     );
                 }
             }

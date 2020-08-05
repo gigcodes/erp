@@ -63,7 +63,7 @@ class CustomerChatMessageQuickData extends Command
                         if (!empty($data['last_unread_message']) || !empty($data['last_communicated_message'])) {
                             ChatMessagesQuickData::updateOrCreate([
                                 'model'    => \App\Customer::class,
-                                'model_id' => $item->id,
+                                'model_id' => $customer->id,
                             ], $data);
                             break;
                         }

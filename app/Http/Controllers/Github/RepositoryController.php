@@ -119,9 +119,11 @@ class RepositoryController extends Controller
             $repository = GithubRepository::find($repoId);
 
             $branch = Input::get('branch');
+            $composerupdate = request("composer",false);
             //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
-            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' '.$composerupdate. ' 2>&1';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
 
             $allOutput = array();
             $allOutput[] = $cmd;
