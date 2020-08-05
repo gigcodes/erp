@@ -309,13 +309,13 @@
                             <thead>
                             <tr>
                                 <th width="5%">ID</th>
-                                <th width="8%">Date</th>
+                                <th width="12%">Date</th>
                                 <th width="8%" class="category">Category</th>
                                 <th width="15%">Task Subject</th>
                                 <th width="5%">Assign To</th>
                                 <th width="11%">Cost</th>
                                 <th width="8%">Milestone</th>
-                                <th width="30%">Communication</th>
+                                <th width="28%">Communication</th>
                                 <th width="10%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
@@ -372,7 +372,7 @@
                         <thead>
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="10%">Date</th>
+                            <th width="15%">Date</th>
                             <th width="10%" class="category">Category</th>
                             <th width="15%">Task Details</th>
                             <th width="10%">Assign to</th>

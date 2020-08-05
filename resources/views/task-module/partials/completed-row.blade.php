@@ -1,6 +1,20 @@
 <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} completed" id="task_{{ $task->id }}">
     <td class="p-2">{{ $task->id }}</td>
-    <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
+    <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+    <br>
+    @if($task->customer_id)
+        Cus-{{$task->customer_id}}
+        <br>
+        @if(Auth::user()->isAdmin())
+        @php
+            $customer = \App\Customer::find($task->customer_id);
+        @endphp
+        <span>
+          {{ isset($customer ) ? $customer->name : '' }}
+        </span>
+        @endif
+    @endif
+    </td>
     <td class="expand-row table-hover-cell p-2">
         @if (isset($categories[$task->category]))
             <span class="td-mini-container">

@@ -3388,7 +3388,12 @@ class ProductController extends Controller
 
       $brandIds = array_unique($webData->pluck('brandId')->toArray());
       $categoryIds = array_unique($webData->pluck('category_id')->toArray());
-      $products = Product::select('*')->whereIn('brand',$brandIds)->whereIn('category',$categoryIds)->get()->unique('brand');
+      $products = Product::select('*')->where("short_description","!=","")->where("status_id",StatusHelper::$finalApproval)
+      ->whereIn('brand',$brandIds)
+      ->whereIn('category',$categoryIds)
+      ->get()
+      ->unique('brand');
+      
       foreach($products as $key => $product){
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
           $result = MagentoHelper::uploadProduct($product);

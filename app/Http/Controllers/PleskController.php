@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\PleskHelper;
-
+use App\EmailAddress;
 class PleskController extends Controller
 {
     /**
@@ -20,7 +20,6 @@ class PleskController extends Controller
             return view('plesk.index',compact('domains'));
         }
         return response()->with('error','Something went wrong');
-        
     }
 
     /**
@@ -28,33 +27,44 @@ class PleskController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function create($id)
+    public function create($id, Request $request)
     {
-        return view('plesk.create-mail',compact('id'));
+        $sitename = $request->sitename;
+        return view('plesk.create-mail',compact('id','sitename'));
     }
     public function submitMail($id, Request $request) {
         $pleskHelper = new PleskHelper;
-
         $validatedData = $request->validate([
             'name' => 'required',
             'password' => 'required|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*?_~:,()\[\]{}]).+$/'
         ]);
         try {
             $response = $pleskHelper->createMail($request->name,$id,$request->mailbox,$request->password);
+            $address = new EmailAddress;
+            $address->from_name = $request->name;
+            $address->from_address = $request->site_name;
+            $address->driver = 'smtp';
+            $address->host = '';
+            $address->port = '587';
+            $address->encryption = 'tls';
+            $address->username = $request->name.'@'.$request->site_name;
+            $address->password = $request->password;
+            $address->save();
             $msg = 'Successfully created';
             $type = 'success';
         }
         catch (\Exception $e) {
             $msg = $e->getMessage();
-            $type = 'error';
+            $type = 'warning';
         }
+
         return redirect()->back()->with($type,$msg);
     }
 
 
-    public function getMailAccounts($id) {
+    public function getMailAccounts($id, Request $request) {
         $pleskHelper = new PleskHelper;
-        $mailAccount = $pleskHelper->getMailAccounts($id);
+        // $mailAccount = $pleskHelper->getMailAccounts($id);
         try {
             $mailAccount = $pleskHelper->getMailAccounts($id);
             $msg = 'Successful';
@@ -62,10 +72,47 @@ class PleskController extends Controller
         }
         catch (\Exception $e) {
             $msg = $e->getMessage();
-            $type = 'error';
+            $type = 'warning';
         }
-        return view('plesk.mail-list',compact('mailAccount'));
+        $site_name = $request->name;
+        return view('plesk.mail-list',compact('mailAccount','id','site_name'));
     }
+
+    public function deleteMail($id, Request $request) {
+        $pleskHelper = new PleskHelper;
+        try {
+            $pleskHelper->deleteMailAccount($id,$request->name);
+            $username = $request->name.'@'.$request->site_name;
+            EmailAddress::where('username',$username)->delete();
+            $msg = 'Successful';
+            $type = 'success';
+        }
+        catch (\Exception $e) {
+            $msg = $e->getMessage();
+            return response()->json(['message' => $msg],500);
+        }
+        return response()->json(['message' => 'Successful'],200);
+    }
+
+    public function changePassword(Request $request) {
+        $validatedData = $request->validate([
+            'password' => 'required|min:6|regex:/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[!@#$%^&*?_~:,()\[\]{}]).+$/'
+        ]);
+        $pleskHelper = new PleskHelper;
+        try {
+            $pleskHelper->changePassword($request->hidden_site_id,$request->hidden_mail_name,$request->password);
+            $username = $request->hidden_mail_name.'@'.$request->hidden_domain_name;
+            EmailAddress::where('username',$username)->update(['password' => $request->password]);
+            $msg = 'Successful';
+            $type = 'success';
+        }
+        catch (\Exception $e) {
+            $msg = $e->getMessage();
+            $type = 'warning';
+        }
+        return redirect()->back()->with($type,$msg);
+    }
+    
 
     /**
      * Store a newly created resource in storage.
