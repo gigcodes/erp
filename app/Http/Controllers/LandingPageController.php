@@ -48,7 +48,7 @@ class LandingPageController extends Controller
             }
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
+                foreach ($landingPageProduct->getMedia() as $image) {
                     array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
                 }
             }
