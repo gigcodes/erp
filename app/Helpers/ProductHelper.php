@@ -770,8 +770,11 @@ class ProductHelper extends Model
         }
 
          //Exception for o-labels
+        \Log::info("Landing page products find");
         if($product->landingPageProduct){
+            \Log::info("Landing page products found");
             $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title','LIKE','%o-labels%')->first();
+            \Log::info(json_encode($websiteForLandingPage));
             if($websiteForLandingPage){
                 if(!in_array($websiteForLandingPage->id,$websiteArray))
                 {

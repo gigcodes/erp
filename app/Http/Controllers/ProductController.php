@@ -2246,15 +2246,22 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-         // Get next product
-        $product = Product::where('status_id', StatusHelper::$autoCrop)
-            ->where('category', '>', 3);
+        $productId = request("product_id",null);
+        if($productId !=  null) {
+            $product = Product::where('id', $productId)->first();
+        } else {
+             // Get next product
+            $product = Product::where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3);
 
-        // Add order
-        $product = QueryHelper::approvedListingOrder($product);
+            // Add order
+            $product = QueryHelper::approvedListingOrder($product);
 
-        // Get first product
-        $product = $product->whereHasMedia('original')->first();
+            // Get first product
+            $product = $product->whereHasMedia('original')->first();
+        }
+
+
 
         if (!$product) {
             // Return JSON
@@ -2333,7 +2340,7 @@ class ProductController extends Controller
 
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
+        \Log::info(json_encode($websiteArrays));
         if(count($websiteArrays) == 0){
             $colors = [];
         }else{
@@ -2348,6 +2355,8 @@ class ProductController extends Controller
                 }
             }
         }
+
+        \Log::info(json_encode($colors));
 
         if(!isset($colors)){
             $colors = [];
