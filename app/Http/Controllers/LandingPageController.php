@@ -179,7 +179,6 @@ class LandingPageController extends Controller
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
-                        'body_html'       => $landingPage->description,
                         'images'          => [],
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
@@ -193,7 +192,7 @@ class LandingPageController extends Controller
 
             // Add images to product
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
+                foreach ($landingPageProduct->getMedia() as $image) {
                     $productData['product']['images'][] = ['src' => $image->getUrl()];
                 }
             }
