@@ -2108,13 +2108,20 @@ class WhatsAppController extends FindByNumberController
                         if ($issue->hasMedia(config('constants.media_tags'))) {
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                                 $params[ 'media_url' ] = $image->getUrl();
-                                ChatMessage::create($params);
+                                $chat_message = ChatMessage::create($params);
                                 $this->sendWithThirdApi($number, null, '', $image->getUrl());
                             }
                         }
 
                     }
-
+                    ChatMessagesQuickData::updateOrCreate([
+                        'model' => \App\DeveloperTask::class,
+                        'model_id' => $params['issue_id']
+                        ], [
+                        'last_communicated_message' => @$params['message'],
+                        'last_communicated_message_at' => Carbon::now(),
+                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                    ]);
 
                     return response()->json(['message' => $chat_message]);
 
@@ -2533,6 +2540,16 @@ class WhatsAppController extends FindByNumberController
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Customer::class,
                 'model_id' => $data['customer_id']
+                ], [
+                'last_communicated_message' => @$data['message'],
+                'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+        }
+        if ($context == 'task') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $data['task_id']
                 ], [
                 'last_communicated_message' => @$data['message'],
                 'last_communicated_message_at' => Carbon::now(),
