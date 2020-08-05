@@ -480,6 +480,10 @@ class DevelopmentController extends Controller
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
+        if ( request()->ajax() ) {
+			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList'));
+        }
+
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
