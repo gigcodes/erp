@@ -102,8 +102,9 @@
                                     <div class="card-footer">
                                         <div class="input-group">
                                             <div class="input-group-append">
-                                                <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
-                                                <input type="file" id="imgupload" style="display:none" />
+                                                {{--<span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                <input type="file" id="imgupload" style="display:none" />--}}
+                                                <a href="{{ route('attachImages', ['livechat', $customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
                                             </div>
                                             <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
