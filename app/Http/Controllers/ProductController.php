@@ -2341,7 +2341,6 @@ class ProductController extends Controller
 
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-        \Log::info(json_encode($websiteArrays));
         if(count($websiteArrays) == 0){
             $colors = [];
         }else{
@@ -2356,8 +2355,6 @@ class ProductController extends Controller
                 }
             }
         }
-
-        \Log::info(json_encode($colors));
 
         if(!isset($colors)){
             $colors = [];
