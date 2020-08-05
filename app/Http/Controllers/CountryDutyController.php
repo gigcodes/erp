@@ -84,7 +84,7 @@ class CountryDutyController extends Controller
     {
         // validation report generator
         $validator = Validator::make($request->all(), [
-            'name'     => 'required|unique:duty_groups',
+            'name'     => 'required',
             'groups.*' => 'required',
         ]);
 
