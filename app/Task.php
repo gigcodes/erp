@@ -98,5 +98,10 @@ class Task extends Model {
         }
 
         return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+	}
+	
+	public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'task_id', 'id')->orderBy('id','desc');
     }
 }

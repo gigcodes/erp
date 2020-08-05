@@ -92,4 +92,9 @@ class DeveloperTask extends Model
     {
         return $this->belongsTo(TaskTypes::class, 'task_type_id', 'id');
     }
+
+    public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
+    }
 }
