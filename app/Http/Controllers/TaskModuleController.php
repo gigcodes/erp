@@ -33,7 +33,6 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
-
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 		} else {
@@ -68,7 +67,6 @@ class TaskModuleController extends Controller {
 		// 									             ->orWhere( 'assign_to', '=', $userid );
 		// 								})
 		//                                ->get()->toArray();
-
 	 $data['task']['pending'] = DB::select('
                SELECT tasks.*
 
@@ -97,11 +95,16 @@ class TaskModuleController extends Controller {
                  ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
                ) AS tasks
                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-				  		AND (message_id = (
-							SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-							) OR message_id IS NULL)
-               ORDER BY is_flagged DESC, message_created_at DESC;
+			   AND (message_id = (
+				 SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
+				 ) OR message_id IS NULL)
+	ORDER BY is_flagged DESC, message_created_at DESC;
 						');
+
+
+			
+
+
 
 						// dd($data['task']['pending']);
 
@@ -1617,7 +1620,6 @@ class TaskModuleController extends Controller {
 	public function createTaskFromSortcut(Request $request)
 	{
 		$params = $request->all();
-
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
@@ -1626,15 +1628,17 @@ class TaskModuleController extends Controller {
 
 		$taskType = $request->get("task_type");
 
-		if($taskType == "5" || $taskType == "6") {
+		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
 
 			$data = [];
 			$data["assigned_to"] 	= $request->get("task_asssigned_to");
 			$data["subject"] 		= $request->get("task_subject");
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
+			$data["customer_id"]	= $request->get("customer_id");
+
 			
-			if($taskType == 6) {
+			if($taskType == 5 || $taskType == 6) {
 				$data["task_type_id"]	= 3;
 			}
 
@@ -1653,7 +1657,7 @@ class TaskModuleController extends Controller {
 			$data['task_details'] = $request->get("task_detail");
 			$data['task_subject'] = $request->get("task_subject");
 			$data['assign_to'] 	  = $request->get("task_asssigned_to");
-
+			$data["customer_id"]	= $request->get("customer_id");
 			if($request->category_id != null) {
 				$data['category'] 	  = $request->category_id;
 			}
