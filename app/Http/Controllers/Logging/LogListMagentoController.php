@@ -49,7 +49,7 @@ class LogListMagentoController extends Controller
 
     public function index(Request $request)
     {
-        $this->check_successfully_listed_products();
+        //$this->check_successfully_listed_products();
         /*
         $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
             ->join('brands', 'products.brand', '=', 'brands.id')
