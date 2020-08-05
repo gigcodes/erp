@@ -66,6 +66,7 @@
 <div class="container">
     <div class="text-right">
         <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}">Deploy Master</a>
+        <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}&composer=true">Deploy Master + Composer</a>
     </div>
     <table id="branches-table" class="table table-bordered">
         <thead>
