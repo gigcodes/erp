@@ -2248,7 +2248,8 @@ class ProductController extends Controller
     {
         $productId = request("product_id",null);
         if($productId !=  null) {
-            $product = Product::where('id', $productId)->first();
+            $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3)->first();
         } else {
              // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
