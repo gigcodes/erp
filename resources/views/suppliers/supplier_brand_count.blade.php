@@ -50,6 +50,7 @@
                 var dataTable = $('#count_data').DataTable({
                     "processing" : true,
                     "serverSide" : true,
+                    "searching": false,
                     "order" : [],
                     "ajax" : {
                         url:"{{ route('supplier.brand.count.get') }}",

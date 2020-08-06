@@ -669,15 +669,18 @@ class SupplierController extends Controller
         return 'Saved SucessFully';
     }
 
-    public function getSupplierCategoryCount()
+    public function getSupplierCategoryCount(Request $request)
     {
+      $limit = $request->input('length');
+      $start = $request->input('start');
 
-        $suppliercount = SupplierCategoryCount::all();
+        $suppliercount = SupplierCategoryCount::query();
+        $suppliercountTotal = SupplierCategoryCount::count();
         $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
 
-
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
         foreach ($suppliercount as $supplier) {
             $sup = "";
             foreach ($supplier_list as $v) {
@@ -724,9 +727,9 @@ class SupplierController extends Controller
         }
         if (!empty($data)) {
             $output = array(
-                "draw" => 0,
-                "recordsTotal" => 0,
-                "recordsFiltered" => 0,
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
                 "data" => $data
             );
         } else {
@@ -796,14 +799,30 @@ class SupplierController extends Controller
         return 'Saved SucessFully';
     }
 
-    public function getSupplierBrandCount()
+    public function getSupplierBrandCount(Request $request)
     {
-        $suppliercount = SupplierBrandCount::all();
+
+        $columns = array(
+          0 => 'supplier_id',
+          1 => 'category_id',
+          2 => 'brand_id',
+          3 => 'count',
+          4 => 'url',
+          5 => 'action',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+
+
+        $suppliercount = SupplierBrandCount::query();
+        $suppliercountTotal = SupplierBrandCount::count();
         $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $brand_list = Brand::orderby('name', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->orderby('title', 'asc')->get();
         $category_child = Category::where('parent_id', '!=', 0)->orderby('title', 'asc')->get();
 
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
 
         foreach ($suppliercount as $supplier) {
             $sup = "";
@@ -863,11 +882,13 @@ class SupplierController extends Controller
             $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier[ "id" ] . '">Delete</button>';
             $data[] = $sub_array;
         }
+
+        // dd(count($data));
         if (!empty($data)) {
             $output = array(
-                "draw" => 0,
-                "recordsTotal" => 0,
-                "recordsFiltered" => 0,
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
                 "data" => $data
             );
         } else {
