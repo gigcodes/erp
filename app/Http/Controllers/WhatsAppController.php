@@ -1915,6 +1915,7 @@ class WhatsAppController extends FindByNumberController
             'old_id' => 'sometimes|nullable|numeric',
             'site_development_id' => 'sometimes|nullable|numeric',
             'social_strategy_id' => 'sometimes|nullable|numeric',
+            'store_social_content_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -2467,6 +2468,25 @@ class WhatsAppController extends FindByNumberController
                             $user = User::find($user);
                             $params[ 'message' ] = $request->get('message');
                             $params[ 'site_development_id' ] = $request->get('site_development_id');
+                            $params[ 'approved' ] = 1;
+                            $params[ 'status' ] = 2;
+                            $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                            $chat_message = ChatMessage::create($params);
+                        }
+                    }
+                    
+                    return response()->json(['message' => $chat_message]);
+                
+                }
+                elseif ($context == 'content_management') {
+                    $chat_message = null;
+                    $users = $request->get('users',[$request->get("user_id",0)]);
+
+                    if(!empty($users)) {
+                        foreach($users as $user) {
+                            $user = User::find($user);
+                            $params[ 'message' ] = $request->get('message');
+                            $params[ 'store_social_content_id' ] = $request->get('store_social_content_id');
                             $params[ 'approved' ] = 1;
                             $params[ 'status' ] = 2;
                             $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);

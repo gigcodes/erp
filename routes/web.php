@@ -310,6 +310,55 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/domains/mail/change-password', 'PleskController@changePassword')->name('plesk.domains.mail-accounts.change-password');
         Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
     });
+
+
+
+      //plesk
+      Route::prefix('content-management')->middleware('auth')->group(static function () {
+        Route::get('/', 'ContentManagementController@index')->name('content-management.index');
+        Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
+        Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
+        Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
+        Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
+        Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
+        Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
+        Route::post('/upload-documents', 'ContentManagementController@uploadDocuments')->name("content-management.upload-documents");
+        Route::post('/save-documents', 'ContentManagementController@saveDocuments')->name("content-management.save-documents");
+        Route::post('/delete-document', 'ContentManagementController@deleteDocument')->name("content-management.delete-documents");
+        Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
+        Route::prefix('{id}')->group(function () {
+        Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
+            Route::prefix('remarks')->group(function () {
+                Route::get('/', 'ContentManagementController@remarks')->name("content-management.remarks");
+                Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
+            });
+        });
+    });
+
+    Route::prefix('content-management-status')->group(function () {
+        Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
+        Route::post('save', 'StoreSocialContentStatusController@save')->name('content-management-status.save');
+        Route::post('store', 'StoreSocialContentStatusController@store')->name('content-management-status.store');
+        Route::post('merge-status', 'StoreSocialContentStatusController@mergeStatus')->name('content-management-status.merge-status');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'StoreSocialContentStatusController@edit')->name('content-management-status.edit');
+            Route::get('delete', 'StoreSocialContentStatusController@delete')->name('content-management-status.delete');
+        });
+    });
+
+
+    
+    // 
+    // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
+    // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    // Route::prefix('{id}')->group(function () {
+    //     Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+    //     Route::prefix('remarks')->group(function () {
+    //         Route::get('/', 'SiteDevelopmentController@remarks')->name("site-development.remarks");
+    //         Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
+    //     });
+    // });
     
     //	Route::resource('task','TaskController');
 
