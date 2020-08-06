@@ -63,6 +63,7 @@ use App\Library\DHL\CreateShipmentRequest;
 use App\Library\DHL\TrackShipmentRequest;
 use App\StoreWebsite;
 use App\Invoice;
+use App\StoreWebsiteOrder;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 
 
@@ -2077,34 +2078,50 @@ public function createProductOnMagento(Request $request, $id){
 	{
 		$id = $request->get("id");
 		$status = $request->get("status");
-
-
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
 			if($order) {
 				$order->order_status 	= $status;
 				$order->order_status_id = $status;
 				$order->save();
-				// sending order message to the customer	
+				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
+			
+				$statuss = OrderStatus::where("id",$status)->first();
+				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
+				if($storeWebsiteOrder) {
+					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
+					if($website) {
+						$store_order_status = Store_order_status::where('order_status_id',$status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
+						if($store_order_status) {
+							$magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+							if($magento_status) {
+								$magentoHelper = new MagentoHelperv2;
+								$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
+								// dd($result);
+							}
+						}
+					}
+					$storeWebsiteOrder->update(['order_id',$status]);
+				}
+					// if(!empty($statuss)) {
+					// 	if($statuss->magento_status != null){
+					// 		$options   = array(
+					// 			'trace'              => true,
+					// 			'connection_timeout' => 120,
+					// 			'wsdl_cache'         => WSDL_CACHE_NONE,
+					// 		);
+					// 		$size = '';
+					// 		$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
+					// 		$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
+							
+					// 		$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
+					// 	}
+					// }
 			}
 		}
 
-		$statuss = OrderStatus::where("id",$status)->first();
-		if(!empty($statuss)) {
-			if($statuss->magento_status != null){
-				$options   = array(
-					'trace'              => true,
-					'connection_timeout' => 120,
-					'wsdl_cache'         => WSDL_CACHE_NONE,
-				);
-				$size = '';
-				$proxy     = new \SoapClient( config( 'magentoapi.url' ), $options );
-				$sessionId = $proxy->login( config( 'magentoapi.user' ), config( 'magentoapi.password' ) );
-				
-				$orderlist = $proxy->salesOrderAddComment( $sessionId, $order->order_id , $statuss->magento_status);
-			}
-		}
+		
 		
 		
 		return response()->json('Sucess',200);
@@ -2487,7 +2504,6 @@ public function createProductOnMagento(Request $request, $id){
 		$website = StoreWebsite::find($request->store_website_id);
 		$magentoHelper = new MagentoHelperv2;
 		$result = $magentoHelper->fetchOrderStatus($website);
-		dd($result);
 		if($result) {
 			$statuses = $result;
 			foreach($statuses as $status) {
@@ -2498,6 +2514,9 @@ public function createProductOnMagento(Request $request, $id){
 					'label' => $status->label
 				]);
 			}
+		}
+		else {
+			return redirect()->back()->with('success','Something went wrong');
 		}
 		return redirect()->back()->with('success','Status successfully updated');
 	}

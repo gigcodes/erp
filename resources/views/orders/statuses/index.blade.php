@@ -19,8 +19,8 @@
             <form class="form-inline" action="{{ route('store-website.all.status') }}" method="GET">
 
 
-                  <div class="form-group ml-3">
-                    <select class="form-control" name="order_status_id">
+                  <div class="form-group ml-4">
+                    <select class="form-control select2" name="order_status_id">
                       <option value="">Select ERP Status</option>
 
                       @foreach ($order_statuses as $id => $status)
@@ -29,8 +29,8 @@
                     </select>
                   </div>
 
-                  <div class="form-group ml-3">
-                    <select class="form-control" name="store_website_id">
+                  <div class="form-group ml-4">
+                    <select class="form-control select2" name="store_website_id">
                       <option value="">Select a store</option>
 
                       @foreach ($store_website as $id => $website)
@@ -121,6 +121,11 @@
 @section('scripts')
   <script type="text/javascript">
 
+
+$('select.select2').select2({
+    width: "100%"
+});
+
     $(document).on("click",".edit-btn",function(e){
        e.preventDefault();
        var $this = $(this);
@@ -128,6 +133,9 @@
           url: "/store-website/status/edit/"+$(this).data("id"),
           type: "get"
         }).done(function(response) {
+          $('select.select2').select2({
+              width: "100%"
+          });
           $('#edit-status').modal('show');
            $("#edit-new-content").html(response); 
         }).fail(function(errObj) {
@@ -142,6 +150,9 @@
           url: "/store-website/status/create",
           type: "get"
         }).done(function(response) {
+          $('select.select2').select2({
+              width: "100%"
+          });
           $('#addNew').modal('show');
            $("#add-new-content").html(response); 
         }).fail(function(errObj) {

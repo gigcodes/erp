@@ -9,7 +9,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>ERP status</strong>
-                    <select class="form-control" name="order_status_id">
+                    <select class="form-control select2" name="order_status_id">
                         <option  value="">Select</option>
                         @foreach($order_statuses as $status)
                         <option  value="{{$status->id}}">{{$status->status}}</option>
@@ -22,7 +22,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>Store</strong>
-                    <select class="form-control store_website_id" name="store_website_id">
+                    <select class="form-control store_website_id select2" name="store_website_id">
                         <option  value="">Select</option>
                         @foreach($store_website as $website)
                         <option  value="{{$website->id}}">{{$website->title}} ({{$website->website_source}})</option>
@@ -35,7 +35,7 @@
               <div class="col">
                 <div class="form-group">
                   <strong>Store Status</strong>
-                    <select class="form-control" name="store_master_status_id" id="store_master_status_id">
+                    <select class="form-control select2" name="store_master_status_id" id="store_master_status_id">
                         
                     </select>
                 </div>

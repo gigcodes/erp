@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class StoreWebsiteOrder extends Model
 {
-    //
+    protected $fillable = ['status_id','order_id','website_id'];
 }
