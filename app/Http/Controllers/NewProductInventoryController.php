@@ -111,7 +111,7 @@ class NewProductInventoryController extends Controller
 
         return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
     }
-
+//
     public function pushInStore(Request $request)
     {
         if (!empty($request->product_ids)) {
