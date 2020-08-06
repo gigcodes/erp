@@ -638,7 +638,9 @@
                                             <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                         </li>
                                     </ul>
-
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -1901,7 +1903,7 @@
 
     <!-- Scripts -->
 
-    {{-- @include('partials.chat') --}}
+     @include('partials.chat')
     <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
     </div>
 
@@ -2115,7 +2117,7 @@
 
         function resetTimer() {
             clearTimeout(time);
-            time = setTimeout(remove_key, 1200000)
+            time = setTimeout(remove_key, 1200000);
             // 1000 milliseconds = 1 second
         }
         };

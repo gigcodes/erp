@@ -1153,6 +1153,7 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.save.token');
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
+Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
