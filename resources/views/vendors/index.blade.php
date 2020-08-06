@@ -31,6 +31,19 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+    .cls_filter_inputbox{
+        width: 15%;
+        text-align: center;
+    }
+    .message-chat-txt {
+        color: #007bff !important;
+    }
+    .cls_remove_leftpadding{
+        padding-left: 0px !important;
+    }
+    .cls_remove_rightpadding{
+        padding-right: 0px !important;
+    }    
 
   </style>
 @endsection
@@ -41,10 +54,11 @@
    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
+            <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
-                    <div class="form-group" style="width: 441px; margin-right: 10px;">
+                    <div class="form-group ml-3 cls_filter_inputbox">
                 <label for="with_archived">Search</label>
 
                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
@@ -55,11 +69,25 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3" style="margin-left: 10px;">
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <label for="with_archived">Category</label>
+                        <?php
+                        $category_post = request('category'); 
+                        ?>
+                        <select class="form-control" name="category" id="category">
+                            <option value="">Select Category</option>
+                            <?php
+                            foreach ($vendor_categories as $row_cate) { ?>
+                                <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
+                            <?php } 
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <label for="with_archived">Communication History</label>
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Status</label>
                         <?php echo Form::select("status",[
                             "" => "- Select -",
@@ -67,7 +95,7 @@
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_updated_by">Updated by</label>
                         <?php echo Form::select("updated_by",
                             ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
@@ -75,11 +103,11 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3 cls_filter_inputbox">
                     <label for="with_archived">Archived</label>
                         <input type="checkbox" class="form-control" style="margin-left: 20px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                     </div>
-                    <button type="submit" style="margin-top: 14px;margin-left: 10px;" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <button type="submit" style="margin-top: 14px;margin-left: 10px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
         </div>
@@ -146,11 +174,8 @@
                 <th width="10%">Address</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
-                <th width="20%">Send</th>
-                <th width="10%">Communication</th>
-                <th width="5%">Created At</th>
-                <th width="5%">Updated At</th>
-                <th width="5%">Updated By</th>
+               
+                <th width="20%">Communication</th>
                 <th width="2%">Action</th>
             </tr>
 
@@ -161,7 +186,6 @@
                 <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
                 <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
                 <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
                 <th></th>
                 <th></th>
             </tr>
@@ -361,7 +385,7 @@
             tags: true,
             width : '100%',
             ajax: {
-                url: '/erp-leads/customer-search',
+                url: BASE_URL+'erp-leads/customer-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -474,15 +498,15 @@
             $('#reminder_message').val(message);
             $("#reminderModal").find("#reminder_from").val(reminder_from);
             if(reminder_last_reply == 1) {
-            	$("#reminderModal").find("#reminder_last_reply").prop("checked",true);
+                $("#reminderModal").find("#reminder_last_reply").prop("checked",true);
             }else{
-            	$("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
+                $("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
             }
             vendorToRemind = vendorId;
         });
 
         $(document).on('click', '.save-reminder', function () {
-        	var reminderModal = $("#reminderModal");
+            var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
             let reminder_from = reminderModal.find("#reminder_from").val();
@@ -703,7 +727,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: '/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'whatsapp/sendMessage/vendor',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -729,7 +753,45 @@
                 alert('Please enter a message first');
             }
         });
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var vendor_id = $(this).data('vendorid');
+            var message = $("#messageid_"+vendor_id).val();
+            data.append("vendor_id", vendor_id);
+            data.append("message", message);
+            data.append("status", 1);
 
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'whatsapp/sendMessage/vendor',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+vendor_id).html(message);
+                        $("#messageid_"+vendor_id).val('');
+                        
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
         $(document).on('change', '.update-category-user', function () {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
@@ -1094,16 +1156,16 @@
         });
 
     $('ul.pagination').hide();
-	$('.infinite-scroll').jscroll({
+    $('.infinite-scroll').jscroll({
         autoTrigger: true,
-		// debug: true,
+        // debug: true,
         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
         padding: 20,
         nextSelector: '.pagination li.active + li a',
         contentSelector: 'div.infinite-scroll',
         callback: function () {
             $('ul.pagination').first().remove();
-			$('ul.pagination').hide();
+            $('ul.pagination').hide();
         }
     });
 
