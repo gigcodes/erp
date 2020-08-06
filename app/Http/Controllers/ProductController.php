@@ -3403,9 +3403,7 @@ class ProductController extends Controller
       ->get();
 
       foreach($products as $key => $product){
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-          $result = MagentoHelper::uploadProduct($product);
-        }
+        PushToMagento::dispatch($product)->onQueue('magento');
       }
       return response()->json(["code" => 200 , "message" => "Push product successfully"]);
 
