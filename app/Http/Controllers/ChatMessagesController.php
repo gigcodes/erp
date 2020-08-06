@@ -14,6 +14,7 @@ use Illuminate\Support\Facades\DB;
 use App\PublicKey;
 use App\SiteDevelopment;
 use App\SocialStrategy;
+use App\StoreSocialContent;
 class ChatMessagesController extends Controller
 {
     /**
@@ -56,7 +57,10 @@ class ChatMessagesController extends Controller
                 break; 
             case 'social_strategy':
                 $object = SocialStrategy::find($request->object_id);
-                break;    
+                break; 
+            case 'content_management':
+                $object = StoreSocialContent::find($request->object_id);
+            break;    
             default:
                 $object = Customer::find($request->object);
         }

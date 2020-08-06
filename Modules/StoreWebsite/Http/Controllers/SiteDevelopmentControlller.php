@@ -16,7 +16,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class SiteDevelopmentController extends Controller
 {
-
+//
     public function index($id = null, Request $request)
     {
 
