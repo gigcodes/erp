@@ -1,6 +1,6 @@
 <!-- Modal -->
 <div id="quick-chatbox-window-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width:90%; max-width: 90%;">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-body">
@@ -8,12 +8,13 @@
                     <div class="col-md-3 chat" style="margin-top : 0px !important;">
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
-                                <div class="input-group">
-                                    {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+                                <h3>Chats</h3>
+                                <!-- <div class="input-group">
+                                    <input type="text" placeholder="Search..." name="" class="form-control search">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-                                        </div> --}}
-                                </div>
+                                        </div> 
+                                </div> -->
                             </div>
                             <div class="card-body contacts_body">
                                 @php
@@ -102,8 +103,11 @@
                                     <div class="card-footer">
                                         <div class="input-group">
                                             <div class="input-group-append">
-                                                <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
-                                                <input type="file" id="imgupload" style="display:none" />
+                                                {{--<span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
+                                                    <input type="file" id="imgupload" style="display:none" />--}}
+                                                @if(isset($customer))
+                                                    <a href="{{ route('attachImages', ['livechat', $customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
+                                                @endif
                                             </div>
                                             <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>

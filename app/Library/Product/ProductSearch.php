@@ -75,7 +75,6 @@ class ProductSearch
 
         // starting with new query
         $products = (new Product())->newQuery()->whereNull("deleted_at")->whereNull('dnf')->latest();
-
         //loop through params and add result
         if (!empty($params)) {
             foreach ($params as $key => $value) {
@@ -110,6 +109,10 @@ class ProductSearch
 
                     case 'supplier':
                         $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (" . implode(',', $value) . "))");
+                        break;
+
+                    case 'scrapper':
+                        $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN (select supplier_id from scrapers where id in (" . implode(',', $value) . ")))");
                         break;
 
                     case 'size':
@@ -208,7 +211,10 @@ class ProductSearch
                         if (!empty($value) && strtolower($value) == "on") {
                             $products = $products->where("status_id",\App\Helpers\StatusHelper::$finalApproval);
                         }
-                        break;    
+                        break;
+	                case 'is_on_sale';
+	                    $products = $products->where('is_on_sale', 1);
+	                    break;
                     default:
                         # code...
                         break;

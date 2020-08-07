@@ -261,7 +261,7 @@
             $action =  route('purchase.product.replace');
         } else if ($model_type == 'broadcast-images') {
             $action =  route('broadcast.images.link');
-        } else if ($model_type == 'customer') {
+        } else if ($model_type == 'customer' || $model_type == 'livechat') {
             $action =  route('attachImages.queue');
         } else if ($model_type == 'selected_customer' || $model_type == 'selected_customer_token') {
             $action =  route('whatsapp.send_selected_customer');
@@ -285,9 +285,10 @@
 
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
+        <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' ? "$message_body" : '' }}">
+        <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
@@ -298,9 +299,17 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <p>Choose the format for sending</p>
-                    <div class="form-group mr-3"
+                    <div class="form-group mr-3">
                         <strong class="mr-3">Custom File Name</strong>
                         <input type="text" name="file_name" id="pdf-file-name" />
+                    </div>
+                    <div class="form-group mr-3">
+                        <strong class="mr-3">Is Queue?</strong>
+                        <select class="form-control" id="is_queue_option" name="is_queue_option">
+                            <option>Select queue</option>
+                            <option value="1">in Queue</option>
+                            <option value="0">Send later</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -721,7 +730,7 @@
                 $('#images').val(JSON.stringify(image_array));
                 var form = $('#attachImageForm');
                 var modelType = form.data("model-type");
-                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers") {
+                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                 }else{
                     $('#attachImageForm').submit();
@@ -731,12 +740,14 @@
 
         $(".btn-approve-pdf").on("click",function() {
             $("#send_pdf").val("1");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
 
         $(".btn-ignore-pdf").on("click",function() {
             $("#send_pdf").val("0");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });

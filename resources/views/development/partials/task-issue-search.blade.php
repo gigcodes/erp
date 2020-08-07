@@ -1,7 +1,7 @@
-<form action="{{ url("development/list/$title") }}" method="get">
+<form action="{{ url("development/list") }}" method="get">
     <div class="row">
         @if(auth()->user()->isReviwerLikeAdmin())
-            <div class="col-md-1">
+            <div class="col-md-3 pd-sm">
                 <select class="form-control" name="assigned_to" id="assigned_to">
                     <option value="">Assigned To</option>
                     @foreach($users as $id=>$user)
@@ -11,7 +11,7 @@
             </div>
         @endif
         {{--
-        <div class="col-md-1">
+        <div class="col-md-3 pd-sm">
             <select class="form-control" name="responsible_user" id="responsible_user">
                 <option value="">Responsible User...</option>
                 @foreach($users as $id=>$user)
@@ -19,7 +19,7 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3 pd-sm">
             <select class="form-control" name="corrected_by" id="corrected_by">
                 <option value="">Correction by</option>
                 @foreach($users as $id=>$user)
@@ -28,7 +28,7 @@
             </select>
         </div>
         --}}
-        <div class="col-md-2">
+        <div class="col-md-3 pd-sm">
             <select name="module" id="module_id" class="form-control">
                 <option value="">Module</option>
                 @foreach($modules as $module)
@@ -36,25 +36,37 @@
                 @endforeach
             </select>
         </div>
-        <div class="col-md-2">
+        
+        <div class="col-md-3 pd-sm">
             <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3 pd-sm status-selection">
             <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', []),["class" => "form-control multiselect","multiple" => true]); ?>
         </div>
-        <div class="col-md-1">
+        </div>
+        <div class="row" style="margin-top:10px;">
+        <div class="col-md-3 pd-sm">
             <select name="order" id="order_query" class="form-control">
-                <option {{$request->get('order')== "" ? 'selected' : ''}} value="create">Order by date descending</option>
-                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="">Order by priority</option>
-                <option {{$request->get('order')== "create_asc" ? 'selected' : ''}} value="create">Order by date</option>
-                <option {{$request->get('order')== "communication_desc" ? 'selected' : ''}} value="communication_desc">Order by Communication</option>
+                <option {{$request->get('order')== "" ? 'selected' : ''}} value="">Latest Communication</option>
+                <option {{$request->get('order')== "latest_task_first" ? 'selected' : ''}} value="latest_task_first">Latest Task First</option>
+                <option {{$request->get('order')== "priority" ? 'selected' : ''}} value="priority">Sort by priority</option>
             </select>
         </div>
-        <div class="col-md-2">
-            <label class="for">Last Communicated</label>
-            <?php echo Form::checkbox("last_communicated","on",request()->get('last_communicated', "off") == "on",["class" => ""]); ?>
+        <div class="col-md-3 pd-sm">
+            <select name="tasktype" id="tasktype" class="form-control">
+                <option {{$type == "all" ? 'selected' : ''}} value="all">All</option>
+                <option {{$type == "devtask" ? 'selected' : ''}} value="devtask">Devtask</option>
+                <option {{$type == "issue" ? 'selected' : ''}} value="issue">Issue</option>
+            </select>
         </div>
-        <div class="col-md-1">
+        <div class="col-md-3 pd-sm">
+        <div class="form-control">
+        <label class="for">Last Communicated &nbsp;&nbsp;
+        <?php echo Form::checkbox("last_communicated","on",request()->get('last_communicated', "off") == "on",["class" => ""]); ?>
+        </label>
+        </div>
+        </div>
+        <div class="col-md-1 pd-sm">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )
                 <input type="checkbox" name="show_resolved" value="1" checked> incl.resolved
@@ -67,9 +79,8 @@
             </button>
         </div>
        
-        <div class="col-md-1">
+        <!-- <div class="col-md-1">
             <a class="btn btn-secondary d-inline priority_model_btn">Priority</a>
-            <!-- <a class="btn btn-secondary d-inline priority_model_head_dev_btn">Priority Bjorn</a> -->
-        </div>
+        </div> -->
     </div>
 </form>

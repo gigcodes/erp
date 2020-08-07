@@ -2246,15 +2246,23 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-         // Get next product
-        $product = Product::where('status_id', StatusHelper::$autoCrop)
-            ->where('category', '>', 3);
+        $productId = request("product_id",null);
+        if($productId !=  null) {
+            $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3)->first();
+        } else {
+             // Get next product
+            $product = Product::where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3);
 
-        // Add order
-        $product = QueryHelper::approvedListingOrder($product);
+            // Add order
+            $product = QueryHelper::approvedListingOrder($product);
 
-        // Get first product
-        $product = $product->whereHasMedia('original')->first();
+            // Get first product
+            $product = $product->whereHasMedia('original')->first();
+        }
+
+
 
         if (!$product) {
             // Return JSON
@@ -2333,7 +2341,6 @@ class ProductController extends Controller
 
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
         if(count($websiteArrays) == 0){
             $colors = [];
         }else{
@@ -2864,7 +2871,7 @@ class ProductController extends Controller
 
         $params = request()->all();
         $params["user_id"] = \Auth::id();
-        $params["is_queue"] = 1;
+        //$params["is_queue"] = 1;
         $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request("customer_token","");
@@ -2885,7 +2892,8 @@ class ProductController extends Controller
 
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
-
+        $params["is_queue"] = request("is_queue",0);
+        
         \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {
@@ -3383,15 +3391,19 @@ class ProductController extends Controller
       $webData = StoreWebsite::select(['store_websites.id',DB::raw('store_website_brands.brand_id as brandId'),'store_website_categories.*'])
       ->join('store_website_brands','store_websites.id','store_website_brands.store_website_id')
       ->join('store_website_categories','store_websites.id','store_website_categories.store_website_id')
+      ->where("website_source","!=","")
       ->get();
 
       $brandIds = array_unique($webData->pluck('brandId')->toArray());
       $categoryIds = array_unique($webData->pluck('category_id')->toArray());
-      $products = Product::select('*')->whereIn('brand',$brandIds)->whereIn('category',$categoryIds)->get()->unique('brand');
+      $products = Product::select('*')->where("short_description","!=","")->where("name","!=","")->where("status_id",StatusHelper::$finalApproval)
+      ->whereIn('brand',$brandIds)
+      ->whereIn('category',$categoryIds)
+      ->groupBy("brand","category")
+      ->get();
+
       foreach($products as $key => $product){
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-          $result = MagentoHelper::uploadProduct($product);
-        }
+        PushToMagento::dispatch($product)->onQueue('magento');
       }
       return response()->json(["code" => 200 , "message" => "Push product successfully"]);
 

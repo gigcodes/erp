@@ -45,6 +45,8 @@
             <div class="pull-left">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
                     <div class="form-group" style="width: 441px; margin-right: 10px;">
+                <label for="with_archived">Search</label>
+
                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
@@ -53,11 +55,8 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3">
-                        <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                        <label for="with_archived">Archived</label>
-                    </div>
                     <div class="form-group ml-3" style="margin-left: 10px;">
+                    <label for="with_archived">Communication History</label>
                        <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
                     </div>
                     <div class="form-group ml-3">
@@ -76,17 +75,23 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <div class="form-group ml-3">
+                    <label for="with_archived">Archived</label>
+                        <input type="checkbox" class="form-control" style="margin-left: 20px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                    </div>
+                    <button type="submit" style="margin-top: 14px;margin-left: 10px;" class="btn btn-image"><img src="/images/filter.png"/></button>
                 </form>
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-            <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
-        </div>    
+            <div class="pull-right mt-4">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+            </div>
+        </div>   
     </div>
 
     @include('partials.flash_messages')

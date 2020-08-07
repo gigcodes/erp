@@ -613,12 +613,12 @@ class ProductHelper extends Model
         return $size;
     }
 
-    public static function checkReadinessForLive($product)
+    public static function checkReadinessForLive($product, $storeWebsiteId = null)
     {
         // Check for mandatory fields
         if (empty($product->name)) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -626,7 +626,7 @@ class ProductHelper extends Model
 
         if (empty($product->short_description)) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -635,7 +635,7 @@ class ProductHelper extends Model
         // Check for price range
         if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -759,11 +759,23 @@ class ProductHelper extends Model
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         $websiteArray = [];
-        foreach ($storeCategories as $storeCategory) {
+
+       foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
             if(!empty($storeBrands)){
                 foreach ($storeBrands as $storeBrand) {
                     $websiteArray[] = $storeBrand->store_website_id;
+                }
+            }
+        }
+
+         //Exception for o-labels
+        if($product->landingPageProduct){
+            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title','LIKE','%o-labels%')->first();
+            if($websiteForLandingPage){
+                if(!in_array($websiteForLandingPage->id,$websiteArray))
+                {
+                    $websiteArray[] = $websiteForLandingPage->id;   
                 }
             }
         }

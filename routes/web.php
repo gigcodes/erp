@@ -15,7 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', function(){
-    return view('instagram.new.media.index');
+   dd(\Cache::get('key'));
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
@@ -300,7 +300,68 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
+    //plesk
+    Route::prefix('plesk')->middleware('auth')->group(static function () {
+        Route::get('/domains', 'PleskController@index')->name('plesk.domains');
+        Route::get('/domains/mail/create/{id}', 'PleskController@create')->name('plesk.domains.view-mail-create');
+        Route::post('/domains/mail/create/{id}', 'PleskController@submitMail')->name('plesk.domains.submit-mail');
+        Route::post('/domains/mail/delete/{id}', 'PleskController@deleteMail')->name('plesk.domains.delete-mail');
+        Route::get('/domains/mail/accounts/{id}', 'PleskController@getMailAccounts')->name('plesk.domains.mail-accounts');
+        Route::post('/domains/mail/change-password', 'PleskController@changePassword')->name('plesk.domains.mail-accounts.change-password');
+        Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
+    });
 
+
+
+      //plesk
+      Route::prefix('content-management')->middleware('auth')->group(static function () {
+        Route::get('/', 'ContentManagementController@index')->name('content-management.index');
+        Route::get('/preview-img/{id}', 'ContentManagementController@previewImage')->name('content-management.preview-img');
+        Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
+        Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
+        Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
+        Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
+        Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
+        Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
+        Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
+        Route::post('/upload-documents', 'ContentManagementController@uploadDocuments')->name("content-management.upload-documents");
+        Route::post('/save-documents', 'ContentManagementController@saveDocuments')->name("content-management.save-documents");
+        Route::post('/delete-document', 'ContentManagementController@deleteDocument')->name("content-management.delete-documents");
+        Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
+        Route::prefix('{id}')->group(function () {
+        Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
+            Route::prefix('remarks')->group(function () {
+                Route::get('/', 'ContentManagementController@remarks')->name("content-management.remarks");
+                Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
+            });
+        });
+    });
+
+    Route::prefix('content-management-status')->group(function () {
+        Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
+        Route::post('save', 'StoreSocialContentStatusController@save')->name('content-management-status.save');
+        Route::post('store', 'StoreSocialContentStatusController@store')->name('content-management-status.store');
+        Route::post('merge-status', 'StoreSocialContentStatusController@mergeStatus')->name('content-management-status.merge-status');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'StoreSocialContentStatusController@edit')->name('content-management-status.edit');
+            Route::get('delete', 'StoreSocialContentStatusController@delete')->name('content-management-status.delete');
+        });
+    });
+
+
+    
+    // 
+    // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
+    // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    // Route::prefix('{id}')->group(function () {
+    //     Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+    //     Route::prefix('remarks')->group(function () {
+    //         Route::get('/', 'SiteDevelopmentController@remarks')->name("site-development.remarks");
+    //         Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
+    //     });
+    // });
+    
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -496,6 +557,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save', 'LandingPageController@save')->name('landing-page.save');
         Route::get('/records', 'LandingPageController@records')->name('landing-page.records');
         Route::post('/store', 'LandingPageController@store')->name('landing-page.store');
+        Route::post('/update-time', 'LandingPageController@updateTime')->name('landing-page.updateTime');
+        Route::get('/image/{id}/{productId}/delete', 'LandingPageController@deleteImage')->name('landing-page.deleteImage');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
@@ -671,6 +734,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     // Complete the task
+    // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
     Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
@@ -741,13 +805,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
-    Route::get('development/list/{type}', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
+    Route::get('development/issue/master/assign', 'DevelopmentController@assignMasterUser');
     Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
@@ -1007,6 +1072,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('records', 'VendorCategoryController@records')->name('vendor-category.records');
         Route::post('save', 'VendorCategoryController@save')->name('vendor-category.save');
         Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
+        Route::get('/permission', 'VendorCategoryController@usersPermission')->name('vendor-category.permission');
+        Route::post('/update/permission', 'VendorCategoryController@updatePermission')->name('vendor-category.update.permission');
+        
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
             Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
@@ -1139,7 +1207,10 @@ Route::post('livechat/getChatsWithoutRefresh', 'LiveChatController@getChatMessag
 Route::post('livechat/sendMessage', 'LiveChatController@sendMessage')->name('livechat.send.message');
 Route::post('livechat/sendFile', 'LiveChatController@sendFile')->name('livechat.send.file');
 Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('livechat.get.userlist');
+Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.save.token');
+Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
+Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
@@ -1322,6 +1393,8 @@ Route::prefix('comments')->group(function () {
 
 Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('statistics/update-field', 'ScrapStatisticsController@updateField');
+    Route::get('statistics/update-scrap-field', 'ScrapStatisticsController@updateScrapperField');
+    Route::get('statistics/show-history', 'ScrapStatisticsController@showHistory');
     Route::post('statistics/update-priority', 'ScrapStatisticsController@updatePriority');
     Route::get('statistics/history', 'ScrapStatisticsController@getHistory');
     Route::resource('statistics', 'ScrapStatisticsController');
@@ -1778,6 +1851,8 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('fetchlog', 'ScrapLogsController@fetchlog');
+Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
@@ -1940,3 +2015,4 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::resource('shipment', 'ShipmentController');
 });
+Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');

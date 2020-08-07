@@ -2,10 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
@@ -36,7 +38,23 @@ class LandingPageController extends Controller
         $records = $records->paginate();
 
         $items = [];
+        $allStatus = StatusHelper::getStatus();
         foreach ($records->items() as &$rec) {
+            $landingPageProduct = $rec->product;
+            if(array_key_exists($landingPageProduct->status_id, $allStatus)){
+                $rec->productStatus = $allStatus[$landingPageProduct->status_id];
+            }else{
+                $rec->productStatus = '';
+            }
+            $productData['images'] = [];
+            if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach($medias as $image) {
+                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                    }
+                }
+            }
+            $rec->images = $productData['images'];
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $items[]          = $rec;
         }
@@ -63,7 +81,7 @@ class LandingPageController extends Controller
                     $product->save();
                     \App\LandingPageProduct::updateOrCreate(
                         ["product_id" => $productId],
-                        ["product_id" => $productId, "name" => $product->name, "description" => $product->description, "price" => $product->price]
+                        ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
                     );
                 }
             }
@@ -157,31 +175,35 @@ class LandingPageController extends Controller
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
+            if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
+                return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
+            }
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
-                        'body_html'       => $landingPage->description,
                         'images'          => [],
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
                         'title'           => $landingPage->name,
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
+                        'tags'            => 'flash_sales'
                     ],
                 ];
             }
 
             // Add images to product
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    $productData['product']['images'][] = ['src' => $image->getUrl()];
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach ($medias as $image) {
+                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                    }
                 }
             }
 
-            $productData['product']['variants'][] = [
+            $generalOptions = [
                 'barcode'              => (string) $landingPage->product_id,
                 'fulfillment_service'  => 'manual',
-                'price'                => $landingPage->price,
                 'requires_shipping'    => true,
                 'sku'                  => $landingPageProduct->sku,
                 'title'                => (string) $landingPage->name,
@@ -189,6 +211,65 @@ class LandingPageController extends Controller
                 'inventory_policy'     => 'deny',
                 'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
             ];
+
+            if(!empty($landingPageProduct->size)) {
+                $productSizes = explode(',', $landingPageProduct->size);
+                $values = [];
+                $sizeOptions = [];
+                foreach ($productSizes as $size) {
+                    array_push($values, (string)$size);
+                    $sizeOptions[$size] = $landingPage->price;
+                }
+                $variantsOption = [
+                    'name' => 'sizes',
+                    'values' => $values
+                ];
+                $productData['product']['options'][] = $variantsOption;
+            }
+
+            
+            $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
+            $countryGroupOptions = [];
+
+            // setup for price
+            $countryVariants = [];
+            if($storeWebsite) {
+                $countryGroups = \App\CountryGroup::all();
+                if(!$countryGroups->isEmpty()) {
+                    $countryList = [];
+                    foreach ($countryGroups as $cg) {
+                        array_push($countryList, (string)$cg->name);
+                        $price = $landingPageProduct->getPrice($storeWebsite->id, $cg->id);
+                        $firstCountry = $cg->groupItems->first();
+                        // get the duty price of first country to see
+                        $dutyPrice = 0;
+                        if($firstCountry) {
+                            $dutyPrice = $landingPageProduct->getDuty($firstCountry->country_code);
+                        }
+                        $countryGroupOptions[$cg->name] = $price['total'] + $dutyPrice;
+                    }
+                    $variantsOption = [
+                        'name' => 'country',
+                        'values' => $countryList
+                    ];
+                    $productData['product']['options'][] = $variantsOption;
+                }
+            }
+
+            foreach($countryGroupOptions as $k => $v) {
+                if(!empty($sizeOptions)) {
+                    foreach($sizeOptions as $p => $d) {
+                        $generalOptions["option1"]  = $p;
+                        $generalOptions["option2"]  = $k;
+                        $generalOptions["price"]    = $v;
+                        $productData['product']['variants'][] = $generalOptions;
+                    }
+                }else{
+                    $generalOptions["option1"]  = $p;
+                    $generalOptions["price"]    = $v;
+                    $productData['product']['variants'][] = $generalOptions;
+                }
+            }
 
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
@@ -220,6 +301,25 @@ class LandingPageController extends Controller
 
         return response()->json(["code" => 500, "data" => [], "message" => "Records not found"]);
 
+    }
+
+    public function updateTime(Request $request)
+    {
+        $productIds = explode(',', $request->product_id);
+        foreach ($productIds as $productId) {
+            LandingPageProduct::where('product_id','=',$productId)->update(['start_date' => $request->start_date, 'end_date' => $request->end_date]);
+        }
+        return redirect()->back();
+    }
+
+
+    public function deleteImage($id, $productId)
+    {
+        \DB::table('mediables')->where('mediable_type', 'App\Product')
+            ->where('media_id', $id)
+            ->where('mediable_id', $productId)
+            ->delete();
+        return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
     }
 
 }

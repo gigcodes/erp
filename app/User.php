@@ -213,7 +213,7 @@ class User extends Authenticatable
     {
         if ($name == '/') {
             $genUrl = 'mastercontrol';
-            header("Location: /development/list/devtask");
+            header("Location: /development/list");
         } else {
             $url = explode('/', $name);
             $model = $url[0];
@@ -481,5 +481,11 @@ class User extends Authenticatable
             $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
         }
         return $total;
+    }
+
+
+    public function vendorCategoryPermission()
+    {
+        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
     }
 }

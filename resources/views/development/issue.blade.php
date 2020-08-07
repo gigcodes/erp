@@ -17,10 +17,27 @@
     </style>
 @endsection
 
+<style> 
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+    .status-selection .multiselect {
+        width : 100%;
+    }
+    .pd-sm {
+        padding: 0px 8px !important;
+    }
+    tr {
+        background-color: #f9f9f9;
+    }
+</style>
+
+
 @section('large_content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ ucfirst($title) }} List</h2>
+            <h2 class="page-heading">{{ ucfirst($title) }}</h2>
         </div>
     </div>
 
@@ -54,23 +71,23 @@
     <div class="row mb-4">
         <div class="col-md-12">
             @include("development.partials.task-issue-search")
-            <div class="row" style="margin-top: 10px;">
-                <div class="col-md-2">
-                    <a class="btn btn-secondary" 
+            <div class="pull-right mt-4">
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#plannedFilterCount" role="button" aria-expanded="false" aria-controls="plannedFilterCount">
                            Show Planned count
-                        </a>
-                </div>
-                <div class="col-md-2">
-                     <a class="btn btn-secondary" 
+            </a>
+            <a class="btn btn-secondary" 
                         data-toggle="collapse" href="#inProgressFilterCount" role="button" aria-expanded="false" aria-controls="inProgressFilterCount">
                            Show In Progress count
-                        </a>
-                </div>
-            </div>
-            @if($title == 'devtask' && auth()->user()->isReviwerLikeAdmin())
-                <a href="javascript:" class="btn btn-default" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal" style="float: right;">Add New Dev Task </a>
-            @endif
+            </a>
+            <a style="color:white;" class="btn btn-secondary  priority_model_btn">Priority</a>
+            @if(auth()->user()->isReviwerLikeAdmin())
+                    <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
+                @endif
+        </div>
+
+
+         
         </div>
     </div>
     @include("development.partials.task-issue-counter")
@@ -90,35 +107,19 @@
     </div>
     <div class="infinite-scroll">
         <div >
-            <table class="table table-bordered table-striped" style="table-layout:fixed;">
-                @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
-                    <tr class="add-new-issue">
-                        @include("development.partials.add-new-issue")
-                    </tr>
-                @endif
-                <tr>
-                    <th style="width:3%;">ID</th>
-                    <th style="width:7%;">Module</th>
-                    <th style="width:12%;">Subject</th>
-                    <th style="width:24%;">Communication</th>
-                    <th style="width:5%;">Date Created</th>
-                    <th style="width:7%;">Est Completion Time</th>
-                    <th style="width:5%;">Tracked Time</th>
-                    <th style="width:8%;">Assigned To</th>
-                    <th style="width:7%;">Status</th>
-                    <th style="width:8%;">Lead</th>
-                    <th style="width:6%;">Cost</th>
-                    <th style="width:8%;">Milestone</th>
-                </tr>
-                @foreach ($issues as $key => $issue)
-                    @if(auth()->user()->isReviwerLikeAdmin())
-                        @include("development.partials.admin-row-view")
-                    @elseif($issue->created_by == Auth::user()->id || $issue->master_user_id == Auth::user()->id || $issue->assigned_to == Auth::user()->id)
-                        @include("development.partials.developer-row-view")
-                    @endif
-                @endforeach
-            </table>
+        @if($title == 'issue' && auth()->user()->isReviwerLikeAdmin())
+        <table class="table table-bordered table-striped">
+            <tr class="add-new-issue">
+                @include("development.partials.add-new-issue")
+            </tr>
+        </table>
+        @endif
+        <div class="infinite-scroll-products-inner">
+            @include("development.partials.task-master")
+        </div>
             <?php echo $issues->appends(request()->except("page"))->links(); ?>
+
+            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
         </div>
     </div>
     @include("development.partials.create-new-module")
@@ -128,7 +129,6 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
-//
 @endsection
 
 @section('scripts')
@@ -139,7 +139,7 @@
     <script src="/js/bootstrap-filestyle.min.js"></script>
     <script>
         $(document).ready(function () {
-            
+            var isLoadingProducts = false;
             $(document).on('click', '.assign-issue-button', function () {
                 var issue_id = $(this).data('id');
                 var url = "{{ url('development') }}/" + issue_id + "/assignIssue";
@@ -150,42 +150,89 @@
             $(".multiselect").multiselect({
                 nonSelectedText:'Please Select'
             });
-            $('.infinite-scroll').jscroll({
-                debug: true,
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 0,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: '.infinite-scroll',
-                callback: function () {
-                    $('ul.pagination:visible:first').remove();
-                    var next_page = $('.pagination li.active');
-                    if (next_page.length > 0) {
-                        var current_page = next_page.find("span").html();
-                        $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
-                    }
 
-
-                    $.each($("select.resolve-issue"),function(k,v){
-                        if (!$(v).hasClass("select2-hidden-accessible")) {
-                            $(v).select2({width:"100%", tags:true});
-                        }
-                    });
-                    $('select.select2').select2({
-                        tags: true,
-                        width: "100%"
-                    });
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMoreProducts();
                 }
             });
 
+            function loadMoreProducts() {
+                if (isLoadingProducts)
+                    return;
+                console.log($('.pagination li.active + li a').attr('href'));
+                isLoadingProducts = true;
+
+                var $loader = $('.infinite-scroll-products-loader');
+
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    if('' === data.trim())
+                        return;
+
+                    $loader.hide();
+
+                    $('.infinite-scroll-products-inner').append(data);
+
+                    isLoadingProducts = false;
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    console.error('something went wrong');
+
+                    isLoadingProducts = false;
+                });
+            }
+
+            // $('.infinite-scroll').jscroll({
+            //     debug: false,
+            //     autoTrigger: true,
+            //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+            //     padding: 20,
+            //     nextSelector: '.pagination li.active + li a',
+            //     contentSelector: '.infinite-scroll',
+            //     callback: function () {
+            //         $('ul.pagination:visible:first').remove();
+            //         var next_page = $('.pagination li.active');
+            //         if (next_page.length > 0) {
+            //             var current_page = next_page.find("span").html();
+            //             $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+            //         }
+            //         $.each($("select.resolve-issue"),function(k,v){
+            //             if (!$(v).hasClass("select2-hidden-accessible")) {
+            //                 $(v).select2({width:"100%", tags:true});
+            //             }
+            //         });
+            //         $('select.select2').select2({
+            //             tags: true,
+            //             width: "100%"
+            //         });
+            //     }
+            // });
+            
             $('select.select2').select2({
                 tags: true,
                 width: "100%"
             });
 
+
+            $('.assign-master-user.select2').select2({
+                width: "100%"
+            });
+
+            $('.assign-user.select2').select2({
+                width: "100%"
+            });
+
             $.each($(".resolve-issue"),function(k,v){
                 if (!$(v).hasClass("select2-hidden-accessible")) {
-                    $(v).select2({width:"100%", tags:true});
+                    $(v).select2({width:"100%"});
                 }
             });
 
@@ -396,6 +443,10 @@
                 },
                 success: function () {
                     toastr["success"]("User assigned successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
 
@@ -431,13 +482,17 @@
             }
 
             $.ajax({
-                url: "{{action('DevelopmentController@assignUser')}}",
+                url: "{{action('DevelopmentController@assignMasterUser')}}",
                 data: {
                     master_user_id: userId,
                     issue_id: id
                 },
                 success: function () {
                     toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
                 }
             });
 
@@ -515,10 +570,12 @@
             }
         });
 
-        $(document).on('click', '.estimate-time-change', function () {
+        $(document).on('keyup', '.estimate-time-change', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
             let issueId = $(this).data('id');
             let estimate_minutes = $("#estimate_minutes_" + issueId).val();
-
             $.ajax({
                 url: "{{action('DevelopmentController@saveEstimateMinutes')}}",
                 data: {
@@ -745,7 +802,5 @@
                 $('#no_of_milestone').removeAttr('required');
             }
         });
-    
-    
     </script>
 @endsection

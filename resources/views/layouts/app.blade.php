@@ -638,7 +638,9 @@
                                             <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                         </li>
                                     </ul>
-
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -737,6 +739,9 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
                                 </li>
                             </ul>
                         </li>
@@ -1125,6 +1130,14 @@
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
                                     </a>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Plesk<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('plesk.domains')}}">Domains</a>
+                                                </li>
+                                            </ul>
+                                        </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1138,13 +1151,10 @@
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/devtask') }}">Tasks</a>
+                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/issue') }}">Issue list</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
@@ -1193,6 +1203,9 @@
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
                                     </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
+                                    </li>
                                 </ul>
                             </li>
                         @endif
@@ -1202,6 +1215,9 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
@@ -1690,7 +1706,7 @@
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
                         <a id="message-chat-data-box" class="quick-icon"> 
-                           <span class="p1 fa-stack has-badge" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
                         </a>
@@ -1890,7 +1906,7 @@
 
     <!-- Scripts -->
 
-    {{-- @include('partials.chat') --}}
+     @include('partials.chat')
     <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
     </div>
 
@@ -2104,7 +2120,7 @@
 
         function resetTimer() {
             clearTimeout(time);
-            time = setTimeout(remove_key, 1200000)
+            time = setTimeout(remove_key, 1200000);
             // 1000 milliseconds = 1 second
         }
         };

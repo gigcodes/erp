@@ -16,7 +16,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class SiteDevelopmentController extends Controller
 {
-
+//
     public function index($id = null, Request $request)
     {
 
@@ -54,16 +54,23 @@ class SiteDevelopmentController extends Controller
         }
 
         $allStatus = \App\SiteDevelopmentStatus::pluck("name", "id")->toArray();
+
+
+        $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
+        ->groupBy("sds.id")
+        ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+        ->get();
+
         $users     = User::select('id', 'name')->whereIn('id', $userIDs)->get();
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory'));
+        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount'));
     }
 
     public function addCategory(Request $request)
