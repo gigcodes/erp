@@ -574,13 +574,50 @@ class LiveChatController extends Controller
 						'status' => 'success',
 						'data' => array('id' => $chatId ,'count' => $count, 'message' => $messagess , 'name' => $name, 'customerInital' => $customerInital),
         			]);
-		}else{
+		}
+		else{
 			return response()->json([
             			'data' => array('id' => '','count' => 0, 'message' => '' , 'name' => '', 'customerInital' => ''),
         			]);
 		}
 	}
-	
+
+	public function getLiveChats()
+	{
+		if(session()->has('chat_customer_id'))
+		{
+			$chatId = session()->get('chat_customer_id');
+			$chat_message = ChatMessage::where('customer_id',$chatId)->where('message_application_id',2)->get();
+			//getting customer name from chat
+			$customer = Customer::findorfail($chatId);
+			$name = $customer->name;
+			$customerInital = substr($name, 0, 1);
+			if(count($chat_message) == 0){
+				$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+			}
+			else{
+				foreach ($chat_message as $chat) {
+					if($chat->user_id != 0){
+						// Finding Agent
+						$agent = User::where('email', $chat->user_id)->first();
+						$agentInital = substr($agent->name, 0, 1);
+
+						$message[] = '<div class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">'.$agentInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+					}else{
+						$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+					}
+				}
+			}
+			$count = CustomerLiveChat::where('seen',0)->count();
+			return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
+		}
+		else{
+			$count = 0; $message = ''; $customerInital = '';$name='';
+			return view('livechat.chatMessages', compact( 'message', 'name', 'customerInital'));
+		}
+	}
+
+
 	public function getUserList(){
 		$liveChatCustomers = CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
 

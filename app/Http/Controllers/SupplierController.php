@@ -141,17 +141,24 @@ class SupplierController extends Controller
         }
 
         $runQuery = 0;
-        $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray();
-        if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
+        // if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
+        //     $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
+        //     $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
+        //     $runQuery = 1;
+        // } else {
+        //     if(auth()->user()->isAdmin()) {
+        //         $runQuery = 1;
+        //     }
+        // }
+        
+          if(!auth()->user()->isAdmin()) {
+            $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
             $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
             $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
             $runQuery = 1;
         } else {
-            if(auth()->user()->isAdmin()) {
-                $runQuery = 1;
-            }
+            $runQuery = 1;
         }
-
         $suppliers = [];
 
         if($runQuery) {
@@ -181,14 +188,18 @@ class SupplierController extends Controller
                   AS suppliers
                   left join scrapers as sc on sc.supplier_id = suppliers.id
                   left join users as u on u.id = suppliers.updated_by
-                  WHERE (source LIKE "%' . $source . '%" AND (supplier LIKE "%' . $term . '%" OR
+                  WHERE (
+
+                  source LIKE "%' . $source . '%" AND
+                  (sc.parent_id IS NULL AND
+                  (supplier LIKE "%' . $term . '%" OR
                   suppliers.phone LIKE "%' . $term . '%" OR
                   suppliers.email LIKE "%' . $term . '%" OR
                   suppliers.address LIKE "%' . $term . '%" OR
                   suppliers.social_handle LIKE "%' . $term . '%" OR
                   sc.scraper_name LIKE "%' . $term . '%" OR
                   brands LIKE "%' . $term . '%" OR
-                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
         }

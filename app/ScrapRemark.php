@@ -13,7 +13,8 @@ class ScrapRemark extends Model
         'scraper_name',
         'remark',
         'scrap_id',
-        'module_type'
+        'module_type',
+        'scrap_field'
     ];
 
     public function scraps()
