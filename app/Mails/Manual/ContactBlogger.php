@@ -32,7 +32,10 @@ class ContactBlogger extends Mailable
      */
     public function build()
     {
-        return $this->from('contact@sololuxury.co.in')
+        $this->withSwiftMessage(function ($swiftmessage) {
+            Log::info($swiftmessage->getId());
+         });
+        $this->from('contact@sololuxury.co.in')
             ->bcc('contact@sololuxury.co.in')
             ->subject($this->subject)
             ->markdown('emails.customers.email');

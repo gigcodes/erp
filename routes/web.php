@@ -359,6 +359,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+
+    Route::get('email/forwardMail/{id}', 'EmailController@forwardMail');
+    Route::post('email/forwardMail', 'EmailController@submitForward')->name('email.submit-forward');
+
+    Route::get('email/remarkMail/{id}', 'EmailController@remarkMail');
+    Route::post('email/remarkMail', 'EmailController@submitRemark')->name('email.submit-remark');
+
+
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::resource('email', 'EmailController');
 
@@ -645,7 +653,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('voucher/{id}/resubmit', 'VoucherController@resubmit')->name('voucher.resubmit');
     Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
-    
+
     Route::resource('voucher', 'VoucherController');
 
     // Budget
@@ -1012,7 +1020,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
         Route::get('/permission', 'VendorCategoryController@usersPermission')->name('vendor-category.permission');
         Route::post('/update/permission', 'VendorCategoryController@updatePermission')->name('vendor-category.update.permission');
-        
+
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
             Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');

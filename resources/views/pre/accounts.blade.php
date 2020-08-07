@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Email Accounts ({{count($accounts)}})</h2>
+            <h2 class="page-heading">OTHER EMAIL ACCOUNTS ({{count($accounts)}})</h2>
         </div>
     </div>
     <div class="row">

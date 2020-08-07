@@ -23,6 +23,7 @@ use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
 use App\Console\Commands\FetchEmails;
+use App\Console\Commands\FetchAllEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
@@ -126,6 +127,7 @@ class Kernel extends ConsoleKernel
         AutoReminder::class,
         AutoMessenger::class,
         FetchEmails::class,
+        FetchAllEmails::class,
         CheckEmailsErrors::class,
         MessageScheduler::class,
         SendRecurringTasks::class,
@@ -226,8 +228,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        
-       
+
+
 
         // Store unknown categories on a daily basis
         $schedule->command('category:missing-references')->daily();
@@ -445,7 +447,7 @@ class Kernel extends ConsoleKernel
         // Customer chat messages quick data
         $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
         $schedule->command('fetch-store-website:orders')->hourly();
-        
+
         // If scraper not completed, store alert
         $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 
