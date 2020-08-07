@@ -6,6 +6,8 @@ use App\User;
 use App\UserRate;
 use DB;
 use Exception;
+use Carbon\Carbon;
+use File;
 use Illuminate\Console\Command;
 
 class ScrapLogs extends Command
@@ -46,7 +48,7 @@ class ScrapLogs extends Command
         $searchVal = "";
         $dateVal = "";
         $file_list = [];
-        $files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
+        $files = \File::allFiles(env('SCRAP_LOGS_FOLDER'));
         $date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
         if($date == 01) 
         {
@@ -88,7 +90,7 @@ class ScrapLogs extends Command
                     $scrapers_id = 0;
                 }
                     
-                if(count($scrap_logs_info) == 0)
+                if(isset($scrap_logs_info) && count($scrap_logs_info) == 0)
                 {
                     $file_list_data = array(
                         "scraper_id"=>$scrapers_id,

@@ -108,6 +108,7 @@ use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
+use App\Console\Commands\ScrapLogs;
 
 class Kernel extends ConsoleKernel
 {
@@ -210,7 +211,8 @@ class Kernel extends ConsoleKernel
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
-        UserPayment::class
+        UserPayment::class,
+        ScrapLogs::class
     ];
 
     /**
