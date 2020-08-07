@@ -108,7 +108,6 @@
             </li>
         </ul>
     </div>
-
     <div class="row">
         <div class="col-xs-12 col-md-4 border">
             <div class="tab-content">
@@ -204,6 +203,14 @@
                                 <input type="text" name="social_handle" id="supplier_social_handle" class="form-control input-sm" placeholder="Social Handle" value="{{ $supplier->social_handle }}">
                             </div>
 
+
+                            <div class="form-group">
+                              <label>Update By</label>
+                                <p>{{ $user->name }}</p>
+                            </div>
+
+
+
                             <div class="form-group">
                                     <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
                                         <option value="">-No Selected-</option>
@@ -214,7 +221,7 @@
                                         @endforeach
                                     </select>
                             </div>
-                            
+
 
                             <div class="form-group">
                                 <input type="text" name="website" id="supplier_website" class="form-control input-sm" placeholder="Website" value="{{ $supplier->website }}">
@@ -1934,7 +1941,7 @@
                 $("#count_images").html(images.length);
                 $('#productModal').modal('show');
             }
-            
+
         });
 
         $(document).on('click', '#auto-translate', function (e) {
@@ -1965,7 +1972,7 @@
                 }
             })
         });
-          
+
         function processExcel(id){
             attachment = $('#email'+id).attr('data-attached');
             $.ajax({
@@ -1985,8 +1992,8 @@
             .fail(function() {
                 alert('Error During Import');
             })
-            
-            
+
+
         }
 
          $(document).on('change', '.change-whatsapp-no', function () {
@@ -2006,8 +2013,8 @@
             });
         });
 
-    
-    
+
+
         function createProduct(){
             var images = [];
             $.each($("input[name='checkbox[]']:checked"), function(){
@@ -2021,14 +2028,14 @@
                 alert('Please enter sku');
             }else if(category == ''){
                 alert('Please select category');
-            }else if(location_data == ''){ 
+            }else if(location_data == ''){
                 alert('Please select location');
             }else{
                 size = $('#size-selection').val();
                 name = $('#name').val();
                 brand = $('#brand').val();
                 color = $('#color').val();
-                
+
                 supplier = $('#supplier').val();
                 price = $('#price').val();
                 price_inr_special_stock = $('#price_inr_special_stock').val();
@@ -2058,10 +2065,10 @@
                     console.log(response);
                 });
                 }
-            }  
+            }
 
 
-        
+
 
     </script>
 @endsection

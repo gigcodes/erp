@@ -144,6 +144,8 @@
           <button type="button" class="btn btn-secondary ml-3" data-toggle="modal" data-target="#supplierCreateModal">+</button>
           <button type="button" class="btn btn-secondary ml-3" id="add_category_btn" data-toggle="modal" data-target="#categoryCreateModal">Add Category</button>
           <button type="button" class="btn btn-secondary ml-3" id="add_subcategory_btn" data-toggle="modal" data-target="#subcategoryCreateModal">Add Sub Category</button>
+          <button type="button" class="btn btn-secondary ml-3" id="add_status_btn" data-toggle="modal" data-target="#statusCreateModal">Add Status</button>
+          <button type="button" class="btn btn-secondary ml-3" id="add_suppliersize_btn" data-toggle="modal" data-target="#suppliersizeCreateModal">Add Supplier Size</button>
           <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
         </div>
     </div>
@@ -159,10 +161,14 @@
           <tr>
             <th width="5%">ID</th>
             <th width="10%">Name</th>
-            <th width="10%">Address</th>
+            <th width="10%">Telephone Number</th>
+            <th width="10%">Whatsup Number</th>
+            <th width="30%">Email</th>
             <th width="5%">Scrapper</th>
               {{-- <th>Source</th> --}}
               <th>Designers</th>
+              <th>Supplier Status</th>
+              <th>Supplier Size</th>
               <th>Category</th>
               <th>Sub Category</th>
               {{-- <th>No.of Brands</th> --}}
@@ -175,12 +181,10 @@
             <th>Status</th>
             {{-- <th>Created At</th> --}}
             {{-- <th>Updated At</th> --}}
-            <th>Updated By</th>
             <th>Inventory Lifetime (Days)</th>
             <th width="15%">Action</th>
           </tr>
         </thead>
-
         <tbody>
           @foreach ($suppliers as $supplier)
 			<tr>
@@ -245,19 +249,19 @@
 					</span>
 				</td>
 				<td class="expand-row">
-					<div class="td-mini-container">
-						{{ strlen($supplier->address) > 10 ? substr($supplier->address, 0, 10).'...' : $supplier->address }}
-					</div>
           <div>
-          <span class="text-muted">
-					{{ $supplier->phone }}</span>
+          <input type="text" name="phone" id="phone{{$supplier->id}}" data-phone-id="{{ $supplier->id }}"placeholder="Phone" class="form-control send-supplier-phone" value="{{ $supplier->phone }}">
           </div>
+        </td>
+        <td class="expand-row">
           <div>
-          <a href="#" class="send-supplier-email" data-toggle="modal" data-target="#emailSendModal" data-id="{{ $supplier->id }}">{{ $supplier->email }}</a>
+          <input type="text" name="whatsapp" id="whatsapp{{$supplier->id}}" data-whatsapp-id="{{ $supplier->id }}"placeholder="Whatsapp" class="form-control send-supplier-whatsapp" value="{{ $supplier->whatsapp_number }}">
           </div>
-					<div class="td-full-container hidden">
-						{{ $supplier->address }}
-					</div>
+        </td>
+        <td>
+        <div>
+          <input type="text" name="email" id="email{{$supplier->id}}" data-mail-id="{{ $supplier->id }}"placeholder="Email" class="form-control send-supplier-email" value="{{ $supplier->email }}">
+          </div>
         </td>
         <td>
         <select name="scrapper" class="form-control scrapper" data-scrapper-id="{{ $supplier->id }}">
@@ -287,6 +291,24 @@
 					@endif
                 </td>
                 <td>
+                    <select name="supplier_status" class="form-control supplier_status" data-status-id="{{ $supplier->id }}">
+                        <option value="">Select</option>
+                        @forelse ($supplierstatus as $supplierstatus_key => $item)
+                            <option value="{{ $supplierstatus_key }}" {{ ($supplier->supplier_status_id == $supplierstatus_key) ? 'selected' : ''}} >{{ $item }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </td>
+                <td>
+                    <select name="supplier_size" class="form-control supplier_size" data-size-id="{{ $supplier->id }}">
+                        <option value="">Select</option>
+                        @forelse ($suppliersize as $suppliersize_key => $item)
+                            <option value="{{ $suppliersize_key }}" {{ ($supplier->supplier_size_id == $suppliersize_key) ? 'selected' : ''}} >{{ $item }}</option>
+                        @empty
+                        @endforelse
+                    </select>
+                </td>
+                <td>
                     <select name="supplier_cat" class="form-control supplier_cat" data-supplier-id="{{ $supplier->id }}">
                         <option value="">Select</option>
                         @forelse ($suppliercategory as $key => $item)
@@ -304,6 +326,7 @@
                         @endforelse
                     </select>
                 </td>
+
 				{{-- <td>{{count(array_filter(explode(',',$supplier->brands)))}}</td> --}}
 				{{-- <td class="expand-row" style="word-break: break-all;">
 					<div class="td-mini-container">
@@ -370,7 +393,6 @@
 					</td>
 					{{-- <td>{{ $supplier->created_at }}</td> --}}
 					{{-- <td>{{ $supplier->updated_at }}</td> --}}
-					<td>{{ $supplier->updated_by_name }}</td>
 					<td>
           <input class="inventory_lifetime" style="width:50px;"  type="text" data-supplier-id="{{ $supplier->id }}" value="{{ $supplier->inventory_lifetime }}" data-width="10">
           </td>
@@ -1143,7 +1165,7 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            location.reload();
+            //location.reload();
         }).fail(function(error) {
 
         })
@@ -1172,6 +1194,75 @@
       }
     });
 
+    $(document).on('keypress', '.send-supplier-email', function(e) {
+    if(e.which == 13) {
+        var email = $(this).val();
+        var supplierId = $(this).data('mail-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/mail') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                email : email
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+
+        })
+      }
+    });
+
+    $(document).on('keypress', '.send-supplier-phone', function(e) {
+    if(e.which == 13) {
+        var phone = $(this).val();
+        var supplierId = $(this).data('phone-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/phone') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                phone : phone
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+
+        })
+      }
+    });
+
+    $(document).on('keypress', '.send-supplier-whatsapp', function(e) {
+    if(e.which == 13) {
+        var whatsapp = $(this).val();
+        var supplierId = $(this).data('whatsapp-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/whatsapp') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                whatsapp : whatsapp
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+
+        })
+      }
+    });
+
     $(document).on('change', '.supplier_cat', function() {
         var cat = $(this).val();
         var supplierId = $(this).data('supplier-id');
@@ -1187,9 +1278,49 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            location.reload();
+          //  location.reload();
         }).fail(function(error) {
+        })
+    });
 
+    $(document).on('change', '.supplier_status', function() {
+        var status = $(this).val();
+        var supplierId = $(this).data('status-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/status') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                status : status
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
+        })
+    });
+
+
+    $(document).on('change', '.supplier_size', function() {
+        var size = $(this).val();
+        var supplierId = $(this).data('size-id');
+        $.ajax({
+            type: "POST",
+            url: "{{ route('supplier/change/size') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                supplier_id: supplierId,
+                size : size
+            }
+        }).done(function(data){
+            if(data.code == 200) {
+                toastr["success"](data.message);
+            }
+            //location.reload();
+        }).fail(function(error) {
         })
     });
 
@@ -1208,7 +1339,7 @@
             if(data.code == 200) {
                 toastr["success"](data.message);
             }
-            location.reload();
+            //location.reload();
         }).fail(function(error) {
 
         })

@@ -643,7 +643,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('voucher/{id}/resubmit', 'VoucherController@resubmit')->name('voucher.resubmit');
     Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
-    
+
     Route::resource('voucher', 'VoucherController');
 
     // Budget
@@ -1053,13 +1053,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
+    Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
     Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
     Route::post('supplier/add/subcategory', 'SupplierController@addSubCategory')->name('supplier/add/subcategory');
+    Route::post('supplier/add/status', 'SupplierController@addStatus')->name('supplier/add/status');
+    Route::post('supplier/add/suppliersize', 'SupplierController@addSupplierSize')->name('supplier/add/suppliersize');
     Route::post('supplier/change/inventorylifetime', 'SupplierController@editInventorylifetime')->name('supplier/change/inventorylifetime');
     Route::post('supplier/change/scrapper', 'SupplierController@changeScrapper')->name('supplier/change/scrapper');
     Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
-
+    Route::post('supplier/change/mail', 'SupplierController@changeMail')->name('supplier/change/mail');
+    Route::post('supplier/change/phone', 'SupplierController@changePhone')->name('supplier/change/phone');
+    Route::post('supplier/change/size', 'SupplierController@changeSize')->name('supplier/change/size');
+    Route::post('supplier/change/whatsapp', 'SupplierController@changeWhatsapp')->name('supplier/change/whatsapp');
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
     Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
