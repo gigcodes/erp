@@ -42,7 +42,7 @@ return [
         'mysql' => [
             'read' => [
                 'host' => [
-                    env('DB_HOST', '127.0.0.1'),
+                    env('DB_HOST_READ', '127.0.0.1'),
                 ],
             ],
             'write' => [
