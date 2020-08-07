@@ -597,11 +597,11 @@ class OrderController extends Controller {
 		$data = $request->all();
 		$key  = $request->get("key","");
 		$data['user_id'] = Auth::id();
-
 		/*if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();
 		}*/
 
+		
 		$oPrefix = ($request->input( 'order_type' ) == 'offline') ? "OFF-".date("Ym") : "ONN-".date("Ym");
 		$statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
 		$nextId = 0;
@@ -641,8 +641,43 @@ class OrderController extends Controller {
 
 		$data['client_name'] = $customer->name;
 		$data['contact_detail'] = $customer->phone;
-
+		if($request->hdn_order_mail_status == "1")
+		{
+			$data['auto_emailed'] = 1;
+		}
+		else
+		{
+			$data['auto_emailed'] = 0;
+		}
 		$order = Order::create( $data );
+
+		if($request->hdn_order_mail_status == "1")
+		{
+			$id_order_inc = $order->id;
+			$order_new = Order::find($id_order_inc);
+			if (!$order_new->is_sent_offline_confirmation()) {
+				if ($order_new->order_type == 'offline') {
+					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+					$params = [
+				        'model_id'    		=> $order_new->customer->id,
+				        'model_type'  		=> Customer::class,
+				        'from'        		=> 'customercare@sololuxury.co.in',
+				        'to'          		=> $order_new->customer->email,
+				        'subject'     		=> "New Order # " . $order_new->order_id,
+				        'message'     		=> '',
+						'template'				=> 'order-confirmation',
+						'additional_data'	=> $order_new->id
+		      		];
+		      		Email::create($params);
+					CommunicationHistory::create([
+						'model_id'		=> $order_new->id,
+						'model_type'	=> Order::class,
+						'type'				=> 'offline-confirmation',
+						'method'			=> 'email'
+					]);
+				}
+			}
+		}
 
 		if ($customer->credit > 0) {
 			$balance_amount = $order->balance_amount;
@@ -2125,6 +2160,33 @@ public function createProductOnMagento(Request $request, $id){
         }
 
         return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
+	}
+	public function sendOrderEmail(Request $request, $id)
+	{
+		$order = Order::find($id);
+		if (!$order->is_sent_offline_confirmation()) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+				$params = [
+			        'model_id'    		=> $order->customer->id,
+			        'model_type'  		=> Customer::class,
+			        'from'        		=> 'customercare@sololuxury.co.in',
+			        'to'          		=> $order->customer->email,
+			        'subject'     		=> "New Order # " . $order->order_id,
+			        'message'     		=> '',
+					'template'				=> 'order-confirmation',
+					'additional_data'	=> $order->id
+	      		];
+	      		Email::create($params);
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'offline-confirmation',
+					'method'			=> 'email'
+				]);
+			}
+		}
+		return response()->json(["code" => 200 , "data" => [], "message" => "You have successfully sent confirmation email!"]);
 	}
 
 	public function previewInvoice(Request $request, $id)
