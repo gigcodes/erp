@@ -42,9 +42,11 @@ class ContentManagementController extends Controller
         $websites = $websites->get();
 
         foreach($websites as $w) {
+            
             $w->facebookAccount = StoreSocialAccount::where('platform','facebook')->where('store_website_id',$w->id)->first();
             // if($w->facebookAccount) {
             //     $password = $w->facebookAccount->password;
+            //     $decryptedPassword = decrypt($password);
             // }
             $w->instagramAccount = StoreSocialAccount::where('platform','instagram')->where('store_website_id',$w->id)->first();
 
@@ -462,5 +464,72 @@ class ContentManagementController extends Controller
     public function destroy($id)
     {
         //
+    }
+
+    public function previewImage($id) {
+        // $website = StoreWebsite::find($id);
+
+        $contents = StoreSocialContent::where('store_website_id',$id)->get();
+        $records = [];
+        foreach($contents as $site) {
+            if ($site) {
+                $userList = [];
+
+                if ($site->publisher_id) {
+                    $userList[$site->publisher->id] = $site->publisher->name;
+                }
+
+                if ($site->creator_id) {
+                    $userList[$site->creator->id] = $site->creator->name;
+                }
+                $userList = array_filter($userList);
+
+                
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+                                'site_id'   => $site->id,
+                                'user_list' => $userList,
+                            ];
+                        }
+                    }
+            }
+        }
+        $title = 'Preview images';
+        return view('content-management.preview-website-images', compact('title','records'));
+    }
+
+    public function previewCategoryImage($id) {
+
+        $site = StoreSocialContent::find($id);
+        $records = [];
+            if ($site) {
+                $userList = [];
+
+                if ($site->publisher_id) {
+                    $userList[$site->publisher->id] = $site->publisher->name;
+                }
+
+                if ($site->creator_id) {
+                    $userList[$site->creator->id] = $site->creator->name;
+                }
+                $userList = array_filter($userList);
+
+                
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+                                'site_id'   => $site->id,
+                                'user_list' => $userList,
+                            ];
+                        }
+                    }
+            }
+        $title = 'Preview images';
+        return view('content-management.preview-website-images', compact('title','records'));
     }
 }
