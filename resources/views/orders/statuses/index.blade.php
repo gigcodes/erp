@@ -68,7 +68,7 @@
             <tr>
             <td>{{$status->order_status->status}}</td>
             <td>{{$status->store_website->title}} ({{$status->store_website->website_source}})</td>
-            <td>{{$status->store_master_status->label}}</td>
+            <td>{{($status->store_master_status) ? $status->store_master_status->label : "N/A"}}</td>
             <td>
               <a class="btn btn-image edit-btn" data-id="{{ $status->id }}"><img src="/images/edit.png" /></a>
             </td>
