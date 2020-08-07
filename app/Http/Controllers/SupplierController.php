@@ -188,14 +188,18 @@ class SupplierController extends Controller
                   AS suppliers
                   left join scrapers as sc on sc.supplier_id = suppliers.id
                   left join users as u on u.id = suppliers.updated_by
-                  WHERE (source LIKE "%' . $source . '%" AND (supplier LIKE "%' . $term . '%" OR
+                  WHERE (
+
+                  source LIKE "%' . $source . '%" AND
+                  (sc.parent_id IS NULL AND
+                  (supplier LIKE "%' . $term . '%" OR
                   suppliers.phone LIKE "%' . $term . '%" OR
                   suppliers.email LIKE "%' . $term . '%" OR
                   suppliers.address LIKE "%' . $term . '%" OR
                   suppliers.social_handle LIKE "%' . $term . '%" OR
                   sc.scraper_name LIKE "%' . $term . '%" OR
                   brands LIKE "%' . $term . '%" OR
-                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
         }
