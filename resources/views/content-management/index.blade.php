@@ -77,6 +77,9 @@
 			        	<img width="15px" title="Manage Contents" src="/images/project.png">
 			        </a>
 				</button> 
+				<button type="button" class="btn preview-img-btn" data-id="{{$website->id}}">
+					<i class="fa fa-eye" aria-hidden="true"></i>
+				</button>
 				</td>
             </tr>
             @endforeach
@@ -102,7 +105,32 @@
         </div>
 
       </div>
+</div>
+
+
+<div id="preview-website-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Image</th>
+					      </tr>
+					    </thead>
+					    <tbody class="website-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
+</div>
 <script type="text/javascript">
 	    $(document).on('click', '.add-social-account', function (e) {
             e.preventDefault();
@@ -112,6 +140,22 @@
                 success: function (response) {
 					$("#accountCreateModal").modal("show");
 					$("#add-social-account-content").html(response);
+                },
+                error: function () {
+                }
+            });
+        });
+
+
+		$(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+            $.ajax({
+                url: "/content-management/preview-img/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#preview-website-image").modal("show");
+					$(".website-image-list-view").html(response);
                 },
                 error: function () {
                 }

@@ -316,10 +316,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
       //plesk
       Route::prefix('content-management')->middleware('auth')->group(static function () {
         Route::get('/', 'ContentManagementController@index')->name('content-management.index');
+        Route::get('/preview-img/{id}', 'ContentManagementController@previewImage')->name('content-management.preview-img');
         Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
         Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
         Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
         Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
         Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
         Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
         Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');

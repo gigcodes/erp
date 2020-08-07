@@ -104,6 +104,9 @@
                         <i class="fa fa-comment" aria-hidden="true"></i>
                     </button>
                 @endif
+                <button type="button" class="btn preview-img-btn" data-id="@if($site){{ $site->id }}@endif">
+					<i class="fa fa-eye" aria-hidden="true"></i>
+				</button>
             </td>
     	</tr>
     <?php } ?>
