@@ -1841,6 +1841,17 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::get('coupons/report', 'CouponController@showReport');
 });
 
+Route::get('keywordassign', 'KeywordassignController@index')->name('keywordassign.index');
+Route::get('keywordassign/load', 'KeywordassignController@loadData');
+Route::get('keywordassign/create', 'KeywordassignController@create')->name('keywordassign.create');
+Route::post('keywordassign/store', 'KeywordassignController@store')->name('keywordassign.store');
+Route::post('keywordassign/taskcategory', 'KeywordassignController@taskcategory')->name('keywordassign.taskcategory');
+Route::get('keywordassign/{id}', 'KeywordassignController@edit');
+Route::post('keywordassign/{id}/update', 'KeywordassignController@update');
+Route::get('keywordassign/{id}/destroy', 'KeywordassignController@destroy');
+
+
+
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {

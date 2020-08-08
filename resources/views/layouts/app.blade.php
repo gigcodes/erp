@@ -719,6 +719,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('coupons.index') }}" role="button">Keyword Assign</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">

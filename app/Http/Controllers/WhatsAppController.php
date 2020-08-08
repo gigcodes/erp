@@ -1928,6 +1928,32 @@ class WhatsAppController extends FindByNumberController
         // $params['status'] = 1;
 
         if ($context == 'customer') {
+            $exp_mesaages = explode(" ", $request->message);
+            
+            for($i=0;$i<count($exp_mesaages);$i++)
+            {
+                $keywordassign = DB::table('keywordassign')
+                ->select('*')
+                ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                ->get();
+                if(count($keywordassign) > 0)
+                {
+                    break;
+                } 
+            }
+            if(count($keywordassign) > 0)
+            {
+                $task_array =  array(
+                    "is_statutory"=>0,
+                    "task_subject"=>$data[ 'user_id' ],
+                    "task_details"=>$keywordassign[0]->task_description,
+                    "assign_from"=>$data[ 'user_id' ],
+                    "assign_to"=>$keywordassign[0]->assign_to,
+                    "created_at"=>date("Y-m-d H:i:s"),
+                    "updated_at"=>date("Y-m-d H:i:s")
+                );
+                DB::table('tasks')->insert($task_array);
+            }
             $data[ 'customer_id' ] = $request->customer_id;
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
