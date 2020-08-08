@@ -27,7 +27,9 @@
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
-                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+                                        <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
+                                        <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
                                                 <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
@@ -139,8 +141,29 @@
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="chatTechnology">
-                                
                             </div>
+                        </div>
+                        <div class="chat-rightbox">
+                            @php
+                            $all_categories = \App\ReplyCategory::all();
+                            @endphp
+                            <select class="form-control" id="keyword_category">
+                                <option value="">Select Category</option>
+                                @if(isset($all_categories))
+                                    @foreach ($all_categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <input type="text" name="quick_comment_live" placeholder="New Quick Comment" class="form-control quick_comment_live">
+                            <button class="btn btn-secondary quick_comment_add_live">+</button>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <select class="form-control" id="live_quick_replies">
+                                <option value="">Quick Reply</option>
+                            </select>
                         </div>
                     </div>
                 </div>

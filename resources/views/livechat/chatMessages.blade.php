@@ -27,6 +27,8 @@
                                         $customerInital = substr($customer->name, 0, 1);
                                         @endphp
                                         <li onclick="getLiveChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+                                            <input type="hidden" id="selected_customer_store" value="{{ $customer->store_website_id }}" />
+
                                             <div class="d-flex bd-highlight">
                                                 <div class="img_cont">
                                                     <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
@@ -96,7 +98,7 @@
                                                 <a href="{{ route('attachImages', ['livechat', $customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
                                             </div>
                                             <input type="hidden" id="message-id" name="message-id" />
-                                            <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
+                                            <textarea name="" class="form-control type_msg message_textarea" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
                                                 <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
                                             </div>
@@ -127,8 +129,29 @@
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="liveChatTechnology">
-
                             </div>
+                        </div>
+                        <div class="chat-rightbox">
+                            @php
+                                $all_categories = \App\ReplyCategory::all();
+                            @endphp
+                            <select class="form-control auto-translate" id="categories">
+                                <option value="">Select Category</option>
+                                @if(isset($all_categories))
+                                    @foreach ($all_categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
+                            <button class="btn btn-secondary quick_comment_add">+</button>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <select class="form-control" id="quick_replies">
+                                <option value="">Quick Reply</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -167,6 +190,7 @@
                         data: { id : id ,   _token: "{{ csrf_token() }}" },
                     })
                     .done(function(data) {
+                        console.log(data);
                         //if(typeof data.data.message != "undefined" && data.length > 0 && data.data.length > 0) {
                         $('#live-message-recieve').empty().html(data.data.message);
                         $('#message-id').val(data.data.id);
@@ -175,7 +199,7 @@
                         $("li.active").removeClass("active");
                         $("#user"+data.data.id).addClass("active");
                         $('#user_inital').text(data.data.customerInital);
-
+                        $('#selected_customer_store').val(data.data.store_website_id);
                         var customerInfo = data.data.customerInfo;
                         if(customerInfo!=''){
                             customerInfoSetter(customerInfo);
@@ -204,6 +228,74 @@
                     });
         }
         $(document).ready(function(){
+            $(document).on('change', '#categories', function () {
+                console.log("inside");
+                if ($(this).val() != "") {
+                    var category_id = $(this).val();
+                    var store_website_id = $('#selected_customer_store').val();
+                  /*  if(store_website_id == ''){
+                        store_website_id = 0;
+                    }*/
+                    $.ajax({
+                        url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
+                        type: 'GET',
+                        dataType: 'json'
+                    }).done(function(data){
+                        console.log(data);
+                        if(data.status == 1){
+                            $('#quick_replies').empty().append('<option value="">Quick Reply</option>');
+                            var replies = data.data;
+                            replies.forEach(function (reply) {
+                                $('#quick_replies').append($('<option>', {
+                                    value: reply.reply,
+                                    text: reply.reply,
+                                    'data-id': reply.id
+                                }));
+                            });
+                        }
+                    });
+
+                }
+            });
+
+            $('.quick_comment_add').on("click", function () {
+                var textBox = $(".quick_comment").val();
+                var quickCategory = $('#categories').val();
+
+                if (textBox == "") {
+                    alert("Please Enter New Quick Comment!!");
+                    return false;
+                }
+
+                if (quickCategory == "") {
+                    alert("Please Select Category!!");
+                    return false;
+                }
+                console.log("yes");
+
+                $.ajax({
+                    type: 'POST',
+                    url: "{{ route('save-store-wise-reply') }}",
+                    dataType: 'json',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        'category_id' : quickCategory,
+                        'reply' : textBox,
+                        'store_website_id' : $('#selected_customer_store').val()
+                    }
+                }).done(function (data) {
+                    console.log(data);
+                    $(".quick_comment").val('');
+                    $('#quick_replies').append($('<option>', {
+                        value: data.data,
+                        text: data.data
+                    }));
+                })
+            });
+
+            $('#quick_replies').on("change", function(){
+                $('.message_textarea').text($(this).val());
+            });
 
         })
     </script>

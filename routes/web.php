@@ -1431,6 +1431,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 Route::resource('quick-reply', 'QuickReplyController');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
 
+
 Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
@@ -2006,3 +2007,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('shipment', 'ShipmentController');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
+
+/*
+ * Quick Reply Page
+ * */
+Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
+Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
+Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
