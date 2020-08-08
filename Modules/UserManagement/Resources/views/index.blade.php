@@ -138,6 +138,8 @@
 @include("usermanagement::templates.load-task-history")
 @include("usermanagement::templates.add-team")
 @include("usermanagement::templates.edit-team")
+@include("usermanagement::templates.add-time")
+@include("usermanagement::templates.user-avaibility")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>

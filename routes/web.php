@@ -300,6 +300,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
+  Route::prefix('store-website')->middleware('auth')->group(static function () {
+        Route::get('/status/all', 'OrderController@viewAllStatuses')->name('store-website.all.status');
+        Route::get('/status/edit/{id}', 'OrderController@viewEdit')->name('store-website.status.edit');
+        Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
+        Route::get('/status/create', 'OrderController@viewCreateStatus');
+        Route::post('/status/create', 'OrderController@createStatus')->name('store-website.submit.status');
+        Route::get('/status/fetch', 'OrderController@viewFetchStatus');
+        Route::post('/status/fetch', 'OrderController@fetchStatus')->name('store-website.fetch.status');
+        Route::get('/status/fetchMasterStatus/{id}', 'OrderController@fetchMasterStatus');
+    });
+
+
+
+
     //plesk
     Route::prefix('plesk')->middleware('auth')->group(static function () {
         Route::get('/domains', 'PleskController@index')->name('plesk.domains');
@@ -310,6 +324,57 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/domains/mail/change-password', 'PleskController@changePassword')->name('plesk.domains.mail-accounts.change-password');
         Route::get('/domains/view/{id}', 'PleskController@show')->name('plesk.domains.view');
     });
+
+
+
+      //plesk
+      Route::prefix('content-management')->middleware('auth')->group(static function () {
+        Route::get('/', 'ContentManagementController@index')->name('content-management.index');
+        Route::get('/preview-img/{id}', 'ContentManagementController@previewImage')->name('content-management.preview-img');
+        Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
+        Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
+        Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
+        Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
+        Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
+        Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
+        Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
+        Route::post('/upload-documents', 'ContentManagementController@uploadDocuments')->name("content-management.upload-documents");
+        Route::post('/save-documents', 'ContentManagementController@saveDocuments')->name("content-management.save-documents");
+        Route::post('/delete-document', 'ContentManagementController@deleteDocument')->name("content-management.delete-documents");
+        Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
+        Route::prefix('{id}')->group(function () {
+        Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
+            Route::prefix('remarks')->group(function () {
+                Route::get('/', 'ContentManagementController@remarks')->name("content-management.remarks");
+                Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
+            });
+        });
+    });
+
+    Route::prefix('content-management-status')->group(function () {
+        Route::get('/', 'StoreSocialContentStatusController@index')->name('content-management-status.index');
+        Route::post('save', 'StoreSocialContentStatusController@save')->name('content-management-status.save');
+        Route::post('store', 'StoreSocialContentStatusController@store')->name('content-management-status.store');
+        Route::post('merge-status', 'StoreSocialContentStatusController@mergeStatus')->name('content-management-status.merge-status');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'StoreSocialContentStatusController@edit')->name('content-management-status.edit');
+            Route::get('delete', 'StoreSocialContentStatusController@delete')->name('content-management-status.delete');
+        });
+    });
+
+
+    
+    // 
+    // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
+    // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    // Route::prefix('{id}')->group(function () {
+    //     Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
+    //     Route::prefix('remarks')->group(function () {
+    //         Route::get('/', 'SiteDevelopmentController@remarks')->name("site-development.remarks");
+    //         Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
+    //     });
+    // });
     
     //	Route::resource('task','TaskController');
 
@@ -354,6 +419,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
@@ -369,6 +435,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+
+    Route::get('email/forwardMail/{id}', 'EmailController@forwardMail');
+    Route::post('email/forwardMail', 'EmailController@submitForward')->name('email.submit-forward');
+
+    Route::get('email/remarkMail/{id}', 'EmailController@remarkMail');
+    Route::post('email/remarkMail', 'EmailController@submitRemark')->name('email.submit-remark');
+
+
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::resource('email', 'EmailController');
 
@@ -655,7 +729,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('voucher/{id}/resubmit', 'VoucherController@resubmit')->name('voucher.resubmit');
     Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
-    
+
     Route::resource('voucher', 'VoucherController');
 
     // Budget
@@ -683,6 +757,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('dailyActivity/get', 'DailyActivityController@get')->name('dailyActivity.get');
 
     // Complete the task
+    // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
     Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');
@@ -976,6 +1051,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/', 'HubstaffActivitiesController@getActivityUsers')->name('hubstaff-acitivties.activities');
             Route::get('/details', 'HubstaffActivitiesController@getActivityDetails')->name('hubstaff-acitivties.activity-details');
             Route::post('/details', 'HubstaffActivitiesController@approveActivity')->name('hubstaff-acitivties.approve-activity');
+            Route::post('/final-submit', 'HubstaffActivitiesController@finalSubmit')->name('hubstaff-activities/activities/final-submit');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
             Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
             Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
@@ -1022,7 +1098,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
         Route::get('/permission', 'VendorCategoryController@usersPermission')->name('vendor-category.permission');
         Route::post('/update/permission', 'VendorCategoryController@updatePermission')->name('vendor-category.update.permission');
-        
+
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
             Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
@@ -1069,13 +1145,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
+    Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
     Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
     Route::post('supplier/add/subcategory', 'SupplierController@addSubCategory')->name('supplier/add/subcategory');
+    Route::post('supplier/add/status', 'SupplierController@addStatus')->name('supplier/add/status');
+    Route::post('supplier/add/suppliersize', 'SupplierController@addSupplierSize')->name('supplier/add/suppliersize');
     Route::post('supplier/change/inventorylifetime', 'SupplierController@editInventorylifetime')->name('supplier/change/inventorylifetime');
     Route::post('supplier/change/scrapper', 'SupplierController@changeScrapper')->name('supplier/change/scrapper');
     Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
-
+    Route::post('supplier/change/mail', 'SupplierController@changeMail')->name('supplier/change/mail');
+    Route::post('supplier/change/phone', 'SupplierController@changePhone')->name('supplier/change/phone');
+    Route::post('supplier/change/size', 'SupplierController@changeSize')->name('supplier/change/size');
+    Route::post('supplier/change/whatsapp', 'SupplierController@changeWhatsapp')->name('supplier/change/whatsapp');
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
     Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
@@ -1152,6 +1234,7 @@ Route::post('livechat/getUserList', 'LiveChatController@getUserList')->name('liv
 Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livechat.save.token');
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
+Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
@@ -1379,6 +1462,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 
 Route::resource('quick-reply', 'QuickReplyController');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
+
 
 Route::get('test', 'WhatsAppController@getAllMessages');
 
@@ -1792,6 +1876,8 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('fetchlog', 'ScrapLogsController@fetchlog');
+Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');
@@ -1955,3 +2041,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('shipment', 'ShipmentController');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
+
+/*
+ * Quick Reply Page
+ * */
+Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
+Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
+Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');

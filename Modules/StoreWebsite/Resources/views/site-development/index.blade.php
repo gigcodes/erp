@@ -17,6 +17,19 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+
+		.dis-none {
+            display: none;
+        }
+		.pd-5 {
+			padding: 5px;
+		}
+		.toggle.btn {
+			min-height:25px;
+		}
+		.toggle-group .btn {
+			padding: 2px 12px;
+		}
 </style>
 @endsection
 
@@ -82,6 +95,9 @@
 		  			+ Add Status
 		  		</button>
 		  	</a>
+			<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-sm btn-secondary latest-remarks-btn">
+		  			Remarks
+		  	</button>
 		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
 		  		Status Count
             </a>
@@ -119,13 +135,12 @@
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
+						<th width="4%">Sl no</th>
 						<th width="10%"></th>
-						<th width="15%">Title</th>
-						<th width="25%">Description</th>
+						<th width="14%">Title</th>
+						<th width="22%">Description</th>
+						<th width="35%">Communication</th>
 						<th width="15%">Action</th>
-						<th width="25%">Communication</th>
-						<th width="5%">Created</th>
-						<th width="5%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -227,6 +242,55 @@
 					      </tr>
 					    </thead>
 					    <tbody class="remark-action-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="preview-website-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Image</th>
+					      </tr>
+					    </thead>
+					    <tbody class="website-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="latest-remarks-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Category</th>
+					        <th>Remarks</th>
+					      </tr>
+					    </thead>
+					    <tbody class="latest-remarks-list-view">
 					    </tbody>
 					</table>
 				</div>
@@ -680,6 +744,63 @@
 
     	}
   }
+
+  $(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/site-development/preview-img/"+id,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td><img style="height:100px;" src="'+response.data[i-1].url+'"></td></tr>';
+					}
+					$("#preview-website-image").modal("show");
+					$(".website-image-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+
+		$(document).on('click', '.latest-remarks-btn', function (e) {
+			websiteId = $('#website_id').val();
+			websiteId = $.trim(websiteId);
+            $.ajax({
+                url: "/site-development/latest-reamrks/"+websiteId,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					console.log(response);
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td></tr>';
+					}
+					$("#latest-remarks-modal").modal("show");
+					$(".latest-remarks-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+		
+		$(document).on("click", ".toggle-class", function () {
+            $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
+		});
 
 </script>
 <script type="text/javascript">

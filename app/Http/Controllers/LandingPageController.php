@@ -48,8 +48,10 @@ class LandingPageController extends Controller
             }
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach($medias as $image) {
+                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                    }
                 }
             }
             $rec->images = $productData['images'];
@@ -79,7 +81,7 @@ class LandingPageController extends Controller
                     $product->save();
                     \App\LandingPageProduct::updateOrCreate(
                         ["product_id" => $productId],
-                        ["product_id" => $productId, "name" => $product->name, "description" => $product->description, "price" => $product->price]
+                        ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
                     );
                 }
             }
@@ -179,7 +181,6 @@ class LandingPageController extends Controller
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
-                        'body_html'       => $landingPage->description,
                         'images'          => [],
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
@@ -193,33 +194,82 @@ class LandingPageController extends Controller
 
             // Add images to product
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getMedia(config('constants.attach_image_tag')) as $image) {
-                    $productData['product']['images'][] = ['src' => $image->getUrl()];
+                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    foreach ($medias as $image) {
+                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                    }
                 }
             }
 
-            $productSizes = explode(',', $landingPageProduct->size);
-            $values = [];
-            foreach ($productSizes as $size) {
-                array_push($values, (string)$size);
-                $productData['product']['variants'][] = [
-                    'option1'              => $size,
-                    'barcode'              => (string) $landingPage->product_id,
-                    'fulfillment_service'  => 'manual',
-                    'price'                => $landingPage->price,
-                    'requires_shipping'    => true,
-                    'sku'                  => $landingPageProduct->sku,
-                    'title'                => (string) $landingPage->name,
-                    'inventory_management' => 'shopify',
-                    'inventory_policy'     => 'deny',
-                    'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
-                ];
-            }
-            $variantsOption = [
-                'name' => 'sizes',
-                'values' => $values
+            $generalOptions = [
+                'barcode'              => (string) $landingPage->product_id,
+                'fulfillment_service'  => 'manual',
+                'requires_shipping'    => true,
+                'sku'                  => $landingPageProduct->sku,
+                'title'                => (string) $landingPage->name,
+                'inventory_management' => 'shopify',
+                'inventory_policy'     => 'deny',
+                'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
             ];
-            $productData['product']['options'] = $variantsOption;
+
+            if(!empty($landingPageProduct->size)) {
+                $productSizes = explode(',', $landingPageProduct->size);
+                $values = [];
+                $sizeOptions = [];
+                foreach ($productSizes as $size) {
+                    array_push($values, (string)$size);
+                    $sizeOptions[$size] = $landingPage->price;
+                }
+                $variantsOption = [
+                    'name' => 'sizes',
+                    'values' => $values
+                ];
+                $productData['product']['options'][] = $variantsOption;
+            }
+
+            
+            $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
+            $countryGroupOptions = [];
+
+            // setup for price
+            $countryVariants = [];
+            if($storeWebsite) {
+                $countryGroups = \App\CountryGroup::all();
+                if(!$countryGroups->isEmpty()) {
+                    $countryList = [];
+                    foreach ($countryGroups as $cg) {
+                        array_push($countryList, (string)$cg->name);
+                        $price = $landingPageProduct->getPrice($storeWebsite->id, $cg->id);
+                        $firstCountry = $cg->groupItems->first();
+                        // get the duty price of first country to see
+                        $dutyPrice = 0;
+                        if($firstCountry) {
+                            $dutyPrice = $landingPageProduct->getDuty($firstCountry->country_code);
+                        }
+                        $countryGroupOptions[$cg->name] = $price['total'] + $dutyPrice;
+                    }
+                    $variantsOption = [
+                        'name' => 'country',
+                        'values' => $countryList
+                    ];
+                    $productData['product']['options'][] = $variantsOption;
+                }
+            }
+
+            foreach($countryGroupOptions as $k => $v) {
+                if(!empty($sizeOptions)) {
+                    foreach($sizeOptions as $p => $d) {
+                        $generalOptions["option1"]  = $p;
+                        $generalOptions["option2"]  = $k;
+                        $generalOptions["price"]    = $v;
+                        $productData['product']['variants'][] = $generalOptions;
+                    }
+                }else{
+                    $generalOptions["option1"]  = $p;
+                    $generalOptions["price"]    = $v;
+                    $productData['product']['variants'][] = $generalOptions;
+                }
+            }
 
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {

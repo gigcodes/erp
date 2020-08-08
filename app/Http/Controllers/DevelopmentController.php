@@ -426,8 +426,13 @@ class DevelopmentController extends Controller
         }*/
 
         if (!auth()->user()->isReviwerLikeAdmin()) {
-            $issues = $issues->where(function ($q) {
-                $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // $issues = $issues->where(function ($q) {
+            //     $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // });
+
+            $issues = $issues->where('is_resolved', 0)->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
             });
         }
         // category filter start count
@@ -479,6 +484,10 @@ class DevelopmentController extends Controller
         // $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
+
+        if ( request()->ajax() ) {
+			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList'));
+        }
 
         return view('development.issue', [
             'issues' => $issues,

@@ -1915,6 +1915,7 @@ class WhatsAppController extends FindByNumberController
             'old_id' => 'sometimes|nullable|numeric',
             'site_development_id' => 'sometimes|nullable|numeric',
             'social_strategy_id' => 'sometimes|nullable|numeric',
+            'store_social_content_id' => 'sometimes|nullable|numeric',
         ]);
 
         $data = $request->except('_token');
@@ -2108,13 +2109,20 @@ class WhatsAppController extends FindByNumberController
                         if ($issue->hasMedia(config('constants.media_tags'))) {
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                                 $params[ 'media_url' ] = $image->getUrl();
-                                ChatMessage::create($params);
+                                $chat_message = ChatMessage::create($params);
                                 $this->sendWithThirdApi($number, null, '', $image->getUrl());
                             }
                         }
 
                     }
-
+                    ChatMessagesQuickData::updateOrCreate([
+                        'model' => \App\DeveloperTask::class,
+                        'model_id' => $params['issue_id']
+                        ], [
+                        'last_communicated_message' => @$params['message'],
+                        'last_communicated_message_at' => Carbon::now(),
+                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                    ]);
 
                     return response()->json(['message' => $chat_message]);
 
@@ -2470,6 +2478,25 @@ class WhatsAppController extends FindByNumberController
                     return response()->json(['message' => $chat_message]);
                 
                 }
+                elseif ($context == 'content_management') {
+                    $chat_message = null;
+                    $users = $request->get('users',[$request->get("user_id",0)]);
+
+                    if(!empty($users)) {
+                        foreach($users as $user) {
+                            $user = User::find($user);
+                            $params[ 'message' ] = $request->get('message');
+                            $params[ 'store_social_content_id' ] = $request->get('store_social_content_id');
+                            $params[ 'approved' ] = 1;
+                            $params[ 'status' ] = 2;
+                            $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                            $chat_message = ChatMessage::create($params);
+                        }
+                    }
+                    
+                    return response()->json(['message' => $chat_message]);
+                
+                }
                 elseif ($context == 'social_strategy') {
                     $user = User::find($request->get('user_id'));
                     
@@ -2533,6 +2560,16 @@ class WhatsAppController extends FindByNumberController
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Customer::class,
                 'model_id' => $data['customer_id']
+                ], [
+                'last_communicated_message' => @$data['message'],
+                'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+        }
+        if ($context == 'task') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $data['task_id']
                 ], [
                 'last_communicated_message' => @$data['message'],
                 'last_communicated_message_at' => Carbon::now(),

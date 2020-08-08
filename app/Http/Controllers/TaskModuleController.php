@@ -24,6 +24,7 @@ use App\ScheduledMessage;
 use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
 use App\PaymentReceipt;
+use App\ChatMessagesQuickData;
 use Illuminate\Pagination\LengthAwarePaginator;
 
 class TaskModuleController extends Controller {
@@ -33,7 +34,6 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
-
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 		} else {
@@ -58,7 +58,6 @@ class TaskModuleController extends Controller {
 		if ($request->get('is_statutory_query') != '') {
 		    $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
         }
-
 		$data['task'] = [];
 
 		// $data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
@@ -68,40 +67,65 @@ class TaskModuleController extends Controller {
 		// 									             ->orWhere( 'assign_to', '=', $userid );
 		// 								})
 		//                                ->get()->toArray();
+	$data['task']['pending'] = DB::select('
+			SELECT tasks.*
 
-	 $data['task']['pending'] = DB::select('
-               SELECT tasks.*
+			FROM (
+			  SELECT * FROM tasks
+			  LEFT JOIN (
+				  SELECT 
+				  chat_messages.id as message_id, 
+				  chat_messages.task_id, 
+				  chat_messages.message, 
+				  chat_messages.status as message_status, 
+				  chat_messages.sent as message_type, 
+				  chat_messages.created_at as message_created_at, 
+				  chat_messages.is_reminder AS message_is_reminder,
+				  chat_messages.user_id AS message_user_id
+				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+			  ) as chat_messages  ON chat_messages.task_id = tasks.id
+			) AS tasks
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+			ORDER BY is_flagged DESC, message_created_at DESC;
+					 ');
+			//task pending backup
 
-               FROM (
-                 SELECT * FROM tasks
-                 LEFT JOIN (
-                 	SELECT 
-                 		MAX(id) as max_id,
-                 		task_id as tk
-                 	FROM chat_messages 
-                 	WHERE chat_messages.status not in(7,8,9) 
-                 	GROUP BY task_id 
-                 	ORDER BY chat_messages.created_at DESC
-                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-                 LEFT JOIN (
-                 	SELECT 
-                 		id as message_id, 
-                 		task_id, 
-                 		message, 
-                 		status as message_status, 
-                 		sent as message_type, 
-                 		created_at as message_created_at, 
-                 		is_reminder AS message_is_reminder,
-                 		user_id AS message_user_id
-                 	FROM chat_messages 
-                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
-               ) AS tasks
-               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-				  		AND (message_id = (
-							SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
-							) OR message_id IS NULL)
-               ORDER BY is_flagged DESC, message_created_at DESC;
-						');
+			// $data['task']['pending'] = DB::select('
+			// SELECT tasks.*
+
+			// FROM (
+			//   SELECT * FROM tasks
+			//   LEFT JOIN (
+			// 	  SELECT 
+			// 		  MAX(id) as max_id,
+			// 		  task_id as tk
+			// 	  FROM chat_messages 
+			// 	  WHERE chat_messages.status not in(7,8,9) 
+			// 	  GROUP BY task_id 
+			// 	  ORDER BY chat_messages.created_at DESC
+			//    ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
+			//   LEFT JOIN (
+			// 	  SELECT 
+			// 		  id as message_id, 
+			// 		  task_id, 
+			// 		  message, 
+			// 		  status as message_status, 
+			// 		  sent as message_type, 
+			// 		  created_at as message_created_at, 
+			// 		  is_reminder AS message_is_reminder,
+			// 		  user_id AS message_user_id
+			// 	  FROM chat_messages 
+			//   ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
+			// ) AS tasks
+			// WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+			// 		   AND (message_id = (
+			// 			 SELECT MAX(id) FROM chat_messages WHERE task_id = tasks.id
+			// 			 ) OR message_id IS NULL)
+			// ORDER BY is_flagged DESC, message_created_at DESC;
+			// 		 ');
+					 //end pending backup			
+
+
 
 						// dd($data['task']['pending']);
 
@@ -143,6 +167,7 @@ class TaskModuleController extends Controller {
 		// }
 		//
 		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
+		
 		$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -152,32 +177,61 @@ class TaskModuleController extends Controller {
                 message_created_At as last_communicated_at
                 FROM (
                   SELECT * FROM tasks
-                  LEFT JOIN (
-                 	SELECT 
-                 		MAX(id) as max_id,
-                 		task_id as tk
-                 	FROM chat_messages 
-                 	WHERE chat_messages.status not in(7,8,9) 
-                 	GROUP BY task_id 
-                 	ORDER BY chat_messages.created_at DESC
-                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
                  LEFT JOIN (
-                 	SELECT 
-                 		id as message_id, 
-                 		task_id, 
-                 		message, 
-                 		status as message_status, 
-                 		sent as message_type, 
-                 		created_at as message_created_At, 
-                 		is_reminder AS message_is_reminder,
-                 		user_id AS message_user_id
-                 	FROM chat_messages 
-                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
+					SELECT 
+					chat_messages.id as message_id, 
+					chat_messages.task_id, 
+					chat_messages.message, 
+					chat_messages.status as message_status, 
+					chat_messages.sent as message_type, 
+					chat_messages.created_at as message_created_at, 
+					chat_messages.is_reminder AS message_is_reminder,
+					chat_messages.user_id AS message_user_id
+					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+                 ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
                 WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
                 ORDER BY last_communicated_at DESC;
  						');
 
+			//completed task backup
+
+			// $data['task']['completed'] = DB::select('
+			// SELECT *,
+			//  message_id,
+			// message,
+			// message_status,
+			// message_type,
+			// message_created_At as last_communicated_at
+			// FROM (
+			//   SELECT * FROM tasks
+			//   LEFT JOIN (
+			// 	 SELECT 
+			// 		 MAX(id) as max_id,
+			// 		 task_id as tk
+			// 	 FROM chat_messages 
+			// 	 WHERE chat_messages.status not in(7,8,9) 
+			// 	 GROUP BY task_id 
+			// 	 ORDER BY chat_messages.created_at DESC
+			//   ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
+			//  LEFT JOIN (
+			// 	 SELECT 
+			// 		 id as message_id, 
+			// 		 task_id, 
+			// 		 message, 
+			// 		 status as message_status, 
+			// 		 sent as message_type, 
+			// 		 created_at as message_created_At, 
+			// 		 is_reminder AS message_is_reminder,
+			// 		 user_id AS message_user_id
+			// 	 FROM chat_messages 
+			//  ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
+			// ) AS tasks
+			// WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+			// ORDER BY last_communicated_at DESC;
+			// 		 ');
+
+			//completed task backup end
 
 		// $satutory_tasks = SatutoryTask::latest()
 		//                                          ->orWhere( 'assign_from', '=', $userid )
@@ -254,26 +308,17 @@ class TaskModuleController extends Controller {
 	               FROM (
 	                 SELECT * FROM tasks
 	                 LEFT JOIN (
-	                 	SELECT 
-	                 		MAX(id) as max_id,
-	                 		task_id as tk
-	                 	FROM chat_messages 
-	                 	WHERE chat_messages.status not in(7,8,9) 
-	                 	GROUP BY task_id 
-	                 	ORDER BY chat_messages.created_at DESC
-	                  ) AS chat_messages_max ON chat_messages_max.tk = tasks.id
-	                 LEFT JOIN (
-	                 	SELECT 
-	                 		id as message_id, 
-	                 		task_id, 
-	                 		message, 
-	                 		status as message_status, 
-	                 		sent as message_type, 
-	                 		created_at as message_created_At, 
-	                 		is_reminder AS message_is_reminder,
-	                 		user_id AS message_user_id
-	                 	FROM chat_messages 
-	                 ) AS chat_messages ON chat_messages.message_id = chat_messages_max.max_id
+							SELECT 
+							chat_messages.id as message_id, 
+							chat_messages.task_id, 
+							chat_messages.message, 
+							chat_messages.status as message_status, 
+							chat_messages.sent as message_type, 
+							chat_messages.created_at as message_created_at, 
+							chat_messages.is_reminder AS message_is_reminder,
+							chat_messages.user_id AS message_user_id
+							FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
 	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . ' ORDER BY last_communicated_at DESC;');
@@ -682,7 +727,6 @@ class TaskModuleController extends Controller {
 			 'task_id'			=> $task->id,
 			 'message'      => $message
 		    ];
-
 		 if (count($task->users) > 0) {
 			 if ($task->assign_from == Auth::id()) {
 				 foreach ($task->users as $key => $user) {
@@ -716,6 +760,15 @@ class TaskModuleController extends Controller {
 		 }
 
 			$chat_message = ChatMessage::create($params);
+			ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id']
+                ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+			 
 
 			$myRequest = new Request();
       		$myRequest->setMethod('POST');
@@ -1617,7 +1670,6 @@ class TaskModuleController extends Controller {
 	public function createTaskFromSortcut(Request $request)
 	{
 		$params = $request->all();
-
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
@@ -1626,15 +1678,16 @@ class TaskModuleController extends Controller {
 
 		$taskType = $request->get("task_type");
 
-		if($taskType == "5" || $taskType == "6") {
-
+		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
 			$data = [];
 			$data["assigned_to"] 	= $request->get("task_asssigned_to");
 			$data["subject"] 		= $request->get("task_subject");
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
+			$data["customer_id"]	= $request->get("customer_id");
+
 			
-			if($taskType == 6) {
+			if($taskType == 5 || $taskType == 6) {
 				$data["task_type_id"]	= 3;
 			}
 
@@ -1644,16 +1697,15 @@ class TaskModuleController extends Controller {
 	        $requestData->setMethod('POST');
 	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
 
-	        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
 		}else{
-
 			$data['assign_from']  = Auth::id();
 			$data['is_statutory'] = $request->get("task_type");
 			$data['task_details'] = $request->get("task_detail");
 			$data['task_subject'] = $request->get("task_subject");
 			$data['assign_to'] 	  = $request->get("task_asssigned_to");
-
+			$data["customer_id"]	= $request->get("customer_id");
 			if($request->category_id != null) {
 				$data['category'] 	  = $request->category_id;
 			}
@@ -1698,9 +1750,17 @@ class TaskModuleController extends Controller {
 					 	}
 				 	}
 			 	}
-		 	}
+			 }
 
 			$chat_message = ChatMessage::create($params);
+			ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id']
+                ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
 
 			$myRequest = new Request();
       		$myRequest->setMethod('POST');

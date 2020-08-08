@@ -61,6 +61,14 @@ class WhatsappConfigProvider extends ServiceProvider
                     config(['apiwha.instances' => $nos]);
                 }
             }
+
+            // get the all zoom key
+            $settings = \App\Setting::where("name","like","'ZOOM_%'")->get();
+            if(!$settings->isEmpty()) {
+                foreach($settings as $setting) {
+                    putenv ("{$setting->name}={$setting->val}");
+                }
+            }
         } catch (\Exeception $e) {
 
         }
