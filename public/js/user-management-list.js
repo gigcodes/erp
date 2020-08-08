@@ -112,6 +112,22 @@ var page = {
         $(".common-modal").on("click",".add-permission",function() {
             page.addPermission();
         });
+
+        page.config.bodyView.on("click",".load-time-modal",function(e) {
+            page.timeModalOpen($(this));
+        });
+
+        $(".common-modal").on("click",".submit-time",function(e) {
+            page.saveTime($(this));
+        });
+
+        page.config.bodyView.on("click",".load-avaibility-modal",function(e) {
+            page.avaibilityModalOpen($(this));
+        });
+
+        $(".common-modal").on("click",".update-avaibility",function() {
+            page.updateAvailability($(this));
+        });
         
     },
     validationRule : function(response) {
@@ -509,6 +525,85 @@ var page = {
             toastr['success']('Successfully updated', 'success');
             page.loadFirst();
         }else {
+            toastr["error"](response.error,"");
+        }
+    },
+    timeModalOpen : function(ele) {
+        var user_id = ele.data("id");
+        var communicationHistoryTemplate = $.templates("#template-add-time");
+        var tplHtml = communicationHistoryTemplate.render();
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+        $("#time_user_id").val(user_id);
+
+    },
+    saveTime : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/user-avaibility/submit-time",
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveTimeResult");
+    },
+    saveTimeResult : function(response) {
+        console.log(response);
+        if(response.code  == 200) {
+            toastr['success']('Avaibility saved successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    avaibilityModalOpen : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user-avaibility/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'avaibilityResult');
+    },
+    avaibilityResult : function(response) {
+        var communicationHistoryTemplate = $.templates("#template-avaibility");
+        var tplHtml = communicationHistoryTemplate.render(response);
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
+    updateAvailability : function(ele) {
+        var note = $(".note-"+ele.data("id")).val();
+        var status = $(".status-"+ele.data("id")).val();
+        note = note.trim();
+        if(!status || status == '0') {
+            if(!note || note == '') {
+                toastr["error"]('please provide reason for your absence',"");
+            return;
+            }
+        }
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/user-avaibility/"+ele.data("id"),
+            method: "post",
+            data : {
+                note : note,
+                status : status
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "updateAvailabilityResult");
+    },
+    updateAvailabilityResult : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Avaibility updated successfully', 'success');
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
             toastr["error"](response.error,"");
         }
     },

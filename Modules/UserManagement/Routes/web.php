@@ -11,6 +11,7 @@
 |
 */
 
+
 Route::prefix('user-management')->group(function() {
     Route::get('/', 'UserManagementController@index')->name("user-management.index");
     Route::get('/edit/{id}', 'UserManagementController@edit')->name("user-management.edit");
@@ -30,6 +31,9 @@ Route::prefix('user-management')->group(function() {
     Route::get('/paymentInfo/{id}', 'UserManagementController@paymentInfo')->name("user-management.payment-info");
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
+    Route::post('user-avaibility/submit-time', 'UserManagementController@saveUserAvaibility')->name("user-management.user-avaibility.submit-time");
+    Route::get('user-avaibility/{id}', 'UserManagementController@userAvaibility')->name("user-management.user-avaibility");
+    Route::post('user-avaibility/{id}', 'UserManagementController@userAvaibilityUpdate')->name("user-management.update-user-avaibility");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
 
     Route::get('/task/user/{id}', 'UserManagementController@userTasks')->name("user-management.tasks");
