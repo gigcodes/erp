@@ -300,6 +300,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
+  Route::prefix('store-website')->middleware('auth')->group(static function () {
+        Route::get('/status/all', 'OrderController@viewAllStatuses')->name('store-website.all.status');
+        Route::get('/status/edit/{id}', 'OrderController@viewEdit')->name('store-website.status.edit');
+        Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
+        Route::get('/status/create', 'OrderController@viewCreateStatus');
+        Route::post('/status/create', 'OrderController@createStatus')->name('store-website.submit.status');
+        Route::get('/status/fetch', 'OrderController@viewFetchStatus');
+        Route::post('/status/fetch', 'OrderController@fetchStatus')->name('store-website.fetch.status');
+        Route::get('/status/fetchMasterStatus/{id}', 'OrderController@fetchMasterStatus');
+    });
+
+
+
+
     //plesk
     Route::prefix('plesk')->middleware('auth')->group(static function () {
         Route::get('/domains', 'PleskController@index')->name('plesk.domains');
@@ -405,6 +419,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
