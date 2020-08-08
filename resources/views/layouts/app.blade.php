@@ -614,6 +614,9 @@
                                     </ul>
 
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -628,6 +631,9 @@
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="" href="{{ route('store-website.all.status') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1454,7 +1460,10 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
                             </ul>
                         </li>
@@ -1909,7 +1918,7 @@
 
     <!-- Scripts -->
 
-     @include('partials.chat')
+   {{--  @include('partials.chat')--}}
     <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
     </div>
 
@@ -2368,6 +2377,78 @@
                 toastr['error'](response.responseJSON.message);
             });
         });
+
+        $(document).on('change', '#keyword_category', function () {
+            console.log("inside");
+            if ($(this).val() != "") {
+                var category_id = $(this).val();
+                var store_website_id = $('#live_selected_customer_store').val();
+                $.ajax({
+                    url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
+                    type: 'GET',
+                    dataType: 'json'
+                }).done(function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#live_quick_replies').empty().append('<option value="">Quick Reply</option>');
+                        var replies = data.data;
+                        replies.forEach(function (reply) {
+                            $('#live_quick_replies').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                    }
+                });
+
+            }
+        });
+
+        $('.quick_comment_add_live').on("click", function () {
+            var textBox = $(".quick_comment_live").val();
+            var quickCategory = $('#keyword_category').val();
+
+            if (textBox == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+
+            if (quickCategory == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            console.log("yes");
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('save-store-wise-reply') }}",
+                dataType: 'json',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'category_id' : quickCategory,
+                    'reply' : textBox,
+                    'store_website_id' : $('#live_selected_customer_store').val()
+                }
+            }).done(function (data) {
+                console.log(data);
+                $(".live_quick_comment").val('');
+                $('#live_quick_replies').append($('<option>', {
+                    value: data.data,
+                    text: data.data
+                }));
+            })
+        });
+
+        $('#live_quick_replies').on("change", function(){
+            $('.type_msg').text($(this).val());
+        });
+
+
+
+
+
+
     </script>
 
 </body>

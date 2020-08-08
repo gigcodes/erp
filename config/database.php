@@ -40,8 +40,18 @@ return [
         ],
 
         'mysql' => [
+            'read' => [
+                'host' => [
+                    env('DB_HOST_READ', '127.0.0.1'),
+                ],
+            ],
+            'write' => [
+                'host' => [
+                    env('DB_HOST', '127.0.0.1'),
+                ],
+            ],
+            'sticky' => true,
             'driver' => 'mysql',
-            'host' => env('DB_HOST', '127.0.0.1'),
             'port' => env('DB_PORT', '3306'),
             'database' => env('DB_DATABASE', 'solo'),
             'username' => env('DB_USERNAME', 'root'),
@@ -51,7 +61,7 @@ return [
             'collation' => 'utf8mb4_unicode_ci',
             'prefix' => '',
             'strict' => false,
-            'engine' => 'MyISAM',
+            'engine' => 'InnoDB',
             'options' => [
                 \PDO::ATTR_PERSISTENT => true
             ]

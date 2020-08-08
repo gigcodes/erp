@@ -9,7 +9,7 @@ class Reply extends Model
 {
   use SoftDeletes;
 
-	protected $fillable = ['category_id', 'reply', 'model'];
+	protected $fillable = ['category_id','store_website_id', 'reply', 'model'];
 	protected $dates = ['deleted_at'];
 
   public function category() {
