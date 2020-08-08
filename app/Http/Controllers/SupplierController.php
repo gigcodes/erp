@@ -29,6 +29,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\SupplierBrandCountHistory;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use App\Marketing\WhatsappConfig;
+use App\SupplierSize;
 use App\SupplierSubCategory;
 use Auth;
 use Validator;
@@ -141,7 +142,6 @@ class SupplierController extends Controller
         }
 
         $runQuery = 0;
-        $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
         // if(count($userCategoryPermissionId) && !auth()->user()->isAdmin()) {
         //     $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
         //     $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
@@ -153,6 +153,7 @@ class SupplierController extends Controller
         // }
         
           if(!auth()->user()->isAdmin()) {
+            $userCategoryPermissionId = auth()->user()->supplierCategoryPermission->pluck('id')->toArray() + [0];
             $userCategoryPermissionId1 = implode(',', $userCategoryPermissionId);
             $typeWhereClause .= "AND suppliers.supplier_category_id IN ($userCategoryPermissionId1)";
             $runQuery = 1;
@@ -163,7 +164,7 @@ class SupplierController extends Controller
 
         if($runQuery) {
         $suppliers = DB::select('
-									SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
+									SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -188,14 +189,18 @@ class SupplierController extends Controller
                   AS suppliers
                   left join scrapers as sc on sc.supplier_id = suppliers.id
                   left join users as u on u.id = suppliers.updated_by
-                  WHERE (source LIKE "%' . $source . '%" AND (supplier LIKE "%' . $term . '%" OR
+                  WHERE (
+
+                  source LIKE "%' . $source . '%" AND
+                  (sc.parent_id IS NULL AND
+                  (supplier LIKE "%' . $term . '%" OR
                   suppliers.phone LIKE "%' . $term . '%" OR
                   suppliers.email LIKE "%' . $term . '%" OR
                   suppliers.address LIKE "%' . $term . '%" OR
                   suppliers.social_handle LIKE "%' . $term . '%" OR
                   sc.scraper_name LIKE "%' . $term . '%" OR
                   brands LIKE "%' . $term . '%" OR
-                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))))' . $typeWhereClause . '
+                   suppliers.id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Supplier%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))))' . $typeWhereClause . '
                   ORDER BY last_communicated_at DESC, status DESC
 							');
         }
@@ -216,6 +221,7 @@ class SupplierController extends Controller
         $suppliercategory = SupplierCategory::pluck('name', 'id')->toArray();
         $suppliersubcategory = SupplierSubCategory::pluck('name', 'id')->toArray();
         $supplierstatus = SupplierStatus::pluck('name', 'id')->toArray();
+        $suppliersize = SupplierSize::pluck('size', 'id')->toArray();
 
         //SELECT supplier_status_id, COUNT(*) AS number_of_products FROM suppliers WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id
         $statistics = DB::select('SELECT supplier_status_id, ss.name, COUNT(*) AS number_of_products FROM suppliers s LEFT join supplier_status ss on ss.id = s.supplier_status_id WHERE supplier_status_id IN (SELECT id from supplier_status) GROUP BY supplier_status_id');
@@ -251,6 +257,7 @@ class SupplierController extends Controller
             'suppliercategory' => $suppliercategory,
             'suppliersubcategory'=>$suppliersubcategory,
             'supplierstatus' => $supplierstatus,
+            'suppliersize' => $suppliersize,
             'supplier_category_id' => $supplier_category_id,
             'supplier_status_id' => $supplier_status_id,
             'count' => $supplierscnt,
@@ -272,6 +279,7 @@ class SupplierController extends Controller
     {
         //
     }
+
 
     /**
      * Store a newly created resource in storage.
@@ -332,6 +340,7 @@ class SupplierController extends Controller
     public function show($id)
     {
         $supplier = Supplier::find($id);
+        $user = User::where('id',$supplier->updated_by)->first();
         $suppliers = Supplier::select(['id', 'supplier'])->where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $reply_categories = ReplyCategory::all();
         $users_array = Helpers::getUserArray(User::all());
@@ -355,7 +364,7 @@ class SupplierController extends Controller
             'new_category_selection' => $new_category_selection,
             'locations' => $locations,
             'category_selection' => $category_selection,
-
+            'user'=>$user
         ]);
     }
 
@@ -669,15 +678,18 @@ class SupplierController extends Controller
         return 'Saved SucessFully';
     }
 
-    public function getSupplierCategoryCount()
+    public function getSupplierCategoryCount(Request $request)
     {
+      $limit = $request->input('length');
+      $start = $request->input('start');
 
-        $suppliercount = SupplierCategoryCount::all();
+        $suppliercount = SupplierCategoryCount::query();
+        $suppliercountTotal = SupplierCategoryCount::count();
         $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->get();
         $category_child = Category::where('parent_id', '!=', 0)->get();
 
-
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
         foreach ($suppliercount as $supplier) {
             $sup = "";
             foreach ($supplier_list as $v) {
@@ -724,9 +736,9 @@ class SupplierController extends Controller
         }
         if (!empty($data)) {
             $output = array(
-                "draw" => 0,
-                "recordsTotal" => 0,
-                "recordsFiltered" => 0,
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
                 "data" => $data
             );
         } else {
@@ -796,14 +808,30 @@ class SupplierController extends Controller
         return 'Saved SucessFully';
     }
 
-    public function getSupplierBrandCount()
+    public function getSupplierBrandCount(Request $request)
     {
-        $suppliercount = SupplierBrandCount::all();
+
+        $columns = array(
+          0 => 'supplier_id',
+          1 => 'category_id',
+          2 => 'brand_id',
+          3 => 'count',
+          4 => 'url',
+          5 => 'action',
+        );
+
+        $limit = $request->input('length');
+        $start = $request->input('start');
+
+
+        $suppliercount = SupplierBrandCount::query();
+        $suppliercountTotal = SupplierBrandCount::count();
         $supplier_list = Supplier::where('supplier_status_id', 1)->orderby('supplier', 'asc')->get();
         $brand_list = Brand::orderby('name', 'asc')->get();
         $category_parent = Category::where('parent_id', 0)->orderby('title', 'asc')->get();
         $category_child = Category::where('parent_id', '!=', 0)->orderby('title', 'asc')->get();
 
+        $suppliercount = $suppliercount->offset($start)->limit($limit)->orderBy('supplier_id', 'asc')->get();
 
         foreach ($suppliercount as $supplier) {
             $sup = "";
@@ -863,11 +891,13 @@ class SupplierController extends Controller
             $sub_array[] = '<button type="button" name="delete" class="btn btn-danger btn-xs delete" id="' . $supplier[ "id" ] . '">Delete</button>';
             $data[] = $sub_array;
         }
+
+        // dd(count($data));
         if (!empty($data)) {
             $output = array(
-                "draw" => 0,
-                "recordsTotal" => 0,
-                "recordsFiltered" => 0,
+                "draw" => intval($request->input('draw')),
+                "recordsTotal" => $suppliercountTotal,
+                "recordsFiltered" => $suppliercountTotal,
                 "data" => $data
             );
         } else {
@@ -1350,6 +1380,36 @@ class SupplierController extends Controller
         return response()->json(['error' => 'Supplier not found'], 403);
     }
 
+
+    public function changeMail(Request $request)
+    {
+      $supplier = Supplier::find($request->supplier_id);
+      $supplier->email = $request->email;
+      $supplier->save();
+      return response()->json(["code" => 200, "data" => [], "message" => "Email updated successfully"]);
+  }
+
+  public function changePhone(Request $request)
+  {
+    $supplier = Supplier::find($request->supplier_id);
+    $supplier->phone = $request->phone;
+    $supplier->save();
+    return response()->json(["code" => 200, "data" => [], "message" => "Telephone Number updated successfully"]);
+}
+public function changeSize(Request $request)
+{
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->supplier_size_id = $request->size;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Size updated successfully"]);
+}
+public function changeWhatsapp(Request $request)
+{
+  $supplier = Supplier::find($request->supplier_id);
+  $supplier->whatsapp_number = $request->whatsapp;
+  $supplier->save();
+  return response()->json(["code" => 200, "data" => [], "message" => "Whatsapp Number updated successfully"]);
+}
     /**
     * copy selected scraped brands to brand for a supplier
     *
@@ -1448,6 +1508,20 @@ class SupplierController extends Controller
         return response()->json(["code" => 200, "data" => [], "message" => "Category updated successfully"]);
     }
 
+    public function changeSupplierStatus(Request $request)
+    {
+        $supplierId = $request->get("supplier_id");
+        $status = $request->get("status");
+
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_status_id' => $status])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Status updated successfully"]);
+    }
+
     public function changeSubCategory(Request $request)
     {
         $supplierId = $request->get("supplier_id");
@@ -1525,6 +1599,40 @@ class SupplierController extends Controller
         SupplierSubCategory::create($request->all());
 
         return redirect()->route('supplier.index')->withSuccess('You have successfully saved a sub category!');
+    }
+
+    public function addStatus(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'name' => 'required',
+        ]);
+
+        if ($validator->fails()) {
+            return redirect()->back()
+                        ->withErrors($validator)
+                        ->withInput();
+        }
+
+        SupplierStatus::create($request->all());
+
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a status!');
+    }
+
+    public function addSupplierSize(Request $request)
+    {
+      $validator = Validator::make($request->all(), [
+        'size' => 'required',
+    ]);
+
+    if ($validator->fails()) {
+        return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+    }
+
+    SupplierSize::create($request->all());
+
+    return redirect()->route('supplier.index')->withSuccess('You have successfully saved a supplier size!');
     }
 
     public function sendMessage(Request $request)

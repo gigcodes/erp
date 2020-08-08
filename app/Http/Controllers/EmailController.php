@@ -22,8 +22,9 @@ class EmailController extends Controller
         $term = $request->term ?? '';
         $date = $request->date ?? '';
         $type = $request->type ?? '';
+        $seen = $request->seen ?? '';
         $query = (new Email())->newQuery();
-      
+
         if($type) {
             $query = $query->where('type',$type);
         }
@@ -44,6 +45,12 @@ class EmailController extends Controller
             // ->orWhere('subject','like','%'.$term.'%')
             // ->orWhere('message','like','%'.$term.'%');
         }
+        if($seen){
+            if($seen != 'both'){
+                $query = $query->where('seen',$seen);
+            }
+        }
+
         $emails = $query->paginate(25)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
@@ -57,7 +64,11 @@ class EmailController extends Controller
         // if($request->AJAX()) {
         //     return view('emails.search',compact('emails'));
         // }
-        return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
+
+        // dont load any data, data will be loaded by tabs based on ajax
+        // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',['emails'=>[]])->with('i', ($request->input('page', 1) - 1) * 5);
+
     }
 
     /**
@@ -164,6 +175,16 @@ class EmailController extends Controller
     return view('emails.reply-modal',compact('email'));
     }
 
+    public function forwardMail($id) {
+        $email = Email::find($id);
+        return view('emails.forward-modal',compact('email'));
+        }
+
+    public function remarkMail($id) {
+        $email = Email::find($id);
+        return view('emails.remark-modal',compact('email'));
+        }
+
    public function submitReply(Request $request)
    {
        $validator = Validator::make($request->all(), [
@@ -180,5 +201,38 @@ class EmailController extends Controller
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
    }
 
-  
+   public function submitForward(Request $request)
+   {
+       $validator = Validator::make($request->all(), [
+           'email' => 'required'
+       ]);
+
+       if ($validator->fails()) {
+           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+       }
+
+       $email = Email::find($request->forward_email_id);
+       Mail::send(new ForwardEmail($request->email, $email->message));
+
+       return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+   }
+
+   public function submitRemark(Request $request)
+   {
+       $validator = Validator::make($request->all(), [
+           'message' => 'required'
+       ]);
+
+       if ($validator->fails()) {
+           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+       }
+
+       $email = Email::find($request->remark_email_id);
+       $email->remarks = $request->message;
+       $email->update();
+
+       return response()->json(['success' => true, 'message' => 'Remark has been successfully updated.']);
+   }
+
+
 }

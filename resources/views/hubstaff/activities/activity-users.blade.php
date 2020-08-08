@@ -56,6 +56,7 @@
           <th>Time tracked (Minutes)</th>
           <th>Time approved</th>
           <th>Pending payment time</th>
+          <th>Status</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
           @foreach ($activityUsers as $user)
@@ -65,13 +66,15 @@
               <td>{{number_format($user->total_tracked / 60,2,".",",")}}</td>
               <td><span class="replaceme">{{$user->totalApproved}}</span> </td>
               <td><span>{{$user->totalNotPaid}}</td>
-
+              <td>{{$user->status}}</td>
               <td>
+                @if($user->forworded_to == Auth::user()->id && !$user->final_approval)
                 <form action="">
                     <input type="hidden" class="user_id" name="user_id" value="{{$user->user_id}}">
                     <input type="hidden" class="date" name="date" value="{{$user->date}}">
                     <a class="btn btn-secondary show-activities">+</a>
                 </form>
+                @endif
               </td>
           @endforeach
       </table>
@@ -184,6 +187,7 @@ let r_s = jQuery('input[name="start_date"]').val();
             $('#record-content').html(response);
             }).fail(function(errObj) {
             $("#loading-image").hide();
+            toastr['error'](errObj.responseJSON.message, 'error');
             });
         });
 
@@ -205,8 +209,9 @@ let r_s = jQuery('input[name="start_date"]').val();
             $("#loading-image").hide();
             thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
             $('#records-modal').modal('hide');
+            $(".show-activities").css("display", "none");
             }).fail(function(errObj) {
-                alert("Can not update data");
+                toastr['error'](errObj.responseJSON.message, 'error');
             $("#loading-image").hide();
             });
         });
@@ -217,6 +222,35 @@ let r_s = jQuery('input[name="start_date"]').val();
             } else {
                 $('td input').attr('checked', false);
             }
+        });
+
+        $(document).on('change', '.select-forword-to', function(e) {
+           var person = $(this).data('person');
+           $("#hidden-forword-to").val(person);
+        });
+
+        $(document).on('click', '.final-submit-record', function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        var thiss = $(this);
+        var type = 'POST';
+            $.ajax({
+            url: '/hubstaff-activities/activities/final-submit',
+            type: type,
+            dataType: 'json',
+            data: form.serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done( function(response) {
+            $("#loading-image").hide();
+            thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
+            $('#records-modal').modal('hide');
+            $(".show-activities").css("display", "none");
+            }).fail(function(errObj) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+            $("#loading-image").hide();
+            });
         });
 
 </script>

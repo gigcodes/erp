@@ -316,10 +316,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
       //plesk
       Route::prefix('content-management')->middleware('auth')->group(static function () {
         Route::get('/', 'ContentManagementController@index')->name('content-management.index');
+        Route::get('/preview-img/{id}', 'ContentManagementController@previewImage')->name('content-management.preview-img');
         Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
         Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
         Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
         Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
         Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
         Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
         Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
@@ -418,6 +420,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
+
+    Route::get('email/forwardMail/{id}', 'EmailController@forwardMail');
+    Route::post('email/forwardMail', 'EmailController@submitForward')->name('email.submit-forward');
+
+    Route::get('email/remarkMail/{id}', 'EmailController@remarkMail');
+    Route::post('email/remarkMail', 'EmailController@submitRemark')->name('email.submit-remark');
+
+
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::resource('email', 'EmailController');
 
@@ -704,7 +714,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('voucher/{id}/resubmit', 'VoucherController@resubmit')->name('voucher.resubmit');
     Route::get('/voucher/manual-payment', 'VoucherController@viewManualPaymentModal')->name("voucher.payment.manual-payment");
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
-    
+
     Route::resource('voucher', 'VoucherController');
 
     // Budget
@@ -1026,6 +1036,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('/', 'HubstaffActivitiesController@getActivityUsers')->name('hubstaff-acitivties.activities');
             Route::get('/details', 'HubstaffActivitiesController@getActivityDetails')->name('hubstaff-acitivties.activity-details');
             Route::post('/details', 'HubstaffActivitiesController@approveActivity')->name('hubstaff-acitivties.approve-activity');
+            Route::post('/final-submit', 'HubstaffActivitiesController@finalSubmit')->name('hubstaff-activities/activities/final-submit');
             Route::get('/records', 'HubstaffActivitiesController@notificationRecords')->name('hubstaff-acitivties.notification.records');
             Route::post('/save', 'HubstaffActivitiesController@notificationReasonSave')->name('hubstaff-acitivties.notification.save-reason');
             Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
@@ -1072,7 +1083,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('merge-category', 'VendorCategoryController@mergeCategory')->name('vendor-category.merge-category');
         Route::get('/permission', 'VendorCategoryController@usersPermission')->name('vendor-category.permission');
         Route::post('/update/permission', 'VendorCategoryController@updatePermission')->name('vendor-category.update.permission');
-        
+
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'VendorCategoryController@edit')->name('vendor-category.edit');
             Route::get('delete', 'VendorCategoryController@delete')->name('vendor-category.delete');
@@ -1119,13 +1130,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('supplier/saveImage', 'SupplierController@saveImage')->name('supplier.image');;
     Route::post('supplier/change-status', 'SupplierController@changeStatus');
     Route::post('supplier/change/category', 'SupplierController@changeCategory')->name('supplier/change/category');
+    Route::post('supplier/change/status', 'SupplierController@changeSupplierStatus')->name('supplier/change/status');
     Route::post('supplier/change/subcategory', 'SupplierController@changeSubCategory')->name('supplier/change/subcategory');
     Route::post('supplier/add/category', 'SupplierController@addCategory')->name('supplier/add/category');
     Route::post('supplier/add/subcategory', 'SupplierController@addSubCategory')->name('supplier/add/subcategory');
+    Route::post('supplier/add/status', 'SupplierController@addStatus')->name('supplier/add/status');
+    Route::post('supplier/add/suppliersize', 'SupplierController@addSupplierSize')->name('supplier/add/suppliersize');
     Route::post('supplier/change/inventorylifetime', 'SupplierController@editInventorylifetime')->name('supplier/change/inventorylifetime');
     Route::post('supplier/change/scrapper', 'SupplierController@changeScrapper')->name('supplier/change/scrapper');
     Route::post('supplier/send/message', 'SupplierController@sendMessage')->name('supplier/send/message');
-
+    Route::post('supplier/change/mail', 'SupplierController@changeMail')->name('supplier/change/mail');
+    Route::post('supplier/change/phone', 'SupplierController@changePhone')->name('supplier/change/phone');
+    Route::post('supplier/change/size', 'SupplierController@changeSize')->name('supplier/change/size');
+    Route::post('supplier/change/whatsapp', 'SupplierController@changeWhatsapp')->name('supplier/change/whatsapp');
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
     Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
@@ -1844,6 +1861,8 @@ Route::prefix('chat-bot')->middleware('auth')->group(function () {
 Route::get('scrap-logs', 'ScrapLogsController@index');
 Route::get('scrap-logs/{name}', 'ScrapLogsController@indexByName');
 Route::get('scrap-logs/fetch/{name}/{date}', 'ScrapLogsController@filter');
+Route::get('fetchlog', 'ScrapLogsController@fetchlog');
+Route::get('filtertosavelogdb', 'ScrapLogsController@filtertosavelogdb');
 Route::get('scrap-logs/file-view/{filename}/{foldername}', 'ScrapLogsController@fileView');
 Route::put('supplier/language-translate/{id}', 'SupplierController@languageTranslate');
 Route::get('temp-task/product-creator', 'TmpTaskController@importProduct');

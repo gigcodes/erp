@@ -594,7 +594,8 @@ class LiveChatController extends Controller
 			$customerInital = substr($name, 0, 1);
 			if(count($chat_message) == 0){
 				$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-			}else{
+			}
+			else{
 				foreach ($chat_message as $chat) {
 					if($chat->user_id != 0){
 						// Finding Agent
@@ -606,14 +607,13 @@ class LiveChatController extends Controller
 						$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">'.$customerInital.'</div><div class="msg_cotainer">'.$chat->message.'<span class="msg_time">'.\Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans().'</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 					}
 				}
-
 			}
 			$count = CustomerLiveChat::where('seen',0)->count();
 			return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
 		}
 		else{
-			$count = 0; $message = ''; $customerInital = '';
-			return view('livechat.chatMessages', compact('id' ,'count', 'message', 'name', 'customerInital'));
+			$count = 0; $message = ''; $customerInital = '';$name='';
+			return view('livechat.chatMessages', compact( 'message', 'name', 'customerInital'));
 		}
 	}
 

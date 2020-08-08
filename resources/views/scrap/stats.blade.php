@@ -322,7 +322,7 @@
                             </tr>
                             @if($supplier->getChildrenScraper($supplier->scraper_name))
                                 @if(count($supplier->getChildrenScraper($supplier->scraper_name)) != 0)
-                                    {{ $childCount = 0 }}
+                                    <?php $childCount = 0; ?>
                                     @foreach($supplier->getChildrenScraper($supplier->scraper_name) as $childSupplier)
                                     @php $data = null; @endphp
                                     @foreach($scrapeData as $tmpData)
@@ -361,38 +361,47 @@
                                     <td width="1%">{{ ++$childCount }}</td>
                                     <td width="8%"><a href="/supplier/{{$childSupplier->supplier_id}}">{{ ucwords(strtolower($childSupplier->scraper_name)) }}
                                     </td>
-                                    <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
-                                    <td width="10%">{{ $childSupplier->server_id }}</td>
-                            
-                                    <td width="10%" style="text-right">
-                                        {{ $childSupplier->scraper_start_time }}h
+                                    <!-- <td width="10%">{{ !empty($data) ? $data->ip_address : '' }}</td>
+                                     -->
+                                    <td width="10%">
+                                        <div class="form-group">
+                                                <select style="width:80% !important;" name="server_id" class="form-control select2 scraper_field_change" data-id="{{$childSupplier->id}}" data-field="server_id">
+                                                    <option value="">Select</option>
+                                                    @foreach($serverIds as $serverId)
+                                                    <option value="{{$serverId}}" {{$childSupplier->server_id == $serverId ? 'selected' : ''}}>{{$serverId}}</option>
+                                                    @endforeach
+                                                </select>
+                                                  <button style="padding-right:0px;" type="button" class="btn btn-xs show-history" title="Show History" data-field="server_id" data-id="{{$childSupplier->id}}"><i class="fa fa-info-circle"></i></button>
+                                        </div>
                                     </td>
+
+                                    <td width="10%" style="text-right">
+                                        <div class="form-group">
+                                                <select style="width:85% !important;display:inline;" name="scraper_start_time" class="form-control scraper_field_change" data-id="{{$childSupplier->id}}" data-field="scraper_start_time">
+                                                <option value="">Select</option>
+                                                @for($i=1; $i<=24;$i++)
+                                                <option value="{{$i}}" {{$childSupplier->scraper_start_time == $i ? 'selected' : ''}}>{{$i}} h</option>
+                                                @endfor
+                                                </select>
+                                                <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$childSupplier->id}}"><i class="fa fa-info-circle"></i></button>
+                                        </div>
+                                    </td>
+                                    
                                     <td width="10%">
                                         @if(isset($childSupplier->scraper_name) && !empty($childSupplier->scraper_name) &&  isset($lastRunAt[$childSupplier->scraper_name]))
                                             {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$childSupplier->scraper_name]))) !!}
+                                            <br/>
                                         @endif
+                                        {{ $childSupplier->last_completed_at }} 
                                     </td>
-                                    
                                     <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                                     <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
                                     <td width="3%">{{ !empty($data) ? $data->total : '' }}</td>
                                     <td width="3%">{{ !empty($data) ? $data->errors : '' }}</td>
                                     <td width="3%">{{ !empty($data) ? $data->warnings : '' }}</td>
-                                    <td width="3%">{{ !empty($data) ? $data->scraper_total_urls : '' }}</td>
-                                    <td width="3%">{{ !empty($data) ? $data->scraper_existing_urls : '' }}</td>
-                                    <td width="3%">{{ !empty($data) ? $data->scraper_new_urls : '' }}</td>
-                                    <td width="10%">
-                                        {{ ($childSupplier->scraperMadeBy) ? $childSupplier->scraperMadeBy->name : "N/A" }}
-                                    </td>
-                                    <td width="10%">
-                                        {{ \App\Helpers\DevelopmentHelper::scrapTypeById($childSupplier->scraper_type) }}
-                                    </td>
-                                    <td width="10%">
-                                        {{ ($childSupplier->scraperParent) ? $childSupplier->scraperParent->scraper_name : "N/A" }}
-                                    </td>
-                                    <td width="10%">
-                                        {{ isset(\App\Helpers\StatusHelper::getStatus()[$childSupplier->next_step_in_product_flow]) ? \App\Helpers\StatusHelper::getStatus()[$childSupplier->next_step_in_product_flow] : "N/A" }}
-                                    </td>
+                                    <td width="3%">{{ $childSupplier->scraper_total_urls }}</td>
+                                    <td width="3%">{{ $childSupplier->scraper_existing_urls }}</td>
+                                    <td width="3%">{{  $childSupplier->scraper_new_urls }}</td>
                                     <td width="10%">
                                         {{ !empty($childSupplier->scrapers_status) ? $childSupplier->scrapers_status : "N/A" }}
                                     </td>

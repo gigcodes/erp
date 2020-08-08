@@ -23,6 +23,7 @@ use App\Console\Commands\AutoInterestMessage;
 use App\Console\Commands\AutoReminder;
 use App\Console\Commands\AutoMessenger;
 use App\Console\Commands\FetchEmails;
+use App\Console\Commands\FetchAllEmails;
 use App\Console\Commands\CheckEmailsErrors;
 use App\Console\Commands\SaveProductsImages;
 use App\Console\Commands\MessageScheduler;
@@ -108,6 +109,7 @@ use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
+use App\Console\Commands\ScrapLogs;
 
 class Kernel extends ConsoleKernel
 {
@@ -126,6 +128,7 @@ class Kernel extends ConsoleKernel
         AutoReminder::class,
         AutoMessenger::class,
         FetchEmails::class,
+        FetchAllEmails::class,
         CheckEmailsErrors::class,
         MessageScheduler::class,
         SendRecurringTasks::class,
@@ -210,7 +213,8 @@ class Kernel extends ConsoleKernel
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
-        UserPayment::class
+        UserPayment::class,
+        ScrapLogs::class
     ];
 
     /**
@@ -226,8 +230,8 @@ class Kernel extends ConsoleKernel
         $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
         $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        
-       
+
+
 
         // Store unknown categories on a daily basis
         $schedule->command('category:missing-references')->daily();
@@ -415,6 +419,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
         $schedule->command('hubstaff:load_activities')->hourly();
         $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
+        $schedule->command('scraplogs:activity')->dailyAt('01:00')->timezone('Asia/Dubai');
         $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
@@ -445,7 +450,7 @@ class Kernel extends ConsoleKernel
         // Customer chat messages quick data
         $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
         $schedule->command('fetch-store-website:orders')->hourly();
-        
+
         // If scraper not completed, store alert
         $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 

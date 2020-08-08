@@ -12,9 +12,9 @@
 
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @else    
+    @else
         <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
-    @endif 
+    @endif
 
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
@@ -333,7 +333,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -826,7 +826,7 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Email Accounts
+                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Other Email Accounts
                                     </a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
@@ -1126,7 +1126,7 @@
                                                     <a class="dropdown-item" href="{{route('google.affiliate.results')}}">Search Results</a>
                                                 </li>
                                             </ul>
-                                        </li>                                        
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -1368,7 +1368,7 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
                                         </li>
-                                        <li>    
+                                        <li>
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
@@ -1708,7 +1708,7 @@
                     </li>
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
-                        <a id="message-chat-data-box" class="quick-icon"> 
+                        <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
@@ -1747,8 +1747,8 @@
             </main>
         @endif
 
-        
-         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
+
+         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
     <?php /*
     @if(Auth::check())
@@ -1831,9 +1831,9 @@
                                     <div class="selectedValue">
                                          <select id="autoTranslate" class="form-control auto-translate">
                                             <option value="">Translation Language</option>
-                                            @foreach ($language as $key => $value) 
+                                            @foreach ($language as $key => $value)
                                                 <option value="{{$value}}">{{$key}}</option>
-                                            @endforeach  
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -1883,19 +1883,19 @@
                         <div class="chat-righbox">
                             <div class="title">Visited Pages</div>
                             <div id="chatVisitedPages">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Additional info</div>
                             <div class="line-spacing" id="chatAdditionalInfo">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="chatTechnology">
-                                
+
                             </div>
                         </div>
                     </div>
@@ -2021,7 +2021,7 @@
           typingTimer = setTimeout(doneTyping, doneTypingInterval);
         });
 
-        //on keydown, clear the countdown 
+        //on keydown, clear the countdown
         $input.on('keydown', function () {
           clearTimeout(typingTimer);
         });
@@ -2035,7 +2035,7 @@
         // open chatbox now into popup
 
         var chatBoxOpen = false;
-        
+
         $("#message-chat-data-box").on("click",function(e) {
             e.preventDefault();
            $("#quick-chatbox-window-modal").modal("show");
@@ -2093,7 +2093,7 @@
         });
 
         @if(session()->has('encrpyt'))
-        
+
         var inactivityTime = function () {
             var time;
             window.onload = resetTimer;
@@ -2118,7 +2118,7 @@
             })
             .fail(function() {
                 console.log("error");
-            })  
+            })
         }
 
         function resetTimer() {
@@ -2129,7 +2129,7 @@
         };
 
         window.onload = function() {
-            inactivityTime(); 
+            inactivityTime();
         }
 
         @endif
