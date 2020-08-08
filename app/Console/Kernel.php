@@ -109,6 +109,7 @@ use App\Console\Commands\GenerateProductPricingJson;
 use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
+use App\Console\Commands\ScrapLogs;
 
 class Kernel extends ConsoleKernel
 {
@@ -212,7 +213,8 @@ class Kernel extends ConsoleKernel
         EmailExcelImporter::class,
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
-        UserPayment::class
+        UserPayment::class,
+        ScrapLogs::class
     ];
 
     /**
@@ -417,6 +419,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
         $schedule->command('hubstaff:load_activities')->hourly();
         $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
+        $schedule->command('scraplogs:activity')->dailyAt('01:00')->timezone('Asia/Dubai');
         $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
