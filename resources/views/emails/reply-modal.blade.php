@@ -1,10 +1,10 @@
 <form  method="POST" enctype="multipart/form-data">
     @csrf
     <div class="modal-body">
-        <input type="hidden" name="reply_email_id" value="{{ $email['id'] }}">
+        <input type="hidden" id="reply_email_id" name="reply_email_id" value="{{ $email['id'] }}" />
 
         <div class="form-group">
-            <textarea name="message" class="form-control reply-message-textarea" rows="3" placeholder="Reply..."></textarea>
+            <textarea id="reply-message" name="message" class="form-control reply-message-textarea" rows="3" placeholder="Reply..."></textarea>
         <div class="message-to-reply">
             <blockquote style="margin:15px 0px 0px 0.8ex;border-left:1px solid rgb(204,204,204);padding-left:1ex">
                 {!! $email['message'] !!}

@@ -48,6 +48,7 @@
       </div>
   </div>
 </div>
+<div class="row">
 <div class="col-12 mb-3">
   <div class="pull-left">
 
@@ -71,6 +72,7 @@
         <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
   </div>
+</div>
 </div>
 <div class="table-responsive" style="margin-top:20px;">
       <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
@@ -243,14 +245,15 @@
           },
           url: '/email/replyMail/'+$this.data("id"),
           type: 'get',
-            // beforeSend: function () {
-            //     $("#loading-image").show();
-            // },
+          beforeSend: function () {
+              $("#loading-image").show();
+          },
         }).done( function(response) {
+          $("#loading-image").hide();
           // toastr['success'](response.message);
           $("#reply-mail-content").html(response);
         }).fail(function(errObj) {
-          // $("#loading-image").hide();
+          $("#loading-image").hide();
         });
     });
 
@@ -296,12 +299,18 @@
 
     $(document).on('click', '.submit-reply', function(e) {
       e.preventDefault();
+      var message = $("#reply-message").val();
+      var reply_email_id = $("#reply_email_id").val();
         $.ajax({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
           url: '/email/replyMail',
           type: 'post',
+          data: {
+            'message': message,
+            'reply_email_id': reply_email_id
+          }
             // beforeSend: function () {
             //     $("#loading-image").show();
             // },
@@ -316,41 +325,53 @@
 
     $(document).on('click', '.submit-forward', function(e) {
       e.preventDefault();
+      message = $("#forward-email").val();
+      forward_email_id = $("#forward_email_id").val();
         $.ajax({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
           url: '/email/forwardMail',
           type: 'post',
+          data: {
+            email: email,
+            forward_email_id: forward_email_id
+          }
             // beforeSend: function () {
             //     $("#loading-image").show();
             // },
         }).done( function(response) {
           // toastr['success'](response.message);
-          $("#forwardMail").hide();
+          $("#forwardMail").close();
         }).fail(function(errObj) {
           // $("#loading-image").hide();
-          $("#forwardMail").hide();
+          $("#forwardMail").close();
         });
     });
 
     $(document).on('click', '.submit-remark', function(e) {
       e.preventDefault();
+      message = $("#remark-message").val();
+      remark_email_id = $("#remark_email_id").val();
         $.ajax({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
           url: '/email/remarkMail',
           type: 'post',
+          data: {
+            message: message,
+            remark_email_id: remark_email_id
+          }
             // beforeSend: function () {
             //     $("#loading-image").show();
             // },
         }).done( function(response) {
-          $("#remarkMail").hide();
+          $("#remarkMail").close();
           // toastr['success'](response.message);
         }).fail(function(errObj) {
           // $("#loading-image").hide();
-          $("#remarkMail").hide();
+          $("#remarkMail").close();
         });
     });
 

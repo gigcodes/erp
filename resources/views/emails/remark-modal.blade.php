@@ -1,10 +1,10 @@
 <form  method="POST" enctype="multipart/form-data">
     @csrf
     <div class="modal-body">
-        <input type="hidden" name="remark_email_id" value="{{ $email['id'] }}">
+        <input type="hidden" id="remark_email_id" name="remark_email_id" value="{{ $email['id'] }}">
 
         <div class="form-group">
-            <textarea name="message" class="form-control remark-message-textarea" rows="5" placeholder="Remarks...">
+            <textarea id="remark-message" name="message" class="form-control remark-message-textarea" rows="5" placeholder="Remarks...">
                 {!! $email['remarks'] !!}
             </textarea>
         </div>

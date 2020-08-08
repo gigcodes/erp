@@ -45,7 +45,7 @@ class EmailController extends Controller
             // ->orWhere('subject','like','%'.$term.'%')
             // ->orWhere('message','like','%'.$term.'%');
         }
-        if($seen){
+        if(isset($request->seen)){
             if($seen != 'both'){
                 $query = $query->where('seen',$seen);
             }
@@ -170,23 +170,47 @@ class EmailController extends Controller
         return response()->json(['message' => 'Mail resent successfully']);
    }
 
-   public function replyMail($id) {
-    $email = Email::find($id);
-    return view('emails.reply-modal',compact('email'));
+   /**
+    * Provide view for email reply modal
+    *
+    * @param [type] $id
+    * @return view
+    */
+    public function replyMail($id) {
+        $email = Email::find($id);
+        return view('emails.reply-modal',compact('email'));
     }
 
+    /**
+     * Provide view for email forward modal
+     *
+     * @param [type] $id
+     * @return void
+     */
     public function forwardMail($id) {
         $email = Email::find($id);
         return view('emails.forward-modal',compact('email'));
         }
 
+    /**
+     * Provide view for email remarks modal
+     *
+     * @param [type] $id
+     * @return void
+     */
     public function remarkMail($id) {
         $email = Email::find($id);
         return view('emails.remark-modal',compact('email'));
         }
 
-   public function submitReply(Request $request)
-   {
+    /**
+     * Handle the email reply
+     *
+     * @param Request $request
+     * @return json
+     */
+    public function submitReply(Request $request)
+    {
        $validator = Validator::make($request->all(), [
            'message' => 'required'
        ]);
@@ -201,6 +225,12 @@ class EmailController extends Controller
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
    }
 
+   /**
+    * Handle the email forward
+    *
+    * @param Request $request
+    * @return json
+    */
    public function submitForward(Request $request)
    {
        $validator = Validator::make($request->all(), [
@@ -217,6 +247,12 @@ class EmailController extends Controller
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
    }
 
+   /**
+    * Handle the remark submit
+    *
+    * @param Request $request
+    * @return void
+    */
    public function submitRemark(Request $request)
    {
        $validator = Validator::make($request->all(), [
