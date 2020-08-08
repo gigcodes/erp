@@ -1457,7 +1457,10 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
                             </ul>
                         </li>
