@@ -1223,6 +1223,9 @@
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
                                     </li>
                                     <li class="nav-item">
