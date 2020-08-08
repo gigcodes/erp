@@ -4,12 +4,13 @@
         $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         $userId             = auth()->user()->id;
     @endphp
-    @foreach($categories as $category)
+    @foreach($categories as $key => $category)
 		<?php
             $site = $category->getDevelopment($category->id,$website->id);
             if($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
         ?>
     	<tr>
+        <td>{{$key + 1}}</td>
     		<td>
     			@if($website) {{ $website->website }} @endif
     			<br>
@@ -18,38 +19,12 @@
     			<button onclick="editCategory({{$category->id}})" style="background-color: transparent;border: 0;"><i class="fa fa-edit"></i></button>
                 <input class="fa-ignore-category" type="checkbox" data-onstyle="secondary" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" <?php echo (request('status') == 'ignored') ? "checked" : "" ?>
                 data-on="Allow" data-off="Disallow"
-                data-toggle="toggle" data-width="150">
+                data-toggle="toggle" data-width="90">
     		</td>
     		<td>
     			<input type="hidden" id="website_id" value="@if($website) {{ $website->id }} @endif">
     			<input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="title" value="@if($site){{ $site->title }}@endif" data-site="@if($site){{ $site->id }}@endif"></td>
     		<td><input type="text" class="form-control save-item" data-category="{{ $category->id }}" data-type="description" value="@if($site){{ $site->description }}@endif" data-site="@if($site){{ $site->id }}@endif"></td>
-    		<td>
-    			<?php echo Form::select("status",["" => "-- Select --"] + $allStatus,($site) ? $site->status : 0,[
-      				"class" => "form-control save-item-select" ,
-      				"data-category" => $category->id,
-      				"data-type" => "status",
-      				"data-site" => ($site) ? $site->id : ""
-      			]) ?>
-      			<select style="margin-top: 5px;" class="form-control save-item-select developer" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
-    				<option>Select Developer</option>
-    				@foreach($users as $user)
-    					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
-    				@endforeach
-    			</select>
-                <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
-                    <option>Select Designer</option>
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}"@if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
-                    @endforeach
-                </select>
-                <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
-                    <option>Select Html</option>
-                    @foreach($users as $user)
-                        <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
-                    @endforeach
-                </select>
-    		</td>
             <td>
     			@if($site)
     				<div class="chat_messages expand-row table-hover-cell">
@@ -63,28 +38,66 @@
                     <button class="btn btn-sm btn-image send-message-site" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
                     <br/>
                 </div>
+                <div class="d-flex">
                 <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
-                <label for="developer">Developer</label><br>
+                &nbsp;&nbsp;<label for="developer">Developer</label>&nbsp;&nbsp;
                 <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
-                <label for="designer">Designer</label><br>
+                &nbsp;&nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;
                 <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
-                <label for="html">Html</label><br><br>
+                &nbsp;&nbsp;<label for="html">Html</label>
+                </div>
     		</td>
-    		<td>@if($site) {{ $site->created_at }}@endif</td>
             <td>
-                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
                 @if($site)
-                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list">
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list pd-5">
                         <i class="fa fa-list" aria-hidden="true"></i>
                     </button>
-                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark">
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                         <i class="fa fa-comment" aria-hidden="true"></i>
                     </button>
                 @endif
+                <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
+					<i class="fa fa-eye" aria-hidden="true"></i>
+				</button>
+                <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png"/></button>
             </td>
     	</tr>
+        <tr class="hidden_row_{{ $category->id  }} dis-none" data-eleid="{{ $category->id }}">
+            <td colspan="2">
+            <?php echo Form::select("status",["" => "-- Select --"] + $allStatus,($site) ? $site->status : 0,[
+      				"class" => "form-control save-item-select" ,
+      				"data-category" => $category->id,
+      				"data-type" => "status",
+      				"data-site" => ($site) ? $site->id : ""
+      			]) ?>
+      			
+            </td>
+            <td colspan="2">
+            <select style="margin-top: 5px;" class="form-control save-item-select developer" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
+    				<option>Select Developer</option>
+    				@foreach($users as $user)
+    					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
+    				@endforeach
+    			</select>  
+            <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option>Select Designer</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}"@if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select>
+                <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option>Select Html</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select> 
+            </td>
+            <td></td>
+            <td></td>
+        </tr>
     <?php } ?>
 		@include("storewebsite::site-development.partials.edit-modal")
   @endforeach
