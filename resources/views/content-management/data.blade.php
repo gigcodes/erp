@@ -7,7 +7,7 @@
     @foreach($categories as $category)
 		<?php
             $site = $category->getContent($category->id,$website->id);
-            if($isAdmin || $hasSiteDevelopment || ($site && $site->developer_id == $userId)) {
+            if($isAdmin || $hasSiteDevelopment || ($site && $site->creator_id == $userId) || ($site && $site->publisher_id == $userId)) {
         ?>
     	<tr>
     		<td>

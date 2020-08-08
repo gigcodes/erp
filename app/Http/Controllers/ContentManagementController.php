@@ -76,7 +76,6 @@ class ContentManagementController extends Controller
     }
 
     public function manageContent($id, Request $request) {
-    
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
@@ -122,7 +121,6 @@ class ContentManagementController extends Controller
 
         $users     = User::select('id', 'name')->get();
 
-
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('content-management.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount'))->render(),
@@ -130,6 +128,11 @@ class ContentManagementController extends Controller
             ], 200);
         }
         return view('content-management.manage-content', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount'));
+    }
+
+
+    public function getTaskList($id, Request $request) {
+        dd($request->category_id);
     }
 
     public function saveContentCategory(Request $request) {

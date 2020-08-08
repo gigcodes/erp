@@ -181,6 +181,11 @@
 
 					        </div>
 					    </div>
+						<div class="form-group add-task-list">
+							<select  name="task_id" class="form-control select2">
+								
+							</select>
+	    				</div>
 
 	            </div>
 	            <div class="modal-footer">
@@ -611,10 +616,25 @@ $('select.select2').select2({
 	//done
 	$(document).on("click",".btn-file-upload",function() {
 		var $this = $(this);
-		$("#file-upload-area-section").modal("show");
-		$("#hidden-store-website-id").val($this.data("store-website-id"));
-		$("#hidden-site-id").val($this.data("site-id"));
-		$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+		var websiteId = $this.data("store-website-id");
+		websiteId = $.trim(websiteId);
+		$.ajax({
+				url: '/content-management/manage/task-list/'+websiteId,
+				dataType: "json",
+				type: 'GET',
+				data: {
+					category_id: $this.data("site-category-id")
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+               	}
+			}).done(function (data) {
+				$("#file-upload-area-section").modal("show");
+				$("#hidden-store-website-id").val($this.data("store-website-id"));
+				$("#hidden-site-id").val($this.data("site-id"));
+				$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			});
 	});
 
 	//done

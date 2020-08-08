@@ -321,6 +321,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
         Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
         Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/task-list/{id}', 'ContentManagementController@getTaskList')->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
         Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
         Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
