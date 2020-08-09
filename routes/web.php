@@ -350,8 +350,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
 
-    
-    // 
+
+    //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     // Route::prefix('{id}')->group(function () {
@@ -361,7 +361,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //         Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
     //     });
     // });
-    
+
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -424,12 +424,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('email/forwardMail/{id}', 'EmailController@forwardMail');
     Route::post('email/forwardMail', 'EmailController@submitForward')->name('email.submit-forward');
 
-    Route::get('email/remarkMail/{id}', 'EmailController@remarkMail');
-    Route::post('email/remarkMail', 'EmailController@submitRemark')->name('email.submit-remark');
-
-
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
+    Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
     Route::resource('email', 'EmailController');
+
+    Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
+    Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
 
 
     // Zoom Meetings

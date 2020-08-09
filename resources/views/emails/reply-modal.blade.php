@@ -1,5 +1,3 @@
-<form  method="POST" enctype="multipart/form-data">
-    @csrf
     <div class="modal-body">
         <input type="hidden" id="reply_email_id" name="reply_email_id" value="{{ $email['id'] }}" />
 
@@ -16,4 +14,3 @@
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
         <button type="button" class="btn btn-default submit-reply">Reply</button>
     </div>
-</form>
