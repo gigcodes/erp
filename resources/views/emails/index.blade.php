@@ -163,15 +163,26 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
         var searchSuggestions = {!! json_encode(array_values($search_suggestions), true) !!};
+        var _parentElement = $("#forwardMail")
+
+        // Limit dropdown to 10 emails and use appenTo to view dropdown on top of modal window.
+        var options = {
+            source: function (request, response) {
+                    var results = $.ui.autocomplete.filter(searchSuggestions, request.term);
+                    response(results.slice(0, 10));
+                },
+            appendTo : _parentElement
+        };
+
+        // Following is required to load autocomplete on dynamic DOM
+        var selector = '#forward-email';
+        $(document).on('keydown.autocomplete', selector, function() {
+            $(this).autocomplete(options);
+        });
 
         $(document).ready(function() {
         $('#email-datetime').datetimepicker({
             format: 'YYYY-MM-DD'
-        });
-
-
-        $('#forward-email').autocomplete({
-                source: searchSuggestions
         });
 
         });
