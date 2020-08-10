@@ -668,7 +668,7 @@ $('select.select2').select2({
 				var tasklist = '<select class="form-control d-inline select2" name="task_id" id="task_id" style="width: 100% !important;"><option value="0">Select Task</option>';
 				
                     for(var i=0;i<data.taskLists.length;i++) {
-						task = data.taskLists[i].task;
+						task = data.taskLists[i].task_subject;
 						res = task.substr(0, 100);
 						tasklist = tasklist + '<option value="'+data.taskLists[i].id+'">'+res+'</option>';
 					}

@@ -3,10 +3,10 @@
 <tr>
     <td>{{$key + 1}}</td>
     <td>
-        {{substr($taskMilestone->developertask->task, 0, 100)}}
+        {{substr($taskMilestone->task->task_subject, 0, 100)}}
         <br>
-        <p style="margin:0px;">total milestone : <strong>{{$taskMilestone->developertask->no_of_milestone}}</strong> </p>
-        <p style="margin:0px;">Completed : <strong>{{$taskMilestone->developertask->milestone_completed}}</strong> </p>
+        <p style="margin:0px;">total milestone : <strong>{{$taskMilestone->task->no_of_milestone}}</strong> </p>
+        <p style="margin:0px;">Completed : <strong>{{$taskMilestone->task->milestone_completed}}</strong> </p>
     </td>  
     <td>
         {{$taskMilestone->ono_of_content}}

@@ -10,7 +10,7 @@ class StoreSocialContentMilestone extends Model
         'task_id','ono_of_content','store_social_content_id','status'
     ];
 
-    public function developertask() {
-        return $this->belongsTo('App\DeveloperTask','task_id','id');
+    public function task() {
+        return $this->belongsTo('App\Task','task_id','id');
     }
 }

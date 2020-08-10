@@ -15,6 +15,7 @@ use App\StoreSocialContentStatus;
 use App\StoreSocialContent;
 use App\StoreSocialContentHistory;
 use App\DeveloperTask;
+use App\Task;
 use App\StoreSocialContentMilestone;
 use App\PaymentReceipt;
 use Auth;
@@ -139,7 +140,7 @@ class ContentManagementController extends Controller
         if($contentManagemment) {
             $contentManagemment->publisher_id;
             if($contentManagemment->publisher_id) {
-                $taskLists = DeveloperTask::where('assigned_to',$contentManagemment->publisher_id)->where('status','!=','Done')->get();
+                $taskLists = Task::where('assign_to',$contentManagemment->publisher_id)->where('is_completed',NULL)->get();
             } 
         }
         return response()->json(['taskLists' => $taskLists],200);
@@ -306,7 +307,7 @@ class ContentManagementController extends Controller
                     $site->attachMedia($media, config('constants.media_tags'));
                     $count++;
                 }
-                $task = DeveloperTask::find($request->task_id);
+                $task = Task::find($request->task_id);
                 if($task && $task->is_milestone) {
                     $content_milestone = New StoreSocialContentMilestone;
                     $content_milestone->task_id = $request->task_id;
@@ -576,7 +577,7 @@ class ContentManagementController extends Controller
             foreach($request->store_social_content_milestone_id as $id) {
                 $milestone = StoreSocialContentMilestone::find($id);
                 if(!$milestone->status) {
-                    $task = DeveloperTask::find($milestone->task_id);
+                    $task = Task::find($milestone->task_id);
                     if($task && $task->is_milestone && $task->milestone_completed < $task->no_of_milestone) {
                         if(!$task->cost || $task->cost == '') {
                             return response()->json([
@@ -607,7 +608,6 @@ class ContentManagementController extends Controller
         if($countMilestone) {
                         $newCompleted = $task->milestone_completed  + 1;
                         $individualPrice = $task->cost / $task->no_of_milestone;
-
                         $task->milestone_completed = $newCompleted;
                         $task->save();
                         $payment_receipt = new PaymentReceipt;
@@ -615,8 +615,8 @@ class ContentManagementController extends Controller
                         $payment_receipt->worked_minutes = $task->approximate;
                         $payment_receipt->rate_estimated = $individualPrice;
                         $payment_receipt->status = 'Pending';
-                        $payment_receipt->developer_task_id = $task->id;
-                        $payment_receipt->user_id = $task->assigned_to;
+                        $payment_receipt->task_id = $task->id;
+                        $payment_receipt->user_id = $task->assign_to;
                         $payment_receipt->save();
         }
         return response()->json([
