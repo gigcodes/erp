@@ -134,9 +134,9 @@
 						<th width="12%">Due date</th>
 						<th width="12%">Publish date</th>
 						<th width="15%">Action</th>
-						<th width="29%">Communication</th>
+						<th width="25%">Communication</th>
 						<th width="10%">Platform</th>
-						<th width="5%">Action</th>
+						<th width="9%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -181,6 +181,9 @@
 
 					        </div>
 					    </div>
+						<div class="form-group add-task-list">
+							
+	    				</div>
 
 	            </div>
 	            <div class="modal-footer">
@@ -282,6 +285,37 @@
            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="task-milestone-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+		<form action="">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Task</th>
+					        <th>Content uploaded</th>
+					        <th>Publisher</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-milestone-modal-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-milestone-complete" data-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+			</form>
         </div>
     </div>
 </div>
@@ -611,10 +645,42 @@ $('select.select2').select2({
 	//done
 	$(document).on("click",".btn-file-upload",function() {
 		var $this = $(this);
-		$("#file-upload-area-section").modal("show");
-		$("#hidden-store-website-id").val($this.data("store-website-id"));
-		$("#hidden-site-id").val($this.data("site-id"));
-		$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+		var websiteId = $this.data("store-website-id");
+		websiteId = $.trim(websiteId);
+		$.ajax({
+				url: '/content-management/manage/task-list/'+websiteId,
+				dataType: "json",
+				type: 'GET',
+				data: {
+					category_id: $this.data("site-category-id")
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+               	}
+			}).done(function (data) {
+
+
+				$("#file-upload-area-section").modal("show");
+				$("#hidden-store-website-id").val($this.data("store-website-id"));
+				$("#hidden-site-id").val($this.data("site-id"));
+				$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+				
+				var tasklist = '<select class="form-control d-inline select2" name="task_id" id="task_id" style="width: 100% !important;"><option value="0">Select Task</option>';
+				
+                    for(var i=0;i<data.taskLists.length;i++) {
+						task = data.taskLists[i].task_subject;
+						res = task.substr(0, 100);
+						tasklist = tasklist + '<option value="'+data.taskLists[i].id+'">'+res+'</option>';
+					}
+					tasklist = tasklist + '</select>';
+					$(".add-task-list").html(tasklist);
+					$('select.select2').select2({
+						width: "100%"
+					});
+					$("#loading-image").hide();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				$("#loading-image").hide();
+			});
 	});
 
 	//done
@@ -668,8 +734,13 @@ $('select.select2').select2({
            	}
 		}).done(function (data) {
 			$("#loading-image").hide();
-			toastr["success"]("Document uploaded successfully");
-			location.reload();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"]("Document uploaded successfully");
+				location.reload();
+			}
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			toastr["error"](jqXHR.responseJSON.message);
 			$("#loading-image").hide();
@@ -792,7 +863,25 @@ $('select.select2').select2({
 
     	}
   }
-   
+  
+  $(document).on('click', '.approve-popup-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/content-management/manage/milestone-task/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#task-milestone-modal").modal("show");
+					$(".task-milestone-modal-list-view").html(response);
+                },
+                error: function () {
+                }
+            });
+    });
   $(document).on('click', '.preview-img-btn', function (e) {
             e.preventDefault();
 			id = $(this).data('id');
@@ -811,7 +900,36 @@ $('select.select2').select2({
                 }
             });
         });
-
+		
+		$(document).on("click",".btn-milestone-complete",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+			url: '/content-management/manage/milestone-task/submit',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: $this.closest("form").serialize(),
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"](data.message);
+				// location.reload();
+			}
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	});
 </script>
 <script type="text/javascript">
   $(document).ready(function(){
