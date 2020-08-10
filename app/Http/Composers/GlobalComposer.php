@@ -37,8 +37,8 @@ class GlobalComposer
                     $genUrl = '';
                 }
                 $permission = Permission::where('route', $genUrl)->first();
-                //echo 'unauthorized permission name '.$permission->route;
-                //die();
+                echo 'unauthorized permission name '.$permission->route;
+                die();
             }
         }else{
             $view->with('currentUser', Auth::user());
