@@ -194,9 +194,12 @@ class LandingPageController extends Controller
 
             // Add images to product
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
-                    foreach ($medias as $image) {
-                        $productData['product']['images'][] = ['src' => $image->getUrl()];
+                foreach ($landingPageProduct->getAllMediaByTag() as $tag => $medias) {
+                    // if there is specific color then only send the images
+                    if (strpos($tag, 'gallary_') !== false) {
+                        foreach ($medias as $image) {
+                            $productData['product']['images'][] = ['src' => $image->getUrl()];
+                        }
                     }
                 }
             }
