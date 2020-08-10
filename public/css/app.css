@@ -10728,29 +10728,29 @@ li.active{
 
 /* WhatsApp Bubble */
 .speech-wrapper {
-    padding: 5px;
+    padding: 0px;
     /* padding: 10px 20px; */
 }
 
 .speech-wrapper .bubble {
-    width: 380px;
-    max-width: 80%;
+    /* width: 380px;
+    max-width: 80%; */
     height: auto;
     display: block;
-    background: #ffffff;
+    /* background: #ffffff; */
     border-radius: 4px;
     /* box-shadow: 2px 8px 5px #000; */
     position: relative;
-    margin: 0 0 0 5px;
+    margin: 0px;
 }
 
 .speech-wrapper .bubble.alt {
-    margin: 0 0 0px calc(100% - 333px);
-    background-color: #DDF7C8;
+    margin: 0px;
+    /* background-color: #DDF7C8; */
 }
 
 .speech-wrapper .bubble .txt {
-    padding: 8px 14px 8px 14px;
+    padding: 0px;
 }
 
 .speech-wrapper .bubble .txt .name {
@@ -10775,6 +10775,30 @@ li.active{
     color: #2b2b2b;
     word-wrap: break-word;
 }
+
+#chat-list-history .table>tbody>tr>td {
+    padding: 5px;
+}
+
+#chat-list-history .out-background {
+    background-color: #999999;
+}
+
+#chat-list-history .in-background {
+    background-color: #f9f9f9;
+}
+
+#chat-list-history .table {
+    margin-bottom: 0px;
+}
+
+#chat-list-history .btn {
+    padding: 0px 6px !important;
+}
+
+/* #chat-list-history .speech-wrapper .bubble.alt .txt p {
+    color: white;
+} */
 
 .speech-wrapper .bubble .txt .timestamp {
     font-size: 11px;
