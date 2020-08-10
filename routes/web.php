@@ -337,6 +337,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
         Route::get('/manage/task-list/{id}', 'ContentManagementController@getTaskList')->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
+        Route::get('/manage/milestone-task/{id}', 'ContentManagementController@getTaskMilestones')->name('content-management.manage.milestone-task');
         Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
         Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
         Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
@@ -344,6 +345,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save-documents', 'ContentManagementController@saveDocuments')->name("content-management.save-documents");
         Route::post('/delete-document', 'ContentManagementController@deleteDocument')->name("content-management.delete-documents");
         Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
+        Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
         Route::prefix('{id}')->group(function () {
         Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {

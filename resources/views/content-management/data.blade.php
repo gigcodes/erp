@@ -93,20 +93,29 @@
             </select>
             </td>
             <td>
-                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload">
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-upload pd-3">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
                 @if($site)
-                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list">
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-file-list pd-3">
                         <i class="fa fa-list" aria-hidden="true"></i>
                     </button>
-                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark">
+                    <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-3">
                         <i class="fa fa-comment" aria-hidden="true"></i>
                     </button>
                 @endif
-                <button type="button" class="btn preview-img-btn" data-id="@if($site){{ $site->id }}@endif">
+                <button type="button" class="btn preview-img-btn pd-3" data-id="@if($site){{ $site->id }}@endif">
 					<i class="fa fa-eye" aria-hidden="true"></i>
-				</button>
+                </button>
+                
+                @if($isAdmin || $hasSiteDevelopment)
+                    <button title="Approve Milestone" type="button" class="btn approve-popup-btn pd-3" data-id="@if($site){{ $site->id }}@endif">
+                        <i class="fa fa-check" aria-hidden="true"></i>
+                    </button>
+                @endif
+
+
+
             </td>
     	</tr>
     <?php } ?>
