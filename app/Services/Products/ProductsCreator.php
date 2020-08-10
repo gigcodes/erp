@@ -174,6 +174,10 @@ class ProductsCreator
                 $product->save();
             }
 
+            // check that if the product color is white then we need to remove that 
+            $product->isNeedToIgnore();
+
+
             if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
@@ -317,6 +321,7 @@ class ProductsCreator
 
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
+            $product->isNeedToIgnore();
 
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
