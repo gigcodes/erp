@@ -44,21 +44,27 @@ var getMoreChatConvo = function(params) {
 
 var getHtml = function(response) {
     var j = 0;
+    
+       
     var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
-    var li = '<div class="speech-wrapper '+classMaster+'">';
+    
 
-    if(load_type == "broadcast" || load_type == "images") {
-        $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
-    }else{
-        $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
-    }
-
+    // if(load_type == "broadcast" || load_type == "images") {
+    //     $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
+    // }else{
+    //     $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
+    // }
+    // <input type="text" id="click-to-clipboard-message" class="form-control link hidden" style="position: absolute; left: -1000px;"></input>
+    
+    var fullHtml = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"></input><table class="table table-bordered table-striped">';
 
     (response.messages).forEach(function (message) {
         // Set empty image var
         var media = '';
         var imgSrc = '';
-
+        var li = '<div class="speech-wrapper '+classMaster+'">';
+        fullHtml = fullHtml + '<tr><td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
+        var fromMsg = '';
         // Check for attached media (ERP attached media)
         if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
             for (var i = 0; i < message.mediaWithDetails.length; i++) {
@@ -140,6 +146,7 @@ var getHtml = function(response) {
             }
 
         }
+        //here
 
         // Set empty button var
         var button = "";
@@ -197,19 +204,22 @@ var getHtml = function(response) {
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>';
         }
-
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div><div class="bubble-arrow"></div></div>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><br><span class="timestamp" style="color:black; text-transform: capitalize;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div> <div class="bubble-arrow alt"></div></div>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
         }
+        li += '</div>';
+        fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
+        fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
+        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>'; 
     });
-
-    li += '</div>';
-
-    return li;
+    fullHtml = fullHtml + '</table></div>';
+    return fullHtml;
 }
 
 $(document).on('click', '.load-communication-modal', function () {
@@ -250,14 +260,14 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
-
-      console.log("li",response);
         var li = getHtml(response);
         if ($('#chat-list-history').length > 0) {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-list-history").find(".modal-body").html(li);
             //$(thiss).html("<img src='/images/chat.png' alt=''>");
             $("#chat-list-history").modal("show");
         } else {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-history").html(li);
         }
 
@@ -572,6 +582,32 @@ var observeModelOpen = function () {
         $("body").addClass("modal-open");
     }
 };
+var clipboradMsg = [];
+var clipboardFinalMsg = '';
+$(document).on('click','.click-to-clipboard', function () {
+    clipboardFinalMsg = '';
+    $("#click-to-clipboard-message").val('');
+    if ($(this).prop("checked") == true) { 
+        clipboradMsg.push({
+            id: $(this).data('id'),
+            message:  $(this).data('message')
+        });
+      } else { 
+        for (var i = 0; i < clipboradMsg.length; i++) {
+            if (clipboradMsg[i].id && clipboradMsg[i].id === $(this).data('id')) { 
+                clipboradMsg.splice(i, 1);
+                break;
+            }
+        } 
+      }
+      for (var i = 0; i < clipboradMsg.length; i++) {
+        clipboardFinalMsg = clipboardFinalMsg + clipboradMsg[i].message;
+    }
+    $("#click-to-clipboard-message").val(clipboardFinalMsg);
+    var copyText = document.getElementById("click-to-clipboard-message");
+    copyText.select();
+    document.execCommand("copy");
+});
 
 $(document).on('hidden.bs.modal','#add_lead', function () {
     observeModelOpen();
