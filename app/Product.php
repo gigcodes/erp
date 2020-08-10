@@ -944,4 +944,17 @@ class Product extends Model
     {
         return $this->hasOne('App\LandingPageProduct','product_id','id');
     }
+
+    /**
+    * This is using for ingoring the product for next step
+    * like due to problem in crop we are not sending white product on approval
+    *
+    */
+    public function isNeedToIgnore()
+    {
+        if(strtolower($this->color) == "white") {
+            $this->status_id = \App\Helpers\StatusHelper::$scrape;
+            $this->save();
+        }
+    }
 }
