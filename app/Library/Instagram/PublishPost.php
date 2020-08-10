@@ -33,7 +33,7 @@ class PublishPost
         // If account/user deleted, but job still exists
         if (is_null($account)) {
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Account or user has been deleted';
             $post->save();
 
@@ -47,7 +47,16 @@ class PublishPost
 
         // Set proxy if exists
         if ($account->proxy) {
-            $instagram->setProxy($account->proxy->server);
+            $instagram->setProxy($account->proxy);
+        }else{
+
+            Log::error('Something went wrong: Proxy Not Set For Account '.$account->last_name;
+
+            $post->status  = 2;
+            $post->comment = 'Something went wrong: Proxy Not Set For Account '.$account->last_name;
+            $post->save();
+
+            return false;
         }
         
         // Login to Instagram
@@ -59,7 +68,7 @@ class PublishPost
 
             Log::error('The password you entered is incorrect. Please try again. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'The password you entered is incorrect. Please try again. ' . $e->getMessage();
             $post->save();
 
@@ -69,7 +78,7 @@ class PublishPost
 
             Log::error('The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage();
             $post->save();
 
@@ -79,7 +88,7 @@ class PublishPost
 
             Log::error('Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage();
             $post->save();
 
@@ -89,7 +98,7 @@ class PublishPost
 
             Log::error('Your account has been disabled for violating Instagram terms. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Your account has been disabled for violating Instagram terms. ' . $e->getMessage();
             $post->save();
 
@@ -99,7 +108,7 @@ class PublishPost
 
             Log::error('Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage();
             $post->save();
 
@@ -109,7 +118,7 @@ class PublishPost
 
             Log::error('Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage();
             $post->save();
 
@@ -119,7 +128,7 @@ class PublishPost
 
             Log::error('Challenge required. Please re-add your account to confirm it. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Challenge required. Please re-add your account to confirm it. ' . $e->getMessage();
             $post->save();
 
@@ -129,7 +138,7 @@ class PublishPost
 
             Log::error('You should verify and agree terms using your mobile device. ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'You should verify and agree terms using your mobile device. ' . $e->getMessage();
             $post->save();
 
@@ -139,7 +148,7 @@ class PublishPost
 
             Log::error('Something went wrong: ' . $e->getMessage());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage();
             $post->save();
 
@@ -149,7 +158,7 @@ class PublishPost
 
             Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
             $post->save();
 
@@ -207,7 +216,7 @@ class PublishPost
 
                     Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
-                    $post->status  = config('pilot.POST_STATUS_FAILED');
+                    $post->status  = 2;
                     $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
                     $post->save();
 
@@ -236,7 +245,7 @@ class PublishPost
 
                     Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
-                    $post->status  = config('pilot.POST_STATUS_FAILED');
+                    $post->status  = 2;
                     $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
                     $post->save();
 
@@ -328,7 +337,7 @@ class PublishPost
                 }
                 
                 $post->ig        = json_encode($ig);
-                $post->status    = 'published';
+                $post->status    = 1;
                 $post->comment   = 'Post published successfully';
                 $post->posted_at = now();
                 $post->save();
@@ -341,7 +350,7 @@ class PublishPost
 
             Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
-            $post->status  = config('pilot.POST_STATUS_FAILED');
+            $post->status  = 2;
             $post->comment = 'Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine();
             $post->save();
 

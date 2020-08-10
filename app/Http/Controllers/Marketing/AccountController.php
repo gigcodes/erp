@@ -96,6 +96,7 @@ class AccountController extends Controller
 		$account->send_end = $request->send_end;
 		$account->platform = $request->platform;
 		$account->status = $request->status;
+		$account->proxy = $request->proxy;
 		$account->save();
 		
 		return redirect()->back()->with('message', 'Account Saved');	
@@ -128,6 +129,7 @@ class AccountController extends Controller
 		$account->send_start = $request->send_start;
 		$account->send_end = $request->send_end;
 		$account->platform = $request->platform;
+		$account->proxy = $request->proxy;
 		$account->status = $request->status;
 		$account->save();
 

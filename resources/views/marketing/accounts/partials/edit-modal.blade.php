@@ -77,6 +77,13 @@
                             @endif
                         </div>
                         <div class="form-group">
+                            <strong>Proxy:</strong>
+                            <input type="text" name="proxy" class="form-control" value="{{ $account->proxy }}">
+                            @if ($errors->has('proxy'))
+                                <div class="alert alert-danger" >{{$errors->first('proxy')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
                             <strong>Is Default ?:</strong>
                             <select class="form-control" name="is_default">
                                 <option value="0" @if($account->is_default == 0) selected @endif>No</option>

@@ -10,7 +10,7 @@ class Account extends Model
 {
     use SoftDeletes;
   protected $fillable = [
-    'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender'
+    'first_name', 'last_name', 'email', 'password', 'dob', 'platform', 'followers_count', 'posts_count', 'dp_count', 'broadcast', 'country', 'gender','proxy'
   ];
 
   public function reviews()

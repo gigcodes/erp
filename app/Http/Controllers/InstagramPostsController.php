@@ -42,7 +42,7 @@ class InstagramPostsController extends Controller
 
     public function post()
     {
-        $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
+        $accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $used_space = 0;
         $storage_limit = 0;
         return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
@@ -361,7 +361,7 @@ class InstagramPostsController extends Controller
 
     public function viewPost(Request $request)
     {
-        $accounts = Account::all();
+        $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
         $data = Post::whereNotNull('id')->paginate(10);
         
