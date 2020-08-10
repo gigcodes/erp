@@ -725,6 +725,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
