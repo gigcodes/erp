@@ -24,7 +24,6 @@ var getMoreChatConvo = function(params) {
             if ($('#chat-list-history').length > 0) {
                 $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
                 $("#chat-list-history").find(".modal-body").append(li);
-                //$(thiss).html("<img src='/images/chat.png' alt=''>");
                 //$("#chat-list-history").modal("show");
             } else {
                 $("#chat-history").find("#loading-image").remove();
@@ -56,14 +55,21 @@ var getHtml = function(response) {
     // }
     // <input type="text" id="click-to-clipboard-message" class="form-control link hidden" style="position: absolute; left: -1000px;"></input>
     
-    var fullHtml = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"></input><table class="table table-bordered table-striped">';
+    var fullHtml = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"></input><table class="table table-bordered">';
 
     (response.messages).forEach(function (message) {
         // Set empty image var
         var media = '';
         var imgSrc = '';
         var li = '<div class="speech-wrapper '+classMaster+'">';
-        fullHtml = fullHtml + '<tr><td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
+        
+        if(message.inout == 'out') {
+            fullHtml = fullHtml + '<tr class="out-background">';
+        }
+        else {
+            fullHtml = fullHtml + '<tr class="in-background">'; 
+        }
+        fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
         // Check for attached media (ERP attached media)
         if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
@@ -205,10 +211,10 @@ var getHtml = function(response) {
             button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>';
         }
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div><div class="bubble-arrow"></div></div>';
+            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div> <div class="bubble-arrow alt"></div></div>';
+            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
@@ -263,11 +269,12 @@ $(document).on('click', '.load-communication-modal', function () {
         var li = getHtml(response);
         if ($('#chat-list-history').length > 0) {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-list-history").find(".modal-body").html(li);
-            //$(thiss).html("<img src='/images/chat.png' alt=''>");
             $("#chat-list-history").modal("show");
         } else {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-history").html(li);
         }
 
