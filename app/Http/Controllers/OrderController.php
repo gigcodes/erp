@@ -658,13 +658,14 @@ class OrderController extends Controller {
 			if (!$order_new->is_sent_offline_confirmation()) {
 				if ($order_new->order_type == 'offline') {
 					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+					$view = (new OrderConfirmation($order))->render();
 					$params = [
 				        'model_id'    		=> $order_new->customer->id,
 				        'model_type'  		=> Customer::class,
 				        'from'        		=> 'customercare@sololuxury.co.in',
 				        'to'          		=> $order_new->customer->email,
 				        'subject'     		=> "New Order # " . $order_new->order_id,
-				        'message'     		=> '',
+				        'message'     		=> $view,
 						'template'				=> 'order-confirmation',
 						'additional_data'	=> $order_new->id
 		      		];
@@ -2167,13 +2168,14 @@ public function createProductOnMagento(Request $request, $id){
 		if (!$order->is_sent_offline_confirmation()) {
 			if ($order->order_type == 'offline') {
 				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+				$view = (new OrderConfirmation($order))->render();
 				$params = [
 			        'model_id'    		=> $order->customer->id,
 			        'model_type'  		=> Customer::class,
 			        'from'        		=> 'customercare@sololuxury.co.in',
 			        'to'          		=> $order->customer->email,
 			        'subject'     		=> "New Order # " . $order->order_id,
-			        'message'     		=> '',
+			        'message'     		=> $view,
 					'template'				=> 'order-confirmation',
 					'additional_data'	=> $order->id
 	      		];
