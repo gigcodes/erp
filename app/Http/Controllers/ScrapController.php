@@ -1087,9 +1087,22 @@ class ScrapController extends Controller
     }
 
     /**
-     * Store scraper completed time
+     * Store scraper starting time
      */
     public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_started_at = Carbon::now();
+                $scraper->save();
+        }
+       return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperCompleted(Request $request)
     {
         $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
         if(!empty($scraper)) {
@@ -1135,8 +1148,15 @@ class ScrapController extends Controller
     public function restartNode(Request $request)
     {
         if($request->name && $request->server_id){
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$request->name.'.js';
-            //dd($url);
+            $scraper = Scraper::where('scraper_name',$request->name)->first();
+            if(!$scraper->parent_id){
+                $name = $scraper->scraper_name;
+            }else{
+                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+            }
+
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$name.'.js';
+            
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
             $curl = curl_init();

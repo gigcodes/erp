@@ -88,6 +88,7 @@ class TaskModuleController extends Controller {
 			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
 			ORDER BY is_flagged DESC, message_created_at DESC;
 					 ');
+					 
 			//task pending backup
 
 			// $data['task']['pending'] = DB::select('
@@ -399,9 +400,9 @@ class TaskModuleController extends Controller {
 		}
 
 		$search_term_suggestions = [];
-		$assign_from_arr = array();
-		$special_task_arr = array();
-		$assign_to_arr = array();
+		$assign_from_arr = array(0);
+		$special_task_arr = array(0);
+		$assign_to_arr = array(0);
 		
 
 		foreach ($data['task']['pending'] as $task) {
@@ -422,7 +423,6 @@ class TaskModuleController extends Controller {
 			$search_term_suggestions[] = $task->task_subject;
 			$search_term_suggestions[] = $task->task_details;*/
 		}
-
 		$user_ids_from = implode(",", array_unique($assign_from_arr));
 		$var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
 

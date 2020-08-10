@@ -8,7 +8,7 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Validator;
 use App\StoreDevelopment;
 use App\SiteDevelopmentStatus;
-
+use App\StoreWebsite;
 class SiteDevelopmentStatusController extends Controller
 {
 
@@ -211,5 +211,20 @@ class SiteDevelopmentStatusController extends Controller
         }
 
         return response()->json(["code" => 200 , "data" => [], "messages" => "Status has been merged successfully"]);
+    }
+
+    public function statusStats() {
+        $storeWebsites = StoreWebsite::all();
+
+        foreach($storeWebsites as $website) {
+            $statusStats = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
+            ->where('site_developments.website_id', $website->id)
+            ->groupBy("sds.id")
+            ->select(["sds.name",\DB::raw("count(sds.id) as total")])
+            ->get();
+            $website->statusStats = $statusStats;
+        }
+        $title = 'Multi site status';
+        return view("storewebsite::site-development-status.status-stats",compact('title','storeWebsites'));
     }
 }
