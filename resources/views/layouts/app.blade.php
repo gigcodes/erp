@@ -720,7 +720,7 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item">
-                                    <a id="navbarDropdown" class="" href="{{ route('coupons.index') }}" role="button">Keyword Assign</a>
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
                             </ul>
                         </li>

@@ -1010,7 +1010,7 @@ class WhatsAppController extends FindByNumberController
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();       
+        $data = $request->json()->all();  
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1610,7 +1610,7 @@ class WhatsAppController extends FindByNumberController
             
                 for($i=0;$i<count($exp_mesaages);$i++)
                 {
-                    $keywordassign = DB::table('keywordassign')
+                    $keywordassign = DB::table('keywordassigns')
                     ->select('*')
                     ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
                     ->get();
@@ -1960,7 +1960,7 @@ class WhatsAppController extends FindByNumberController
             
             for($i=0;$i<count($exp_mesaages);$i++)
             {
-                $keywordassign = DB::table('keywordassign')
+                $keywordassign = DB::table('keywordassigns')
                 ->select('*')
                 ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
                 ->get();
@@ -1981,6 +1981,45 @@ class WhatsAppController extends FindByNumberController
                     "updated_at"=>date("Y-m-d H:i:s")
                 );
                 DB::table('tasks')->insert($task_array);
+                $taskid = DB::getPdo()->lastInsertId();
+
+                //START CODE Task message to send message in whatsapp
+                $message = "#" . $taskid . ". " . $data[ 'user_id' ] . ". " . $keywordassign[0]->task_description;
+
+                $params = [
+                    'number'       => NULL,
+                    'user_id'      => Auth::id(),
+                    'approved'     => 1,
+                    'status'       => 2,
+                    'task_id'      => $taskid,
+                    'message'      => $message
+                ];
+                $task_info = DB::table('tasks')
+                ->select('*')
+                ->where('id', '=', $taskid)
+                ->get();
+
+                if($task_info[0]->phone != "")
+                {
+                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task_info[0]->phone, $task_info[0]->whatsapp_number, $params['message']);
+
+                    $chat_message = ChatMessage::create($params);
+                    ChatMessagesQuickData::updateOrCreate([
+                        'model' => \App\Task::class,
+                        'model_id' => $params['task_id']
+                        ], [
+                        'last_communicated_message' => @$params['message'],
+                        'last_communicated_message_at' => $chat_message->created_at,
+                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                    ]);
+
+                    $myRequest = new Request();
+                    $myRequest->setMethod('POST');
+                    $myRequest->request->add(['messageId' => $chat_message->id]);
+
+                    app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                }
+                //END CODE Task message to send message in whatsapp
             }
             $data[ 'customer_id' ] = $request->customer_id;
             $module_id = $request->customer_id;
@@ -3427,7 +3466,7 @@ class WhatsAppController extends FindByNumberController
                             $receiver = User::find($message->erp_user);
                         }
 
-                        $phone = $receiver->phone;
+                        $phone = @$receiver->phone;
                         $whatsapp_number = $sender->whatsapp_number;
                     } else {
                         if ($context == 'user') {

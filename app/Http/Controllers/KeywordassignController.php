@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Helpers\SSP;
+use App\Keywordassign;
 use Exception;
 use DB;
 
@@ -18,10 +19,11 @@ class KeywordassignController extends Controller
     {
         //$coupons = Coupon::orderBy('id', 'DESC')->get();
         //$keywordassign = DB::table('keywordassign')->select('*')->get();
-        $keywordassign = DB::table('keywordassign')
-            ->select('keywordassign.id','keywordassign.keyword','task_categories.title','keywordassign.task_description','users.name')
-            ->leftJoin('users', 'keywordassign.assign_to', '=', 'users.id')
-            ->leftJoin('task_categories', 'keywordassign.task_category', '=', 'task_categories.id')
+        $keywordassign = DB::table('keywordassigns')
+            ->select('keywordassigns.id','keywordassigns.keyword','task_categories.title','keywordassigns.task_description','users.name')
+            ->leftJoin('users', 'keywordassigns.assign_to', '=', 'users.id')
+            ->leftJoin('task_categories', 'keywordassigns.task_category', '=', 'task_categories.id')
+            ->orderBy('id')
             ->get();
 
         return view('keywordassign.index', compact('keywordassign'));
@@ -59,17 +61,17 @@ class KeywordassignController extends Controller
         $task_category = $request->task_category;
         $task_description = $request->task_description;
         $assign_to = $request->assign_to;
-        $created_date = date("Y-m-d H:i:s");
-        $updated_date = date("Y-m-d H:i:s");
+        $created_at = date("Y-m-d H:i:s");
+        $updated_at = date("Y-m-d H:i:s");
         $insert_data = array(
                 "keyword"=>$keyword,
                 "task_category"=>$task_category,
                 "task_description"=>$task_description,
                 "assign_to"=>$assign_to,
-                "created_date"=>$created_date,
-                "updated_date"=>$updated_date,
+                "created_at"=>$created_at,
+                "updated_at"=>$updated_at,
             );
-        DB::table('keywordassign')->insert($insert_data);
+        DB::table('keywordassigns')->insert($insert_data);
         return redirect()->route('keywordassign.index')
             ->with('success', 'Keyword assign created successfully.');
     }
@@ -95,7 +97,7 @@ class KeywordassignController extends Controller
     public function edit($id)
     {
         //
-        $keywordassign = DB::table('keywordassign')->select('*')->where('id',$id)->get();
+        $keywordassign = DB::table('keywordassigns')->select('*')->where('id',$id)->get();
         $task_category = DB::table('task_categories')->select('*')->get();
         $userslist = DB::table('users')->select('*')->get();
         return view('keywordassign.edit', compact('keywordassign','task_category','userslist'));
@@ -121,15 +123,15 @@ class KeywordassignController extends Controller
         $task_category = $request->task_category;
         $task_description = $request->task_description;
         $assign_to = $request->assign_to;
-        $updated_date = date("Y-m-d H:i:s");
+        $updated_at = date("Y-m-d H:i:s");
         $insert_data = array(
                 "keyword"=>$keyword,
                 "task_category"=>$task_category,
                 "task_description"=>$task_description,
                 "assign_to"=>$assign_to,
-                "updated_date"=>$updated_date,
+                "updated_at"=>$updated_at,
             );
-        $affected = DB::table('keywordassign')
+        $affected = DB::table('keywordassigns')
               ->where('id', $id)
               ->update($insert_data);
         return redirect()->route('keywordassign.index')
@@ -144,7 +146,7 @@ class KeywordassignController extends Controller
      */
     public function destroy($id)
     {
-        DB::table('keywordassign')->where('id', '=', $id)->delete();
+        DB::table('keywordassigns')->where('id', '=', $id)->delete();
         return redirect()->route('keywordassign.index')
             ->with('success', 'Keyword assign deleted successfully.');
     }
