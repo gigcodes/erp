@@ -4,8 +4,6 @@
 
 @section('content')
 
-    @includeWhen($accounts->count() == 0, 'partials.no-accounts')
-
     @if($accounts->count())
 
         <div class="page-header">
