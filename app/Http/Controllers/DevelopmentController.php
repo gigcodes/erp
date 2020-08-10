@@ -426,8 +426,13 @@ class DevelopmentController extends Controller
         }*/
 
         if (!auth()->user()->isReviwerLikeAdmin()) {
-            $issues = $issues->where(function ($q) {
-                $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // $issues = $issues->where(function ($q) {
+            //     $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // });
+
+            $issues = $issues->where('is_resolved', 0)->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id);
             });
         }
         // category filter start count
@@ -476,7 +481,7 @@ class DevelopmentController extends Controller
 
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
-        // $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
@@ -491,7 +496,7 @@ class DevelopmentController extends Controller
             'request' => $request,
             'title' => $title,
             'type' => $type,
-            // 'priority' => $priority,
+            'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
             'statusList' => $statusList

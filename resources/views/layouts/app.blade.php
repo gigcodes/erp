@@ -12,9 +12,9 @@
 
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @else    
+    @else
         <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
-    @endif 
+    @endif
 
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
@@ -333,7 +333,7 @@
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Product <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
-                                
+
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Listing<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -614,6 +614,9 @@
                                     </ul>
 
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -628,6 +631,9 @@
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="" href="{{ route('store-website.all.status') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -718,6 +724,9 @@
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
                             </ul>
                         </li>
@@ -823,7 +832,7 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Email Accounts
+                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Other Email Accounts
                                     </a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
@@ -1123,7 +1132,7 @@
                                                     <a class="dropdown-item" href="{{route('google.affiliate.results')}}">Search Results</a>
                                                 </li>
                                             </ul>
-                                        </li>                                        
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
@@ -1215,6 +1224,9 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
@@ -1365,7 +1377,7 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
                                         </li>
-                                        <li>    
+                                        <li>
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
@@ -1451,7 +1463,10 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
                             </ul>
                         </li>
@@ -1705,7 +1720,7 @@
                     </li>
                     @if($liveChatUsers != '' && $liveChatUsers != null)
                     <li>
-                        <a id="message-chat-data-box" class="quick-icon"> 
+                        <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
                                 <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
                            </span>
@@ -1744,8 +1759,8 @@
             </main>
         @endif
 
-        
-         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>   
+
+         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
     <?php /*
     @if(Auth::check())
@@ -1828,9 +1843,9 @@
                                     <div class="selectedValue">
                                          <select id="autoTranslate" class="form-control auto-translate">
                                             <option value="">Translation Language</option>
-                                            @foreach ($language as $key => $value) 
+                                            @foreach ($language as $key => $value)
                                                 <option value="{{$value}}">{{$key}}</option>
-                                            @endforeach  
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -1880,19 +1895,19 @@
                         <div class="chat-righbox">
                             <div class="title">Visited Pages</div>
                             <div id="chatVisitedPages">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Additional info</div>
                             <div class="line-spacing" id="chatAdditionalInfo">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="chatTechnology">
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1906,7 +1921,7 @@
 
     <!-- Scripts -->
 
-     @include('partials.chat')
+   {{--  @include('partials.chat')--}}
     <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
     </div>
 
@@ -2018,7 +2033,7 @@
           typingTimer = setTimeout(doneTyping, doneTypingInterval);
         });
 
-        //on keydown, clear the countdown 
+        //on keydown, clear the countdown
         $input.on('keydown', function () {
           clearTimeout(typingTimer);
         });
@@ -2032,7 +2047,7 @@
         // open chatbox now into popup
 
         var chatBoxOpen = false;
-        
+
         $("#message-chat-data-box").on("click",function(e) {
             e.preventDefault();
            $("#quick-chatbox-window-modal").modal("show");
@@ -2090,7 +2105,7 @@
         });
 
         @if(session()->has('encrpyt'))
-        
+
         var inactivityTime = function () {
             var time;
             window.onload = resetTimer;
@@ -2115,7 +2130,7 @@
             })
             .fail(function() {
                 console.log("error");
-            })  
+            })
         }
 
         function resetTimer() {
@@ -2126,7 +2141,7 @@
         };
 
         window.onload = function() {
-            inactivityTime(); 
+            inactivityTime();
         }
 
         @endif
@@ -2365,6 +2380,78 @@
                 toastr['error'](response.responseJSON.message);
             });
         });
+
+        $(document).on('change', '#keyword_category', function () {
+            console.log("inside");
+            if ($(this).val() != "") {
+                var category_id = $(this).val();
+                var store_website_id = $('#live_selected_customer_store').val();
+                $.ajax({
+                    url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
+                    type: 'GET',
+                    dataType: 'json'
+                }).done(function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#live_quick_replies').empty().append('<option value="">Quick Reply</option>');
+                        var replies = data.data;
+                        replies.forEach(function (reply) {
+                            $('#live_quick_replies').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                    }
+                });
+
+            }
+        });
+
+        $('.quick_comment_add_live').on("click", function () {
+            var textBox = $(".quick_comment_live").val();
+            var quickCategory = $('#keyword_category').val();
+
+            if (textBox == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+
+            if (quickCategory == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            console.log("yes");
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('save-store-wise-reply') }}",
+                dataType: 'json',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'category_id' : quickCategory,
+                    'reply' : textBox,
+                    'store_website_id' : $('#live_selected_customer_store').val()
+                }
+            }).done(function (data) {
+                console.log(data);
+                $(".live_quick_comment").val('');
+                $('#live_quick_replies').append($('<option>', {
+                    value: data.data,
+                    text: data.data
+                }));
+            })
+        });
+
+        $('#live_quick_replies').on("change", function(){
+            $('.type_msg').text($(this).val());
+        });
+
+
+
+
+
+
     </script>
 
 </body>

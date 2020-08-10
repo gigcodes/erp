@@ -160,11 +160,11 @@
             function loadMoreProducts() {
                 if (isLoadingProducts)
                     return;
-                console.log($('.pagination li.active + li a').attr('href'));
                 isLoadingProducts = true;
+                if(!$('.pagination li.active + li a').attr('href'))
+                return;
 
                 var $loader = $('.infinite-scroll-products-loader');
-
                 $.ajax({
                     url: $('.pagination li.active + li a').attr('href'),
                     type: 'GET',
@@ -174,6 +174,7 @@
                     }
                 })
                 .done(function(data) {
+                    // console.log(data);
                     if('' === data.trim())
                         return;
 
