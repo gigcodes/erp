@@ -2023,5 +2023,19 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::resource('shipment', 'ShipmentController');
+
+    /**
+     * Twilio account management
+     */
+    Route::get('get-twilio-numbers', 'TwilioController@getTwilioActiveNumbers');
+    Route::get('twilio/manage-numbers', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
+    Route::get('twilio/call-recordings', 'TwilioController@CallRecordings')->name('twilio-call-recording');
+    Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
+    Route::post('twilio/call-forwarding', 'TwilioController@callForwarding')->name('twilio-call-forwarding');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
+
+
+/****Webhook URL for twilio****/
+Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
