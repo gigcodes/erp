@@ -103,6 +103,8 @@ Route::prefix('site-development')->group(function () {
     Route::post('/save-documents', 'SiteDevelopmentController@saveDocuments')->name("site-development.save-documents");
     Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
+    Route::get('/preview-img/{site_id}', 'SiteDevelopmentController@previewImage')->name("site-development.preview-image");
+    Route::get('/latest-reamrks/{website_id}', 'SiteDevelopmentController@latestRemarks')->name("site-development.latest-reamrks");
     Route::prefix('{id}')->group(function () {
         Route::get('list-documents', 'SiteDevelopmentController@listDocuments')->name("site-development.list-documents");
         Route::prefix('remarks')->group(function () {
@@ -115,6 +117,7 @@ Route::prefix('site-development')->group(function () {
 Route::prefix('site-development-status')->group(function () {
     Route::get('/', 'SiteDevelopmentStatusController@index')->name('site-development-status.index');
     Route::get('records', 'SiteDevelopmentStatusController@records')->name('site-development-status.records');
+    Route::get('stats', 'SiteDevelopmentStatusController@statusStats')->name('site-development-status.stats');
     Route::post('save', 'SiteDevelopmentStatusController@save')->name('site-development-status.save');
     Route::post('merge-status', 'SiteDevelopmentStatusController@mergeStatus')->name('site-development-status.merge-status');
     Route::prefix('{id}')->group(function () {
