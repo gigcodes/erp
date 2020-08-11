@@ -851,6 +851,7 @@ class TwilioController extends FindByNumberController
 
             $twilio_number_id = $request->twilio_number_id;
             $new_forwarded_no = $request->area_code.''.$request->phone_no;
+            $base_url = env('APP_URL');
             //get number details
             $number_details = TwilioActiveNumber::where('id',$twilio_number_id)->first();
             //update webhook url on twilio console using api
@@ -858,7 +859,8 @@ class TwilioController extends FindByNumberController
             curl_setopt($ch, CURLOPT_URL, 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/IncomingPhoneNumbers/'.$number_details->sid.'.json');
             curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
             curl_setopt($ch, CURLOPT_POST, 1);
-            curl_setopt($ch, CURLOPT_POSTFIELDS,"VoiceUrl=http://5be3e7a64b37.ngrok.io/run-webhook/".$number_details->sid."");
+            //curl_setopt($ch, CURLOPT_POSTFIELDS,"VoiceUrl=http://5be3e7a64b37.ngrok.io/run-webhook/".$number_details->sid."");
+            curl_setopt($ch, CURLOPT_POSTFIELDS,"VoiceUrl=".$base_url."/run-webhook/".$number_details->sid."");
             curl_setopt($ch, CURLOPT_USERPWD, $sid . ':' . $token);
             $result = curl_exec($ch);
             if (curl_errno($ch)) {
