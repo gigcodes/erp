@@ -82,7 +82,7 @@
                         </select>
                     </div>
 
-                  <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
+                  <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                 </form>
             </div>
             <div class="pull-right">
@@ -233,9 +233,9 @@
                   <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
                     <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
-                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img title="View order" src="/images/view.png" /></a>
+                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
                   <a class="btn btn-image send-invoice-btn" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
-                    <img title="Send Invoice" src="/images/purchase.png" />
+                    <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
                   </a>
                   <a title="Preview Order" class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
                     <i class="fa fa-hourglass"></i>
@@ -253,16 +253,28 @@
                     </a>
                   @endif
                   {{-- @can('order-edit')
-                  <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
+                  <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
                   @endcan --}}
 
                   {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img title="Archive Order" src="/images/archive.png" /></button>
+                  <button type="submit" class="btn btn-image"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
                   {!! Form::close() !!}
-
+                  <?php
+                  if($order->auto_emailed)
+                  {
+                    $title_msg = "Resend Email";
+                  }
+                  else
+                  {
+                    $title_msg = "Send Email"; 
+                  }
+                  ?>
+                  <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn" data-id="{{ $order->id }}" href="javascript:;">
+                      <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                  </a>
                   @if(auth()->user()->checkPermission('order-delete'))
                     {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img title="Delete Order" src="/images/delete.png" /></button>
+                    <button type="submit" class="btn btn-image"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
                     {!! Form::close() !!}
                   @endif
                 </div>
@@ -376,7 +388,31 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: "/order/"+$this.data("id")+"/send-invoice",
+          url: BASE_URL+"order/"+$this.data("id")+"/send-invoice",
+          type: "get",
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done(function(response) {
+           if(response.code == 200) {
+             toastr['success'](response.message);
+           }else{
+             toastr['error'](response.message);
+           }
+           $("#loading-image").hide(); 
+        }).fail(function(errObj) {
+           $("#loading-image").hide();
+        });
+    });
+
+    $(document).on("click",".send-order-email-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: BASE_URL+"order/"+$this.data("id")+"/send-order-email",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -397,7 +433,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: "/order/"+$this.data("id")+"/add-invoice",
+          url: BASE_URL+"order/"+$this.data("id")+"/add-invoice",
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');

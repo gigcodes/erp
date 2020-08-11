@@ -25,8 +25,9 @@ use App\Payment;
 use App\PaymentMethod;
 use App\Team;
 use App\DeveloperTask;
-
+use App\UserAvaibility;
 use DB;
+use Illuminate\Support\Arr;
 
 class UserManagementController extends Controller
 {
@@ -820,6 +821,85 @@ class UserManagementController extends Controller
         return response()->json([
             "code"       => 200,
             "message"       => 'Unauthorized access'
+        ]);
+    }
+
+    public function saveUserAvaibility(Request $request) {
+        // $this->validate($request, [
+		// 	'user_id' => 'required',
+		// 	'from' => 'required',
+		// 	'to' => 'required',
+		// 	'day' => 'required',
+		// 	'status' => 'required',
+        // ]);
+        if(!$request->user_id || $request->user_id == "" || !$request->day || $request->day == "") {
+            return response()->json([
+                "code"       => 500,
+                "error"       => 'User name and day is required'
+            ]);
+        }
+        if($request->status == 1) {
+            if(!$request->from || $request->from == "" || !$request->to || $request->to == "") {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'From and To is required'
+                ]);
+            }
+            if($request->to <= $request->from) {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'Put time in 24 hours format'
+                ]);
+            }
+        }
+
+        $note = trim($request->note);
+        if(!$request->status) {
+            
+            if(!$note || $note == "") {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'Please provide reason for absence'
+                ]);
+            }
+        }
+        $nextDay = 'next '.$request->day;
+        $day = date('Y-m-d', strtotime($nextDay));
+        $user_avaibility = new UserAvaibility;
+        $user_avaibility->date = $day;
+        $user_avaibility->from = $request->from;
+        $user_avaibility->user_id = $request->user_id;
+        $user_avaibility->to = $request->to;
+        $user_avaibility->status = $request->status;
+        $user_avaibility->note = $note;
+        $user_avaibility->save();
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'Successful'
+        ]);
+        
+    }
+
+    public function userAvaibility($id) {
+        $user = User::find($id);
+        $today = date('Y-m-d');
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        foreach($avaibility as $av) {
+            $av->day = date('D', strtotime($av['date']));
+        }
+        $avaibility = $avaibility->toArray();
+        return response()->json([
+            "code"       => 200,
+            "user"       => $user,
+            "avaibility" => $avaibility
+        ]);
+    }
+    public function userAvaibilityUpdate($id, Request $request) {
+        UserAvaibility::find($id)->update(['status' => $request->status, 'note' => $request->note]);
+        
+        return response()->json([
+            "code"       => 200,
+            "user"       => 'Success'
         ]);
     }
 
