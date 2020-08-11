@@ -50,7 +50,7 @@ class PublishPost
             $instagram->setProxy($account->proxy);
         }else{
 
-            Log::error('Something went wrong: Proxy Not Set For Account '.$account->last_name;
+            Log::error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
 
             $post->status  = 2;
             $post->comment = 'Something went wrong: Proxy Not Set For Account '.$account->last_name;

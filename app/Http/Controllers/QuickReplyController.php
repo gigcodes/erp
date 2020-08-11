@@ -136,16 +136,28 @@ class QuickReplyController extends Controller
 
     public function saveStoreWiseReply(Request $request){
         try {
-            Reply::create([
-               'category_id' => $request->category_id,
-               'store_website_id' => $request->store_website_id,
-               'reply' => $request->reply,
-               'model' => 'Store Website'
-            ]);
-            return new JsonResponse(['status' => 1, 'data' =>  $request->reply]);
+            if(isset($request->reply_id)){
+                //update reply
+                Reply::where('id','=',$request->reply_id)->update([
+                    'reply' => $request->reply,
+                ]);
+                return new JsonResponse(['status' => 1, 'data' =>  $request->reply, 'message' => 'Reply updated successfully']);
+            }else{
+                Reply::create([
+                    'category_id' => $request->category_id,
+                    'store_website_id' => $request->store_website_id,
+                    'reply' => $request->reply,
+                    'model' => 'Store Website'
+                ]);
+                return new JsonResponse(['status' => 1, 'data' =>  $request->reply, 'message' => 'Reply added successfully']);
+            }
         } catch (\Exception $e) {
             return new JsonResponse(['status' => 0, 'message' => 'Try again']);
         }
     }
+
+
+
+
 
 }

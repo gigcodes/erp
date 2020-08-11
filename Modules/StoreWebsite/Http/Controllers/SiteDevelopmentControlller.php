@@ -8,7 +8,9 @@ use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
 use App\User;
+use App\SiteDevelopmentArtowrkHistory;
 use DB;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -35,7 +37,6 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories = $categories->whereNotIn('id', $ignoredCategory);
         }
-
         $categories = $categories->paginate(Setting::get('pagination'));
 
         //Getting Roles Developer
@@ -130,13 +131,40 @@ class SiteDevelopmentController extends Controller
             $site->html_designer = $request->text;
         }
 
+        if ($request->type == 'artwork_status') {
+            $old_artwork = $site->artwork_status;
+            if(!$old_artwork || $old_artwork == '') {
+                $old_artwork = 'Yes';
+            }
+            $new_artwork = $request->text;
+            $site->artwork_status = $request->text;
+        }
+
         $site->site_development_category_id = $request->category;
         $site->website_id                   = $request->websiteId;
-
         $site->save();
+
+        if ($request->type == 'artwork_status') {
+            $history = new SiteDevelopmentArtowrkHistory;
+            $history->date = date('Y-m-d');
+            $history->site_development_id = $site->id;
+            $history->from_status = $old_artwork;
+            $history->to_status = $new_artwork;
+            $history->username = Auth::user()->name;
+            $history->save();
+        }
 
         return response()->json(["code" => 200, "messages" => 'Site Development Saved Sucessfully']);
 
+    }
+
+    public function getArtworkHistory($site_id) {
+        $site = SiteDevelopment::find($site_id);
+        $histories = [];
+        if($site) {
+            $histories = SiteDevelopmentArtowrkHistory::where('site_development_id',$site->id)->get();
+        }
+        return response()->json(["code" => 200, "data" => $histories]);
     }
 
     public function editCategory(Request $request)
@@ -157,8 +185,7 @@ class SiteDevelopmentController extends Controller
         $store_website_id = $request->store_website_id;
 
         if ($category != null && $store_website_id != null) {
-
-            if ($request->status == "false") {
+            if ($request->status) {
                 \App\SiteDevelopmentHiddenCategory::where('store_website_id', $request->store_website_id)->where('category_id', $request->category)->delete();
             } else {
                 $siteDevHiddenCat = \App\SiteDevelopmentHiddenCategory::updateOrCreate(
@@ -166,7 +193,6 @@ class SiteDevelopmentController extends Controller
                     ['store_website_id' => $request->store_website_id, 'category_id' => $request->category]
                 );
             }
-
             return response()->json(["code" => 200, "data" => [], "message" => "Data updated Sucessfully"]);
         }
 
@@ -375,6 +401,17 @@ class SiteDevelopmentController extends Controller
         // ->orderBy("store_development_remarks.created_at","desc")
         // ->get();
         return response()->json(["code" => 200 , "data" => $remarks]);
+    }
+
+    public function allartworkHistory($website_id) {
+            $histories = \App\SiteDevelopment::
+            join("site_development_artowrk_histories","site_development_artowrk_histories.site_development_id","site_developments.id")
+            ->join("site_development_categories","site_development_categories.id","site_developments.site_development_category_id")
+            ->where('site_developments.website_id', $website_id)
+            ->select("site_development_artowrk_histories.*",'site_development_categories.title')
+            ->get();
+        $title = 'Multi site artwork histories';
+        return response()->json(["code" => 200 , "data" => $histories]);
     }
 
 }

@@ -161,54 +161,55 @@ var getHtml = function(response) {
 
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
-                    button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
+                    
+                    button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
                 }
 
                 if (message.status == 0 || message.status == 5) {
-                  button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
+                  button += '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
                 }
-                button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+                button += '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
             } else if (message.status == 4) {
             } else {
                 if ( message.type == "customer") {
                     if (message.error_status == 1) {
-                        button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                        button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
                      } else if (message.error_status == 2) {
-                       button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                       button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
                      }
 
                      if (!message.approved) {
                          if (is_admin || is_hod_crm) {
-                            approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
+                            approveBtn = "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
                             button += approveBtn;
                             button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
-                            button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
+                            button += ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' + message.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
                          }
                      }
-                     button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message">Resend</button>';
+                     button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
                 }
 
 
 
                 if (message.type == "task" || message.type == "vendor") {
-                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                    button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
                     if(message.type != "vendor") {
                         button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
                     }
                 }
 
                 if (message.type == "vendor") {
-                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" />';
+                    button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
                 }
             }
         }
-        button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
+        button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + message.id + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
 
         if (message.inout == 'out' || message.inout == 'in') {
-            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>';
+            button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
         if (message.inout == 'in') {
             li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
