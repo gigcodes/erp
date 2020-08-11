@@ -18,6 +18,7 @@ use App\StoreWebsite;
 use App\StoreWebsiteTwilioNumber;
 use App\TwilioActiveNumber;
 use App\TwilioCallForwarding;
+use App\TwilioCredential;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Twilio\Jwt\ClientToken;
 use Twilio\Twiml;
@@ -791,16 +792,31 @@ class TwilioController extends FindByNumberController
         }
     }
 
-    public function manageNumbers()
+    public function manageNumbers(Request $request)
     {
         try {
-            //get all numbers of twilio
-            $sid = env('TWILIO_ACCOUNT_SID');
-            $numbers = TwilioActiveNumber::where('account_sid', '=', $sid)->with('assigned_stores.store_website')->get();
-            $store_websites = StoreWebsite::all();
-            return view('twilio.manage-numbers', compact('numbers', 'store_websites'));
-        } catch (\Exception $e) {
+            $twilio_accounts = TwilioCredential::where(['status' => true])->get();
+            if(count($twilio_accounts) > 0){
+                //get all numbers of twilio
+                $id = $request->get('id');
+                if($id != null){
+                    try {
+                        $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+                        $sid = $check_account->account_id;
+                        $numbers = TwilioActiveNumber::where('account_sid', '=', $sid)->with('assigned_stores.store_website')->get();
+                        $store_websites = StoreWebsite::all();
+                        return view('twilio.manage-numbers', compact('numbers', 'store_websites','twilio_accounts','sid'));
+                    } catch (\Exception $e) {
+                        return redirect('/twilio/manage-numbers')->WithErrors(['Undefined id']);
+                    }
+                }
 
+                return view('twilio.manage-numbers', compact('twilio_accounts'));
+
+            }
+
+        } catch (\Exception $e) {
+            return redirect()->back()->with('error',$e->getMessage());
         }
     }
 
@@ -822,20 +838,29 @@ class TwilioController extends FindByNumberController
 
     }
 
-    public function CallRecordings()
+    public function CallRecordings(Request $request)
     {
-        $sid = env('TWILIO_ACCOUNT_SID');
-        $token = env('TWILIO_AUTH_TOKEN');
-        $twilio = new Client($sid, $token);
-        $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/Recordings.json?__referrer=runtime&Format=json&PageSize=100&Page=0';
-        $result = TwilioHelper::fetchNumbers($url, $sid, $token);
-        $result = json_decode($result);
-        return view('twilio.manage-recordings', compact('result'));
+        try {
+            $id = $request->get('id');
+            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $sid = $check_account->account_id;
+            $token = $check_account->auth_token;
+            $twilio = new Client($sid, $token);
+            $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/Recordings.json?__referrer=runtime&Format=json&PageSize=100&Page=0';
+            $result = TwilioHelper::fetchNumbers($url, $sid, $token);
+            $result = json_decode($result);
+            return view('twilio.manage-recordings', compact('result'));
+        } catch (\Exception $e) {
+            return redirect('twilio/manage-numbers')->withErrors(['Undefined twilio account']);
+        }
+
     }
 
-    public function downloadRecording($recording_id)
+    public function downloadRecording(Request $request, $recording_id)
     {
-            $sid = env('TWILIO_ACCOUNT_SID');
+            $id = $request->get('id');
+            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $sid = $check_account->account_id;
             $file = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Recordings/'.$recording_id.'.mp3';
             header("Content-type: application/x-file-to-save");
             header("Content-Disposition: attachment; filename=".basename($file));
@@ -846,9 +871,10 @@ class TwilioController extends FindByNumberController
     public function callForwarding(Request $request)
     {
         try {
-            $sid = env('TWILIO_ACCOUNT_SID');
-            $token = env('TWILIO_AUTH_TOKEN');
-
+            $id = $request->twilio_account_id;
+            $check_account = TwilioCredential::where(['id' => $id])->first();
+            $sid = $check_account->account_id;
+            $token = $check_account->auth_token;
             $twilio_number_id = $request->twilio_number_id;
             $new_forwarded_no = $request->area_code.''.$request->phone_no;
             $base_url = env('APP_URL');

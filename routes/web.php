@@ -2028,7 +2028,7 @@ Route::group(['middleware' => 'auth'], function () {
      * Twilio account management
      */
     Route::get('get-twilio-numbers', 'TwilioController@getTwilioActiveNumbers');
-    Route::get('twilio/manage-numbers', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+    Route::get('twilio/manage-numbers/{id?}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::get('twilio/call-recordings', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');

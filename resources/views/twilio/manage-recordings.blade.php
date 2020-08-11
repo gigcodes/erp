@@ -61,7 +61,7 @@
                                     <td>{{ $res->price }}</td>
                                     <td>{{ $res->price_unit }}</td>
                                     <td>{{ $res->source }}</td>
-                                    <td><a href="{{ route('download-mp3', $res->sid) }}">Download Mp3</a></td>
+                                    <td><a href="{{ route('download-mp3', $res->sid).'?id='.request()->get('id') }}">Download Mp3</a></td>
                                 </tr>
                             @endforeach
                         @endif
