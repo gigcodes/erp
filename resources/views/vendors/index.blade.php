@@ -43,6 +43,9 @@
     }
     .cls_remove_rightpadding{
         padding-right: 0px !important;
+    }
+    .cls_action_btn .btn{
+        padding: 6px 5px;
     }    
 
   </style>
@@ -177,17 +180,6 @@
                
                 <th width="20%">Communication</th>
                 <th width="2%">Action</th>
-            </tr>
-
-            <tr>
-                <th width="5%"><input type="text" id="id" class="search form-control" placeholder="Id"></th>
-                <th width="5%"><input type="text" id="category" class="search form-control" placeholder="Category"></th>
-                <th width="10%"><input type="text" id="name" class="search form-control" placeholder="Name" name="name"></th>
-                <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
-                <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
-                <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
             </tr>
             </thead>
 
@@ -1008,7 +1000,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/reply/add",
+                          url: BASE_URL+"/vendors/reply/add",
                           dataType: "json",
                           method: "POST",
                           data: {reply: message}
@@ -1031,7 +1023,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/reply/delete",
+                          url: BASE_URL+"/vendors/reply/delete",
                           dataType: "json",
                           method: "GET",
                           data: {id: deleteAuto}
@@ -1070,7 +1062,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/create-user",
+                          url: BASE_URL+"/vendors/create-user",
                           dataType: "json",
                           method: "POST",
                           data: {id: id},
@@ -1118,7 +1110,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendors/inviteHubstaff",
+                url: BASE_URL+"vendors/inviteHubstaff",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email

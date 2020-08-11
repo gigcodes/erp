@@ -59,7 +59,7 @@
 
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;">
+    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
         <div class="row">
             <div class="col-md-12 form-inline">
                 <div class="row">
@@ -75,68 +75,32 @@
                 <div class="communication-div-5">
                     <div class="row">
                         <div class="col-md-12">
-                                <div class="col-md-12" style="padding: 8px;">
-                                @if(isset($vendor->chat_messages[0])) 
-                                    <span class="message-chat-txt" id="message-chat-txt-{{ $vendor->id }}" data-toggle="popover" data-placement="top" data-content="{{$vendor->chat_messages[0]}}">
-                                    {{ strlen($vendor->chat_messages[0]->message) > 20 ? substr($vendor->chat_messages[0]->message, 0, 20) . '...' : $vendor->chat_messages[0]->message }}
-                                    </span>
-                                @endif    
-                                @if(isset($vendor->message)) 
-                                    <span class="message-chat-txt" id="message-chat-txt-{{ $vendor->id }}" data-toggle="popover" data-placement="top" data-content="{{$vendor->message}}">
-                                    {{ strlen($vendor->message) > 20 ? substr($vendor->message, 0, 20) . '...' : $vendor->message }}
-                                    </span>
-                                @endif
-                                </div>
-                                <div class="col-md-12">
-                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="<?php echo $base_url;?>/images/chat.png" alt=""></button>
-                                    <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
-                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="<?php echo $base_url;?>/images/archive.png" alt=""></button>
-                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="5" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="" data-is_hod_crm="" title="Load PDF"><img alt="" src="<?php echo $base_url;?>/images/icon-pdf.svg" style="cursor: default;"></button>
-                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="5" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="" data-is_hod_crm="" title="Load Broadcast"><img alt="" src="<?php echo $base_url;?>/images/customer-suggestion.png" style="cursor: default;"></button>
-                                    <a href="javascript:;" data-message="Greetings from Solo Luxury. We have received your order. This is our whatsapp number to assist you with order related queries. You can contact us between 9.00 am - 5.30 pm on 0008000401700. Thank you." class="btn btn-xs btn-image add-chat-phrases" title="Add phrases"><img alt="" src="<?php echo $base_url;?>/images/add.png" style="cursor: default;"></a>
-                                </div>
+                            <div class="col-md-12" style="padding: 3px;">
+                            @if(isset($vendor->chat_messages[0])) 
+                                <span class="message-chat-txt" id="message-chat-txt-{{ $vendor->id }}" data-toggle="popover" data-placement="top" data-content="{{$vendor->chat_messages[0]}}">
+                                {{ strlen($vendor->chat_messages[0]->message) > 20 ? substr($vendor->chat_messages[0]->message, 0, 20) . '...' : $vendor->chat_messages[0]->message }}
+                                </span>
+                            @endif    
+                            @if(isset($vendor->message)) 
+                                <span class="message-chat-txt" id="message-chat-txt-{{ $vendor->id }}" data-toggle="popover" data-placement="top" data-content="{{$vendor->message}}">
+                                {{ strlen($vendor->message) > 20 ? substr($vendor->message, 0, 20) . '...' : $vendor->message }}
+                                </span>
+                            @endif
+                            </div>
                         </div>
+                        <div style="margin-top:5px;" class="col-md-12">
+                            <div class="d-flex">
+                                <?php echo Form::select("quickComment",["" => "--Auto Reply--"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
+                                <a class="btn btn-image delete_quick_comment"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
+                            </div>
+                        </div> 
                     </div>
                 </div>        
-            </div>
-            <div class="col-md-12" style="padding-top: 7px;">
-                <div class="row">
-                    <div class="col-md-10 cls_remove_rightpadding">
-                        <select class="form-control" name="group" id="group5" data-placeholder="Select Group" tabindex="-1" aria-hidden="true">
-                                <option value="9"> 9</option>
-                                <option value="8"> 30 </option>
-                                <option value="7"> 30 </option>
-                                <option value="6"> 30 </option>
-                                <option value="5"> 12 </option>
-                                <option value="4"> 12 </option>
-                                <option value="3"> 12 </option>
-                                <option value="2"> 2</option>
-                                <option value="1"> 1</option>
-                        </select>
-                    </div>
-                    <div class="col-md-2 cls_remove_leftpadding">
-                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image send-group " data-customerid="5">
-                        <img src="<?php echo $base_url;?>/images/filled-sent.png"></button>
-                    </div>
-                </div>
-            </div>  
-            <div class="col-md-12 send_pdf_selectbox_box" style="padding-top: 2px;">
-                <div class="row">
-                    <div class="col-md-10 cls_remove_rightpadding">
-                        <select class="send_pdf_selectbox form-control" name="send_pdf" id="send_pdf5" data-placeholder="Select PDF">
-                        </select>
-                    </div>
-                    <div class="col-md-2 cls_remove_leftpadding">
-                        <button style="display: inline;width: 5%" class="btn btn-sm btn-image send-pdf " data-customerid="5">
-                            <img src="<?php echo $base_url;?>/images/filled-sent.png">
-                        </button>
-                    </div>
-                </div>    
-            </div>  
+            </div> 
         </div>
     </td>
     <td>
-        <div style="width: 233px;">
+        <div class="cls_action_btn" style="width: 233px;">
             <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
 
             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
