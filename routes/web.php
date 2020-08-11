@@ -300,6 +300,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
+  Route::prefix('store-website')->middleware('auth')->group(static function () {
+        Route::get('/status/all', 'OrderController@viewAllStatuses')->name('store-website.all.status');
+        Route::get('/status/edit/{id}', 'OrderController@viewEdit')->name('store-website.status.edit');
+        Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
+        Route::get('/status/create', 'OrderController@viewCreateStatus');
+        Route::post('/status/create', 'OrderController@createStatus')->name('store-website.submit.status');
+        Route::get('/status/fetch', 'OrderController@viewFetchStatus');
+        Route::post('/status/fetch', 'OrderController@fetchStatus')->name('store-website.fetch.status');
+        Route::get('/status/fetchMasterStatus/{id}', 'OrderController@fetchMasterStatus');
+    });
+
+
+
+
     //plesk
     Route::prefix('plesk')->middleware('auth')->group(static function () {
         Route::get('/domains', 'PleskController@index')->name('plesk.domains');
@@ -321,7 +335,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::get('/social/account/create', 'ContentManagementController@viewAddSocialAccount')->name('content-management.social.create');
         Route::post('/social/account/create', 'ContentManagementController@addSocialAccount')->name('content-management.social.submit');
         Route::get('/manage/{id}', 'ContentManagementController@manageContent')->name('content-management.manage');
+        Route::get('/manage/task-list/{id}', 'ContentManagementController@getTaskList')->name('content-management.manage.task-list');
         Route::get('/manage/preview-img/{id}', 'ContentManagementController@previewCategoryImage')->name('content-management.manage.preview-img');
+        Route::get('/manage/milestone-task/{id}', 'ContentManagementController@getTaskMilestones')->name('content-management.manage.milestone-task');
         Route::post('/manage/save-category', 'ContentManagementController@saveContentCategory')->name('content-management.manage.save-category');
         Route::post('/manage/edit-category', 'ContentManagementController@editCategory')->name("content-management.category.edit");
         Route::post('/manage/save-content', 'ContentManagementController@saveContent')->name('content-management.manage.save-content');
@@ -329,6 +345,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save-documents', 'ContentManagementController@saveDocuments')->name("content-management.save-documents");
         Route::post('/delete-document', 'ContentManagementController@deleteDocument')->name("content-management.delete-documents");
         Route::post('/send-document', 'ContentManagementController@sendDocument')->name("content-management.send-documents");
+        Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
         Route::prefix('{id}')->group(function () {
         Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {
@@ -390,6 +407,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/emailAdvanceReceipt', 'OrderController@emailAdvanceReceipt')->name('order.advance.receipt.email');
     Route::get('order/{id}/generateInvoice', 'OrderController@generateInvoice')->name('order.generate.invoice');
     Route::get('order/{id}/send-invoice', 'OrderController@sendInvoice')->name('order.send.invoice');
+    Route::get('order/{id}/send-order-email', 'OrderController@sendOrderEmail')->name('order.send.email');
+
     Route::get('order/{id}/preview-invoice', 'OrderController@previewInvoice')->name('order.perview.invoice');
     Route::post('order/{id}/createProductOnMagento', 'OrderController@createProductOnMagento')->name('order.create.magento.product');
     Route::get('order/{id}/download/PackageSlip', 'OrderController@downloadPackageSlip')->name('order.download.package-slip');
@@ -405,6 +424,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('orders/download', 'OrderController@downloadOrderInPdf');
     Route::get('order/change-status', 'OrderController@statusChange');
     Route::get('order/invoices', 'OrderController@viewAllInvoices');
+
     Route::get('order/{id}/edit-invoice', 'OrderController@editInvoice')->name('order.edit.invoice');
     Route::post('order/edit-invoice', 'OrderController@submitEdit')->name('order.submitEdit.invoice');
     Route::get('order/{id}/add-invoice', 'OrderController@addInvoice')->name('order.add.invoice');
@@ -1448,6 +1468,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
 Route::resource('quick-reply', 'QuickReplyController');
 Route::resource('social-tags', 'SocialTagsController')->middleware('auth');
 
+
 Route::get('test', 'WhatsAppController@getAllMessages');
 
 Route::resource('track', 'UserActionsController');
@@ -1841,6 +1862,17 @@ Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {
     Route::get('coupons/report', 'CouponController@showReport');
 });
 
+Route::get('keywordassign', 'KeywordassignController@index')->name('keywordassign.index');
+Route::get('keywordassign/load', 'KeywordassignController@loadData');
+Route::get('keywordassign/create', 'KeywordassignController@create')->name('keywordassign.create');
+Route::post('keywordassign/store', 'KeywordassignController@store')->name('keywordassign.store');
+Route::post('keywordassign/taskcategory', 'KeywordassignController@taskcategory')->name('keywordassign.taskcategory');
+Route::get('keywordassign/{id}', 'KeywordassignController@edit');
+Route::post('keywordassign/{id}/update', 'KeywordassignController@update');
+Route::get('keywordassign/{id}/destroy', 'KeywordassignController@destroy');
+
+
+
 Route::post('attachImages/queue', 'ProductController@queueCustomerAttachImages')->name('attachImages.queue');
 Route::group(['middleware' => 'auth'], function () {
     Route::prefix('tmp-task')->group(function () {
@@ -2025,3 +2057,10 @@ Route::group(['middleware' => 'auth'], function () {
     Route::resource('shipment', 'ShipmentController');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
+
+/*
+ * Quick Reply Page
+ * */
+Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
+Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
+Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
