@@ -2559,17 +2559,19 @@ class WhatsAppController extends FindByNumberController
                     if(!empty($users)) {
                         foreach($users as $user) {
                             $user = User::find($user);
-                            $params[ 'message' ] = $request->get('message');
-                            $params[ 'site_development_id' ] = $request->get('site_development_id');
-                            $params[ 'approved' ] = 1;
-                            $params[ 'status' ] = 2;
-                            $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
-                            $chat_message = ChatMessage::create($params);
+                            if($user) {
+                                $params[ 'message' ] = $request->get('message');
+                                $params[ 'site_development_id' ] = $request->get('site_development_id');
+                                $params[ 'approved' ] = 1;
+                                $params[ 'status' ] = 2;
+                                $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                                $chat_message = ChatMessage::create($params);
+                                return response()->json(['message' => $chat_message],200);
+                            }    
                         }
                     }
+                    return response()->json(['message' => 'No user selected'],500);
                     
-                    return response()->json(['message' => $chat_message]);
-                
                 }
                 elseif ($context == 'content_management') {
                     $chat_message = null;

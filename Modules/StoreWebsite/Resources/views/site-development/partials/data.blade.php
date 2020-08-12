@@ -62,7 +62,7 @@
     			@endif
     			<div class="d-flex">
                     <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-@if($site){{ $site->id }}@endif">
-                    <button class="btn btn-sm btn-image send-message-site" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
+                    <button class="btn btn-sm btn-image send-message-site" data-category="{{ $category->id }}" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
                     <br/>
                 </div>
                 <div class="d-flex">
@@ -110,19 +110,19 @@
             </td>
             <td colspan="2">
             <select style="margin-top: 5px;" class="form-control save-item-select developer" data-category="{{ $category->id }}" data-type="developer" data-site="@if($site){{ $site->id }}@endif" name="developer_id" id="user-@if($site){{ $site->id }}@endif">
-    				<option>Select Developer</option>
+    				<option value="">Select Developer</option>
     				@foreach($users as $user)
     					<option value="{{ $user->id }}" @if($site && $site->developer_id == $user->id) selected @endif >{{ $user->name }}</option>
     				@endforeach
     			</select>  
             <select style="margin-top: 5px;" name="designer_id" class="form-control save-item-select designer" data-category="{{ $category->id }}" data-type="designer_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
-                    <option>Select Designer</option>
+                    <option value="">Select Designer</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}"@if($site && $site->designer_id == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
                 </select>
                 <select style="margin-top: 5px;" name="html_designer" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="html_designer" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
-                    <option>Select Html</option>
+                    <option value="">Select Html</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
