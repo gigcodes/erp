@@ -27,7 +27,7 @@
 </style>
 @endsection
 
-@section('content')
+@section('large_content')
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -226,8 +226,6 @@
               <td></td> --}}
               {{-- <td>{{ $order->action->status }}</td>
               <td>{{ $order->action->completion_date ? Carbon\Carbon::parse($order->action->completion_date)->format('d-m') : '' }}</td> --}}
-
-
               <td>
                 <div class="d-flex">
                   <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
