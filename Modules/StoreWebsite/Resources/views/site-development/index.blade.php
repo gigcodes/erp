@@ -542,24 +542,27 @@
 
 	$(document).on('click', '.send-message-site', function() {
 		var $this = $(this);
-		site = $(this).data("id")
+		site = $(this).data("id");
+		category = $(this).data("category");
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
 
 		var users = [];
+		
+		var hidden_row_class = 'hidden_row_'+category;
+		
 		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='developer_id']").val();
+			var value = $('.hidden_row_'+category).find("select[name='developer_id']").val();
 			users.push(value);
 		}
 		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='designer_id']").val();
+			var value = $('.hidden_row_'+category).find("select[name='designer_id']").val();
 			users.push(value);
 		}
 		if($this.closest("tr").find("input[name='html']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='html_designer']").val();
+			var value = $('.hidden_row_'+category).find("select[name='html_designer']").val();
 			users.push(value);
 		}
-
 		if(users.length <= 0){
 			alert('Please Select User');
 		}else if(site){
