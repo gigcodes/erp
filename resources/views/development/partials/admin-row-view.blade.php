@@ -26,7 +26,7 @@
     <td style="vertical-align: middle;word-break: break-all;"><p>{{ $issue->subject ?? 'N/A' }}</p> </td>
     <td class="expand-row">
     <!-- class="expand-row" -->
-    {{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}
+    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
     <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
     <?php echo Form::select("send_message_".$issue->id,[
                         "to_developer" => "Send To Developer",

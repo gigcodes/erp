@@ -13,8 +13,7 @@
     <td>{{ $issue->subject }}</td>
     
     <td>
-    {{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}
-        {{ $issue->task }}
+    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
         @if ($issue->getMedia(config('constants.media_tags'))->first())
             <br>
             @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
