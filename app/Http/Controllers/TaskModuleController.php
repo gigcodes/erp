@@ -439,12 +439,18 @@ class TaskModuleController extends Controller {
 			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
 			$from_exist = in_array($task->assign_from, $user_ids_from);
 			if($from_exist) {
-				$search_term_suggestions[] = User::find($task->assign_from)->name;
+				$from_user = User::find($task->assign_from);
+				if($from_user) {
+					$search_term_suggestions[] = $from_user->name;
+				}
 			}
 
 			$to_exist = in_array($task->assign_to, $user_ids_to);
 			if($to_exist) {
-				$search_term_suggestions[] = User::find($task->assign_to)->name;;
+				$to_user = User::find($task->assign_to);
+				if($to_user) {
+					$search_term_suggestions[] = $to_user->name;
+				}
 			}			
 			$search_term_suggestions[] = "$task->id";
 			$search_term_suggestions[] = $task->task_subject;
