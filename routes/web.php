@@ -460,6 +460,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
 
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
+    // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
     Route::post('task/flag', 'TaskModuleController@flag')->name('task.flag');
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
     Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
