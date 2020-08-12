@@ -2,8 +2,17 @@
 
 <tr style="color:grey;">
     <td  >
-        <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
+
+    <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+            @if($issue->is_resolved==0)	
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+            @endif	
         </a>
+
+
+        
+        <!-- <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
+        </a> -->
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
         <br>
@@ -26,7 +35,7 @@
     <td style="vertical-align: middle;word-break: break-all;"><p>{{ $issue->subject ?? 'N/A' }}</p> </td>
     <td class="expand-row">
     <!-- class="expand-row" -->
-    {{ \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}
+    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
     <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
     <?php echo Form::select("send_message_".$issue->id,[
                         "to_developer" => "Send To Developer",

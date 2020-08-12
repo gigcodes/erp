@@ -136,6 +136,7 @@ Route::prefix('v1')->group(function () {
 
 // Scraper ready api
 Route::post('scraper/ready','ScrapController@scraperReady');
+Route::post('scraper/completed','ScrapController@scraperCompleted');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
 Route::get('scraper-needed-products','ScrapController@scraperNeeded');
 

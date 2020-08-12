@@ -47,7 +47,6 @@ class TaskModuleController extends Controller {
 			$category = $request->category;
 		}
 
-		// dd($request->all());
 		$term = $request->term ?? "";
 		$searchWhereClause = '';
 
@@ -88,6 +87,9 @@ class TaskModuleController extends Controller {
 			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
 			ORDER BY is_flagged DESC, message_created_at DESC;
 					 ');
+
+					 
+					 
 			//task pending backup
 
 			// $data['task']['pending'] = DB::select('
@@ -393,15 +395,13 @@ class TaskModuleController extends Controller {
 		$data['users']             = $users;
 		$data['daily_activity_date'] = $request->daily_activity_date ? $request->daily_activity_date : date('Y-m-d');
 
-		$search_suggestions = [];
-		foreach ($data['task']['pending'] as $task) {
-			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
-		}
+		// foreach ($data['task']['pending'] as $task) {
+		// }
 
 		$search_term_suggestions = [];
-		$assign_from_arr = array();
-		$special_task_arr = array();
-		$assign_to_arr = array();
+		$assign_from_arr = array(0);
+		$special_task_arr = array(0);
+		$assign_to_arr = array(0);
 		
 
 		foreach ($data['task']['pending'] as $task) {
@@ -423,27 +423,35 @@ class TaskModuleController extends Controller {
 			$search_term_suggestions[] = $task->task_details;*/
 		}
 
-		$user_ids_from = implode(",", array_unique($assign_from_arr));
-		$var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
 
-		$user_ids_to = implode(",", array_unique($assign_to_arr));
-		$var_user_name_to = DB::select('SELECT id,name from users where id IN ('.$user_ids_to.')');
+
+		// $user_ids_from = implode(",", array_unique($assign_from_arr));
+		$user_ids_from = array_unique($assign_from_arr);
+		$user_ids_to = array_unique($assign_to_arr);
+		// dd($user_ids_from);
+		// $var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
+
+		// $user_ids_to = implode(",", array_unique($assign_to_arr));
+		// $var_user_name_to = DB::select('SELECT id,name from users where id IN ('.$user_ids_to.')');
 		$search_term_suggestions = [];
+		$search_suggestions = [];
 		foreach ($data['task']['pending'] as $task) {
-			foreach ($var_user_name as $row_from) {
-				if($row_from->id == $task->assign_from)
-				{
-					$search_term_suggestions[] = $row_from->name;
+			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+			$from_exist = in_array($task->assign_from, $user_ids_from);
+			if($from_exist) {
+				$from_user = User::find($task->assign_from);
+				if($from_user) {
+					$search_term_suggestions[] = $from_user->name;
 				}
 			}
-			foreach ($var_user_name_to as $row_to) {
-				if($row_to->id == $task->assign_to)
-				{
-					$search_term_suggestions[] = $row_to->name;
+
+			$to_exist = in_array($task->assign_to, $user_ids_to);
+			if($to_exist) {
+				$to_user = User::find($task->assign_to);
+				if($to_user) {
+					$search_term_suggestions[] = $to_user->name;
 				}
-			}
-			
-			//$search_term_suggestions[] = $var_user_name_to[0]->name;
+			}			
 			$search_term_suggestions[] = "$task->id";
 			$search_term_suggestions[] = $task->task_subject;
 			$search_term_suggestions[] = $task->task_details;
@@ -478,6 +486,21 @@ class TaskModuleController extends Controller {
 
 		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
 	}
+
+
+	// public function createTask() {
+	// 	$users                     = User::oldest()->get()->toArray();
+	// 	$data['users']             = $users;
+	// 	$task_categories = TaskCategory::where('parent_id', 0)->get();
+	// 	$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
+	// 	                                        ->renderAsDropdown();
+
+	// 	$categories = [];
+	// 	foreach (TaskCategory::all() as $category) {
+	// 		$categories[$category->id] = $category->title;
+	// 	}
+	// 	return view( 'task-module.create-task',compact('data','task_categories','task_categories_dropdown','categories'));
+	// }
 
 	public function updateCost(Request $request) {
 		$task = Task::find($request->task_id);

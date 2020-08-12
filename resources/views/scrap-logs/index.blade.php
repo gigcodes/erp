@@ -88,7 +88,7 @@
 			var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
 			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
 			$.ajax({
-				url: BASE_URL+"scrap-logs/fetch/"+search+"/"+date,
+				url: BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -107,7 +107,7 @@
 	});
 	function openLasttenlogs(scraper_id){
 		$.ajax({
-			url: BASE_URL+"fetchlog",
+			url: BASE_URL+"/fetchlog",
 			method:"get",
 			headers: {
 			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
