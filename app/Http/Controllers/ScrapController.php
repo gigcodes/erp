@@ -1087,9 +1087,22 @@ class ScrapController extends Controller
     }
 
     /**
-     * Store scraper completed time
+     * Store scraper starting time
      */
     public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_started_at = Carbon::now();
+                $scraper->save();
+        }
+       return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperCompleted(Request $request)
     {
         $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
         if(!empty($scraper)) {

@@ -1,7 +1,12 @@
 <tr style="color:grey;">
     <td>
         <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+            @if($issue->is_resolved==0)	
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+            @endif	
         </a>
+
+
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
         <br>
