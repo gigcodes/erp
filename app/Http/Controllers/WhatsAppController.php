@@ -1425,6 +1425,34 @@ class WhatsAppController extends FindByNumberController
                 $to = $config[ 0 ][ 'number' ];
             }
 
+            if($customer) {
+                $exp_mesaages = explode(" ", $params[ 'message' ]);
+                for($i=0;$i<count($exp_mesaages);$i++)
+                {
+                    $keywordassign = DB::table('keywordassigns')
+                    ->select('*')
+                    ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                    ->get();
+                    if(count($keywordassign) > 0)
+                    {
+                        break;
+                    } 
+                }
+                if(count($keywordassign) > 0)
+                {
+                    $task_array =  array(
+                        "is_statutory"=>0,
+                        "task_subject"=>$customer->id,
+                        "task_details"=>$keywordassign[0]->task_description,
+                        "assign_from"=>$customer->id,
+                        "assign_to"=>$keywordassign[0]->assign_to,
+                        "created_at"=>date("Y-m-d H:i:s"),
+                        "updated_at"=>date("Y-m-d H:i:s")
+                    );
+                    DB::table('tasks')->insert($task_array);
+                }
+            }
+
             // Is this message from a customer?
             if ($customer && $isCustomerNumber) {
                 
@@ -1607,33 +1635,6 @@ class WhatsAppController extends FindByNumberController
 
                 //Create Task record
                 if(isset($customer->id) && $customer->id > 0) {
-                    $exp_mesaages = explode(" ", $params[ 'message' ]);
-                
-                    for($i=0;$i<count($exp_mesaages);$i++)
-                    {
-                        $keywordassign = DB::table('keywordassigns')
-                        ->select('*')
-                        ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
-                        ->get();
-                        if(count($keywordassign) > 0)
-                        {
-                            break;
-                        } 
-                    }
-                    if(count($keywordassign) > 0)
-                    {
-                        $task_array =  array(
-                            "is_statutory"=>0,
-                            "task_subject"=>$customer->id,
-                            "task_details"=>$keywordassign[0]->task_description,
-                            "assign_from"=>$customer->id,
-                            "assign_to"=>$keywordassign[0]->assign_to,
-                            "created_at"=>date("Y-m-d H:i:s"),
-                            "updated_at"=>date("Y-m-d H:i:s")
-                        );
-                        DB::table('tasks')->insert($task_array);
-                    }
-
                     // start to check with watson api directly
                     if(!empty($params['message'])) {
                         if ($customer && $params[ 'message' ] != '') {
