@@ -36,7 +36,6 @@ class TaskModuleController extends Controller {
 	public function index( Request $request ) {
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
-			$userid = 49;
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
