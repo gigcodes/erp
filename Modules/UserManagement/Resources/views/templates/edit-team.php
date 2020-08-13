@@ -13,6 +13,13 @@
                   <strong>Leader</strong>
                   <input type="text" value="{{:team.user.name}}" class="form-control" readonly>
 			</div>
+         <div class="form-group">
+                  <strong>Members</strong>
+                  {{props team.members}}
+                     <input style="margin-top:5px;" type="text" value="{{:prop}}" class="form-control" readonly>
+                  {{/props}}
+                  
+			</div>
 			<div class="form-group">
                   <strong>Team name</strong>
                   <input type="text" id="name" name="name" value="{{:team.name}}" class="form-control">
