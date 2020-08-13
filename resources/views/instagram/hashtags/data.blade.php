@@ -17,11 +17,11 @@
                                 </td>
                                 <td>@if($post->media_url )
                                 @if($post->media_type == 1)
-                                    <div style="display: flex; width: 150px; height: 150px; background: url('{{ json_decode($post->media_url)[0] }}'); background-size: cover;">
+                                    <div style="display: flex; width: 150px; height: 150px; background: url('@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif'); background-size: cover;">
                                     &nbsp;
                                     </div>  
                                 @elseif($post->media_type == 2)
-                                    <video controls src="{{ json_decode($post->media_url)[0] }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                    <video controls src="@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
                                 @elseif($post->media_type == 8)
                                     <?php $count = 0; ?>
                                     @foreach(json_decode($post->media_url) as $m)
