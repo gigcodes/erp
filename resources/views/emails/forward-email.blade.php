@@ -1,4 +1,4 @@
-{{ $msg }}
+{!! $msg !!}
 <br>
 <div>
     <div>---------- Forwarded message ---------</div>
