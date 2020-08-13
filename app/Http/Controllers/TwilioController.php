@@ -14,6 +14,7 @@
 
 namespace App\Http\Controllers;
 
+use App\RoleUser;
 use App\StoreWebsite;
 use App\StoreWebsiteTwilioNumber;
 use App\TwilioActiveNumber;
@@ -731,7 +732,7 @@ class TwilioController extends FindByNumberController
             $sid = env('TWILIO_ACCOUNT_SID');
             $token = env('TWILIO_AUTH_TOKEN');
             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/IncomingPhoneNumbers.json?Beta=false&PageSize=50&Page=0';
-            $result = TwilioHelper::fetchNumbers($url, $sid, $token);
+            $result = TwilioHelper::curlGetRequest($url, $sid, $token);
             $result = json_decode($result);
             if (count($result->incoming_phone_numbers) > 0) {
                 $this->saveNumber($result->incoming_phone_numbers);
@@ -739,7 +740,7 @@ class TwilioController extends FindByNumberController
             if ($result->end > 0) {
                 for ($i = 1; $i <= $result->end; $i++) {
                     $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/IncomingPhoneNumbers.json?Beta=false&PageSize=50&Page=' . $i;
-                    $result = TwilioHelper::fetchNumbers($url, $sid, $token);
+                    $result = TwilioHelper::curlGetRequest($url, $sid, $token);
                     $result = json_decode($result);
                     if (count($result->incoming_phone_numbers) > 0) {
                         $this->saveNumber($result->incoming_phone_numbers);
@@ -805,16 +806,14 @@ class TwilioController extends FindByNumberController
                         $sid = $check_account->account_id;
                         $numbers = TwilioActiveNumber::where('account_sid', '=', $sid)->with('assigned_stores.store_website')->get();
                         $store_websites = StoreWebsite::all();
-                        return view('twilio.manage-numbers', compact('numbers', 'store_websites','twilio_accounts','sid'));
+                        $customer_role_users = RoleUser::where(['role_id' => 50])->with('user')->get();
+                        return view('twilio.manage-numbers', compact('numbers', 'store_websites','twilio_accounts','sid','customer_role_users'));
                     } catch (\Exception $e) {
                         return redirect('/twilio/manage-numbers')->WithErrors(['Undefined id']);
                     }
                 }
-
                 return view('twilio.manage-numbers', compact('twilio_accounts'));
-
             }
-
         } catch (\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
         }
@@ -822,20 +821,29 @@ class TwilioController extends FindByNumberController
 
     public function assignTwilioNumberToStoreWebsite(Request $request)
     {
+        //check if same no. assigned to some store website
+        try {
+            StoreWebsiteTwilioNumber::where(['twilio_active_number_id' => $request->twilio_number_id])->firstOrFail();
+            return redirect('twilio/manage-numbers')->withErrors(['Number already assigned to another site !']);
+        } catch (\Exception $e) {
+            //do nothing
+        }
+
         //check if same store website contains another number then delete
         try {
             StoreWebsiteTwilioNumber::where(['store_website_id' => $request->store_website_id])->delete();
             //create new record
             $assign_number = StoreWebsiteTwilioNumber::create([
                 'store_website_id' => $request->store_website_id,
-                'twilio_active_number_id' => $request->twilio_number_id
+                'twilio_active_number_id' => $request->twilio_number_id,
+                'message_available' => $request->message_available,
+                'message_not_available' => $request->message_not_available,
+                'message_busy' => $request->message_busy
             ]);
-            return new JsonResponse(['data' => $assign_number, 'message' => 'Number assigned to store website successfully', 'status' => 1]);
+            return redirect()->back()->with('success','Number assigned to store website successfully');
         } catch (\Exception $e) {
-            return new JsonResponse(['message' => $e->getMessage(), 'status' => 0]);
-
+            return redirect('twilio/manage-numbers')->withErrors(['Something went wrong !']);
         }
-
     }
 
     public function CallRecordings(Request $request)
@@ -847,7 +855,7 @@ class TwilioController extends FindByNumberController
             $token = $check_account->auth_token;
             $twilio = new Client($sid, $token);
             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/Recordings.json?__referrer=runtime&Format=json&PageSize=100&Page=0';
-            $result = TwilioHelper::fetchNumbers($url, $sid, $token);
+            $result = TwilioHelper::curlGetRequest($url, $sid, $token);
             $result = json_decode($result);
             return view('twilio.manage-recordings', compact('result'));
         } catch (\Exception $e) {
@@ -876,7 +884,7 @@ class TwilioController extends FindByNumberController
             $sid = $check_account->account_id;
             $token = $check_account->auth_token;
             $twilio_number_id = $request->twilio_number_id;
-            $new_forwarded_no = $request->area_code.''.$request->phone_no;
+            $new_forwarded_no = $request->agent_id;
             $base_url = env('APP_URL');
             //get number details
             $number_details = TwilioActiveNumber::where('id',$twilio_number_id)->first();
@@ -924,6 +932,55 @@ class TwilioController extends FindByNumberController
         die;
     }
 
+    public function callManagement(Request $request)
+    {
+        $twilio_accounts = TwilioCredential::where('status',true)->get();
+        $id = $request->get('id');
+        if($id != null) {
+            $twilio_account_details = TwilioCredential::where(['id' => 1])->with('numbers.assigned_stores','numbers.forwarded.forwarded_number_details.user_availabilities')->first();
+            $customer_role_users = RoleUser::where(['role_id' => 50])->with('user')->get();
+            return view('twilio.manage-calls', compact('twilio_accounts', 'customer_role_users','twilio_account_details'));
+        }
+        return view('twilio.manage-calls', compact('twilio_accounts'));
+    }
+
+    public function getIncomingList(Request $request, $number_sid, $phone_number)
+    {
+        try {
+            $id = $request->get('id');
+            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+            $sid = $check_account->account_id;
+            $token = $check_account->auth_token;
+            $url = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Calls.json?To='.$phone_number;
+            $incoming_calls = TwilioHelper::curlGetRequest($url, $sid, $token);
+            $incoming_calls = json_decode($incoming_calls);
+            return view('twilio.incoming-calls', compact('incoming_calls','phone_number'));
+        } catch (\Exception $e) {
+            dd($e->getMessage());
+        }
+    }
+
+
+    public function incomingCallRecording(Request $request,$call_sid)
+    {
+        $id = $request->get('id');
+        $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+        $sid = $check_account->account_id;
+        $token = $check_account->auth_token;
+        $url = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Calls/'.$call_sid.'/Recordings.json';
+        $incoming_calls_recordings = TwilioHelper::curlGetRequest($url, $sid, $token);
+        $incoming_calls_recordings = json_decode($incoming_calls_recordings);
+        if(count($incoming_calls_recordings->recordings) > 0){
+            $rec_sid = $incoming_calls_recordings->recordings[0]->sid;
+        }else{
+            return redirect()->back()->with('error','Recording not found');
+        }
+        $file = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Recordings/'.$rec_sid.'.mp3';
+        header("Content-type: application/x-file-to-save");
+        header("Content-Disposition: attachment; filename=".basename($file));
+        readfile($file);
+        exit;
+    }
 
 
 }

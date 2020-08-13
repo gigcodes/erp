@@ -10,4 +10,10 @@ class TwilioCallForwarding extends Model
 
     protected $fillable = ['twilio_number_sid','twilio_number','forwarding_on'];
 
+    public function forwarded_number_details()
+    {
+        return $this->hasOne('App\User','id','forwarding_on');
+    }
+
+
 }

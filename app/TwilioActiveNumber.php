@@ -16,6 +16,12 @@ class TwilioActiveNumber extends Model
 
     public function assigned_stores()
     {
-        return $this->hasMany('\App\StoreWebsiteTwilioNumber','twilio_active_number_id');
+        return $this->hasOne('\App\StoreWebsiteTwilioNumber','twilio_active_number_id');
     }
+
+    public function forwarded()
+    {
+        return $this->hasOne('App\TwilioCallForwarding','twilio_number_sid','sid');
+    }
+
 }
