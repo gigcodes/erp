@@ -240,16 +240,15 @@ class OrderController extends Controller {
 		}
 
 		//$orders = (new Order())->newQuery()->with('customer');
-		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
-
+		// $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
+		$orders = (new Order())->newQuery()->with('customer');
 		if(empty($term))
 			$orders = $orders;
 		else{
-
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
-				return $query->where('name', 'LIKE', "%$term%");
+				return $query->where('name', 'LIKE', '%'.$term.'%');
 			})
-           ->orWhere('order_id','like','%'.$term.'%')
+           ->orWhere('orders.order_id','like','%'.$term.'%')
            ->orWhere('order_type',$term)
            ->orWhere('sales_person',Helpers::getUserIdByName($term))
            ->orWhere('received_by',Helpers::getUserIdByName($term))
@@ -257,7 +256,6 @@ class OrderController extends Controller {
            ->orWhere('city','like','%'.$term.'%')
            ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
-
 		if ($order_status[0] != '') {
 			$orders = $orders->whereIn('order_status_id', $order_status);
 		}
@@ -298,6 +296,7 @@ class OrderController extends Controller {
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
 
 		$orders_array = $orders->paginate(20);
+		// dd($orders_array);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
@@ -579,7 +578,6 @@ class OrderController extends Controller {
 		$data['defaultSelected'] = $defaultSelected;
 		$data['key'] = $key;
 
-
 		return view( 'orders.form', $data );
 	}
 
@@ -591,7 +589,6 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( Request $request ) {
-
 		$this->validate( $request, [
 			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
@@ -875,7 +872,6 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show( Order $order ) {
-
 		$data                   = $order->toArray();
 		$data['sales_persons']  = Helpers::getUsersArrayByRole( 'Sales' );
 		$data['order_products'] = $this->getOrderProductsWithProductData($order->id);
