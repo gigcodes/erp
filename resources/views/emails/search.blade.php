@@ -1,6 +1,6 @@
 
     @foreach ($emails as $key => $email)
-        <tr>
+        <tr id="{{ $email->id }}-email-row">
             <td>{{ Carbon\Carbon::parse($email->created_at)->format('d-m-Y') }}</td>
             <td>{{ $email->from }}</td>
             <td>{{ $email->to }}</td>
@@ -17,12 +17,11 @@
                 <a title="Forward" class="btn btn-image forward-email-btn" data-toggle="modal" data-target="#forwardMail" data-id="{{ $email->id }}" >
                     <i class="fa fa-share"></i>
                 </a>
-                <a title="Bin" class="btn btn-image bin-email-btn" data-toggle="modal" data-target="#binMail" data-id="{{ $email->id }}" >
+                <a title="Bin" class="btn btn-image bin-email-btn" data-id="{{ $email->id }}" >
                     <i class="fa fa-trash"></i>
                 </a>
-                <a title="Remark" class="btn btn-image remark-email-btn" data-toggle="modal" data-target="#remarkMail" data-id="{{ $email->id }}" >
-                    <i class="fa fa-clipboard"></i>
-                </a>
+                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $email->id }}"><img width="2px;" src="/images/remark.png"/></button>
             </td>
         </tr>
     @endforeach
+    {{-- {{$emails->links()}} --}}
