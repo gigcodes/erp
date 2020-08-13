@@ -399,9 +399,9 @@ class TaskModuleController extends Controller {
 		// }
 
 		$search_term_suggestions = [];
-		$assign_from_arr = array(0);
-		$special_task_arr = array(0);
-		$assign_to_arr = array(0);
+		$assign_from_arr = array();
+		$special_task_arr = array();
+		$assign_to_arr = array();
 		
 
 		foreach ($data['task']['pending'] as $task) {
