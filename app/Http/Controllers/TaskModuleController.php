@@ -34,6 +34,7 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
+		// dd($request->all());
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 		} else {
@@ -72,7 +73,6 @@ class TaskModuleController extends Controller {
 		$data['task']['pending'] = [];
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
-
 		if($type == 'pending') {
 			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
@@ -247,7 +247,6 @@ class TaskModuleController extends Controller {
 		else {
 			return;
 		}
-	
 
 					 
 			//task pending backup
@@ -527,7 +526,6 @@ class TaskModuleController extends Controller {
 			return response()->json( [ 'user not allowed' ], 405 );
 		}
 		//My code end
-
 		$tasks_view = [];
 		$priority  = \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 

@@ -577,14 +577,14 @@
                 e.preventDefault();
                 var type = $(this).data('type');
                 if(type && type != "") {
-                    $("#tasktype").val(type);
+                    type = $("#tasktype").val(type);
                 }
+                type = $("#tasktype").val();
                 $.ajax({
                     url: "/task",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     success: function (response) {
-                        
                         if(type == 'pending') {
                             $('.pending-row-render-view').html(response);
                         }
