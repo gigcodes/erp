@@ -1606,68 +1606,71 @@ class WhatsAppController extends FindByNumberController
                 }
 
                 //Create Task record
-                $exp_mesaages = explode(" ", $params[ 'message' ]);
-            
-                for($i=0;$i<count($exp_mesaages);$i++)
-                {
-                    $keywordassign = DB::table('keywordassigns')
-                    ->select('*')
-                    ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
-                    ->get();
+                if(isset($customer->id) && $customer->id > 0) {
+                    $exp_mesaages = explode(" ", $params[ 'message' ]);
+                
+                    for($i=0;$i<count($exp_mesaages);$i++)
+                    {
+                        $keywordassign = DB::table('keywordassigns')
+                        ->select('*')
+                        ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                        ->get();
+                        if(count($keywordassign) > 0)
+                        {
+                            break;
+                        } 
+                    }
                     if(count($keywordassign) > 0)
                     {
-                        break;
-                    } 
-                }
-                if(count($keywordassign) > 0)
-                {
-                    $task_array =  array(
-                        "is_statutory"=>0,
-                        "task_subject"=>$customer->id,
-                        "task_details"=>$keywordassign[0]->task_description,
-                        "assign_from"=>$customer->id,
-                        "assign_to"=>$keywordassign[0]->assign_to,
-                        "created_at"=>date("Y-m-d H:i:s"),
-                        "updated_at"=>date("Y-m-d H:i:s")
-                    );
-                    DB::table('tasks')->insert($task_array);
-                }
-
-                // start to check with watson api directly
-                if(!empty($params['message'])) {
-                    if ($customer && $params[ 'message' ] != '') {
-                        WatsonManager::sendMessage($customer,$params['message']);
+                        $task_array =  array(
+                            "is_statutory"=>0,
+                            "task_subject"=>$customer->id,
+                            "task_details"=>$keywordassign[0]->task_description,
+                            "assign_from"=>$customer->id,
+                            "assign_to"=>$keywordassign[0]->assign_to,
+                            "created_at"=>date("Y-m-d H:i:s"),
+                            "updated_at"=>date("Y-m-d H:i:s")
+                        );
+                        DB::table('tasks')->insert($task_array);
                     }
-                }
+
+                    // start to check with watson api directly
+                    if(!empty($params['message'])) {
+                        if ($customer && $params[ 'message' ] != '') {
+                            WatsonManager::sendMessage($customer,$params['message']);
+                        }
+                    }
 
 
-                // Auto Replies
-                $auto_replies = AutoReply::where('is_active', 1)->get();
+                    // Auto Replies
+                    $auto_replies = AutoReply::where('is_active', 1)->get();
 
-                foreach ($auto_replies as $auto_reply) {
-                    if ($customer && array_key_exists('message', $params) && $params[ 'message' ] != '') {
-                        $keyword = $auto_reply->keyword;
+                    foreach ($auto_replies as $auto_reply) {
+                        if ($customer && array_key_exists('message', $params) && $params[ 'message' ] != '') {
+                            $keyword = $auto_reply->keyword;
 
-                        if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
-                            $temp_params = $params;
-                            $temp_params[ 'message' ] = $auto_reply->reply;
-                            $temp_params[ 'media_url' ] = null;
-                            $temp_params[ 'status' ] = 8;
+                            if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
+                                $temp_params = $params;
+                                $temp_params[ 'message' ] = $auto_reply->reply;
+                                $temp_params[ 'media_url' ] = null;
+                                $temp_params[ 'status' ] = 8;
 
-                            // Create new message
-                            $message = ChatMessage::create($temp_params);
+                                // Create new message
+                                $message = ChatMessage::create($temp_params);
 
-                            // Send message if all required data is set
-                            if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
-                                $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
-                                if ($sendResult) {
-                                    $message->unique_id = $sendResult[ 'id' ] ?? '';
-                                    $message->save();
+                                // Send message if all required data is set
+                                if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
+                                    $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
+                                    if ($sendResult) {
+                                        $message->unique_id = $sendResult[ 'id' ] ?? '';
+                                        $message->save();
+                                    }
+                                    break;
                                 }
-                                break;
                             }
                         }
                     }
+
                 }
             }
 
@@ -1957,70 +1960,72 @@ class WhatsAppController extends FindByNumberController
 
         if ($context == 'customer') {
             $exp_mesaages = explode(" ", $request->message);
-            
-            for($i=0;$i<count($exp_mesaages);$i++)
-            {
-                $keywordassign = DB::table('keywordassigns')
-                ->select('*')
-                ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
-                ->get();
+            if(!empty($data[ 'user_id' ])) {
+                for($i=0;$i<count($exp_mesaages);$i++)
+                {
+                    $keywordassign = DB::table('keywordassigns')
+                    ->select('*')
+                    ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                    ->get();
+                    if(count($keywordassign) > 0)
+                    {
+                        break;
+                    } 
+                }
                 if(count($keywordassign) > 0)
                 {
-                    break;
-                } 
-            }
-            if(count($keywordassign) > 0)
-            {
-                $task_array =  array(
-                    "is_statutory"=>0,
-                    "task_subject"=>$data[ 'user_id' ],
-                    "task_details"=>$keywordassign[0]->task_description,
-                    "assign_from"=>$data[ 'user_id' ],
-                    "assign_to"=>$keywordassign[0]->assign_to,
-                    "created_at"=>date("Y-m-d H:i:s"),
-                    "updated_at"=>date("Y-m-d H:i:s")
-                );
-                DB::table('tasks')->insert($task_array);
-                $taskid = DB::getPdo()->lastInsertId();
+                    $task_array =  array(
+                        "is_statutory"=>0,
+                        "task_subject"=>$data[ 'user_id' ],
+                        "task_details"=>$keywordassign[0]->task_description,
+                        "assign_from"=>$data[ 'user_id' ],
+                        "assign_to"=>$keywordassign[0]->assign_to,
+                        "created_at"=>date("Y-m-d H:i:s"),
+                        "updated_at"=>date("Y-m-d H:i:s")
+                    );
+                    DB::table('tasks')->insert($task_array);
+                    $taskid = DB::getPdo()->lastInsertId();
 
-                //START CODE Task message to send message in whatsapp
-                $message = "#" . $taskid . ". " . $data[ 'user_id' ] . ". " . $keywordassign[0]->task_description;
+                    //START CODE Task message to send message in whatsapp
+                    $message = "#" . $taskid . ". " . $data[ 'user_id' ] . ". " . $keywordassign[0]->task_description;
 
-                $params = [
-                    'number'       => NULL,
-                    'user_id'      => Auth::id(),
-                    'approved'     => 1,
-                    'status'       => 2,
-                    'task_id'      => $taskid,
-                    'message'      => $message
-                ];
-                $task_info = DB::table('tasks')
-                ->select('*')
-                ->where('id', '=', $taskid)
-                ->get();
+                    $params = [
+                        'number'       => NULL,
+                        'user_id'      => Auth::id(),
+                        'approved'     => 1,
+                        'status'       => 2,
+                        'task_id'      => $taskid,
+                        'message'      => $message
+                    ];
+                    $task_info = DB::table('tasks')
+                    ->select('*')
+                    ->where('id', '=', $taskid)
+                    ->get();
 
-                if($task_info[0]->phone != "")
-                {
-                    app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task_info[0]->phone, $task_info[0]->whatsapp_number, $params['message']);
+                    if($task_info[0]->phone != "")
+                    {
+                        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($task_info[0]->phone, $task_info[0]->whatsapp_number, $params['message']);
 
-                    $chat_message = ChatMessage::create($params);
-                    ChatMessagesQuickData::updateOrCreate([
-                        'model' => \App\Task::class,
-                        'model_id' => $params['task_id']
-                        ], [
-                        'last_communicated_message' => @$params['message'],
-                        'last_communicated_message_at' => $chat_message->created_at,
-                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
-                    ]);
+                        $chat_message = ChatMessage::create($params);
+                        ChatMessagesQuickData::updateOrCreate([
+                            'model' => \App\Task::class,
+                            'model_id' => $params['task_id']
+                            ], [
+                            'last_communicated_message' => @$params['message'],
+                            'last_communicated_message_at' => $chat_message->created_at,
+                            'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                        ]);
 
-                    $myRequest = new Request();
-                    $myRequest->setMethod('POST');
-                    $myRequest->request->add(['messageId' => $chat_message->id]);
+                        $myRequest = new Request();
+                        $myRequest->setMethod('POST');
+                        $myRequest->request->add(['messageId' => $chat_message->id]);
 
-                    app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                        app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                    }
+                    //END CODE Task message to send message in whatsapp
                 }
-                //END CODE Task message to send message in whatsapp
             }
+
             $data[ 'customer_id' ] = $request->customer_id;
             $module_id = $request->customer_id;
             //update if the customer message is going to send then update all old message to read
