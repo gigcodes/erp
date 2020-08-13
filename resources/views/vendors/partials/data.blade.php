@@ -1,3 +1,8 @@
+@php
+    $isAdmin = Auth::user()->hasRole('Admin');
+    $isHrm = Auth::user()->hasRole('HOD of CRM')
+
+@endphp
 @foreach ($vendors as $vendor)
 <tr>
     <td>{{ $vendor->id }}</td>
@@ -31,13 +36,7 @@
     </td>
     <td>{{ $vendor->phone }} <input class="vendor-update-status" type="checkbox" data-onstyle="secondary" data-id="{{ $vendor->id }}" <?php echo ($vendor->status == 1) ? "checked" : "" ?> data-toggle="toggle" data-width="10"></td>
     <td class="expand-row table-hover-cell" style="word-break: break-all;">
-<span class="td-mini-container">
-  {{ strlen($vendor->email) > 10 ? substr($vendor->email, 0, 10) : $vendor->email }}
-</span>
-
-        <span class="td-full-container hidden">
-  {{ $vendor->email }}
-</span>
+        {{ $vendor->email }}
     </td>
     <td style="word-break: break-all;">
         <?php
@@ -64,13 +63,26 @@
             <div class="col-md-12 form-inline">
                 <div class="row">
                     <div class="col-md-10 cls_remove_rightpadding">
-                        <textarea rows="1" class="form-control quick-message-field" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
+                        <textarea rows="1" cols="28" class="form-control quick-message-field" id="messageid_{{ $vendor->id }}" name="message" placeholder="Message"></textarea>
                     </div>
                     <div class="col-md-2 cls_remove_leftpadding">
                         <button class="btn btn-sm btn-image send-message1" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
+
                     </div>
                 </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHrm }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                        
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHrm }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+
+                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHrm }}" data-object="vendor" data-id="{{$vendor->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+
+                        <button type="button" class="btn btn-xs btn-image load-email-modal" title="Load Email" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
+                    </div>
+                </div>    
             </div>
+
             <div class="col-md-12">
                 <div class="communication-div-5">
                     <div class="row">
