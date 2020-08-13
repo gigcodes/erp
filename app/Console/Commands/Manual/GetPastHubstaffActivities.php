@@ -68,11 +68,10 @@ class GetPastHubstaffActivities extends Command
             echo 'End: ' . gmdate('c', $end) . PHP_EOL;
 
             $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end), 0, [], $userIds);
-            echo "<pre>"; print_r($activities);  echo "</pre>";die;
-
+            
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
-                /*HubstaffActivity::updateOrCreate(
+                HubstaffActivity::updateOrCreate(
                     [
                         'id' => $id,
                     ],
@@ -85,7 +84,7 @@ class GetPastHubstaffActivities extends Command
                         'mouse'     => $data['mouse'],
                         'overall'   => $data['overall'],
                     ]
-                );*/
+                );
             }
 
             sleep(5);
