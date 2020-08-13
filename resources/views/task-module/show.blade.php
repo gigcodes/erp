@@ -63,7 +63,7 @@
                         <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
                         <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
                         <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
-                        <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option>
+                        <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
                     </select>
                 </div>
                 <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png"/></button>
@@ -78,7 +78,7 @@
     else
         $isAdmin = false;
     ?>
-    <div class="row mb-4">
+<div class="row mb-4">
         <div class="col-xs-12">
             <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
                 @csrf
@@ -239,16 +239,24 @@
 
                     <div class="form-group ml-3">
                         <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
-                        </select>
 
                         @if ($errors->has('no_of_milestone'))
                         <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
                         @endif
                     </div>
-
-                    <div class="col-xs-12 text-center">
-                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
+                    <div class="form-group ml-3">
+                    <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
                     </div>
+                    @if(auth()->user()->isAdmin())
+                    <div class="form-group ml-3">
+                        <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
+                        Open Task count
+                        </a>
+                    </div>
+                    @endif
+                    <!-- <div class="col-xs-12 text-center">
+                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
+                    </div> -->
                 </div>
             </form>
         </div>
@@ -256,13 +264,13 @@
     @include('task-module.partials.modal-reminder')
 
     @if(auth()->user()->isAdmin())
-        <div class="row" style="margin-bottom:10px;">
+        <!-- <div class="row" style="margin-bottom:10px;">
             <div class="col-md-2">
                 <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
                        Open Task count
                     </a>
             </div>
-        </div>
+        </div> -->
         <div class="row">
             <div class="col-md-12">
                 <div class="collapse" id="openFilterCount">
@@ -517,6 +525,21 @@
             </div>
         </div>
     </div>
+
+    <div id="create-task-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create task</h4>
+                </div>
+                <div class="modal-body" id="create-task-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
@@ -623,8 +646,9 @@
 
             $('#task_subject, #task_details').autocomplete({
                 source: function (request, response) {
+                    console.log(taskSuggestions);
                     var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
-
+                    console.log(results);
                     response(results.slice(0, 10));
                 }
             });
@@ -1049,6 +1073,25 @@
                 alert('Please enter a message first');
             }
         });
+        
+        // $(document).on('click', '.create-task-btn', function () {
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "/task/create-task",
+        //         data: {
+        //             _token: "{{ csrf_token() }}",
+        //         },
+        //         beforeSend: function () {
+        //             $("#loading-image").show();
+        //         }
+        //     }).done(function (response) {
+        //         $("#loading-image").hide();
+        //         $("#create-task-modal").modal("show");
+        //         $("#create-task-body").html(response);
+        //     }).fail(function (response) {
+        //         $("#loading-image").hide();
+        //     });
+        // });
 
         $(document).on('click', '.make-private-task', function () {
             var task_id = $(this).data('taskid');

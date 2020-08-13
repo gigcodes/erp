@@ -10742,6 +10742,7 @@ li.active{
     /* box-shadow: 2px 8px 5px #000; */
     position: relative;
     margin: 0px;
+    word-break: break-all;
 }
 
 .speech-wrapper .bubble.alt {

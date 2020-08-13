@@ -1,63 +1,51 @@
 @extends('layouts.app')
 @section('content')
+
+<?php 
+$chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+$newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
+?>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Live Chat</h2>
-            <div class="pull-left">
-                <h3>Add User</h3>
-                <div class="row">
-                    <div class="col-md-3 chat" style="margin-top : 0px !important;">
-                        <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
-                            <div class="card-header">
-                                <div class="input-group">
+            <div class="pull-right">
+            </div>
+        </div>
+    </div>
 
-                                </div>
-                            </div>
-                            <div class="card-body contacts_body">
-                                @php
-                                $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
-                                $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
-                                @endphp
-                                <ul class="contacts" id="customer-list-chat">
-                                    @if(isset($chatIds) && !empty($chatIds))
-                                        @foreach ($chatIds as $chatId)
-                                            @php
-                                            $customer = \App\Customer::where('id',$chatId->customer_id)->first();
-                                            $customerInital = substr($customer->name, 0, 1);
-                                            @endphp
-                                            <li onclick="getLiveChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
-                                                <div class="d-flex bd-highlight">
-                                                    <div class="img_cont">
-                                                        <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
-                                                        <span class="online_icon @if($chatId->status == 0) offline @endif "></span>
-                                                    </div>
-                                                    <div class="user_info">
-                                                        <span>{{ $customer->name }}</span>
-                                                        <p>{{ $customer->name }} is @if($chatId->status == 0) offline @else online @endif </p>
-                                                    </div>
-                                                    @if($chatId->seen == 0)<span class="new_message_icon"></span>@endif
-                                                </div>
-                                            </li>
-                                        @endforeach
-                                    @endif
-                                </ul>
-                            </div>
-                            <div class="card-footer"></div>
-                        </div>
-                    </div>
-                    <div class="col-md-6 chat">
-                        <div class="card_chat">
-                            <div class="card-header msg_head">
-                                <div class="d-flex bd-highlight align-items-center justify-content-between">
-                                    <div class="img_cont">
-                                        <soan class="rounded-circle user_inital" id="user_inital"></soan>
-                                    </div>
-                                    <div class="user_info" id="user_name">
-                                    </div>
-                                    <div class="video_cam">
-                                        <span><i class="fa fa-video"></i></span>
-                                        <span><i class="fa fa-phone"></i></span>
-                                    </div>
+    <div class="row">
+        <div class="table-responsive">
+            <table class="table table-striped table-bordered" style="width: 99%" id="keywordassign_table">
+                <thead>
+                    <tr>
+                        <th>Sr. No.</th>
+                        <th>Site Name</th>
+                        <th>Visitor Name</th>
+                        <th>Email</th>
+                        <th>Phone Number</th>
+                        <th>Translation Language</th>
+                        <th>Communication</th>
+                        <th>Quick Replies</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php
+                    $srno=1;
+                    ?>
+                     @if(isset($chatIds) && !empty($chatIds))
+                        @foreach ($chatIds as $chatId)
+                            @php
+                            $customer = \App\Customer::where('id',$chatId->customer_id)->first();
+                            $customerInital = substr($customer->name, 0, 1);
+                            @endphp
+                               <tr>
+                                <td><?php echo $srno;?></td>
+                                <td><?php echo $chatId->website;?></td>
+                                <td><?php echo $customer->name;?></td>
+                                <td><?php echo $customer->email;?></td>
+                                <td><?php echo $customer->phone;?></td>
+                                <td>
                                     @php
                                     $path = storage_path('/');
                                     $content = File::get($path."languages.json");
@@ -71,84 +59,152 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
-                                <span id="action_menu_btn"><i class="fa fa-ellipsis-v"></i></span>
-                                <div class="action_menu">
-                                </div>
-                            </div>
-                            <div class="card-body msg_card_body" id="live-message-recieve">
-                                @if(isset($message) && !empty($message))
-                                    @foreach($message as $msg)
-                                        {!! $msg !!}
-                                    @endforeach
-                                @endif
-                            </div>
-                            <div class="typing-indicator" id="typing-indicator"></div>
-                            <div class="card-footer">
-                                <div class="input-group">
+                                </td>
+                                <td>
+                                    <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" id="live-message-recieve">
+                                        @if(isset($message) && !empty($message))
+                                            @foreach($message as $msg)
+                                                {!! $msg !!}
+                                            @endforeach
+                                        @endif
+                                    </div>
+                                    <div class="typing-indicator" id="typing-indicator"></div>
                                     <div class="card-footer">
                                         <div class="input-group">
-                                            <div class="input-group-append">
-                                                <a href="{{ route('attachImages', ['livechat', $customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="/images/attach.png"/></a>
-                                            </div>
-                                            <input type="hidden" id="message-id" name="message-id" />
-                                            <textarea name="" class="form-control type_msg message_textarea" placeholder="Type your message..." id="message"></textarea>
-                                            <div class="input-group-append">
-                                                <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                            <div class="card-footer">
+                                                <div class="input-group">
+                                                    <div class="input-group-append">
+                                                        <a href="{{ route('attachImages', ['livechat', @$customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
+                                                    </div>
+                                                    <input type="hidden" id="message-id" name="message-id" />
+                                                    <textarea name="" class="form-control type_msg message_textarea" placeholder="Type your message..." id="message"></textarea>
+                                                    <div class="input-group-append">
+                                                        <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                                    </div>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-3 customer-info">
-                        <div class="chat-righbox">
-                            <div class="title">General Info</div>
-                            <div id="liveChatCustomerInfo"></div>
-                        </div>
-                        <div class="chat-righbox">
-                            <div class="title">Visited Pages</div>
-                            <div id="liveChatVisitedPages">
-                            </div>
-                        </div>
-                        <div class="chat-righbox">
-                            <div class="title">Additional info</div>
-                            <div class="line-spacing" id="liveChatAdditionalInfo">
-                            </div>
-                        </div>
-                        <div class="chat-righbox">
-                            <div class="title">Technology</div>
-                            <div class="line-spacing" id="liveChatTechnology">
-                            </div>
-                        </div>
-                        <div class="chat-rightbox">
-                            @php
-                                $all_categories = \App\ReplyCategory::all();
-                            @endphp
-                            <select class="form-control auto-translate" id="categories">
-                                <option value="">Select Category</option>
-                                @if(isset($all_categories))
-                                    @foreach ($all_categories as $category)
-                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                        </div>
-                        <div class="chat-rightbox mt-4">
-                            <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
-                            <button class="btn btn-secondary quick_comment_add">+</button>
-                        </div>
-                        <div class="chat-rightbox mt-4">
-                            <select class="form-control" id="quick_replies">
-                                <option value="">Quick Reply</option>
-                            </select>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="pull-right">
-            </div>
+                                    
+                                </td>
+                                <td>
+                                    <div class="chat-rightbox">
+                                        @php
+                                            $all_categories = \App\ReplyCategory::all();
+                                        @endphp
+                                        <select class="form-control auto-translate" id="categories">
+                                            <option value="">Select Category</option>
+                                            @if(isset($all_categories))
+                                                @foreach ($all_categories as $category)
+                                                    <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                                @endforeach
+                                            @endif
+                                        </select>
+                                    </div>
+                                    <div class="chat-rightbox mt-4">
+                                        <input type="text" name="quick_comment" placeholder="New Quick Comment" class="form-control quick_comment">
+                                        <button class="btn btn-secondary quick_comment_add">+</button>
+                                    </div>
+                                    <div class="chat-rightbox mt-4">
+                                        <select class="form-control" id="quick_replies">
+                                            <option value="">Quick Reply</option>
+                                        </select>
+                                    </div>
+                                </td>
+                                <td>
+                                    <div class="chat-righbox">
+                                        <div class="title"><a href="javascript:;" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" >General Info</a></div>
+                                        
+                                        <div class="modal fade" id="GeneralInfo<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="myModalLabel">General Info</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="liveChatCustomerInfo">Comming Soon General Info Data</div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                    <div class="chat-righbox">
+                                        <div class="title"><a href="javascript:;" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" >Visited Pages</a></div>
+                                        
+                                        <div class="modal fade" id="VisitedPages<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="myModalLabel">Visited Pages</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div id="liveChatVisitedPages">Comming Soon Visited Pages Data</div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chat-righbox">
+                                        <div class="title"><a href="javascript:;" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" >Additional info</a></div>
+                                        
+                                        <div class="modal fade" id="AdditionalInfo<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="myModalLabel">Additional info</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="line-spacing" id="liveChatAdditionalInfo">Comming Soon Additional info Data</div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="chat-righbox">
+                                        <div class="title"><a href="javascript:;" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >Technology</a></div>
+                                        
+                                        <div class="modal fade" id="Technology<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title" id="myModalLabel">Technology</h4>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                                                        
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="line-spacing" id="liveChatTechnology">Comming Soon Technology Data</div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                    </div>
+                                </td>
+                               </tr>
+                            <?php $srno++;?>
+                        @endforeach
+                    @endif   
+                </tbody>
+            </table>
         </div>
     </div>
 @endsection
@@ -156,8 +212,23 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
+        function openPopupGeneralInfo(id)
+        {
+            $('#GeneralInfo'+id).modal('show');
+        }
+        function openPopupVisitedPages(id)
+        {
+            $('#VisitedPages'+id).modal('show');   
+        }
+        function openPopupAdditionalinfo(id)
+        {
+            $('#AdditionalInfo'+id).modal('show');   
+        }
+        function openPopupTechnology(id)
+        {
+            $('#Technology'+id).modal('show');   
+        }
         function getLiveChats(id){
-
             // Close the connection, if open.
             if (websocket.readyState === WebSocket.OPEN) {
                 clearInterval(pingTimerObj);
@@ -212,10 +283,10 @@
                         $('#chatTechnology').html('');
                     });
         }
-        $(document).ready(function(){
             $(document).on('change', '#categories', function () {
                 if ($(this).val() != "") {
                     var category_id = $(this).val();
+
                     var store_website_id = $('#selected_customer_store').val();
                   /*  if(store_website_id == ''){
                         store_website_id = 0;

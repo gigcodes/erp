@@ -41,11 +41,17 @@ class LandingPageController extends Controller
         $allStatus = StatusHelper::getStatus();
         foreach ($records->items() as &$rec) {
             $landingPageProduct = $rec->product;
-            if(array_key_exists($landingPageProduct->status_id, $allStatus)){
-                $rec->productStatus = $allStatus[$landingPageProduct->status_id];
-            }else{
+            if($landingPageProduct) {
+                if(array_key_exists($landingPageProduct->status_id, $allStatus)){
+                    $rec->productStatus = $allStatus[$landingPageProduct->status_id];
+                }else{
+                    $rec->productStatus = '';
+                }
+            }
+            else {
                 $rec->productStatus = '';
             }
+           
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
