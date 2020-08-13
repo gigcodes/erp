@@ -39,6 +39,11 @@ class TaskModuleController extends Controller {
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
+		if ( !$request->input( 'type' ) || $request->input( 'type' ) == '' ) {
+			$type = 'pending';
+		} else {
+			$type = $request->input( 'type' );
+		}
 		$categoryWhereClause = '';
 		$category = '';
 		if ($request->category != '' && $request->category != 1) {
@@ -59,14 +64,17 @@ class TaskModuleController extends Controller {
         }
 		$data['task'] = [];
 
-		// $data['task']['pending']      = Task::with('remarks')->where( 'is_statutory', '=', 0 )
-		//                                ->where( 'is_completed', '=', null )
-		// 								->where( function ($query ) use ($userid) {
-		// 									return $query->orWhere( 'assign_from', '=', $userid )
-		// 									             ->orWhere( 'assign_to', '=', $userid );
-		// 								})
-		//                                ->get()->toArray();
-	$data['task']['pending'] = DB::select('
+		$search_term_suggestions = [];
+		$search_suggestions = [];
+		$assign_from_arr = array(0);
+		$special_task_arr = array(0);
+		$assign_to_arr = array(0);
+		$data['task']['pending'] = [];
+		$data['task']['statutory_not_completed'] = [];
+		$data['task']['completed'] = [];
+
+		if($type == 'pending') {
+			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
 			FROM (
@@ -85,10 +93,162 @@ class TaskModuleController extends Controller {
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
 			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-			ORDER BY is_flagged DESC, message_created_at DESC;
-					 ');
+			ORDER BY is_flagged DESC, message_created_at DESC; ');
 
-					 
+			
+
+			foreach ($data['task']['pending'] as $task) {
+				array_push($assign_to_arr, $task->assign_to);
+				array_push($assign_from_arr, $task->assign_from);
+				array_push($special_task_arr, $task->id);
+			}
+			
+			$user_ids_from = array_unique($assign_from_arr);
+			$user_ids_to = array_unique($assign_to_arr);
+		
+			foreach ($data['task']['pending'] as $task) {
+				$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+				$from_exist = in_array($task->assign_from, $user_ids_from);
+				if($from_exist) {
+					$from_user = User::find($task->assign_from);
+					if($from_user) {
+						$search_term_suggestions[] = $from_user->name;
+					}
+				}
+
+				$to_exist = in_array($task->assign_to, $user_ids_to);
+				if($to_exist) {
+					$to_user = User::find($task->assign_to);
+					if($to_user) {
+						$search_term_suggestions[] = $to_user->name;
+					}
+				}			
+				$search_term_suggestions[] = "$task->id";
+				$search_term_suggestions[] = $task->task_subject;
+				$search_term_suggestions[] = $task->task_details;
+			}
+		}
+		else if($type == 'completed') {
+			$data['task']['completed'] = DB::select('
+                SELECT *,
+ 				message_id,
+                message,
+                message_status,
+                message_type,
+                message_created_At as last_communicated_at
+                FROM (
+                  SELECT * FROM tasks
+                 LEFT JOIN (
+					SELECT 
+					chat_messages.id as message_id, 
+					chat_messages.task_id, 
+					chat_messages.message, 
+					chat_messages.status as message_status, 
+					chat_messages.sent as message_type, 
+					chat_messages.created_at as message_created_at, 
+					chat_messages.is_reminder AS message_is_reminder,
+					chat_messages.user_id AS message_user_id
+					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+                 ) AS chat_messages ON chat_messages.task_id = tasks.id
+                ) AS tasks
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
+				ORDER BY last_communicated_at DESC;');
+				
+
+				foreach ($data['task']['completed'] as $task) {
+					array_push($assign_to_arr, $task->assign_to);
+					array_push($assign_from_arr, $task->assign_from);
+					array_push($special_task_arr, $task->id);
+				}
+				
+				$user_ids_from = array_unique($assign_from_arr);
+				$user_ids_to = array_unique($assign_to_arr);
+			
+				foreach ($data['task']['completed'] as $task) {
+					$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+					$from_exist = in_array($task->assign_from, $user_ids_from);
+					if($from_exist) {
+						$from_user = User::find($task->assign_from);
+						if($from_user) {
+							$search_term_suggestions[] = $from_user->name;
+						}
+					}
+	
+					$to_exist = in_array($task->assign_to, $user_ids_to);
+					if($to_exist) {
+						$to_user = User::find($task->assign_to);
+						if($to_user) {
+							$search_term_suggestions[] = $to_user->name;
+						}
+					}			
+					$search_term_suggestions[] = "$task->id";
+					$search_term_suggestions[] = $task->task_subject;
+					$search_term_suggestions[] = $task->task_details;
+				}
+		}
+		else if($type == 'statutory_not_completed') {
+			$data['task']['statutory_not_completed'] = DB::select('
+	               SELECT *,
+				   message_id,
+	               message,
+	               message_status,
+	               message_type,
+	               message_created_At as last_communicated_at
+
+	               FROM (
+	                 SELECT * FROM tasks
+	                 LEFT JOIN (
+							SELECT 
+							chat_messages.id as message_id, 
+							chat_messages.task_id, 
+							chat_messages.message, 
+							chat_messages.status as message_status, 
+							chat_messages.sent as message_type, 
+							chat_messages.created_at as message_created_at, 
+							chat_messages.is_reminder AS message_is_reminder,
+							chat_messages.user_id AS message_user_id
+							FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
+	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
+
+	               ) AS tasks
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . ' ORDER BY last_communicated_at DESC;');
+				   
+				   foreach ($data['task']['statutory_not_completed'] as $task) {
+					array_push($assign_to_arr, $task->assign_to);
+					array_push($assign_from_arr, $task->assign_from);
+					array_push($special_task_arr, $task->id);
+				}
+				
+				$user_ids_from = array_unique($assign_from_arr);
+				$user_ids_to = array_unique($assign_to_arr);
+			
+				foreach ($data['task']['statutory_not_completed'] as $task) {
+					$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
+					$from_exist = in_array($task->assign_from, $user_ids_from);
+					if($from_exist) {
+						$from_user = User::find($task->assign_from);
+						if($from_user) {
+							$search_term_suggestions[] = $from_user->name;
+						}
+					}
+	
+					$to_exist = in_array($task->assign_to, $user_ids_to);
+					if($to_exist) {
+						$to_user = User::find($task->assign_to);
+						if($to_user) {
+							$search_term_suggestions[] = $to_user->name;
+						}
+					}			
+					$search_term_suggestions[] = "$task->id";
+					$search_term_suggestions[] = $task->task_subject;
+					$search_term_suggestions[] = $task->task_details;
+				}
+		}
+		else {
+			return;
+		}
+	
+
 					 
 			//task pending backup
 
@@ -169,32 +329,6 @@ class TaskModuleController extends Controller {
 		// }
 		//
 		// $data['task']['completed'] = $data['task']['completed']->get()->toArray();
-		
-		$data['task']['completed'] = DB::select('
-                SELECT *,
- 				message_id,
-                message,
-                message_status,
-                message_type,
-                message_created_At as last_communicated_at
-                FROM (
-                  SELECT * FROM tasks
-                 LEFT JOIN (
-					SELECT 
-					chat_messages.id as message_id, 
-					chat_messages.task_id, 
-					chat_messages.message, 
-					chat_messages.status as message_status, 
-					chat_messages.sent as message_type, 
-					chat_messages.created_at as message_created_at, 
-					chat_messages.is_reminder AS message_is_reminder,
-					chat_messages.user_id AS message_user_id
-					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-                 ) AS chat_messages ON chat_messages.task_id = tasks.id
-                ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-                ORDER BY last_communicated_at DESC;
- 						');
 
 			//completed task backup
 
@@ -299,31 +433,7 @@ class TaskModuleController extends Controller {
 		//                                    })
 		//                                    ->get()->toArray();
 
-		 $data['task']['statutory_not_completed'] = DB::select('
-	               SELECT *,
-				   message_id,
-	               message,
-	               message_status,
-	               message_type,
-	               message_created_At as last_communicated_at
-
-	               FROM (
-	                 SELECT * FROM tasks
-	                 LEFT JOIN (
-							SELECT 
-							chat_messages.id as message_id, 
-							chat_messages.task_id, 
-							chat_messages.message, 
-							chat_messages.status as message_status, 
-							chat_messages.sent as message_type, 
-							chat_messages.created_at as message_created_at, 
-							chat_messages.is_reminder AS message_is_reminder,
-							chat_messages.user_id AS message_user_id
-							FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
-	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
-
-	               ) AS tasks
-	               WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . ' ORDER BY last_communicated_at DESC;');
+		 
 							// dd($data['task']['statutory_completed']);
 
 							// foreach ($data['task']['statutory_completed'] as $task) {
@@ -398,64 +508,7 @@ class TaskModuleController extends Controller {
 		// foreach ($data['task']['pending'] as $task) {
 		// }
 
-		$search_term_suggestions = [];
-		$assign_from_arr = array();
-		$special_task_arr = array();
-		$assign_to_arr = array();
-		
 
-		foreach ($data['task']['pending'] as $task) {
-			//$search_term_suggestions[] = User::find($task->assign_from)->name;
-			array_push($assign_to_arr, $task->assign_to);
-			array_push($assign_from_arr, $task->assign_from);
-			array_push($special_task_arr, $task->id);
-
-			//$special_task = Task::find($task->id);
-			
-			/*if (count($special_task->users) > 0) {
-				foreach ($special_task->users as $user) {
-					$search_term_suggestions[] = $user->name;
-				}
-			}*/
-
-			/*$search_term_suggestions[] = "$task->id";
-			$search_term_suggestions[] = $task->task_subject;
-			$search_term_suggestions[] = $task->task_details;*/
-		}
-
-
-
-		// $user_ids_from = implode(",", array_unique($assign_from_arr));
-		$user_ids_from = array_unique($assign_from_arr);
-		$user_ids_to = array_unique($assign_to_arr);
-		// dd($user_ids_from);
-		// $var_user_name = DB::select('SELECT id,name from users where id IN ('.$user_ids_from.')');
-
-		// $user_ids_to = implode(",", array_unique($assign_to_arr));
-		// $var_user_name_to = DB::select('SELECT id,name from users where id IN ('.$user_ids_to.')');
-		$search_term_suggestions = [];
-		$search_suggestions = [];
-		foreach ($data['task']['pending'] as $task) {
-			$search_suggestions[] = "#" . $task->id . " " . $task->task_subject . ' ' . $task->task_details;
-			$from_exist = in_array($task->assign_from, $user_ids_from);
-			if($from_exist) {
-				$from_user = User::find($task->assign_from);
-				if($from_user) {
-					$search_term_suggestions[] = $from_user->name;
-				}
-			}
-
-			$to_exist = in_array($task->assign_to, $user_ids_to);
-			if($to_exist) {
-				$to_user = User::find($task->assign_to);
-				if($to_user) {
-					$search_term_suggestions[] = $to_user->name;
-				}
-			}			
-			$search_term_suggestions[] = "$task->id";
-			$search_term_suggestions[] = $task->task_subject;
-			$search_term_suggestions[] = $task->task_details;
-		}
 		// $category = '';
 		//My code start
 		$selected_user = $request->input( 'selected_user' );
@@ -484,7 +537,22 @@ class TaskModuleController extends Controller {
 		->select(\DB::raw("count(u.id) as total"),"u.name as person")
 		->pluck("total","person");
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask'));
+		if ($request->ajax()) {
+			if($type == 'pending') {
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+			}
+			else if( $type == 'statutory_not_completed') {
+				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+			}
+			else if( $type == 'completed') {
+				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+			}
+			else {
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+			}
+		}
+
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
 	}
 
 
@@ -814,7 +882,6 @@ class TaskModuleController extends Controller {
 					}
 
 					$view = (string)view($mode,compact('task','priority','users'));
-
 					return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
 
 				}
