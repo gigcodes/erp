@@ -2,14 +2,12 @@
 
 namespace App\Console\Commands\Manual;
 
-use Illuminate\Console\Command;
 use App\Helpers\hubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
 use Exception;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
-
-
+use Illuminate\Console\Command;
 
 class GetPastHubstaffActivities extends Command
 {
@@ -23,7 +21,7 @@ class GetPastHubstaffActivities extends Command
      *
      * @var string
      */
-    protected $signature = 'hubstaff:load_past_activities {start=2019-09-01}';
+    protected $signature = 'hubstaff:load_past_activities {start=2019-09-01} {user_ids=0}';
 
     /**
      * The console command description.
@@ -56,8 +54,9 @@ class GetPastHubstaffActivities extends Command
         $now = time();
 
         $startString = $this->argument('start');
-
-
+        $userIds     = $this->argument('user_ids');
+        $userIds     = explode(",", $userIds);
+        $userIds     = array_filter($userIds);
 
         $start = strtotime($startString . ' UTC');
 
@@ -68,24 +67,25 @@ class GetPastHubstaffActivities extends Command
             echo 'Start: ' . gmdate('c', $start) . PHP_EOL;
             echo 'End: ' . gmdate('c', $end) . PHP_EOL;
 
-            $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end));
+            $activities = $this->getActivitiesBetween(gmdate('c', $start), gmdate('c', $end), 0, [], $userIds);
+            echo "<pre>"; print_r($activities);  echo "</pre>";die;
 
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
-                HubstaffActivity::updateOrCreate(
+                /*HubstaffActivity::updateOrCreate(
                     [
-                        'id' => $id
+                        'id' => $id,
                     ],
                     [
-                        'user_id' => $data['user_id'],
-                        'task_id' => is_null($data['task_id']) ? 0 : $data['task_id'],
+                        'user_id'   => $data['user_id'],
+                        'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
                         'starts_at' => $data['starts_at'],
-                        'tracked' => $data['tracked'],
-                        'keyboard' => $data['keyboard'],
-                        'mouse' => $data['mouse'],
-                        'overall' => $data['overall']
+                        'tracked'   => $data['tracked'],
+                        'keyboard'  => $data['keyboard'],
+                        'mouse'     => $data['mouse'],
+                        'overall'   => $data['overall'],
                     ]
-                );
+                );*/
             }
 
             sleep(5);
@@ -94,19 +94,29 @@ class GetPastHubstaffActivities extends Command
         }
     }
 
-    private function getActivitiesBetween($startTime, $endTime, $startId = 0, $resultArray = [])
+    private function getActivitiesBetween($startTime, $endTime, $startId = 0, $resultArray = [], $userIds = [])
     {
 
         try {
             $response = $this->doHubstaffOperationWithAccessToken(
-                function ($accessToken) use ($startTime, $endTime, $startId) {
+                function ($accessToken) use ($startTime, $endTime, $startId, $userIds) {
                     $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $startTime . '&time_slot[stop]=' . $endTime . '&page_start_id=' . $startId;
+
+                    $q = [];
+                    if (!empty($userIds)) {
+                        foreach ($userIds as $uid) {
+                            $q[] = "user_ids[]=" . $uid;
+                        }
+                    }
+                    $queryString = implode("&", $q);
+                    $url .= "&" . $queryString;
+
                     return $this->client->get(
                         $url,
                         [
                             RequestOptions::HEADERS => [
-                                'Authorization' => 'Bearer ' . $accessToken
-                            ]
+                                'Authorization' => 'Bearer ' . $accessToken,
+                            ],
                         ]
                     );
                 }
@@ -117,19 +127,19 @@ class GetPastHubstaffActivities extends Command
 
             foreach ($responseJson->activities as $activity) {
                 $activities[$activity->id] = array(
-                    'user_id' => $activity->user_id,
-                    'task_id' => $activity->task_id,
+                    'user_id'   => $activity->user_id,
+                    'task_id'   => $activity->task_id,
                     'starts_at' => $activity->starts_at,
-                    'tracked' => $activity->tracked,
-                    'keyboard' => $activity->keyboard,
-                    'mouse' => $activity->mouse,
-                    'overall' => $activity->overall
+                    'tracked'   => $activity->tracked,
+                    'keyboard'  => $activity->keyboard,
+                    'mouse'     => $activity->mouse,
+                    'overall'   => $activity->overall,
                 );
             }
 
             if (isset($responseJson->pagination)) {
                 $nextStart = $responseJson->pagination->next_page_start_id;
-                return $this->getActivitiesBetween($startTime, $endTime, $nextStart,  $activities);
+                return $this->getActivitiesBetween($startTime, $endTime, $nextStart, $activities, $userIds);
             } else {
                 return $activities;
             }
