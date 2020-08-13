@@ -62,7 +62,12 @@
             
         </div>
     </td>
-    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>
+    <td>
+        @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
+        {{ formatDuration($issue->timeSpent->tracked) }}
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+        @endif
+    </td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
         <label for="" style="font-size: 12px;">Assigned To :</label>
