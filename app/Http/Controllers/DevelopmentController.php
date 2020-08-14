@@ -1890,4 +1890,11 @@ class DevelopmentController extends Controller
         }
         return 'error';
     }
+
+    public function getTrackedHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.assigned_to,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.assigned_to where developer_tasks.id = ".$id." group by task_id,starts_at"));
+        return response()->json(['histories' => $task_histories]);
+    }
 }
