@@ -36,6 +36,16 @@
 		                        <span></span> <i class="fa fa-caret-down"></i>
 		                    </div>
 		                </div>
+                        <div class="form-group">
+						    <label for="keyword">Status:</label>
+                            <select name="status" id="" class="form-control">
+                            <option value="">Select</option>
+                            <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
+                            <option value="forwarded_to_admin" {{$status == 'forwarded_to_admin' ? 'selected' : ''}}>Forwarded to admin</option>
+                            <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
+                            <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
+                            </select>
+					  	</div>
 		               	<div class="form-group">
 					  		<label for="button">&nbsp;</label>
 					  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
@@ -61,17 +71,17 @@
         </tr>
           @foreach ($activityUsers as $user)
             <tr>
-            <td>{{ \Carbon\Carbon::parse($user->date)->format('d-m') }} </td>
-              <td>{{ $user->userName }}</td>
-              <td>{{number_format($user->total_tracked / 60,2,".",",")}}</td>
-              <td><span class="replaceme">{{$user->totalApproved}}</span> </td>
-              <td><span>{{$user->totalNotPaid}}</td>
-              <td>{{$user->status}}</td>
+            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
+              <td>{{ $user['userName'] }}</td>
+              <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+              <td><span class="replaceme">{{$user['totalApproved']}}</span> </td>
+              <td><span>{{$user['totalNotPaid']}}</td>
+              <td>{{$user['status']}}</td>
               <td>
-                @if($user->forworded_to == Auth::user()->id && !$user->final_approval)
+                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                 <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user->user_id}}">
-                    <input type="hidden" class="date" name="date" value="{{$user->date}}">
+                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                     <a class="btn btn-secondary show-activities">+</a>
                 </form>
                 @endif
@@ -209,7 +219,7 @@ let r_s = jQuery('input[name="start_date"]').val();
             $("#loading-image").hide();
             thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
             $('#records-modal').modal('hide');
-            $(".show-activities").css("display", "none");
+            thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
             $("#loading-image").hide();
@@ -246,7 +256,8 @@ let r_s = jQuery('input[name="start_date"]').val();
             $("#loading-image").hide();
             thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
             $('#records-modal').modal('hide');
-            $(".show-activities").css("display", "none");
+            // $(".show-activities").css("display", "none");
+            thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
             $("#loading-image").hide();

@@ -281,7 +281,7 @@ class OrderController extends Controller {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 
-		$orders = $orders->groupBy("op.order_id");
+		$orders = $orders->groupBy("orders.id");
 		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
 
