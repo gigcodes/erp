@@ -1442,7 +1442,7 @@ class WhatsAppController extends FindByNumberController
                 {
                     $task_array =  array(
                         "is_statutory"=>0,
-                        "task_subject"=>$customer->id,
+                        "task_subject"=>$keywordassign[0]->task_description,
                         "task_details"=>$keywordassign[0]->task_description,
                         "assign_from" => \App\User::USER_ADMIN_ID,
                         "assign_to"=>$keywordassign[0]->assign_to,
