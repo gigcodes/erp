@@ -32,8 +32,9 @@ td+td {
 				<th>Paid on</th>
 				<?php if(Auth::user()->isAdmin()) { ?>
 				<th style="width:200px;">Send</th>
-				<th style="width:200px;">Action</th>
 				<?php } ?>
+
+				<th style="width:200px;">Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
@@ -117,7 +118,9 @@ td+td {
 						</div>  
 						
 					</td>
+					<?php } ?>
 			        <td>
+					<?php if(Auth::user()->isAdmin()) { ?>
 					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
 					</button>
@@ -131,10 +134,9 @@ td+td {
 					
 					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
-					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
-					
-					</td>
 					<?php } ?>
+					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>
