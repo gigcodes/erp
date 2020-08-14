@@ -5,6 +5,16 @@
 $chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 ?>
+    <style type="text/css">
+        .chat-righbox a{
+            color: #555 !important;
+            font-size: 18px;
+        }
+        .type_msg.message_textarea {
+            width: 90%;
+            height: 60px;
+        }
+    </style>
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <h2 class="page-heading">Live Chat</h2>
@@ -15,7 +25,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 
     <div class="row">
         <div class="table-responsive">
-            <table class="table table-striped table-bordered" style="width: 99%" id="keywordassign_table">
+            <table class="table table-striped table-bordered" id="keywordassign_table">
                 <thead>
                     <tr>
                         <th>Sr. No.</th>
@@ -24,9 +34,9 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         <th>Email</th>
                         <th>Phone Number</th>
                         <th>Translation Language</th>
-                        <th>Communication</th>
-                        <th>Quick Replies</th>
-                        <th>Actions</th>
+                        <th style="width: 23%;">Communication</th>
+                        <th style="width: 15%;">Quick Replies</th>
+                        <th style="width: 12%;">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -61,29 +71,23 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                     </div>
                                 </td>
                                 <td>
+                                    <div class="typing-indicator" id="typing-indicator"></div>
+                                    <div class="input-group">
+                                        <div class="input-group-append">
+                                            <a href="{{ route('attachImages', ['livechat', @$customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
+                                        </div>
+                                        <input type="hidden" id="message-id" name="message-id" />
+                                        <textarea name="" class="form-control type_msg message_textarea" placeholder="Type your message..." id="message"></textarea>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
+                                        </div>
+                                    </div>
                                     <div onclick="getLiveChats('{{ $customer->id }}')" class="card-body msg_card_body" id="live-message-recieve">
                                         @if(isset($message) && !empty($message))
                                             @foreach($message as $msg)
                                                 {!! $msg !!}
                                             @endforeach
                                         @endif
-                                    </div>
-                                    <div class="typing-indicator" id="typing-indicator"></div>
-                                    <div class="card-footer">
-                                        <div class="input-group">
-                                            <div class="card-footer">
-                                                <div class="input-group">
-                                                    <div class="input-group-append">
-                                                        <a href="{{ route('attachImages', ['livechat', @$customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
-                                                    </div>
-                                                    <input type="hidden" id="message-id" name="message-id" />
-                                                    <textarea name="" class="form-control type_msg message_textarea" placeholder="Type your message..." id="message"></textarea>
-                                                    <div class="input-group-append">
-                                                        <span class="input-group-text send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
                                     </div>
                                     
                                 </td>
@@ -113,7 +117,15 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                 </td>
                                 <td>
                                     <div class="chat-righbox">
-                                        <div class="title"><a href="javascript:;" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" >General Info</a></div>
+                                        <a href="javascript:;" title="General Info" onclick="openPopupGeneralInfo(<?php echo $chatId->id;?>)" ><i class="fa fa-info-circle" aria-hidden="true"></i></a>
+                                        &nbsp;
+                                        <a href="javascript:;" title="Visited Pages" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" ><i class="fa fa-map-marker" aria-hidden="true"></i></a>
+                                        &nbsp;
+                                        <a href="javascript:;" title="Additional info" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" ><i class="fa fa-archive" aria-hidden="true"></i></a>
+                                        &nbsp;
+                                        <a href="javascript:;" title="Technology" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" ><i class="fa fa-lightbulb-o" aria-hidden="true"></i></a>
+
+
                                         
                                         <div class="modal fade" id="GeneralInfo<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
@@ -133,10 +145,6 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             </div>
                                         </div>
 
-                                    </div>
-                                    <div class="chat-righbox">
-                                        <div class="title"><a href="javascript:;" onclick="openPopupVisitedPages(<?php echo $chatId->id;?>)" >Visited Pages</a></div>
-                                        
                                         <div class="modal fade" id="VisitedPages<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -154,10 +162,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="chat-righbox">
-                                        <div class="title"><a href="javascript:;" onclick="openPopupAdditionalinfo(<?php echo $chatId->id;?>)" >Additional info</a></div>
-                                        
+
                                         <div class="modal fade" id="AdditionalInfo<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -175,10 +180,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                 </div>
                                             </div>
                                         </div>
-                                    </div>
-                                    <div class="chat-righbox">
-                                        <div class="title"><a href="javascript:;" onclick="openPopupTechnology(<?php echo $chatId->id;?>)" >Technology</a></div>
-                                        
+
                                         <div class="modal fade" id="Technology<?php echo $chatId->id ?>" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
                                                 <div class="modal-content">
@@ -196,8 +198,8 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                                 </div>
                                             </div>
                                         </div>
-
                                     </div>
+
                                 </td>
                                </tr>
                             <?php $srno++;?>
