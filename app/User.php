@@ -26,6 +26,8 @@ class User extends Authenticatable
     use SoftDeletes;
     use Mediable;
 
+    const USER_ADMIN_ID = 6;
+
     /**
      * The attributes that are mass assignable.
      *
