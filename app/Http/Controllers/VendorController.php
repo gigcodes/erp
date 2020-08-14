@@ -96,12 +96,20 @@ class VendorController extends Controller
     if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
         $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
     ) {
-
       //Query Initiate
       if($isAdmin) {
         $query  = Vendor::query();
       }else{
-        $query  = Vendor::whereIn('category_id',$permittedCategories);
+        $imp_permi = implode(",", $permittedCategories);
+        if($imp_permi != 0)
+        {
+          $query  = Vendor::whereIn('category_id',$permittedCategories);  
+        }
+        else
+        {
+          $query  = Vendor::query();
+        }
+        
       }
 
       if (request('term') != null) {
@@ -158,7 +166,7 @@ class VendorController extends Controller
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
-          $qu->where('title', 'LIKE', '%' . request('category') . '%');
+          $qu->where('category_id', 'LIKE', '%' . request('category') . '%');
         });
       }
 
@@ -194,7 +202,17 @@ class VendorController extends Controller
         if(empty($permittedCategories)) {
           $permittedCategories = [0];
         }
-        $permittedCategories = 'and vendors.category_id in (' .implode(',',$permittedCategories). ')';
+        $permittedCategories_all = implode(',',$permittedCategories);
+        if($permittedCategories_all == 0)
+        {
+          $permittedCategories = ''; 
+        }
+        else
+        {
+          $permittedCategories = 'and vendors.category_id in (' .implode(',',$permittedCategories). ')';  
+        }
+
+        
       }
       $vendors = DB::select('
                   SELECT *,

@@ -441,15 +441,22 @@
                     </div>
 
                 </form>
-
+                
                 <h4>Remarks</h4>
-
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="form-group">
                             <textarea class="form-control" name="remark" rows="3" cols="10" placeholder="Remark"></textarea>
                         </div>
-
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div><b>Created Date:</b> {{ $vendor->created_at }}</div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div><b>Updated Date:</b> {{ $vendor->updated_at }}</div>
+                            </div>
+                        </div>
+                        <div class="row"><div class="col-xs-12">&nbsp;</div></div>
                         <div class="form-inline">
                             <button type="button" class="btn btn-xs btn-secondary" id="sendRemarkButton">Send</button>
                             <button type="button" class="btn btn-xs btn-secondary ml-1" id="hideRemarksButton">Show</button>

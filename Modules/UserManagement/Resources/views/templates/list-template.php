@@ -48,25 +48,35 @@ td+td {
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
 
-										{{if prop.team_leads}}
-										{{props prop.team_leads}}
+										{{if prop.team}}
+										<span class="expand-row">
+										<span class="div-team-mini">
+												<span><span><strong> {{if prop.team.name}} {{:prop.team.name}} {{else}} 'Team' {{/if}} :</strong> ({{:prop.team_leads}})</span></span>
+											</span>
+											<span class="div-team-max hidden">
 											{{if prop.name}}
-											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> {{:prop.name}}</span></span><br>
-											{{else}}
-											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> No name</span></span><br>
+											{{props prop.team_members}}
+												<p style="margin:0px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
+											{{/props}}
 											{{/if}}
-										{{/props}}
+											</span>
+										</span>
+										<br>
 										{{/if}}
-
 									<?php if(Auth::user()->isAdmin()) { ?>
 									{{if prop.is_active == 1}}
-									<button type="button" class="btn btn-image change-activation" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
+									<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
 									{{else}}
-									<button type="button" class="btn btn-image change-activation" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
+									<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
 									{{/if}}
-									<button type="button" class="btn btn-image load-team-add-modal" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+									{{if !prop.user_in_team}}
+									<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+									{{/if}}
+									{{if prop.team}}
+									<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" /></button>
+									{{/if}}
 									<?php } ?>
-									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
+									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
 								</div> 
 							</div>   
 						</div>    	  
