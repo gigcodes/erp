@@ -192,6 +192,7 @@ return [
         Milon\Barcode\BarcodeServiceProvider::class,
         App\Providers\WhatsappConfigProvider::class,
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
+        Studio\Totem\Providers\TotemServiceProvider::class
     ],
 
     /*
