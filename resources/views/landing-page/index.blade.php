@@ -21,6 +21,16 @@
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
     </div>
     <br>
+    @if(session()->has('success'))
+	    <div class="col-lg-12 alert alert-success">
+	        {{ session()->get('success') }}
+	    </div>
+	@endif
+	@if(session()->has('error'))
+	    <div class="col-lg-12 alert alert-danger">
+	        {{ session()->get('error') }}
+	    </div>
+	@endif
     <div class="col-lg-12 margin-tb">
     	<div class="row">
 	    	<div class="col col-md-9">
