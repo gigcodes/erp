@@ -1570,6 +1570,7 @@ Route::middleware('auth')->group(function () {
             Route::get('/', 'CountryDutyController@list')->name('country.duty.list');
             Route::get('/records', 'CountryDutyController@records')->name('country.duty.records');
             Route::post('save', 'CountryDutyController@store')->name('country.duty.save');
+            Route::post('update-group-field', 'CountryDutyController@updateGroupField')->name('country.duty.update-group-field');
             Route::prefix('{id}')->group(function () {
                 Route::get('edit', 'CountryDutyController@edit')->name('country.duty.edit');
                 Route::get('delete', 'CountryDutyController@delete')->name('country.duty.delete');
