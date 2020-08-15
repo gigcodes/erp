@@ -27,6 +27,7 @@ use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
 use DB;
+use Hash;
 use Illuminate\Support\Arr;
 
 class UserManagementController extends Controller

@@ -15,12 +15,14 @@
         <tr>
           <th>Date & time</th>
           <th>Time tracked</th>
+          <th>Task Id</th>
           <th colspan="2" class="text-center">Action &nbsp;<input type="checkbox" name="sample" class="selectall"/></th>
         </tr>
           @foreach ($activityrecords as $record)
             <tr>
             <td>{{ $record->starts_at }} </td>
               <td>{{ number_format($record->tracked / 60,2,".",",") }}</td>
+              <td>{{ $record->devtask_id}}</td>
               <td>
                 <input type="checkbox" value="{{$record->id}}" name="activities[]" {{$record->status ? 'checked' : ''}}>
               </td>
