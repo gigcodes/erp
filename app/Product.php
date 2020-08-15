@@ -937,6 +937,12 @@ class Product extends Model
         if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
+        }else{
+            // if validation pass and status is still external scraper then remove and put for the auto crop
+            if($this->status_id == StatusHelper::$requestForExternalScraper) {
+               $this->status_id =  StatusHelper::$autoCrop;
+               $this->save();
+            }
         }
     }
 

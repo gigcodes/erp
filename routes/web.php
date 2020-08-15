@@ -367,8 +367,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
 
-    
-    // 
+
+    //
     // Route::post('/delete-document', 'SiteDevelopmentController@deleteDocument')->name("site-development.delete-documents");
     // Route::post('/send-document', 'SiteDevelopmentController@sendDocument')->name("site-development.send-documents");
     // Route::prefix('{id}')->group(function () {
@@ -378,7 +378,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //         Route::post('/', 'SiteDevelopmentController@saveRemarks')->name("site-development.saveRemarks");
     //     });
     // });
-    
+
     //	Route::resource('task','TaskController');
 
     // Instruction
@@ -444,12 +444,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('email/forwardMail/{id}', 'EmailController@forwardMail');
     Route::post('email/forwardMail', 'EmailController@submitForward')->name('email.submit-forward');
 
-    Route::get('email/remarkMail/{id}', 'EmailController@remarkMail');
-    Route::post('email/remarkMail', 'EmailController@submitRemark')->name('email.submit-remark');
-
-
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
+    Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
     Route::resource('email', 'EmailController');
+
+    Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
+    Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
 
 
     // Zoom Meetings
@@ -1461,8 +1461,8 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::post('/generic-scraper/mapping/delete', 'ScrapController@genericMappingDelete')->name('generic.mapping.delete');
 
     Route::post('/scraper/saveChildScraper', 'ScrapController@saveChildScraper')->name('save.childrenScraper');
-
-
+    Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
+    Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
 });
 

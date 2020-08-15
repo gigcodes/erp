@@ -41,6 +41,9 @@ class LandingPageController extends Controller
         $allStatus = StatusHelper::getStatus();
         foreach ($records->items() as &$rec) {
             $landingPageProduct = $rec->product;
+            if(!$landingPageProduct) {
+                continue;
+            }
             if($landingPageProduct) {
                 if(array_key_exists($landingPageProduct->status_id, $allStatus)){
                     $rec->productStatus = $allStatus[$landingPageProduct->status_id];

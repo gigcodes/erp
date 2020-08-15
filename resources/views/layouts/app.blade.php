@@ -495,6 +495,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>

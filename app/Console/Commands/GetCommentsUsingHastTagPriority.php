@@ -54,6 +54,7 @@ class GetCommentsUsingHastTagPriority extends Command
 
             $hashtag = HashTag::where('id', $hashtagId)->first();
 
+           
             if (!$hashtag) {
                 return;
             }
