@@ -26,7 +26,7 @@ class LandingPageController extends Controller
 
     public function records(Request $request)
     {
-        $records = \App\LandingPageProduct::query();
+        $records = \App\LandingPageProduct::join("products as p","p.id","landing_page_products.product_id");
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
@@ -35,7 +35,22 @@ class LandingPageController extends Controller
             });
         }
 
-        $records = $records->latest()->paginate();
+        $stockStatus = request("stock_status");
+        if($stockStatus != null) {
+            $records = $records->where("landing_page_products.stock_status", $stockStatus);
+        }
+
+        $productStatus = request("product_status");
+        if($productStatus != null) {
+            $records = $records->where("p.status_id", $productStatus);
+        }
+
+        $status = request("status");
+        if($status != null) {
+            $records = $records->where("landing_page_products.status", $status);
+        }
+
+        $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
 
         $items = [];
         $allStatus = StatusHelper::getStatus();

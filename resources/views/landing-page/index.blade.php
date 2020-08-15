@@ -33,7 +33,7 @@
 	@endif
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-3">
 		    	<div class="row">
 	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-add-action">
 		  				<img src="/images/add.png" style="cursor: default;">
@@ -49,21 +49,31 @@
 				 </div>
 		    </div>
 		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" method="post">
+		    	<div class="h">
+		    		<form class="form-inline message-search-handler mb-2 fr" method="post" style="float: right;">
 					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group">
+				  			<div class="form-group" style="margin-left: 2px">
 							    <label for="keyword">Keyword:</label>
 							    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+						  	</div>
+						  	<div class="form-group" style="margin-left: 2px">
+							    <label for="stock_status">Stock Status:</label>
+							    <?php echo Form::select("stock_status",[0 => "Sold out", 1 => "Stock Status"],request("stock_status"),["class"=> "form-control","placeholder" => "Stock status"]) ?>
+						  	</div>
+						  	<div class="form-group" style="margin-left: 2px">
+							    <label for="status">Status:</label>
+							    <?php echo Form::select("status",[0 => "De-Active", 1 => "Active"],request("status"),["class"=> "form-control","placeholder" => "Status"]) ?>
+						  	</div>
+						  	<div class="form-group" style="margin-left: 2px">
+							    <label for="status">Product Status:</label>
+							    <?php echo Form::select("product_status",[9 => "Final Approval", 4 => "Auto Crop"],request("product_status"),["class"=> "form-control","placeholder" => "Product Status"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
 						  		</button>
-						  	</div>		
-				  		</div>
+						  	</div>
 					  </div>	
 					</form>	
 		    	</div>
