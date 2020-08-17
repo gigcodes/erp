@@ -32,11 +32,11 @@
             z-index: 60;
         }
     .cls_filter_inputbox{
-        width: 15%;
+        width: 17%;
         text-align: center;
     }
     .message-chat-txt {
-        color: #007bff !important;
+        color: #333 !important;
     }
     .cls_remove_leftpadding{
         padding-left: 0px !important;
@@ -45,8 +45,49 @@
         padding-right: 0px !important;
     }
     .cls_action_btn .btn{
-        padding: 6px 5px;
-    }    
+        padding: 6px 12px;
+    } 
+    .cls_remove_allpadding{
+        padding-left: 0px !important;
+        padding-right: 0px !important;   
+    }
+    .cls_quick_message{
+        width: 100% !important;
+        height: 35px !important;
+    }
+    .cls_filter_box{
+        width: 100%;
+    }
+    .select2-selection.select2-selection--single{
+        height: 35px;
+    }
+    .cls_action_btn .btn-image img {
+        width: 13px !important;
+    }
+    .cls_action_btn .btn {
+        padding: 6px 2px;
+    }
+    .cls_textarea_subbox{
+        width: 100%;
+    }
+    .btn.btn-image.delete_quick_comment {
+        padding: 4px;
+    }
+    .vendor-update-status-icon {
+        padding: 0px;
+    }
+    .cls_commu_his{
+        width: 100% !important;
+    }
+    .vendor-update-status-icon{
+        margin-top: -7px;
+    }
+    .clsphonebox .btn.btn-image{
+        padding: 5px;
+    }
+    .clsphonebox {
+        margin-top: -8px;
+    }
 
   </style>
 @endsection
@@ -59,12 +100,11 @@
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
-            <div class="pull-left">
+            <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
-                <label for="with_archived">Search</label>
-
-                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                        <label for="with_archived">Search</label>
+                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -88,7 +128,7 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <label for="with_archived">Communication History</label>
-                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Status</label>
@@ -106,16 +146,16 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
+                    <div class="form-group ml-3 cls_filter_checkbox">
                     <label for="with_archived">Archived</label>
-                        <input type="checkbox" class="form-control" style="margin-left: 20px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
                     </div>
-                    <button type="submit" style="margin-top: 14px;margin-left: 10px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-4">
+            <div class="pull-right mt-3">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
@@ -129,8 +169,8 @@
 
     <div class="row">
         <div class="col-md-12">
-            <div class="panel-group">
-                <div class="panel mt-5 panel-default">
+            <div class="panel-group" style="margin-bottom: 5px;">
+                <div class="panel mt-3 panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
@@ -171,14 +211,13 @@
             <tr>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="10%">Name</th>
-                <th width="10%">Phone</th>
-                <th width="10%">Email</th>
-                <th width="10%">Address</th>
+                <th width="7%">Name</th>
+                <th width="7%">Phone</th>
+                <th width="7%">Email</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
-                <th width="20%">Communication</th>
+                <th width="25%">Communication</th>
                 <th width="2%">Action</th>
             </tr>
             </thead>
@@ -1132,7 +1171,7 @@
             var $this = $(this);
             $.ajax({
                 type: "POST",
-                url: "/vendors/change-status",
+                url: BASE_URL +"vendors/change-status",
                 data: {
                     _token: "{{ csrf_token() }}",
                     vendor_id: $this.data("id"),
@@ -1141,6 +1180,41 @@
             }).done(function(data){
                 if(data.code == 200) {
                     toastr["success"](data.message);
+                }
+            }).fail(function(error) {
+                
+            })
+        });
+        $(document).on("click",".vendor-update-status-icon",function(){
+            var $this = $(this);
+            var vendor_id = $(this).attr("data-id");
+            var hdn_vendorstatus = $("#hdn_vendorstatus_"+vendor_id).val();
+            $.ajax({
+                type: "POST",
+                url: BASE_URL +"vendors/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: $this.data("id"),
+                    status : hdn_vendorstatus
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    //toastr["success"](data.message);
+                    if(hdn_vendorstatus == "true")
+                    {
+                        var img_url = BASE_URL + 'images/do-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","On");
+                        $("#hdn_vendorstatus_"+vendor_id).val('false');    
+                    }
+                    else
+                    {
+                        var img_url = BASE_URL + 'images/do-not-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');  
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","Off");
+                        $("#hdn_vendorstatus_"+vendor_id).val('true');    
+                    }
+                    
                 }
             }).fail(function(error) {
                 
