@@ -25,7 +25,16 @@ use App\WhatsAppGroup;
 use App\WhatsAppGroupNumber;
 use App\PaymentReceipt;
 use App\ChatMessagesQuickData;
+use App\Hubstaff\HubstaffMember;
+use App\Hubstaff\HubstaffTask;
 use Illuminate\Pagination\LengthAwarePaginator;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
+use Storage;
+
+define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 
 class TaskModuleController extends Controller {
 
@@ -762,7 +771,6 @@ class TaskModuleController extends Controller {
 		]);
 		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
-
 		if ($request->task_type == 'quick_task') {
 			$data['is_statutory'] = 0;
 			$data['category'] = 6;
@@ -781,6 +789,7 @@ class TaskModuleController extends Controller {
 		}
 
 			$task = Task::create($data);
+
 			// dd($request->all());
 			if ($request->is_statutory == 3) {
 				foreach ($request->note as $note) {
@@ -869,7 +878,38 @@ class TaskModuleController extends Controller {
       		$myRequest->setMethod('POST');
       		$myRequest->request->add(['messageId' => $chat_message->id]);
 
-      		app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+			  
+			  $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $assignedUser = HubstaffMember::where('user_id', $request->input('assign_to'))->first();
+			  // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+	  
+			  $hubstaffUserId = null;
+			  if ($assignedUser) {
+				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
+			  }
+			  $taskSummery = substr($message, 0, 200);
+			  
+	  
+			  $hubstaffTaskId = $this->createHubstaffTask(
+				  $taskSummery,
+				  $hubstaffUserId,
+				  $hubstaff_project_id
+			  );
+	  
+			  if($hubstaffTaskId) {
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->save();
+			  }
+			  if ($hubstaffUserId) {
+				  $task = new HubstaffTask();
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->project_id = $hubstaff_project_id;
+				  $task->hubstaff_project_id = $hubstaff_project_id;
+				  $task->summary = $message;
+				  $task->save();
+			  }
+
 
 
 			if ($request->ajax()) {
@@ -895,6 +935,96 @@ class TaskModuleController extends Controller {
 
 			return redirect()->back()->with( 'success', 'Task created successfully.' );
 	}
+
+
+	private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
+    {
+        $tokens = $this->getTokens();
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
+        $httpClient = new Client();
+        try {
+
+            $body = array(
+                'summary' => $taskSummary
+            );
+
+            if ($hubstaffUserId) {
+                $body['assignee_id'] = $hubstaffUserId;
+            } else {
+                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+            }
+
+            $response = $httpClient->post(
+                $url,
+                [
+                    RequestOptions::HEADERS => [
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
+                        'Content-Type' => 'application/json'
+                    ],
+
+                    RequestOptions::BODY => json_encode($body)
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            return $parsedResponse->task->id;
+        } catch (Exception $e) {
+            if ($e instanceof ClientException) {
+                $this->refreshTokens();
+                if ($shouldRetry) {
+                    return $this->createHubstaffTask(
+                        $taskSummary,
+                        $hubstaffUserId,
+                        $projectId,
+                        false
+                    );
+                }
+            }
+        }
+        return false;
+	}
+
+	private function refreshTokens()
+    {
+        $tokens = $this->getTokens();
+        $this->generateAccessToken($tokens->refresh_token);
+    }
+	
+
+	private function getTokens()
+    {
+        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
+            $this->generateAccessToken(SEED_REFRESH_TOKEN);
+        }
+		$tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+        return $tokens;
+    }
+
+    private function generateAccessToken(string $refreshToken)
+    {
+        $httpClient = new Client();
+        try {
+            $response = $httpClient->post(
+                'https://account.hubstaff.com/access_tokens',
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $refreshToken
+                    ]
+                ]
+            );
+
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            $tokens = [
+                'access_token' => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token
+            ];
+
+            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
 	public function flag(Request $request)
 	{
@@ -1783,7 +1913,6 @@ class TaskModuleController extends Controller {
 			if($taskType == 5 || $taskType == 6) {
 				$data["task_type_id"]	= 3;
 			}
-
 			$task = DeveloperTask::create($data);
 
 			$requestData = new Request();
@@ -1792,7 +1921,38 @@ class TaskModuleController extends Controller {
 
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
+			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
+	  
+			  $hubstaffUserId = null;
+			  if ($assignedUser) {
+				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
+			  }
+			  $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
+			  $taskSummery = substr($taskSummery, 0, 200);
+			  
+	  
+			  $hubstaffTaskId = $this->createHubstaffTask(
+				  $taskSummery,
+				  $hubstaffUserId,
+				  $hubstaff_project_id
+			  );
+	  
+			  if($hubstaffTaskId) {
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->save();
+			  }
+			  if ($hubstaffUserId) {
+				  $task = new HubstaffTask();
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->project_id = $hubstaff_project_id;
+				  $task->hubstaff_project_id = $hubstaff_project_id;
+				  $task->summary = $message;
+				  $task->save();
+			  }
+
 		}else{
+			$created = 0;
 			if($request->get("task_type") == 3) {
 				$task = Task::find($request->get("task_subject"));
 
@@ -1808,6 +1968,7 @@ class TaskModuleController extends Controller {
 				if(!$task) {
 					$task = Task::create($data);
 					$remarks = $request->get("task_subject");
+					$created = 1;
 				}
 				else {
 					$remarks = $task->task_subject;
@@ -1833,6 +1994,7 @@ class TaskModuleController extends Controller {
 				}
 
 				$task = Task::create($data);
+				$created = 1;
 			}
 			if(!empty($task)) {
 				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
@@ -1889,7 +2051,39 @@ class TaskModuleController extends Controller {
       		$myRequest->setMethod('POST');
       		$myRequest->request->add(['messageId' => $chat_message->id]);
 
-      		app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+
+			  if($created) {
+				$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+				$assignedUser = HubstaffMember::where('user_id', $task->assign_to)->first();
+		  
+				  $hubstaffUserId = null;
+				  if ($assignedUser) {
+					  $hubstaffUserId = $assignedUser->hubstaff_user_id;
+				  }
+				  $taskSummery = substr($message, 0, 200);
+				  
+		  
+				  $hubstaffTaskId = $this->createHubstaffTask(
+					  $taskSummery,
+					  $hubstaffUserId,
+					  $hubstaff_project_id
+				  );
+		  
+				  if($hubstaffTaskId) {
+					  $task->hubstaff_task_id = $hubstaffTaskId;
+					  $task->save();
+				  }
+				  if ($hubstaffUserId) {
+					  $task = new HubstaffTask();
+					  $task->hubstaff_task_id = $hubstaffTaskId;
+					  $task->project_id = $hubstaff_project_id;
+					  $task->hubstaff_project_id = $hubstaff_project_id;
+					  $task->summary = $message;
+					  $task->save();
+				  }
+			  }
+			  
 						
 		}
 
