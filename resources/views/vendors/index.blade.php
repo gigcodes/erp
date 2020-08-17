@@ -32,7 +32,7 @@
             z-index: 60;
         }
     .cls_filter_inputbox{
-        width: 17%;
+        width: 14%;
         text-align: center;
     }
     .message-chat-txt {
@@ -88,6 +88,19 @@
     .clsphonebox {
         margin-top: -8px;
     }
+    .send-message1{
+        padding: 0px 10px;
+    }
+    .load-communication-modal{
+        margin-top: -6px;
+        margin-left: 4px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 35px;
+    }
+    .select2-selection__arrow{
+        display: none;
+    }
 
   </style>
 @endsection
@@ -103,11 +116,21 @@
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search</label>
+                        <label for="with_archived">Search Name</label>
                         <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Phone Number</label>
+                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
+                            <?php
+                                if (request()->get('phone')) {
+                                    echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
                                 }
                             ?>
                         </select>
@@ -479,7 +502,7 @@
                     };
                 },
             },
-            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            placeholder: 'Search by name',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -487,10 +510,53 @@
             templateResult: function (customer) {
 
                 if (customer.name) {
-                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    return "<p>" + customer.name +"</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        var vendorToRemind = null;
+        $('#vendor-phone-number').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: BASE_URL+'/vendor-search-phone',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].phone ? data[i].phone : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search by phone number',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+
+                if (customer.name) {
+                    return "<p style='color:#BABABA;'>"+ customer.phone+ "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.phone,
 
         });
 
