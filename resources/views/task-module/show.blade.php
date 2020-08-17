@@ -27,7 +27,7 @@
 
     <div class="row">
         <div class="col-lg-12 text-center">
-            <h2 class="page-heading">Task & Activity</h2>
+            <h2 class="page-heading">{{$title}}</h2>
         </div>
     </div>
     <!--- Pre Loader -->
