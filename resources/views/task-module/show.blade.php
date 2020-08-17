@@ -40,8 +40,9 @@
 
     <div class="row mb-4">
         <div class="col-12">
-            <form class="form-inline" action="{{ route('task.index') }}" method="GET">
+            <form class="form-inline form-search-data">
                 <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
+                <input type="hidden" name="type" id="tasktype" value="pending">
                 <div class="form-group">
                     <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
                 </div>
@@ -63,10 +64,10 @@
                         <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
                         <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
                         <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
-                        <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option>
+                        <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
                     </select>
                 </div>
-                <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png"/></button>
+                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="/images/filter.png"/></button>
                 <a href="javascript:;" class="btn btn-secondary priority_model_btn">Priority</a>
             </form>
         </div>
@@ -78,7 +79,7 @@
     else
         $isAdmin = false;
     ?>
-    <div class="row mb-4">
+<div class="row mb-4">
         <div class="col-xs-12">
             <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
                 @csrf
@@ -86,6 +87,7 @@
                 <div class="row">
                     <div class="col-xs-12 col-md-4">
                         <div class="form-group">
+                        
                             <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ old('task_subject') }}" required/>
                             @if ($errors->has('task_subject'))
                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
@@ -239,16 +241,24 @@
 
                     <div class="form-group ml-3">
                         <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
-                        </select>
 
                         @if ($errors->has('no_of_milestone'))
                         <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
                         @endif
                     </div>
-
-                    <div class="col-xs-12 text-center">
-                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
+                    <div class="form-group ml-3">
+                    <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
                     </div>
+                    @if(auth()->user()->isAdmin())
+                    <div class="form-group ml-3">
+                        <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
+                        Open Task count
+                        </a>
+                    </div>
+                    @endif
+                    <!-- <div class="col-xs-12 text-center">
+                        <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
+                    </div> -->
                 </div>
             </form>
         </div>
@@ -256,13 +266,13 @@
     @include('task-module.partials.modal-reminder')
 
     @if(auth()->user()->isAdmin())
-        <div class="row" style="margin-bottom:10px;">
+        <!-- <div class="row" style="margin-bottom:10px;">
             <div class="col-md-2">
                 <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
                        Open Task count
                     </a>
             </div>
-        </div>
+        </div> -->
         <div class="row">
             <div class="col-md-12">
                 <div class="collapse" id="openFilterCount">
@@ -293,9 +303,9 @@
 
     <div id="exTab2" class="container" style="overflow: auto">
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#1" data-toggle="tab">Pending Task</a></li>
-            <li><a href="#2" data-toggle="tab">Statutory Activity</a></li>
-            <li><a href="#3" data-toggle="tab">Completed Task</a></li>
+            <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
+            <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
+            <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>
         </ul>
@@ -323,9 +333,11 @@
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view">
+                            @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
                                 @include("task-module.partials.pending-row",compact('task'))
                             @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -355,9 +367,11 @@
                             </tr>
                             </thead>
                             <tbody class="statutory-row-render-view">
+                            @if(count($data['task']['statutory_not_completed']) >0)
                                 @foreach(  $data['task']['statutory_not_completed'] as $task)
                                     @include("task-module.partials.statutory-row",compact('task'))
                                 @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -381,10 +395,12 @@
                             <th width="10%">Action</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="completed-row-render-view">
+                        @if(count($data['task']['completed']) >0)
                             @foreach( $data['task']['completed'] as $task)
                                 @include("task-module.partials.completed-row",compact('task'))
                             @endforeach
+                        @endif
                         </tbody>
                     </table>
                 </div>
@@ -517,6 +533,21 @@
             </div>
         </div>
     </div>
+
+    <div id="create-task-modal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Create task</h4>
+                </div>
+                <div class="modal-body" id="create-task-body">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
@@ -540,6 +571,33 @@
             $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
+            });
+
+            $(document).on('click', '.btn-call-data', function (e) {
+                e.preventDefault();
+                var type = $(this).data('type');
+                if(type && type != "") {
+                    type = $("#tasktype").val(type);
+                }
+                type = $("#tasktype").val();
+                $.ajax({
+                    url: "/task",
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    success: function (response) {
+                        if(type == 'pending') {
+                            $('.pending-row-render-view').html(response);
+                        }
+                        if(type == 'statutory_not_completed') {
+                            $('.statutory-row-render-view').html(response);
+                        }
+                        if(type == 'completed') {
+                            $('.completed-row-render-view').html(response);
+                        }
+                    },
+                    error: function () {
+                    }
+                });
             });
 
             function getPriorityTaskList(id) {
@@ -623,8 +681,9 @@
 
             $('#task_subject, #task_details').autocomplete({
                 source: function (request, response) {
+                    console.log(taskSuggestions);
                     var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
-
+                    console.log(results);
                     response(results.slice(0, 10));
                 }
             });
@@ -1049,6 +1108,25 @@
                 alert('Please enter a message first');
             }
         });
+        
+        // $(document).on('click', '.create-task-btn', function () {
+        //     $.ajax({
+        //         type: "GET",
+        //         url: "/task/create-task",
+        //         data: {
+        //             _token: "{{ csrf_token() }}",
+        //         },
+        //         beforeSend: function () {
+        //             $("#loading-image").show();
+        //         }
+        //     }).done(function (response) {
+        //         $("#loading-image").hide();
+        //         $("#create-task-modal").modal("show");
+        //         $("#create-task-body").html(response);
+        //     }).fail(function (response) {
+        //         $("#loading-image").hide();
+        //     });
+        // });
 
         $(document).on('click', '.make-private-task', function () {
             var task_id = $(this).data('taskid');
@@ -1730,6 +1808,7 @@
                             data: form.serialize(),
                             dataType : "json"
                         }).done(function (response) {
+                            console.log(response);
                             $("#loading-image").hide();
                             if(response.code == 200) {
                                 if(response.statutory != 1) {

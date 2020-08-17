@@ -244,7 +244,7 @@ class HashtagController extends Controller
 
         $hashtagList = HashTag::all();
         
-        $accs = Account::where('platform', 'instagram')->where('status', 1)->get();
+        $accs = Account::where('platform', 'instagram')->where('status', 1)->whereNotNull('proxy')->get();
 
         $stats = CommentsStats::selectRaw('COUNT(*) as total, narrative')->where('target', $hashtag->hashtag)->groupBy(['narrative'])->get();
 
@@ -445,59 +445,36 @@ class HashtagController extends Controller
 
         $acc = Account::findOrFail($request->get('account_id'));
 
-        if($acc->is_customer_support == 1){
-            $instagram = new Instagram();
+       
+        $instagram = new Instagram();
+        
+        try {
             
-            try {
-                
-                $senderUsername = $acc->last_name;
-                $password = $acc->password;
-                
-                if($senderUsername != '' && $password != ''){
-                    
-                    $instagram->login($senderUsername, $password);
-                
-                }else{
-                    
-                    return response()->json([
-                    'status' => 'Username Or PassWord empty'
-                    ]);
-                
-                }
-                
+            $senderUsername = $acc->last_name;
+            $password = $acc->password;
             
-            } catch (\Exception $e) {
+            if($senderUsername != '' && $password != ''){
+                $instagram->setProxy($acc->proxy);
+                $instagram->login($senderUsername, $password);
+            
+            }else{
+                
                 return response()->json([
-                    'status' => $e
-                ]);   
+                'status' => 'Username Or PassWord empty'
+                ]);
+            
             }
             
-            $instagram->media->comment($request->get('post_id'), $request->get('message'));
         
+        } catch (\Exception $e) {
             return response()->json([
-                    'status' => 'Message Send'
-                ]); 
-        }else{
-
-            $commentCheck = InstagramCommentQueue::where('message', $request->get('message'))->where('post_id',$request->get('post_id'))->where('account_id',$acc->id)->first();
-            if(empty($commentCheck)){
-                $comment = new InstagramCommentQueue();
-                $comment->message = $request->get('message');
-                $comment->post_id = $request->get('post_id');
-                $comment->account_id = $acc->id;
-                $comment->is_send = 0;
-                $comment->save();
-            }
-            else{
-               return response()->json([
-                    'status' => 'Comment Exist'
-                ]); 
-
-            }
-            
-        
+                'status' => $e
+            ]);   
         }
-
+            
+        $instagram->media->comment($request->get('post_id'), $request->get('message'));
+        
+             
         $stat = new CommentsStats();
         $stat->target = $request->get('hashtag');
         $stat->sender = $acc->last_name;
@@ -508,7 +485,7 @@ class HashtagController extends Controller
         $stat->save();
         
         return response()->json([
-            'status' => 'success'
+            'status' => 'Message send success'
         ]);
         
         //InstagramComment::dispatchNow($request);

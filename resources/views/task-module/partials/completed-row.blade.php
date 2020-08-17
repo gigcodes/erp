@@ -59,7 +59,6 @@
         @php
             $special_task = \App\Task::find($task->id);
             $users_list = '';
-
             foreach ($special_task->users as $key => $user) {
               if ($key != 0) {
                 $users_list .= ', ';

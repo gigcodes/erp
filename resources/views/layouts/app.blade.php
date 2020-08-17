@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
-    <script src="/js/generic.js" defer></script>
+    <script src="{{asset('/js/generic.js')}}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style type="text/css">
@@ -495,6 +495,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
@@ -724,6 +725,9 @@
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
                             </ul>
                         </li>
@@ -1158,6 +1162,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>

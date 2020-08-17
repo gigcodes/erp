@@ -1,3 +1,8 @@
+@php
+    $isAdmin = Auth::user()->hasRole('Admin');
+    $isHrm = Auth::user()->hasRole('HOD of CRM')
+
+@endphp
 @foreach ($vendors as $vendor)
 <tr>
     <td>{{ $vendor->id }}</td>
@@ -49,13 +54,7 @@
         @endif
     </td>
     <td class="expand-row table-hover-cell" style="word-break: break-all;">
-<span class="td-mini-container">
-  {{ strlen($vendor->email) > 10 ? substr($vendor->email, 0, 10) : $vendor->email }}
-</span>
-
-        <span class="td-full-container hidden">
-  {{ $vendor->email }}
-</span>
+        {{ $vendor->email }}
     </td>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
@@ -68,6 +67,7 @@
                     </div>
                     <div class="col-md-1 cls_remove_allpadding">
                         <button class="btn btn-sm btn-image send-message1" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
+
                     </div>
                 </div>
                 <div class="row">

@@ -10,6 +10,12 @@ use Illuminate\Console\Command;
 use seo2websites\ErpExcelImporter\ErpExcelImporter;
 use Webklex\IMAP\Client;
 
+/**
+ * @author Sukhwinder <sukhwinder@sifars.com>
+ * This command takes care of receiving all the emails from the smtp set in the environment
+ *
+ * All fetched emails will go inside emails table
+ */
 class FetchAllEmails extends Command
 {
     /**
@@ -24,7 +30,7 @@ class FetchAllEmails extends Command
      *
      * @var string
      */
-    protected $description = 'Command description';
+    protected $description = 'Fetches all emails from the configured SMTP settings';
 
     /**
      * Create a new command instance.
@@ -43,7 +49,6 @@ class FetchAllEmails extends Command
      */
     public function handle()
     {
-        dump('ok');
         try {
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
@@ -62,11 +67,6 @@ class FetchAllEmails extends Command
 
             $imap->connect();
 
-            // $supplier = Supplier::find($request->supplier_id);
-            // $suppliers = Supplier::whereHas('Agents')->orWhereNotNull('email')->get();
-
-            // dump(count($suppliers));
-
             $types = [
                 'inbox' => [
                     'inbox_name' => 'INBOX',
@@ -80,99 +80,136 @@ class FetchAllEmails extends Command
                 ],
             ];
 
-            // foreach ($suppliers as $supplier) {
-                foreach ($types as $type) {
-                    dump($type['type']);
-                    $inbox        = $imap->getFolder($type['inbox_name']);
-                    $latest_email = Email::where('type', $type['type'])->latest()->first();
+            $available_models = ["supplier" =>\App\Supplier::class,"vendor"=>\App\Vendor::class,
+                                 "customer"=>\App\Customer::class,"users"=>\App\User::class];
+            $email_list = [];
+            foreach ($available_models as $key => $value) {
+                $email_list[$value] = $value::whereNotNull('email')->pluck('id','email')->unique()->all();
+            }
 
-                    if ($latest_email) {
-                        $latest_email_date = Carbon::parse($latest_email->created_at);
-                    } else {
-                        $latest_email_date = Carbon::parse('1990-01-01');
-                    }
+            foreach ($types as $type) {
 
+                dump("Getting emails for: " . $type['type']);
+
+                $inbox        = $imap->getFolder($type['inbox_name']);
+                $latest_email = Email::where('type', $type['type'])->latest()->first();
+
+                if ($latest_email) {
+                    $latest_email_date = Carbon::parse($latest_email->created_at);
+                } else {
                     $latest_email_date = Carbon::parse('1990-01-01');
+                }
 
-                    dump($latest_email_date);
+                dump("Last received at: " . $latest_email_date);
+                // Uncomment below just for testing purpose
+                // $latest_email_date = Carbon::parse('1990-01-01');
 
-                    $emails = $inbox->messages()->where([
-                                ['SINCE', $latest_email_date->format('d M y H:i')],
-                                ]);
-                                    // $emails = $emails->setFetchFlags(false)
-                                    //                 ->setFetchBody(false)
-                                    //                 ->setFetchAttachment(false)->leaveUnread()->get();
+                $emails = $inbox->messages()->where([
+                            ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
+                            ]);
 
-                                    $emails = $emails->get();
+                $emails = $emails->get();
+                // dump($inbox->messages()->where([
+                //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
+                //     ])->get());
 
-                                    foreach ($emails as $email) {
-                                        dump($email);
-                                        $reference_id = $email->references;
-                                        // dump('=========');
-                                        $origin_id = $email->message_id;
+                foreach ($emails as $email) {
 
-                                        // check if email has already been received
+                    $reference_id = $email->references;
+                    dump($reference_id);
+                    $origin_id = $email->message_id;
 
-                                        if ($email->hasHTMLBody()) {
-                                            $content = $email->getHTMLBody();
-                                        } else {
-                                            $content = $email->getTextBody();
-                                        }
-
-                                        if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
-                                            dump('NEW EMAIL First');
-                                            $attachments_array = [];
-                                            $attachments       = $email->getAttachments();
-
-                                            $attachments->each(function ($attachment) use (&$attachments_array) {
-                                                $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-                                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-                                                $path = "email-attachments/" . $attachment->name;
-
-                                                // if ($attachment->getExtension() == 'xlsx' || $attachment->getExtension() == 'xls') {
-                                                //     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                //         $excel = $supplier->getSupplierExcelFromSupplierEmail();
-                                                //         ErpExcelImporter::excelFileProcess($attachment->name, $excel, $supplier->email);
-                                                //     }
-                                                // } elseif ($attachment->getExtension() == 'zip') {
-                                                //     if (class_exists('\\seo2websites\\ErpExcelImporter\\ErpExcelImporter')) {
-                                                //         $excel             = $supplier->getSupplierExcelFromSupplierEmail();
-                                                //         $attachments       = ErpExcelImporter::excelZipProcess($attachment, $attachment->name, $excel, $supplier->email, $attachments_array);
-                                                //         $attachments_array = $attachments;
-                                                //     }
-                                                // }
-
-                                                $attachments_array[] = $path;
-                                            });
-
-                                            $params = [
-                                                'model_id'        => null,
-                                                'model_type'      => null,
-                                                'origin_id'       => $origin_id,
-                                                'reference_id'    => $reference_id,
-                                                'type'            => $type['type'],
-                                                'seen'            => $email->getFlags()['seen'],
-                                                'from'            => $email->getFrom()[0]->mail,
-                                                'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-                                                'subject'         => $email->getSubject(),
-                                                'message'         => $content,
-                                                'template'        => 'customer-simple',
-                                                'additional_data' => json_encode(['attachment' => $attachments_array]),
-                                                'created_at'      => $email->getDate(),
-                                            ];
-
-                                            Email::create($params);
-                                        };
-                                    }
+                    // Skip if message is already stored
+                    if(Email::where('origin_id',$origin_id)->count() > 0){
+                        continue;
                     }
 
-                dump('__________');
-            // }
+                    // check if email has already been received
+
+                    if ($email->hasHTMLBody()) {
+                        $content = $email->getHTMLBody();
+                    } else {
+                        $content = $email->getTextBody();
+                    }
+
+                    if ($email->getDate()->format('Y-m-d H:i:s') > $latest_email_date->format('Y-m-d H:i:s')) {
+                        $attachments_array = [];
+                        $attachments       = $email->getAttachments();
+
+                        $attachments->each(function ($attachment) use (&$attachments_array) {
+                            $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                            file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                            $path = "email-attachments/" . $attachment->name;
+
+                            $attachments_array[] = $path;
+                        });
+
+                        $from  = $email->getFrom()[0]->mail;
+                        $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+
+                        // Model is sender if its incoming else its receiver if outgoing
+                        if($type['type'] == 'incoming'){
+                            $model_email = $from;
+                        }else{
+                            $model_email = $to;
+                        }
+
+                        // Get model id and model type
+                        extract($this->getModel($model_email, $email_list));
+
+                        $params = [
+                            'model_id'        => $model_id,
+                            'model_type'      => $model_type,
+                            'origin_id'       => $origin_id,
+                            'reference_id'    => $reference_id,
+                            'type'            => $type['type'],
+                            'seen'            => $email->getFlags()['seen'],
+                            'from'            => $email->getFrom()[0]->mail,
+                            'to'              => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                            'subject'         => $email->getSubject(),
+                            'message'         => $content,
+                            'template'        => 'customer-simple',
+                            'additional_data' => json_encode(['attachment' => $attachments_array]),
+                            'created_at'      => $email->getDate(),
+                        ];
+                        dump("Received from: ". $email->getFrom()[0]->mail);
+                        Email::create($params);
+                    }
+                }
+            }
+
+            dump('__________');
 
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
             dump($e);
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
+    }
+
+    /**
+     * Check all the emails in the DB and extract the model type from there
+     *
+     * @param [type] $email
+     * @param [type] $email_list
+     * @return array(model_id,miodel_type)
+     */
+    private function getModel($email, $email_list){
+        $model_id = null;
+        $model_type = null;
+
+        // Traverse all models
+        foreach ($email_list as $key => $value) {
+
+            // If email exists in the DB
+            if( isset($value[$email])){
+                $model_id = $value[$email];
+                $model_type = $key;
+            break;
+            }
+        }
+
+        return compact('model_id','model_type');
+
     }
 }

@@ -416,7 +416,7 @@
             tags: true,
             width : '100%',
             ajax: {
-                url: BASE_URL+'erp-leads/customer-search',
+                url: BASE_URL+'/erp-leads/customer-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -758,7 +758,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -796,7 +796,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: BASE_URL+'whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -1126,7 +1126,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendors/inviteGithub",
+                url: "/vendors/inviteGithub",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email
@@ -1149,7 +1149,7 @@
 
             $.ajax({
                 type: "POST",
-                url: BASE_URL+"vendors/inviteHubstaff",
+                url: BASE_URL+"/vendors/inviteHubstaff",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email

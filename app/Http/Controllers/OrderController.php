@@ -240,16 +240,15 @@ class OrderController extends Controller {
 		}
 
 		//$orders = (new Order())->newQuery()->with('customer');
-		$orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
-
+		// $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
+		$orders = (new Order())->newQuery()->with('customer');
 		if(empty($term))
 			$orders = $orders;
 		else{
-
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
-				return $query->where('name', 'LIKE', "%$term%");
+				return $query->where('name', 'LIKE', '%'.$term.'%');
 			})
-           ->orWhere('order_id','like','%'.$term.'%')
+           ->orWhere('orders.order_id','like','%'.$term.'%')
            ->orWhere('order_type',$term)
            ->orWhere('sales_person',Helpers::getUserIdByName($term))
            ->orWhere('received_by',Helpers::getUserIdByName($term))
@@ -257,7 +256,6 @@ class OrderController extends Controller {
            ->orWhere('city','like','%'.$term.'%')
            ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
 		}
-
 		if ($order_status[0] != '') {
 			$orders = $orders->whereIn('order_status_id', $order_status);
 		}
@@ -281,7 +279,7 @@ class OrderController extends Controller {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 
-		$orders = $orders->groupBy("op.order_id");
+		$orders = $orders->groupBy("orders.id");
 		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
 
@@ -298,6 +296,7 @@ class OrderController extends Controller {
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
 
 		$orders_array = $orders->paginate(20);
+		// dd($orders_array);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
 	}
@@ -579,7 +578,6 @@ class OrderController extends Controller {
 		$data['defaultSelected'] = $defaultSelected;
 		$data['key'] = $key;
 
-
 		return view( 'orders.form', $data );
 	}
 
@@ -591,7 +589,6 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( Request $request ) {
-
 		$this->validate( $request, [
 			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
@@ -601,11 +598,11 @@ class OrderController extends Controller {
 		$data = $request->all();
 		$key  = $request->get("key","");
 		$data['user_id'] = Auth::id();
-
 		/*if ( $request->input( 'order_type' ) == 'offline' ) {
 			$data['order_id'] = $this->generateNextOrderId();
 		}*/
 
+		
 		$oPrefix = ($request->input( 'order_type' ) == 'offline') ? "OFF-".date("Ym") : "ONN-".date("Ym");
 		$statement = \DB::select("SHOW TABLE STATUS LIKE 'orders'");
 		$nextId = 0;
@@ -645,8 +642,44 @@ class OrderController extends Controller {
 
 		$data['client_name'] = $customer->name;
 		$data['contact_detail'] = $customer->phone;
-
+		if($request->hdn_order_mail_status == "1")
+		{
+			$data['auto_emailed'] = 1;
+		}
+		else
+		{
+			$data['auto_emailed'] = 0;
+		}
 		$order = Order::create( $data );
+
+		if($request->hdn_order_mail_status == "1")
+		{
+			$id_order_inc = $order->id;
+			$order_new = Order::find($id_order_inc);
+			if (!$order_new->is_sent_offline_confirmation()) {
+				if ($order_new->order_type == 'offline') {
+					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+					$view = (new OrderConfirmation($order))->render();
+					$params = [
+				        'model_id'    		=> $order_new->customer->id,
+				        'model_type'  		=> Customer::class,
+				        'from'        		=> 'customercare@sololuxury.co.in',
+				        'to'          		=> $order_new->customer->email,
+				        'subject'     		=> "New Order # " . $order_new->order_id,
+				        'message'     		=> $view,
+						'template'				=> 'order-confirmation',
+						'additional_data'	=> $order_new->id
+		      		];
+		      		Email::create($params);
+					CommunicationHistory::create([
+						'model_id'		=> $order_new->id,
+						'model_type'	=> Order::class,
+						'type'				=> 'offline-confirmation',
+						'method'			=> 'email'
+					]);
+				}
+			}
+		}
 
 		if ($customer->credit > 0) {
 			$balance_amount = $order->balance_amount;
@@ -839,7 +872,6 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function show( Order $order ) {
-
 		$data                   = $order->toArray();
 		$data['sales_persons']  = Helpers::getUsersArrayByRole( 'Sales' );
 		$data['order_products'] = $this->getOrderProductsWithProductData($order->id);
@@ -2145,6 +2177,34 @@ public function createProductOnMagento(Request $request, $id){
         }
 
         return response()->json(["code" => 500 , "data" => [] , "message" => "Sorry , there is no matching order found"]);
+	}
+	public function sendOrderEmail(Request $request, $id)
+	{
+		$order = Order::find($id);
+		if (!$order->is_sent_offline_confirmation()) {
+			if ($order->order_type == 'offline') {
+				Mail::to($order->customer->email)->send(new OrderConfirmation($order));
+				$view = (new OrderConfirmation($order))->render();
+				$params = [
+			        'model_id'    		=> $order->customer->id,
+			        'model_type'  		=> Customer::class,
+			        'from'        		=> 'customercare@sololuxury.co.in',
+			        'to'          		=> $order->customer->email,
+			        'subject'     		=> "New Order # " . $order->order_id,
+			        'message'     		=> $view,
+					'template'				=> 'order-confirmation',
+					'additional_data'	=> $order->id
+	      		];
+	      		Email::create($params);
+				CommunicationHistory::create([
+					'model_id'		=> $order->id,
+					'model_type'	=> Order::class,
+					'type'				=> 'offline-confirmation',
+					'method'			=> 'email'
+				]);
+			}
+		}
+		return response()->json(["code" => 200 , "data" => [], "message" => "You have successfully sent confirmation email!"]);
 	}
 
 	public function previewInvoice(Request $request, $id)

@@ -46,6 +46,7 @@
                             </td>
                             <td>
                             <button type="button" class="btn btn-xs btn-secondary latest-remarks-btn" data-id="{{$website->id}}">Remarks</button>
+                            <button type="button" class="btn btn-xs btn-secondary artwork-history-btn" data-id="{{$website->id}}">Artwork history</button>
                             </td>
                         </tr>
                     @endforeach
@@ -87,6 +88,35 @@
     </div>
 </div>
 
+
+
+<div id="artwork-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Date</th>
+					        <th>Title</th>
+					        <th>Status</th>
+					        <th>Username</th>
+					      </tr>
+					    </thead>
+					    <tbody class="artwork-history-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 <script>
 $(document).on('click', '.latest-remarks-btn', function (e) {
 			websiteId = $(this).data('id');
@@ -104,6 +134,31 @@ $(document).on('click', '.latest-remarks-btn', function (e) {
 					}
 					$("#latest-remarks-modal").modal("show");
 					$(".latest-remarks-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+        });
+
+
+		$(document).on('click', '.artwork-history-btn', function (e) {
+			websiteId = $(this).data('id');
+            $.ajax({
+                url: "/site-development/artwork-history/all-histories/"+websiteId,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					console.log(response);
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].date+'</td><td>'+response.data[i-1].title+'</td><td> Status changed from '+response.data[i-1].from_status+ ' to '+response.data[i-1].to_status+'</td><td>'+response.data[i-1].username+'</td></tr>';
+					}
+					$("#artwork-history-modal").modal("show");
+					$(".artwork-history-list-view").html(tr);
 					$("#loading-image").hide();
                 },
                 error: function () {

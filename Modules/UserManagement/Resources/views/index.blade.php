@@ -79,6 +79,9 @@
         color: red;
         font-size: 10pt;
     }
+    .pd-5 {
+        padding:5px;
+    }
 </style>
 @include('partials.flash_messages')
 <div class="row" id="common-page-layout">
@@ -95,7 +98,7 @@
                             <div class="col">
                                 <div class="form-group">
                                     <label for="keyword">Keyword:</label>
-                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control data-keyword","placeholder" => "Enter keyword"]) ?>
                                 </div>
                                 <div class="form-group">
                                     <label for="keyword">Active:</label>

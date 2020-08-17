@@ -142,6 +142,7 @@
                         <!-- <th>Server</th> -->
                         <th>Server ID</th>
                         <th>Run Time</th>
+                        <th>Start Scrap</th>
                         <th>Last Scraped</th>
                         <th>Stock</th>
                         <th>URL Count</th>
@@ -235,7 +236,14 @@
                                     {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
                                 @endif
-                                {{ $supplier->last_completed_at }} 
+                                <br/>
+                                @if($supplier->last_started_at)
+                                <p>: Start Time {{ $supplier->last_started_at }} </p>
+                                <br/>
+                                @endif
+                                @if($supplier->last_completed_at)
+                                <p>: End Time {{ $supplier->last_completed_at }} </p>
+                                @endif
                             </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
                             <?php $totalCountedUrl += !empty($data) ? $data->total : 0; ?>
