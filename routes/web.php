@@ -890,6 +890,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
+    Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
 
     /*Routes For Social */
     Route::any('social/get-post/page', 'SocialController@pagePost')->name('social.get-post.page');
