@@ -207,6 +207,7 @@ class LandingPageController extends Controller
     public function pushToShopify(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
+        $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
 
         if (!empty($landingPage)) {
 
@@ -234,6 +235,17 @@ class LandingPageController extends Controller
                 $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
             }
 
+            if($storeWebsite) {
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsite->id);
+                if(!empty($sizeCharts)) {
+                    foreach($sizeCharts as $sizeC) {
+                        $sizeC = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
+                        $html[] = "<p><b>Size Chart</b> : <a href='".$sizeC."'>Here</a></p>";
+                    }
+                }
+            }
+
+
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
@@ -244,7 +256,7 @@ class LandingPageController extends Controller
                         'body_html'       => implode("<br>",$landingPage->description),
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
-                        'tags'            => 'flash_sales'
+                        'tags'            => 'Home Page'
                     ],
                 ];
             }
@@ -288,7 +300,6 @@ class LandingPageController extends Controller
             }
 
             
-            $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
             $countryGroupOptions = [];
 
             // setup for price
