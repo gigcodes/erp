@@ -2387,6 +2387,7 @@
         $(document).on("change",".type-on-change",function(e) {
             e.preventDefault();
             var task_type = $(this).val();
+            console.log(task_type);
             if(task_type == 3) {
                 // $('.normal-subject').hide();
                     // $('.discussion-task-subject').show();
@@ -2407,10 +2408,11 @@
                     toastr['error'](response.responseJSON.message);
                 });
             }
-            // else {
-            //     $('.normal-subject').show();
-            //     $('.discussion-task-subject').hide();
-            // }
+            else {
+                // $('select.select2-discussion').select2({tags: true});
+                $("select.select2-discussion").empty().trigger('change'); 
+            }
+            
             
         });
 
