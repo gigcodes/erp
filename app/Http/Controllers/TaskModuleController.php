@@ -34,7 +34,6 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
-		// dd($request->all());
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 		} else {
@@ -535,22 +534,29 @@ class TaskModuleController extends Controller {
 		->select(\DB::raw("count(u.id) as total"),"u.name as person")
 		->pluck("total","person");
 
+		if($request->is_statutory_query == 3) {
+			$title = 'Discussion tasks';
+		}
+		else {
+			$title = 'Task & Activity';
+		}
+
 		if ($request->ajax()) {
 			if($type == 'pending') {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
 			}
 			else if( $type == 'statutory_not_completed') {
-				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+				return view( 'task-module.partials.statutory-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
 			}
 			else if( $type == 'completed') {
-				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+				return view( 'task-module.partials.completed-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
 			}
 			else {
-				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
 			}
 		}
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type'));
+		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
 	}
 
 
@@ -1763,7 +1769,6 @@ class TaskModuleController extends Controller {
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts'
 		]);
-
 		$taskType = $request->get("task_type");
 
 		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
@@ -1788,17 +1793,47 @@ class TaskModuleController extends Controller {
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
 
 		}else{
-			$data['assign_from']  = Auth::id();
-			$data['is_statutory'] = $request->get("task_type");
-			$data['task_details'] = $request->get("task_detail");
-			$data['task_subject'] = $request->get("task_subject");
-			$data['assign_to'] 	  = $request->get("task_asssigned_to");
-			$data["customer_id"]	= $request->get("customer_id");
-			if($request->category_id != null) {
-				$data['category'] 	  = $request->category_id;
-			}
+			if($request->get("task_type") == 3) {
+				$task = Task::find($request->get("task_subject"));
 
-			$task = Task::create($data);
+				$data['assign_from']  = Auth::id();
+				$data['is_statutory'] = $request->get("task_type");
+				$data['task_details'] = $request->get("task_detail");
+				$data['task_subject'] = $request->get("task_subject");
+				$data['assign_to'] 	  = $request->get("task_asssigned_to");
+				$data["customer_id"]	= $request->get("customer_id");
+				if($request->category_id != null) {
+					$data['category'] 	  = $request->category_id;
+				}
+				if(!$task) {
+					$task = Task::create($data);
+					$remarks = $request->get("task_subject");
+				}
+				else {
+					$remarks = $task->task_subject;
+				}
+				$exist = Remark::where('taskid',$task->id)->where('remark', $remarks)->where('module_type','task-note')->first();
+				if(!$exist) {
+					Remark::create([
+						'taskid'	=> $task->id,
+						'remark'	=> $remarks,
+						'module_type'	=> 'task-note'
+					]);
+				}
+			}
+			else {
+				$data['assign_from']  = Auth::id();
+				$data['is_statutory'] = $request->get("task_type");
+				$data['task_details'] = $request->get("task_detail");
+				$data['task_subject'] = $request->get("task_subject");
+				$data['assign_to'] 	  = $request->get("task_asssigned_to");
+				$data["customer_id"]	= $request->get("customer_id");
+				if($request->category_id != null) {
+					$data['category'] 	  = $request->category_id;
+				}
+
+				$task = Task::create($data);
+			}
 			if(!empty($task)) {
 				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
 			}
@@ -1860,6 +1895,11 @@ class TaskModuleController extends Controller {
 
 		return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
 
+	}
+
+	public function getDiscussionSubjects() {
+		$discussion_subjects = Task::where('is_statutory',3)->where('is_verified',NULL)->pluck('task_subject','id')->toArray();
+		return response()->json(["code" => 200, "discussion_subjects" => $discussion_subjects]);
 	}
 
 	/***

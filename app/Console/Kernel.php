@@ -426,7 +426,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
-        $schedule->command('github:load_branch_state')->hourly();
+        //$schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
         $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
