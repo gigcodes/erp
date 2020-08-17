@@ -88,6 +88,13 @@
     .clsphonebox {
         margin-top: -8px;
     }
+    .send-message1{
+        padding: 0px 10px;
+    }
+    .load-communication-modal{
+        margin-top: -6px;
+        margin-left: 4px;
+    }
 
   </style>
 @endsection
