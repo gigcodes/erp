@@ -2383,6 +2383,36 @@
                 toastr['error'](response.responseJSON.message);
             });
         });
+        $('select.select2-discussion').select2({tags: true});
+        $(document).on("change",".type-on-change",function(e) {
+            e.preventDefault();
+            var task_type = $(this).val();
+            if(task_type == 3) {
+                // $('.normal-subject').hide();
+                    // $('.discussion-task-subject').show();
+                $.ajax({
+                url: '/task/get-discussion-subjects',
+                type: 'GET',
+                success: function (response) {
+                    $('select.select2-discussion').select2({tags: true});
+                    var option = '<option value="" >Select</option>';
+                    $.each(response.discussion_subjects, function(i, item) {
+                    console.log(item);
+
+                            option = option + '<option value="'+i+'">'+item+'</option>';
+                        });
+                        $('.add-discussion-subjects').html(option);
+                    }
+                }).fail(function (response) {
+                    toastr['error'](response.responseJSON.message);
+                });
+            }
+            // else {
+            //     $('.normal-subject').show();
+            //     $('.discussion-task-subject').hide();
+            // }
+            
+        });
 
         $(document).on('change', '#keyword_category', function () {
             console.log("inside");
