@@ -1450,6 +1450,13 @@ class WhatsAppController extends FindByNumberController
                         "updated_at"=>date("Y-m-d H:i:s")
                     );
                     DB::table('tasks')->insert($task_array);
+                    $taskid = DB::getPdo()->lastInsertId();
+                    $task_users_array =  array(
+                        "task_id"=>$taskid,
+                        "user_id"=>$keywordassign[0]->assign_to,
+                        "type"=>"App\User"
+                    );
+                    DB::table('task_users')->insert($task_users_array);
                 }
             }
 
