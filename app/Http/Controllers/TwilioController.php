@@ -978,15 +978,9 @@ class TwilioController extends FindByNumberController
         exit;
     }
 
-
-
-
-
-
-  /*  public function CallRecordings(Request $request)
+    public function CallRecordings($id)
     {
         try {
-            $id = $request->get('id');
             $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
             $sid = $check_account->account_id;
             $token = $check_account->auth_token;
@@ -994,7 +988,7 @@ class TwilioController extends FindByNumberController
             $url = 'https://api.twilio.com/2010-04-01/Accounts/' . $sid . '/Recordings.json?__referrer=runtime&Format=json&PageSize=100&Page=0';
             $result = TwilioHelper::curlGetRequest($url, $sid, $token);
             $result = json_decode($result);
-            return view('twilio.manage-recordings', compact('result'));
+            return view('twilio.manage-recordings', compact('result','id'));
         } catch (\Exception $e) {
             return redirect('twilio/manage-numbers')->withErrors(['Undefined twilio account']);
         }
@@ -1003,33 +997,14 @@ class TwilioController extends FindByNumberController
 
     public function downloadRecording(Request $request, $recording_id)
     {
-            $id = $request->get('id');
-            $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
-            $sid = $check_account->account_id;
-            $file = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Recordings/'.$recording_id.'.mp3';
-            header("Content-type: application/x-file-to-save");
-            header("Content-Disposition: attachment; filename=".basename($file));
-            readfile($file);
-            exit;
+        $id = $request->get('id');
+        $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
+        $sid = $check_account->account_id;
+        $file = 'https://api.twilio.com/2010-04-01/Accounts/'.$sid.'/Recordings/'.$recording_id.'.mp3';
+        header("Content-type: application/x-file-to-save");
+        header("Content-Disposition: attachment; filename=".basename($file));
+        readfile($file);
+        exit;
     }
-
-
-    public function runWebhook($sid)
-    {
-        Log::info('Webhook called successfully');
-        $twiml = new VoiceResponse();
-        //get forwarded no. of this twilio_sid
-        $forwarding = TwilioCallForwarding::where('twilio_number_sid','=',$sid)->first();
-        Log::info('forwarding number details '.$forwarding->forwarding_on);
-        Log::info('number dialled');
-        $twiml->say("Please wait , we are connecting your call");
-        $twiml->dial($forwarding->forwarding_on, ['record' => 'record-from-ringing-dual']);
-        $twiml->hangup();
-        echo $twiml;
-        die;
-    }
-
-    */
-
 
 }

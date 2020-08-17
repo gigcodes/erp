@@ -8,35 +8,6 @@
             <h2 class="page-heading">Twilio Recordings</h2>
         </div>
     </div>
- {{--   <form method="get" action="">
-        <div class="row mb-3">
-            <div class="col-md-4">
-                <label>Start Date</label>
-                <div class='input-group date' id='start-date'>
-                    <input type='text' class="form-control" name="st_date" value="{{ isset($start_date) ? $start_date : '' }}" />
-
-                      <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <label>End Date</label>
-                <div class='input-group date' id='end-date'>
-                    <input type='text' class="form-control" name="en_date" value="{{ isset($end_date) ? $end_date : '' }}" />
-                      <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                </div>        </div>
-            <div class="col-md-2">
-                <button class="btn btn-image" type="submit">
-                    <img src="/images/filter.png" />
-                </button>
-            </div>
-        </div>
-    </form>
---}}
-
     <div class="row mt-3">
         <div class="col-md-10 col-sm-12">
             <div class="row">
@@ -56,12 +27,12 @@
                         @if(isset($result))
                             @foreach($result->recordings as $res)
                                 <tr>
-                                    <td>{{ $res->sid }}</td>
-                                    <td>{{ $res->call_sid }}</td>
-                                    <td>{{ $res->price }}</td>
-                                    <td>{{ $res->price_unit }}</td>
-                                    <td>{{ $res->source }}</td>
-                                    <td><a href="{{ route('download-mp3', $res->sid).'?id='.request()->get('id') }}">Download Mp3</a></td>
+                                    <td>{{ @$res->sid }}</td>
+                                    <td>{{ @$res->call_sid }}</td>
+                                    <td>{{ @$res->price }}</td>
+                                    <td>{{ @$res->price_unit }}</td>
+                                    <td>{{ @$res->source }}</td>
+                                    <td><a href="{{ route('download-mp3', @$res->sid).'?id='.$id }}">Download Mp3</a></td>
                                 </tr>
                             @endforeach
                         @endif

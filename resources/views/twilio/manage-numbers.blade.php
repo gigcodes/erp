@@ -65,7 +65,8 @@
                                         <a href="javascript:void(0);" type="button" id="{{ $number->id }}" class="btn btn-image open_row">
                                             <img src="/images/forward.png" style="cursor: default;" width="2px;">
                                         </a>
-                                        <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="{{ $number->id }}" title="Call Forwarding" ><img src="/images/view.png" style="cursor: default;"></a>
+                                        <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="{{ $number->id }}" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
+                                        <a href="{{ route('twilio-call-recording', $account_id) }}" class="btn d-inline btn-image" title="Call Recording" ><img src="/images/view.png" style="cursor: default;"></a>
                                     </td>
                                 </tr>
                                 <tr class="hidden_row_{{ $number->id  }}" data-eleid="{{ $number->id }}" style="display:none;">
@@ -126,126 +127,20 @@
                 </div>
             </div>
         </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="callForwardingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Call Forwarding</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form method="post" action="{{ route('twilio-call-forwarding') }}">
-                        @csrf
-                        <div class="modal-body">
-                            <div class="col-md-12">
-                                <input type="hidden" class="form-control" name="twilio_number_id" id="num_id" value="" />
-                                <input type="hidden" class="form-control" name="twilio_account_id" id="{{ request()->get('id') }}" value="" />
-
-                                <div class="col-md-4">
-                                    <label>Number</label>
-                                    <input type="text" class="form-control" name="number" id="number" required/>
-                                </div>
-                                <div class="col-md-4">
-                                   <label>Select Agent</label>
-                                   <select class="form-control" name="agent_id">
-                                       <option value="">Select Agent</option>
-                                       @if(isset($customer_role_users))
-                                           @foreach($customer_role_users as $user)
-                                                <option value="{{ $user->user->id }}">{{ $user->user->name }}</option>
-                                           @endforeach
-                                       @endif
-                                   </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="modal-footer mt-5">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Modal -->
-        <div class="modal fade" id="assignNumberToStock" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg" role="document">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="exampleModalLabel">Call Forwarding</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <form method="post" action="{{ route('assign-number-to-store-website') }}">
-                        @csrf
-                        <div class="modal-body">
-                            <div class="row">
-                                <div class="col-md-4 col-sm-12">
-                                    <div class="form-group mr-3">
-                                        <select class="form-control" name="store_website_id" id="store_website_id">
-                                            <option value="">Select store website</option>
-                                            @if(isset($store_websites))
-                                                @foreach($store_websites as $websites)
-                                                    <option value="{{ $websites->id }}">{{ $websites->title }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-                                </div>
-                                <div class="col-md-4 col-sm-12">
-                                    <div class="form-group mr-3">
-                                        <select class="form-control" name="twilio_number_id" id="twilio_number_id">
-                                            <option value="">Select twilio number</option>
-                                            @if(isset($numbers))
-                                                @foreach($numbers as $number)
-                                                    <option value="{{ $number->id }}">{{ $number->phone_number }}</option>
-                                                @endforeach
-                                            @endif
-                                        </select>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-4">
-                                    <div class="form-group mr-3">
-                                        <textarea name="message_available" class="form-control" placeholder="Greeting Message during operation hours "></textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group mr-3">
-                                        <textarea name="message_not_available" class="form-control" placeholder="Greeting Message during non operation hours"></textarea>
-                                    </div>
-                                </div>
-                                <div class="col-md-4">
-                                    <div class="form-group mr-3">
-                                        <textarea name="message_busy" class="form-control" placeholder="Greeting Message if busy "></textarea>
-                                    </div>
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="modal-footer mt-5">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                            <button type="submit" class="btn btn-primary">Save changes</button>
-                        </div>
-                    </form>
-                </div>
-            </div>
-        </div>
-
-
-
     </div>
 
     <script type="text/javascript">
         $(document).ready(function(){
+            var counter_one, counter_two;
             $('.open_row').on("click", function(){
                 var row_id = $(this).attr('id');
-                $('.hidden_row_'+row_id).show();
+                if(counter_one == 1){
+                    counter_one = 0;
+                    $('.hidden_row_'+row_id).hide();
+                }else{
+                    counter_one = 1;
+                    $('.hidden_row_'+row_id).show();
+                }
             });
 
             $('.save-number-to-store').on("click", function(){
@@ -278,7 +173,13 @@
             $('.call_forwarding').on("click", function(){
                 var num_id = $(this).data('attr');
                 $('.call_forwarding_'+num_id).show();
-
+                if(counter_two == 1){
+                    counter_two = 0;
+                    $('.call_forwarding_'+num_id).hide();
+                }else{
+                    counter_two = 1;
+                    $('.call_forwarding_'+num_id).show();
+                }
                 $('.call_forwarding_save').on("click", function(){
                     var agent_id = $('#agent_'+num_id).val();
                     if(agent_id == ''){

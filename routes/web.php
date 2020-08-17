@@ -2069,12 +2069,10 @@ Route::group(['middleware' => 'auth'], function () {
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
-    //Route::get('twilio/manage-numbers/{id?}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
 
-
-    Route::get('twilio/call-recordings', 'TwilioController@CallRecordings')->name('twilio-call-recording');
+    Route::get('twilio/call-recordings/{account_id}', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
 
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');

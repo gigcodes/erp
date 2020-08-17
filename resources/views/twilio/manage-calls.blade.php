@@ -47,15 +47,15 @@
                     @if(isset($twilio_account_details))
                         @foreach($twilio_account_details->numbers as $number)
                             <tr>
-                                <td>{{ $number->account_sid }}</td>
-                                <td>{{ $number->phone_number }}</td>
-                                <td>{{ $number->assigned_stores->store_website->title }}</td>
-                                <td>{{ $number->forwarded->forwarded_number_details->user_availabilities->from }} - {{ $number->forwarded->forwarded_number_details->user_availabilities->to }}</td>
-                                <td>{{ date('d-m-Y', strtotime( $number->forwarded->forwarded_number_details->user_availabilities->date )) }}</td>
-                                <td>{{ $number->forwarded->forwarded_number_details->name }}</td>
-                                <td>{{ $number->assigned_stores->message_available }}</td>
-                                <td>{{ $number->assigned_stores->message_not_available }}</td>
-                                <td>{{ $number->assigned_stores->message_busy }}</td>
+                                <td>{{ @$number->account_sid }}</td>
+                                <td>{{ @$number->phone_number }}</td>
+                                <td>{{ @$number->assigned_stores->store_website->title }}</td>
+                                <td>{{ @$number->forwarded->forwarded_number_details->user_availabilities->from }} - {{ @$number->forwarded->forwarded_number_details->user_availabilities->to }}</td>
+                                <td>{{ date('d-m-Y', strtotime( @$number->forwarded->forwarded_number_details->user_availabilities->date )) }}</td>
+                                <td>{{ @$number->forwarded->forwarded_number_details->name }}</td>
+                                <td>{{ @$number->assigned_stores->message_available }}</td>
+                                <td>{{ @$number->assigned_stores->message_not_available }}</td>
+                                <td>{{ @$number->assigned_stores->message_busy }}</td>
                                 <td>
                                     <a href="{{ route('twilio-incoming-calls', [$number->sid, $number->phone_number]).'?id='.request()->get('id') }}" >Incoming Calls</a>
                                 </td>
