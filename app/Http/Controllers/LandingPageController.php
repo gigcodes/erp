@@ -12,6 +12,8 @@ use Plank\Mediable\Media;
 class LandingPageController extends Controller
 {
 
+    const GALLERY_TAG_NAME = "gallery_";
+
     public function __construct()
     {
 
@@ -99,11 +101,16 @@ class LandingPageController extends Controller
                 if ($product) {
                     if($product->category > 3 && $product->hasMedia(config('constants.media_original_tag'))) {
                         // check status if not cropped then send to the cropper first
-                        if ($product->status_id != \App\Helpers\StatusHelper::$finalApproval) {
-                            $product->scrap_priority = 1;
-                        } else {
-                            $product->scrap_priority = 0;
+                        foreach ($product->getAllMediaByTag() as $tag => $medias) {
+                            // if there is specific color then only send the images
+                            if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
+                                foreach ($medias as $image) {
+                                    $image->delete();
+                                }
+                            }
                         }
+                        $product->status_id = StatusHelper::$autoCrop;
+                        $product->scrap_priority = 1;
                         // save product
                         $product->save();
                         \App\LandingPageProduct::updateOrCreate(
@@ -200,6 +207,7 @@ class LandingPageController extends Controller
     public function pushToShopify(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
+        $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
 
         if (!empty($landingPage)) {
 
@@ -214,6 +222,30 @@ class LandingPageController extends Controller
             if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
+
+            // create a html for submit the file
+            $html   = [];
+            $html[] = $landingPage->description;
+
+            if(!empty($landingPageProduct->composition)){
+                $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
+            }
+
+            if(!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)){
+                $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
+            }
+
+            if($storeWebsite) {
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsite->id);
+                if(!empty($sizeCharts)) {
+                    foreach($sizeCharts as $sizeC) {
+                        $sizeC = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
+                        $html[] = "<p><b>Size Chart</b> : <a href='".$sizeC."'>Here</a></p>";
+                    }
+                }
+            }
+
+
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
@@ -221,10 +253,10 @@ class LandingPageController extends Controller
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
                         'title'           => $landingPage->name,
-                        'body_html'       => $landingPage->description,
+                        'body_html'       => implode("<br>",$landingPage->description),
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
-                        'tags'            => 'flash_sales'
+                        'tags'            => 'Home Page'
                     ],
                 ];
             }
@@ -233,7 +265,7 @@ class LandingPageController extends Controller
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getAllMediaByTag() as $tag => $medias) {
                     // if there is specific color then only send the images
-                    if (strpos($tag, 'gallery_') !== false) {
+                    if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
                         foreach ($medias as $image) {
                             $productData['product']['images'][] = ['src' => $image->getUrl()];
                         }
@@ -268,7 +300,6 @@ class LandingPageController extends Controller
             }
 
             
-            $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
             $countryGroupOptions = [];
 
             // setup for price

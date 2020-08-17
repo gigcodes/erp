@@ -1301,6 +1301,10 @@
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+
                                     </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
