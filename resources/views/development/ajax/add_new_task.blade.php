@@ -63,16 +63,6 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
-                        <label for="hubstaff_project">Hubstaff Project:</label>
-                        <br />
-                        <select style="width:100%" class="form-control select2" id="hubstaff_project" name="hubstaff_project">
-                            @foreach ($projects as $project)
-                            <option value="{{ $project->id }}" {{ $project->id == old('hubstaff_project') ? 'selected' : '' }}>{{ $project->hubstaff_project_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
                     <!-- <div class="form-group">
                         <label for="priority">Priority:</label>
                         <select class="form-control" name="priority" id="priority" required>

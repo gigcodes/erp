@@ -695,7 +695,6 @@ class DevelopmentController extends Controller
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
-
         $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
         $httpClient = new Client();
         try {
@@ -794,12 +793,11 @@ class DevelopmentController extends Controller
             'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
-            'hubstaff_project' => 'required',
             'module_id' => 'required',
 
         ]);
-
         $data = $request->except('_token');
+        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
@@ -872,8 +870,10 @@ class DevelopmentController extends Controller
         //   ]);
         // }
 
+        $hubstaff_project_id = $data['hubstaff_project'];
+
         $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
-        $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 
         $hubstaffUserId = null;
         if ($assignedUser) {
@@ -891,7 +891,7 @@ class DevelopmentController extends Controller
         $hubstaffTaskId = $this->createHubstaffTask(
             $taskSummery,
             $hubstaffUserId,
-            $hubstaffProject->hubstaff_project_id
+            $hubstaff_project_id
         );
 
         if($hubstaffTaskId) {
@@ -901,8 +901,8 @@ class DevelopmentController extends Controller
         if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaffProject->id;
-            $task->hubstaff_project_id = $hubstaffProject->hubstaff_project_id;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
             $task->summary = $request->input('task');
             $task->save();
         }
