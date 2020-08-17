@@ -115,7 +115,7 @@ class VendorController extends Controller
       if (request('term') != null) {
         $query->where('name', 'LIKE', "%{$request->term}%")
           ->orWhere('address', 'LIKE', "%{$request->term}%")
-          ->orWhere('phone', 'LIKE', "%{$request->term}%")
+          ->orWhere('phone', 'LIKE', "%{$request->phone}%")
           ->orWhere('email', 'LIKE', "%{$request->term}%")
           ->orWhereHas('category', function ($qu) use ($request) {
             $qu->where('title', 'LIKE', "%{$request->term}%");
@@ -307,14 +307,23 @@ class VendorController extends Controller
   public function vendorSearch()
   {
     $term = request()->get("q", null);
-    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+    /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
       ->orWhere('address', 'LIKE', "%" . $term . "%")
       ->orWhere('phone', 'LIKE', "%" . $term . "%")
       ->orWhere('email', 'LIKE', "%" . $term . "%")
       ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
-      })->get();
+      })->get();*/
+    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+              ->get();
     return response()->json($search);
+  }
+  public function vendorSearchPhone()
+  {
+    $term = request()->get("q", null);
+    $search = Vendor::where('phone', 'LIKE', "%" . $term . "%")
+              ->get();
+    return response()->json($search);  
   }
 
   public function email(Request $request)
