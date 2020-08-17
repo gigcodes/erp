@@ -1850,6 +1850,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::post('mailinglist-ajax-store', 'MailinglistEmailController@store');
     Route::post('mailinglist-ajax-show', 'MailinglistEmailController@show');
     Route::post('mailinglist-ajax-duplicate', 'MailinglistEmailController@duplicate');
+    Route::post('mailinglist-stats', 'MailinglistEmailController@getStats');
 });
 
 Route::group(['middleware' => 'auth', 'prefix' => 'checkout'], function () {

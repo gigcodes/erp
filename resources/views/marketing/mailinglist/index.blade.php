@@ -53,6 +53,15 @@
                             </select>
                         </div>
                         <div class="form-group">
+                            <select name="websites_id" id="websites_id" class="form-control">
+                                <option value="">Select Website</option>
+                                @foreach($websites as $website)
+                                    <option value="{{$website->id}}">{{$website->title}}</option>
+                                @endforeach
+                            </select>
+                        </div>
+
+                        <div class="form-group">
                             <input type="text" name="name" class="form-control name" placeholder="Name">
                         </div>
                     </form>
@@ -81,7 +90,7 @@
             @foreach($list as $value)
                 <tr>
                     <td>{{$value["name"]}}</td>
-                    <td>{{$value["website_id"]}}</td>
+                    <td>@if($value->website) {{$value->website->title}} @endif</td>
                     <td>{{$value->service->name}}</td>
                     <td>{{$value['remote_id']}}</td>
                     <td><a href="{{route('mailingList.single', $value['remote_id'])}}"><i class="fa fa-list"></i></a> <a href="{{route('mailingList.delete.list', $value['remote_id'])}}">Delete</a></td>
@@ -99,7 +108,9 @@
                 type: 'POST',
                 data: {
                     name: $('.name').val(),
-                    service_id: $('#service_id').val()
+                    service_id: $('#service_id').val(),
+                    websites_id: $('#websites_id').val()
+
                 },
                 beforeSend: function (request) {
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
