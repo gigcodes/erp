@@ -2060,9 +2060,20 @@ Route::group(['middleware' => 'auth'], function () {
     /**
      * Twilio account management
      */
-    Route::get('get-twilio-numbers', 'TwilioController@getTwilioActiveNumbers');
-    Route::get('twilio/manage-numbers/{id?}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+
+    Route::get('twilio/manage-twilio-account', 'TwilioController@manageTwilioAccounts')->name('twilio-manage-accounts');
+    Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
+    Route::get('twilio/delete-account/{id}', 'TwilioController@deleteAccount')->name('twilio-delete-account');
+    Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
+
+
+
+    Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
+    //Route::get('twilio/manage-numbers/{id?}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
+    Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
+
+
     Route::get('twilio/call-recordings', 'TwilioController@CallRecordings')->name('twilio-call-recording');
     Route::get('/download-mp3/{sid}', 'TwilioController@downloadRecording')->name('download-mp3');
     Route::post('twilio/call-forwarding', 'TwilioController@callForwarding')->name('twilio-call-forwarding');

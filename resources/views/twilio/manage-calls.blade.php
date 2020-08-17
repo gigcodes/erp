@@ -26,7 +26,7 @@
             </div>
         </div>
     </div>
-    <div class="row mb-3">
+    <div class="row no-gutters mb-3">
         <div class="table-responsive">
             <table class="table table-bordered table-hover">
                 <thead>

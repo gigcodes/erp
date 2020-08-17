@@ -1304,7 +1304,7 @@
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
-                                    <a href="{{ route('twilio-manage-numbers') }}">Twilio Account Management</a>
+                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
                                 </li>
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>

@@ -23,7 +23,7 @@
                             <th scope="col" class="text-center">Action</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="text-center">
                             @if($incoming_calls)
                                 <?php $c= 1; ?>
                                 @foreach($incoming_calls->calls as $call)
