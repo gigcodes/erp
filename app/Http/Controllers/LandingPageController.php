@@ -253,7 +253,7 @@ class LandingPageController extends Controller
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
                         'title'           => $landingPage->name,
-                        'body_html'       => implode("<br>",$landingPage->description),
+                        'body_html'       => implode("<br>",$html),
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
                         'tags'            => 'Home Page'
