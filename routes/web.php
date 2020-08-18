@@ -840,6 +840,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
+    Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
@@ -858,6 +859,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/task-detail/{id}', 'DevelopmentController@taskDetail')->name('taskDetail');
     Route::get('development/new-task-popup', 'DevelopmentController@openNewTaskPopup')->name('openNewTaskPopup');
 
+    Route::post('development/status/create', 'DevelopmentController@statusStore')->name('development.status.store');
     Route::post('development/module/create', 'DevelopmentController@moduleStore')->name('development.module.store');
     Route::delete('development/module/{id}/destroy', 'DevelopmentController@moduleDestroy')->name('development.module.destroy');
     Route::post('development/{id}/assignModule', 'DevelopmentController@moduleAssign')->name('development.module.assign');
