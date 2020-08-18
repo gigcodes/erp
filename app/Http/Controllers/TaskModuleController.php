@@ -58,10 +58,12 @@ class TaskModuleController extends Controller {
 		if ($request->term != '') {
 			$searchWhereClause = ' AND (id LIKE "%' . $term . '%" OR category IN (SELECT id FROM task_categories WHERE title LIKE "%' . $term . '%") OR task_subject LIKE "%' . $term . '%" OR task_details LIKE "%' . $term . '%" OR assign_from IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%") OR id IN (SELECT task_id FROM task_users WHERE user_id IN (SELECT id FROM users WHERE name LIKE "%' . $term . '%")))';
 		}
-
-		if ($request->get('is_statutory_query') != '') {
+		if ($request->get('is_statutory_query') != '' && $request->get('is_statutory_query') != null) {
 		    $searchWhereClause .= ' AND is_statutory = ' . $request->get('is_statutory_query');
-        }
+		}
+		else {
+			$searchWhereClause .= ' AND is_statutory != 3';
+		}
 		$data['task'] = [];
 
 		$search_term_suggestions = [];
@@ -94,7 +96,6 @@ class TaskModuleController extends Controller {
 			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
 			ORDER BY is_flagged DESC, message_created_at DESC; ');
 
-			
 
 			foreach ($data['task']['pending'] as $task) {
 				array_push($assign_to_arr, $task->assign_to);
@@ -513,7 +514,8 @@ class TaskModuleController extends Controller {
 		$users         = Helpers::getUserArray( User::all() );
 		$task_categories = TaskCategory::where('parent_id', 0)->get();
 		$task_categories_dropdown = nestable(TaskCategory::where('is_approved', 1)->get()->toArray())->attr(['name' => 'category','class' => 'form-control input-sm'])
-		                                        ->renderAsDropdown();
+		->selected($request->category)
+		->renderAsDropdown();
 
 
 		$categories = [];
@@ -541,6 +543,8 @@ class TaskModuleController extends Controller {
 			$title = 'Task & Activity';
 		}
 
+	
+
 		if ($request->ajax()) {
 			if($type == 'pending') {
 				return view( 'task-module.partials.pending-row-ajax', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
@@ -556,7 +560,12 @@ class TaskModuleController extends Controller {
 			}
 		}
 
-		return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+		if($request->is_statutory_query == 3) {
+			return view( 'task-module.discussion-tasks', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+		}
+		else {
+			return view( 'task-module.show', compact('data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
+		}
 	}
 
 
@@ -880,8 +889,14 @@ class TaskModuleController extends Controller {
 					$users      = Helpers::getUserArray( User::all() );
 					$priority  	= \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
-					$mode = "task-module.partials.statutory-row";
-					if($task->is_statutory != 1) {
+					
+					if($task->is_statutory == 1) {
+						$mode = "task-module.partials.statutory-row";
+					}
+					else if($task->is_statutory == 3) {
+						$mode = "task-module.partials.discussion-pending-raw";
+					}
+					else {
 						$mode = "task-module.partials.pending-row";
 					}
 
