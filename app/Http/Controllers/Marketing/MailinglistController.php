@@ -90,7 +90,7 @@ class MailinglistController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => "POST",
-                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => getenv('ACELLE_MAIL_EMAIL'),'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => getenv('ACELLE_MAIL_EMAIL')),
+                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
                 ));
 
                 $response = curl_exec($curl);
@@ -109,6 +109,7 @@ class MailinglistController extends Controller
                         'id' => $id,
                         'name' => $request->name,
                         'website_id' => $website_id,
+                        'email' => $request->email,
                         'service_id' => $request->service_id,
                         'remote_id' => $res->list_uid,
                     ]); 
