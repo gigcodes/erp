@@ -20,10 +20,64 @@
         .pd-5 {
             padding:5px;
         }
+        .cls_task_detailstextarea{
+            height: 30px !important;
+        }
+        .cls_remove_allpadding{
+            padding-right: 0px !important;
+            padding-left: 0px !important;
+        }
+        .cls_right_allpadding{
+            padding-right: 0px !important;
+        }
+        .cls_left_allpadding{
+            padding-left: 0px !important;
+        }
+        #addNoteButton{
+            margin-top: 4px;
+        }
+        #saveNewNotes{
+            margin-top: 4px;
+        }
+        .col-xs-12.col-md-2{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+            height: 38px;
+        }
+        .cls_task_subject{
+            padding-left: 9px;
+        }
+        #recurring-task .col-xs-12.col-md-6{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+        }
+        #appointment-container .col-xs-12.col-md-6{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+        }
+        #taskCreateForm .form-group{
+            margin-bottom: 5px;
+        }
+        .cls_action_box .btn-image img{
+            width: 12px !important;
+        }
+        .cls_action_box .btn.btn-image {
+            padding: 2px;
+        }
+        .btn.btn-image {
+            padding: 5px 3px;
+        }
+        .td-mini-container {
+            margin-top: 9px;
+        }
+        .td-full-container{
+            margin-top: 9px;   
+        }
+
     </style>
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row">
         <div class="col-lg-12 text-center">
@@ -38,7 +92,7 @@
     @include('task-module.partials.modal-whatsapp-group')
     @include('partials.flash_messages')
 
-    <div class="row mb-4">
+    <div class="row mb-2">
         <div class="col-12">
             <form class="form-inline form-search-data">
                 <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
@@ -67,7 +121,7 @@
                         <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
                     </select>
                 </div>
-                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="/images/filter.png"/></button>
+                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
                 <a href="javascript:;" class="btn btn-secondary priority_model_btn">Priority</a>
             </form>
         </div>
@@ -79,30 +133,32 @@
     else
         $isAdmin = false;
     ?>
-<div class="row mb-4">
+<div class="row mb-2">
         <div class="col-xs-12">
             <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
                 @csrf
                 <input type="hidden" name="has_render" value="1">
                 <div class="row">
-                    <div class="col-xs-12 col-md-4">
-                        <div class="form-group">
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group cls_task_subject">
                         
                             <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ old('task_subject') }}" required/>
                             @if ($errors->has('task_subject'))
                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                             @endif
                         </div>
-
+                    </div>
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group">
-                            <textarea rows="1" class="form-control input-sm" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
+                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
                             @if ($errors->has('task_details'))
                                 <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                             @endif
                         </div>
                     </div>
+                    
 
-                    <div class="col-xs-12 col-md-4">
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group">
                             <select name="is_statutory" class="form-control is_statutory input-sm">
                                 <option value="0">Other Task</option>
@@ -112,48 +168,6 @@
                             </select>
                         </div>
 
-                        <div id="recurring-task" style="display: none;">
-                            <div class="form-group">
-                                {{-- <strong>Recurring Type:</strong> --}}
-                                <select name="recurring_type" class="form-control input-sm">
-                                    <option value="EveryHour">EveryHour</option>
-                                    <option value="EveryDay">EveryDay</option>
-                                    <option value="EveryWeek">EveryWeek</option>
-                                    <option value="EveryMonth">EveryMonth</option>
-                                    <option value="EveryYear">EveryYear</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <div class='input-group date' id='sending-datetime'>
-                                    <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required/>
-
-                                    <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                                </div>
-
-                                @if ($errors->has('sending_time'))
-                                    <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div id="calendar-task" style="display: none;">
-                            <div class="form-group">
-                                <div class='input-group date' id='completion-datetime'>
-                                    <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}"/>
-
-                                    <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                                </div>
-
-                                @if ($errors->has('completion_date'))
-                                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                                @endif
-                            </div>
-                        </div>
                         @if(auth()->user()->isAdmin())
                             <div class="form-group">
                                 <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
@@ -168,8 +182,53 @@
                         @endif
                     </div>
 
-                    <div class="col-xs-12 col-md-4">
-                        <div class="form-inline mb-3">
+                    <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    {{-- <strong>Recurring Type:</strong> --}}
+                                    <select name="recurring_type" class="form-control input-sm">
+                                        <option value="EveryHour">EveryHour</option>
+                                        <option value="EveryDay">EveryDay</option>
+                                        <option value="EveryWeek">EveryWeek</option>
+                                        <option value="EveryMonth">EveryMonth</option>
+                                        <option value="EveryYear">EveryYear</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <div class='input-group date' id='sending-datetime'>
+                                        <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required/>
+
+                                        <span class="input-group-addon">
+                                  <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                    </div>
+
+                                    @if ($errors->has('sending_time'))
+                                        <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2" id="calendar-task" style="display: none;">
+                        <div class="form-group">
+                            <div class='input-group date' id='completion-datetime'>
+                                <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            @if ($errors->has('completion_date'))
+                                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                            @endif
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-inline">
                             <div class="form-group flex-fill">
                                 <select id="multi_contacts" class="form-control input-sm" name="assign_to_contacts[]" multiple>
                                     @foreach (Auth::user()->contacts as $contact)
@@ -188,8 +247,10 @@
                                 @endif
                             </div>
 
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="/images/add.png"/></button>
+                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="{{asset('images/add.png')}}"/></button>
                         </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-inline mb-3">
                             <div class="form-group flex-fill">
                                 {{-- <strong>Category:</strong> --}}
@@ -206,49 +267,62 @@
                                 </select> --}}
                             </div>
 
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="/images/add.png"/></button>
+                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
                         </div>
                     </div>
 
-                    <div class="col-xs-4" style="display: none;" id="appointment-container">
+                    <div class="col-xs-12 col-md-4" style="display: none;padding-left: 25px;" id="appointment-container">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
+                                        "class" => "form-control select2-task-disscussion"
+                                    ]); ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-inline flex-fill">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="note[]" placeholder="Note" value="">
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-secondary" title="Add Note" id="addNoteButton">Add Note</button>
+                                    <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
+                                    <div id="note-container">
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group">
-                            <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
-                                "class" => "form-control select2-task-disscussion"
-                            ]); ?>
+                            <select id="is_milestone" class="form-control" name="is_milestone" required>
+                                <option value="0">Is milestone</option>
+                                <option value="0" >No</option>
+                                <option value="1" >Yes</option>
+                            </select>
+
+                            @if ($errors->has('is_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                            @endif
                         </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control input-sm" name="note[]" placeholder="Note" value="">
+                    </div>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group ml-3">
+                            <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
+
+                            @if ($errors->has('no_of_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
+                            @endif
                         </div>
-                        <div id="note-container">
-
+                    </div>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group ml-3">
+                            <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
                         </div>
-                        <button type="button" class="btn btn-xs btn-secondary" id="addNoteButton">Add Note</button>
-                        <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
                     </div>
 
-                    
-                    <div class="form-group ml-3">
-                        <select id="is_milestone" class="form-control" name="is_milestone" required>
-                            <option value="0">Is milestone</option>
-                            <option value="0" >No</option>
-                            <option value="1" >Yes</option>
-                        </select>
-
-                        @if ($errors->has('is_milestone'))
-                        <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
-                        @endif
-                    </div>
-
-                    <div class="form-group ml-3">
-                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
-
-                        @if ($errors->has('no_of_milestone'))
-                        <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
-                        @endif
-                    </div>
-                    <div class="form-group ml-3">
-                    <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
-                    </div>
                     @if(auth()->user()->isAdmin())
                     <div class="form-group ml-3">
                         <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
@@ -301,7 +375,7 @@
         </div>
     @endif    
 
-    <div id="exTab2" class="container" style="overflow: auto">
+    <div id="exTab2" style="overflow: auto">
         <ul class="nav nav-tabs">
             <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
@@ -314,19 +388,19 @@
             <div class="tab-pane active" id="1">
                 <div class="row">
                     <!-- <h4>List Of Pending Tasks</h4> -->
-                    <div class="infinite-scroll">
+                    <div class="col-12">
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
                                 <th width="5%">ID</th>
-                                <th width="12%">Date</th>
+                                <th width="8%">Date</th>
                                 <th width="8%" class="category">Category</th>
-                                <th width="15%">Task Subject</th>
+                                <th width="11%">Task Subject</th>
                                 <th width="5%">Assign To</th>
-                                <th width="11%">Cost</th>
-                                <th width="8%">Milestone</th>
-                                <th width="28%">Communication</th>
-                                <th width="10%">Action&nbsp;
+                                <th width="6%">Cost</th>
+                                <th width="5%">Milestone</th>
+                                <th width="42%">Communication</th>
+                                <th width="13%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
                                 </th>
@@ -354,7 +428,7 @@
                             <tr>
                                 <th width="5%">ID</th>
                                 <th width="8%">Date</th>
-                                <th width="10%" class="category">Category</th>
+                                <th width="8%" class="category">Category</th>
                                 <th width="14%">Task Details</th>
                                 <th width="5%">Assign to</th>
                                 <th width="5%">Reccuring</th>
@@ -581,7 +655,7 @@
                 }
                 type = $("#tasktype").val();
                 $.ajax({
-                    url: "/task",
+                    url: BASE_URL+"task",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     success: function (response) {
