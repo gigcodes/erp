@@ -15,6 +15,7 @@
             <div class="form-group">
                 <label>Select Name</label>
                 <select class="form-control" name="email_name" id="email_name" required>
+                    <option value="">Select Template</option>
                     @if($template_names)
                         @foreach($template_names as $name)
                             <option value="{{ $name->name }}">{{ $name->name }}</option>
@@ -24,7 +25,7 @@
             </div>
               <div class="form-group">
                   <label>Select Template</label>
-                  <select class="form-control" name="template_id" id="templates" required>
+                  <select class="form-control" name="template" id="templates" required>
 
                   </select>
               </div>
