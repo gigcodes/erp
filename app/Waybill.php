@@ -6,7 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 
 class Waybill extends Model
 {
-    
+    protected $table = 'waybills';
+
+    protected $fillable = ['order_id','customer_id','awb','box_length','box_width','box_height','actual_weight','package_slip','pickup_date'];
+
     protected $appends = ['dimension'];
 
     /**
@@ -20,5 +23,10 @@ class Waybill extends Model
     public function getDimensionAttribute()
     {
         return $this->box_length * $this->box_width * $this->box_height;
+    }
+
+    public function customer()
+    {
+        return $this->belongsTo('App\Customer', 'customer_id');
     }
 }

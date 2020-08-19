@@ -13,6 +13,23 @@
 			<input type="hidden" name="order_id" id="order_id" value="" >
           <div class="modal-body">
             <div class="form-group">
+                <label>Select Name</label>
+                <select class="form-control" name="email_name" id="email_name" required>
+                    @if($template_names)
+                        @foreach($template_names as $name)
+                            <option value="{{ $name->name }}">{{ $name->name }}</option>
+                        @endforeach
+                    @endif
+                </select>
+            </div>
+              <div class="form-group">
+                  <label>Select Template</label>
+                  <select class="form-control" name="template_id" id="templates" required>
+
+                  </select>
+              </div>
+
+            <div class="form-group">
 				<label>To</label>
 				<select class="form-control to-email" name="to[]" multiple="multiple" required style="width: 100%;">
 				</select>
@@ -73,4 +90,6 @@
 		</div>
 	</div>
 </div>
+
+
   
