@@ -1386,15 +1386,49 @@ class DevelopmentController extends Controller
         }
        
 
-        $hubstaffUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
+        // $hubstaffUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
 
+        $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
-        if ($hubstaffUser) {
-            $this->updateHubstaffAssignee(
-                $issue->hubstaff_task_id,
-                $hubstaffUser->hubstaff_user_id
-            );
+        $assignedUser = HubstaffMember::where('user_id', $request->get('assigned_to'))->first();
+
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
+
+        $summary = substr($issue->task, 0, 200);
+        if($issue->task_type_id == 1) {
+            $taskSummery = '#DEVTASK-' . $issue->id . ' => ' . $summary;
+        }
+        else {
+            $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
+        }
+        if($hubstaffUserId) {
+            $hubstaffTaskId = $this->createHubstaffTask(
+                $taskSummery,
+                $hubstaffUserId,
+                $hubstaff_project_id
+            );
+            if($hubstaffTaskId) {
+                $issue->hubstaff_task_id = $hubstaffTaskId;
+                $issue->save();
+
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $taskSummery;
+                $task->save();
+            }
+        }
+
+        // if ($hubstaffUser) {
+        //     $this->updateHubstaffAssignee(
+        //         $issue->hubstaff_task_id,
+        //         $hubstaffUser->hubstaff_user_id
+        //     );
+        // }
 
         $issue->assigned_to = $request->get('assigned_to');
         $issue->save();
@@ -1455,11 +1489,7 @@ class DevelopmentController extends Controller
                 $task->summary = $taskSummery;
                 $task->save();
             }
-
         }
-
-
-
         return response()->json([
             'status' => 'success'
         ]);
