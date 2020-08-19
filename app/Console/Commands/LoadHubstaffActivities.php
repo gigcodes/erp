@@ -123,7 +123,8 @@ class LoadHubstaffActivities extends Command
                             ],
                         ]
                     );
-                }
+                },
+                true
             );
 
             $responseJson = json_decode($response->getBody()->getContents());
