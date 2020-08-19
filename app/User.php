@@ -490,4 +490,10 @@ class User extends Authenticatable
     {
         return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
     }
+
+    public function user_availabilities()
+    {
+        return $this->hasOne('App\UserAvaibility','user_id','id');
+    }
+
 }

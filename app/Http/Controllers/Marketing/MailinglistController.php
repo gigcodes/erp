@@ -90,7 +90,7 @@ class MailinglistController extends Controller
                   CURLOPT_FOLLOWLOCATION => true,
                   CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
                   CURLOPT_CUSTOMREQUEST => "POST",
-                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => 'email@test.theluxuryunlimited.com','from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => 'email@test.theluxuryunlimited.com'),
+                  CURLOPT_POSTFIELDS => array('contact[company]' => '.','contact[state]' => 'afdf','name' => $request->name,'from_email' => $request->email,'from_name' => 'dsfsd','contact[address_1]' => 'af','contact[country_id]' => '219','contact[city]' => 'sdf','contact[zip]' => 'd','contact[phone]' => 'd','contact[email]' => $request->email),
                 ));
 
                 $response = curl_exec($curl);
@@ -109,6 +109,7 @@ class MailinglistController extends Controller
                         'id' => $id,
                         'name' => $request->name,
                         'website_id' => $website_id,
+                        'email' => $request->email,
                         'service_id' => $request->service_id,
                         'remote_id' => $res->list_uid,
                     ]); 
@@ -313,7 +314,7 @@ class MailinglistController extends Controller
                 $response = curl_exec($curl);
 
                 $response = json_decode($response);
-                
+                //dd($response);
                 //subscribe to emial
                 $url =  "http://165.232.42.174/api/v1/lists/".$id."/subscribers/".$response->subscriber_uid."/subscribe?api_token=".getenv('ACELLE_MAIL_API_TOKEN');
                 $headers = array('Content-Type: application/json');
@@ -460,32 +461,59 @@ class MailinglistController extends Controller
      */
     public function deleteList($id)
     {
-        $curl = curl_init();
-        curl_setopt_array($curl, array(
-            CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists/" . $id,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "DELETE",
-            CURLOPT_HTTPHEADER => array(
-                "api-key: ".getenv('SEND_IN_BLUE_API'),
-                "Content-Type: application/json"
-            ),
-        ));
+        //getting mailing list 
+        $list = Mailinglist::where('remote_id',$id)->first();
+        
+        if($list->service && isset($list->service->name) ){
+            if($list->service->name == 'AcelleMail'){
+                
+                $curl = curl_init();
 
-        $response = curl_exec($curl);
+                curl_setopt_array($curl, array(
+                  CURLOPT_URL => "http://165.232.42.174/api/v1/lists/".$list->remote_id."/delete?api_token=".getenv('ACELLE_MAIL_API_TOKEN'),
+                  CURLOPT_RETURNTRANSFER => true,
+                  CURLOPT_ENCODING => "",
+                  CURLOPT_MAXREDIRS => 10,
+                  CURLOPT_TIMEOUT => 0,
+                  CURLOPT_FOLLOWLOCATION => true,
+                  CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                  CURLOPT_CUSTOMREQUEST => "POST",
+                  CURLOPT_POSTFIELDS => [],
+                ));
 
-        curl_close($curl);
-        $res = json_decode($response);
+                $res = curl_exec($curl);
 
-        if (isset($res->message)) {
-            return redirect()->back()->withErrors($res->message);
-        } else {
-            Mailinglist::where('remote_id', $id)->delete();
-            return redirect()->back()->with('message', 'Removed successfully.');
+                curl_close($curl);
+            }else{
+                $curl = curl_init();
+                curl_setopt_array($curl, array(
+                    CURLOPT_URL => "https://api.sendinblue.com/v3/contacts/lists/" . $id,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_ENCODING => "",
+                    CURLOPT_MAXREDIRS => 10,
+                    CURLOPT_TIMEOUT => 0,
+                    CURLOPT_FOLLOWLOCATION => true,
+                    CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                    CURLOPT_CUSTOMREQUEST => "DELETE",
+                    CURLOPT_HTTPHEADER => array(
+                        "api-key: ".getenv('SEND_IN_BLUE_API'),
+                        "Content-Type: application/json"
+                    ),
+                ));
+
+                $response = curl_exec($curl);
+
+                curl_close($curl);
+                $res = json_decode($response);
+            }
+        
+
+            if (isset($res->message)) {
+                return redirect()->back()->withErrors($res->message);
+            } else {
+                Mailinglist::where('remote_id', $id)->delete();
+                return redirect()->back()->with('message', 'Removed successfully.');
+            }
         }
     }
 
