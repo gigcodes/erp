@@ -10,16 +10,16 @@
     }
 </style>
      <link rel="stylesheet" href="{{ asset('/css/instagram.css') }}?v={{ config('pilot.version') }}">
-        
+     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">   
     @includeWhen($accounts->count() == 0, 'partials.no-accounts')
 
     @if($accounts->count())
-
+        <body class="post-create">
         <form role="form" method="post" action="{{ route('post.store') }}" name="post-create" autocomplete="off" style="margin-top: 30px;">
             @csrf
 
             <div class="row">
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-4 col-lg-4 col-xs-12">
                     <div class="card media-manager">
                         <div class="card-header pl-3">
                             <h3 class="card-title">@lang('Media')</h3>
@@ -44,7 +44,7 @@
                         </div>
                     </div>
                 </div>
-                <div class="col-md-6 col-lg-6">
+                <div class="col-md-4 col-lg-4">
                     <small style="color: red;">Please Maintain aspect ratios between 0.800 and 1.910 for Photos</small>
                     <div class="card">
                         <div class="card-header pl-3">
@@ -80,29 +80,29 @@
                             <br class="hidden-sm hidden-xs">
                             <br class="hidden-sm hidden-xs">
                             <br class="hidden-sm hidden-xs">
-                            <!-- <div class="form-group">
+                            <div class="form-group">
                                 <label class="form-label">@lang('Location')</label>
                                 <select name="location" class="form-control location-lookup"></select>
-                            </div> -->
+                            </div>
 
                             <div class="form-group">
                                 <label class="form-label">@lang('Caption')</label>
                                 <textarea rows="3" name="caption" class="form-control caption-text" placeholder="@lang('Compose a post caption')" data-emojiable="true"></textarea>
                             </div>
 
-                            <!-- <div class="form-group">
+                            <div class="form-group">
                                 <label class="custom-control custom-checkbox">
                                     <input type="checkbox" class="custom-control-input is-scheduled" name="scheduled" value="1">
                                     <span class="custom-control-label">@lang('Schedule')</span>
                                 </label>
-                            </div> -->
+                            </div>
 
-                            <!-- <div class="form-group">
+                            <div class="form-group">
                                 <div class="input-icon">
                                     <span class="input-icon-addon"><i class="fe fe-calendar"></i></span>
                                     <input type="text" name="scheduled_at" class="form-control dm-date-time-picker scheduled-at" placeholder="@lang('Schedule at')" disabled="">
                                 </div>
-                            </div> -->
+                            </div>
 
                         </div>
                         <div class="card-footer p-3">
@@ -115,7 +115,7 @@
                         </div>
                     </div>
                 </div>
-                <!-- <div class="col-md-6 col-lg-4">
+                <div class="col-md-4 col-lg-4">
                     <div class="card preview-story d-none"></div>
                     <div class="card preview-timeline">
                         <div class="pt-5 pb-2 text-center">
@@ -141,13 +141,15 @@
                             </div>
                         </div>
                     </div>
-                </div> -->
+                </div>
             </div>
 
         </form>
-
+    </body>
     @endif
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script src="{{ asset('/js/instagram.js') }}?v={{ config('pilot.version') }}" type="text/javascript"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
+ <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+ <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
 @stop
