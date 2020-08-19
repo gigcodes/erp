@@ -14,8 +14,29 @@
 </div>
 <div class="infinite-scroll">
     <div class="row col-md-12">
-        <button class="btn btn-secondary add-shipment" data-target="#addShipment" data-toggle="modal">+</button>
+        <div class="col-md-4">
+            <button class="btn btn-secondary add-shipment" data-target="#addShipment" data-toggle="modal">+</button>
+        </div>
     </div>
+    <form method="get" action="">
+        <div class="row col-md-12">
+            <div class="col-md-3">
+                <input type="text" placeholder="AWB" name="awb" value="{{ @$_REQUEST['awb'] }}"/>
+            </div>
+            <div class="col-md-3">
+                <input type="text" placeholder="Destination" name="destination" value="{{ @$_REQUEST['destination'] }}"/>
+            </div>
+            <div class="col-md-3">
+                <input type="text" placeholder="Consignee" name="consignee" value="{{ @$_REQUEST['consignee'] }}"/>
+            </div>
+            <div class="col-md-3">
+                <button class="btn btn-image">
+                    <img src="https://erp.amourint.com/images/search.png" alt="Search" style="cursor: default;">
+                </button>
+            </div>
+        </div>
+    </form>
+
 	<div class="table-responsive mt-3">
       <table class="table table-bordered">
         <thead>

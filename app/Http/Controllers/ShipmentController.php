@@ -30,7 +30,22 @@ class ShipmentController extends Controller
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
-		$waybills = $this->wayBill->orderBy('id', 'desc')->with('order', 'order.customer', 'customer');
+        $waybills = $this->wayBill;
+        if($request->get('awb')){
+            $waybills->where('awb','=',$request->get('awb'));
+        }
+        if($request->get('destination')){
+            $waybills->where('destination','like','%'.$request->get('destination').'%');
+        }
+        if($request->get('consignee')){
+           $customer_name = Customer::where('name','like','%'.$request->get('consignee').'%')->select('id')->get()->toArray();
+           $ids = [];
+           foreach($customer_name as $cus){
+               array_push($ids, $cus['id']);
+           }
+           $waybills->whereIn('customer_id',$ids);
+        }
+		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer');
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
@@ -105,7 +120,7 @@ class ShipmentController extends Controller
             'seen' => 1,
             'subject' => $request->subject,
             'message' => $request->message,
-            'template' => '',
+            'template' => $request->template,
             'additional_data' => json_encode(['attachment' => $file_paths]),
             'cc' => ($cc) ? implode(',', $cc) : null,
             'bcc' => ($bcc) ? implode(',', $bcc) : null
