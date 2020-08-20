@@ -775,7 +775,7 @@ class TwilioController extends FindByNumberController
             $check_account = TwilioCredential::where(['id' => $id])->firstOrFail();
             $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
             $store_websites = StoreWebsite::all();
-            $customer_role_users = RoleUser::where(['role_id' => 50])->with('user')->get();
+            $customer_role_users = RoleUser::where(['role_id' => 27])->with('user')->get();
             return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'twilio_accounts', 'sid', 'customer_role_users','account_id'));
         }catch(\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
