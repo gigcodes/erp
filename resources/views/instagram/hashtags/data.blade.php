@@ -31,13 +31,15 @@
                                         @else
                                             @break;    
                                         @endif
-                                        @if ($m->media_type == 1)
-                                            <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
-                                                &nbsp;
-                                            </div>
-                                        @elseif($m->media_type == 2)
-                                            <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                        @if(isset($m->media_type))
+                                            @if ($m->media_type == 1)
+                                                <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
+                                                    &nbsp;
+                                                </div>
+                                            @elseif($m->media_type == 2)
+                                                <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
 
+                                            @endif
                                         @endif
                                     @endforeach
                                     @endif
