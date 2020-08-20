@@ -277,30 +277,30 @@ class Kernel extends ConsoleKernel
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
 
-        $schedule->call(function () {
-            $report = CronJobReport::create([
-                'signature' => 'update:benchmark',
-                'start_time' => Carbon::now()
-            ]);
-
-            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
-            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
-
-            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
-                $benchmark[ 'for_date' ] = date('Y-m-d');
-                Benchmark::create($benchmark);
-            }
-
-            foreach ($tasks as $task) {
-                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
-
-                if ($time_diff >= 2) {
-                    $task->delete();
-                }
-            }
-
-            $report->update(['end_time' => Carbon::now()]);
-        })->dailyAt('00:00');
+//        $schedule->call(function () {
+//            $report = CronJobReport::create([
+//                'signature' => 'update:benchmark',
+//                'start_time' => Carbon::now()
+//            ]);
+//
+//            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
+//            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
+//
+//            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
+//                $benchmark[ 'for_date' ] = date('Y-m-d');
+//                Benchmark::create($benchmark);
+//            }
+//
+//            foreach ($tasks as $task) {
+//                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
+//
+//                if ($time_diff >= 2) {
+//                    $task->delete();
+//                }
+//            }
+//
+//            $report->update(['end_time' => Carbon::now()]);
+//        })->dailyAt('00:00');
 
 //2020-02-17        $schedule->call(function () {
 //            \Log::debug('deQueueNotficationNew Start');
@@ -426,7 +426,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
-        $schedule->command('github:load_branch_state')->hourly();
+        //$schedule->command('github:load_branch_state')->hourly();
         $schedule->command('checkScrapersLog')->dailyAt('8:00');
         $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
         $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');

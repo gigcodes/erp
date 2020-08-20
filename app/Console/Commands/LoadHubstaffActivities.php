@@ -96,7 +96,7 @@ class LoadHubstaffActivities extends Command
 
                         $requestData = new Request();
                         $requestData->setMethod('POST');
-                        $requestData->request->add(['user_id' => $user->id, 'message' => $message, 'status' => 1]);
+                        $requestData->request->add(['user_id' => $user->user_id, 'message' => $message, 'status' => 1]);
                         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
                     }
                 }
@@ -123,7 +123,8 @@ class LoadHubstaffActivities extends Command
                             ],
                         ]
                     );
-                }
+                },
+                true
             );
 
             $responseJson = json_decode($response->getBody()->getContents());

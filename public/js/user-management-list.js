@@ -75,7 +75,12 @@ var page = {
         page.config.bodyView.on("click",".load-team-modal",function(e) {
             page.getTeamInfo($(this));
         });
-
+        page.config.bodyView.on("click",".search-team-member",function(e) {
+            var keyword = $(this).data('keyword');
+            console.log(keyword);
+            $('.data-keyword').val(keyword);
+            page.getResults();
+        });
 
         $(".common-modal").on("click",".submit-role",function() {
             page.submitRole($(this));
@@ -313,7 +318,7 @@ var page = {
             $(".common-modal").modal("hide");
         }else {
             $("#loading-image").hide();
-            toastr["error"](response.error,"");
+            toastr["error"](response.message,"");
         }
     },
     getTeamInfo : function(ele) {
@@ -641,3 +646,11 @@ $.views.helpers({
            return '';
       }
     }, template);
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.div-team-mini').toggleClass('hidden');
+            $(this).find('.div-team-max').toggleClass('hidden');
+        }
+    });

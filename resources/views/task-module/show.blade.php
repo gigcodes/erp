@@ -27,7 +27,7 @@
 
     <div class="row">
         <div class="col-lg-12 text-center">
-            <h2 class="page-heading">Task & Activity</h2>
+            <h2 class="page-heading">{{$title}}</h2>
         </div>
     </div>
     <!--- Pre Loader -->
@@ -40,8 +40,9 @@
 
     <div class="row mb-4">
         <div class="col-12">
-            <form class="form-inline" action="{{ route('task.index') }}" method="GET">
+            <form class="form-inline form-search-data">
                 <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
+                <input type="hidden" name="type" id="tasktype" value="pending">
                 <div class="form-group">
                     <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
                 </div>
@@ -66,7 +67,7 @@
                         <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
                     </select>
                 </div>
-                <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png"/></button>
+                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="/images/filter.png"/></button>
                 <a href="javascript:;" class="btn btn-secondary priority_model_btn">Priority</a>
             </form>
         </div>
@@ -86,6 +87,7 @@
                 <div class="row">
                     <div class="col-xs-12 col-md-4">
                         <div class="form-group">
+                        
                             <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ old('task_subject') }}" required/>
                             @if ($errors->has('task_subject'))
                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
@@ -301,9 +303,9 @@
 
     <div id="exTab2" class="container" style="overflow: auto">
         <ul class="nav nav-tabs">
-            <li class="active"><a href="#1" data-toggle="tab">Pending Task</a></li>
-            <li><a href="#2" data-toggle="tab">Statutory Activity</a></li>
-            <li><a href="#3" data-toggle="tab">Completed Task</a></li>
+            <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
+            <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
+            <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
             <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>
         </ul>
@@ -331,9 +333,11 @@
                             </tr>
                             </thead>
                             <tbody class="pending-row-render-view">
+                            @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
                                 @include("task-module.partials.pending-row",compact('task'))
                             @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -363,9 +367,11 @@
                             </tr>
                             </thead>
                             <tbody class="statutory-row-render-view">
+                            @if(count($data['task']['statutory_not_completed']) >0)
                                 @foreach(  $data['task']['statutory_not_completed'] as $task)
                                     @include("task-module.partials.statutory-row",compact('task'))
                                 @endforeach
+                            @endif
                             </tbody>
                         </table>
                     </div>
@@ -389,10 +395,12 @@
                             <th width="10%">Action</th>
                         </tr>
                         </thead>
-                        <tbody>
+                        <tbody class="completed-row-render-view">
+                        @if(count($data['task']['completed']) >0)
                             @foreach( $data['task']['completed'] as $task)
                                 @include("task-module.partials.completed-row",compact('task'))
                             @endforeach
+                        @endif
                         </tbody>
                     </table>
                 </div>
@@ -563,6 +571,33 @@
             $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
+            });
+
+            $(document).on('click', '.btn-call-data', function (e) {
+                e.preventDefault();
+                var type = $(this).data('type');
+                if(type && type != "") {
+                    type = $("#tasktype").val(type);
+                }
+                type = $("#tasktype").val();
+                $.ajax({
+                    url: "/task",
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    success: function (response) {
+                        if(type == 'pending') {
+                            $('.pending-row-render-view').html(response);
+                        }
+                        if(type == 'statutory_not_completed') {
+                            $('.statutory-row-render-view').html(response);
+                        }
+                        if(type == 'completed') {
+                            $('.completed-row-render-view').html(response);
+                        }
+                    },
+                    error: function () {
+                    }
+                });
             });
 
             function getPriorityTaskList(id) {
@@ -1773,6 +1808,7 @@
                             data: form.serialize(),
                             dataType : "json"
                         }).done(function (response) {
+                            console.log(response);
                             $("#loading-image").hide();
                             if(response.code == 200) {
                                 if(response.statutory != 1) {

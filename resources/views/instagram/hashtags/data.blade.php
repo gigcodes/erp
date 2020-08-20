@@ -15,7 +15,7 @@
                                 User Following : <span style="color: red;">@if(isset($post['userDetail']->following)){{ $post['userDetail']->following }} @endif</span><br/>
                                 Engagement <span style="color: red;">% @if(isset($post['likes']) && isset($post['userDetail']->followers)){{ number_format(($post['likes']/$post['userDetail']->followers) * 100,2) }} @endif</span>
                                 </td>
-                                <td>@if($post->media_url )
+                                <td>@if($post->media_url && isset($post->media_type))
                                 @if($post->media_type == 1)
                                     <div style="display: flex; width: 150px; height: 150px; background: url('@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif'); background-size: cover;">
                                     &nbsp;

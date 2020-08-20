@@ -12,6 +12,8 @@ use Plank\Mediable\Media;
 class LandingPageController extends Controller
 {
 
+    const GALLERY_TAG_NAME = "gallery_";
+
     public function __construct()
     {
 
@@ -26,7 +28,7 @@ class LandingPageController extends Controller
 
     public function records(Request $request)
     {
-        $records = \App\LandingPageProduct::query();
+        $records = \App\LandingPageProduct::join("products as p","p.id","landing_page_products.product_id");
 
         $keyword = request("keyword");
         if (!empty($keyword)) {
@@ -35,7 +37,22 @@ class LandingPageController extends Controller
             });
         }
 
-        $records = $records->paginate();
+        $stockStatus = request("stock_status");
+        if($stockStatus != null) {
+            $records = $records->where("landing_page_products.stock_status", $stockStatus);
+        }
+
+        $productStatus = request("product_status");
+        if($productStatus != null) {
+            $records = $records->where("p.status_id", $productStatus);
+        }
+
+        $status = request("status");
+        if($status != null) {
+            $records = $records->where("landing_page_products.status", $status);
+        }
+
+        $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
 
         $items = [];
         $allStatus = StatusHelper::getStatus();
@@ -68,7 +85,7 @@ class LandingPageController extends Controller
             $items[]          = $rec;
         }
 
-        return response()->json(["code" => 200, "data" => $items, "total" => count($records), "pagination" => (string) $records->render()]);
+        return response()->json(["code" => 200, "data" => $items, "total" => $records->total(), "pagination" => (string) $records->render()]);
     }
 
     public function save(Request $request)
@@ -76,24 +93,41 @@ class LandingPageController extends Controller
         $params     = $request->all();
         $productIds = json_decode($request->get("images"), true);
 
+        $errorMessage = [];
+
         if (!empty($productIds)) {
             foreach ($productIds as $productId) {
                 $product = \App\Product::find($productId);
                 if ($product) {
-                    // check status if not cropped then send to the cropper first
-                    if ($product->status_id != \App\Helpers\StatusHelper::$finalApproval) {
+                    if($product->category > 3 && $product->hasMedia(config('constants.media_original_tag'))) {
+                        // check status if not cropped then send to the cropper first
+                        foreach ($product->getAllMediaByTag() as $tag => $medias) {
+                            // if there is specific color then only send the images
+                            if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
+                                foreach ($medias as $image) {
+                                    $image->delete();
+                                }
+                            }
+                        }
+                        $product->status_id = StatusHelper::$autoCrop;
                         $product->scrap_priority = 1;
-                    } else {
-                        $product->scrap_priority = 0;
+                        // save product
+                        $product->save();
+                        \App\LandingPageProduct::updateOrCreate(
+                            ["product_id" => $productId],
+                            ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
+                        );
+                    }else{
+                        $errorMessage[] = "Product has no cateogory or images : ".$productId;
                     }
-                    // save product
-                    $product->save();
-                    \App\LandingPageProduct::updateOrCreate(
-                        ["product_id" => $productId],
-                        ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
-                    );
+                }else{
+                    $errorMessage[] = "Product not found : {$productId}";
                 }
             }
+        }
+
+        if(count($errorMessage) > 0) {
+            return redirect()->route('landing-page.index')->withError('There was some issue for given products : '.implode("<br>",$errorMessage));
         }
 
         return redirect()->route('landing-page.index')->withSuccess('You have successfully added landing page!');
@@ -173,6 +207,7 @@ class LandingPageController extends Controller
     public function pushToShopify(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
+        $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
 
         if (!empty($landingPage)) {
 
@@ -187,6 +222,30 @@ class LandingPageController extends Controller
             if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
+
+            // create a html for submit the file
+            $html   = [];
+            $html[] = $landingPage->description;
+
+            if(!empty($landingPageProduct->composition)){
+                $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
+            }
+
+            if(!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)){
+                $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
+            }
+
+            if($storeWebsite) {
+                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsite->id);
+                if(!empty($sizeCharts)) {
+                    foreach($sizeCharts as $sizeC) {
+                        $sizeC = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
+                        $html[] = "<p><b>Size Chart</b> : <a href='".$sizeC."'>Here</a></p>";
+                    }
+                }
+            }
+
+
             if ($landingPageProduct) {
                 $productData = [
                     'product' => [
@@ -194,9 +253,10 @@ class LandingPageController extends Controller
                         'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                         'published_scope' => 'web',
                         'title'           => $landingPage->name,
+                        'body_html'       => implode("<br>",$html),
                         'variants'        => [],
                         'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
-                        'tags'            => 'flash_sales'
+                        'tags'            => 'Home Page'
                     ],
                 ];
             }
@@ -205,7 +265,7 @@ class LandingPageController extends Controller
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getAllMediaByTag() as $tag => $medias) {
                     // if there is specific color then only send the images
-                    if (strpos($tag, 'gallary_') !== false) {
+                    if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
                         foreach ($medias as $image) {
                             $productData['product']['images'][] = ['src' => $image->getUrl()];
                         }
@@ -240,7 +300,6 @@ class LandingPageController extends Controller
             }
 
             
-            $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
             $countryGroupOptions = [];
 
             // setup for price

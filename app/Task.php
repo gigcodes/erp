@@ -32,7 +32,8 @@ class Task extends Model {
 		'is_milestone',
 		'no_of_milestone',
 		'milestone_completed',
-		'customer_id'
+		'customer_id',
+		'hubstaff_task_id'
 	];
 
 	const TASK_TYPES = [

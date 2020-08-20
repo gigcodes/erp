@@ -148,7 +148,7 @@ class OrderController extends Controller {
                 ->orWhere('received_by',Helpers::getUserIdByName($term))
                 ->orWhere('client_name','like','%'.$term.'%')
                 ->orWhere('city','like','%'.$term.'%')
-                ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
+                ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
         }
 
         if ($order_status[0] != '') {
@@ -254,7 +254,7 @@ class OrderController extends Controller {
            ->orWhere('received_by',Helpers::getUserIdByName($term))
            ->orWhere('client_name','like','%'.$term.'%')
            ->orWhere('city','like','%'.$term.'%')
-           ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
 		}
 		if ($order_status[0] != '') {
 			$orders = $orders->whereIn('order_status_id', $order_status);
@@ -279,7 +279,7 @@ class OrderController extends Controller {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 
-		$orders = $orders->groupBy("op.order_id");
+		$orders = $orders->groupBy("orders.id");
 		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
 
 
