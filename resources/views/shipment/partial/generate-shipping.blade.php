@@ -1,0 +1,123 @@
+<div id="addShipment" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content ">
+            <form action="{{ route('shipment/generate') }}" method="POST">
+                @csrf
+                <input type="hidden" name="order_id" value="{{ isset($id) ? $id : '' }}">
+                <div class="modal-header">
+                    <h4 class="modal-title">Generate AWB</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <strong>Customer Name:</strong>
+                        <select class="form-control" name="customer_id" id="customer_name">
+                            <option value="">Select Customer</option>
+                            @if(isset($customers))
+                                @foreach($customers as $customer)
+                                    <option value="{{ $customer->id }}">{{ $customer->name }}</option>
+                                @endforeach
+                            @endif
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong>Customer City:</strong>
+                        <input type="text" name="customer_city" class="form-control input_customer_city" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <strong>Customer Country (ISO 2):</strong>
+                        <input type="text" name="customer_country" class="form-control input_customer_country" value="" required>
+                    </div>
+                    <div class="form-group">
+                        <strong>Customer Phone:</strong>
+                        <input type="number" name="customer_phone" class="form-control input_customer_phone" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Customer Address 1:</strong>
+                        <input type="text" name="customer_address1" class="form-control input_customer_address1" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Customer Address 2:</strong>
+                        <input type="text" name="customer_address2" class="form-control input_customer_address2" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Customer Pincode:</strong>
+                        <input type="number" name="customer_pincode" class="form-control input_customer_pincode" max="999999" required>
+                    </div>
+
+                    <div class="form-group">
+                        <strong>Actual Weight:</strong>
+                        <input type="number" name="actual_weight" class="form-control input_actual_weight" value="1" step="0.01" required>
+                    </div>
+
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Length:</strong>
+                                <input type="number" name="box_length" class="form-control input_box_length" placeholder="1.0" value="" step="0.1" max="1000" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Width:</strong>
+                                <input type="number" name="box_width" class="form-control input_box_width" placeholder="1.0" value="" step="0.1" max="1000" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Height:</strong>
+                                <input type="number" name="box_height" class="form-control input_box_height" placeholder="1.0" value="" step="0.1" max="1000" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Amount:</strong>
+                                <input type="number" name="amount" class="form-control input_amount" value="" required>
+                            </div>
+                        </div>
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Currency:</strong>
+                                <input type="text" name="currency" class="form-control input_currency" value="" required>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <strong>Pick Up Date and Time</strong>
+                                <div class='input-group date' id='pickup-datetime'>
+                                    <input type='text' class="form-control input_pickup_time" name="pickup_time" value="{{ date('Y-m-d H:i') }}" required />
+                                    <span class="input-group-addon">
+                                      <span class="glyphicon glyphicon-calendar"></span>
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <div class="col price-break-down">
+
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <div class="row">
+                        <button type="submit" style="margin-top: 5px;" class="btn btn-secondary btn-create-shipment-request">Create Shipment on DHL</button>
+                        {{--<button type="button" style="margin-top: 5px;" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="button" style="margin-top: 5px;" class="btn btn-secondary btn-rate-request">Calculate Rate Request</button>
+                        <button type="submit" style="margin-top: 5px;" class="btn btn-secondary">Update and Generate</button>--}}
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

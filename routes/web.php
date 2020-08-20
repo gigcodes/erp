@@ -2063,6 +2063,9 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
     Route::resource('shipment', 'ShipmentController');
+    Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
+    Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
+    Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
 
     /**
      * Twilio account management
@@ -2085,6 +2088,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');
     Route::get('twilio/incoming-calls/{number_sid}/{number}', 'TwilioController@getIncomingList')->name('twilio-incoming-calls');
     Route::get('twilio/incoming-calls-recording/{call_sid}', 'TwilioController@incomingCallRecording')->name('twilio-incoming-call-recording');
+
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
