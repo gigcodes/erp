@@ -668,6 +668,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('customer/contact-download-donload', 'CustomerController@downloadContactDetails')->name('customer.download.contact');
     Route::post('customer/create-kyc', 'CustomerController@createKyc')->name('customer.create.kyc');
 
+    Route::get('quickcustomer', 'CustomerController@quickcustomer')->name('quickcustomer');
+
     Route::get('broadcast', 'BroadcastMessageController@index')->name('broadcast.index');
     Route::get('broadcast/images', 'BroadcastMessageController@images')->name('broadcast.images');
     Route::post('broadcast/imagesUpload', 'BroadcastMessageController@imagesUpload')->name('broadcast.images.upload');
