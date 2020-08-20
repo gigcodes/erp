@@ -214,6 +214,13 @@
 	                    </tbody>
 	                </table>
 	            </div>
+
+                <form action="{{ route('attachImages', ['customers']) }}" id="attachImagesForm" method="GET">
+                    <input type="hidden" name="message" id="attach_message" value="">
+                    <input type="hidden" name="sending_time" id="attach_sending_time" value="">
+                </form>
+
+                {!! $customers->appends(Request::except('page'))->links() !!}
         	</div>        
         </div>
     </div>
