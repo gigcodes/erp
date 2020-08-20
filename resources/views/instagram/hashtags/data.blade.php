@@ -20,9 +20,9 @@
                                     <div style="display: flex; width: 150px; height: 150px; background: url('@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif'); background-size: cover;">
                                     &nbsp;
                                     </div>  
-                                @elseif($post->media_type == 2)
+                                @elseif($post->media_type == 2 && isset($post->media_type))
                                     <video controls src="@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
-                                @elseif($post->media_type == 8)
+                                @elseif($post->media_type == 8 && isset($post->media_type))
                                     @if(isset($post->media_url))
                                     <?php $count = 0; ?>
                                     @foreach(json_decode($post->media_url) as $m)
