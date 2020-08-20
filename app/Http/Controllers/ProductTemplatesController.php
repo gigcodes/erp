@@ -127,6 +127,13 @@ class ProductTemplatesController extends Controller
         $productCategory = $parent.' '.$child;
 
         $data = [];
+        if($record->getMedia('template-image')->count() < 4){
+            $data = ['message' => 'Template Product Doesnt have Proper Images'];
+            $record->is_processed = 2;
+            $record->save();
+            return response()->json($data);
+        }
+        
         if ($record) {
             $data = [
                 "id" => $record->id,
