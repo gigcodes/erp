@@ -108,6 +108,9 @@
             margin-left: 3px;
             padding: 4px 8px;
         }
+        .btn.btn-image.btn-call-data {
+            margin-top: -9px;
+        }
 
     </style>
 @endsection
@@ -127,37 +130,49 @@
     @include('task-module.partials.modal-whatsapp-group')
     @include('partials.flash_messages')
 
-    <div class="row mb-2">
-        <div class="col-12">
-            <form class="form-inline form-search-data">
+    <div class="row">
+        <div class="col-xs-12">
+            <form class="form-search-data">
                 <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
                 <input type="hidden" name="type" id="tasktype" value="pending">
-                <div class="form-group">
-                    <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
-                </div>
-                <div class="form-group ml-3">
-                    {!! $task_categories_dropdown !!}
-                </div>
-                @if(auth()->user()->checkPermission('activity-list'))
-                    <div class="form-group ml-3">
-                        <select class="form-control input-sm" name="selected_user">
-                            <option value="">Select a User</option>
-                            @foreach ($users as $id => $user)
-                                <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
-                            @endforeach
-                        </select>
+                <div class="row">
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
+                        </div>
                     </div>
-                @endif
-                <div class="form-group ml-3">
-                    <select name="is_statutory_query" id="is_statutory_query" class="form-control">
-                        <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
-                        <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
-                        <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
-                        <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
-                    </select>
-                </div>
-                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
-                <a href="javascript:;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</a>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group">
+                            {!! $task_categories_dropdown !!}
+                        </div>
+                    </div>
+                    
+                    @if(auth()->user()->checkPermission('activity-list'))
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group ml-3">
+                            <select class="form-control input-sm" name="selected_user">
+                                <option value="">Select a User</option>
+                                @foreach ($users as $id => $user)
+                                    <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @endif
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group">
+                            <select name="is_statutory_query" id="is_statutory_query" class="form-control input-sm">
+                                <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
+                                <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
+                                <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
+                                <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
+                        <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
+                </div>    
+                
             </form>
         </div>
     </div>
