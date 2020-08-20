@@ -34,10 +34,10 @@
             padding-left: 0px !important;
         }
         #addNoteButton{
-            margin-top: 4px;
+            margin-top: 2px;
         }
         #saveNewNotes{
-            margin-top: 4px;
+            margin-top: 2px;
         }
         .col-xs-12.col-md-2{
             padding-left:5px !important; 
@@ -56,7 +56,7 @@
             padding-right:5px !important;
         }
         #taskCreateForm .form-group{
-            margin-bottom: 5px;
+            margin-bottom: 0px;
         }
         .cls_action_box .btn-image img{
             width: 12px !important;
@@ -72,6 +72,41 @@
         }
         .td-full-container{
             margin-top: 9px;   
+        }
+        .cls_textbox_notes{
+            width: 100% !important;
+        }
+        .cls_multi_contact .btn-image img {
+            width: 12px !important;
+        }
+        .cls_multi_contact{
+            width: 100%;
+        }
+        .cls_multi_contact_first{
+            width: 90%;
+            display: inline-block;
+        }
+        .cls_multi_contact_second{
+            width: 7%;
+            display: inline-block;
+        }
+        .cls_categoryfilter_box .btn-image img {
+            width: 12px !important;
+        }
+        .cls_categoryfilter_box{
+            width: 100%;
+        }
+        .cls_categoryfilter_first{
+            width: 90%;
+            display: inline-block;
+        }
+        .cls_categoryfilter_second{
+            width: 7%;
+            display: inline-block;
+        }
+        .cls_comm_btn {
+            margin-left: 3px;
+            padding: 4px 8px;
         }
 
     </style>
@@ -122,7 +157,7 @@
                     </select>
                 </div>
                 <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
-                <a href="javascript:;" class="btn btn-secondary priority_model_btn">Priority</a>
+                <a href="javascript:;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</a>
             </form>
         </div>
     </div>
@@ -156,10 +191,92 @@
                             @endif
                         </div>
                     </div>
-                    
 
                     <div class="col-xs-12 col-md-2">
+                        <div class="form-inline">
+                            <div class="cls_multi_contact">
+                                <div class="cls_multi_contact_first">
+                                    <div class="">
+                                        <select id="multi_contacts" style="width: 100%;" class="form-control input-sm" name="assign_to_contacts[]" multiple>
+                                            @foreach (Auth::user()->contacts as $contact)
+                                                <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                                            @endforeach
+                                        </select>
+
+                                        {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+                                          @foreach (Auth::user()->contacts as $contact)
+                                            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                                          @endforeach
+                                        </select> --}}
+
+                                        @if ($errors->has('assign_to_contacts'))
+                                            <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="cls_multi_contact_second">
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="{{asset('images/add.png')}}"/></button>
+                                </div>
+                            </div>
+                            
+
+                            
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-inline">
+                            <div class="cls_categoryfilter_box">
+                                <div class="cls_categoryfilter_first">
+                                    <div class="">
+                                        {{-- <strong>Category:</strong> --}}
+                                        {!! $task_categories_dropdown !!}
+                                        {{-- <select class="form-control input-sm" name="category" id="required_category" required>
+                                          <option value="">Select a Category</option>
+                                          @foreach ($task_categories_dropdown as $category)
+                                            <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
+
+                                            @foreach ($category['child'] as $child)
+                                              <option value="{{ $child['id'] }}">&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                            @endforeach
+                                          @endforeach
+                                        </select> --}}
+                                    </div>
+                                </div>
+                                <div class="cls_categoryfilter_second">
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
+                                </div>
+                            </div>    
+                            
+
+                            
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
                         <div class="form-group">
+                            <select id="is_milestone" class="form-control" name="is_milestone" required>
+                                <option value="0">Is milestone</option>
+                                <option value="0" >No</option>
+                                <option value="1" >Yes</option>
+                            </select>
+
+                            @if ($errors->has('is_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
+
+                            @if ($errors->has('no_of_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div class="row">    
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group cls_task_subject">
                             <select name="is_statutory" class="form-control is_statutory input-sm">
                                 <option value="0">Other Task</option>
                                 <option value="1">Statutory Task</option>
@@ -168,20 +285,9 @@
                             </select>
                         </div>
 
-                        @if(auth()->user()->isAdmin())
-                            <div class="form-group">
-                                <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
-                                    @foreach ($data['users'] as $user)
-                                        <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                                    @endforeach
-                                </select>
-                                @if ($errors->has('assign_to'))
-                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                                @endif
-                            </div>
-                        @endif
+                        
                     </div>
-
+                    
                     <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
@@ -226,64 +332,19 @@
                             @endif
                         </div>
                     </div>
-
-                    <div class="col-xs-12 col-md-2">
-                        <div class="form-inline">
-                            <div class="form-group flex-fill">
-                                <select id="multi_contacts" class="form-control input-sm" name="assign_to_contacts[]" multiple>
-                                    @foreach (Auth::user()->contacts as $contact)
-                                        <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
-                                    @endforeach
-                                </select>
-
-                                {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
-                                  @foreach (Auth::user()->contacts as $contact)
-                                    <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
-                                  @endforeach
-                                </select> --}}
-
-                                @if ($errors->has('assign_to_contacts'))
-                                    <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
-                                @endif
-                            </div>
-
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="{{asset('images/add.png')}}"/></button>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-md-2">
-                        <div class="form-inline mb-3">
-                            <div class="form-group flex-fill">
-                                {{-- <strong>Category:</strong> --}}
-                                {!! $task_categories_dropdown !!}
-                                {{-- <select class="form-control input-sm" name="category" id="required_category" required>
-                                  <option value="">Select a Category</option>
-                                  @foreach ($task_categories_dropdown as $category)
-                                    <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
-
-                                    @foreach ($category['child'] as $child)
-                                      <option value="{{ $child['id'] }}">&nbsp;&nbsp;{{ $child['title'] }}</option>
-                                    @endforeach
-                                  @endforeach
-                                </select> --}}
-                            </div>
-
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
-                        </div>
-                    </div>
-
-                    <div class="col-xs-12 col-md-4" style="display: none;padding-left: 25px;" id="appointment-container">
+                    <div class="col-xs-12 col-md-4" style="display: none;padding-left: 15px;" id="appointment-container">
                         <div class="row">
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-group">
                                     <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
-                                        "class" => "form-control select2-task-disscussion"
+                                        "class" => "form-control select2-task-disscussion input-sm"
                                     ]); ?>
                                 </div>
                             </div>
                             <div class="col-xs-12 col-md-6">
                                 <div class="form-inline flex-fill">
-                                    <div class="form-group">
-                                        <input type="text" class="form-control" name="note[]" placeholder="Note" value="">
+                                    <div class="form-group cls_textbox_notes">
+                                        <input type="text" style="width: 100%;" class="form-control input-sm" name="note[]" placeholder="Note" value="">
                                     </div>
                                     <button type="button" class="btn btn-xs btn-secondary" title="Add Note" id="addNoteButton">Add Note</button>
                                     <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
@@ -294,42 +355,32 @@
                             </div>
                         </div>
                     </div>
-
+                    @if(auth()->user()->isAdmin())
                     <div class="col-xs-12 col-md-2">
                         <div class="form-group">
-                            <select id="is_milestone" class="form-control" name="is_milestone" required>
-                                <option value="0">Is milestone</option>
-                                <option value="0" >No</option>
-                                <option value="1" >Yes</option>
+                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                                @foreach ($data['users'] as $user)
+                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                                @endforeach
                             </select>
-
-                            @if ($errors->has('is_milestone'))
-                            <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                            @if ($errors->has('assign_to'))
+                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
                             @endif
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-2">
-                        <div class="form-group ml-3">
-                            <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
-
-                            @if ($errors->has('no_of_milestone'))
-                            <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
-                            @endif
-                        </div>
+                    @endif
+                    
+                    <div class="form-group">
+                        <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
                     </div>
-                    <div class="col-xs-12 col-md-2">
-                        <div class="form-group ml-3">
-                            <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
-                        </div>
-                    </div>
-
                     @if(auth()->user()->isAdmin())
-                    <div class="form-group ml-3">
-                        <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
+                    <div class="form-group">
+                        <a class="btn btn-secondary cls_comm_btn" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
                         Open Task count
                         </a>
                     </div>
                     @endif
+                    
                     <!-- <div class="col-xs-12 text-center">
                         <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
                     </div> -->
