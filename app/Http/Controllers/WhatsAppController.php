@@ -1438,6 +1438,7 @@ class WhatsAppController extends FindByNumberController
                         break;
                     } 
                 }
+
                 if(count($keywordassign) > 0)
                 {
                     $task_array =  array(
@@ -1467,23 +1468,31 @@ class WhatsAppController extends FindByNumberController
                     ->where('id', '=', $taskid)
                     ->get();
                     
-                    $customers_info = DB::table('customers')
+                    $users_info = DB::table('users')
                     ->select('*')
                     ->where('id', '=', $task_info[0]->assign_to)
                     ->get();
                     
-                    if(count($customers_info) > 0)
+                    if(count($users_info) > 0)
                     {
-                        if($customers_info[0]->phone != "")
+                        if($users_info[0]->phone != "")
                         {
-                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customers_info[0]->phone, $customers_info[0]->whatsapp_number, $params['message']);
+                            $params_task = [
+                                'number'       => NULL,
+                                'user_id'      => $users_info[0]->id,
+                                'approved'     => 1,
+                                'status'       => 2,
+                                'task_id'      => $taskid,
+                                'message'      => $task_info[0]->task_details
+                            ];
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
 
-                            $chat_message = ChatMessage::create($params);
+                            $chat_message = ChatMessage::create($params_task);
                             ChatMessagesQuickData::updateOrCreate([
                                 'model' => \App\Task::class,
                                 'model_id' => $taskid
                                 ], [
-                                'last_communicated_message' => @$params['message'],
+                                'last_communicated_message' => $task_info[0]->task_details,
                                 'last_communicated_message_at' => $chat_message->created_at,
                                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
                             ]);
