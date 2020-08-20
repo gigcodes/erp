@@ -103,7 +103,7 @@ class ProductTemplatesController extends Controller
     {
         
         $record = \App\ProductTemplate::where('is_processed','0')->whereNotNull('brand_id')->whereNotNull('category_id')->where('category_id','>',3)->orderBy('id','asc')->first();
-
+        
         $category = $record->category;
         // Get other information related to category
         $cat = $category->title;
@@ -127,7 +127,19 @@ class ProductTemplatesController extends Controller
         $productCategory = $parent.' '.$child;
 
         $data = [];
-        if($record->getMedia('template-image')->count() < 4){
+        //check if template exist
+        if(!isset($record->template->no_of_images)){
+
+            $data = ['message' => 'Product Doesnt have template'];
+            $record->is_processed = 2;
+            $record->save();
+            return response()->json($data);
+
+        }else{
+            $templateProductCount = $record->template->no_of_images;
+        }
+        
+        if($record->getMedia('template-image')->count() <= $templateProductCount){
             $data = ['message' => 'Template Product Doesnt have Proper Images'];
             $record->is_processed = 2;
             $record->save();
