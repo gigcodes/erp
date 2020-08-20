@@ -15,6 +15,7 @@ use App\PublicKey;
 use App\SiteDevelopment;
 use App\SocialStrategy;
 use App\StoreSocialContent;
+use App\ChatMessage;
 class ChatMessagesController extends Controller
 {
     /**
@@ -205,7 +206,30 @@ class ChatMessagesController extends Controller
                 $textMessage = htmlentities($chatMessage->message);
             }
             //dd($object);
-            $isOut = ($chatMessage->number != $object->phone) ? true : false; 
+            $isOut = ($chatMessage->number != $object->phone) ? true : false;
+            //check for parent message
+            $textParent = null;
+            if($chatMessage->quoted_message_id) {
+                $parentMessage = ChatMessage::find($chatMessage->quoted_message_id);
+                if($parentMessage) {
+                    if($request->object == 'customer'){
+                        if(session()->has('encrpyt')){
+                           $public = PublicKey::first();
+                            if($public != null){
+                                $privateKey = hex2bin(session()->get('encrpyt.private'));
+                                $publicKey = hex2bin($public->key);
+                                $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                                $message = hex2bin($parentMessage->message);
+                                $textParent = sodium_crypto_box_seal_open($message, $keypair);
+                            }
+                        }else{
+                            $textParent = htmlentities($parentMessage->message);
+                        }
+                    }else{
+                        $textParent = htmlentities($parentMessage->message);
+                    }
+                }
+            }
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
@@ -213,6 +237,7 @@ class ChatMessagesController extends Controller
                 'sendBy'=> ($isOut) ? 'ERP' : $object->name,
                 'sendTo'=> ($isOut) ? $object->name : 'ERP',
                 'message' => $textMessage,
+                'parentMessage' => $textParent,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,
@@ -223,7 +248,8 @@ class ChatMessagesController extends Controller
                 'customer_id' => $chatMessage->customer_id,
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
-                'is_queue' => $chatMessage->is_queue
+                'is_queue' => $chatMessage->is_queue,
+                'quoted_message_id' => $chatMessage->quoted_message_id
             ];
         }
 

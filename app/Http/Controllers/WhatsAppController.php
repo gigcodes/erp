@@ -1025,12 +1025,25 @@ class WhatsAppController extends FindByNumberController
         }
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
+
             // Convert false and true text to false and true
             if ($chatapiMessage[ 'fromMe' ] === "false") {
                 $chatapiMessage[ 'fromMe' ] = false;
             }
             if ($chatapiMessage[ 'fromMe' ] === "true") {
                 $chatapiMessage[ 'fromMe' ] = true;
+            }
+
+            try {
+                // check if quotedMsgId is available, if available then we will search for parent message
+                if(isset($chatapiMessage[ 'quotedMsgId' ])) {
+                    $parentMessage = ChatMessage::where('unique_id', $params['quotedMsgId'])->first();
+                    if($parentMessage) {
+                        $params['quoted_message_id'] = $parentMessage->id;
+                    }
+                } 
+            } catch (\Exception $e) {
+                //continue
             }
 
             // Set default parameters
@@ -1185,7 +1198,6 @@ class WhatsAppController extends FindByNumberController
                         $params[ 'vendor_id' ] = null;
                     }
                 }
-                ///here
                 // Create message
                 $message = ChatMessage::create($params);
 
@@ -1249,7 +1261,6 @@ class WhatsAppController extends FindByNumberController
                         $blockSupplier->delete();
                     }
                }
-               ///here
                $message = ChatMessage::create($params);  
             }else{
                 // create a customer here
@@ -1258,7 +1269,6 @@ class WhatsAppController extends FindByNumberController
                     "phone" => $from
                 ]);
                 $params["customer_id"] = $customer->id;
-                ///here
                 $message = ChatMessage::create($params);  
             }
 
@@ -1547,7 +1557,6 @@ class WhatsAppController extends FindByNumberController
                             'customer_id' => $customer->id,
                             'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                         ];
-                        ///here
                         $auto_dnd_message = ChatMessage::create($dnd_params);
 
                         $this->sendWithThirdApi($customer->phone, $customer->whatsapp_number, $dnd_params[ 'message' ], null, $auto_dnd_message->id);
@@ -1592,7 +1601,6 @@ class WhatsAppController extends FindByNumberController
                                             $temp_img_params[ 'media_url' ] = null;
                                             $temp_img_params[ 'status' ]    = 2;
                                             // Create new message
-                                            ///here
                                             ChatMessage::create($temp_img_params); 
                                       }
                                    }    
@@ -1666,7 +1674,6 @@ class WhatsAppController extends FindByNumberController
                                 $temp_params[ 'status' ] = 8;
 
                                 // Create new message
-                                ///here
                                 $message = ChatMessage::create($temp_params);
 
                                 // Send message if all required data is set
@@ -1707,12 +1714,10 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'status' ] = 2;
 
                 $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ], $params[ 'media_url' ]);
-                ///here
                 ChatMessage::create($params);
             }
 
             if (!$fromMe && strpos($originalMessage, '#ISSUE-') === 0) {
-                ///here
                 $m = new ChatMessage();
                 $message = str_replace('#ISSUE-', '', $originalMessage);
                 $m->issue_id = explode(' ', $message)[ 0 ];
@@ -1722,7 +1727,6 @@ class WhatsAppController extends FindByNumberController
             }
 
             if (!$fromMe && strpos($originalMessage, '#DEVTASK-') === 0) {
-                ///here
                 $m = new ChatMessage();
                 $message = str_replace('#DEVTASK-', '', $originalMessage);
                 $m->developer_task_id = explode(' ', $message)[ 0 ];

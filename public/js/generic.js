@@ -208,14 +208,26 @@ var getHtml = function(response) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
 
+      
+
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            if (message.quoted_message_id) {
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
+
+
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            if (message.quoted_message_id) {
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
@@ -242,7 +254,7 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-
+    
 	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
@@ -313,6 +325,16 @@ $(document).on('click', '.btn-approve', function (e) {
      });
    }
 });
+
+
+// $(document).on('click', '.chat-reply-div', function (e) {
+//     e.preventDefault();
+//     var target = $(this).attr('data-target');
+//     $('html, body').animate({
+//       scrollTop: ($(target).offset().top)
+//     }, 2000);
+    
+//  });
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
