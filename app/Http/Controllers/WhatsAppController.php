@@ -1459,6 +1459,43 @@ class WhatsAppController extends FindByNumberController
                         "type"=>"App\User"
                     );
                     DB::table('task_users')->insert($task_users_array);
+
+                    //START CODE Task message to send message in whatsapp
+                
+                    $task_info = DB::table('tasks')
+                    ->select('*')
+                    ->where('id', '=', $taskid)
+                    ->get();
+                    
+                    $customers_info = DB::table('customers')
+                    ->select('*')
+                    ->where('id', '=', $task_info[0]->assign_to)
+                    ->get();
+                    
+                    if(count($customers_info) > 0)
+                    {
+                        if($customers_info[0]->phone != "")
+                        {
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($customers_info[0]->phone, $customers_info[0]->whatsapp_number, $params['message']);
+
+                            $chat_message = ChatMessage::create($params);
+                            ChatMessagesQuickData::updateOrCreate([
+                                'model' => \App\Task::class,
+                                'model_id' => $taskid
+                                ], [
+                                'last_communicated_message' => @$params['message'],
+                                'last_communicated_message_at' => $chat_message->created_at,
+                                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                            ]);
+
+                            $myRequest = new Request();
+                            $myRequest->setMethod('POST');
+                            $myRequest->request->add(['messageId' => $chat_message->id]);
+
+                            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                        }
+                    }
+                    //END CODE Task message to send message in whatsapp
                 }
             }
 
