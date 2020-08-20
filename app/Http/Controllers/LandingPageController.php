@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
+use App\StoreWebsite;
+use App\StoreWiseLandingPageProducts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
@@ -23,7 +25,7 @@ class LandingPageController extends Controller
     {
         $title  = "Landing Page";
         $status = \App\LandingPageProduct::STATUS;
-        return view("landing-page.index", compact(['title', 'status']));
+        return view("landing-page.index", compact(['title', 'status','store_websites']));
     }
 
     public function records(Request $request)
@@ -53,6 +55,7 @@ class LandingPageController extends Controller
         }
 
         $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
+        $store_websites = StoreWebsite::where('website_source','=','shopify')->get();
 
         $items = [];
         $allStatus = StatusHelper::getStatus();
@@ -71,17 +74,24 @@ class LandingPageController extends Controller
             else {
                 $rec->productStatus = '';
             }
-           
+
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    $c = 0;
                     foreach($medias as $image) {
-                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                        $temp = false;
+                        if($c == 0){
+                            $temp = true;
+                        }
+                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id,'show' => $temp]);
+                        $c++;
                     }
                 }
             }
             $rec->images = $productData['images'];
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
+            $rec['stores'] = $store_websites;
             $items[]          = $rec;
         }
 
@@ -118,7 +128,7 @@ class LandingPageController extends Controller
                             ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
                         );
                     }else{
-                        $errorMessage[] = "Product has no cateogory or images : ".$productId;
+                        $errorMessage[] = "Product has no category or images : ".$productId;
                     }
                 }else{
                     $errorMessage[] = "Product not found : {$productId}";
@@ -204,7 +214,7 @@ class LandingPageController extends Controller
         return response()->json(["code" => 500, "error" => "Wrong row id!"]);
     }
 
-    public function pushToShopify(Request $request, $id)
+    public function pushToShopify(Request $request, $id, $store_id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
         $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
@@ -299,7 +309,7 @@ class LandingPageController extends Controller
                 $productData['product']['options'][] = $variantsOption;
             }
 
-            
+
             $countryGroupOptions = [];
 
             // setup for price
@@ -346,7 +356,7 @@ class LandingPageController extends Controller
             if ($landingPage->shopify_id) {
                 $response = $client->updateProduct($landingPage->shopify_id, $productData);
             } else {
-                $response = $client->addProduct($productData);
+                $response = $client->addProduct($productData, $store_id);
             }
 
             $errors = [];
@@ -365,6 +375,13 @@ class LandingPageController extends Controller
             if (!empty($response->product)) {
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
+
+                StoreWiseLandingPageProducts::where(['landing_page_products_id' => $id, 'store_website_id' => $store_id])->delete();
+                StoreWiseLandingPageProducts::create([
+                   'landing_page_products_id' => $id,
+                   'store_website_id' => $store_id
+                ]);
+
                 return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
             }
 

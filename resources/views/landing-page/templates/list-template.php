@@ -3,7 +3,7 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="2%">#</th>
+		      	<th width="2%"><?php echo '#'; ?></th>
 		      	<th width="2%">Id</th>
 		        <th width="10%">Product <I></I>d</th>
 		        <th width="10%">Name</th>
@@ -32,13 +32,18 @@
 			        <td>{{:prop.status_name}}</td>
 			        <td>
 			        {{props prop.images}}
+			        {{if prop.show == true}}
 			        <div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">
 						<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
 						<div class="l-middle btn-delete-image" data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}">
 							<div class="l-text"><i class="fa fa-trash"></i></div>
 						</div>
   					</div>
+  					{{/if}}
 			        {{/props}}
+  					<a href="javascript:void(0);" type="button" data-attr="{{:prop.id}}" class="btn btn-image open_images">
+                                            <img src="/images/forward.png" style="cursor: default;" width="2px;">
+                                        </a>
 			        </td>
 			        <td>{{:prop.productStatus}}</td>
 			        <td>{{:prop.created_at}}</td>
@@ -49,13 +54,31 @@
 			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Refresh product in shopify"><i class="fa fa-refresh" aria-hidden="true"></i></button>
 			        		{{if prop.stock_status == 1}}
 			        			<button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
-			        		{{else}}	
+			        		{{else}}
 			        			<button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
 			        		{{/if}}
 			        	{{else}}
-			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Push Product"><i class="fa fa-upload" aria-hidden="true"></i></button>
+			        		<select name="store_website" id="store_id">
+			        			<option value="">Select store</option>
+			        			{{props prop.stores}}
+			        				<option value="{{:prop.id}}">{{:prop.title}}</option>
+			        			{{/props}}
+			        		</select>
+			        		<button type="button" data-id="{{>prop.id}}" data-attr="" class="btn btn-push-icon" title="Push Product"><i class="fa fa-upload" aria-hidden="true"></i></button>
 			        	{{/if}}
 			        </td>
+			      </tr>
+			      <tr class="hideall" id="{{:prop.id}}" hidden>
+			      		 {{props prop.images}}
+			      		<td>
+			      			<div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">
+								<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
+								<div class="l-middle btn-delete-image" data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}">
+								<div class="l-text"><i class="fa fa-trash"></i></div>
+								</div>
+  							</div>
+  						</td>
+  						 {{/props}}
 			      </tr>
 			    {{/props}}  
 		    </tbody>

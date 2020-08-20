@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use App\Helpers\StatusHelper;
 use App\Http\Controllers\LandingPageController;
 use App\LandingPageProduct;
+use App\StoreWiseLandingPageProducts;
 use Illuminate\Console\Command;
 use App\Library\Shopify\Client as ShopifyClient;
 
@@ -107,8 +108,16 @@ class CheckLandingProducts extends Command
                 ];
                 $productData['product']['options'] = $variantsOption;
 
-                if ($landingPage->shopify_id) {
-                    $response = $client->updateProduct($landingPage->shopify_id, $productData);
+                //check landing page product related store website
+                $store_wise_landing_page_products = StoreWiseLandingPageProducts::where(['landing_page_products_id' => $landingPageProduct->product_id])->get();
+                if(count($store_wise_landing_page_products) > 0){
+                    foreach($store_wise_landing_page_products as $store_products){
+                        $client->addProduct($productData, $store_products->store_website_id);
+                    }
+                }else{
+                    if ($landingPage->shopify_id) {
+                        $response = $client->updateProduct($landingPage->shopify_id, $productData);
+                    }
                 }
         }
 
