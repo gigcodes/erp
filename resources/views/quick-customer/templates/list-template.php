@@ -77,6 +77,9 @@
 						            <span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{:prop.message}}" data-original-title="" title="">{{:prop.short_message}}</span>
 						            <div class="col-md-12">
 						            	<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{:prop.id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Broadcast"><img src="/images/customer-suggestion.png" alt=""></button>
 						            </div>
 						         </div>
 						      </div>
