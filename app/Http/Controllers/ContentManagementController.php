@@ -282,6 +282,7 @@ class ContentManagementController extends Controller
         public function saveDocuments(Request $request)
         {
             $site      = null;
+            
             if(!$request->task_id || $request->task_id == '') {
                 return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
             }

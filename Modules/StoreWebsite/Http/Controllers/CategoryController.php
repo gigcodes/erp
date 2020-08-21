@@ -344,7 +344,7 @@ class CategoryController extends Controller
             $categories = $categories->where("title", "like", "%" . $request->keyword . "%");
         }
 
-        $categories = $categories->whereIn("id", [3]);
+        //$categories = $categories->whereIn("id", [3]);
 
         $categories = $categories->get();
 
