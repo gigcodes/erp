@@ -159,11 +159,13 @@
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src='/images/whatsapp.png'/></button>
             @endif
             @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
-                    @if ($task->is_completed == '')
-                        <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
+                    @if (is_null($task->is_completed))
+                        @if($task->assign_to == Auth::id())
+                        <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
+                        @endif
                     @else
                         @if ($task->assign_from == Auth::id())
-                            <button type="button" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
+                            <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
                         @else
                             <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
                         @endif

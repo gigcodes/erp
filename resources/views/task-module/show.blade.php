@@ -1569,10 +1569,10 @@
                             } else {
                                 $(thiss).html('<img src="/images/incomplete.png" />');
                             }
-
-                            if (response.task.assign_from != current_user) {
-                                $(thiss).attr('disabled', true);
-                            }
+                            $(thiss).attr('disabled', true);
+                            // if (response.task.assign_from != current_user) {
+                            //     $(thiss).attr('disabled', true);
+                            // }
                         }).fail(function (response) {
                             $(thiss).html(image);
 
@@ -1587,7 +1587,7 @@
             }, delay);
         });
 
-        $(document).on('dblclick', '.task-complete', function (e) {
+        $(document).on('click', '.task-verify', function (e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -1616,6 +1616,7 @@
                 } else {
                     $(thiss).html('<img src="/images/incomplete.png" />');
                 }
+                $(thiss).attr('disabled', true);
             }).fail(function (response) {
                 $(thiss).html(image);
 

@@ -1298,43 +1298,40 @@ class TaskModuleController extends Controller {
 		// 	$item->save();
 		// }
 		if ($request->type == 'complete') {
-			if($task->assignedTo) {
-				if($task->assignedTo->fixed_price_user_or_job == 1) {
-					// Fixed price task.
-					if($task->cost == null) {
-						if ($request->ajax()) {
-							return response()->json([
-								'message'	=> 'Please provide cost for fixed price task.'
-							],500);
+			if (is_null($task->is_completed)) {
+				$task->is_completed = date( 'Y-m-d H:i:s' );
+			} else if (is_null($task->is_verified)) {
+				if($task->assignedTo) {
+					if($task->assignedTo->fixed_price_user_or_job == 1) {
+						// Fixed price task.
+						if($task->cost == null) {
+							if ($request->ajax()) {
+								return response()->json([
+									'message'	=> 'Please provide cost for fixed price task.'
+								],500);
+							}
+					
+							return redirect()->back()
+											 ->with( 'error', 'Please provide cost for fixed price task.' );
 						}
-				
-						return redirect()->back()
-										 ->with( 'error', 'Please provide cost for fixed price task.' );
-					}
-					if(!$task->is_milestone) {
-						$payment_receipt = new PaymentReceipt;
-						$payment_receipt->date = date( 'Y-m-d' );
-						$payment_receipt->worked_minutes = $task->approximate;
-						$payment_receipt->rate_estimated = $task->cost;
-						$payment_receipt->status = 'Pending';
-						$payment_receipt->task_id = $task->id;
-						$payment_receipt->user_id = $task->assign_to;
-						$payment_receipt->save();
+						if(!$task->is_milestone) {
+							$payment_receipt = new PaymentReceipt;
+							$payment_receipt->date = date( 'Y-m-d' );
+							$payment_receipt->worked_minutes = $task->approximate;
+							$payment_receipt->rate_estimated = $task->cost;
+							$payment_receipt->status = 'Pending';
+							$payment_receipt->task_id = $task->id;
+							$payment_receipt->user_id = $task->assign_to;
+							$payment_receipt->save();
+						}
 					}
 				}
-			}
-
-
-			if ($task->is_completed == '') {
-				$task->is_completed = date( 'Y-m-d H:i:s' );
-			} else if ($task->is_verified == '') {
 				$task->is_verified = date( 'Y-m-d H:i:s' );
 			}
 		} else if ($request->type == 'clear') {
 			$task->is_completed = NULL;
 			$task->is_verified = NULL;
 		}
-
 		$task->save();
 
 		// if($task->is_statutory == 0)
