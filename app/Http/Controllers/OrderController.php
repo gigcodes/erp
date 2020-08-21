@@ -540,6 +540,9 @@ class OrderController extends Controller {
 		}
 
 		$order = new Order();
+
+
+
 		$data  = [];
 		foreach ( $order->getFillable() as $item ) {
 			$data[ $item ] = '';
@@ -554,8 +557,14 @@ class OrderController extends Controller {
 				Cache::put('last-order', $last_order, $expiresAt);
 			}
 		} else {
-			$last = Order::withTrashed()->latest()->first();
+            $last = Order::withTrashed()->latest()->first();
 			$last_order = ($last) ? $last->id + 1 : 1;
+            if (!empty($defaultSelected['selected_product'])) {
+                foreach ($defaultSelected['selected_product'] as $product) {
+                    self::attachProduct( $last_order, $product );
+                }
+            }
+
 			Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 			Cache::put('last-order', $last_order, $expiresAt);
 		}
