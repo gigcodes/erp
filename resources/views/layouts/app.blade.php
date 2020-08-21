@@ -1301,9 +1301,19 @@
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+
                                     </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                    </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -2388,6 +2398,7 @@
         $(document).on("change",".type-on-change",function(e) {
             e.preventDefault();
             var task_type = $(this).val();
+            console.log(task_type);
             if(task_type == 3) {
                 // $('.normal-subject').hide();
                     // $('.discussion-task-subject').show();
@@ -2408,10 +2419,11 @@
                     toastr['error'](response.responseJSON.message);
                 });
             }
-            // else {
-            //     $('.normal-subject').show();
-            //     $('.discussion-task-subject').hide();
-            // }
+            else {
+                // $('select.select2-discussion').select2({tags: true});
+                $("select.select2-discussion").empty().trigger('change'); 
+            }
+            
             
         });
 
