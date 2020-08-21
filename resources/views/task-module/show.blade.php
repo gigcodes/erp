@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <style>
         #message-wrapper {
             height: 450px;
@@ -169,6 +169,15 @@
                             </select>
                         </div>
                     </div>
+                    <div class="col-xs-12 col-md-2">
+                        <div class="form-group">
+                            <select name="sort_by" id="sort_by" class="form-control input-sm">
+                                <option value="">Sort by</option>
+                                <option @if(request('sort_by') == 1) selected @endif value="1">Date desc</option>
+                                <option @if(request('sort_by') == 2) selected @endif value="2">Date Asc</option>
+                            </select>
+                        </div>
+                    </div>
                     <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
                         <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
                 </div>    
@@ -288,6 +297,7 @@
                             @endif
                         </div>
                     </div>
+                    
                 </div>
                 <div class="row">    
                     <div class="col-xs-12 col-md-2">
@@ -299,8 +309,6 @@
                                 <option value="3">Discussion Task</option>
                             </select>
                         </div>
-
-                        
                     </div>
                     
                     <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
@@ -384,6 +392,7 @@
                         </div>
                     </div>
                     @endif
+         
                     
                     <div class="form-group">
                         <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
@@ -460,12 +469,12 @@
                             <tr>
                                 <th width="5%">ID</th>
                                 <th width="8%">Date</th>
-                                <th width="8%" class="category">Category</th>
-                                <th width="11%">Task Subject</th>
-                                <th width="5%">Assign To</th>
-                                <th width="6%">Cost</th>
+                                <th width="6%" class="category">Category</th>
+                                <th width="10%">Task Subject</th>
+                                <th width="8%">Assign To</th>
+                                <th width="10%">Cost</th>
                                 <th width="5%">Milestone</th>
-                                <th width="42%">Communication</th>
+                                <th width="38%">Communication</th>
                                 <th width="13%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
@@ -688,6 +697,60 @@
             </div>
         </div>
     </div>
+
+    <div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Image</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="file-upload-area-section" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+	            <input type="hidden" name="task_id" id="hidden-task-id" value="">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Upload File(s)</h4>
+	            </div>
+	            <div class="modal-body" style="background-color: #999999;">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Documents</label>
+					        <div class="needsclick dropzone" id="document-dropzone">
+
+					        </div>
+					    </div>
+						<div class="form-group add-task-list">
+							
+	    				</div>
+
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
@@ -700,12 +763,16 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
         var cached_suggestions = localStorage['message_suggestions'];
         var suggestions = [];
 
+       $('#master_user_id').select2({
+                width: "100%"
+            });
         $(document).ready(function () {
 
             $('#priority_user_id').select2({
@@ -934,7 +1001,7 @@
             });
         }
 
-        $('#completion-datetime, #reminder-datetime, #sending-datetime').datetimepicker({
+        $('#completion-datetime, #reminder-datetime, #sending-datetime #due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
 
@@ -2251,5 +2318,113 @@
             }
             });
 
+            $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('TaskModuleController@assignMasterUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+        $(document).on("click",".btn-file-upload",function() {
+		var $this = $(this);
+		var task_id = $this.data("id");
+        $("#file-upload-area-section").modal("show");
+		$("#hidden-task-id").val(task_id);
+	    $("#loading-image").hide();
+	});
+
+
+    var uploadedDocumentMap = {}
+  	Dropzone.options.documentDropzone = {
+    	url: '{{ route("task.upload-documents") }}',
+    	maxFilesize: 20, // MB
+    	addRemoveLinks: true,
+    	headers: {
+      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    	},
+    	success: function (file, response) {
+      		$('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+      		uploadedDocumentMap[file.name] = response.name
+    	},
+    	removedfile: function (file) {
+      		file.previewElement.remove()
+      		var name = ''
+      		if (typeof file.file_name !== 'undefined') {
+        		name = file.file_name
+      		} else {
+        		name = uploadedDocumentMap[file.name]
+      		}
+      		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
+    	},
+    	init: function () {
+
+    	}
+  }
+
+$(document).on("click",".btn-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+			url: '/task/save-documents',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: $this.closest("form").serialize(),
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"]("Document uploaded successfully");
+				location.reload();
+			}
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+    });
+    
+    $(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/task/preview-img/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#preview-task-image").modal("show");
+					$(".task-image-list-view").html(response);
+                },
+                error: function () {
+                }
+            });
+        });
     </script>
 @endsection

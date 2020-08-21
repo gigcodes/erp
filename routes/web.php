@@ -766,6 +766,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Complete the task
     // Route::get('/task/count/{taskid}', 'TaskModuleController@taskCount')->name('task.count');
+    Route::get('/task/assign/master-user', 'TaskModuleController@assignMasterUser')->name('task.asign.master-user');
+    Route::post('/task/upload-documents', 'TaskModuleController@uploadDocuments')->name("task.upload-documents");
+    Route::post('/task/save-documents', 'TaskModuleController@saveDocuments')->name("task.save-documents");
+    Route::get('/task/preview-img/{id}', 'TaskModuleController@previewTaskImage')->name('task.preview-img');
     Route::get('/task/complete/{taskid}', 'TaskModuleController@complete')->name('task.complete');
     Route::get('/task/start/{taskid}', 'TaskModuleController@start')->name('task.start');
     Route::get('/statutory-task/complete/{taskid}', 'TaskModuleController@statutoryComplete')->name('task.statutory.complete');

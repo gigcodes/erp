@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\WhatsAppGroup;
-
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class Task extends Model {
 
 	use SoftDeletes;
-
+	use Mediable;
 	protected $fillable = [
 		'category',
 		'task_details',
@@ -33,7 +34,9 @@ class Task extends Model {
 		'no_of_milestone',
 		'milestone_completed',
 		'customer_id',
-		'hubstaff_task_id'
+		'hubstaff_task_id',
+		'master_user_id',
+		'lead_hubstaff_task_id'
 	];
 
 	const TASK_TYPES = [

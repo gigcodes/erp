@@ -32,7 +32,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Storage;
-
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 
@@ -73,6 +73,13 @@ class TaskModuleController extends Controller {
 		else {
 			$searchWhereClause .= ' AND is_statutory != 3';
 		}
+		$orderByClause = ' ORDER BY';
+		if($request->sort_by == 1) {
+			$orderByClause .= ' tasks.created_at desc,';
+		}
+		else if($request->sort_by == 2) {
+			$orderByClause .= ' tasks.created_at asc,';
+		}
 		$data['task'] = [];
 
 		$search_term_suggestions = [];
@@ -84,6 +91,7 @@ class TaskModuleController extends Controller {
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
 		if($type == 'pending') {
+			$orderByClause .= ' is_flagged DESC, message_created_at DESC';
 			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -102,8 +110,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-			ORDER BY is_flagged DESC, message_created_at DESC; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -138,6 +145,7 @@ class TaskModuleController extends Controller {
 			}
 		}
 		else if($type == 'completed') {
+			$orderByClause .= ' last_communicated_at DESC';
 			$data['task']['completed'] = DB::select('
                 SELECT *,
  				message_id,
@@ -160,8 +168,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause . '
-				ORDER BY last_communicated_at DESC;');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -196,6 +203,7 @@ class TaskModuleController extends Controller {
 				}
 		}
 		else if($type == 'statutory_not_completed') {
+			$orderByClause .= ' last_communicated_at DESC';
 			$data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
 				   message_id,
@@ -220,7 +228,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $searchWhereClause . ' ORDER BY last_communicated_at DESC;');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -507,7 +515,7 @@ class TaskModuleController extends Controller {
 																	// $tasks_query = Task::where('is_statutory', 0)->where('assign_to', Auth::id())->whereNull('is_completed')->count();
 																	//
 																	// dd($tasks_query);
-
+																	// $users = Helpers::getUserArray(User::all());
 
 		$users                     = User::oldest()->get()->toArray();
 		$data['users']             = $users;
@@ -796,6 +804,7 @@ class TaskModuleController extends Controller {
 				$data['assign_to'] = $request->assign_to_contacts[0];
 			}
 		}
+		
 
 			$task = Task::create($data);
 
@@ -2127,4 +2136,123 @@ class TaskModuleController extends Controller {
 		session()->flash('success', 'Hide successfully.');
 		return response(['success' => "Hidden"],200);
 	}
+
+	public function assignMasterUser(Request $request)
+    {
+        $masterUserId = $request->get("master_user_id");
+        $issue = Task::find($request->get('issue_id'));
+
+        $user = User::find($masterUserId);
+
+        if(!$user) {
+            return response()->json([
+                'status' => 'success', 'message' =>'user not found'
+            ],500);
+        }
+       
+
+        $issue->master_user_id = $masterUserId;
+
+		$issue->save();
+		
+		$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+        $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
+
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+		}
+		$message = "#" . $issue->id . ". " . $issue->task_subject . ". " . $issue->task_details;
+        $summary = substr($message, 0, 200);
+
+        
+
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $summary,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
+        if($hubstaffTaskId) {
+            $issue->lead_hubstaff_task_id = $hubstaffTaskId;
+            $issue->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $request->input('task');
+            $task->save();
+		}
+		
+        return response()->json([
+            'status' => 'success'
+        ]);
+	}
+	
+	public function uploadDocuments(Request $request)
+	{
+		$path = storage_path('tmp/uploads');
+
+		if (!file_exists($path)) {
+			mkdir($path, 0777, true);
+		}
+
+		$file = $request->file('file');
+
+		$name = uniqid() . '_' . trim($file->getClientOriginalName());
+
+		$file->move($path, $name);
+
+		return response()->json([
+			'name'          => $name,
+			'original_name' => $file->getClientOriginalName(),
+		]);
+	}
+
+
+	public function saveDocuments(Request $request)
+	{
+		if(!$request->task_id || $request->task_id == '') {
+			return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
+		}
+		$documents = $request->input('document', []);
+		$task = Task::find($request->task_id);
+		if (!empty($documents)) {
+			$count = 0;
+			foreach ($request->input('document', []) as $file) {
+				$path  = storage_path('tmp/uploads/' . $file);
+				$media = MediaUploader::fromSource($path)
+					->toDirectory('task-files/' . floor($task->id / config('constants.image_per_folder')))
+					->upload();
+				$task->attachMedia($media, config('constants.media_tags'));
+				$count++;
+			}
+
+			return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+		} else {
+			return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+		}
+
+	}
+
+	public function previewTaskImage($id) {
+
+        $task = Task::find($id);
+        $records = [];
+            if ($task) {
+                    if ($task->hasMedia(config('constants.media_tags'))) {
+                        foreach ($task->getMedia(config('constants.media_tags')) as $media) {
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+								'task_id'   => $task->id,
+							];
+                        }
+                    }
+            }
+        $title = 'Preview images';
+        return view('task-module.partials.preview-task-images', compact('title','records'));
+    }
 }
