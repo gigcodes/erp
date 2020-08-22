@@ -111,6 +111,9 @@
         .btn.btn-image.btn-call-data {
             margin-top: -9px;
         }
+        .dis-none {
+        display: none;
+    }
 
     </style>
 @endsection
@@ -150,7 +153,7 @@
                     @if(auth()->user()->checkPermission('activity-list'))
                     <div class="col-xs-12 col-md-2">
                         <div class="form-group ml-3">
-                            <select class="form-control input-sm" name="selected_user">
+                            <select id="search_by_user" class="form-control input-sm select2" name="selected_user">
                                 <option value="">Select a User</option>
                                 @foreach ($users as $id => $user)
                                     <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
@@ -169,12 +172,21 @@
                             </select>
                         </div>
                     </div>
-                    <div class="col-xs-12 col-md-2">
+                    <div class="col-xs-12 col-md-1">
                         <div class="form-group">
                             <select name="sort_by" id="sort_by" class="form-control input-sm">
                                 <option value="">Sort by</option>
                                 <option @if(request('sort_by') == 1) selected @endif value="1">Date desc</option>
                                 <option @if(request('sort_by') == 2) selected @endif value="2">Date Asc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1">
+                        <div class="form-group">
+                            <select name="filter_by" id="filter_by" class="form-control input-sm">
+                                <option value="">Filter by</option>
+                                <option @if(request('filter_by') == 1) selected @endif value="1">Pending tasks</option>
+                                <option @if(request('filter_by') == 2) selected @endif value="2">Completed by user</option>
                             </select>
                         </div>
                     </div>
@@ -471,11 +483,10 @@
                                 <th width="8%">Date</th>
                                 <th width="6%" class="category">Category</th>
                                 <th width="10%">Task Subject</th>
-                                <th width="8%">Assign To</th>
+                                <th width="13%">Assign To</th>
                                 <th width="10%">Cost</th>
-                                <th width="5%">Milestone</th>
-                                <th width="38%">Communication</th>
-                                <th width="13%">Action&nbsp;
+                                <th width="34%">Communication</th>
+                                <th width="17%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
                                 </th>
@@ -755,6 +766,7 @@
               50% 50% no-repeat;display:none;">
     </div>
     @include("development.partials.time-history-modal")
+    @include("task-module.partials.tracked-time-history")
 @endsection
 
 @section('scripts')
@@ -772,7 +784,11 @@
 
        $('#master_user_id').select2({
                 width: "100%"
-            });
+        });
+
+        $('#search_by_user').select2({
+                width: "100%"
+        });
         $(document).ready(function () {
 
             $('#priority_user_id').select2({
@@ -1002,6 +1018,10 @@
         }
 
         $('#completion-datetime, #reminder-datetime, #sending-datetime #due-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        $('.due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
 
@@ -1316,6 +1336,34 @@
             }
         });
         
+        $(document).on('click', '.expand-row-btn', function () {
+            $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+
+        $(document).on('click', '.set-due-date', function () {
+            var thiss = $(this);
+            var task_id = $(this).data('taskid');
+            var date = $(this).siblings().find('.due_date_cls').val();
+            if (date != '') {
+                $.ajax({
+                        url: '/task/update/due_date',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        "data": {
+                            task_id : task_id,
+                            date : date
+                        }
+                    }).done(function (response) {
+                        toastr['success']('Successfully updated');
+                    }).fail(function (errObj) {
+                    
+                    });
+            } else {
+                alert('Please enter a date first');
+            }
+        });
         // $(document).on('click', '.create-task-btn', function () {
         //     $.ajax({
         //         type: "GET",
@@ -2208,13 +2256,32 @@
                 url: "{{ route('development/time/history') }}",
                 data: {id: issueId},
                 success: function (data) {
+                    // if(data != 'error') {
+                    //     $.each(data, function(i, item) {
+                    //         $('#time_history_div table tbody').append(
+                    //             '<tr>\
+                    //                 <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                    //                 <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                    //                 <td>'+item['new_value']+'</td>\
+                    //             </tr>'
+                    //         );
+                    //     });
+                    // }
+
                     if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
                         $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\
+                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -2425,6 +2492,67 @@ $(document).on("click",".btn-save-documents",function(e){
                 error: function () {
                 }
             });
+        });
+
+
+        $(document).on('submit', '#approve-time-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('task.time.history.approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+       
+        });
+
+
+        function humanizeDuration(input, units ) { 
+            // units is a string with possible values of y, M, w, d, h, m, s, ms
+            var duration = moment().startOf('day').add(units, input),
+                format = "";
+
+            if(duration.hour() > 0){ format += "H:"; }
+
+            if(duration.minute() > 0){ format += "m:"; }
+
+            format += "s";
+
+            return duration.format(format);
+        }
+
+        $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.tracked.history') }}",
+                data: {id: issueId,type:type},
+                success: function (data) {
+                    console.log(data);
+                    if(data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['starts_at_date']).format('DD-MM-YYYY') +'</td>\
+                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                                    <td>'+humanizeDuration(sec,'s')+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
         });
     </script>
 @endsection

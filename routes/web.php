@@ -476,6 +476,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
+
+    
+    Route::post('task/update/due_date', 'TaskModuleController@updateTaskDueDate')->name('task.update.due_date');
+    Route::get('task/time/tracked/history', 'TaskModuleController@getTrackedHistory')->name('task.time.tracked.history');
     Route::post('task/update/cost', 'TaskModuleController@updateCost')->name('task.update.cost');
     Route::get('task/update/milestone', 'TaskModuleController@saveMilestone')->name('task.update.milestone');
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');

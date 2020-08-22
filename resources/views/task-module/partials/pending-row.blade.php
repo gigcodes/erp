@@ -63,7 +63,7 @@
             Doesn't Exist
         @endif
     </td> -->
-    <td class="expand-row table-hover-cell p-2">
+    <td class="table-hover-cell p-2">
         @php
             $special_task = \App\Task::find($task->id);
             $users_list = '';
@@ -90,24 +90,52 @@
         @endphp
 
         <span class="td-mini-container">
-          {{ strlen($users_list) > 6 ? substr($users_list, 0, 6) : $users_list }}
+          {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
         </span>
 
         <span class="td-full-container hidden">
           {{ $users_list }}
         </span>
-        <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
-            <option value="">Select...</option>
-            <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
-            @foreach($users as $id=>$name)
 
-                @if( $masterUser == $id )
-                    <option value="{{$id}}" selected>{{ $name }}</option>
-                @else
-                    <option value="{{$id}}">{{ $name }}</option>
-                @endif
-            @endforeach
-        </select>
+        <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+        <br>
+        <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
+            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+                <option value="">Select...</option>
+                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+                @foreach($users as $id=>$name)
+
+                    @if( $masterUser == $id )
+                        <option value="{{$id}}" selected>{{ $name }}</option>
+                    @else
+                        <option value="{{$id}}">{{ $name }}</option>
+                    @endif
+                @endforeach
+            </select>
+            <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
+            <div class="d-flex">
+                <div class="form-group" style="padding-top:5px;">
+                    <div class='input-group date due-datetime'>
+                        <input type='text' class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
+                            <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+                    </div>
+                </div>
+                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+            </div>
+            @if($task->is_milestone)
+            <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
+            @if($task->no_of_milestone == $task->milestone_completed) 
+            <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
+            @else
+            <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+            @endif
+        @else
+        <p>No milestone</p>
+        @endif
+        </div>
+       
     </td>
     <td>
       <div class="d-flex">
@@ -117,20 +145,12 @@
             <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
             <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
       </div>
-    </td>
-    <td>
-    @if($task->is_milestone)
-        <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
-        @if($task->no_of_milestone == $task->milestone_completed) 
-        <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
-        @else
-        <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+      @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
+        {{ formatDuration($special_task->timeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
-    @else
-    N/A
-    @endif
     </td>
-
     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
             <div class="d-flex">
@@ -191,6 +211,14 @@
                     @if ($task->is_statutory != 3)
                         <button type="button" class='btn btn-image ml-1 convert-task-appointment pd-5' data-id="{{ $task->id }}"><img src='/images/details.png'/></button>
                     @endif
+
+                    <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                    </button>
+
+                    <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
+                        <i class="fa fa-list" aria-hidden="true"></i>
+                    </button>
             @endif
             @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
                 @if ($task->is_private == 1)
@@ -217,13 +245,7 @@
             @else
                 <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
             @endif
-            <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-3">
-                    <i class="fa fa-upload" aria-hidden="true"></i>
-                </button>
-
-                <button type="button" class="btn preview-img-btn pd-3" data-id="{{ $task->id }}">
-					<i class="fa fa-eye" aria-hidden="true"></i>
-                </button>
+            <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
          </div>
         </div>
     </td>

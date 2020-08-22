@@ -92,6 +92,14 @@ class TaskModuleController extends Controller {
 		$data['task']['completed'] = [];
 		if($type == 'pending') {
 			$orderByClause .= ' is_flagged DESC, message_created_at DESC';
+			$isCompleteWhereClose = ' AND is_verified IS NULL ';
+			if($request->filter_by == 1) {
+				$isCompleteWhereClose = ' AND is_completed IS NULL ';
+			}
+			if($request->filter_by == 2) {
+				$isCompleteWhereClose = ' AND is_completed IS NOT NULL AND is_verified IS NULL ';
+			}
+
 			$data['task']['pending'] = DB::select('
 			SELECT tasks.*
 
@@ -110,7 +118,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -612,11 +620,16 @@ class TaskModuleController extends Controller {
         //         'new_value' => $request->approximate,
         //         'user_id' => auth()->id(),
         //     ]);
-        // }
-
-		$task->cost = $request->cost;
-		$task->save();
-		return response()->json(['msg' => 'success']);
+		// }
+		if(Auth::user()->isAdmin()) {
+			$task->cost = $request->cost;
+			$task->save();
+			return response()->json(['msg' => 'success']);
+		}
+		else {
+			return response()->json(['msg' => 'Not authorized user to update'],500);
+		}
+		
 	}
 
 
@@ -671,19 +684,21 @@ class TaskModuleController extends Controller {
 	public function updateApproximate(Request $request) {
 		$task = Task::find($request->task_id);
 
-		if($task && $request->approximate) {
-            DeveloperTaskHistory::create([
-				'developer_task_id' => $task->id,
-				'model' => 'App\Task',
-                'attribute' => "estimation_minute",
-                'old_value' => $task->approximate,
-                'new_value' => $request->approximate,
-                'user_id' => auth()->id(),
-            ]);
-        }
-
-		$task->approximate = $request->approximate;
-		$task->save();
+		if(Auth::user()->id == $task->assign_to || Auth::user()->isAdmin()) {
+			if($task && $request->approximate) {
+				DeveloperTaskHistory::create([
+					'developer_task_id' => $task->id,
+					'model' => 'App\Task',
+					'attribute' => "estimation_minute",
+					'old_value' => $task->approximate,
+					'new_value' => $request->approximate,
+					'user_id' => auth()->id(),
+				]);
+			}
+	
+			$task->approximate = $request->approximate;
+			$task->save();
+		}
 		return response()->json(['msg' => 'success']);
 	}
 
@@ -2254,5 +2269,49 @@ class TaskModuleController extends Controller {
             }
         $title = 'Preview images';
         return view('task-module.partials.preview-task-images', compact('title','records'));
-    }
+	}
+	
+	public function approveTimeHistory(Request $request) {
+        if(Auth::user()->isAdmin) {
+            if(!$request->approve_time || $request->approve_time == "" || !$request->developer_task_id || $request->developer_task_id == '') {
+                return response()->json([
+                    'message' => 'Select one time first'
+                ],500);
+            }
+            DeveloperTaskHistory::where('developer_task_id',$request->developer_task_id)->where('attribute','estimation_minute')->where('model','App\Task')->update(['is_approved' => 0]);
+            $history = DeveloperTaskHistory::find($request->approve_time);
+            $history->is_approved = 1;
+            $history->save();
+            return response()->json([
+                'message' => 'Success'
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Only admin can approve'
+        ],500);
+	}
+	
+	public function getTrackedHistory(Request $request)
+    {
+        $id = $request->id;
+        $type = $request->type;
+        if($type == 'lead') {
+            $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,tasks.master_user_id,users.name FROM `hubstaff_activities`  join tasks on tasks.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = tasks.master_user_id where tasks.id = ".$id." group by starts_at_date"));
+        }
+        else {
+            $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at_date,sum(hubstaff_activities.tracked) as total_tracked,tasks.assign_to,users.name FROM `hubstaff_activities`  join tasks on tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = tasks.assign_to where tasks.id = ".$id." group by starts_at_date"));
+        }
+       
+        return response()->json(['histories' => $task_histories]);
+	}
+	
+	public function updateTaskDueDate(Request $request) {
+		$task = Task::find($request->task_id);
+		if($request->date) {
+			$task->update(['due_date' => $request->date]);
+		}
+		return response()->json([
+            'message' => 'Successfully updated'
+        ],200);
+	}
 }

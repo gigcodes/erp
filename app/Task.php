@@ -36,7 +36,8 @@ class Task extends Model {
 		'customer_id',
 		'hubstaff_task_id',
 		'master_user_id',
-		'lead_hubstaff_task_id'
+		'lead_hubstaff_task_id',
+		'due_date'
 	];
 
 	const TASK_TYPES = [
@@ -113,4 +114,14 @@ class Task extends Model {
 	{
 		return $this->belongsTo('App\Customer', 'customer_id', 'id');
 	}
+
+	public function timeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
+    }
 }
