@@ -499,7 +499,7 @@
                                 try {
                                    echo view( 'task-module.partials.pending-row', compact('task','data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
                                 } catch (\Exception $e) {
-                                    echo 'Error in id: '.$task->id;
+                                    dd($task->id);
                                 }
                             @endphp
                                 
