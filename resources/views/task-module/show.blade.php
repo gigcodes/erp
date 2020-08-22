@@ -496,11 +496,7 @@
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
                             @php
-                                try {
-                                   echo view( 'task-module.partials.pending-row', compact('task','data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
-                                } catch (\Exception $e) {
-                                    dd($task->id);
-                                }
+                               echo view( 'task-module.partials.pending-row', compact('task','data', 'users', 'selected_user','category', 'term', 'search_suggestions', 'search_term_suggestions', 'tasks_view', 'categories', 'task_categories', 'task_categories_dropdown', 'priority','openTask','type','title'));
                             @endphp
                                 
                             @endforeach

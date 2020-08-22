@@ -7,20 +7,19 @@
         {{ $task->id }}
     </td>
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
-    <br>
-    @if($task->customer_id)
-        Cus-{{$task->customer_id}}
         <br>
-        @if(Auth::user()->isAdmin())
-        @php
-            $customer = \App\Customer::find($task->customer_id);
-        @endphp
-        <span>
+        @if($task->customer_id)
+            Cus-{{$task->customer_id}}
+            <br>
+            @if(Auth::user()->isAdmin())
+                @php
+                    $customer = \App\Customer::find($task->customer_id);
+                @endphp
+                <span>
           {{ isset($customer ) ? $customer->name : '' }}
         </span>
+            @endif
         @endif
-    @endif
-    
     </td>
     <td class="expand-row table-hover-cell p-2">
         @if (isset($categories[$task->category]))
@@ -42,27 +41,27 @@
             {{ $task->task_details }}
         </span>
     </td>
-    <!-- <td class="expand-row table-hover-cell p-2">
+<!-- <td class="expand-row table-hover-cell p-2">
         @if (array_key_exists($task->assign_from, $users))
-            @if ($task->assign_from == Auth::id())
-                <span class="td-mini-container">
-                    <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
+    @if ($task->assign_from == Auth::id())
+        <span class="td-mini-container">
+            <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
                 </span>
                 <span class="td-full-container hidden">
                     <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
                 </span>
             @else
-                <span class="td-mini-container">
-                    {{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
+        <span class="td-mini-container">
+{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
                 </span>
                 <span class="td-full-container hidden">
                     {{ $users[$task->assign_from] }}
                 </span>
             @endif
-        @else
-            Doesn't Exist
-        @endif
-    </td> -->
+@else
+    Doesn't Exist
+@endif
+        </td> -->
     <td class="table-hover-cell p-2">
         @php
             $special_task = \App\Task::find($task->id);
@@ -98,13 +97,12 @@
         </span>
 
         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
-        <br>
-        <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
+            <br>
+            <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
             <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
                 <option value="">Select...</option>
                 <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
                 @foreach($users as $id=>$name)
-
                     @if( $masterUser == $id )
                         <option value="{{$id}}" selected>{{ $name }}</option>
                     @else
@@ -112,43 +110,46 @@
                     @endif
                 @endforeach
             </select>
+
             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
             <div class="d-flex">
                 <div class="form-group" style="padding-top:5px;">
                     <div class='input-group date due-datetime'>
-                        <input type='text' class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
-                            <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
+
+                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
                         </span>
+
                     </div>
                 </div>
                 <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
             </div>
+
             @if($task->is_milestone)
-            <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
-            @if($task->no_of_milestone == $task->milestone_completed) 
-            <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
+                <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
+                @if($task->no_of_milestone == $task->milestone_completed)
+                    <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
+                @else
+                    <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+                @endif
             @else
-            <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+                <p>No milestone</p>
             @endif
-        @else
-        <p>No milestone</p>
-        @endif
         </div>
-       
     </td>
+
     <td>
-      <div class="d-flex">
+        <div class="d-flex">
             <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
             <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
             <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
             <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
             <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
-      </div>
-      @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
-        {{ formatDuration($special_task->timeSpent->tracked) }}
-        
-        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        </div>
+        @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
+            {{ formatDuration($special_task->timeSpent->tracked) }}
+
+            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
         @endif
     </td>
     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
@@ -157,18 +158,18 @@
                 <?php
                 $text_box = "";
                 if(isset($task->message))
-                {   
+                {
                     $text_box = "55";
                 }
                 else
                 {
-                    $text_box = "100";   
+                    $text_box = "100";
                 }
                 ?>
                 <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                 <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
                 @if (isset($task->message))
-                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 @endif
                 @if (isset($task->message))
                     <div class="d-flex justify-content-between">
@@ -178,7 +179,7 @@
                         <span class="td-full-container hidden">
                             {{ $task->message }}
                         </span>
-                        
+
                     </div>
                 @endif
             </div>
@@ -188,15 +189,15 @@
     </td>
     <td class="p-2">
         <div>
-        <div class="row cls_action_box" style="margin:0px;">
-            @if(auth()->user()->isAdmin())
+            <div class="row cls_action_box" style="margin:0px;">
+                @if(auth()->user()->isAdmin())
                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
-            @endif
+                @endif
 
-            @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
                     @if (is_null($task->is_completed))
                         @if($task->assign_to == Auth::id())
-                        <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
+                            <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
                         @endif
                     @else
                         @if ($task->assign_from == Auth::id())
@@ -213,40 +214,40 @@
                     @endif
 
                     <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
-                    <i class="fa fa-upload" aria-hidden="true"></i>
+                        <i class="fa fa-upload" aria-hidden="true"></i>
                     </button>
 
                     <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
                         <i class="fa fa-list" aria-hidden="true"></i>
                     </button>
-            @endif
-            @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
-                @if ($task->is_private == 1)
-                    <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}"/></button>
-                @else
-                    {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
                 @endif
-            @endif
-   
-            @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
-                <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
-            @endif
-
-            @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
-                @if ($task->is_private == 1)
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/private.png')}}"/></button>
-                @else
-                    <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/not-private.png')}}"/></button>
+                @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
+                    @if ($task->is_private == 1)
+                        <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}"/></button>
+                    @else
+                        {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
+                    @endif
                 @endif
-            @endif
 
-            @if ($task->is_flagged == 1)
-                <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
-            @else
-                <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
-            @endif
-            <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
-         </div>
+                @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
+                    <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
+                @endif
+
+                @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+                    @if ($task->is_private == 1)
+                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/private.png')}}"/></button>
+                    @else
+                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/not-private.png')}}"/></button>
+                    @endif
+                @endif
+
+                @if ($task->is_flagged == 1)
+                    <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
+                @else
+                    <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+                @endif
+                <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+            </div>
         </div>
     </td>
 </tr>
