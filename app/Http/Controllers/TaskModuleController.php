@@ -91,6 +91,10 @@ class TaskModuleController extends Controller {
 		$data['task']['statutory_not_completed'] = [];
 		$data['task']['completed'] = [];
 		if($type == 'pending') {
+			$paginate = 50;
+    		$page = $request->get('page', 1);
+			$offSet = ($page * $paginate) - $paginate; 
+			
 			$orderByClause .= ' is_flagged DESC, message_created_at DESC';
 			$isCompleteWhereClose = ' AND is_verified IS NULL ';
 			if($request->filter_by == 1) {
@@ -118,7 +122,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -153,6 +157,9 @@ class TaskModuleController extends Controller {
 			}
 		}
 		else if($type == 'completed') {
+			$paginate = 50;
+    		$page = $request->get('page', 1);
+			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
 			$data['task']['completed'] = DB::select('
                 SELECT *,
@@ -176,7 +183,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -211,6 +218,9 @@ class TaskModuleController extends Controller {
 				}
 		}
 		else if($type == 'statutory_not_completed') {
+			$paginate = 50;
+    		$page = $request->get('page', 1);
+			$offSet = ($page * $paginate) - $paginate; 
 			$orderByClause .= ' last_communicated_at DESC';
 			$data['task']['statutory_not_completed'] = DB::select('
 	               SELECT *,
@@ -236,7 +246,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);

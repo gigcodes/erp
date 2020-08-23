@@ -100,9 +100,6 @@
                         {{ $task->message }}
                     </p>
                     <button type="button" class="btn btn-xs btn-image load-communication-modal pull-right" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                    @if ($task->message_status != 0)
-                        <a href='#' title="Resend message" class='btn btn-image p-0 resend-message' data-id="{{ $task->message_id }}"><img src="/images/resend.png"/></a>
-                    @endif
                 </div>
             @endif
         @else

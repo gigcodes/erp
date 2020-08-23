@@ -473,7 +473,7 @@
         <div class="tab-content ">
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Pending Tasks</h4> -->
                     <div class="col-12">
                         <table class="table table-sm table-bordered">
@@ -492,7 +492,7 @@
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="pending-row-render-view">
+                            <tbody class="pending-row-render-view infinite-scroll-pending-inner">
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
                                 @include("task-module.partials.pending-row",compact('task'))
@@ -506,14 +506,14 @@
             <!-- Pending task div end -->
             <!-- Statutory task div start -->
             <div class="tab-pane" id="2">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <div class="col-12">
                         <!-- <h4>Statutory Activity Completed</h4> -->
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">ID</th>
-                                <th width="8%">Date</th>
+                                <th width="8%">ID</th>
+                                <th width="7%">Date</th>
                                 <th width="8%" class="category">Category</th>
                                 <th width="14%">Task Details</th>
                                 <th width="5%">Assign to</th>
@@ -526,7 +526,7 @@
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="statutory-row-render-view">
+                            <tbody class="statutory-row-render-view infinite-scroll-statutory-inner">
                             @if(count($data['task']['statutory_not_completed']) >0)
                                 @foreach(  $data['task']['statutory_not_completed'] as $task)
                                     @include("task-module.partials.statutory-row",compact('task'))
@@ -540,22 +540,22 @@
             <!-- Statutory task div end -->
             <!-- Completed task div start -->
             <div class="tab-pane" id="3">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Completed Tasks</h4> -->
                     <table class="table table-sm table-bordered">
                         <thead>
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="15%">Date</th>
-                            <th width="10%" class="category">Category</th>
-                            <th width="15%">Task Details</th>
-                            <th width="10%">Assign to</th>
-                            <th width="10%">Completed On</th>
+                            <th width="8%">Date</th>
+                            <th width="8%" class="category">Category</th>
+                            <th width="20%">Task Details</th>
+                            <th width="8%">Assign to</th>
+                            <th width="8%">Completed On</th>
                             <th width="30%">Communication</th>
-                            <th width="10%">Action</th>
+                            <th width="13%">Action</th>
                         </tr>
                         </thead>
-                        <tbody class="completed-row-render-view">
+                        <tbody class="completed-row-render-view infinite-scroll-completed-inner">
                         @if(count($data['task']['completed']) >0)
                             @foreach( $data['task']['completed'] as $task)
                                 @include("task-module.partials.completed-row",compact('task'))
@@ -565,6 +565,7 @@
                     </table>
                 </div>
             </div>
+            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
             <div class="tab-pane" id="unassigned-tab">
                 <div class="row">
@@ -791,10 +792,60 @@
         });
         $(document).ready(function () {
 
-            $('#priority_user_id').select2({
+        $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
+        });
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
             });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                type = $("#tasktype").val();
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: BASE_URL+"task?page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        console.log(type);
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        if(type == 'pending') {
+                            $('.infinite-scroll-pending-inner').append(data);
+                        }
+                        if(type == 'completed') {
+                            $('.infinite-scroll-completed-inner').append(data);
+                        }
+                        if(type == 'statutory_not_completed') {
+                            $('.infinite-scroll-statutory-inner').append(data);
+                        }
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
 
             $(document).on('click', '.btn-call-data', function (e) {
                 e.preventDefault();
@@ -803,6 +854,9 @@
                     type = $("#tasktype").val(type);
                 }
                 type = $("#tasktype").val();
+                $('.infinite-scroll-products-loader').hide();
+                isLoading = false;
+                page = 1;
                 $.ajax({
                     url: BASE_URL+"task",
                     type: 'GET',
