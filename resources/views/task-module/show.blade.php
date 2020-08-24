@@ -1067,7 +1067,7 @@
                 var $loader = $('.infinite-scroll-products-loader');
                 page = page + 1;
                 $.ajax({
-                    url: BASE_URL+"task?page="+page,
+                    url: "/task?page="+page,
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     beforeSend: function() {
@@ -1111,7 +1111,7 @@
                 isLoading = false;
                 page = 1;
                 $.ajax({
-                    url: BASE_URL+"task",
+                    url: "/task",
                     type: 'GET',
                     data: $('.form-search-data').serialize(),
                     success: function (response) {
