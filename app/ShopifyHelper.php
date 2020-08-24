@@ -100,7 +100,8 @@ class ShopifyHelper
         // \Log::info(print_r($order,true));
 
         //Checking in order table
-        $checkIfOrderExist = StoreWebsiteOrder::where('order_id', $order["id"])->where('website_id', $store_id)->first();
+        $shopify_order_id = $order["id"];
+        $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $shopify_order_id)->where('website_id', $store_id)->first();
 
         //Checking in Website Order Table
         if ($checkIfOrderExist) {
@@ -108,7 +109,6 @@ class ShopifyHelper
         }
 
         $balance_amount = 0;
-        $shopify_order_id = $order["id"];
 
         // Check for customer details out of order
         $firstName      = isset($order["customer"])? (isset($order["customer"]["first_name"]) ? $order["customer"]["first_name"] : "N/A") : "N/A";
