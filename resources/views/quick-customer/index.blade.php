@@ -6,6 +6,7 @@
 @section('content')
 @section('link-css')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+@endsection
 <style type="text/css">
 	.preview-category input.form-control {
 	  width: auto;
@@ -15,7 +16,7 @@
 	}
     .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover 
     {
-        background-color :  #6c757d ;
+        background-color :  #fff ;
         border-color : #6c757d;
     }
     .page-item.active .page-link {
@@ -28,8 +29,16 @@
     .pagination>li>a:focus, .pagination>li>a:hover, .pagination>li>span:focus, .pagination>li>span:hover {
         color: #6c757d;   
     }
+
+    .pagination>li>a, .pagination>li>span {
+        color: #6c757d;   
+    }
+
+    .pagination>.active>a, .pagination>.active>a:focus, .pagination>.active>a:hover, .pagination>.active>span, .pagination>.active>span:focus, .pagination>.active>span:hover {
+        color: #6c757d;   
+    }
+
 </style>
-@endsection
 
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
