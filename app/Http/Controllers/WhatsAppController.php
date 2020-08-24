@@ -2679,6 +2679,22 @@ class WhatsAppController extends FindByNumberController
                 }
             }
         }
+
+        // get the status for approval
+        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
+        $isNeedToBeSend = false;
+        if (
+            ((int)$approveMessage == 1
+                || (Auth::id() == 49 && empty($chat_message->customer_id))
+                || Auth::id() == 56
+                || Auth::id() == 3
+                || Auth::id() == 65
+                || $context == 'task'
+                || $request->get('is_vendor_user') == 'yes'
+            )) {
+            $isNeedToBeSend = true;
+        }
+
         if ($request->images) {
             $imagesDecoded = json_decode($request->images,true);
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
@@ -2735,10 +2751,20 @@ class WhatsAppController extends FindByNumberController
                 if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
                     $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
                     if(!$medias->isEmpty()) {
-                        foreach($medias as $media) {
+                        foreach($medias as $iimg => $media) {
                             try{
-                                $chat_message = ChatMessage::create($data);
+                                if($iimg != 0) {
+                                    $chat_message = ChatMessage::create($data);
+                                }
                                 $chat_message->attachMedia($media, config('constants.media_tags'));
+                                // if this message is not first then send to the client
+                                if ($iimg != 0 && $isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
+                                    $myRequest = new Request();
+                                    $myRequest->setMethod('POST');
+                                    $myRequest->request->add(['messageId' => $chat_message->id]);
+                                    $this->approveMessage($context, $myRequest);
+                                }
+
                             }catch(\Exception $e) {
                                \Log::error($e);
                             }
@@ -2785,15 +2811,7 @@ class WhatsAppController extends FindByNumberController
         // get the status for approval
         $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
 
-        if (
-            ((int)$approveMessage == 1
-                || (Auth::id() == 49 && empty($chat_message->customer_id))
-                || Auth::id() == 56
-                || Auth::id() == 3
-                || Auth::id() == 65
-                || $context == 'task'
-                || $request->get('is_vendor_user') == 'yes'
-            ) && $chat_message->status != 0 && $chat_message->is_queue == '0') {
+        if ($isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');
             $myRequest->request->add(['messageId' => $chat_message->id]);
