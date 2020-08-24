@@ -58,7 +58,7 @@
     </td>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
-    <td class="expand-row table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
+    <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
                 <div class="row cls_textarea_subbox">
@@ -68,28 +68,6 @@
                     <div class="col-md-1 cls_remove_allpadding">
                         <button class="btn btn-sm btn-image send-message1" data-vendorid="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/filled-sent.png"/></button>
                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="vendor" data-id="{{$vendor->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                    </div>
-                </div>
-                <div class="row">
-                    <div class="col-md-12">
-                        <div class="col-md-12" style="padding: 3px;">
-                        @if(isset($vendor->chat_messages[0])) 
-                            <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">    
-                            {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
-                            </span>
-                            <span class="td-full-container hidden">
-                              {{ $vendor->chat_messages[0]->message }}
-                            </span>
-                        @endif    
-                        @if(isset($vendor->message)) 
-                            <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
-                            {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
-                            </span>
-                            <span class="td-full-container hidden">
-                              {{ $vendor->message }}
-                            </span>
-                        @endif
-                        </div>
                     </div>
                 </div>
             </div>
@@ -105,6 +83,28 @@
                     </div>
                 </div>        
             </div> 
+        </div>
+        <div class="row cls_mesg_box">
+            <div class="col-md-12">
+                <div class="col-md-12 expand-row" style="padding: 3px;">
+                @if(isset($vendor->chat_messages[0])) 
+                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">    
+                    {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
+                    </span>
+                    <span class="td-full-container hidden">
+                      {{ $vendor->chat_messages[0]->message }}
+                    </span>
+                @endif    
+                @if(isset($vendor->message)) 
+                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
+                    {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
+                    </span>
+                    <span class="td-full-container hidden">
+                      {{ $vendor->message }}
+                    </span>
+                @endif
+                </div>
+            </div>
         </div>
     </td>
     <td>

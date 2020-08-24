@@ -2088,6 +2088,11 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($request->user_id);
                     $this->sendWithThirdApi($user->phone, null, $request->message);
                 }
+                elseif ($context == 'overdue') {
+                    $data[ 'erp_user' ] = $request->user_id;
+                    $user = User::find($request->user_id);
+                    $this->sendWithThirdApi($user->phone, null, $request->message);
+                }
                  elseif ($context == 'user') {
                     $data[ 'erp_user' ] = $request->user_id;
                     $module_id = $request->user_id;
@@ -2547,6 +2552,33 @@ class WhatsAppController extends FindByNumberController
                     return response()->json(['message' => $chat_message]);
                 
                 }
+                elseif ($context == 'task_lead') {
+                    $params[ 'task_id' ] = $request->get('task_id');
+                    $params[ 'message' ] = $request->get('message');
+                    
+                    $params[ 'approved' ] = 1;
+                    $params[ 'status' ] = 2;
+                    $task = Task::find($request->get('task_id'));
+                    $user = User::find($task->master_user_id);
+
+                    if (!$user) {
+                        return response()->json(['message' => null]);
+                    }
+                    $params[ 'user_id' ]  = $user->id;
+                    if ($task->is_statutory != 1) {
+                        $params[ 'message' ] = "#" . $task->id . ". " . $task->task_subject . ". " . $params[ 'message' ];
+                    } else {
+                        $params[ 'message' ] = $task->task_subject . ". " . $params[ 'message' ];
+                    }
+                    
+                    $number = $user->phone;
+                    if(!$number) {
+                        return response()->json(['message' => null]);
+                    }
+                    $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                    $chat_message = ChatMessage::create($params);
+                    // return response()->json(['message' => $chat_message]);
+                }
                 elseif ($context == 'social_strategy') {
                     $user = User::find($request->get('user_id'));
                     
@@ -2626,7 +2658,16 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
         }
-
+        if ($context == 'task_lead') {
+            ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $data['task_id']
+                ], [
+                'last_communicated_message' => @$params[ 'message' ],
+                'last_communicated_message_at' => Carbon::now(),
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+        }
         // $data['status'] = 1;
 
         // if ($context == 'task' && $data['erp_user'] != Auth::id()) {

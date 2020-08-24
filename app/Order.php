@@ -184,6 +184,11 @@ class Order extends Model
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
 
+    public function storeWebsiteOrder()
+    {
+        return $this->hasOne(\App\StoreWebsiteOrder::class, "order_id","id");
+    }
+
 
     // public function calculateTotal($order)
     // {

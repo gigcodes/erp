@@ -160,7 +160,7 @@ class VendorController extends Controller
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
-          $qu->where('category_id', 'LIKE', '%' . request('category') . '%');
+          $qu->where('category_id', '=', request('category'));
         });
       }
 
