@@ -132,6 +132,10 @@ Route::prefix('v1')->group(function () {
             Route::get('price', '\App\Http\Controllers\Api\v1\ProductController@price');
         });
     });
+
+    Route::prefix('account')->group(function () {
+        Route::post('create', '\App\Http\Controllers\Api\v1\AccountController@create');
+    });
 });
 
 // Scraper ready api
