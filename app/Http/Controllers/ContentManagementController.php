@@ -139,9 +139,9 @@ class ContentManagementController extends Controller
         $contentManagemment = StoreSocialContent::where('store_social_content_category_id',$request->category_id)->where('store_website_id',$id)->first();
         $taskLists = [];
         if($contentManagemment) {
-            $contentManagemment->publisher_id;
-            if($contentManagemment->publisher_id) {
-                $taskLists = Task::where('assign_to',$contentManagemment->publisher_id)->where('is_completed',NULL)->get();
+            // $contentManagemment->creator_id;
+            if($contentManagemment->creator_id) {
+                $taskLists = Task::where('assign_to',$contentManagemment->creator_id)->where('is_completed',NULL)->orderBy('id','desc')->get();
             } 
         }
         return response()->json(['taskLists' => $taskLists],200);
