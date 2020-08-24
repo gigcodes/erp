@@ -19,6 +19,7 @@ class QuickCustomerController extends Controller
     {
 
         $type = $request->get("type", "unread");
+        $chatMessagesWhere = "WHERE status not in (7,8,9,10)";
 
         $customer = \App\Customer::query();
 
@@ -36,10 +37,10 @@ class QuickCustomerController extends Controller
             });
             $customer = $customer->join("chat_messages as cm", "cm.id", "cmqs.last_communicated_message_id");
         } else if ($type == "last_received") {
-            $customer = $customer->join("chat_messages_quick_datas as cmqs", function ($q) {
-                $q->on("cmqs.model_id", "customers.id")->where("cmqs.model", Customer::class);
-            });
-            $customer = $customer->join("chat_messages as cm", "cm.id", "cmqs.last_communicated_message_id");
+            $chatMessagesWhere .= " and message != '' and message is not null and number = c.phone";
+            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
+            $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
+            $customer = $customer->whereNotNull('cm.id');
         }
 
         if($request->customer_id != null) {
