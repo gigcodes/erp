@@ -249,6 +249,7 @@ class UserManagementController extends Controller
         return response()->json([
             "code"       => 200,
             "message"       => 'User sucessfully updated',
+            "page"       => $request->get('page')
         ]);
 
     }
