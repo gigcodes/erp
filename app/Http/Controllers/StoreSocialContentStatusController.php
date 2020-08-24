@@ -30,8 +30,7 @@ class StoreSocialContentStatusController extends Controller
         }
 
         $statuses = $records->get();
-        return view("content-management.status",compact('title','statuses'));
-
+        return response()->json(['statuses' => $statuses]);
     }
 
 
@@ -72,6 +71,24 @@ class StoreSocialContentStatusController extends Controller
         $records->save();
 
         return redirect()->back();
+
+    }
+
+
+
+    public function statusEdit(Request $request)
+    {
+        $id = $request->get("id", 0);
+        if($id) {
+            $isExtst = StoreSocialContentStatus::where('name',$request->name)->first();
+            if($isExtst){
+                return response()->json(['message' => 'Already exists'], 500);
+            }
+        }
+        $records = StoreSocialContentStatus::find($id);
+        $records->update(['name' => $request->name]);
+
+        return response()->json(['message' => 'Successfull'], 200);
 
     }
 

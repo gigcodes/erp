@@ -18,6 +18,7 @@ use App\DeveloperTask;
 use App\Task;
 use App\StoreSocialContentMilestone;
 use App\PaymentReceipt;
+use App\StoreSocialContentReview;
 use Auth;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -351,17 +352,34 @@ class ContentManagementController extends Controller
         if ($site) {
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                    $reviews = StoreSocialContentReview::where('file_id',$media->id)->get();
+                    $fullReviews = '';
+                    if(count($reviews) > 0) {
+                        foreach($reviews as $r) {
+                            $fullReviews = $fullReviews .'<p style="margin:0px">*'.$r->review.'</p>'; 
+                        }
+                    }
                     $records[] = [
                         "id"        => $media->id,
                         'url'       => $media->getUrl(),
                         'site_id'   => $site->id,
                         'user_list' => $usrSelectBox,
+                        'fullReviews' => $fullReviews,
                     ];
                 }
             }
         }
 
         return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function saveReviews(Request $request) {
+        $review = new StoreSocialContentReview;
+        $review->file_id = $request->id;
+        $review->review = $request->message;
+        $review->review_by = Auth::user()->name;
+        $review->save();
+        return response()->json(["code" => 200, "message" => 'Successfull']);
     }
 
     public function deleteDocument(Request $request)
