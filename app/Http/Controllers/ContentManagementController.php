@@ -18,6 +18,7 @@ use App\DeveloperTask;
 use App\Task;
 use App\StoreSocialContentMilestone;
 use App\PaymentReceipt;
+use App\StoreSocialContentReview;
 use Auth;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -138,9 +139,9 @@ class ContentManagementController extends Controller
         $contentManagemment = StoreSocialContent::where('store_social_content_category_id',$request->category_id)->where('store_website_id',$id)->first();
         $taskLists = [];
         if($contentManagemment) {
-            $contentManagemment->publisher_id;
-            if($contentManagemment->publisher_id) {
-                $taskLists = Task::where('assign_to',$contentManagemment->publisher_id)->where('is_completed',NULL)->get();
+            // $contentManagemment->creator_id;
+            if($contentManagemment->creator_id) {
+                $taskLists = Task::where('assign_to',$contentManagemment->creator_id)->where('is_completed',NULL)->orderBy('id','desc')->get();
             } 
         }
         return response()->json(['taskLists' => $taskLists],200);
@@ -351,17 +352,34 @@ class ContentManagementController extends Controller
         if ($site) {
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                    $reviews = StoreSocialContentReview::where('file_id',$media->id)->get();
+                    $fullReviews = '';
+                    if(count($reviews) > 0) {
+                        foreach($reviews as $r) {
+                            $fullReviews = $fullReviews .'<p style="margin:0px">*'.$r->review.'</p>'; 
+                        }
+                    }
                     $records[] = [
                         "id"        => $media->id,
                         'url'       => $media->getUrl(),
                         'site_id'   => $site->id,
                         'user_list' => $usrSelectBox,
+                        'fullReviews' => $fullReviews,
                     ];
                 }
             }
         }
 
         return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function saveReviews(Request $request) {
+        $review = new StoreSocialContentReview;
+        $review->file_id = $request->id;
+        $review->review = $request->message;
+        $review->review_by = Auth::user()->name;
+        $review->save();
+        return response()->json(["code" => 200, "message" => 'Successfull']);
     }
 
     public function deleteDocument(Request $request)

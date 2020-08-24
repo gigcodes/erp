@@ -100,7 +100,8 @@ class ShopifyHelper
         // \Log::info(print_r($order,true));
 
         //Checking in order table
-        $checkIfOrderExist = StoreWebsiteOrder::where('order_id', $order["id"])->where('website_id', $store_id)->first();
+        $shopify_order_id = $order["id"];
+        $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $shopify_order_id)->where('website_id', $store_id)->first();
 
         //Checking in Website Order Table
         if ($checkIfOrderExist) {
@@ -108,7 +109,6 @@ class ShopifyHelper
         }
 
         $balance_amount = 0;
-        $shopify_order_id = $order["id"];
 
         // Check for customer details out of order
         $firstName      = isset($order["customer"])? (isset($order["customer"]["first_name"]) ? $order["customer"]["first_name"] : "N/A") : "N/A";
@@ -117,7 +117,7 @@ class ShopifyHelper
         $full_name      = $firstName . ' ' . $lastName;
         $customer_phone = isset($order["customer"])? (isset($order["customer"]["phone"]) ? $order["customer"]["phone"] : '') : '';
 
-        $customer = Customer::where('email', $order["customer"]["email"])->first();
+        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id",$store_id)->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
@@ -131,6 +131,7 @@ class ShopifyHelper
         $customer->country = $order["billing_address"]["country"];
         $customer->pincode = $order["billing_address"]["zip"];
         $customer->phone   = $order["billing_address"]["phone"];
+        $customer->store_website_id = $store_id;
         $customer->save();
 
         $customer_id    = $customer->id;
@@ -233,7 +234,7 @@ class ShopifyHelper
         $customer_zip = isset($store_customer["address1"])? (isset($store_customer["address1"]["zip"]) ? $store_customer["address1"]["zip"] : '') : '';
         $customer_phone = isset($store_customer)? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
 
-        $customer = Customer::where('email', $store_customer["email"])->first();
+        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id",$store_id)->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
@@ -247,6 +248,7 @@ class ShopifyHelper
         $customer->country = $customer_country;
         $customer->pincode = $customer_zip;
         $customer->phone   = $customer_phone;
+        $customer->store_website_id = $store_id;
         $customer->save();
 
         \Log::info("Saved customer: ".$customer->id);

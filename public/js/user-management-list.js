@@ -146,6 +146,7 @@ var page = {
         })
     },
     loadFirst: function() {
+        console.log("first");
         var _z = {
             url: this.config.mainUrl+"/records",
             method: "get",
@@ -156,6 +157,7 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     getResults: function(href) {
+        console.log(href);
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl+"/records",
             method: "get",
@@ -177,6 +179,7 @@ var page = {
         var tplHtml       = addProductTpl.render(response);
 
         $(".count-text").html("("+response.total+")");
+        $(".page_no").val(response.page);
 
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
@@ -516,7 +519,7 @@ var page = {
     },
     userActivate : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate",
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate?page="+$('.page_no').val(),
             method: "post",
             data : ele.closest("form").serialize(),
             beforeSend : function() {
@@ -526,9 +529,11 @@ var page = {
         this.sendAjax(_z, "saveActivate");
     },
     saveActivate : function(response) {
+        console.log(response);
+
         if(response.code  == 200) {
             toastr['success']('Successfully updated', 'success');
-            page.loadFirst();
+            page.getResults(this.config.mainUrl+"/records?page="+response.page);
         }else {
             toastr["error"](response.error,"");
         }

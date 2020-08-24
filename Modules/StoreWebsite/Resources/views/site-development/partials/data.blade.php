@@ -3,6 +3,7 @@
         $isHod              = auth()->user()->hasRole('HOD of CRM');
         $hasSiteDevelopment = auth()->user()->hasRole('Site-development');
         $userId             = auth()->user()->id;
+        $pagrank            = $categories->perPage() * ($categories->currentPage()- 1) + 1;
     @endphp
     @foreach($categories as $key => $category)
 		<?php
@@ -11,7 +12,7 @@
         ?>
     	<tr>
         <td>
-        {{$categories->perPage() * ($categories->currentPage() - 1) + 1}}
+            {{  $pagrank++  }}
         </td>
     		<td>
     			@if($website) {{ $website->website }} @endif

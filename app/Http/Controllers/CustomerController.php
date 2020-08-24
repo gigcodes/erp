@@ -291,6 +291,14 @@ class CustomerController extends Controller
             $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
         }
 
+        if ($request->get('customer_id')) {
+            $searchWhereClause .= " AND customers.id LIKE '%".$request->get('customer_id')."%'";
+        }
+
+        if ($request->get('customer_name')) {
+            $searchWhereClause .= " AND customers.name LIKE '%".$request->get('customer_name')."%'";
+        }
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
@@ -404,6 +412,7 @@ class CustomerController extends Controller
                 customers.is_priority,
                 customers.instruction_completed_at,
                 customers.whatsapp_number,
+                customers.do_not_disturb,
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
@@ -1343,7 +1352,7 @@ class CustomerController extends Controller
             ->renderAsDropdown();
 
         $facebookMessages = null;
-        if ($customer->facebook_id) {
+        if (@$customer->facebook_id) {
             $facebookMessages = $customer->facebookMessages()->get();
         }
 
@@ -2613,5 +2622,12 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 500 ,"message" => "Ooops, something went wrong"]);
     }
-
+    public function quickcustomer(Request $request)
+    {
+        $results = $this->getCustomersIndex($request);
+        $nextActionArr = DB::table('customer_next_actions')->get();
+        $type = @$request->type;
+        return view('customers.quickcustomer', ['customers'=>$results[0],'nextActionArr'=>$nextActionArr,'type'=>$type]);
+    }
+   
 }
