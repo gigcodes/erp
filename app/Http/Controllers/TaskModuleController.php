@@ -2207,10 +2207,9 @@ class TaskModuleController extends Controller {
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
             $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $request->input('task');
+            $task->summary = $message;
             $task->save();
 		}
-		
         return response()->json([
             'status' => 'success'
         ]);
