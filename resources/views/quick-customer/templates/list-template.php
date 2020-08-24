@@ -5,8 +5,8 @@
 		      <tr>
 		      	<th width="2%">#</th>
 		      	<th width="5%">Customer Name</th>
-		        <th width="15%">Next Action</th>
-		        <th width="10%">Communication box</th>
+		        <th width="12%">Next Action</th>
+		        <th width="12%">Communication box</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -15,9 +15,7 @@
 			      	<td>{{:prop.id}}</td>
 			      	<td>
 		      		    <div class="row">
-                           {{:prop.name}}
-                        </div>
-                        <div class="row">
+                           {{:prop.short_name}}
                         	{{if prop.do_not_disturb == 1}}
                         		<a class="btn btn-image cls_dnt_btn do_not_disturb" href="javascript:;" data-id="{{:prop.id}}" data-user-id="">
                             		<img src="/images/do-not-disturb.png" />
@@ -65,8 +63,12 @@
 					      <div class="col-md-12">
 					         <div class="row">
 					            <div class="col-md-12 form-inline">
-					               <textarea rows="1" style="width: 90%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
+					               <textarea rows="1" style="width: 50%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
 					               <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-customerid="{{:prop.id}}"><img src="/images/filled-sent.png"></button>
+                                   <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{:prop.id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
+                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Broadcast"><img src="/images/customer-suggestion.png" alt=""></button>
 					            </div>
 					         </div>
 					      </div>
@@ -75,12 +77,6 @@
 						      <div class="row">
 						         <div class="col-md-12">
 						            <span class="message-chat-txt" data-toggle="popover" data-placement="top" data-content="{{:prop.message}}" data-original-title="" title="">{{:prop.short_message}}</span>
-						            <div class="col-md-12">
-						            	<button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{:prop.id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
-                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
-                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
-                                        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{:prop.id}}" data-attached="1" data-load-type="broadcast" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Broadcast"><img src="/images/customer-suggestion.png" alt=""></button>
-						            </div>
 						         </div>
 						      </div>
 						   </div>

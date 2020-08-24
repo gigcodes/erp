@@ -734,6 +734,10 @@ var siteHelpers = {
                 doneAjax: function(response) {
                     ele.siblings('textarea').val('');
                     ele.attr('disabled', false);
+                    var messageBx = ele.closest("tr").find(".message-chat-txt");
+                        messageBx.html(message.substring(0,20));
+                        messageBx.attr("data-content",message);
+                        messageBx.attr("data-content",message);
                 }
             };
             siteHelpers.sendFormDataAjax(params);

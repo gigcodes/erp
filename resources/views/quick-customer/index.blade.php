@@ -3,7 +3,7 @@
 
 @section('title', $title)
 
-@section('content')
+@section('large_content')
 @section('link-css')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 @endsection
@@ -77,11 +77,10 @@
 						  	<div class="form-group" style="margin-left: 2px">
 							    <label for="status">Sort By:</label>
 							    <?php echo Form::select("type",[
-							    	"" => "-- Select --", 
 							    	"unread" => "Unread",
 							    	"last_communicated" => "Last Communicated",
 							    	"last_received" => "Last Received",
-							    ],request("type"),["class"=> "form-control","placeholder" => "Type"]) ?>
+							    ],request("type","unread"),["class"=> "form-control","placeholder" => "Type"]) ?>
 						  	</div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>

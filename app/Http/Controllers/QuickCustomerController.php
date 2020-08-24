@@ -23,9 +23,6 @@ class QuickCustomerController extends Controller
 
         $customer = \App\Customer::query();
 
-        if (empty($type)) {
-            $type = "unread";
-        }
         if ($type == "unread") {
             $customer = $customer->join("chat_messages_quick_datas as cmqs", function ($q) {
                 $q->on("cmqs.model_id", "customers.id")->where("cmqs.model", Customer::class);
@@ -41,8 +38,14 @@ class QuickCustomerController extends Controller
             $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
             $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
             $customer = $customer->whereNotNull('cm.id');
-        }
+            $customer = $customer->orderBy('cm.created_at','desc');
+        } else if($type == null) {
+            $customer = $customer->leftJoin(\DB::raw('(SELECT MAX(chat_messages.id) as  max_id, customer_id ,message as matched_message  FROM `chat_messages` join customers as c on c.id = chat_messages.customer_id '.$chatMessagesWhere.' GROUP BY customer_id ) m_max'), 'm_max.customer_id', '=', 'customers.id');
+            $customer = $customer->leftJoin('chat_messages as cm', 'cm.id', '=', 'm_max.max_id');
+            //$customer = $customer->whereNotNull('cm.id');
+        } 
 
+        $customer = $customer->orderBy('cm.created_at','desc');
         if($request->customer_id != null) {
             $customer = $customer->where("customers.id",$request->customer_id);
         }
@@ -58,6 +61,7 @@ class QuickCustomerController extends Controller
         $items = [];
         foreach($customer->items() as $item) {
             $item["short_message"] = strlen($item->message) > 20 ? substr($item->message, 0, 20) : $item->message;
+            $item["short_name"] = strlen($item->name) > 10 ? substr($item->name, 0, 10) : $item->name;
             $items[] = $item;
         }
 
