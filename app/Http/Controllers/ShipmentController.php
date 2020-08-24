@@ -216,7 +216,7 @@ class ShipmentController extends Controller
                 }
                 return redirect()->back()->with('success', 'Shipment created successfully');
             }else{
-                return redirect()->back()->withErrors([$response->getErrorMessage()]);
+                return redirect()->back()->withErrors($response->getErrorMessage());
             }
         } catch (\Exception $e) {
             return redirect()->back()->withErrors([$e->getMessage()]);
