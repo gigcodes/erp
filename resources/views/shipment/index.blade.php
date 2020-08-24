@@ -7,6 +7,24 @@
 @endsection
 
 @section('content')
+@if(session()->has('success'))
+    <div class="col-lg-12 alert alert-success">
+        {{ session()->get('success') }}
+    </div>
+@endif
+@if(session()->has('errors'))
+    @if(is_array(session()->get('errors'))) 
+        @foreach(session()->get('errors') as $err)
+            <div class="col-lg-12 alert alert-danger">
+                {{ $err }}
+            </div>
+        @endforeach
+    @else
+        <div class="col-lg-12 alert alert-danger">
+            {{ session()->get('errors') }}
+        </div>
+    @endif
+@endif
 <div class="row">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">Shipment List</h2>
