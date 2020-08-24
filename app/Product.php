@@ -963,4 +963,19 @@ class Product extends Model
             $this->save();
         }
     }
+
+    public function getStoreBrand($storeId)
+    {
+        $platformId = 0;
+
+        $brand = $this->brands;
+        if($brand) {
+            $storeWebsiteBrand = \App\StoreWebsiteBrand::where("brand_id",$brand->id)->where("store_website_id",$storeId)->first();
+            if($storeWebsiteBrand) {
+                $platformId = $storeWebsiteBrand->magento_value;
+            }
+        }
+
+        return $platformId;
+    }
 }
