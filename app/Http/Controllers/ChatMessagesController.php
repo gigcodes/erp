@@ -135,8 +135,9 @@ class ChatMessagesController extends Controller
             $media = [];
             $mediaWithDetails = [];
             $productId = null;
-
-
+            $parentMedia = [];
+            $parentMediaWithDetails = [];
+            $parentProductId = null;
 
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
@@ -228,6 +229,61 @@ class ChatMessagesController extends Controller
                     }else{
                         $textParent = htmlentities($parentMessage->message);
                     }
+
+                    //parent image start here
+                    if ($parentMessage->hasMedia(config('constants.media_tags'))) {
+                        // foreach ($parentMessage->getMedia(config('constants.media_tags')) as $key => $image) {
+                            $images = $parentMessage->getMedia(config('constants.media_tags'));
+                            $image = $images->first();
+                            // Supplier checkbox
+                            if($image) {
+                                if (in_array($request->object, ["supplier"])) {
+                                    $tempImage = [
+                                        'key' => $image->getKey(),
+                                        'image' => $image->getUrl(),
+                                        'product_id' => '',
+                                        'special_price' => '',
+                                        'size' => ''
+                                    ];
+                                    $imageKey = $image->getKey();
+                                    $mediableType = "Product";
+            
+                                    $productImage = \App\Product::with('Media')
+                                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
+                                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+            
+                                    if ($productImage) {
+                                        $tempImage[ 'product_id' ] = $productImage->id;
+                                        $tempImage[ 'special_price' ] = $productImage->price_inr_special;
+                                        $tempImage[ 'supplier_initials' ] = $this->getSupplierIntials($productImage->supplier);
+                                        $tempImage[ 'size' ] = $this->getSize($productImage);
+                                    }
+            
+                                    $parentMediaWithDetails[] = $tempImage;
+                                } else {
+                                    // Check for product
+                                    if (isset($image->id)) {
+                                        $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+            
+                                        if ($product != null) {
+                                            $parentProductId = $product->mediable_id;
+                                        } else {
+                                            $parentProductId = null;
+                                        }
+                                    }
+            
+                                    // Get media URL
+                                    $parentMedia[] = [
+                                        'key' => $image->getKey(),
+                                        'image' => $image->getUrl(),
+                                        'product_id' => $parentProductId
+                                    ];
+                                }
+                            }
+        
+                        // }
+                    }
+                    //parent image ends
                 }
             }
             $messages[] = [
@@ -243,6 +299,9 @@ class ChatMessagesController extends Controller
                 'media' => is_array($media) ? $media : null,
                 'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
                 'product_id' => !empty($productId) ? $productId : null,
+                'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
+                'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
+                'parentProductId' => !empty($parentProductId) ? $parentProductId : null,
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
                 'customer_id' => $chatMessage->customer_id,

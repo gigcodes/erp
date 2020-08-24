@@ -2599,7 +2599,6 @@ class WhatsAppController extends FindByNumberController
                 }
             }
         }
-
         if ($context != 'task') {
             $params[ 'approved' ] = 0;
             $params[ 'status' ] = 1;
@@ -2607,6 +2606,7 @@ class WhatsAppController extends FindByNumberController
         }
 
         if ($context == 'customer') {
+
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Customer::class,
                 'model_id' => $data['customer_id']
@@ -2679,13 +2679,9 @@ class WhatsAppController extends FindByNumberController
                 }
             }
         }
-
         if ($request->images) {
-
             $imagesDecoded = json_decode($request->images,true);
-
             if (!empty($request->send_pdf) && $request->send_pdf == 1) {
-                
                 $fn = ($context == 'customer' || $context == 'customers') ? '_product' : '';
                 $folder = "temppdf_view_" . time();
                 $mediasH = Media::whereIn('id', $imagesDecoded)->get();
@@ -2741,7 +2737,8 @@ class WhatsAppController extends FindByNumberController
                     if(!$medias->isEmpty()) {
                         foreach($medias as $media) {
                             try{
-                               $chat_message->attachMedia($media, config('constants.media_tags'));
+                                $chat_message = ChatMessage::create($data);
+                                $chat_message->attachMedia($media, config('constants.media_tags'));
                             }catch(\Exception $e) {
                                \Log::error($e);
                             }
