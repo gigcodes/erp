@@ -61,7 +61,7 @@
               <td>
                 @if ($more_order->customer)
                   @if ($more_order->customer->store_website_id)
-                  {{ $more_order->customer->store_website->website}}
+                  @if(isset($more_order->customer->store_website)) {{ $more_order->customer->store_website->website}} @endif
                   @endif
                 @endif
               </td>
