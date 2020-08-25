@@ -15,7 +15,7 @@ Auth::routes();
 
 
 Route::get('/test/test', function(){
-   dd(\Cache::get('key'));
+    dd(\Cache::get('key'));
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
@@ -300,7 +300,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('cron/history/show', 'CronController@historySearch')->name('cron.history.search');
 
 
-  Route::prefix('store-website')->middleware('auth')->group(static function () {
+    Route::prefix('store-website')->middleware('auth')->group(static function () {
         Route::get('/status/all', 'OrderController@viewAllStatuses')->name('store-website.all.status');
         Route::get('/status/edit/{id}', 'OrderController@viewEdit')->name('store-website.status.edit');
         Route::post('/status/edit/{id}', 'OrderController@editStatus')->name('store-website.status.submitEdit');
@@ -327,8 +327,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 
-      //plesk
-      Route::prefix('content-management')->middleware('auth')->group(static function () {
+    //plesk
+    Route::prefix('content-management')->middleware('auth')->group(static function () {
         Route::get('/', 'ContentManagementController@index')->name('content-management.index');
         Route::get('/preview-img/{id}', 'ContentManagementController@previewImage')->name('content-management.preview-img');
         Route::get('/manage/show-history', 'ContentManagementController@showHistory')->name('content-management.manage.show-history');
@@ -348,7 +348,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save-reviews', 'ContentManagementController@saveReviews')->name("content-management.save-reviews");
         Route::post('/manage/milestone-task/submit', 'ContentManagementController@submitMilestones')->name("content-management.submit-milestones");
         Route::prefix('{id}')->group(function () {
-        Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
+            Route::get('list-documents', 'ContentManagementController@listDocuments')->name("content-management.list-documents");
             Route::prefix('remarks')->group(function () {
                 Route::get('/', 'ContentManagementController@remarks')->name("content-management.remarks");
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
@@ -492,7 +492,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
     Route::post('task/create-task-from-shortcut', 'TaskModuleController@createTaskFromSortcut')->name('task.create.task.shortcut');
-    
+
 
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
@@ -601,6 +601,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
+            Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
         });
     });
 
@@ -1046,7 +1047,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('vendors', 'VendorController');
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
-    
+
     Route::post('vendors/email', 'VendorController@email')->name('vendors.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
@@ -1401,7 +1402,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
     Route::get('direct-message','ColdLeadsController@home');
 
-     // Media manager
+    // Media manager
     Route::get('media', 'MediaController@index')->name('media.index');
     Route::post('media', 'MediaController@upload')->name('media.upload');
     Route::get('media/files', 'MediaController@files')->name('media.files');
@@ -1413,9 +1414,9 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
 
-     Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
-     Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
-     Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
+    Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
+    Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
+    Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
 
 });
 

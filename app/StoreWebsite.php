@@ -84,4 +84,9 @@ class StoreWebsite extends Model
     {
         return $this->belongsToMany('App\Brand', 'brand_category_size_charts', 'store_website_id', 'brand_id');
     }
+
+    public static function shopifyWebsite()
+    {
+        return self::where("website_source","shopify")->pluck("title","id")->toArray();
+    }
 }
