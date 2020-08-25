@@ -113,13 +113,7 @@ class VendorController extends Controller
       }
 
       if (request('term') != null) {
-        $query->where('name', 'LIKE', "%{$request->term}%")
-          ->orWhere('address', 'LIKE', "%{$request->term}%")
-          ->orWhere('phone', 'LIKE', "%{$request->phone}%")
-          ->orWhere('email', 'LIKE', "%{$request->term}%")
-          ->orWhereHas('category', function ($qu) use ($request) {
-            $qu->where('title', 'LIKE', "%{$request->term}%");
-          });
+        $query->where('name', 'LIKE', "%{$request->term}%");
       }
 
       //if Id is not null 
@@ -166,7 +160,7 @@ class VendorController extends Controller
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
-          $qu->where('category_id', 'LIKE', '%' . request('category') . '%');
+          $qu->where('category_id', '=', request('category'));
         });
       }
 

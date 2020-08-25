@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Mailinglist extends Model
 {
-    protected $fillable = ['id', 'name', 'remote_id', 'service_id','website_id'];
+    protected $fillable = ['id', 'name', 'remote_id', 'service_id','website_id','email'];
 
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo

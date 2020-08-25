@@ -61,6 +61,8 @@ var getHtml = function(response) {
         // Set empty image var
         var media = '';
         var imgSrc = '';
+        var parentMedia = '';
+        var parentImgSrc = '';
         var li = '<div class="speech-wrapper '+classMaster+'">';
         
         if(message.inout == 'out') {
@@ -208,14 +210,88 @@ var getHtml = function(response) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
 
+      
+
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
+
+
+        //check parent media details
+        if (message.parentMediaWithDetails && message.parentMediaWithDetails.length > 0) {
+                // Get image to display
+                parentImgSrc = getImageToDisplay(message.parentMediaWithDetails[0].image);
+                var parentProductId = message.parentMediaWithDetails[0].parentProductId;
+
+                // Set media
+                if (parentImgSrc != '') {
+                    parentMedia = parentMedia + '<div class="col-4"><a href="' + message.parentMediaWithDetails[0].image + '" target="_blank" class=""><input type="checkbox" name="product" value="' + parentProductId + '" id="cb1_' + 0 + '" /><label class="label-attached-img" for="cb1_' + 0 + '"><img src="' + parentImgSrc + '" style="max-width: 100%;"></label></a></div>';
+                }
+        }
+
+
+        if (message.parentMedia && message.parentMedia.length > 0) {
+            // for (var i = 0; i < message.media.length; i++) {
+                // Get image to display
+                parentImgSrc = getImageToDisplay(message.parentMedia[0].image);
+                
+        
+                // Set media
+                if (parentImgSrc != '') {
+                    parentMedia = parentMedia + '<div class="'+classFive+'">';
+                    var imageType = (message.parentMedia[0].image).substr( (message.parentMedia[0].image).length - 4).toLowerCase();
+                    if (message.parentMedia[0].product_id) {
+        
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            parentMedia = parentMedia + '<a href="javascript:;" data-id="' + message.parentMedia[0].product_id + '" class="show-product-info "><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        } else {
+                            parentMedia = parentMedia + '<a class="show-thumbnail-image has-pdf" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                    } else {
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            parentMedia = parentMedia + '<a class="" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }else{
+                            parentMedia = parentMedia + '<a class="show-thumbnail-image has-pdf" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                    }
+        
+                    if (message.parentMedia[0].product_id > 0 && message.customer_id > 0) {
+                        parentMedia = parentMedia + '<br />';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-kyc-customer" data-media-key="'+message.parentMedia[0].key+'" data-customer-id="'+message.customer_id+'">+ KYC</a>';
+                    }
+                    parentMedia = parentMedia + '</div>';
+                }
+            // }
+        }
+
+       
+
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            if (message.quoted_message_id) {
+                if (parentMedia != '') {
+                    parentMedia = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + parentMedia + '</div></div>';
+                }
+
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
+
+
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            if (message.quoted_message_id) {
+                if (parentMedia != '') {
+                    parentMedia = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + parentMedia + '</div></div>';
+                }
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
             fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
@@ -242,7 +318,7 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-
+    
 	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
@@ -313,6 +389,16 @@ $(document).on('click', '.btn-approve', function (e) {
      });
    }
 });
+
+
+// $(document).on('click', '.chat-reply-div', function (e) {
+//     e.preventDefault();
+//     var target = $(this).attr('data-target');
+//     $('html, body').animate({
+//       scrollTop: ($(target).offset().top)
+//     }, 2000);
+    
+//  });
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl

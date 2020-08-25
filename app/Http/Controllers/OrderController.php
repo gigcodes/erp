@@ -148,7 +148,7 @@ class OrderController extends Controller {
                 ->orWhere('received_by',Helpers::getUserIdByName($term))
                 ->orWhere('client_name','like','%'.$term.'%')
                 ->orWhere('city','like','%'.$term.'%')
-                ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
+                ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
         }
 
         if ($order_status[0] != '') {
@@ -241,7 +241,7 @@ class OrderController extends Controller {
 
 		//$orders = (new Order())->newQuery()->with('customer');
 		// $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
-		$orders = (new Order())->newQuery()->with('customer');
+		$orders = (new Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id");
 		if(empty($term))
 			$orders = $orders;
 		else{
@@ -254,7 +254,7 @@ class OrderController extends Controller {
            ->orWhere('received_by',Helpers::getUserIdByName($term))
            ->orWhere('client_name','like','%'.$term.'%')
            ->orWhere('city','like','%'.$term.'%')
-           ->orWhere('order_status_id',(new OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
 		}
 		if ($order_status[0] != '') {
 			$orders = $orders->whereIn('order_status_id', $order_status);
@@ -265,22 +265,21 @@ class OrderController extends Controller {
 		}
 
 		if ($store_site = $request->store_website_id) {
-			$orders = $orders->whereHas('customer', function($query) use ($store_site) {
-				return $query->where('store_website_id', $store_site);
-			});
+		    $orders = $orders->where('swo.website_id', $store_site);
 		}
 
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
-		->leftJoin("products as p","p.id","op.product_id")->leftJoin("brands as b","b.id","p.brand");
+		->leftJoin("products as p","p.id","op.product_id")
+        ->leftJoin("brands as b","b.id","p.brand");
 
 		if(!empty($brandIds)) {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 
 		$orders = $orders->groupBy("orders.id");
-		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
+		$orders = $orders->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
 
 
 		$users  = Helpers::getUserArray( User::all() );
@@ -293,7 +292,7 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
-		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
+		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
 
 		$orders_array = $orders->paginate(20);
 		// dd($orders_array);
@@ -540,6 +539,9 @@ class OrderController extends Controller {
 		}
 
 		$order = new Order();
+
+
+
 		$data  = [];
 		foreach ( $order->getFillable() as $item ) {
 			$data[ $item ] = '';
@@ -554,8 +556,14 @@ class OrderController extends Controller {
 				Cache::put('last-order', $last_order, $expiresAt);
 			}
 		} else {
-			$last = Order::withTrashed()->latest()->first();
+            $last = Order::withTrashed()->latest()->first();
 			$last_order = ($last) ? $last->id + 1 : 1;
+            if (!empty($defaultSelected['selected_product'])) {
+                foreach ($defaultSelected['selected_product'] as $product) {
+                    self::attachProduct( $last_order, $product );
+                }
+            }
+
 			Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 			Cache::put('last-order', $last_order, $expiresAt);
 		}

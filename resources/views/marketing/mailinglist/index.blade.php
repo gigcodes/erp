@@ -60,6 +60,10 @@
                                 @endforeach
                             </select>
                         </div>
+                        
+                        <div class="form-group">
+                            <input type="email" name="email" id="email" class="form-control email" placeholder="Email">
+                        </div>
 
                         <div class="form-group">
                             <input type="text" name="name" class="form-control name" placeholder="Name">
@@ -82,6 +86,7 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Name</th>
                 <th style="">Website</th>
+                <th style="">Email</th>
                 <th style="">Service</th>
                 <th style="">RemoteID</th>
                 <th style="">Actions</th>
@@ -91,6 +96,7 @@
                 <tr>
                     <td>{{$value["name"]}}</td>
                     <td>@if($value->website) {{$value->website->title}} @endif</td>
+                    <td>{{$value['email']}}</td>
                     <td>{{$value->service->name}}</td>
                     <td>{{$value['remote_id']}}</td>
                     <td><a href="{{route('mailingList.single', $value['remote_id'])}}"><i class="fa fa-list"></i></a> <a href="{{route('mailingList.delete.list', $value['remote_id'])}}">Delete</a></td>
@@ -109,7 +115,8 @@
                 data: {
                     name: $('.name').val(),
                     service_id: $('#service_id').val(),
-                    websites_id: $('#websites_id').val()
+                    websites_id: $('#websites_id').val(),
+                    email : $('#email').val(),
 
                 },
                 beforeSend: function (request) {

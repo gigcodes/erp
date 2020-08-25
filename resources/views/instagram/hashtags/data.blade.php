@@ -20,9 +20,10 @@
                                     <div style="display: flex; width: 150px; height: 150px; background: url('@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif'); background-size: cover;">
                                     &nbsp;
                                     </div>  
-                                @elseif($post->media_type == 2)
+                                @elseif($post->media_type == 2 && isset($post->media_type))
                                     <video controls src="@if($post->media_url) {{ @json_decode($post->media_url)[0] }} @endif" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
-                                @elseif($post->media_type == 8)
+                                @elseif($post->media_type == 8 && isset($post->media_type))
+                                    @if(isset($post->media_url))
                                     <?php $count = 0; ?>
                                     @foreach(json_decode($post->media_url) as $m)
                                         @if($count == 0)
@@ -30,17 +31,20 @@
                                         @else
                                             @break;    
                                         @endif
-                                        @if ($m->media_type == 1)
-                                            <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
-                                                &nbsp;
-                                            </div>
-                                        @elseif($m->media_type == 2)
-                                            <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
+                                        @if(isset($m->media_type))
+                                            @if ($m->media_type == 1)
+                                                <div style="display: flex; width: 150px; height: 150px; background: url('{{ $m->url }}'); background-size: cover;">
+                                                    &nbsp;
+                                                </div>
+                                            @elseif($m->media_type == 2)
+                                                <video controls src="{{ $m->url }}" style="display: flex; width: 150px; height: 150px; background-size: cover;"></video>
 
+                                            @endif
                                         @endif
                                     @endforeach
+                                    @endif
                                 @endif
-
+                            
                         
                                 @else
                                     <div style="display: flex; width: 150px; height: 150px; background-color: #eee;">
