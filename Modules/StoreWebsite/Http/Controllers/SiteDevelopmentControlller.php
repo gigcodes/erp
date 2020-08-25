@@ -57,6 +57,7 @@ class SiteDevelopmentController extends Controller
 
 
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
+        ->where("site_developments.website_id",$id)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
         ->get();
