@@ -1449,14 +1449,17 @@ class WhatsAppController extends FindByNumberController
                         break;
                     } 
                 }
+
                 if(count($keywordassign) > 0)
                 {
                     $task_array =  array(
+                        "category"=>42,
                         "is_statutory"=>0,
-                        "task_subject"=>$keywordassign[0]->task_description,
+                        "task_subject"=>"#".$customer->id."-".$keywordassign[0]->task_description,
                         "task_details"=>$keywordassign[0]->task_description,
                         "assign_from" => \App\User::USER_ADMIN_ID,
                         "assign_to"=>$keywordassign[0]->assign_to,
+                        "customer_id"=>$customer->id,
                         "created_at"=>date("Y-m-d H:i:s"),
                         "updated_at"=>date("Y-m-d H:i:s")
                     );
@@ -1468,6 +1471,51 @@ class WhatsAppController extends FindByNumberController
                         "type"=>"App\User"
                     );
                     DB::table('task_users')->insert($task_users_array);
+
+                    //START CODE Task message to send message in whatsapp
+                
+                    $task_info = DB::table('tasks')
+                    ->select('*')
+                    ->where('id', '=', $taskid)
+                    ->get();
+                    
+                    $users_info = DB::table('users')
+                    ->select('*')
+                    ->where('id', '=', $task_info[0]->assign_to)
+                    ->get();
+                    
+                    if(count($users_info) > 0)
+                    {
+                        if($users_info[0]->phone != "")
+                        {
+                            $params_task = [
+                                'number'       => NULL,
+                                'user_id'      => $users_info[0]->id,
+                                'approved'     => 1,
+                                'status'       => 2,
+                                'task_id'      => $taskid,
+                                'message'      => $task_info[0]->task_details
+                            ];
+                            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
+
+                            $chat_message = ChatMessage::create($params_task);
+                            ChatMessagesQuickData::updateOrCreate([
+                                'model' => \App\Task::class,
+                                'model_id' => $taskid
+                                ], [
+                                'last_communicated_message' => $task_info[0]->task_details,
+                                'last_communicated_message_at' => $chat_message->created_at,
+                                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                            ]);
+
+                            $myRequest = new Request();
+                            $myRequest->setMethod('POST');
+                            $myRequest->request->add(['messageId' => $chat_message->id]);
+
+                            app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+                        }
+                    }
+                    //END CODE Task message to send message in whatsapp
                 }
             }
 
