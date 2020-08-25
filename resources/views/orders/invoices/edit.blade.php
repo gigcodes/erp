@@ -47,7 +47,7 @@
         @foreach($more_orders as $more_order)
             <tr>
               <td>{{ Carbon\Carbon::parse($more_order->order_date)->format('d-m-Y') }}</td>
-              <td>{{ $more_order->client_name }}/{{$more_order->invoice_id}}</td>
+              <td>{{ $more_order->client_name }}</td>
 
               <td>
                 @if ($more_order->customer)
