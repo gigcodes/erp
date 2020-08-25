@@ -132,10 +132,15 @@ Route::prefix('v1')->group(function () {
             Route::get('price', '\App\Http\Controllers\Api\v1\ProductController@price');
         });
     });
+
+    Route::prefix('account')->group(function () {
+        Route::post('create', '\App\Http\Controllers\Api\v1\AccountController@create');
+    });
 });
 
 // Scraper ready api
 Route::post('scraper/ready','ScrapController@scraperReady');
+Route::post('scraper/completed','ScrapController@scraperCompleted');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
 Route::get('scraper-needed-products','ScrapController@scraperNeeded');
 

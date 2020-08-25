@@ -8,7 +8,9 @@ use App\SiteDevelopment;
 use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
 use App\User;
+use App\SiteDevelopmentArtowrkHistory;
 use DB;
+use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -19,7 +21,6 @@ class SiteDevelopmentController extends Controller
 //
     public function index($id = null, Request $request)
     {
-
         //Getting Website Details
         $website = StoreWebsite::find($id);
 
@@ -36,7 +37,6 @@ class SiteDevelopmentController extends Controller
         } else {
             $categories = $categories->whereNotIn('id', $ignoredCategory);
         }
-
         $categories = $categories->paginate(Setting::get('pagination'));
 
         //Getting Roles Developer
@@ -57,6 +57,7 @@ class SiteDevelopmentController extends Controller
 
 
         $statusCount = \App\SiteDevelopment::join("site_development_statuses as sds","sds.id","site_developments.status")
+        ->where("site_developments.website_id",$id)
         ->groupBy("sds.id")
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
         ->get();
@@ -131,13 +132,40 @@ class SiteDevelopmentController extends Controller
             $site->html_designer = $request->text;
         }
 
+        if ($request->type == 'artwork_status') {
+            $old_artwork = $site->artwork_status;
+            if(!$old_artwork || $old_artwork == '') {
+                $old_artwork = 'Yes';
+            }
+            $new_artwork = $request->text;
+            $site->artwork_status = $request->text;
+        }
+
         $site->site_development_category_id = $request->category;
         $site->website_id                   = $request->websiteId;
-
         $site->save();
+
+        if ($request->type == 'artwork_status') {
+            $history = new SiteDevelopmentArtowrkHistory;
+            $history->date = date('Y-m-d');
+            $history->site_development_id = $site->id;
+            $history->from_status = $old_artwork;
+            $history->to_status = $new_artwork;
+            $history->username = Auth::user()->name;
+            $history->save();
+        }
 
         return response()->json(["code" => 200, "messages" => 'Site Development Saved Sucessfully']);
 
+    }
+
+    public function getArtworkHistory($site_id) {
+        $site = SiteDevelopment::find($site_id);
+        $histories = [];
+        if($site) {
+            $histories = SiteDevelopmentArtowrkHistory::where('site_development_id',$site->id)->get();
+        }
+        return response()->json(["code" => 200, "data" => $histories]);
     }
 
     public function editCategory(Request $request)
@@ -158,8 +186,7 @@ class SiteDevelopmentController extends Controller
         $store_website_id = $request->store_website_id;
 
         if ($category != null && $store_website_id != null) {
-
-            if ($request->status == "false") {
+            if ($request->status) {
                 \App\SiteDevelopmentHiddenCategory::where('store_website_id', $request->store_website_id)->where('category_id', $request->category)->delete();
             } else {
                 $siteDevHiddenCat = \App\SiteDevelopmentHiddenCategory::updateOrCreate(
@@ -167,7 +194,6 @@ class SiteDevelopmentController extends Controller
                     ['store_website_id' => $request->store_website_id, 'category_id' => $request->category]
                 );
             }
-
             return response()->json(["code" => 200, "data" => [], "message" => "Data updated Sucessfully"]);
         }
 
@@ -324,6 +350,73 @@ class SiteDevelopmentController extends Controller
         ->get();
         return response()->json(["code" => 200 , "data" => $response]);
 
+    }
+
+    public function previewImage($site_id) {
+        $site = SiteDevelopment::find($site_id);
+        $records = [];
+            if ($site) {
+                // $userList = [];
+
+                // if ($site->developer_id) {
+                //     $userList[$site->publisher->id] = $site->publisher->name;
+                // }
+
+                // if ($site->designer_id) {
+                //     $userList[$site->creator->id] = $site->creator->name;
+                // }
+                // if ($site->designer_id) {
+                //     $userList[$site->creator->id] = $site->creator->name;
+                // }
+                // $userList = array_filter($userList);
+
+                
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+                                'site_id'   => $site->id
+                            ];
+                        }
+                    }
+            }
+        $title = 'Preview images';
+        return response()->json(["code" => 200 , "data" => $records, 'title' => $title]);
+        // return view('content-management.preview-website-images', compact('title','records'));
+    }
+
+    public function latestRemarks($id) {
+
+        $remarks = DB::select(DB::raw('select * from (SELECT max(store_development_remarks.id) as remark_id,remarks,site_development_categories.title,store_development_remarks.created_at,site_development_categories.id as category_id, 
+            store_development_remarks.store_development_id,site_developments.id as site_id,store_development_remarks.user_id, site_developments.title as sd_title, sw.website as sw_website
+            FROM `store_development_remarks` inner join site_developments on site_developments.id = store_development_remarks.store_development_id inner join site_development_categories on site_development_categories.id = site_developments.site_development_category_id 
+            left join store_websites as sw on sw.id = site_developments.website_id
+            where site_developments.website_id = '.$id.' group by store_development_id) as latest join store_development_remarks on store_development_remarks.id = latest.remark_id order by store_development_remarks.created_at desc'));
+
+
+        // $remarks = \App\StoreDevelopmentRemark::join('site_developments','site_developments.id','store_development_remarks.store_development_id')
+        // ->join('site_development_categories','site_development_categories.id','site_developments.site_development_category_id')
+        // ->orderBy('store_development_remarks.created_at','DESC')
+        // ->groupBy('site_developments.site_development_category_id')
+        // ->select('store_development_remarks.*','site_development_categories.title')->get();
+
+        // $response = \App\StoreDevelopmentRemark::join("users as u","u.id","store_development_remarks.user_id")->where("store_development_id",$id)
+        // ->select(["store_development_remarks.*",\DB::raw("u.name as created_by")])
+        // ->orderBy("store_development_remarks.created_at","desc")
+        // ->get();
+        return response()->json(["code" => 200 , "data" => $remarks]);
+    }
+
+    public function allartworkHistory($website_id) {
+            $histories = \App\SiteDevelopment::
+            join("site_development_artowrk_histories","site_development_artowrk_histories.site_development_id","site_developments.id")
+            ->join("site_development_categories","site_development_categories.id","site_developments.site_development_category_id")
+            ->where('site_developments.website_id', $website_id)
+            ->select("site_development_artowrk_histories.*",'site_development_categories.title')
+            ->get();
+        $title = 'Multi site artwork histories';
+        return response()->json(["code" => 200 , "data" => $histories]);
     }
 
 }

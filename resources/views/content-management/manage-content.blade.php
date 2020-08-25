@@ -42,38 +42,42 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
-		    	<div class="row">
-
-				 </div>
-		    </div>
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
+		<div class="col-3 h">
+		<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 					  <div class="row">
-				  		<div class="col">
+				  		<div class="col-8">
 				  			<div class="form-group">
 							    <label for="keyword">Add Category:</label>
 							    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter Category","id" => "add-category"]) ?>
 						  	</div>
-						  	<div class="form-group">
+				  		</div>
+						  <div class="col-4">
+						  <div class="form-group">
 						  		<label for="button">&nbsp;</label>
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
-						  			<img src="/images/send.png" style="cursor: default;" >
+						  			<img style="margin-left:12px;" src="/images/send.png" style="cursor: default;" >
 						  		</button>
 						  	</div>
-				  		</div>
+						  </div>
 					  </div>
 					</form>
-					<form class="form-inline handle-search">
+		    </div>
+		    <div class="col-7 h" style="padding:0px;">
+				<form class="form-inline handle-search">
 					  <div class="row">
-				  		<div class="col">
+				  		<div class="col-6">
 				  			<div class="form-group">
 							    <label for="keyword">Search keyword:</label>
 							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
-							    <label for="status">Status:</label>
-							    <?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
 						  	</div>
+						</div>
+						<div class="col-4">
+				  			<div class="form-group" style="width: 100%;">
+							  <label for="status">Status:</label>
+							    <?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status", "style" => "width:100% !important"]) ?>
+						  	</div>
+						</div>
+						<div class="col-1" style="padding:0px;">
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
 						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
@@ -81,17 +85,22 @@
 						  		</button>
 						  	</div>
 				  		</div>
+						  <div class="col-1">
+						  </div>
 					  </div>
 					</form>
-		    	</div>
 		    </div>
+			<div class="col-2">
+			</div>
 	    </div>
-	    <div class="row" style="margin-bottom: 10px;">
-	    	<a href="{{ route('content-management-status.index') }}" target="__blank">
-		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-		  			+ Add Status
-		  		</button>
-		  	</a>
+		<br>
+	    <div class="row" style="margin-bottom: 10px;margin-left: 0px;">
+	    	<a href="#" class="btn btn-secondary" data-toggle="modal" data-target="#add-new-status">
+			+ Add Status
+		  	</a>&nbsp;&nbsp;
+			  <a href="#" class="btn btn-secondary edit-status">
+			   Edit Status
+		  	</a>&nbsp;&nbsp;
 		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
 		  		Status Count
             </a>
@@ -134,9 +143,9 @@
 						<th width="12%">Due date</th>
 						<th width="12%">Publish date</th>
 						<th width="15%">Action</th>
-						<th width="29%">Communication</th>
+						<th width="25%">Communication</th>
 						<th width="10%">Platform</th>
-						<th width="5%">Action</th>
+						<th width="9%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -148,6 +157,65 @@
 		</div>
 	</div>
 </div>
+
+
+<div id="add-new-status" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("content-management-status.store") }}" method="POST">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Add new status</h4>
+	            </div>
+	            <div class="modal-body">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Name</label>
+					        <input type="text" name="name" class="form-control">
+					    </div>
+
+	            </div>
+	            <div class="modal-footer">
+	                <button type="submit" class="btn btn-default">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div class="modal" tabindex="-1" role="dialog" id="edit-status">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit status</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-md-12" id="edit-status-list">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Status</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
 <div id="chat-list-history" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <div class="modal-content">
@@ -181,6 +249,9 @@
 
 					        </div>
 					    </div>
+						<div class="form-group add-task-list">
+							
+	    				</div>
 
 	            </div>
 	            <div class="modal-footer">
@@ -195,13 +266,14 @@
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
         	<div class="modal-body">
-        		<table class="table table-bordered">
+        		<table class="table table-bordered" style="table-layout:fixed;">
 				    <thead>
 				      <tr>
-				        <th width="5%">No</th>
-				        <th width="45%">Link</th>
+				        <th width="10%">No</th>
+				        <!-- <th width="35%">Link</th> -->
+				        <th width="50%">Reviews</th>
 				        <th width="25%">Send To</th>
-				        <th width="25%">Action</th>
+				        <th width="15%">Action</th>
 				      </tr>
 				    </thead>
 				    <tbody class="display-document-list">
@@ -282,6 +354,37 @@
            <div class="modal-footer">
                 <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<div id="task-milestone-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+		<form action="">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Task</th>
+					        <th>Content uploaded</th>
+					        <th>Publisher</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-milestone-modal-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default btn-milestone-complete" data-dismiss="modal">Submit</button>
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+			</div>
+			</form>
         </div>
     </div>
 </div>
@@ -611,10 +714,42 @@ $('select.select2').select2({
 	//done
 	$(document).on("click",".btn-file-upload",function() {
 		var $this = $(this);
-		$("#file-upload-area-section").modal("show");
-		$("#hidden-store-website-id").val($this.data("store-website-id"));
-		$("#hidden-site-id").val($this.data("site-id"));
-		$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+		var websiteId = $this.data("store-website-id");
+		websiteId = $.trim(websiteId);
+		$.ajax({
+				url: '/content-management/manage/task-list/'+websiteId,
+				dataType: "json",
+				type: 'GET',
+				data: {
+					category_id: $this.data("site-category-id")
+				},
+				beforeSend: function() {
+					$("#loading-image").show();
+               	}
+			}).done(function (data) {
+
+
+				$("#file-upload-area-section").modal("show");
+				$("#hidden-store-website-id").val($this.data("store-website-id"));
+				$("#hidden-site-id").val($this.data("site-id"));
+				$("#hidden-store-social-content-category-id").val($this.data("site-category-id"));
+				
+				var tasklist = '<select class="form-control d-inline select2" name="task_id" id="task_id" style="width: 100% !important;"><option value="0">Select Task</option>';
+				
+                    for(var i=0;i<data.taskLists.length;i++) {
+						task = data.taskLists[i].task_subject;
+						res = task.substr(0, 100);
+						tasklist = tasklist + '<option value="'+data.taskLists[i].id+'">'+res+'</option>';
+					}
+					tasklist = tasklist + '</select>';
+					$(".add-task-list").html(tasklist);
+					$('select.select2').select2({
+						width: "100%"
+					});
+					$("#loading-image").hide();
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+				$("#loading-image").hide();
+			});
 	});
 
 	//done
@@ -638,7 +773,8 @@ $('select.select2').select2({
 			$.each(response.data,function(k,v){
 				html += "<tr>";
 					html += "<td>"+v.id+"</td>";
-					html += "<td>"+v.url+"</td>";
+					// html += '<td><p style="word-break: break-all;">'+v.url+'</p></td>';
+					html += '<td style="padding:3px"><form class="form-inline"><div class="d-flex" style="width:100%"><input placeholder="Reviews..." type="text" class="from-control" name="reviews" style="width:90%" /><button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-submit-review" data-id="'+v.id+'"><img src="/images/send.png" style="cursor: default;" ></button></div></form>'+v.fullReviews+' </td>';
 					html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
 					html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-send-document" data-site-id="'+v.site_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-comment" aria-hidden="true"></i></a></td>';
 				html += "</tr>";
@@ -668,14 +804,58 @@ $('select.select2').select2({
            	}
 		}).done(function (data) {
 			$("#loading-image").hide();
-			toastr["success"]("Document uploaded successfully");
-			location.reload();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"]("Document uploaded successfully");
+				location.reload();
+			}
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 			toastr["error"](jqXHR.responseJSON.message);
 			$("#loading-image").hide();
 		});
 	});
 
+	$(document).on("click",".btn-submit-review",function(e){
+
+		e.preventDefault();
+		var $this = $(this);
+		id = $(this).data('id');
+		var message = $(this).siblings('input').val();
+		if(!message || message == '') {
+			toastr["error"]('Put some reviews first');
+			return;
+		}
+		$.ajax({
+			url: '/content-management/save-reviews',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: {
+				id : id,
+				message : message
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"]("Document uploaded successfully");
+				location.reload();
+			}
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	});
+	
 //done
 
 	$(document).on("click",".link-send-document",function(e) {
@@ -792,7 +972,25 @@ $('select.select2').select2({
 
     	}
   }
-   
+  
+  $(document).on('click', '.approve-popup-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/content-management/manage/milestone-task/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#task-milestone-modal").modal("show");
+					$(".task-milestone-modal-list-view").html(response);
+                },
+                error: function () {
+                }
+            });
+    });
   $(document).on('click', '.preview-img-btn', function (e) {
             e.preventDefault();
 			id = $(this).data('id');
@@ -811,7 +1009,93 @@ $('select.select2').select2({
                 }
             });
         });
+		
+		$(document).on("click",".btn-milestone-complete",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+			url: '/content-management/manage/milestone-task/submit',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: $this.closest("form").serialize(),
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"](data.message);
+				// location.reload();
+			}
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	});
 
+	$(document).on("click",".edit-status",function(e){
+		e.preventDefault();
+		$.ajax({
+			url: '/content-management-status',
+			type: 'GET',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			$("#edit-status-list table tbody tr").remove(); 
+			$.each(data.statuses, function(i, item) {
+                            $('#edit-status-list table tbody').append(
+                                '<tr>\<td><input type="text" value="'+item['name']+'" class="form-control status-name" /></td>\
+                                    <td><button class="btn btn-secondary status-edit-btn" data-id="'+item['id']+'">Edit</button></td>\
+                                </tr>'
+                            );
+            });
+			$('#edit-status').modal('show');
+
+
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+		});
+
+	$(document).on("click",".status-edit-btn",function(e){
+		e.preventDefault();
+		var id = $(this).data('id');
+		var status = $(this).closest("tr").find(".status-name").val();
+		$.ajax({
+			url: '/content-management-status/statusEdit',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+			data: {
+				id : id,
+				name: status,
+			},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]('Successfull');
+			location.reload();
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+	});
 </script>
 <script type="text/javascript">
   $(document).ready(function(){

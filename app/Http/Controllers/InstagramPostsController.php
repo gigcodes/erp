@@ -42,7 +42,7 @@ class InstagramPostsController extends Controller
 
     public function post()
     {
-        $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
+        $accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
         $used_space = 0;
         $storage_limit = 0;
         return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
@@ -50,6 +50,17 @@ class InstagramPostsController extends Controller
 
     public function createPost(Request $request){
         
+        //resizing media 
+        
+        //dd($request->media);
+        foreach ($request->media as $media) {
+           
+            $mediaFile = Media::where('id',$media)->first();
+            $image = self::resize_image_crop($mediaFile,640,640);
+        }
+        
+
+
         $post = new Post();
 
         $post->account_id = $request->account;
@@ -361,7 +372,7 @@ class InstagramPostsController extends Controller
 
     public function viewPost(Request $request)
     {
-        $accounts = Account::all();
+        $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
         $data = Post::whereNotNull('id')->paginate(10);
         
@@ -389,5 +400,70 @@ class InstagramPostsController extends Controller
     public function userPost($id)
     {
         dd($id);
+    }
+
+    public function resizeToRatio()
+    {
+        
+    }
+
+    public  function resize_image_crop($image,$width,$height) {
+        
+        $newImage = $image;
+        $type = $image->mime_type;
+        
+        if($type == 'image/jpeg'){
+            $src_img = imagecreatefromjpeg($image->getAbsolutePath());    
+        }elseif($type == 'image/png'){
+            $src_img = imagecreatefrompng($image->getAbsolutePath());
+        }elseif ($type == 'image/gif') {
+            $src_img = imagecreatefromgif($image->getAbsolutePath());
+        }
+        
+        $image = $src_img;
+        $w = imagesx($image); //current width
+        
+        $h = @imagesy($image); //current height
+        
+        if ((!$w) || (!$h)) { $GLOBALS['errors'][] = 'Image could not be resized because it was not a valid image.'; return false; }
+        if (($w == $width) && ($h == $height)) { return $image; } //no resizing needed
+
+        //try max width first...
+        $ratio = $width / $w;
+        $new_w = $width;
+        $new_h = $h * $ratio;
+
+        //if that created an image smaller than what we wanted, try the other way
+        if ($new_h < $height) {
+            $ratio = $height / $h;
+            $new_h = $height;
+            $new_w = $w * $ratio;
+        }
+
+        $image2 = imagecreatetruecolor ($new_w, $new_h);
+        imagecopyresampled($image2,$image, 0, 0, 0, 0, $new_w, $new_h, $w, $h);
+
+        //check to see if cropping needs to happen
+        if (($new_h != $height) || ($new_w != $width)) {
+            $image3 = imagecreatetruecolor($width, $height);
+            if ($new_h > $height) { //crop vertically
+                $extra = $new_h - $height;
+                $x = 0; //source x
+                $y = round($extra / 2); //source y
+                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
+            }
+            else {
+                $extra = $new_w - $width;
+                $x = round($extra / 2); //source x
+                $y = 0; //source y
+                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
+            }
+            imagedestroy($image2);
+            imagejpeg($image3,$newImage->getAbsolutePath());
+            return $image3;
+        }
+        else {
+            return $image2;
+        }
     }
 }

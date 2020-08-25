@@ -59,7 +59,6 @@
         @php
             $special_task = \App\Task::find($task->id);
             $users_list = '';
-
             foreach ($special_task->users as $key => $user) {
               if ($key != 0) {
                 $users_list .= ', ';
@@ -93,16 +92,14 @@
     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
             @if (isset($task->message))
-                <div class="d-flex justify-content-between">
-                    <span class="td-mini-container">
+                <div class="d-flex">
+                    <p style="width:85%" class="td-mini-container">
                         {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
-                    </span>
-                    <span class="td-full-container hidden">
+                    </p>
+                    <p style="width:85%" class="td-full-container hidden">
                         {{ $task->message }}
-                    </span>
-                    @if ($task->message_status != 0)
-                        <a href='#' title="Resend message" class='btn btn-image p-0 resend-message' data-id="{{ $task->message_id }}"><img src="/images/resend.png"/></a>
-                    @endif
+                    </p>
+                    <button type="button" class="btn btn-xs btn-image load-communication-modal pull-right" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="/images/chat.png" alt=""></button>
                 </div>
             @endif
         @else
@@ -128,6 +125,11 @@
                     <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="/images/not-private.png"/></button>
                 @endif
             @endif
+            @if ($task->assign_from == Auth::id() && $task->is_verified)
+                <button type="button" title="Reopen the task" class="btn btn-image task-verify pd-5" data-id="{{ $task->id }}"><img src="/images/completed.png"/></button>     
+            @endif
+
+
             <form action="{{ route('task.archive', $task->id) }}" method="POST">
                 @csrf
                 <button type="submit" class="btn btn-image pd-5"><img src="/images/archive.png"/></button>

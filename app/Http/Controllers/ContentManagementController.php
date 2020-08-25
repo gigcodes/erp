@@ -14,6 +14,11 @@ use App\User;
 use App\StoreSocialContentStatus;
 use App\StoreSocialContent;
 use App\StoreSocialContentHistory;
+use App\DeveloperTask;
+use App\Task;
+use App\StoreSocialContentMilestone;
+use App\PaymentReceipt;
+use App\StoreSocialContentReview;
 use Auth;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -76,10 +81,8 @@ class ContentManagementController extends Controller
     }
 
     public function manageContent($id, Request $request) {
-    
         //Getting Website Details
         $website = StoreWebsite::find($id);
-
         $categories = StoreSocialContentCategory::orderBy('id', 'desc');
 
         if ($request->k != null) {
@@ -122,7 +125,6 @@ class ContentManagementController extends Controller
 
         $users     = User::select('id', 'name')->get();
 
-
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
                 'tbody' => view('content-management.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount'))->render(),
@@ -130,6 +132,19 @@ class ContentManagementController extends Controller
             ], 200);
         }
         return view('content-management.manage-content', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount'));
+    }
+
+
+    public function getTaskList($id, Request $request) {
+        $contentManagemment = StoreSocialContent::where('store_social_content_category_id',$request->category_id)->where('store_website_id',$id)->first();
+        $taskLists = [];
+        if($contentManagemment) {
+            // $contentManagemment->creator_id;
+            if($contentManagemment->creator_id) {
+                $taskLists = Task::where('assign_to',$contentManagemment->creator_id)->where('is_completed',NULL)->orderBy('id','desc')->get();
+            } 
+        }
+        return response()->json(['taskLists' => $taskLists],200);
     }
 
     public function saveContentCategory(Request $request) {
@@ -268,6 +283,10 @@ class ContentManagementController extends Controller
         public function saveDocuments(Request $request)
         {
             $site      = null;
+            
+            if(!$request->task_id || $request->task_id == '') {
+                return response()->json(["code" => 500, "data" => [], "message" => "Select one task"]);
+            }
             $documents = $request->input('document', []);
             if (!empty($documents)) {
                 if ($request->id) {
@@ -281,13 +300,23 @@ class ContentManagementController extends Controller
                     $site->store_social_content_category_id = $request->store_social_content_category_id;
                     $site->save();
                 }
-
+                $count = 0;
                 foreach ($request->input('document', []) as $file) {
                     $path  = storage_path('tmp/uploads/' . $file);
                     $media = MediaUploader::fromSource($path)
                         ->toDirectory('site-development/' . floor($site->id / config('constants.image_per_folder')))
                         ->upload();
                     $site->attachMedia($media, config('constants.media_tags'));
+                    $count++;
+                }
+                $task = Task::find($request->task_id);
+                if($task && $task->is_milestone) {
+                    $content_milestone = New StoreSocialContentMilestone;
+                    $content_milestone->task_id = $request->task_id;
+                    $content_milestone->ono_of_content = $count;
+                    $content_milestone->store_social_content_id = $site->id;
+                    $content_milestone->status = 0;
+                    $content_milestone->save();
                 }
 
                 return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
@@ -323,17 +352,34 @@ class ContentManagementController extends Controller
         if ($site) {
             if ($site->hasMedia(config('constants.media_tags'))) {
                 foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                    $reviews = StoreSocialContentReview::where('file_id',$media->id)->get();
+                    $fullReviews = '';
+                    if(count($reviews) > 0) {
+                        foreach($reviews as $r) {
+                            $fullReviews = $fullReviews .'<p style="margin:0px">*'.$r->review.'</p>'; 
+                        }
+                    }
                     $records[] = [
                         "id"        => $media->id,
                         'url'       => $media->getUrl(),
                         'site_id'   => $site->id,
                         'user_list' => $usrSelectBox,
+                        'fullReviews' => $fullReviews,
                     ];
                 }
             }
         }
 
         return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function saveReviews(Request $request) {
+        $review = new StoreSocialContentReview;
+        $review->file_id = $request->id;
+        $review->review = $request->message;
+        $review->review_by = Auth::user()->name;
+        $review->save();
+        return response()->json(["code" => 200, "message" => 'Successfull']);
     }
 
     public function deleteDocument(Request $request)
@@ -531,5 +577,69 @@ class ContentManagementController extends Controller
             }
         $title = 'Preview images';
         return view('content-management.preview-website-images', compact('title','records'));
+    }
+
+    public function getTaskMilestones($id) {
+
+        $site = StoreSocialContent::find($id);
+        $taskMilestones = null;
+            if ($site) {
+                $taskMilestones = StoreSocialContentMilestone::where('store_social_content_id',$id)->get();
+            }
+        $title = 'Task milestones';
+        return view('content-management.task-milestones', compact('title','taskMilestones'));
+    }
+
+    public function submitMilestones(Request $request) {
+        $countMilestone = 0;
+        if(count($request->store_social_content_milestone_id) > 0) {
+            foreach($request->store_social_content_milestone_id as $id) {
+                $milestone = StoreSocialContentMilestone::find($id);
+                if(!$milestone->status) {
+                    $task = Task::find($milestone->task_id);
+                    if($task && $task->is_milestone && $task->milestone_completed < $task->no_of_milestone) {
+                        if(!$task->cost || $task->cost == '') {
+                            return response()->json([
+                                'message' => 'Please provide task cost first'
+                            ],500);
+                        }
+                        $countMilestone = 1;
+                        $milestone->update(['status' => 1]);
+                    }
+                    else {
+                        return response()->json([
+                            'message' => 'Total milestone exceeded for this task'
+                        ],500); 
+                    }
+                }
+                else {
+                    return response()->json([
+                        'message' => 'Already approved'
+                    ],500); 
+                }
+            }
+        }
+        else {
+            return response()->json([
+                'message' => 'select some data first'
+            ],500);
+        }
+        if($countMilestone) {
+                        $newCompleted = $task->milestone_completed  + 1;
+                        $individualPrice = $task->cost / $task->no_of_milestone;
+                        $task->milestone_completed = $newCompleted;
+                        $task->save();
+                        $payment_receipt = new PaymentReceipt;
+                        $payment_receipt->date = date( 'Y-m-d' );
+                        $payment_receipt->worked_minutes = $task->approximate;
+                        $payment_receipt->rate_estimated = $individualPrice;
+                        $payment_receipt->status = 'Pending';
+                        $payment_receipt->task_id = $task->id;
+                        $payment_receipt->user_id = $task->assign_to;
+                        $payment_receipt->save();
+        }
+        return response()->json([
+            'message' => 'Successful'
+        ],200);
     }
 }

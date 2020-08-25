@@ -27,6 +27,7 @@ use App\Team;
 use App\DeveloperTask;
 use App\UserAvaibility;
 use DB;
+use Hash;
 use Illuminate\Support\Arr;
 
 class UserManagementController extends Controller
@@ -71,8 +72,20 @@ class UserManagementController extends Controller
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
                 $currentRate = $u->latestRate;
-                $u["team_leads"] = $u->teamLeads->toArray();
+                $team = Team::where('user_id', $u->id)->first();
+                $user_in_team = 0;
+                if($team) {
+                    $u["team_leads"] = $team->users->count();
+                    $u["team_members"] = $team->users->toArray();
+                    $u["team"] = $team;
+                    $user_in_team = 1;
+                }
+                $isMember = $u->teams()->first();
+                if($isMember) {
+                    $user_in_team = 1;
+                }
 
+                $u["user_in_team"] = $user_in_team;
                 $u["hourly_rate"] = ($currentRate) ? $currentRate->hourly_rate : 0;
                 $u["currency"]    = ($currentRate) ? $currentRate->currency : "USD";
 
@@ -176,14 +189,13 @@ class UserManagementController extends Controller
 			'email' => 'required|email|unique:users,email,' . $id,
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
 			'password' => 'same:confirm-password'
-		]);
+        ]);
 		$input = $request->all();
 		$hourly_rate = $input['hourly_rate'];
 		$currency = $input['currency'];
 
 		unset($input['hourly_rate']);
 		unset($input['currency']);
-
 		$input['name'] = str_replace(' ', '_', $input['name']);
 		if (isset($input['agent_role'])) {
 			$input['agent_role'] = implode(',', $input['agent_role']);
@@ -237,6 +249,7 @@ class UserManagementController extends Controller
         return response()->json([
             "code"       => 200,
             "message"       => 'User sucessfully updated',
+            "page"       => $request->get('page')
         ]);
 
     }
@@ -774,12 +787,39 @@ class UserManagementController extends Controller
 
     public function submitTeam($id, Request $request) {
         $user = User::find($id);
+        $isLeader = Team::where('user_id',$id)->first();
+        if($isLeader) {
+            return response()->json([
+                "code"       => 500,
+                "message"       => 'This user is already a team leader'
+            ]);
+        }
+
+        $isMember = $user->teams()->first();
+        if($isMember) {
+            return response()->json([
+                "code"       => 500,
+                "message"       => 'This user is already a team member'
+            ]);
+        }
         $team = new Team;
         $team->name = $request->name;
         $team->user_id = $id;
         $team->save();
         if(Auth::user()->hasRole('Admin')) {
-            $team->users()->sync($request->input('members'));
+            $members = $request->input('members');
+            if($members) {
+                foreach($members as $mem) {
+                    $u = User::find($mem);
+                    if($u) {
+                        $isMember = $u->teams()->first();
+                        $isLeader = Team::where('user_id',$mem)->first();
+                        if(!$isMember && !$isLeader) {
+                            $team->users()->attach($mem); 
+                        }
+                    }
+                }
+            }
             return response()->json([
                 "code"       => 200,
                 "message"       => 'Team created successfully'
@@ -793,10 +833,11 @@ class UserManagementController extends Controller
 
 
     public function getTeam($id) {
-        $team = Team::find($id);
+        $team = Team::where('user_id',$id)->first();
         $team->user;
         $team->members = $team->users()->pluck('name','id');
         $totalMembers =  $team->users()->count();
+       
         $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
         return response()->json([
             "code"       => 200,
@@ -812,7 +853,20 @@ class UserManagementController extends Controller
 
         if(Auth::user()->hasRole('Admin')) {
             $team->update(['name' => $request->name]);
-            $team->users()->sync($request->input('members'));
+            $members = $request->input('members');
+            if($members) {
+                $team->users()->detach();
+                foreach($members as $mem) {
+                    $u = User::find($mem);
+                    if($u) {
+                        $isMember = $u->teams()->first();
+                        $isLeader = Team::where('user_id',$mem)->first();
+                        if(!$isMember && !$isLeader) {
+                            $team->users()->attach($mem); 
+                        }
+                    }
+                }
+            }
             return response()->json([
                 "code"       => 200,
                 "message"       => 'Team updated successfully'

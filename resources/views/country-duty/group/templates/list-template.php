@@ -22,7 +22,7 @@
 		      </tr>
 		    </thead>
 		    <tbody>
-		    	{{props data}}
+		    	{{props data ~isAdmin=is_admin}}
 			      <tr>
 			      	<td>
 			      		<input type="checkbox" class="duty-rate-ckbx" 
@@ -51,9 +51,15 @@
 			      	<td>{{:prop.currency}}</td>
 			      	<td>{{:prop.duty_percentage}}</td>
 			      	<td>{{:prop.vat_percentage}}</td>
-			      	<td>{{:prop.group_name}}</td>
-			      	<td>{{:prop.group_duty}}</td>
-			      	<td>{{:prop.group_vat}}</td>
+			      	{{if ~isAdmin}}
+			      		<td><input type="text" class="change-inline-field" data-field="name" data-field-master="{{:prop.duty_group_id}}" name="group_name" value="{{:prop.group_name}}"></td>
+				      	<td><input type="text" class="change-inline-field" data-field="duty" data-field-master="{{:prop.duty_group_id}}" name="group_duty" value="{{:prop.group_duty}}"></td>
+				      	<td><input type="text" class="change-inline-field" data-field="vat" data-field-master="{{:prop.duty_group_id}}" name="group_vat" value="{{:prop.group_vat}}"></td>
+			      	{{else}}
+				      	<td>{{:prop.group_name}}</td>
+				      	<td>{{:prop.group_duty}}</td>
+				      	<td>{{:prop.group_vat}}</td>
+			      	{{/if}}
 			      	<td>
 			      		<a class="group-copy-another-country" data-id="{{:prop.id}}" href="javascript:;">Copy</a>
 			      		<a class="group-delete-country" data-id="{{:prop.id}}" href="javascript:;">Delete</a>

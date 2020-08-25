@@ -75,7 +75,12 @@ var page = {
         page.config.bodyView.on("click",".load-team-modal",function(e) {
             page.getTeamInfo($(this));
         });
-
+        page.config.bodyView.on("click",".search-team-member",function(e) {
+            var keyword = $(this).data('keyword');
+            console.log(keyword);
+            $('.data-keyword').val(keyword);
+            page.getResults();
+        });
 
         $(".common-modal").on("click",".submit-role",function() {
             page.submitRole($(this));
@@ -141,6 +146,7 @@ var page = {
         })
     },
     loadFirst: function() {
+        console.log("first");
         var _z = {
             url: this.config.mainUrl+"/records",
             method: "get",
@@ -151,6 +157,7 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     getResults: function(href) {
+        console.log(href);
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl+"/records",
             method: "get",
@@ -172,6 +179,7 @@ var page = {
         var tplHtml       = addProductTpl.render(response);
 
         $(".count-text").html("("+response.total+")");
+        $(".page_no").val(response.page);
 
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
@@ -313,7 +321,7 @@ var page = {
             $(".common-modal").modal("hide");
         }else {
             $("#loading-image").hide();
-            toastr["error"](response.error,"");
+            toastr["error"](response.message,"");
         }
     },
     getTeamInfo : function(ele) {
@@ -511,7 +519,7 @@ var page = {
     },
     userActivate : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate",
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate?page="+$('.page_no').val(),
             method: "post",
             data : ele.closest("form").serialize(),
             beforeSend : function() {
@@ -521,9 +529,11 @@ var page = {
         this.sendAjax(_z, "saveActivate");
     },
     saveActivate : function(response) {
+        console.log(response);
+
         if(response.code  == 200) {
             toastr['success']('Successfully updated', 'success');
-            page.loadFirst();
+            page.getResults(this.config.mainUrl+"/records?page="+response.page);
         }else {
             toastr["error"](response.error,"");
         }
@@ -641,3 +651,11 @@ $.views.helpers({
            return '';
       }
     }, template);
+
+    $(document).on('click', '.expand-row', function () {
+        var selection = window.getSelection();
+        if (selection.toString().length === 0) {
+            $(this).find('.div-team-mini').toggleClass('hidden');
+            $(this).find('.div-team-max').toggleClass('hidden');
+        }
+    });

@@ -101,40 +101,38 @@ class HubstaffActivitiesController extends Controller
         $start_date = $request->start_date ? $request->start_date : date("Y-m-d");
         $end_date = $request->end_date ? $request->end_date : date("Y-m-d");
         $user_id = $request->user_id ? $request->user_id : null;
+
+        $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+
+
         if(Auth::user()->isAdmin()) {
-            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+            $query = $query;
             $users = User::all()->pluck('name','id')->toArray();
         }
         else {
             $members = Team::join('team_user','team_user.team_id','teams.id')->where('teams.user_id',Auth::user()->id)->distinct()->pluck('team_user.user_id');
-            // if(count($members) > 0) {
-            //     $imp = $members->implode(',');
-            //      $onlyTheseUsers = '('. $imp . ')';
-            // }
-            // else {
-            //     $authId = Auth::user()->id;
-            //     $onlyTheseUsers = '('. $authId . ')'; 
-            // }
             if(!count($members)) {
                 $members = [Auth::user()->id];
             }
-            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date)->whereIn('hubstaff_members.user_id',$members);
+            $query = $query->whereIn('hubstaff_members.user_id',$members);
             $users = User::whereIn('id',$members)->pluck('name','id')->toArray();
         }
+     
 
         if($request->user_id) {
             $query = $query->where('hubstaff_members.user_id',$request->user_id);
         }
-        $activityUsers  = $query->select(DB::raw("
+        $activities  = $query->select(DB::raw("
         hubstaff_activities.user_id,
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
       )->groupBy('date','user_id')->orderBy('date','desc')->get();
 
-        // $userActivities = $activities->filter(function ($value, $key) use ($user) {
-        //     return $value->system_user_id === $user->id;
-        // });
 
-        foreach($activityUsers as $activity) {
+      $activityUsers = collect([]);
+
+        foreach($activities as $activity) {
+            $a = [];
+           
             if($activity->system_user_id) {
                 $user = User::find($activity->system_user_id);
                 if($user) {
@@ -148,41 +146,145 @@ class HubstaffActivitiesController extends Controller
                 $activity->userName = '';
             }
 
-
-
-            // $activity->userName = $user->name;
             $hubActivitySummery = HubstaffActivitySummary::where('date',$activity->date)->where('user_id',$activity->system_user_id)->orderBy('created_at','desc')->first();
-            $status = 'New';
-            $final_approval = 0;
-            
-            if($hubActivitySummery) {
-                if($hubActivitySummery->forworded_person == 'admin') {
-                    $activity->status = 'Pending for admin approval';
-                }
-                if($hubActivitySummery->forworded_person == 'team_lead') {
-                    $activity->status = 'Pending for team lead approval';
-                }
-                if($hubActivitySummery->forworded_person == 'user') {
-                    $activity->status = 'Pending for approval';
-                }
+                if($request->status == 'approved') {
+                    if($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
+                        if($hubActivitySummery->forworded_person == 'admin') {
+                            $status = 'Approved by admin';
+                            $totalApproved = $hubActivitySummery->accepted;
+                            $totalNotPaid = HubstaffActivity::whereDate('starts_at',$activity->date)->where('user_id',$activity->user_id)->where('status',1)->where('paid',0)->sum('tracked');
+                            $forworded_to = $hubActivitySummery->receiver;
+                            $final_approval = 1;
 
-                $activity->totalApproved = $hubActivitySummery->accepted;
-                $activity->totalNotPaid = HubstaffActivity::whereDate('starts_at',$activity->date)->where('user_id',$activity->user_id)->where('status',1)->where('paid',0)->sum('tracked');
-                $activity->forworded_to = $hubActivitySummery->receiver;
-                if($hubActivitySummery->final_approval)  {
-                    $final_approval = 1;
+                            $a['user_id'] = $activity->user_id;
+                            $a['total_tracked'] = $activity->total_tracked;
+                            $a['date'] = $activity->date;
+                            $a['userName'] = $activity->userName;
+                            $a['forworded_to'] = $forworded_to;
+                            $a['status'] = $status;
+                            $a['totalApproved'] = $totalApproved;
+                            $a['totalNotPaid'] = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $activityUsers->push($a);
+                        }
+                    }
                 }
-            }
-            else {
-                $activity->forworded_to = Auth::user()->id;
-                $activity->status = 'New';
-                $activity->totalApproved = 0;
-                $activity->totalNotPaid = 0;
-            }
-            $activity->final_approval = $final_approval;
-        }
+                else if($request->status == 'forwarded_to_lead') {
+                    if($hubActivitySummery) {
+                        if($hubActivitySummery->forworded_person == 'team_lead' && $hubActivitySummery->final_approval == 0) {
+                            $status = 'Pending for team lead approval';
+                            $totalApproved = $hubActivitySummery->accepted;
+                            $totalNotPaid = HubstaffActivity::whereDate('starts_at',$activity->date)->where('user_id',$activity->user_id)->where('status',1)->where('paid',0)->sum('tracked');
+                            $forworded_to = $hubActivitySummery->receiver;
+                            $final_approval = 0;
+
+                            $a['user_id'] = $activity->user_id;
+                            $a['total_tracked'] = $activity->total_tracked;
+                            $a['date'] = $activity->date;
+                            $a['userName'] = $activity->userName;
+                            $a['forworded_to'] = $forworded_to;
+                            $a['status'] = $status;
+                            $a['totalApproved'] = $totalApproved;
+                            $a['totalNotPaid'] = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $activityUsers->push($a);
+                        }
+                    }
+                }
+                else if($request->status == 'forwarded_to_admin') {
+                    if($hubActivitySummery) {
+                        if($hubActivitySummery->forworded_person == 'admin' && $hubActivitySummery->final_approval == 0) {
+                            $status = 'Pending for admin approval';
+                            $totalApproved = $hubActivitySummery->accepted;
+                            $totalNotPaid = HubstaffActivity::whereDate('starts_at',$activity->date)->where('user_id',$activity->user_id)->where('status',1)->where('paid',0)->sum('tracked');
+                            $forworded_to = $hubActivitySummery->receiver;
+                            $final_approval = 0;
+
+                            $a['user_id'] = $activity->user_id;
+                            $a['total_tracked'] = $activity->total_tracked;
+                            $a['date'] = $activity->date;
+                            $a['userName'] = $activity->userName;
+                            $a['forworded_to'] = $forworded_to;
+                            $a['status'] = $status;
+                            $a['totalApproved'] = $totalApproved;
+                            $a['totalNotPaid'] = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $activityUsers->push($a);
+                        }
+                    }
+                }
+                else if($request->status == 'new') {
+                    if(!$hubActivitySummery) {
+                            $status = 'New';
+                            $totalApproved = 0;
+                            $totalNotPaid = 0;
+                            $forworded_to = Auth::user()->id;
+                            $final_approval = 0;
+
+                            $a['user_id'] = $activity->user_id;
+                            $a['total_tracked'] = $activity->total_tracked;
+                            $a['date'] = $activity->date;
+                            $a['userName'] = $activity->userName;
+                            $a['forworded_to'] = $forworded_to;
+                            $a['status'] = $status;
+                            $a['totalApproved'] = $totalApproved;
+                            $a['totalNotPaid'] = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $activityUsers->push($a);
+                    }
+                }
+                else {
+                    if($hubActivitySummery) {
+                        if($hubActivitySummery->forworded_person == 'admin') {
+                            if($hubActivitySummery->final_approval == 1) {
+                                $status = 'Approved by admin';
+                            }
+                            else {
+                            $status = 'Pending for admin approval';
+                            }
+                        }
+                        if($hubActivitySummery->forworded_person == 'team_lead') {
+                            $status = 'Pending for team lead approval';
+                        }
+                        if($hubActivitySummery->forworded_person == 'user') {
+                            $status = 'Pending for approval';
+                        }
         
-        return view("hubstaff.activities.activity-users", compact('title','activityUsers','start_date','end_date','users','user_id'));
+                        $totalApproved = $hubActivitySummery->accepted;
+                        $totalNotPaid = HubstaffActivity::whereDate('starts_at',$activity->date)->where('user_id',$activity->user_id)->where('status',1)->where('paid',0)->sum('tracked');
+                        $forworded_to = $hubActivitySummery->receiver;
+                        if($hubActivitySummery->final_approval)  {
+                            $final_approval = 1;
+                        }
+                        else {
+                            $final_approval = 0;
+                        }
+                    }
+                    else {
+                        $forworded_to = Auth::user()->id;
+                        $status = 'New';
+                        $totalApproved = 0;
+                        $totalNotPaid = 0;
+                        $final_approval = 0;
+                    }
+                            $a['user_id'] = $activity->user_id;
+                            $a['total_tracked'] = $activity->total_tracked;
+                            $a['date'] = $activity->date;
+                            $a['userName'] = $activity->userName;
+                            $a['forworded_to'] = $forworded_to;
+                            $a['status'] = $status;
+                            $a['totalApproved'] = $totalApproved;
+                            $a['totalNotPaid'] = $totalNotPaid;
+                            $a['final_approval'] = $final_approval;
+                            $activityUsers->push($a);
+
+                }  
+        }
+
+        // dd($activityUsers);
+        $status = $request->status;
+        
+        return view("hubstaff.activities.activity-users", compact('title','status','activityUsers','start_date','end_date','users','user_id'));
     }
 
 
@@ -194,7 +296,9 @@ class HubstaffActivitiesController extends Controller
             return response()->json(['message' => '']); 
         }
 
-        $activityrecords  = HubstaffActivity::whereDate('starts_at',$request->date)->where('user_id',$request->user_id)->get();
+
+
+        $activityrecords  = HubstaffActivity::leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*','developer_tasks.id as devtask_id')->get();
 
 
 
@@ -365,6 +469,9 @@ class HubstaffActivitiesController extends Controller
             }
             else {
                 $rejectedJson = null;
+            }
+            if(!$request->rejection_note) {
+                $request->rejection_note = '';
             }
 
             $hubActivitySummery = new HubstaffActivitySummary;

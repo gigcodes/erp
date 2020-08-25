@@ -129,6 +129,7 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
+    @include("development.partials.time-tracked-modal")
 @endsection
 
 @section('scripts')
@@ -612,6 +613,45 @@
                 }
             });
             $('#time_history_modal').modal('show');
+        });
+
+        function humanizeDuration(input, units ) { 
+            // units is a string with possible values of y, M, w, d, h, m, s, ms
+            var duration = moment().startOf('day').add(units, input),
+                format = "";
+
+            if(duration.hour() > 0){ format += "H:"; }
+
+            if(duration.minute() > 0){ format += "m:"; }
+
+            format += "s";
+
+            return duration.format(format);
+        }
+
+
+        $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/tracked/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD-MM-YYYY') +'</td>\
+                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                                    <td>'+humanizeDuration(sec,'s')+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
         });
 
         $(document).on('change', '.change-task-status', function () {

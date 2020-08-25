@@ -171,7 +171,7 @@ class CountryDutyController extends Controller
 
         $records = $records->select(["country_duties.*", "dg.name as group_name", "dg.duty as group_duty", "dg.vat as group_vat"])->get();
 
-        return response()->json(["code" => 200, "data" => $records, "total" => $records->count()]);
+        return response()->json(["code" => 200, "data" => $records, "total" => $records->count(), "is_admin" => \Auth::user()->isAdmin()]);
     }
 
     /**
@@ -225,6 +225,23 @@ class CountryDutyController extends Controller
 
         return response()->json(["code" => 200, "data" => $data]);
 
+    }
+
+    public function updateGroupField(Request $request)
+    {
+        $params = $request->all();
+
+        if(isset($params['id'])) {
+            $countryGroup = \App\DutyGroup::find($params['id']); 
+            if($countryGroup) {
+                $countryGroup->{$params['field']} = $params['value'];
+                $countryGroup->save();
+                return response()->json(["code" => 200, "error" => "Stored successfully"]);
+            }
+
+        }
+
+        return response()->json(["code" => 500, "error" => "Id is wrong!"]);
     }
 
 }

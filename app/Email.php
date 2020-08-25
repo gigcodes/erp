@@ -8,7 +8,7 @@ class Email extends Model
 {
   protected $fillable = [
     'model_id', 'model_type', 'type', 'seen', 'from', 'to', 'subject', 'message', 'template', 'additional_data', 'created_at',
-      'cc', 'bcc'
+      'cc', 'bcc','origin_id','reference_id', 'status'
   ];
 
   protected $casts = [
@@ -20,5 +20,9 @@ class Email extends Model
   public function model()
   {
   	return $this->morphTo();
+  }
+
+  public function remarks(){
+    return $this->hasMany(EmailRemark::class);
   }
 }

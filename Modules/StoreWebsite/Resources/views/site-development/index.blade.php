@@ -17,6 +17,19 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+
+		.dis-none {
+            display: none;
+        }
+		.pd-5 {
+			padding: 5px;
+		}
+		.toggle.btn {
+			min-height:25px;
+		}
+		.toggle-group .btn {
+			padding: 2px 12px;
+		}
 </style>
 @endsection
 
@@ -32,14 +45,10 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-12">
 		    	<div class="row">
-
-				 </div>
-		    </div>
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
+					<div class="col-md-4">
+					<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 					  <div class="row">
 				  		<div class="col">
 				  			<div class="form-group">
@@ -55,33 +64,38 @@
 				  		</div>
 					  </div>
 					</form>
-					<form class="form-inline handle-search">
-					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group">
-							    <label for="keyword">Search keyword:</label>
-							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
-							    <label for="status">Status:</label>
-							    <?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
-						  	</div>
-						  	<div class="form-group">
-						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
-						  			<img src="/images/send.png" style="cursor: default;" >
-						  		</button>
-						  	</div>
-				  		</div>
-					  </div>
-					</form>
-		    	</div>
+					</div>
+					<div class="col-md-8">
+						<form class="form-inline handle-search">
+								<div class="form-group" style="margin-right:10px;">
+									<label for="keyword">Search keyword:</label>
+									<?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
+								</div>
+								<div class="form-group">
+									<label for="status">Status:</label>
+									<?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
+								</div>
+								<div class="form-group">
+										<label for="button">&nbsp;</label>
+										<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
+											<img src="/images/send.png" style="cursor: default;" >
+										</button>
+								</div>
+						</form>
+					</div>
+				 </div>
 		    </div>
 	    </div>
+		<br>
 	    <div class="row" style="margin-bottom: 10px;">
 	    	<a href="{{ route('site-development-status.index') }}" target="__blank">
 		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
 		  			+ Add Status
 		  		</button>
 		  	</a>
+			<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-sm btn-secondary latest-remarks-btn">
+		  			Remarks
+		  	</button>
 		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
 		  		Status Count
             </a>
@@ -119,13 +133,12 @@
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
+						<th width="4%">Sl no</th>
 						<th width="10%"></th>
-						<th width="15%">Title</th>
-						<th width="25%">Description</th>
+						<th width="18%">Title</th>
+						<th width="18%">Description</th>
+						<th width="35%">Communication</th>
 						<th width="15%">Action</th>
-						<th width="25%">Communication</th>
-						<th width="5%">Created</th>
-						<th width="5%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
@@ -238,6 +251,82 @@
     </div>
 </div>
 
+<div id="preview-website-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Image</th>
+					      </tr>
+					    </thead>
+					    <tbody class="website-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="latest-remarks-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Category</th>
+					        <th>Remarks</th>
+					        <th>Communication</th>
+					      </tr>
+					    </thead>
+					    <tbody class="latest-remarks-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="artwork-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Date</th>
+					        <th>Status</th>
+					        <th>Username</th>
+					      </tr>
+					    </thead>
+					    <tbody class="artwork-history-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -247,16 +336,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
 
-	$('.infinite-scroll').jscroll({
-        autoTrigger: true,
-        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        padding: 20,
-        nextSelector: '.pagination li.active + li a',
-        contentSelector: 'div.infinite-scroll',
-        callback: function () {
-            $('ul.pagination').first().remove();
-        }
-    });
+// $('.infinite-scroll').jscroll({
+//         autoTrigger: true,
+//         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+//         padding: 20,
+//         nextSelector: '.pagination li.active + li a',
+//         contentSelector: 'div.infinite-scroll',
+//         callback: function () {
+//             $('ul.pagination').first().remove();
+//         }
+//     });
 
 	function saveCategory() {
 		var text = $('#add-category').val()
@@ -287,7 +376,6 @@
 
 		}
 	}
-
 	$(function(){
 		$(document).on("focusout" , ".save-item" , function() {
 			websiteId = $('#website_id').val()
@@ -300,6 +388,33 @@
 				type: 'POST',
 				dataType: 'json',
 				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text ,site : site},
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+			})
+			.done(function(data) {
+				console.log(data)
+				$("#loading-image").hide();
+				console.log("success");
+			})
+			.fail(function(data) {
+				console.log(data)
+				$("#loading-image").hide();
+				console.log("error");
+			});
+		});
+
+		$(document).on("click" , ".save-artwork-status" , function() {
+			websiteId = $('#website_id').val()
+			category = $(this).data("category")
+			type = $(this).data("type")
+			site = $(this).data("site")
+			var text = $(this).val();
+		    $.ajax({
+				url: '{{ route("site-development.save") }}',
+				type: 'POST',
+				dataType: 'json',
+				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text,site:site},
 				beforeSend: function () {
                     $("#loading-image").show();
                 },
@@ -425,27 +540,62 @@
 		});
 	}
 
+	$(document).on('click', '.send-message-site-quick', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		category = $(this).data("category");
+		message = $this.closest("td").find(".quick-message-field").val();
+		userId = $this.data("user");
+		prefix = $this.data("prefix");
+
+		var users = [userId];
+		
+		if(users.length <= 0){
+			alert('Please Select User');
+		}else if(site){
+			$.ajax({
+				url: '/whatsapp/sendMessage/site_development',
+				dataType: "json",
+				type: 'POST',
+				data: { 'site_development_id' : site , 'message' : prefix +' => '+message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				beforeSend: function() {
+					$this.closest("td").find(".quick-message-field").attr('disabled', true);
+               	}
+			}).done(function (data) {
+				$this.closest("td").find(".quick-message-field").attr('disabled', false);
+				$this.closest("td").find(".quick-message-field").val('');
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			    alert('No response from server');
+			});
+		}else{
+			alert('Site is not saved please enter value or select User');
+		}
+	});
+
 
 	$(document).on('click', '.send-message-site', function() {
 		var $this = $(this);
-		site = $(this).data("id")
+		site = $(this).data("id");
+		category = $(this).data("category");
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
 
 		var users = [];
+		
+		var hidden_row_class = 'hidden_row_'+category;
+		
 		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='developer_id']").val();
+			var value = $('.hidden_row_'+category).find("select[name='developer_id']").val();
 			users.push(value);
 		}
 		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='designer_id']").val();
+			var value = $('.hidden_row_'+category).find("select[name='designer_id']").val();
 			users.push(value);
 		}
 		if($this.closest("tr").find("input[name='html']:checked").length > 0){
-			var value = $this.closest("tr").find("select[name='html_designer']").val();
+			var value = $('.hidden_row_'+category).find("select[name='html_designer']").val();
 			users.push(value);
 		}
-
 		if(users.length <= 0){
 			alert('Please Select User');
 		}else if(site){
@@ -468,14 +618,13 @@
 		}
     });
 
-    $(document).on("change",".fa-ignore-category",function() {
+    $(document).on("click",".fa-ignore-category",function() {
 		var $this = $(this);
-    	var msg = "allow";
-
-    	if($this.prop('checked')) {
-    	   msg = "disallow";
+    	var msg = "disallow";
+		var status = $this.data("status");
+    	if(status) {
+    	   msg = "allow";
     	}
-
 		if(confirm("Are you sure want to "+msg+" this category?")) {
 			var store_website_id = $this.data("site-id");
 			var category = $this.data("category-id");
@@ -483,7 +632,7 @@
 				url: '/site-development/disallow-category',
 				dataType: "json",
 				type: 'POST',
-				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : $this.prop('checked')},
+				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : status},
 				beforeSend: function() {
 					$("#loading-image").show();
                	}
@@ -680,6 +829,93 @@
 
     	}
   }
+
+  $(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/site-development/preview-img/"+id,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td><img style="height:100px;" src="'+response.data[i-1].url+'"></td></tr>';
+					}
+					$("#preview-website-image").modal("show");
+					$(".website-image-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+
+		$(document).on('click', '.latest-remarks-btn', function (e) {
+			websiteId = $('#website_id').val();
+			websiteId = $.trim(websiteId);
+            $.ajax({
+                url: "/site-development/latest-reamrks/"+websiteId,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						var siteId = response.data[i-1].site_id;
+						var cateogryId = response.data[i-1].category_id;
+						var user_id = response.data[i-1].user_id;
+						var storeWebsite = response.data[i-1].sw_website;
+						var storeDev = response.data[i-1].sd_title;
+						var user_id = response.data[i-1].user_id;
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+					}
+					$("#latest-remarks-modal").modal("show");
+					$(".latest-remarks-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+
+		$(document).on('click', '.artwork-history-btn', function (e) {
+			id = $(this).data('id');
+			if(!id) return;
+            $.ajax({
+                url: "/site-development/artwork-history/"+id,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					console.log(response);
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].date+'</td><td> Status changed from '+response.data[i-1].from_status+ ' to '+response.data[i-1].to_status+'</td><td>'+response.data[i-1].username+'</td></tr>';
+					}
+					$("#artwork-history-modal").modal("show");
+					$(".artwork-history-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+		
+		$(document).on("click", ".toggle-class", function () {
+            $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
+		});
 
 </script>
 <script type="text/javascript">

@@ -1178,13 +1178,15 @@ class SupplierController extends Controller
                     $product->is_pending = 1;
                     $product->save();
                     preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
-                    $image = $match[ 0 ][ 0 ];
-                    $jpg = \Image::make($image)->encode('jpg');
+                    if(isset($match[ 0 ]) && isset($match[ 0 ][ 0 ])) {
+                      $image = $match[ 0 ][ 0 ];
+                      $jpg = \Image::make($image)->encode('jpg');
 
-                    $filename = substr($image, strrpos($image, '/'));
-                    $filename = str_replace("/", "", $filename);
-                    $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
-                    $product->attachMedia($media, config('constants.media_tags'));
+                      $filename = substr($image, strrpos($image, '/'));
+                      $filename = str_replace("/", "", $filename);
+                      $media = MediaUploader::fromString($jpg)->useFilename($filename)->upload();
+                      $product->attachMedia($media, config('constants.media_tags'));
+                    }
                     // if Product is true
                     if ($product == true) {
                         //Finding last created Product using sku

@@ -481,7 +481,7 @@ class DevelopmentController extends Controller
 
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
-        // $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
@@ -496,7 +496,7 @@ class DevelopmentController extends Controller
             'request' => $request,
             'title' => $title,
             'type' => $type,
-            // 'priority' => $priority,
+            'priority' => $priority,
             'countPlanned' => $countPlanned,
             'countInProgress' => $countInProgress,
             'statusList' => $statusList
@@ -695,7 +695,6 @@ class DevelopmentController extends Controller
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
         $tokens = $this->getTokens();
-
         $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
         $httpClient = new Client();
         try {
@@ -794,12 +793,11 @@ class DevelopmentController extends Controller
             'cost' => 'sometimes|nullable|integer',
             'status' => 'required',
             'repository_id' => 'required',
-            'hubstaff_project' => 'required',
             'module_id' => 'required',
 
         ]);
-
         $data = $request->except('_token');
+        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
         
         $data['user_id'] = $request->user_id ? $request->user_id : Auth::id();
         //$data[ 'responsible_user_id' ] = $request->user_id ? $request->user_id : Auth::id();
@@ -872,8 +870,10 @@ class DevelopmentController extends Controller
         //   ]);
         // }
 
+        $hubstaff_project_id = $data['hubstaff_project'];
+
         $assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
-        $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
+        // $hubstaffProject = HubstaffProject::find($request->input('hubstaff_project'));
 
         $hubstaffUserId = null;
         if ($assignedUser) {
@@ -891,7 +891,7 @@ class DevelopmentController extends Controller
         $hubstaffTaskId = $this->createHubstaffTask(
             $taskSummery,
             $hubstaffUserId,
-            $hubstaffProject->hubstaff_project_id
+            $hubstaff_project_id
         );
 
         if($hubstaffTaskId) {
@@ -901,8 +901,8 @@ class DevelopmentController extends Controller
         if ($hubstaffUserId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaffProject->id;
-            $task->hubstaff_project_id = $hubstaffProject->hubstaff_project_id;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
             $task->summary = $request->input('task');
             $task->save();
         }
@@ -1889,5 +1889,12 @@ class DevelopmentController extends Controller
             return $task_module;
         }
         return 'error';
+    }
+
+    public function getTrackedHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.assigned_to,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.assigned_to where developer_tasks.id = ".$id." group by task_id,starts_at"));
+        return response()->json(['histories' => $task_histories]);
     }
 }

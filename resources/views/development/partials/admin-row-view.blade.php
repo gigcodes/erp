@@ -2,8 +2,17 @@
 
 <tr style="color:grey;">
     <td  >
-        <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
+
+    <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
+            @if($issue->is_resolved==0)	
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+            @endif	
         </a>
+
+
+        
+        <!-- <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
+        </a> -->
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
         <br>
@@ -53,7 +62,12 @@
             
         </div>
     </td>
-    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? formatDuration($issue->timeSpent->tracked) : '' }}</td>
+    <td>
+        @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
+        {{ formatDuration($issue->timeSpent->tracked) }}
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+        @endif
+    </td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
         <label for="" style="font-size: 12px;">Assigned To :</label>

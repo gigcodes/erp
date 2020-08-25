@@ -24,10 +24,13 @@
     width: 100%;
     height: 100%;
 }
+.pd-5 {
+  padding:5px !important;
+}
 </style>
 @endsection
 
-@section('content')
+@section('large_content')
 	<div class="ajax-loader" style="display: none;">
 		<div class="inner_loader">
 		<img src="{{ asset('/images/loading2.gif') }}">
@@ -82,16 +85,17 @@
                         </select>
                     </div>
 
-                  <button type="submit" class="btn btn-image ml-3"><img src="/images/filter.png" /></button>
+                  <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                 </form>
             </div>
-            <div class="pull-right">
-                <a class="btn btn-secondary" href="{{ route('order.create') }}">+</a>
+             <div class="pull-right">
+                <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
                 <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-success btn-xs">Download</a>
             </div>
         </div>
     </div>
-    @include('partials.flash_messages')
+<div class="row">
+@include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
       <div class="row col-md-12">
           <?php foreach($statusFilterList as $listFilter) { ?>
@@ -106,21 +110,21 @@
         <?php } ?>
       </div>
     <?php } ?>  
-	</br> 
-    <div class="infinite-scroll">
+</div>
+<div class="row">
+    <div class="infinite-scroll" style="width:100%;">
 	<div class="table-responsive mt-2">
-      <table class="table table-bordered">
+      <table class="table table-bordered" style="border: 1px solid #ddd !important;">
         <thead>
           <tr>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
             <th width="10%">Site Name</th>
-            <th width="10%">Products</th>
             <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+            <th width="10%"><a href="/or    der{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
             {{-- <th style="width: 5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
             <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
             {{-- <th style="width: 8%">Message Status</th> --}}
@@ -133,6 +137,7 @@
 			@foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="table-hover-cell">
+
                 <div class="form-inline">
                   @if ($order->is_priority == 1)
                     <strong class="text-danger mr-1">!!!</strong>
@@ -155,53 +160,21 @@
                 @endif
               </td>
               <td class="expand-row table-hover-cell">
-                @if ($order->customer)
-                  @if ($order->customer->storeWebsite)
+                @if ($order->storeWebsiteOrder)
+                  @if ($order->storeWebsiteOrder->storeWebsite)
+                    @php
+                      $storeWebsite = $order->storeWebsiteOrder->storeWebsite;
+                    @endphp
                     <span class="td-mini-container">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ strlen($order->customer->storeWebsite->website) > 15 ? substr($order->customer->storeWebsite->website, 0, 13) . '...' : $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
                     </span>
-
                     <span class="td-full-container hidden">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
                     </span>
                   @endif
                 @endif
               </td>
-              <td class="expand-row table-hover-cell">
-                @php $count = 0; @endphp
-                <div class="d-flex">
-                  <div class="">
-                    @foreach ($order->order_product as $order_product)
-                      @if ($order_product->product)
-                        @if ($order_product->product->hasMedia(config('constants.media_tags')))
-                          <span class="td-mini-container">
-                            @if ($count == 0)
-                              <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a>
-
-                              @php ++$count; @endphp
-                            @endif
-                          </span>
-
-                          <span class="td-full-container hidden">
-                            @if ($count >= 1)
-                              <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a>
-
-                              @php $count++; @endphp
-                            @endif
-                          </span>
-                        @endif
-                      @endif
-                    @endforeach
-                  </div>
-
-                  @if (($count - 1) > 1)
-                    <span class="ml-1">
-                      ({{ ($count - 1) }})
-                    </span>
-                  @endif
-                </div>
-
-              </td>
+              
               <td>
                 <?php 
                     $totalBrands = explode(",",$order->brand_name_list);
@@ -226,51 +199,61 @@
               <td></td> --}}
               {{-- <td>{{ $order->action->status }}</td>
               <td>{{ $order->action->completion_date ? Carbon\Carbon::parse($order->action->completion_date)->format('d-m') : '' }}</td> --}}
-
-
               <td>
                 <div class="d-flex">
-                  <a class="btn btn-image" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
+                  <a class="btn btn-image pd-5" href="{{route('purchase.grid')}}?order_id={{$order->id}}">
                     <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
-                  <a class="btn btn-image" href="{{ route('order.show',$order->id) }}"><img title="View order" src="/images/view.png" /></a>
-                  <a class="btn btn-image send-invoice-btn" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
-                    <img title="Send Invoice" src="/images/purchase.png" />
+                  <a class="btn btn-image pd-5" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
+                  <a class="btn btn-image send-invoice-btn pd-5" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                    <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
                   </a>
-                  <a title="Preview Order" class="btn btn-image preview-invoice-btn" href="{{ route('order.perview.invoice',$order->id) }}">
+                  <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5" href="{{ route('order.perview.invoice',$order->id) }}">
                     <i class="fa fa-hourglass"></i>
                   </a>
                   @if ($order->waybill)
-                    <a title="Download Package Slip" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
+                    <a title="Download Package Slip pd-5" href="{{ route('order.download.package-slip', $order->waybill->id) }}" class="btn btn-image" href="javascript:;">
                         <i class="fa fa-download" aria-hidden="true"></i>
                     </a>
-                    <a title="Track Package Slip" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
+                    <a title="Track Package Slip pd-5" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
                   @else
-                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb" href="javascript:;">
+                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5" href="javascript:;">
                       <i class="fa fa-truck" aria-hidden="true"></i>
                     </a>
                   @endif
                   {{-- @can('order-edit')
-                  <a class="btn btn-image" href="{{ route('order.edit',$order['id']) }}"><img src="/images/edit.png" /></a>
+                  <a class="btn btn-image pd-5" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
                   @endcan --}}
 
                   {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline']) !!}
-                  <button type="submit" class="btn btn-image"><img title="Archive Order" src="/images/archive.png" /></button>
+                  <button type="submit" class="btn btn-image pd-5"><img title="Archive Order" src="{{asset('images/archive.png')}}" /></button>
                   {!! Form::close() !!}
-
+                  <?php
+                  if($order->auto_emailed)
+                  {
+                    $title_msg = "Resend Email";
+                  }
+                  else
+                  {
+                    $title_msg = "Send Email"; 
+                  }
+                  ?>
+                  <a title="<?php echo $title_msg;?>" class="btn btn-image send-order-email-btn pd-5" data-id="{{ $order->id }}" href="javascript:;">
+                      <i class="fa fa-paper-plane" aria-hidden="true"></i>
+                  </a>
                   @if(auth()->user()->checkPermission('order-delete'))
                     {!! Form::open(['method' => 'DELETE','route' => ['order.permanentDelete', $order->id],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image"><img title="Delete Order" src="/images/delete.png" /></button>
+                    <button type="submit" class="btn btn-image pd-5"><img title="Delete Order" src="{{asset('images/delete.png')}}" /></button>
                     {!! Form::close() !!}
                   @endif
-                </div>
-                @if(!$order->invoice_id)
-                <a title="Add invoice" class="btn btn-xs btn-info add-invoice-btn" data-id='{{$order->id}}'>
+                  @if(!$order->invoice_id)
+                <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5" data-id='{{$order->id}}'>
                      +
                 </a>
                 @endif
+                </div>
               </td>
             </tr>
           @endforeach
@@ -279,6 +262,7 @@
 
 	{!! $orders_array->appends(Request::except('page'))->links() !!}
 	</div>
+    </div>
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
@@ -369,6 +353,13 @@
       }
     });
 
+    $(document).on('click', '.expand-row', function() {
+      var selection = window.getSelection();
+      if (selection.toString().length === 0) {
+        $(this).find('.td-mini-container').toggleClass('hidden');
+        $(this).find('.td-full-container').toggleClass('hidden');
+      }
+    });
     $(document).on("click",".send-invoice-btn",function(e){
        e.preventDefault();
        var $this = $(this);
@@ -376,7 +367,31 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: "/order/"+$this.data("id")+"/send-invoice",
+          url: BASE_URL+"order/"+$this.data("id")+"/send-invoice",
+          type: "get",
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done(function(response) {
+           if(response.code == 200) {
+             toastr['success'](response.message);
+           }else{
+             toastr['error'](response.message);
+           }
+           $("#loading-image").hide(); 
+        }).fail(function(errObj) {
+           $("#loading-image").hide();
+        });
+    });
+
+    $(document).on("click",".send-order-email-btn",function(e){
+       e.preventDefault();
+       var $this = $(this);
+       $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+          },
+          url: BASE_URL+"order/"+$this.data("id")+"/send-order-email",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -397,7 +412,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: "/order/"+$this.data("id")+"/add-invoice",
+          url: BASE_URL+"order/"+$this.data("id")+"/add-invoice",
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');

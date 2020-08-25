@@ -50,7 +50,16 @@ class ReplyToEmail extends Mailable
 
         $this->to($emailToReply->from);
         $this->from($emailToReply->to);
+        $this->replyTo($emailToReply->to);
         $this->subject($subject);
+
+        $this->withSwiftMessage(function ($message) use($emailToReply)  {
+            $references = $emailToReply->reference_id . '<' . $emailToReply->origin_id . '>';
+            $message->getHeaders()->addTextHeader('In-Reply-To', $emailToReply->origin_id);
+            $message->getHeaders()->addTextHeader('References', $references);
+        });
+
+
 
         $userName = null;
         if ($emailToReply->model instanceof \App\Supplier) {

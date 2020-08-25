@@ -31,7 +31,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
-    <script src="/js/generic.js" defer></script>
+    <script src="{{asset('/js/generic.js')}}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <style type="text/css">
@@ -92,14 +92,14 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.6/twilio.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+    <script src="{{ asset('js/calls.js') }}"></script>
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -177,11 +177,11 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-
     <script>
         initializeTwilio();
     </script>
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+
 
     @endif
 
@@ -495,6 +495,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
@@ -617,6 +618,9 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick.customer.index') }}">Quick Customer</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -631,6 +635,9 @@
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="" href="{{ route('store-website.all.status') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
                                         </li>
                                     </ul>
                                 </li>
@@ -721,6 +728,9 @@
                                             <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
                                 </li>
                             </ul>
                         </li>
@@ -1157,6 +1167,9 @@
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
                                 </li>
                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
+                                </li>
+                                <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
                                 <li class="nav-item">
@@ -1218,6 +1231,9 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
                                     </li>
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
@@ -1288,9 +1304,19 @@
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+
                                     </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                    </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1454,7 +1480,10 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown">
-                                <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
                             </ul>
                         </li>
@@ -2367,6 +2396,38 @@
             }).fail(function (response) {
                 toastr['error'](response.responseJSON.message);
             });
+        });
+        $('select.select2-discussion').select2({tags: true});
+        $(document).on("change",".type-on-change",function(e) {
+            e.preventDefault();
+            var task_type = $(this).val();
+            console.log(task_type);
+            if(task_type == 3) {
+                // $('.normal-subject').hide();
+                    // $('.discussion-task-subject').show();
+                $.ajax({
+                url: '/task/get-discussion-subjects',
+                type: 'GET',
+                success: function (response) {
+                    $('select.select2-discussion').select2({tags: true});
+                    var option = '<option value="" >Select</option>';
+                    $.each(response.discussion_subjects, function(i, item) {
+                    console.log(item);
+
+                            option = option + '<option value="'+i+'">'+item+'</option>';
+                        });
+                        $('.add-discussion-subjects').html(option);
+                    }
+                }).fail(function (response) {
+                    toastr['error'](response.responseJSON.message);
+                });
+            }
+            else {
+                // $('select.select2-discussion').select2({tags: true});
+                $("select.select2-discussion").empty().trigger('change'); 
+            }
+            
+            
         });
 
         $(document).on('change', '#keyword_category', function () {

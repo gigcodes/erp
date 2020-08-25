@@ -2,6 +2,8 @@
 
 namespace App\Library\Shopify;
 
+use App\StoreWebsite;
+
 class Client
 {
 
@@ -35,23 +37,23 @@ class Client
         $this->_random = uniqid();
     }
 
-    public function addProduct($json = null, $collections = null)
+    public function addProduct($json = null, $store_id = null)
     {
         // Set URL
         $url = '/admin/products.json';
 
         // Post data
-        return $this->_sendRequestToShopify($url, $json);
+        return $this->_sendRequestToShopify($url, $json, "POST", $store_id);
     }
 
-    public function updateProduct($id, $json = null, $collections = null)
+    public function updateProduct($id, $json = null, $collections = null, $store_id = null)
     {
         $url = '/admin/api/' . $this->_apiVersion . '/products/' . $id . '.json';
         // Post data
-        return $this->_sendRequestToShopify($url, $json, "PUT");
+        return $this->_sendRequestToShopify($url, $json, "PUT", $store_id);
     }
 
-    private function _sendRequestToShopify($url = '/', $postData = '', $requestType = '')
+    private function _sendRequestToShopify($url = '/', $postData = '', $requestType = '', $store_id  = null)
     {
         // Check if cURL exists
         if (!function_exists('curl_init')) {
@@ -75,16 +77,27 @@ class Client
             $url .= substr($queryString, 0, -1);
         }
 
-        // Add _shopURL if no key is set
-        if (!empty($this->_password) && $this->_key == 'APP' && !stristr($url, $this->_shopUrl)) {
-            $url = 'https://' . $this->_shopUrl . $url;
+        if(!empty($store_id)){
+            $store_website = StoreWebsite::where(['id' => $store_id])->first();
+            $url = 'https://'.$store_website->magento_url . $url;
+        }else{
+            // Add _shopURL if no key is set
+            if (!empty($this->_password) && $this->_key == 'APP' && !stristr($url, $this->_shopUrl)) {
+                $url = 'https://' . $this->_shopUrl . $url;
+            }
         }
+
+
 
         // Set cURL options
         if (stristr($url, $this->_shopUrl)) {
             $ch = curl_init($url);
         } else {
-            $ch = curl_init('https://' . $this->_key . ':' . $this->_password . '@' . $this->_shopUrl . $url);
+            if(!is_null($store_id)){
+                $ch = curl_init('https://' . $store_website->api_token . ':' . $store_website->magento_password . '@' . $store_website->magento_url . $url) ;
+            }else{
+                $ch = curl_init('https://' . $this->_key . ':' . $this->_password . '@' . $this->_shopUrl . $url);
+            }
         }
 
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
@@ -103,8 +116,12 @@ class Client
         curl_setopt($ch, CURLOPT_HEADER, 1);
 
         // Set X-Header for apps
-        if (!empty($this->_password) && $this->_key == 'APP') {
-            $headers[] = "X-Shopify-Access-Token: " . $this->_password;
+        if(!empty($store_id)){
+            $headers[] = "X-Shopify-Access-Token: " . $store_website->magento_password;
+        }else{
+            if (!empty($this->_password) && $this->_key == 'APP') {
+                $headers[] = "X-Shopify-Access-Token: " . $this->_password;
+            }
         }
 
         // Add headers
