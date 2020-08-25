@@ -35,6 +35,11 @@ var page = {
             page.pushStockStatus($(this));
         });
 
+        page.config.bodyView.on("change",".store-website-change",function(e) {
+            e.preventDefault();
+            page.changeStoreWebsite($(this));
+        });
+
         $(".common-modal").on("click",".submit-platform",function() {
             page.submitPlatform($(this));
         });
@@ -276,7 +281,7 @@ var page = {
     pushShopifyProduct : function(ele) {
         console.log(ele);
         var _z = {
-            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify/"+ele.data("attr"),
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
             method: "GET",
             beforeSend : function() {
                 $("#loading-image").show();
@@ -294,6 +299,27 @@ var page = {
             }
         }
         this.sendAjax(_z, "saveSite");
+    },
+
+    changeStoreWebsite : function(ele)
+    {
+        var _z = {
+            url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/change-store",
+            method: "GET",
+            data : {store_website_id : ele.val()},
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, 'pureFunction');
+    },
+    pureFunction : function(response) {
+        $("#loading-image").hide();
+        if(response.code  == 200) {
+            toastr["success"]("Store website changed successfully");
+        }else {
+            toastr["error"](response.message,"");
+        }
     }
 }
 

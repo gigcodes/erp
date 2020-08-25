@@ -37,7 +37,7 @@ class Client
         $this->_random = uniqid();
     }
 
-    public function addProduct($json = null, $collections = null, $store_id = null)
+    public function addProduct($json = null, $store_id = null)
     {
         // Set URL
         $url = '/admin/products.json';
@@ -46,14 +46,14 @@ class Client
         return $this->_sendRequestToShopify($url, $json, "POST", $store_id);
     }
 
-    public function updateProduct($id, $json = null, $collections = null)
+    public function updateProduct($id, $json = null, $collections = null, $store_id = null)
     {
         $url = '/admin/api/' . $this->_apiVersion . '/products/' . $id . '.json';
         // Post data
-        return $this->_sendRequestToShopify($url, $json, "PUT");
+        return $this->_sendRequestToShopify($url, $json, "PUT", $store_id);
     }
 
-    private function _sendRequestToShopify($url = '/', $postData = '', $requestType = '', $store_id )
+    private function _sendRequestToShopify($url = '/', $postData = '', $requestType = '', $store_id  = null)
     {
         // Check if cURL exists
         if (!function_exists('curl_init')) {
