@@ -15,6 +15,7 @@ use App\PublicKey;
 use App\SiteDevelopment;
 use App\SocialStrategy;
 use App\StoreSocialContent;
+use App\ChatMessage;
 class ChatMessagesController extends Controller
 {
     /**
@@ -94,7 +95,6 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
-
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -223,7 +223,8 @@ class ChatMessagesController extends Controller
                 'customer_id' => $chatMessage->customer_id,
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
-                'is_queue' => $chatMessage->is_queue
+                'is_queue' => $chatMessage->is_queue,
+                'is_reviewed' => $chatMessage->is_reviewed
             ];
         }
 
@@ -231,6 +232,8 @@ class ChatMessagesController extends Controller
         return response()->json([
             'messages' => $messages
         ]);
+
+       
     }
 
     public function getSupplierIntials($string)
@@ -254,5 +257,18 @@ class ChatMessagesController extends Controller
 
         return $size;
 
+    }
+
+    public function setReviewed($id) {
+        $message = ChatMessage::find($id);
+        if($message) {
+            $message->update(['is_reviewed' => 1]);
+            return response()->json([
+                'message' => 'Successful'
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Error'
+        ],500);
     }
 }

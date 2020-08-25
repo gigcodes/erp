@@ -588,6 +588,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
+    Route::post('chat-messages/{id}/set-reviewed', 'ChatMessagesController@setReviewed');
 
     // Customers
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');

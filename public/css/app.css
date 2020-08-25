@@ -10884,3 +10884,7 @@ li.active{
 .dis-none { 
     display: none;
 }
+
+.reviewed_msg {
+    background-color: grey !important;
+}
