@@ -5,14 +5,14 @@ namespace App\Http\Controllers;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
+use App\StoreWebsite;
+use App\StoreWiseLandingPageProducts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
-
-    const GALLERY_TAG_NAME = "gallery_";
 
     public function __construct()
     {
@@ -23,7 +23,7 @@ class LandingPageController extends Controller
     {
         $title  = "Landing Page";
         $status = \App\LandingPageProduct::STATUS;
-        return view("landing-page.index", compact(['title', 'status']));
+        return view("landing-page.index", compact(['title', 'status','store_websites']));
     }
 
     public function records(Request $request)
@@ -53,6 +53,7 @@ class LandingPageController extends Controller
         }
 
         $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
+        $store_websites = StoreWebsite::where('website_source','=','shopify')->get();
 
         $items = [];
         $allStatus = StatusHelper::getStatus();
@@ -71,17 +72,25 @@ class LandingPageController extends Controller
             else {
                 $rec->productStatus = '';
             }
-           
+
             $productData['images'] = [];
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
+                    $c = 0;
                     foreach($medias as $image) {
-                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id]);
+                        $temp = false;
+                        if($c == 0){
+                            $temp = true;
+                        }
+                        array_push($productData['images'], ['url' =>$image->getUrl(),'id'=>$image->id,'product_id'=>$landingPageProduct->id,'show' => $temp]);
+                        $c++;
                     }
                 }
             }
             $rec->images = $productData['images'];
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
+            $rec['stores'] = $store_websites;
+            $rec->short_dec   = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15).".." : $rec->description;
             $items[]          = $rec;
         }
 
@@ -118,7 +127,7 @@ class LandingPageController extends Controller
                             ["product_id" => $productId, "name" => $product->name, "description" => $product->short_description, "price" => $product->price]
                         );
                     }else{
-                        $errorMessage[] = "Product has no cateogory or images : ".$productId;
+                        $errorMessage[] = "Product has no category or images : ".$productId;
                     }
                 }else{
                     $errorMessage[] = "Product not found : {$productId}";
@@ -207,9 +216,7 @@ class LandingPageController extends Controller
     public function pushToShopify(Request $request, $id)
     {
         $landingPage = LandingPageProduct::where("id", $id)->first();
-        $storeWebsite = \App\StoreWebsite::where("title","like","%o-labels%")->first();
-
-        if (!empty($landingPage)) {
+        if (!empty($landingPage) && $landingPage->store_website_id > 0) {
 
             // if stock status exist then store it
             if ($request->stock_status != null) {
@@ -219,134 +226,17 @@ class LandingPageController extends Controller
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
-            if (! StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
+            $productData  = $landingPage->getShopifyPushData();
+
+            if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
-            }
-
-            // create a html for submit the file
-            $html   = [];
-            $html[] = $landingPage->description;
-
-            if(!empty($landingPageProduct->composition)){
-                $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
-            }
-
-            if(!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)){
-                $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
-            }
-
-            if($storeWebsite) {
-                $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsite->id);
-                if(!empty($sizeCharts)) {
-                    foreach($sizeCharts as $sizeC) {
-                        $sizeC = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
-                        $html[] = "<p><b>Size Chart</b> : <a href='".$sizeC."'>Here</a></p>";
-                    }
-                }
-            }
-
-
-            if ($landingPageProduct) {
-                $productData = [
-                    'product' => [
-                        'images'          => [],
-                        'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
-                        'published_scope' => 'web',
-                        'title'           => $landingPage->name,
-                        'body_html'       => implode("<br>",$html),
-                        'variants'        => [],
-                        'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
-                        'tags'            => 'Home Page'
-                    ],
-                ];
-            }
-
-            // Add images to product
-            if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
-                foreach ($landingPageProduct->getAllMediaByTag() as $tag => $medias) {
-                    // if there is specific color then only send the images
-                    if (strpos($tag, self::GALLERY_TAG_NAME) !== false) {
-                        foreach ($medias as $image) {
-                            $productData['product']['images'][] = ['src' => $image->getUrl()];
-                        }
-                    }
-                }
-            }
-
-            $generalOptions = [
-                'barcode'              => (string) $landingPage->product_id,
-                'fulfillment_service'  => 'manual',
-                'requires_shipping'    => true,
-                'sku'                  => $landingPageProduct->sku,
-                'title'                => (string) $landingPage->name,
-                'inventory_management' => 'shopify',
-                'inventory_policy'     => 'deny',
-                'inventory_quantity'   => ($landingPage->stock_status == 1) ? $landingPageProduct->stock : 0,
-            ];
-
-            if(!empty($landingPageProduct->size)) {
-                $productSizes = explode(',', $landingPageProduct->size);
-                $values = [];
-                $sizeOptions = [];
-                foreach ($productSizes as $size) {
-                    array_push($values, (string)$size);
-                    $sizeOptions[$size] = $landingPage->price;
-                }
-                $variantsOption = [
-                    'name' => 'sizes',
-                    'values' => $values
-                ];
-                $productData['product']['options'][] = $variantsOption;
-            }
-
-            
-            $countryGroupOptions = [];
-
-            // setup for price
-            $countryVariants = [];
-            if($storeWebsite) {
-                $countryGroups = \App\CountryGroup::all();
-                if(!$countryGroups->isEmpty()) {
-                    $countryList = [];
-                    foreach ($countryGroups as $cg) {
-                        array_push($countryList, (string)$cg->name);
-                        $price = $landingPageProduct->getPrice($storeWebsite->id, $cg->id);
-                        $firstCountry = $cg->groupItems->first();
-                        // get the duty price of first country to see
-                        $dutyPrice = 0;
-                        if($firstCountry) {
-                            $dutyPrice = $landingPageProduct->getDuty($firstCountry->country_code);
-                        }
-                        $countryGroupOptions[$cg->name] = $price['total'] + $dutyPrice;
-                    }
-                    $variantsOption = [
-                        'name' => 'country',
-                        'values' => $countryList
-                    ];
-                    $productData['product']['options'][] = $variantsOption;
-                }
-            }
-
-            foreach($countryGroupOptions as $k => $v) {
-                if(!empty($sizeOptions)) {
-                    foreach($sizeOptions as $p => $d) {
-                        $generalOptions["option1"]  = $p;
-                        $generalOptions["option2"]  = $k;
-                        $generalOptions["price"]    = $v;
-                        $productData['product']['variants'][] = $generalOptions;
-                    }
-                }else{
-                    $generalOptions["option1"]  = $p;
-                    $generalOptions["price"]    = $v;
-                    $productData['product']['variants'][] = $generalOptions;
-                }
             }
 
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
-                $response = $client->updateProduct($landingPage->shopify_id, $productData);
+                $response = $client->updateProduct($landingPage->shopify_id, $productData,$landingPage->store_website_id);
             } else {
-                $response = $client->addProduct($productData);
+                $response = $client->addProduct($productData,$landingPage->store_website_id);
             }
 
             $errors = [];
@@ -370,7 +260,7 @@ class LandingPageController extends Controller
 
         }
 
-        return response()->json(["code" => 500, "data" => [], "message" => "Records not found"]);
+        return response()->json(["code" => 500, "data" => [], "message" => "Records not found or not store website assigned"]);
 
     }
 
@@ -391,6 +281,21 @@ class LandingPageController extends Controller
             ->where('mediable_id', $productId)
             ->delete();
         return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+    }
+
+    public function changeStore(Request $request, $id)
+    {
+        $landing = \App\LandingPageProduct::find($id);
+        
+        if($landing && $request->get("store_website_id") != null) {
+            $landing->store_website_id = $request->get("store_website_id");
+            $landing->shopify_id = null;
+            $landing->save();
+            return response()->json(["code" => 200, "data" => "", "message" => "Success!"]);
+        }else {
+            return response()->json(["code" => 500, "data" => "", "message" => "Please select the store website!"]);
+        }
+
     }
 
 }
