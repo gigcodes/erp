@@ -124,7 +124,7 @@
             <th>Brands</th>
             <th width="15%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
-            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
+            <th width="10%"><a href="/or    der{{ isset($term) ? '?term='.$term.'&' : '?' }}{{ isset($order_status) ? implode('&', array_map(function($item) {return 'status[]='. $item;}, $order_status)) . '&' : '&' }}sortby=balance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Balance</a></th>
             {{-- <th style="width: 5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=action{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Action Status</a></th>
             <th style="width: 8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=due{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Due</a></th> --}}
             {{-- <th style="width: 8%">Message Status</th> --}}
@@ -160,14 +160,16 @@
                 @endif
               </td>
               <td class="expand-row table-hover-cell">
-                @if ($order->customer)
-                  @if ($order->customer->storeWebsite)
+                @if ($order->storeWebsiteOrder)
+                  @if ($order->storeWebsiteOrder->storeWebsite)
+                    @php
+                      $storeWebsite = $order->storeWebsiteOrder->storeWebsite;
+                    @endphp
                     <span class="td-mini-container">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ strlen($order->customer->storeWebsite->website) > 15 ? substr($order->customer->storeWebsite->website, 0, 13) . '...' : $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
                     </span>
-
                     <span class="td-full-container hidden">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
                     </span>
                   @endif
                 @endif

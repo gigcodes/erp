@@ -101,6 +101,10 @@
     .select2-selection__arrow{
         display: none;
     }
+    .cls_mesg_box{
+        margin-top: -7px;
+        font-size: 12px;
+    }
 
   </style>
 @endsection

@@ -1,9 +1,9 @@
 <tr id="task_{{ $task->id }}">
-    <td class="p-2">{{ $task->id }}
-    <br>
+    <td class="p-2">
         @if(auth()->user()->isAdmin())
             <input type="checkbox"  name="selected_issue[]" title="Task is in priority" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
         @endif
+        {{ $task->id }}
     </td>
     <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}</td>
     <td class="expand-row table-hover-cell p-2">
@@ -95,23 +95,35 @@
     </td>
     <td class="expand-row table-hover-cell p-2 {{ $task->message && $task->message_status == 0 ? 'text-danger' : '' }}">
         @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+        <?php
+                $text_box = "";
+                if(isset($task->message))
+                {   
+                    $text_box = "55";
+                }
+                else
+                {
+                    $text_box = "100";   
+                }
+                ?>
             <div class="d-flex">
-                <input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                 <button class="btn btn-sm btn-image send-message" data-taskid="{{ $task->id }}"><img src="/images/filled-sent.png"/></button>
+                @if (isset($task->message))
+                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                @endif
+                @if (isset($task->message))
+                    <div class="d-flex justify-content-between">
+                        <span class="td-mini-container">
+                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                        </span>
+                        <span class="td-full-container hidden">
+                            {{ $task->message }}
+                        </span>
+                        
+                    </div>
+                @endif
             </div>
-            @if (isset($task->message))
-                <div class="d-flex justify-content-between">
-                    <span class="td-mini-container">
-                        {{ strlen($task->message) > 32 ? substr($task->message, 0, 29) . '...' : $task->message }}
-                    </span>
-                    <span class="td-full-container hidden">
-                        {{ $task->message }}
-                    </span>
-                    @if ($task->message_status != 0)
-                        <a href='#' title="Resent message" class='btn btn-image p-0 resend-message' data-id="{{ $task->message_id }}"><img src="/images/resend.png"/></a>
-                    @endif
-                </div>
-            @endif
         @else
             Private
         @endif

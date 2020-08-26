@@ -89,6 +89,7 @@
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
     </div>
     <br>
+    <input type="hidden" name="page_no" class="page_no" />
     <div class="col-lg-12 margin-tb">
         <div class="row">
             <div class="col">

@@ -8,7 +8,7 @@
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
     <style>
         #message-wrapper {
             height: 450px;
@@ -20,10 +20,124 @@
         .pd-5 {
             padding:5px;
         }
+        .cls_task_detailstextarea{
+            height: 30px !important;
+        }
+        .cls_remove_allpadding{
+            padding-right: 0px !important;
+            padding-left: 0px !important;
+        }
+        .cls_right_allpadding{
+            padding-right: 0px !important;
+        }
+        .cls_left_allpadding{
+            padding-left: 0px !important;
+        }
+        #addNoteButton{
+            margin-top: 2px;
+        }
+        #saveNewNotes{
+            margin-top: 2px;
+        }
+        .col-xs-12.col-md-2{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+            height: 38px;
+        }
+        .cls_task_subject{
+            padding-left: 9px;
+        }
+        #recurring-task .col-xs-12.col-md-6{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+        }
+        #appointment-container .col-xs-12.col-md-6{
+            padding-left:5px !important; 
+            padding-right:5px !important;
+        }
+        #taskCreateForm .form-group{
+            margin-bottom: 0px;
+        }
+        .cls_action_box .btn-image img{
+            width: 12px !important;
+        }
+        .cls_action_box .btn.btn-image {
+            padding: 2px;
+        }
+        .btn.btn-image {
+            padding: 5px 3px;
+        }
+        .td-mini-container {
+            margin-top: 9px;
+        }
+        .td-full-container{
+            margin-top: 9px;   
+        }
+        .cls_textbox_notes{
+            width: 100% !important;
+        }
+        .cls_multi_contact .btn-image img {
+            width: 12px !important;
+        }
+        .cls_multi_contact{
+            width: 100%;
+        }
+        .cls_multi_contact_first{
+            width: 80%;
+            display: inline-block;
+        }
+        .cls_multi_contact_second{
+            width: 7%;
+            display: inline-block;
+        }
+        .cls_categoryfilter_box .btn-image img {
+            width: 12px !important;
+        }
+        .cls_categoryfilter_box{
+            width: 100%;
+        }
+        .cls_categoryfilter_first{
+            width: 80%;
+            display: inline-block;
+        }
+        .cls_categoryfilter_second{
+            width: 7%;
+            display: inline-block;
+        }
+        .cls_comm_btn {
+            margin-left: 3px;
+            padding: 4px 8px;
+        }
+        .btn.btn-image.btn-call-data {
+            margin-top: -9px;
+        }
+        .dis-none {
+        display: none;
+    }
+    .no-due-date {
+        background-color: #f1f1f1 !important;
+    }
+    .over-due-date {
+        background-color: #777 !important;
+        color:white;
+    }
+    .over-due-date .btn {
+        background-color: #777 !important;
+    }
+    .over-due-date .btn .fa {
+        color: black !important;
+    }
+    .no-due-date .btn {
+        background-color: #f1f1f1 !important;
+    }
+    .pd-2 {
+        padding:2px;
+    }
+
     </style>
 @endsection
 
-@section('content')
+@section('large_content')
 
     <div class="row">
         <div class="col-lg-12 text-center">
@@ -38,37 +152,67 @@
     @include('task-module.partials.modal-whatsapp-group')
     @include('partials.flash_messages')
 
-    <div class="row mb-4">
-        <div class="col-12">
-            <form class="form-inline form-search-data">
+    <div class="row">
+        <div class="col-xs-12">
+            <form class="form-search-data">
                 <input type="hidden" name="daily_activity_date" value="{{ $data['daily_activity_date'] }}">
                 <input type="hidden" name="type" id="tasktype" value="pending">
-                <div class="form-group">
-                    <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
-                </div>
-                <div class="form-group ml-3">
-                    {!! $task_categories_dropdown !!}
-                </div>
-                @if(auth()->user()->checkPermission('activity-list'))
-                    <div class="form-group ml-3">
-                        <select class="form-control input-sm" name="selected_user">
-                            <option value="">Select a User</option>
-                            @foreach ($users as $id => $user)
-                                <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
-                            @endforeach
-                        </select>
+                <div class="row">
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group cls_task_subject">
+                            <input type="text" name="term" placeholder="Search Term" id="task_search" class="form-control input-sm" value="{{ isset($term) ? $term : "" }}">
+                        </div>
                     </div>
-                @endif
-                <div class="form-group ml-3">
-                    <select name="is_statutory_query" id="is_statutory_query" class="form-control">
-                        <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
-                        <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
-                        <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
-                        <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
-                    </select>
-                </div>
-                <button type="button" class="btn btn-image ml-3 btn-call-data"><img src="/images/filter.png"/></button>
-                <a href="javascript:;" class="btn btn-secondary priority_model_btn">Priority</a>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            {!! $task_categories_dropdown !!}
+                        </div>
+                    </div>
+                    
+                    @if(auth()->user()->checkPermission('activity-list'))
+                    <div class="col-xs-12 col-md-2 pd-2">
+                        <div class="form-group ml-3">
+                            <select id="search_by_user" class="form-control input-sm select2" name="selected_user">
+                                <option value="">Select a User</option>
+                                @foreach ($users as $id => $user)
+                                    <option value="{{ $id }}" {{ $id == $selected_user ? 'selected' : '' }}>{{ $user }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                    @endif
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="is_statutory_query" id="is_statutory_query" class="form-control input-sm">
+                                <option @if(request('is_statutory_query') == 0) selected @endif value="0">Other Task</option>
+                                <option @if(request('is_statutory_query') == 1) selected @endif value="1">Statutory Task</option>
+                                <option @if(request('is_statutory_query') == 2) selected @endif value="2">Calendar Task</option>
+                                <!-- <option @if(request('is_statutory_query') == 3) selected @endif value="3">Discussion Task</option> -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="sort_by" id="sort_by" class="form-control input-sm">
+                                <option value="">Sort by</option>
+                                <option @if(request('sort_by') == 1) selected @endif value="1">Date desc</option>
+                                <option @if(request('sort_by') == 2) selected @endif value="2">Date Asc</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <select name="filter_by" id="filter_by" class="form-control input-sm">
+                                <option value="">Filter by</option>
+                                <option @if(request('filter_by') == 1) selected @endif value="1">Pending tasks</option>
+                                <option @if(request('filter_by') == 2) selected @endif value="2">Completed by user</option>
+                            </select>
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-image btn-call-data"><img src="{{asset('images/filter.png')}}"/></button>
+                        <button type="button" style="height: 30px;" class="btn btn-secondary cls_comm_btn priority_model_btn">Priority</button>
+                </div>    
+                
             </form>
         </div>
     </div>
@@ -79,31 +223,110 @@
     else
         $isAdmin = false;
     ?>
-<div class="row mb-4">
+<div class="row mb-2">
         <div class="col-xs-12">
             <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
                 @csrf
                 <input type="hidden" name="has_render" value="1">
                 <div class="row">
-                    <div class="col-xs-12 col-md-4">
-                        <div class="form-group">
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group cls_task_subject">
                         
                             <input type="text" class="form-control input-sm" name="task_subject" placeholder="Task Subject" id="task_subject" value="{{ old('task_subject') }}" required/>
                             @if ($errors->has('task_subject'))
                                 <div class="alert alert-danger">{{$errors->first('task_subject')}}</div>
                             @endif
                         </div>
-
+                    </div>
+                    <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
-                            <textarea rows="1" class="form-control input-sm" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
+                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
                             @if ($errors->has('task_details'))
                                 <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
                             @endif
                         </div>
                     </div>
 
-                    <div class="col-xs-12 col-md-4">
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-inline">
+                            <div class="cls_multi_contact">
+                                <div class="cls_multi_contact_first">
+                                    <div class="">
+                                        <select id="multi_contacts" style="width: 100%;" class="form-control input-sm js-example-basic-multiple" name="assign_to_contacts[]" multiple>
+                                            @foreach (Auth::user()->contacts as $contact)
+                                                <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                                            @endforeach
+                                        </select>
+
+                                        {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
+                                          @foreach (Auth::user()->contacts as $contact)
+                                            <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
+                                          @endforeach
+                                        </select> --}}
+
+                                        @if ($errors->has('assign_to_contacts'))
+                                            <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
+                                        @endif
+                                    </div>
+                                </div>
+                                <div class="cls_multi_contact_second">
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="{{asset('images/add.png')}}"/></button>
+                                </div>
+                            </div>
+                            
+
+                            
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-inline">
+                            <div class="cls_categoryfilter_box">
+                                <div class="cls_categoryfilter_first">
+                                    <div class="">
+                                        {{-- <strong>Category:</strong> --}}
+                                        {!! $task_categories_dropdown !!}
+                                        {{-- <select class="form-control input-sm" name="category" id="required_category" required>
+                                          <option value="">Select a Category</option>
+                                          @foreach ($task_categories_dropdown as $category)
+                                            <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
+
+                                            @foreach ($category['child'] as $child)
+                                              <option value="{{ $child['id'] }}">&nbsp;&nbsp;{{ $child['title'] }}</option>
+                                            @endforeach
+                                          @endforeach
+                                        </select> --}}
+                                    </div>
+                                </div>
+                                <div class="cls_categoryfilter_second">
+                                    <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="{{asset('images/add.png')}}"/></button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group">
+                            <select id="is_milestone" class="form-control" name="is_milestone" required>
+                                <option value="0">Is milestone</option>
+                                <option value="0" >No</option>
+                                <option value="1" >Yes</option>
+                            </select>
+
+                            @if ($errors->has('is_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group">
+                            <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
+
+                            @if ($errors->has('no_of_milestone'))
+                            <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-1 pd-2">
+                        <div class="form-group cls_task_subject">
                             <select name="is_statutory" class="form-control is_statutory input-sm">
                                 <option value="0">Other Task</option>
                                 <option value="1">Statutory Task</option>
@@ -111,151 +334,100 @@
                                 <option value="3">Discussion Task</option>
                             </select>
                         </div>
-
-                        <div id="recurring-task" style="display: none;">
-                            <div class="form-group">
-                                {{-- <strong>Recurring Type:</strong> --}}
-                                <select name="recurring_type" class="form-control input-sm">
-                                    <option value="EveryHour">EveryHour</option>
-                                    <option value="EveryDay">EveryDay</option>
-                                    <option value="EveryWeek">EveryWeek</option>
-                                    <option value="EveryMonth">EveryMonth</option>
-                                    <option value="EveryYear">EveryYear</option>
-                                </select>
-                            </div>
-
-                            <div class="form-group">
-                                <div class='input-group date' id='sending-datetime'>
-                                    <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required/>
-
-                                    <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                                </div>
-
-                                @if ($errors->has('sending_time'))
-                                    <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
-                                @endif
-                            </div>
-                        </div>
-
-                        <div id="calendar-task" style="display: none;">
-                            <div class="form-group">
-                                <div class='input-group date' id='completion-datetime'>
-                                    <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}"/>
-
-                                    <span class="input-group-addon">
-                              <span class="glyphicon glyphicon-calendar"></span>
-                            </span>
-                                </div>
-
-                                @if ($errors->has('completion_date'))
-                                    <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                                @endif
-                            </div>
-                        </div>
-                        @if(auth()->user()->isAdmin())
-                            <div class="form-group">
-                                <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
-                                    @foreach ($data['users'] as $user)
-                                        <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
-                                    @endforeach
-                                </select>
-                                @if ($errors->has('assign_to'))
-                                    <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
-                                @endif
-                            </div>
-                        @endif
-                    </div>
-
-                    <div class="col-xs-12 col-md-4">
-                        <div class="form-inline mb-3">
-                            <div class="form-group flex-fill">
-                                <select id="multi_contacts" class="form-control input-sm" name="assign_to_contacts[]" multiple>
-                                    @foreach (Auth::user()->contacts as $contact)
-                                        <option value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
-                                    @endforeach
-                                </select>
-
-                                {{-- <select class="selectpicker form-control input-sm" data-live-search="true" data-size="15" name="assign_to_contacts[]" title="Choose a Contact" multiple>
-                                  @foreach (Auth::user()->contacts as $contact)
-                                    <option data-tokens="{{ $contact['name'] }} {{ $contact['phone'] }} {{ $contact['category'] }}" value="{{ $contact['id'] }}">{{ $contact['name'] }} - {{ $contact['phone'] }} ({{ $contact['category'] }})</option>
-                                  @endforeach
-                                </select> --}}
-
-                                @if ($errors->has('assign_to_contacts'))
-                                    <div class="alert alert-danger">{{$errors->first('assign_to_contacts')}}</div>
-                                @endif
-                            </div>
-
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createQuickContactModal"><img src="/images/add.png"/></button>
-                        </div>
-                        <div class="form-inline mb-3">
-                            <div class="form-group flex-fill">
-                                {{-- <strong>Category:</strong> --}}
-                                {!! $task_categories_dropdown !!}
-                                {{-- <select class="form-control input-sm" name="category" id="required_category" required>
-                                  <option value="">Select a Category</option>
-                                  @foreach ($task_categories_dropdown as $category)
-                                    <option value="{{ $category['id'] }}">{{ $category['title'] }}</option>
-
-                                    @foreach ($category['child'] as $child)
-                                      <option value="{{ $child['id'] }}">&nbsp;&nbsp;{{ $child['title'] }}</option>
-                                    @endforeach
-                                  @endforeach
-                                </select> --}}
-                            </div>
-
-                            <button type="button" class="btn btn-image" data-toggle="modal" data-target="#createTaskCategorytModal"><img src="/images/add.png"/></button>
-                        </div>
-                    </div>
-
-                    <div class="col-xs-4" style="display: none;" id="appointment-container">
-                        <div class="form-group">
-                            <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
-                                "class" => "form-control select2-task-disscussion"
-                            ]); ?>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-control input-sm" name="note[]" placeholder="Note" value="">
-                        </div>
-                        <div id="note-container">
-
-                        </div>
-                        <button type="button" class="btn btn-xs btn-secondary" id="addNoteButton">Add Note</button>
-                        <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>
-                    </div>
-
-                    
-                    <div class="form-group ml-3">
-                        <select id="is_milestone" class="form-control" name="is_milestone" required>
-                            <option value="0">Is milestone</option>
-                            <option value="0" >No</option>
-                            <option value="1" >Yes</option>
-                        </select>
-
-                        @if ($errors->has('is_milestone'))
-                        <div class="alert alert-danger">{{$errors->first('is_milestone')}}</div>
-                        @endif
-                    </div>
-
-                    <div class="form-group ml-3">
-                        <input type="number" class="form-control" id="no_of_milestone" name="no_of_milestone" value="{{ old('no_of_milestone') }}" placeholder="No of milestone" />
-
-                        @if ($errors->has('no_of_milestone'))
-                        <div class="alert alert-danger">{{$errors->first('no_of_milestone')}}</div>
-                        @endif
-                    </div>
-                    <div class="form-group ml-3">
-                    <button type="submit" class="btn btn-secondary" id="taskCreateButton">Create</button>
                     </div>
                     @if(auth()->user()->isAdmin())
-                    <div class="form-group ml-3">
-                        <a class="btn btn-secondary" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
-                        Open Task count
-                        </a>
+                    <div class="col-xs-12 col-md-2 pd-2">
+                        <div class="form-group">
+                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                                @foreach ($data['users'] as $user)
+                                    <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
+                                @endforeach
+                            </select>
+                            @if ($errors->has('assign_to'))
+                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                            @endif
+                        </div>
                     </div>
                     @endif
+                   <div class="col-xs-12 col-md-2 pd-2">
+                   <div class="form-group">
+                        <button type="submit" class="btn btn-secondary cls_comm_btn" id="taskCreateButton">Create</button>
+                        @if(auth()->user()->isAdmin())
+                        <a class="btn btn-secondary cls_comm_btn" data-toggle="collapse" href="#openFilterCount" role="button" aria-expanded="false" aria-controls="openFilterCount">
+                        Open Task count
+                        </a>
+                        @endif
+                    </div>
+                   </div>
+                </div>
+                <div class="row">
+                    <div class="col-xs-12 col-md-4" id="recurring-task" style="display: none;">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <select name="recurring_type" class="form-control input-sm">
+                                        <option value="EveryHour">EveryHour</option>
+                                        <option value="EveryDay">EveryDay</option>
+                                        <option value="EveryWeek">EveryWeek</option>
+                                        <option value="EveryMonth">EveryMonth</option>
+                                        <option value="EveryYear">EveryYear</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <div class='input-group date' id='sending-datetime'>
+                                        <input type='text' class="form-control input-sm" name="sending_time" value="{{ date('Y-m-d H:i') }}" required/>
+                                        <span class="input-group-addon">
+                                  <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                                    </div>
+
+                                    @if ($errors->has('sending_time'))
+                                        <div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-2" id="calendar-task" style="display: none;">
+                        <div class="form-group">
+                            <div class='input-group date' id='completion-datetime'>
+                                <input type='text' class="form-control input-sm" name="completion_date" value="{{ date('Y-m-d H:i') }}"/>
+                                <span class="input-group-addon">
+                                    <span class="glyphicon glyphicon-calendar"></span>
+                                </span>
+                            </div>
+                            @if ($errors->has('completion_date'))
+                                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="col-xs-12 col-md-4" style="display: none;padding-left: 15px;" id="appointment-container">
+                        <div class="row">
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-group">
+                                    <?php echo Form::select("task_id",["0" => "-- Add New --"] + \App\Task::where("is_statutory",3)->where("task_subject","!=","''")->get()->pluck("task_subject","id")->toArray(),null,[
+                                        "class" => "form-control select2-task-disscussion input-sm"
+                                    ]); ?>
+                                </div>
+                            </div>
+                            <div class="col-xs-12 col-md-6">
+                                <div class="form-inline flex-fill">
+                                    <div class="form-group cls_textbox_notes">
+                                        <input type="text" style="width: 100%;" class="form-control input-sm" name="note[]" placeholder="Note" value="">
+                                    </div>
+                                    <button type="button" class="btn btn-xs btn-secondary" title="Add Note" id="addNoteButton">Add Note</button>&nbsp;
+                                    <button type="button" class="btn btn-xs btn-secondary dis-none" id="saveNewNotes">Save New Notes</button>&nbsp;
+                                    <div id="note-container">
+                                    </div>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>      
+                  
+                    
                     <!-- <div class="col-xs-12 text-center">
                         <button type="submit" class="btn btn-xs btn-secondary" id="taskCreateButton">Create</button>
                     </div> -->
@@ -301,7 +473,7 @@
         </div>
     @endif    
 
-    <div id="exTab2" class="container" style="overflow: auto">
+    <div id="exTab2" style="overflow: auto">
         <ul class="nav nav-tabs">
             <li class="active"><a href="#1" data-toggle="tab" class="btn-call-data" data-type="pending">Pending Task</a></li>
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
@@ -312,30 +484,295 @@
         <div class="tab-content ">
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Pending Tasks</h4> -->
-                    <div class="infinite-scroll">
+                    <div class="col-12">
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
                                 <th width="5%">ID</th>
-                                <th width="12%">Date</th>
-                                <th width="8%" class="category">Category</th>
-                                <th width="15%">Task Subject</th>
-                                <th width="5%">Assign To</th>
-                                <th width="11%">Cost</th>
-                                <th width="8%">Milestone</th>
-                                <th width="28%">Communication</th>
-                                <th width="10%">Action&nbsp;
+                                <th width="8%">Date</th>
+                                <th width="6%" class="category">Category</th>
+                                <th width="10%">Task Subject</th>
+                                <th width="13%">Assign To</th>
+                                <th width="10%">Tracked time</th>
+                                <th width="34%">Communication</th>
+                                <th width="17%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="pending-row-render-view">
+                            <tbody class="pending-row-render-view infinite-scroll-pending-inner">
                             @if(count($data['task']['pending']) >0)
                             @foreach($data['task']['pending'] as $task)
-                                @include("task-module.partials.pending-row",compact('task'))
+                                <tr class="{{ \App\Http\Controllers\TaskModuleController::getClasses($task) }} {{ !$task->due_date ? 'no-due-date' : '' }} {{ $task->due_date && (date('Y-m-d H:i') > $task->due_date && !$task->is_completed) ? 'over-due-date' : '' }} {{ $task->is_statutory == 3 ? 'row-highlight' : '' }}" id="task_{{ $task->id }}">
+                                    <td class="p-2">
+                                        @if(auth()->user()->isAdmin())
+                                            <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" title="Task is in priority" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                        @endif
+                                        <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $task->id }}" value="">
+                                        {{ $task->id }}
+                                    </td>
+                                    <td class="p-2">{{ Carbon\Carbon::parse($task->created_at)->format('d-m H:i') }}
+                                        <br>
+                                        @if($task->customer_id)
+                                            Cus-{{$task->customer_id}}
+                                            <br>
+                                            @if(Auth::user()->isAdmin())
+                                                @php
+                                                    $customer = \App\Customer::find($task->customer_id);
+                                                @endphp
+                                                <span>
+                                                {{ isset($customer ) ? $customer->name : '' }}
+                                                </span>
+                                            @endif
+                                        @endif
+                                    </td>
+                                    <td class="expand-row table-hover-cell p-2">
+                                        @if (isset($categories[$task->category]))
+                                            <span class="td-mini-container">
+                                                {{ strlen($categories[$task->category]) > 10 ? substr($categories[$task->category], 0, 10) : $categories[$task->category] }}
+                                            </span>
+
+                                                                                <span class="td-full-container hidden">
+                                                {{ $categories[$task->category] }}
+                                            </span>
+                                                                            @endif
+                                                                        </td>
+                                                                        <td class="expand-row" data-subject="{{$task->task_subject ? $task->task_subject : 'Task Details'}}" data-details="{{$task->task_details}}" data-switch="0" style="word-break: break-all;">
+                                            <span class="td-mini-container">
+                                            {{ $task->task_subject ? substr($task->task_subject, 0, 15) . (strlen($task->task_subject) > 15 ? '...' : '') : 'Task Details' }}
+                                            </span>
+                                                                            <span class="td-full-container hidden">
+                                            <strong>{{ $task->task_subject ? $task->task_subject : 'Task Details' }}</strong>
+                                                {{ $task->task_details }}
+                                            </span>
+                                    </td>
+                                <!-- <td class="expand-row table-hover-cell p-2">
+        @if (array_key_exists($task->assign_from, $users))
+                                    @if ($task->assign_from == Auth::id())
+                                        <span class="td-mini-container">
+                                            <a href="{{ route('users.show', $task->assign_from) }}">{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}</a>
+                        </span>
+                        <span class="td-full-container hidden">
+                            <a href="{{ route('users.show', $task->assign_from) }}">{{ $users[$task->assign_from] }}</a>
+                        </span>
+                    @else
+                                        <span class="td-mini-container">
+{{ strlen($users[$task->assign_from]) > 4 ? substr($users[$task->assign_from], 0, 4) : $users[$task->assign_from] }}
+                                                </span>
+                                                <span class="td-full-container hidden">
+{{ $users[$task->assign_from] }}
+                                                </span>
+@endif
+                                @else
+                                    Doesn't Exist
+@endif
+                                        </td> -->
+                                    <td class="table-hover-cell p-2">
+                                        @php
+                                            $special_task = \App\Task::find($task->id);
+                                            $users_list = '';
+                                            foreach ($special_task->users as $key => $user) {
+                                              if ($key != 0) {
+                                                $users_list .= ', ';
+                                              }
+                                              if (array_key_exists($user->id, $users)) {
+                                                $users_list .= $users[$user->id];
+                                              } else {
+                                                $users_list = 'User Does Not Exist';
+                                              }
+                                            }
+
+                                            $users_list .= ' ';
+
+                                            foreach ($special_task->contacts as $key => $contact) {
+                                              if ($key != 0) {
+                                                $users_list .= ', ';
+                                              }
+
+                                              $users_list .= "$contact->name - $contact->phone" . ucwords($contact->category);
+                                            }
+                                        @endphp
+
+                                        <span class="td-mini-container">
+                                        {{ strlen($users_list) > 15 ? substr($users_list, 0, 15) : $users_list }}
+                                        </span>
+
+                                                                        <span class="td-full-container hidden">
+                                        {{ $users_list }}
+                                        </span>
+
+                                        <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                            <br>
+                                            <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
+                                            <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
+                                                <option value="">Select...</option>
+                                                <?php $masterUser = isset($task->master_user_id) ? $task->master_user_id : 0; ?>
+                                                @foreach($users as $id=>$name)
+                                                    @if( $masterUser == $id )
+                                                        <option value="{{$id}}" selected>{{ $name }}</option>
+                                                    @else
+                                                        <option value="{{$id}}">{{ $name }}</option>
+                                                    @endif
+                                                @endforeach
+                                            </select>
+
+                                            <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
+                                            <div class="d-flex">
+                                                <div class="form-group" style="padding-top:5px;">
+                                                    <div class='input-group date due-datetime'>
+
+                                                        <input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{$task->due_date}}"/>
+
+                                                        <span class="input-group-addon">
+                            <span class="glyphicon glyphicon-calendar"></span>
+                        </span>
+
+                                                    </div>
+                                                </div>
+                                                <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{ $task->id }}"><img style="padding: 0;margin-top: -14px;" src="{{asset('images/filled-sent.png')}}"/></button>
+                                            </div>
+
+                                            @if($task->is_milestone)
+                                                <p style="margin-bottom:0px;">Total : {{$task->no_of_milestone}}</p>
+                                                @if($task->no_of_milestone == $task->milestone_completed)
+                                                    <p style="margin-bottom:0px;">Done : {{$task->milestone_completed}}</p>
+                                                @else
+                                                    <input type="number" name="milestone_completed" id="milestone_completed_{{$task->id}}" placeholder="Completed..." class="form-control save-milestone" value="{{$task->milestone_completed}}" data-id="{{$task->id}}">
+                                                @endif
+                                            @else
+                                                <p>No milestone</p>
+                                            @endif
+                                        </div>
+                                    </td>
+                                    <td>
+                                        @if (isset($special_task->timeSpent) && $special_task->timeSpent->task_id > 0)
+                                            {{ formatDuration($special_task->timeSpent->tracked) }}
+                                            <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$task->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+                                        @endif
+                                        
+                                        <div class="col-md-12 expand-col dis-none" style="padding:0px;">
+                                            <div class="d-flex">
+                                            <br>
+                                                <input  type="text" placeholder="ED" class="update_approximate form-control input-sm" name="approximate" data-id="{{$task->id}}" value="{{$task->approximate}}">
+                                                <button type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$task->id}}"><i class="fa fa-info-circle"></i></button>
+                                                <span class="text-success update_approximate_msg" style="display: none;">Successfully updated</span>
+                                                <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
+                                                <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
+                                        @if ($task->assign_to == Auth::id() || ($task->assign_to != Auth::id() && $task->is_private == 0))
+                                            <div class="d-flex">
+                                                <?php
+                                                $text_box = "";
+                                                if(isset($task->message))
+                                                {
+                                                    $text_box = "55";
+                                                }
+                                                else
+                                                {
+                                                    $text_box = "100";
+                                                }
+                                                ?>
+                                                <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                                <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
+                                                @if (isset($task->message))
+                                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                                @endif
+                                                @if (isset($task->message))
+                                                    <div class="d-flex justify-content-between">
+                                                        <span class="td-mini-container" style="margin:0px;">
+                                                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                                                        </span>
+                                                                                        <span class="td-full-container hidden">
+                                                            {{ $task->message }}
+                                                        </span>
+
+                                                    </div>
+                                                @endif 
+
+                                            </div>
+                                            <div class="expand-col dis-none">
+                                            <br>
+                                            <label for="">Lead:</label>
+                                                <div class="d-flex">
+                                                    <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+                                                    <button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
+                                                  
+                                                    </div>
+                                            </div>
+                                        @else
+                                            Private
+                                        @endif
+                                    </td>
+                                    <td class="p-2">
+                                        <div>
+                                            <div class="row cls_action_box" style="margin:0px;">
+                                                @if(auth()->user()->isAdmin())
+                                                    <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
+                                                @endif
+
+                                                @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
+                                                    @if (is_null($task->is_completed))
+                                                        @if($task->assign_to == Auth::id())
+                                                            <button type="button" title="Complete the task by user" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/incomplete.png"/></button>
+                                                        @endif
+                                                    @else
+                                                        @if ($task->assign_from == Auth::id())
+                                                            <button type="button" title="Verify the task by admin" class="btn btn-image task-complete pd-5" data-id="{{ $task->id }}"><img src="/images/completed-green.png"/></button>
+                                                        @else
+                                                            <button type="button" class="btn btn-image pd-5"><img src="/images/completed-green.png"/></button>
+                                                        @endif
+                                                    @endif
+
+                                                    <button type="button" class='btn btn-image ml-1 reminder-message pd-5' data-id="{{ $task->message_id }}" data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png'/></button>
+
+                                                    @if ($task->is_statutory != 3)
+                                                        <button type="button" class='btn btn-image ml-1 convert-task-appointment pd-5' data-id="{{ $task->id }}"><img src='/images/details.png'/></button>
+                                                    @endif
+
+                                                    <button type="button"  data-id="{{ $task->id }}" class="btn btn-file-upload pd-5">
+                                                        <i class="fa fa-upload" aria-hidden="true"></i>
+                                                    </button>
+
+                                                    <button type="button" class="btn preview-img-btn pd-5" data-id="{{ $task->id }}">
+                                                        <i class="fa fa-list" aria-hidden="true"></i>
+                                                    </button>
+                                                @endif
+                                                @if ((!$special_task->users->contains(Auth::id()) && $special_task->contacts()->count() == 0))
+                                                    @if ($task->is_private == 1)
+                                                        <button disabled type="button" class="btn btn-image pd-5"><img src="{{asset('images/private.png')}}"/></button>
+                                                    @else
+                                                        {{-- <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}" /></a> --}}
+                                                    @endif
+                                                @endif
+
+                                                @if ($special_task->users->contains(Auth::id()) || ($task->assign_from == Auth::id() && $task->is_private == 0) || ($task->assign_from == Auth::id() && $special_task->contacts()->count() > 0) || Auth::id() == 6)
+                                                    <a href="{{ route('task.show', $task->id) }}" class="btn btn-image pd-5" href=""><img src="{{asset('images/view.png')}}"/></a>
+                                                @endif
+
+                                                @if ($special_task->users->contains(Auth::id()) || (!$special_task->users->contains(Auth::id()) && $task->assign_from == Auth::id() && $special_task->contacts()->count() > 0))
+                                                    @if ($task->is_private == 1)
+                                                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/private.png')}}"/></button>
+                                                    @else
+                                                        <button type="button" class="btn btn-image make-private-task pd-5" data-taskid="{{ $task->id }}"><img src="{{asset('images/not-private.png')}}"/></button>
+                                                    @endif
+                                                @endif
+
+                                                @if ($task->is_flagged == 1)
+                                                    <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/flagged.png')}}"/></button>
+                                                @else
+                                                    <button type="button" class="btn btn-image flag-task pd-5" data-id="{{ $task->id }}"><img src="{{asset('images/unflagged.png')}}"/></button>
+                                                @endif
+                                                <button class="btn btn-image expand-row-btn"><img src="/images/forward.png"></button>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
                             @endforeach
                             @endif
                             </tbody>
@@ -346,15 +783,15 @@
             <!-- Pending task div end -->
             <!-- Statutory task div start -->
             <div class="tab-pane" id="2">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <div class="col-12">
                         <!-- <h4>Statutory Activity Completed</h4> -->
                         <table class="table table-sm table-bordered">
                             <thead>
                             <tr>
-                                <th width="5%">ID</th>
-                                <th width="8%">Date</th>
-                                <th width="10%" class="category">Category</th>
+                                <th width="8%">ID</th>
+                                <th width="7%">Date</th>
+                                <th width="8%" class="category">Category</th>
                                 <th width="14%">Task Details</th>
                                 <th width="5%">Assign to</th>
                                 <th width="5%">Reccuring</th>
@@ -366,7 +803,7 @@
                                 </th>
                             </tr>
                             </thead>
-                            <tbody class="statutory-row-render-view">
+                            <tbody class="statutory-row-render-view infinite-scroll-statutory-inner">
                             @if(count($data['task']['statutory_not_completed']) >0)
                                 @foreach(  $data['task']['statutory_not_completed'] as $task)
                                     @include("task-module.partials.statutory-row",compact('task'))
@@ -380,22 +817,22 @@
             <!-- Statutory task div end -->
             <!-- Completed task div start -->
             <div class="tab-pane" id="3">
-                <div class="row">
+                <div class="row" style="margin:0px;">
                     <!-- <h4>List Of Completed Tasks</h4> -->
                     <table class="table table-sm table-bordered">
                         <thead>
                         <tr>
                             <th width="5%">ID</th>
-                            <th width="15%">Date</th>
-                            <th width="10%" class="category">Category</th>
-                            <th width="15%">Task Details</th>
-                            <th width="10%">Assign to</th>
-                            <th width="10%">Completed On</th>
+                            <th width="8%">Date</th>
+                            <th width="8%" class="category">Category</th>
+                            <th width="20%">Task Details</th>
+                            <th width="8%">Assign to</th>
+                            <th width="8%">Completed On</th>
                             <th width="30%">Communication</th>
-                            <th width="10%">Action</th>
+                            <th width="13%">Action</th>
                         </tr>
                         </thead>
-                        <tbody class="completed-row-render-view">
+                        <tbody class="completed-row-render-view infinite-scroll-completed-inner">
                         @if(count($data['task']['completed']) >0)
                             @foreach( $data['task']['completed'] as $task)
                                 @include("task-module.partials.completed-row",compact('task'))
@@ -405,6 +842,7 @@
                     </table>
                 </div>
             </div>
+            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
             <div class="tab-pane" id="unassigned-tab">
                 <div class="row">
@@ -548,10 +986,66 @@
             </div>
         </div>
     </div>
+
+    <div id="preview-task-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Files</th>
+					        <th>Action</th>
+					      </tr>
+					    </thead>
+					    <tbody class="task-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="file-upload-area-section" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+           <form action="{{ route("task.save-documents") }}" method="POST" enctype="multipart/form-data">
+	            <input type="hidden" name="task_id" id="hidden-task-id" value="">
+	            <div class="modal-header">
+	                <h4 class="modal-title">Upload File(s)</h4>
+	            </div>
+	            <div class="modal-body" style="background-color: #999999;">
+				    	@csrf
+					    <div class="form-group">
+					        <label for="document">Documents</label>
+					        <div class="needsclick dropzone" id="document-dropzone">
+
+					        </div>
+					    </div>
+						<div class="form-group add-task-list">
+							
+	    				</div>
+
+	            </div>
+	            <div class="modal-footer">
+	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
+	                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+	            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
               50% 50% no-repeat;display:none;">
     </div>
     @include("development.partials.time-history-modal")
+    @include("task-module.partials.tracked-time-history")
 @endsection
 
 @section('scripts')
@@ -560,18 +1054,80 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
     <script>
         var taskSuggestions = {!! json_encode($search_suggestions, true) !!};
         var searchSuggestions = {!! json_encode($search_term_suggestions, true) !!};
         var cached_suggestions = localStorage['message_suggestions'];
         var suggestions = [];
 
+        $(document).ready(function() {
+            $('.js-example-basic-multiple').select2();
+        });
+
+       $('#master_user_id').select2({
+                width: "100%"
+        });
+
+        $('#search_by_user').select2({
+                width: "100%"
+        });
         $(document).ready(function () {
 
-            $('#priority_user_id').select2({
+        $('#priority_user_id').select2({
                 tags: true,
                 width: '100%'
+        });
+        var isLoading = false;
+        var page = 1;
+        $(document).ready(function () {
+            
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
+                }
             });
+
+            function loadMore() {
+                if (isLoading)
+                    return;
+                isLoading = true;
+                type = $("#tasktype").val();
+                var $loader = $('.infinite-scroll-products-loader');
+                page = page + 1;
+                $.ajax({
+                    url: "/task?page="+page,
+                    type: 'GET',
+                    data: $('.form-search-data').serialize(),
+                    beforeSend: function() {
+                        $loader.show();
+                    },
+                    success: function (data) {
+                        console.log(type);
+                        $loader.hide();
+                        if('' === data.trim())
+                            return;
+                        if(type == 'pending') {
+                            $('.infinite-scroll-pending-inner').append(data);
+                        }
+                        if(type == 'completed') {
+                            $('.infinite-scroll-completed-inner').append(data);
+                        }
+                        if(type == 'statutory_not_completed') {
+                            $('.infinite-scroll-statutory-inner').append(data);
+                        }
+                        
+
+                        isLoading = false;
+                    },
+                    error: function () {
+                        $loader.hide();
+                        isLoading = false;
+                    }
+                });
+            }            
+        });
+
 
             $(document).on('click', '.btn-call-data', function (e) {
                 e.preventDefault();
@@ -580,6 +1136,9 @@
                     type = $("#tasktype").val(type);
                 }
                 type = $("#tasktype").val();
+                $('.infinite-scroll-products-loader').hide();
+                isLoading = false;
+                page = 1;
                 $.ajax({
                     url: "/task",
                     type: 'GET',
@@ -794,7 +1353,11 @@
             });
         }
 
-        $('#completion-datetime, #reminder-datetime, #sending-datetime').datetimepicker({
+        $('#completion-datetime, #reminder-datetime, #sending-datetime #due-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        $('.due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'
         });
 
@@ -1108,7 +1671,71 @@
                 alert('Please enter a message first');
             }
         });
+
+
+
+        $(document).on('click', '.send-message-lead', function () {
+            var thiss = $(this);
+            var task_id = $(this).data('taskid');
+            var message = $(this).siblings('input').val();
+            console.log(task_id);
+            console.log(message);
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task_lead',
+                        type: 'POST',
+                        dataType: 'json',
+                        data: {
+                            task_id:task_id,
+                            message:message,
+                            status: 2
+                        },
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        $(thiss).siblings('input').val('');
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
         
+        $(document).on('click', '.expand-row-btn', function () {
+            $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+
+        $(document).on('click', '.set-due-date', function () {
+            var thiss = $(this);
+            var task_id = $(this).data('taskid');
+            var date = $(this).siblings().find('.due_date_cls').val();
+            if (date != '') {
+                $.ajax({
+                        url: '/task/update/due_date',
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                        },
+                        "data": {
+                            task_id : task_id,
+                            date : date
+                        }
+                    }).done(function (response) {
+                        toastr['success']('Successfully updated');
+                    }).fail(function (errObj) {
+                    
+                    });
+            } else {
+                alert('Please enter a date first');
+            }
+        });
         // $(document).on('click', '.create-task-btn', function () {
         //     $.ajax({
         //         type: "GET",
@@ -1569,10 +2196,10 @@
                             } else {
                                 $(thiss).html('<img src="/images/incomplete.png" />');
                             }
-
-                            if (response.task.assign_from != current_user) {
-                                $(thiss).attr('disabled', true);
-                            }
+                            $(thiss).attr('disabled', true);
+                            // if (response.task.assign_from != current_user) {
+                            //     $(thiss).attr('disabled', true);
+                            // }
                         }).fail(function (response) {
                             $(thiss).html(image);
 
@@ -1587,7 +2214,7 @@
             }, delay);
         });
 
-        $(document).on('dblclick', '.task-complete', function (e) {
+        $(document).on('click', '.task-verify', function (e) {
             e.preventDefault();
             e.stopPropagation();
 
@@ -1616,6 +2243,7 @@
                 } else {
                     $(thiss).html('<img src="/images/incomplete.png" />');
                 }
+                $(thiss).attr('disabled', true);
             }).fail(function (response) {
                 $(thiss).html(image);
 
@@ -2000,13 +2628,32 @@
                 url: "{{ route('development/time/history') }}",
                 data: {id: issueId},
                 success: function (data) {
+                    // if(data != 'error') {
+                    //     $.each(data, function(i, item) {
+                    //         $('#time_history_div table tbody').append(
+                    //             '<tr>\
+                    //                 <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                    //                 <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                    //                 <td>'+item['new_value']+'</td>\
+                    //             </tr>'
+                    //         );
+                    //     });
+                    // }
+
                     if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
                         $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\
+                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -2110,5 +2757,174 @@
             }
             });
 
+            $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('TaskModuleController@assignMasterUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+        $(document).on("click",".btn-file-upload",function() {
+		var $this = $(this);
+		var task_id = $this.data("id");
+        $("#file-upload-area-section").modal("show");
+		$("#hidden-task-id").val(task_id);
+	    $("#loading-image").hide();
+	});
+
+
+    var uploadedDocumentMap = {}
+  	Dropzone.options.documentDropzone = {
+    	url: '{{ route("task.upload-documents") }}',
+    	maxFilesize: 20, // MB
+    	addRemoveLinks: true,
+    	headers: {
+      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+    	},
+    	success: function (file, response) {
+      		$('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+      		uploadedDocumentMap[file.name] = response.name
+    	},
+    	removedfile: function (file) {
+      		file.previewElement.remove()
+      		var name = ''
+      		if (typeof file.file_name !== 'undefined') {
+        		name = file.file_name
+      		} else {
+        		name = uploadedDocumentMap[file.name]
+      		}
+      		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
+    	},
+    	init: function () {
+
+    	}
+  }
+
+$(document).on("click",".btn-save-documents",function(e){
+		e.preventDefault();
+		var $this = $(this);
+		var formData = new FormData($this.closest("form")[0]);
+		$.ajax({
+			url: '/task/save-documents',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: $this.closest("form").serialize(),
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			if(data.code == 500) {
+				toastr["error"](data.message);
+			}
+			else {
+				toastr["success"]("Document uploaded successfully");
+				location.reload();
+			}
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+    });
+    
+    $(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/task/preview-img/"+id,
+                type: 'GET',
+                success: function (response) {
+					$("#preview-task-image").modal("show");
+					$(".task-image-list-view").html(response);
+                },
+                error: function () {
+                }
+            });
+        });
+
+
+        $(document).on('submit', '#approve-time-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('task.time.history.approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+       
+        });
+
+
+        function humanizeDuration(input, units ) { 
+            // units is a string with possible values of y, M, w, d, h, m, s, ms
+            var duration = moment().startOf('day').add(units, input),
+                format = "";
+
+            if(duration.hour() > 0){ format += "H:"; }
+
+            if(duration.minute() > 0){ format += "m:"; }
+
+            format += "s";
+
+            return duration.format(format);
+        }
+
+        $(document).on('click', '.show-tracked-history', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $('#time_tracked_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('task.time.tracked.history') }}",
+                data: {id: issueId,type:type},
+                success: function (data) {
+                    console.log(data);
+                    if(data != 'error') {
+                        $.each(data.histories, function(i, item) {
+                            var sec = parseInt(item['total_tracked']);
+                            $('#time_tracked_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['starts_at_date']).format('DD-MM-YYYY') +'</td>\
+                                    <td>'+ ((item['name'] != null) ? item['name'] : '') +'</td>\
+                                    <td>'+humanizeDuration(sec,'s')+'</td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#time_tracked_modal').modal('show');
+        });
     </script>
 @endsection
