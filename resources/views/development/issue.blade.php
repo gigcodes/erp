@@ -689,6 +689,30 @@
             $('#time_tracked_modal').modal('show');
         });
 
+
+        $(document).on('click', '.create-hubstaff-task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $(this).css('display','none');
+            $.ajax({
+                url: "{{ route('development/create/hubstaff_task') }}",
+                type: 'POST',
+                data: {id: issueId,type:type,_token: "{{csrf_token()}}"},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (data) {
+                    
+                    toastr['success']('created successfully!');
+                    $("#loading-image").hide();
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        });
+
         $(document).on('change', '.change-task-status', function () {
             var taskId = $(this).data("id");
             var status = $(this).val();

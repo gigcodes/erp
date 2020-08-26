@@ -2020,4 +2020,69 @@ class DevelopmentController extends Controller
        
         return response()->json(['histories' => $task_histories]);
     }
+
+    public function createHubstaffManualTask(Request $request) {
+
+        $task = DeveloperTask::find($request->id);
+        if($task) {
+            if($request->type == 'developer') {
+                $user_id = $task->assigned_to;
+            }
+            else {
+                $user_id = $task->master_user_id; 
+            }
+            $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+
+            $assignedUser = HubstaffMember::where('user_id', $user_id)->first();
+    
+            $hubstaffUserId = null;
+            if ($assignedUser) {
+                $hubstaffUserId = $assignedUser->hubstaff_user_id;
+            }
+            $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
+            // $hubstaffUserId = 901839;
+            if($hubstaffUserId) {
+                $hubstaffTaskId = $this->createHubstaffTask(
+                    $taskSummery,
+                    $hubstaffUserId,
+                    $hubstaff_project_id
+                );
+            }
+            else {
+                return response()->json([
+                    'message' => 'Hubstaff member not found'
+                ],500);
+            }
+            if($hubstaffTaskId) {
+                if($request->type == 'developer') {
+                    $task->hubstaff_task_id = $hubstaffTaskId;
+                }
+                else {
+                    $task->lead_hubstaff_task_id = $hubstaffTaskId;
+                }
+                $task->save();
+            }
+            else {
+                return response()->json([
+                    'message' => 'Hubstaff task not created'
+                ],500);
+            }
+            if ($hubstaffTaskId) {
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $taskSummery;
+                $task->save();
+            }
+            return response()->json([
+                'message' => 'Successful'
+            ],200);
+        }
+        else {
+            return response()->json([
+                'message' => 'Task not found'
+            ],500);
+        }
+    }
 }
