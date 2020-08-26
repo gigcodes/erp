@@ -662,6 +662,12 @@
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
                                             </div>
+                                            @if(!$task->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->assign_to)) 
+                                            <button style="margin-top:10px;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
+                                            @endif
+                                            @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id)) 
+                                            <button style="margin-top:10px;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
@@ -2925,6 +2931,30 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             });
             $('#time_tracked_modal').modal('show');
+        });
+
+
+        $(document).on('click', '.create-hubstaff-task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $(this).css('display','none');
+            $.ajax({
+                url: "{{ route('task.create.hubstaff_task') }}",
+                type: 'POST',
+                data: {id: issueId,type:type,_token: "{{csrf_token()}}"},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (data) {
+                    
+                    toastr['success']('created successfully!');
+                    $("#loading-image").hide();
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
         });
     </script>
 @endsection
