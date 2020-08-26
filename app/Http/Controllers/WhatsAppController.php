@@ -1431,7 +1431,7 @@ class WhatsAppController extends FindByNumberController
                 {
                     $keywordassign = DB::table('keywordassigns')
                     ->select('*')
-                    ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                    ->whereRaw('FIND_IN_SET("'.$exp_mesaages[$i].'",keyword)')
                     ->get();
                     if(count($keywordassign) > 0)
                     {
