@@ -30,6 +30,9 @@
 		.toggle-group .btn {
 			padding: 2px 12px;
 		}
+		.latest-remarks-list-view tr td {
+			padding:3px !important;
+		}
 </style>
 @endsection
 
@@ -323,13 +326,13 @@
         <div class="modal-content">
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered">
+	        		<table class="table table-bordered" style="table-layout:fixed;">
 					    <thead>
 					      <tr>
-					        <th>Sl no</th>
-					        <th>Category</th>
-					        <th>Remarks</th>
-					        <th>Communication</th>
+					        <th style="width:5%;">Sl no</th>
+					        <th style="width:15%;">Category</th>
+					        <th style="width:40%;">Remarks</th>
+					        <th style="width:40%;">Communication</th>
 					      </tr>
 					    </thead>
 					    <tbody class="latest-remarks-list-view">
@@ -959,7 +962,7 @@ $('.assign-to.select2').select2({
 						var storeWebsite = response.data[i-1].sw_website;
 						var storeDev = response.data[i-1].sd_title;
 						var user_id = response.data[i-1].user_id;
-						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
 					}
 					$("#latest-remarks-modal").modal("show");
 					$(".latest-remarks-list-view").html(tr);

@@ -26,11 +26,11 @@
                 data-on="Allow" data-off="Disallow"
                 data-toggle="toggle" data-width="90"> -->
                 @if(request('status') == 'ignored')
-                    <button type="button" class="btn btn-image fa-ignore-category" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="1">
+                    <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="1">
                     <img src="/images/do-not-disturb.png" style="cursor: nwse-resize;">
                     </button>
                 @else 
-                <button type="button" class="btn btn-image fa-ignore-category" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="0">
+                <button style="padding:0px;" type="button" class="btn btn-image fa-ignore-category" data-category-id="{{$category->id}}" data-site-id="@if($website) {{ $website->id }} @endif" data-status="0">
                         <img src="/images/do-disturb.png" style="cursor: nwse-resize;">
                     </button>
                 @endif
