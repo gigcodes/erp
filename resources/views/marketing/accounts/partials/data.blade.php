@@ -12,6 +12,8 @@
 <tr>
  
   <td>{{ $account->last_name }}</td>
+  <td>@if(isset($account->storeWebsite)) {{ $account->storeWebsite->title }} @endif</td>
+  
   <td>{{ $account->password }}</td>
   <td>{{ $account->number }}</td>
   <td>{{ $account->email }}</td>
@@ -19,8 +21,6 @@
   <td>{{ $account->provider }}</td>
   <td>{{ $account->frequency }}</td>
   <td>@if($account->is_customer_support == 1) Yes @else No @endif</td>
-  <td>{{ $account->send_start }}</td>
-  <td>{{ $account->send_end }}</td>
   <td>
     
     

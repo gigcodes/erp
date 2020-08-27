@@ -1420,6 +1420,17 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
      Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
 
+
+     //direct message new 
+     Route::get('direct', 'DirectMessageController@index')->name('direct.index');
+     Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
+     Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
+     Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
+
+     Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
+
+     
+
 });
 
 // logScraperVsAiController

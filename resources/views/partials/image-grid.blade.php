@@ -269,6 +269,8 @@
             $action =  route('product.templates');
         } else if ($model_type == 'landing-page') {
             $action =  route('landing-page.save');
+        }else if ($model_type == 'direct'){
+            $action =  route('direct.send.file');
         }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
