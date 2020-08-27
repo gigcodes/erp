@@ -2371,7 +2371,7 @@ public function createProductOnMagento(Request $request, $id){
 
 
 	public function viewAllInvoices() {
-		$invoices = Invoice::orderBy('id','desc')->paginate(10);
+		$invoices = Invoice::orderBy('id','desc')->paginate(30);
 		return view( 'orders.invoices.index', compact('invoices') );
 	}
 
@@ -2397,7 +2397,7 @@ public function createProductOnMagento(Request $request, $id){
 			$nextInvoiceNumber = '1001';
 		}
 		$invoice_number = $prefix.'-'.$nextInvoiceNumber;
-		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->where('id','!=',$firstOrder->id)->get();
+		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->get();
 		return view( 'orders.invoices.add', compact('firstOrder','invoice_number','more_orders') );
 	}
 
@@ -2421,7 +2421,9 @@ public function createProductOnMagento(Request $request, $id){
 		if($request->order_ids && count($request->order_ids) > 0) {
 			$orders = Order::whereIn('id',$request->order_ids)->get();
 			foreach($orders as $order) {
-				$order->update(['invoice_id' => $invoice->id]);
+				if($order->id != $request->first_order_id) {
+					$order->update(['invoice_id' => $invoice->id]);
+				}
 			}
 		}
 		return redirect()->action(
@@ -2647,4 +2649,24 @@ public function createProductOnMagento(Request $request, $id){
 		return $store_master_statuses;
 	}
 
+	public function searchOrderForInvoice(Request $request) {
+		$term = $request->q;
+		$orders = Order::leftJoin('customers','customers.id','orders.customer_id')
+			->where('orders.invoice_id',null)
+			->where(function($q) use ($term) {
+			$q->where('orders.order_id','like','%'.$term.'%')
+			->orWhere('orders.order_type',$term)
+			->orWhere('orders.sales_person',Helpers::getUserIdByName($term))
+			->orWhere('orders.received_by',Helpers::getUserIdByName($term))
+			->orWhere('orders.client_name','like','%'.$term.'%')
+			->orWhere('customers.city','like','%'.$term.'%')
+			->orWhere('customers.name','like','%'.$term.'%')
+			->orWhere('customers.id','like','%'.$term.'%')
+			->orWhere('customers.phone','like','%'.$term.'%');
+			})
+			->select('orders.*','customers.name','customers.phone')
+			->get();
+	return $orders;
+
+	}
 }

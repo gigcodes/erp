@@ -1,10 +1,7 @@
 <form action="{{ route('order.submit.invoice') }}" method="POST">
           @csrf
           <input type="hidden" name="first_order_id" value="{{ $firstOrder->id }}">
-          <div class="modal-header">
-            <h4 class="modal-title">Add orders to invoice</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-          </div>
+       
           <div class="modal-body">
             <div class="form-group">
               <strong>Invoice number:</strong>
@@ -60,13 +57,13 @@
               <td>
                 @if ($more_order->customer)
                   @if ($more_order->customer->store_website_id)
-                  {{ $more_order->customer->store_website->website}}
+                  @if(isset($more_order->customer->store_website)){{ $more_order->customer->store_website->website}} @endif
                   @endif
                 @endif
               </td>
               <td>
               <div class="form-group">
-              <input type="checkbox" name="order_ids[]" class="form-control" value="{{ $more_order->id }}">
+              <input type="checkbox" name="order_ids[]" class="form-control" value="{{ $more_order->id }}" {{ $firstOrder->id == $more_order->id ? 'checked' : '' }}>
                 </div>
               </td>
             </tr>
