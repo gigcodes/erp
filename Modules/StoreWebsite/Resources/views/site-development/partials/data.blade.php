@@ -62,9 +62,17 @@
     				</div>
     			@endif
     			<div class="d-flex">
+                <?php 
+                        $MsgPreview = '# ';
+                         if($website) {
+                            $MsgPreview = $website->website;
+                         }
+                         if($site) {
+                            $MsgPreview = $MsgPreview.' '.$site->title;
+                         }
+                ?>
                     <input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-@if($site){{ $site->id }}@endif">
-                    <button class="btn btn-sm btn-image send-message-site" data-category="{{ $category->id }}" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
-                    <br/>
+                    <button class="btn btn-sm btn-image send-message-site" data-prefix="{{$MsgPreview}}" data-category="{{ $category->id }}" data-id="@if($site){{ $site->id }}@endif"><img src="/images/filled-sent.png"/></button>
                 </div>
                 <div class="d-flex">
                 <input type="checkbox" id="developer_{{$category->id}}" name="developer" value="developer">
@@ -72,7 +80,9 @@
                 <input type="checkbox" id="designer_{{$category->id}}" name="designer" value="designer">
                 &nbsp;&nbsp;<label for="designer">Designer</label>&nbsp;&nbsp;
                 <input type="checkbox" id="html_{{$category->id}}" name="html" value="html">
-                &nbsp;&nbsp;<label for="html">Html</label>
+                &nbsp;&nbsp;<label for="html">Html</label>&nbsp;&nbsp;
+                <input type="checkbox" id="html_{{$category->id}}" name="tester" value="tester">
+                &nbsp;&nbsp;<label for="html">Tester</label>
                 </div>
     		</td>
             <td>
@@ -93,6 +103,9 @@
                 <button type="button" class="btn preview-img-btn pd-5" data-id="@if($site){{ $site->id }}@endif">
 					<i class="fa fa-eye" aria-hidden="true"></i>
 				</button>
+                @if(Auth::user()->isAdmin())
+                <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5"  data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $site->title }}@endif"><img width="2px;" src="/images/add.png"/></button>
+                @endif
               
                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png"/></button>
 
@@ -126,6 +139,12 @@
                     <option value="">Select Html</option>
                     @foreach($users as $user)
                         <option value="{{ $user->id }}" @if($site && $site->html_designer == $user->id) selected @endif >{{ $user->name }}</option>
+                    @endforeach
+                </select> 
+                <select style="margin-top: 5px;" name="tester_id" class="form-control save-item-select html" data-category="{{ $category->id }}" data-type="tester_id" data-site="@if($site) {{ $site->id }} @endif" id="user-@if($site){{ $site->id }}@endif">
+                    <option value="">Select Tester</option>
+                    @foreach($users as $user)
+                        <option value="{{ $user->id }}" @if($site && $site->tester_id == $user->id) selected @endif >{{ $user->name }}</option>
                     @endforeach
                 </select> 
             </td>
