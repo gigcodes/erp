@@ -2,7 +2,7 @@
 @section('large_content')
 
 <?php 
-$chatIds = \App\CustomerLiveChat::orderBy('seen','asc')->orderBy('status','desc')->get();
+$chatIds = \App\CustomerLiveChat::latest()->orderBy('seen','asc')->orderBy('status','desc')->get();
 $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
 ?>
     <style type="text/css">
