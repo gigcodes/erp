@@ -14,7 +14,7 @@ class AddIsReviewedInChatMessagesTable extends Migration
     public function up()
     {
         Schema::table('chat_messages', function (Blueprint $table) {
-            $table->boolean('is_reviewed')->nullable();
+            //$table->boolean('is_reviewed')->nullable();
         });
     }
 

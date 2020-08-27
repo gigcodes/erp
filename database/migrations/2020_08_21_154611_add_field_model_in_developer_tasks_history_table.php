@@ -13,8 +13,9 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function up()
     {
+        
         Schema::table('developer_tasks_history', function (Blueprint $table) {
-            $table->string('model')->nullable();
+           // $table->string('model')->nullable();
         });
     }
 
