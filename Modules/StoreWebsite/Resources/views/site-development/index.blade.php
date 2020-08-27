@@ -286,6 +286,7 @@
 					        <th>Sl no</th>
 					        <th>Category</th>
 					        <th>Remarks</th>
+					        <th>Communication</th>
 					      </tr>
 					    </thead>
 					    <tbody class="latest-remarks-list-view">
@@ -538,6 +539,38 @@
 		    alert('No response from server');
 		});
 	}
+
+	$(document).on('click', '.send-message-site-quick', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		category = $(this).data("category");
+		message = $this.closest("td").find(".quick-message-field").val();
+		userId = $this.data("user");
+		prefix = $this.data("prefix");
+
+		var users = [userId];
+		
+		if(users.length <= 0){
+			alert('Please Select User');
+		}else if(site){
+			$.ajax({
+				url: '/whatsapp/sendMessage/site_development',
+				dataType: "json",
+				type: 'POST',
+				data: { 'site_development_id' : site , 'message' : prefix +' => '+message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				beforeSend: function() {
+					$this.closest("td").find(".quick-message-field").attr('disabled', true);
+               	}
+			}).done(function (data) {
+				$this.closest("td").find(".quick-message-field").attr('disabled', false);
+				$this.closest("td").find(".quick-message-field").val('');
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			    alert('No response from server');
+			});
+		}else{
+			alert('Site is not saved please enter value or select User');
+		}
+	});
 
 
 	$(document).on('click', '.send-message-site', function() {
@@ -835,10 +868,15 @@
 					$("#loading-image").show();
 	           	},
                 success: function (response) {
-					console.log(response);
 					var tr = '';
 					for(var i=1;i<=response.data.length;i++) {
-						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td></tr>';
+						var siteId = response.data[i-1].site_id;
+						var cateogryId = response.data[i-1].category_id;
+						var user_id = response.data[i-1].user_id;
+						var storeWebsite = response.data[i-1].sw_website;
+						var storeDev = response.data[i-1].sd_title;
+						var user_id = response.data[i-1].user_id;
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
 					}
 					$("#latest-remarks-modal").modal("show");
 					$(".latest-remarks-list-view").html(tr);

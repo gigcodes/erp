@@ -15,6 +15,7 @@ use App\PublicKey;
 use App\SiteDevelopment;
 use App\SocialStrategy;
 use App\StoreSocialContent;
+use App\ChatMessage;
 class ChatMessagesController extends Controller
 {
     /**
@@ -94,7 +95,6 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
-
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -134,8 +134,9 @@ class ChatMessagesController extends Controller
             $media = [];
             $mediaWithDetails = [];
             $productId = null;
-
-
+            $parentMedia = [];
+            $parentMediaWithDetails = [];
+            $parentProductId = null;
 
             // Check for media
             if ($loadAttached == 1 && $chatMessage->hasMedia(config('constants.media_tags'))) {
@@ -205,7 +206,85 @@ class ChatMessagesController extends Controller
                 $textMessage = htmlentities($chatMessage->message);
             }
             //dd($object);
-            $isOut = ($chatMessage->number != $object->phone) ? true : false; 
+            $isOut = ($chatMessage->number != $object->phone) ? true : false;
+            //check for parent message
+            $textParent = null;
+            if($chatMessage->quoted_message_id) {
+                $parentMessage = ChatMessage::find($chatMessage->quoted_message_id);
+                if($parentMessage) {
+                    if($request->object == 'customer'){
+                        if(session()->has('encrpyt')){
+                           $public = PublicKey::first();
+                            if($public != null){
+                                $privateKey = hex2bin(session()->get('encrpyt.private'));
+                                $publicKey = hex2bin($public->key);
+                                $keypair = sodium_crypto_box_keypair_from_secretkey_and_publickey($privateKey, $publicKey);
+                                $message = hex2bin($parentMessage->message);
+                                $textParent = sodium_crypto_box_seal_open($message, $keypair);
+                            }
+                        }else{
+                            $textParent = htmlentities($parentMessage->message);
+                        }
+                    }else{
+                        $textParent = htmlentities($parentMessage->message);
+                    }
+
+                    //parent image start here
+                    if ($parentMessage->hasMedia(config('constants.media_tags'))) {
+                        // foreach ($parentMessage->getMedia(config('constants.media_tags')) as $key => $image) {
+                            $images = $parentMessage->getMedia(config('constants.media_tags'));
+                            $image = $images->first();
+                            // Supplier checkbox
+                            if($image) {
+                                if (in_array($request->object, ["supplier"])) {
+                                    $tempImage = [
+                                        'key' => $image->getKey(),
+                                        'image' => $image->getUrl(),
+                                        'product_id' => '',
+                                        'special_price' => '',
+                                        'size' => ''
+                                    ];
+                                    $imageKey = $image->getKey();
+                                    $mediableType = "Product";
+            
+                                    $productImage = \App\Product::with('Media')
+                                        ->whereRaw("products.id IN (SELECT mediables.mediable_id FROM mediables WHERE mediables.media_id = $imageKey AND mediables.mediable_type LIKE '%$mediableType%')")
+                                        ->select(['id', 'price_inr_special', 'supplier', 'size', 'lmeasurement', 'hmeasurement', 'dmeasurement'])->first();
+            
+                                    if ($productImage) {
+                                        $tempImage[ 'product_id' ] = $productImage->id;
+                                        $tempImage[ 'special_price' ] = $productImage->price_inr_special;
+                                        $tempImage[ 'supplier_initials' ] = $this->getSupplierIntials($productImage->supplier);
+                                        $tempImage[ 'size' ] = $this->getSize($productImage);
+                                    }
+            
+                                    $parentMediaWithDetails[] = $tempImage;
+                                } else {
+                                    // Check for product
+                                    if (isset($image->id)) {
+                                        $product = DB::table('mediables')->where('mediable_type', 'App\Product')->where('media_id', $image->id)->get(['mediable_id'])->first();
+            
+                                        if ($product != null) {
+                                            $parentProductId = $product->mediable_id;
+                                        } else {
+                                            $parentProductId = null;
+                                        }
+                                    }
+            
+                                    // Get media URL
+                                    $parentMedia[] = [
+                                        'key' => $image->getKey(),
+                                        'image' => $image->getUrl(),
+                                        'product_id' => $parentProductId
+                                    ];
+                                }
+                            }
+        
+                        // }
+                    }
+                    //parent image ends
+                }
+            }
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
@@ -213,17 +292,23 @@ class ChatMessagesController extends Controller
                 'sendBy'=> ($isOut) ? 'ERP' : $object->name,
                 'sendTo'=> ($isOut) ? $object->name : 'ERP',
                 'message' => $textMessage,
+                'parentMessage' => $textParent,
                 'media_url' => $chatMessage->media_url,
                 'datetime' => $chatMessage->created_at,
                 'media' => is_array($media) ? $media : null,
                 'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
                 'product_id' => !empty($productId) ? $productId : null,
+                'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
+                'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
+                'parentProductId' => !empty($parentProductId) ? $parentProductId : null,
                 'status' => $chatMessage->status,
                 'resent' => $chatMessage->resent,
                 'customer_id' => $chatMessage->customer_id,
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
-                'is_queue' => $chatMessage->is_queue
+                'is_queue' => $chatMessage->is_queue,
+                'is_reviewed' => $chatMessage->is_reviewed,
+                'quoted_message_id' => $chatMessage->quoted_message_id
             ];
         }
 
@@ -231,6 +316,8 @@ class ChatMessagesController extends Controller
         return response()->json([
             'messages' => $messages
         ]);
+
+       
     }
 
     public function getSupplierIntials($string)
@@ -254,5 +341,18 @@ class ChatMessagesController extends Controller
 
         return $size;
 
+    }
+
+    public function setReviewed($id) {
+        $message = ChatMessage::find($id);
+        if($message) {
+            $message->update(['is_reviewed' => 1]);
+            return response()->json([
+                'message' => 'Successful'
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Error'
+        ],500);
     }
 }

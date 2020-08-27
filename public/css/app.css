@@ -10681,6 +10681,12 @@ a.text-dark:focus {
    
 }
 
+.chat-reply-div {
+    background-color: #dad8d8;
+    padding: 5px;
+    border-radius: 4px;
+}
+
 li.active{
     background: #f1f1f1 !important;
 }
@@ -10883,4 +10889,8 @@ li.active{
 
 .dis-none { 
     display: none;
+}
+
+.reviewed_msg {
+    background-color: grey !important;
 }

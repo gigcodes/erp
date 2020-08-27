@@ -92,14 +92,14 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.6/twilio.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+    <script src="{{ asset('js/calls.js') }}"></script>
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -177,11 +177,11 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-
     <script>
         initializeTwilio();
     </script>
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+
 
     @endif
 
@@ -617,6 +617,9 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick.customer.index') }}">Quick Customer</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>

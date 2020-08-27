@@ -241,7 +241,7 @@ class OrderController extends Controller {
 
 		//$orders = (new Order())->newQuery()->with('customer');
 		// $orders = (new Order())->newQuery()->with('customer', 'customer.storeWebsite', 'waybill', 'order_product', 'order_product.product');
-		$orders = (new Order())->newQuery()->with('customer');
+		$orders = (new Order())->newQuery()->with('customer')->leftJoin("store_website_orders as swo","swo.order_id","orders.id");
 		if(empty($term))
 			$orders = $orders;
 		else{
@@ -265,22 +265,21 @@ class OrderController extends Controller {
 		}
 
 		if ($store_site = $request->store_website_id) {
-			$orders = $orders->whereHas('customer', function($query) use ($store_site) {
-				return $query->where('store_website_id', $store_site);
-			});
+		    $orders = $orders->where('swo.website_id', $store_site);
 		}
 
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
-		->leftJoin("products as p","p.id","op.product_id")->leftJoin("brands as b","b.id","p.brand");
+		->leftJoin("products as p","p.id","op.product_id")
+        ->leftJoin("brands as b","b.id","p.brand");
 
 		if(!empty($brandIds)) {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 
 		$orders = $orders->groupBy("orders.id");
-		$orders = $orders->select("orders.*",\DB::raw("group_concat(b.name) as brand_name_list"));
+		$orders = $orders->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
 
 
 		$users  = Helpers::getUserArray( User::all() );
@@ -293,7 +292,7 @@ class OrderController extends Controller {
 		}
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
-		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status")->get()->toArray();
+		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
 
 		$orders_array = $orders->paginate(20);
 		// dd($orders_array);
@@ -2372,7 +2371,7 @@ public function createProductOnMagento(Request $request, $id){
 
 
 	public function viewAllInvoices() {
-		$invoices = Invoice::orderBy('id','desc')->paginate(10);
+		$invoices = Invoice::orderBy('id','desc')->paginate(30);
 		return view( 'orders.invoices.index', compact('invoices') );
 	}
 
@@ -2398,7 +2397,7 @@ public function createProductOnMagento(Request $request, $id){
 			$nextInvoiceNumber = '1001';
 		}
 		$invoice_number = $prefix.'-'.$nextInvoiceNumber;
-		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->where('id','!=',$firstOrder->id)->get();
+		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->get();
 		return view( 'orders.invoices.add', compact('firstOrder','invoice_number','more_orders') );
 	}
 
@@ -2422,7 +2421,9 @@ public function createProductOnMagento(Request $request, $id){
 		if($request->order_ids && count($request->order_ids) > 0) {
 			$orders = Order::whereIn('id',$request->order_ids)->get();
 			foreach($orders as $order) {
-				$order->update(['invoice_id' => $invoice->id]);
+				if($order->id != $request->first_order_id) {
+					$order->update(['invoice_id' => $invoice->id]);
+				}
 			}
 		}
 		return redirect()->action(
@@ -2648,4 +2649,24 @@ public function createProductOnMagento(Request $request, $id){
 		return $store_master_statuses;
 	}
 
+	public function searchOrderForInvoice(Request $request) {
+		$term = $request->q;
+		$orders = Order::leftJoin('customers','customers.id','orders.customer_id')
+			->where('orders.invoice_id',null)
+			->where(function($q) use ($term) {
+			$q->where('orders.order_id','like','%'.$term.'%')
+			->orWhere('orders.order_type',$term)
+			->orWhere('orders.sales_person',Helpers::getUserIdByName($term))
+			->orWhere('orders.received_by',Helpers::getUserIdByName($term))
+			->orWhere('orders.client_name','like','%'.$term.'%')
+			->orWhere('customers.city','like','%'.$term.'%')
+			->orWhere('customers.name','like','%'.$term.'%')
+			->orWhere('customers.id','like','%'.$term.'%')
+			->orWhere('customers.phone','like','%'.$term.'%');
+			})
+			->select('orders.*','customers.name','customers.phone')
+			->get();
+	return $orders;
+
+	}
 }

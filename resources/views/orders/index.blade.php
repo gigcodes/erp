@@ -160,14 +160,16 @@
                 @endif
               </td>
               <td class="expand-row table-hover-cell">
-                @if ($order->customer)
-                  @if ($order->customer->storeWebsite)
+                @if ($order->storeWebsiteOrder)
+                  @if ($order->storeWebsiteOrder->storeWebsite)
+                    @php
+                      $storeWebsite = $order->storeWebsiteOrder->storeWebsite;
+                    @endphp
                     <span class="td-mini-container">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ strlen($order->customer->storeWebsite->website) > 15 ? substr($order->customer->storeWebsite->website, 0, 13) . '...' : $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ strlen($storeWebsite->website) > 15 ? substr($storeWebsite->website, 0, 13) . '...' : $storeWebsite->website }}</a>
                     </span>
-
                     <span class="td-full-container hidden">
-                        <a href="{{$order->customer->storeWebsite->website_url}}" target="_blank">{{ $order->customer->storeWebsite->website }}</a>
+                        <a href="{{$storeWebsite->website}}" target="_blank">{{ $storeWebsite->website }}</a>
                     </span>
                   @endif
                 @endif
@@ -365,7 +367,7 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: BASE_URL+"order/"+$this.data("id")+"/send-invoice",
+          url: "/order/"+$this.data("id")+"/send-invoice",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -389,7 +391,7 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: BASE_URL+"order/"+$this.data("id")+"/send-order-email",
+          url: "/order/"+$this.data("id")+"/send-order-email",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -410,7 +412,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: BASE_URL+"order/"+$this.data("id")+"/add-invoice",
+          url: "/order/"+$this.data("id")+"/add-invoice",
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');
