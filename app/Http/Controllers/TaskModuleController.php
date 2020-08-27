@@ -33,14 +33,13 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-use App\Helpers\HubstaffTrait;
+define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
 
 class TaskModuleController extends Controller {
 
-	use hubstaffTrait;
-
 	public function __construct() {
-		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+
 	}
 
 	public function index( Request $request ) {
@@ -1017,9 +1016,9 @@ class TaskModuleController extends Controller {
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
-        } catch (ClientException $e) {
-        	if($e->getCode() == 401) {
-        		$this->refreshTokens();
+        } catch (Exception $e) {
+            if ($e instanceof ClientException) {
+                $this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
                         $taskSummary,
@@ -1028,10 +1027,53 @@ class TaskModuleController extends Controller {
                         false
                     );
                 }
-        	}
+            }
         }
         return false;
 	}
+
+	private function refreshTokens()
+    {
+        $tokens = $this->getTokens();
+        $this->generateAccessToken($tokens->refresh_token);
+    }
+	
+
+	private function getTokens()
+    {
+        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
+            $this->generateAccessToken(SEED_REFRESH_TOKEN);
+        }
+		$tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+        return $tokens;
+    }
+
+    private function generateAccessToken(string $refreshToken)
+    {
+        $httpClient = new Client();
+        try {
+            $response = $httpClient->post(
+                'https://account.hubstaff.com/access_tokens',
+                [
+                    RequestOptions::FORM_PARAMS => [
+                        'grant_type' => 'refresh_token',
+                        'refresh_token' => $refreshToken
+                    ]
+                ]
+            );
+
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            $tokens = [
+                'access_token' => $responseJson->access_token,
+                'refresh_token' => $responseJson->refresh_token
+            ];
+
+            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+        } catch (Exception $e) {
+            return false;
+        }
+    }
 
 	public function flag(Request $request)
 	{
