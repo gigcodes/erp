@@ -119,8 +119,14 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                                             </div>
                                             <div class="col-md-1 cls_remove_padding">
                                                 <div class="input-group-append">
-                                                    <a href="{{ route('attachImages', ['livechat', @$customer->id, 1]) .'?'.http_build_query(['return_url' => 'livechat/getLiveChats'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
-                                                    <a class="btn btn-image px-1" href="javascript:;"><span class="send_btn" onclick="sendMessage()"><i class="fa fa-location-arrow"></i></span></a>
+                                                    <a href="/attachImages/live-chat/{{ @$customer->id }}" class="btn btn-image px-1">
+                                                        <img src="{{asset('images/attach.png')}}"/>
+                                                    </a>
+                                                    <a class="btn btn-image px-1" href="javascript:;">
+                                                        <span data-id="{{ @$customer->id }}" class="send_btn">
+                                                            <i class="fa fa-location-arrow"></i>
+                                                        </span>
+                                                    </a>
                                                 </div>
                                             </div>                                          
                                         </div>
@@ -261,6 +267,33 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
+        var openChatWindow = "<?php echo request('open_chat',false); ?>";
+        if(openChatWindow == "true") {
+            $("#quick-chatbox-window-modal").modal("show");
+               chatBoxOpen = true;
+               openChatBox(true);
+        }
+
+        $(document).on("click",".send_btn",function(){
+            var $this = $(this);
+            var customerID = $this.data("id");
+            var message = $this.closest("td").find(".message_textarea");
+            $.ajax({
+                url: "{{ route('livechat.send.message') }}",
+                type: 'POST',
+                dataType: 'json',
+                data: { 
+                    id : customerID ,
+                    message : message.val(),
+                   _token: "{{ csrf_token() }}" 
+                }
+            }).done(function(data) {
+                message.val('');
+            }).fail(function() {
+                alert('Chat Not Active');
+            });
+        });
+
         function openPopupGeneralInfo(id)
         {
             $('#GeneralInfo'+id).modal('show');
