@@ -13,6 +13,7 @@ use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
+    const GALLERY_TAG_NAME = "gallery_";
 
     public function __construct()
     {
