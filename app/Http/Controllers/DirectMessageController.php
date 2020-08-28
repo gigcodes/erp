@@ -33,23 +33,23 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-        dd($accounts);
+
     	foreach ($accounts as $account) {
 
-    		try {
+    		//try {
                 	$instagram = new Instagram();
 				    $instagram->login($account->last_name, $account->password);
 				    $instagram->setProxy($account->proxy);
 				    $this->instagram = $instagram;
-                } catch (\Exception $e) {
-                    dd($e);
-                    echo "ERROR $account->last_name \n";
-                    continue;
-                }
+             //   } catch (\Exception $e) {
+                 //   dd($e);
+                //    echo "ERROR $account->last_name \n";
+               //     continue;
+//}
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-
+                dd($inbox);
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
                 	if($incomingThread['unseen_count'] != 0){
