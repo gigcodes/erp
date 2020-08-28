@@ -35,7 +35,7 @@ class DirectMessageController extends Controller
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
     	foreach ($accounts as $account) {
-
+            dd($account);
     		//try {
 
                 	$instagram = new Instagram();
