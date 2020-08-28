@@ -11,6 +11,7 @@ use \App\InstagramUsersList;
 use \App\InstagramThread;
 use Plank\Mediable\Media;
 use InstagramAPI\Media\Photo\InstagramPhoto;
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class DirectMessageController extends Controller
 {
@@ -32,9 +33,9 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-
+        dd($accounts);
     	foreach ($accounts as $account) {
-            dd($account); 
+
     		try {
                 	$instagram = new Instagram();
 				    $instagram->login($account->last_name, $account->password);
