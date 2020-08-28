@@ -33,13 +33,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
-define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
+use App\Helpers\HubstaffTrait;
 
 class TaskModuleController extends Controller {
 
-	public function __construct() {
+	use hubstaffTrait;
 
+	public function __construct() {
+		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -806,6 +807,7 @@ class TaskModuleController extends Controller {
     }
 
 	public function store( Request $request ) {
+		dd("We are not using this function anymore, If you reach here, that means that we have to change this.");
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_details'	=> 'required',
@@ -813,6 +815,7 @@ class TaskModuleController extends Controller {
 		]);
 		$data = $request->except( '_token' );
 		$data['assign_from'] = Auth::id();
+
 		if ($request->task_type == 'quick_task') {
 			$data['is_statutory'] = 0;
 			$data['category'] = 6;
@@ -1016,9 +1019,9 @@ class TaskModuleController extends Controller {
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
-        } catch (Exception $e) {
-            if ($e instanceof ClientException) {
-                $this->refreshTokens();
+        } catch (ClientException $e) {
+        	if($e->getCode() == 401) {
+        		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
                         $taskSummary,
@@ -1027,54 +1030,12 @@ class TaskModuleController extends Controller {
                         false
                     );
                 }
-            }
+        	}
         }
         return false;
 	}
 
-	private function refreshTokens()
-    {
-        $tokens = $this->getTokens();
-        $this->generateAccessToken($tokens->refresh_token);
-    }
 	
-
-	private function getTokens()
-    {
-        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
-            $this->generateAccessToken(SEED_REFRESH_TOKEN);
-        }
-		$tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
-        return $tokens;
-    }
-
-    private function generateAccessToken(string $refreshToken)
-    {
-        $httpClient = new Client();
-        try {
-            $response = $httpClient->post(
-                'https://account.hubstaff.com/access_tokens',
-                [
-                    RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
-                        'refresh_token' => $refreshToken
-                    ]
-                ]
-            );
-
-            $responseJson = json_decode($response->getBody()->getContents());
-
-            $tokens = [
-                'access_token' => $responseJson->access_token,
-                'refresh_token' => $responseJson->refresh_token
-            ];
-
-            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
 	public function flag(Request $request)
 	{
 		$task = Task::find($request->task_id);
@@ -1939,17 +1900,31 @@ class TaskModuleController extends Controller {
 
 	public function createTaskFromSortcut(Request $request)
 	{
-		$params = $request->all();
+		$created = 0;
+		$message = '';
+		$assignedUserId = 0;
+		$data = $request->except( '_token' );
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts'
 		]);
+		$data['assign_from'] = Auth::id();
+		
 		$taskType = $request->get("task_type");
+
+
 
 		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
 			$data = [];
-			$data["assigned_to"] 	= $request->get("task_asssigned_to");
+
+			if(is_array($request->task_asssigned_to)) {
+				$data["assigned_to"] = $request->task_asssigned_to[0];
+			}
+			else {
+				$data["assigned_to"] = $request->task_asssigned_to;
+			}
+			
 			$data["subject"] 		= $request->get("task_subject");
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
@@ -1960,53 +1935,48 @@ class TaskModuleController extends Controller {
 				$data["task_type_id"]	= 3;
 			}
 			$task = DeveloperTask::create($data);
-
+			$created = 1;
+			$message = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
+			$assignedUserId = $task->assigned_to;
 			$requestData = new Request();
 	        $requestData->setMethod('POST');
 	        $requestData->request->add(['issue_id' => $task->id, 'message' => $request->get("task_detail"), 'status' => 1]);
-
 			app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'issue');
+		}else {
+			if ($request->task_type == 'quick_task') {
+				$data['is_statutory'] = 0;
+				$data['category'] = 6;
+				$data['model_type'] = $request->model_type;
+				$data['model_id'] = $request->model_id;
+			}
+	
+			if ($request->task_type == 'note-task') {
+				$main_task = Task::find($request->task_id);
+				if(is_array($request->task_asssigned_to)) {
+					$data["assign_to"] = $request->task_asssigned_to[0];
+				}
+				else {
+					$data["assign_to"] = $request->task_asssigned_to;
+				}
 
-			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-			$assignedUser = HubstaffMember::where('user_id', $request->input('assigned_to'))->first();
-	  
-			  $hubstaffUserId = null;
-			  if ($assignedUser) {
-				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
-			  }
-			  $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $task->subject;
-			  $taskSummery = substr($taskSummery, 0, 200);
-			  
-	  
-			  $hubstaffTaskId = $this->createHubstaffTask(
-				  $taskSummery,
-				  $hubstaffUserId,
-				  $hubstaff_project_id
-			  );
-	  
-			  if($hubstaffTaskId) {
-				  $task->hubstaff_task_id = $hubstaffTaskId;
-				  $task->save();
-			  }
-			  if ($hubstaffUserId) {
-				  $task = new HubstaffTask();
-				  $task->hubstaff_task_id = $hubstaffTaskId;
-				  $task->project_id = $hubstaff_project_id;
-				  $task->hubstaff_project_id = $hubstaff_project_id;
-				  $task->summary = $message;
-				  $task->save();
-			  }
-
-		}else{
-			$created = 0;
+			} else {
+				if ($request->task_asssigned_to) {
+					if(is_array($request->task_asssigned_to)) {
+						$data["assign_to"] = $request->task_asssigned_to[0];
+					}
+					else {
+						$data["assign_to"] = $request->task_asssigned_to;
+					}
+				} else {
+					$data['assign_to'] = $request->assign_to_contacts[0];
+				}
+			}
+			//discussion task
 			if($request->get("task_type") == 3) {
 				$task = Task::find($request->get("task_subject"));
-
-				$data['assign_from']  = Auth::id();
 				$data['is_statutory'] = $request->get("task_type");
 				$data['task_details'] = $request->get("task_detail");
 				$data['task_subject'] = $request->get("task_subject");
-				$data['assign_to'] 	  = $request->get("task_asssigned_to");
 				$data["customer_id"]	= $request->get("customer_id");
 				if($request->category_id != null) {
 					$data['category'] 	  = $request->category_id;
@@ -2015,6 +1985,8 @@ class TaskModuleController extends Controller {
 					$task = Task::create($data);
 					$remarks = $request->get("task_subject");
 					$created = 1;
+					$assignedUserId = $task->assign_to;
+					$message = '#TASK-' . $task->id . ' => ' . $task->task_subject. ". " . $task->task_details;
 				}
 				else {
 					$remarks = $task->task_subject;
@@ -2027,30 +1999,59 @@ class TaskModuleController extends Controller {
 						'module_type'	=> 'task-note'
 					]);
 				}
+				if($request->note) {
+					foreach ($request->note as $note) {
+						if ($note != null) {
+							Remark::create([
+								'taskid'	=> $task->id,
+								'remark'	=> $note,
+								'module_type'	=> 'task-note'
+							]);
+						}
+					}
+				}
 			}
 			else {
-				$data['assign_from']  = Auth::id();
 				$data['is_statutory'] = $request->get("task_type");
 				$data['task_details'] = $request->get("task_detail");
 				$data['task_subject'] = $request->get("task_subject");
-				$data['assign_to'] 	  = $request->get("task_asssigned_to");
 				$data["customer_id"]	= $request->get("customer_id");
 				if($request->category_id != null) {
 					$data['category'] 	  = $request->category_id;
 				}
-
 				$task = Task::create($data);
 				$created = 1;
-			}
-			if(!empty($task)) {
-				$task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+				$assignedUserId = $task->assign_to;
+				if ($task->is_statutory != 1) {
+					$message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+				} else {
+					$message = $task->task_subject . ". " . $task->task_details;
+				}
 			}
 
-			if ($task->is_statutory != 1) {
-				$message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
-			} else {
-				$message = $task->task_subject . ". " . $task->task_details;
+
+			if ($request->task_type != 'note-task') {
+				if ($request->task_asssigned_to) {
+					if(is_array($request->task_asssigned_to)) {
+						foreach ($request->task_asssigned_to as $user_id) {
+							$task->users()->attach([$user_id => ['type' => User::class]]);
+						}
+					}
+					else {
+						$task->users()->attach([$request->task_asssigned_to => ['type' => User::class]]);
+					}
+				}
+
+				
+
+				if ($request->assign_to_contacts) {
+					foreach ($request->assign_to_contacts as $contact_id) {
+						$task->users()->attach([$contact_id => ['type' => Contact::class]]);
+					}
+				}
 			}
+
+		
 
 			$params = [
 			 	'number'       => NULL,
@@ -2083,6 +2084,16 @@ class TaskModuleController extends Controller {
 			 	}
 			 }
 
+			 if (count($task->contacts) > 0) {
+				foreach ($task->contacts as $key => $contact) {
+					if ($key == 0) {
+						$params['contact_id'] = $task->assign_to;
+					} else {
+						app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($contact->phone, NULL, $params['message']);
+					}
+				}
+			}
+
 			$chat_message = ChatMessage::create($params);
 			ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Task::class,
@@ -2097,40 +2108,66 @@ class TaskModuleController extends Controller {
       		$myRequest->setMethod('POST');
       		$myRequest->request->add(['messageId' => $chat_message->id]);
 
-			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);
+			  app('App\Http\Controllers\WhatsAppController')->approveMessage('task', $myRequest);				
+		}
 
-			  if($created) {
-				$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
-				$assignedUser = HubstaffMember::where('user_id', $task->assign_to)->first();
-		  
-				  $hubstaffUserId = null;
-				  if ($assignedUser) {
-					  $hubstaffUserId = $assignedUser->hubstaff_user_id;
-				  }
-				  $taskSummery = substr($message, 0, 200);
-				  
-		  
-				  $hubstaffTaskId = $this->createHubstaffTask(
-					  $taskSummery,
-					  $hubstaffUserId,
-					  $hubstaff_project_id
-				  );
-		  
-				  if($hubstaffTaskId) {
-					  $task->hubstaff_task_id = $hubstaffTaskId;
-					  $task->save();
-				  }
-				  if ($hubstaffUserId) {
-					  $task = new HubstaffTask();
-					  $task->hubstaff_task_id = $hubstaffTaskId;
-					  $task->project_id = $hubstaff_project_id;
-					  $task->hubstaff_project_id = $hubstaff_project_id;
-					  $task->summary = $message;
-					  $task->save();
-				  }
+
+		if($created) {
+			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			$assignedUser = HubstaffMember::where('user_id', $assignedUserId)->first();
+	  
+			  $hubstaffUserId = null;
+			  $hubstaffTaskId = null;
+			  if ($assignedUser) {
+				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
 			  }
-			  
-						
+			  $taskSummery = substr($message, 0, 200);
+			  if($hubstaffUserId) {
+				$hubstaffTaskId = $this->createHubstaffTask(
+					$taskSummery,
+					$hubstaffUserId,
+					$hubstaff_project_id
+				);
+			  }
+			 
+	  
+			  if($hubstaffTaskId) {
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->save();
+			  }
+			  if ($hubstaffTaskId) {
+				  $hubtask = new HubstaffTask();
+				  $hubtask->hubstaff_task_id = $hubstaffTaskId;
+				  $hubtask->project_id = $hubstaff_project_id;
+				  $hubtask->hubstaff_project_id = $hubstaff_project_id;
+				  $hubtask->summary = $message;
+				  $hubtask->save();
+			  }
+		  }
+
+		if ($request->ajax() && $request->from == 'task-page') {
+			$hasRender = request("has_render", false);
+			
+			if(!empty($hasRender)) {
+				
+				$users      = Helpers::getUserArray( User::all() );
+				$priority  	= \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
+
+				if($task->is_statutory == 1) {
+					$mode = "task-module.partials.statutory-row";
+				}
+				// else if($task->is_statutory == 3) {
+				// 	$mode = "task-module.partials.discussion-pending-raw";
+				// }
+				else {
+					$mode = "task-module.partials.pending-row";
+				}
+
+				$view = (string)view($mode,compact('task','priority','users'));
+				return response()->json(["code" => 200, "statutory" => $task->is_statutory , "raw" => $view]);	
+
+			}
+			return response('success');
 		}
 
 		return response()->json(["code" => 200, "data" => [], "message" => "Your quick task has been created!"]);
@@ -2202,7 +2239,7 @@ class TaskModuleController extends Controller {
             $issue->lead_hubstaff_task_id = $hubstaffTaskId;
             $issue->save();
         }
-        if ($hubstaffUserId) {
+        if ($hubstaffTaskId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
@@ -2268,10 +2305,23 @@ class TaskModuleController extends Controller {
             if ($task) {
                     if ($task->hasMedia(config('constants.media_tags'))) {
                         foreach ($task->getMedia(config('constants.media_tags')) as $media) {
+
+							$imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief','jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
+							$explodeImage = explode('.', $media->getUrl());
+							$extension = end($explodeImage);
+
+							if(in_array($extension, $imageExtensions))
+							{
+								$isImage = true;
+							}else
+							{
+								$isImage = false;
+							}
                             $records[] = [
                                 "id"        => $media->id,
                                 'url'       => $media->getUrl(),
 								'task_id'   => $task->id,
+								'isImage'   => $isImage,
 							];
                         }
                     }
@@ -2323,4 +2373,68 @@ class TaskModuleController extends Controller {
             'message' => 'Successfully updated'
         ],200);
 	}
+
+	public function createHubstaffManualTask(Request $request) {
+		$task = Task::find($request->id);
+		if($task) {
+			if($request->type == 'developer') {
+				$user_id = $task->assign_to;
+			}
+			else {
+				$user_id = $task->master_user_id; 
+			}
+			$hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+		
+			$assignedUser = HubstaffMember::where('user_id', $user_id)->first();
+		
+			$hubstaffUserId = null;
+			if ($assignedUser) {
+				$hubstaffUserId = $assignedUser->hubstaff_user_id;
+			}
+			$taskSummery = "#" . $task->id . ". " . $task->task_subject;
+			// $hubstaffUserId = 901839;
+			if($hubstaffUserId) {
+				$hubstaffTaskId = $this->createHubstaffTask(
+					$taskSummery,
+					$hubstaffUserId,
+					$hubstaff_project_id
+				);
+			}
+			else {
+				return response()->json([
+					'message' => 'Hubstaff member not found'
+				],500);
+			}
+			if($hubstaffTaskId) {
+				if($request->type == 'developer') {
+					$task->hubstaff_task_id = $hubstaffTaskId;
+				}
+				else {
+					$task->lead_hubstaff_task_id = $hubstaffTaskId;
+				}
+				$task->save();
+			}
+			else {
+				return response()->json([
+					'message' => 'Hubstaff task not created'
+				],500);
+			}
+			if ($hubstaffTaskId) {
+				$task = new HubstaffTask();
+				$task->hubstaff_task_id = $hubstaffTaskId;
+				$task->project_id = $hubstaff_project_id;
+				$task->hubstaff_project_id = $hubstaff_project_id;
+				$task->summary = $taskSummery;
+				$task->save();
+			}
+			return response()->json([
+				'message' => 'Successful'
+			],200);
+		}
+		else {
+			return response()->json([
+				'message' => 'Task not found'
+			],500);
+		}
+		}
 }

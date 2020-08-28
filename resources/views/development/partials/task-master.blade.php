@@ -3,9 +3,9 @@
         <th style="width:5%;">ID</th>
         <th style="width:8%;">Module</th>
         <th style="width:12%;">Subject</th>
-        <th style="width:22%;">Communication</th>
+        <th style="width:20%;">Communication</th>
         <th style="width:7%;">Est Completion Time</th>
-        <th style="width:5%;">Tracked Time</th>
+        <th style="width:7%;">Tracked Time</th>
         <th style="width:15%;">Developers</th>
         <th style="width:12%;">Status</th>
         <th style="width:6%;">Cost</th>
