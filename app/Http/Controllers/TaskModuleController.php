@@ -33,13 +33,14 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
-define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
-define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
+use App\Helpers\HubstaffTrait;
 
 class TaskModuleController extends Controller {
 
-	public function __construct() {
+	use hubstaffTrait;
 
+	public function __construct() {
+		$this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
 	}
 
 	public function index( Request $request ) {
@@ -1018,9 +1019,9 @@ class TaskModuleController extends Controller {
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
-        } catch (Exception $e) {
-            if ($e instanceof ClientException) {
-                $this->refreshTokens();
+        } catch (ClientException $e) {
+        	if($e->getCode() == 401) {
+        		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
                         $taskSummary,
@@ -1029,54 +1030,12 @@ class TaskModuleController extends Controller {
                         false
                     );
                 }
-            }
+        	}
         }
         return false;
 	}
 
-	private function refreshTokens()
-    {
-        $tokens = $this->getTokens();
-        $this->generateAccessToken($tokens->refresh_token);
-    }
 	
-
-	private function getTokens()
-    {
-        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
-            $this->generateAccessToken(SEED_REFRESH_TOKEN);
-        }
-		$tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
-        return $tokens;
-    }
-
-    private function generateAccessToken(string $refreshToken)
-    {
-        $httpClient = new Client();
-        try {
-            $response = $httpClient->post(
-                'https://account.hubstaff.com/access_tokens',
-                [
-                    RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
-                        'refresh_token' => $refreshToken
-                    ]
-                ]
-            );
-
-            $responseJson = json_decode($response->getBody()->getContents());
-
-            $tokens = [
-                'access_token' => $responseJson->access_token,
-                'refresh_token' => $responseJson->refresh_token
-            ];
-
-            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
-        } catch (Exception $e) {
-            return false;
-        }
-    }
-
 	public function flag(Request $request)
 	{
 		$task = Task::find($request->task_id);
@@ -2177,12 +2136,12 @@ class TaskModuleController extends Controller {
 				  $task->save();
 			  }
 			  if ($hubstaffTaskId) {
-				  $task = new HubstaffTask();
-				  $task->hubstaff_task_id = $hubstaffTaskId;
-				  $task->project_id = $hubstaff_project_id;
-				  $task->hubstaff_project_id = $hubstaff_project_id;
-				  $task->summary = $message;
-				  $task->save();
+				  $hubtask = new HubstaffTask();
+				  $hubtask->hubstaff_task_id = $hubstaffTaskId;
+				  $hubtask->project_id = $hubstaff_project_id;
+				  $hubtask->hubstaff_project_id = $hubstaff_project_id;
+				  $hubtask->summary = $message;
+				  $hubtask->save();
 			  }
 		  }
 
@@ -2194,13 +2153,12 @@ class TaskModuleController extends Controller {
 				$users      = Helpers::getUserArray( User::all() );
 				$priority  	= \App\ErpPriority::where('model_type', '=', Task::class)->pluck('model_id')->toArray();
 
-				
 				if($task->is_statutory == 1) {
 					$mode = "task-module.partials.statutory-row";
 				}
-				else if($task->is_statutory == 3) {
-					$mode = "task-module.partials.discussion-pending-raw";
-				}
+				// else if($task->is_statutory == 3) {
+				// 	$mode = "task-module.partials.discussion-pending-raw";
+				// }
 				else {
 					$mode = "task-module.partials.pending-row";
 				}
@@ -2281,7 +2239,7 @@ class TaskModuleController extends Controller {
             $issue->lead_hubstaff_task_id = $hubstaffTaskId;
             $issue->save();
         }
-        if ($hubstaffUserId) {
+        if ($hubstaffTaskId) {
             $task = new HubstaffTask();
             $task->hubstaff_task_id = $hubstaffTaskId;
             $task->project_id = $hubstaff_project_id;
@@ -2347,10 +2305,23 @@ class TaskModuleController extends Controller {
             if ($task) {
                     if ($task->hasMedia(config('constants.media_tags'))) {
                         foreach ($task->getMedia(config('constants.media_tags')) as $media) {
+
+							$imageExtensions = ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'svg', 'svgz', 'cgm', 'djv', 'djvu', 'ico', 'ief','jpe', 'pbm', 'pgm', 'pnm', 'ppm', 'ras', 'rgb', 'tif', 'tiff', 'wbmp', 'xbm', 'xpm', 'xwd'];
+							$explodeImage = explode('.', $media->getUrl());
+							$extension = end($explodeImage);
+
+							if(in_array($extension, $imageExtensions))
+							{
+								$isImage = true;
+							}else
+							{
+								$isImage = false;
+							}
                             $records[] = [
                                 "id"        => $media->id,
                                 'url'       => $media->getUrl(),
 								'task_id'   => $task->id,
+								'isImage'   => $isImage,
 							];
                         }
                     }

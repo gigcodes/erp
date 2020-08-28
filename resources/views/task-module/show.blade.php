@@ -133,6 +133,11 @@
     .pd-2 {
         padding:2px;
     }
+    .zoom-img:hover {
+    -ms-transform: scale(1.5); /* IE 9 */
+    -webkit-transform: scale(1.5); /* Safari 3-8 */
+    transform: scale(1.5); 
+    }
 
     </style>
 @endsection
@@ -1247,9 +1252,7 @@
 
             $('#task_subject, #task_details').autocomplete({
                 source: function (request, response) {
-                    console.log(taskSuggestions);
                     var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
-                    console.log(results);
                     response(results.slice(0, 10));
                 }
             });
@@ -2441,13 +2444,12 @@
                             data: form.serialize(),
                             dataType : "json"
                         }).done(function (response) {
-                            console.log(response);
                             $("#loading-image").hide();
                             if(response.code == 200) {
-                                if(response.statutory != 1) {
-                                    $(".pending-row-render-view").prepend(response.raw);
-                                }else{
+                                if(response.statutory == 1) {
                                     $(".statutory-row-render-view").prepend(response.raw);
+                                }else{
+                                    $(".pending-row-render-view").prepend(response.raw);
                                 }
                             }
                             //window.location.reload();
@@ -2466,7 +2468,6 @@
             var category_id = $(this).val();
             var is_approved = $(this).find('option:selected').data('approved');
             var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
-            console.log(is_approved, is_admin);
             if (is_admin == 1 && !is_approved) {
                 $('#approveTaskCategoryButton').parent().removeClass('hidden');
             } else {
