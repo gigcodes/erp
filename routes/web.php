@@ -603,6 +603,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
+            Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
         });
     });
 
