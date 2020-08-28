@@ -36,23 +36,23 @@ class DirectMessageController extends Controller
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
     	foreach ($accounts as $account) {
-    		try {
+    		//try {
                 	$instagram = new Instagram();
                     $instagram->setProxy($account->proxy);
 				    $instagram->login($account->last_name, $account->password);
 				    $this->instagram = $instagram;
-                } catch (\Exception $e) {
+                    dd($this->instagram);
+            //    } catch (\Exception $e) {
                     dd($e);
                     echo "ERROR $account->last_name \n";
                     continue;
-                }
+          //      }
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-                dd($inbox);
+
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
-                     dd($incomingThread);
                 	if($incomingThread['unseen_count'] != 0){
 	                    $threads = $inbox['inbox']['threads'];
 	                    foreach ($threads as $thread) {
