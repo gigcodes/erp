@@ -27,13 +27,22 @@ class UserRate extends Model
       ->get();
   }
 
+  public static function rateChangesForDate($start, $end)
+  {
+    return self::where('start_date', '>=', $start)
+      ->where('start_date', '<', $end)
+      ->get();
+  }
+
   /**
    * Carry forward the rates from last week to be a part of calculation
    */
   public static function latestRatesForWeek($week, $year)
   {
 
-    $date = date('Y-m-d', strtotime('last sunday'));
+    $result = getStartAndEndDate($week, $year);
+    $start = $result['week_start'];
+    $end = $result['week_end'];
 
     $query =  "SELECT
         *
@@ -47,7 +56,7 @@ class UserRate extends Model
                 *
               FROM `user_rates`
               WHERE
-                start_date < '$date'
+                start_date < '$end'
             ) as a
           group by
             user_id
@@ -57,4 +66,39 @@ class UserRate extends Model
 
     return self::hydrate($rateData);
   }
+
+  public static function latestRatesBeforeTime($time)
+  {
+    $query =  "SELECT
+        *
+      from user_rates
+      where
+        id in (
+          SELECT
+            GROUP_CONCAT(id) as id
+          FROM (
+              SELECT
+                *
+              FROM `user_rates`
+              WHERE
+                start_date < '$time'
+            ) as a
+          group by
+            user_id
+    )";
+
+    $rateData = DB::select($query);
+    return self::hydrate($rateData);
+  }
+
+
+  public static function latestRatesOnDate($time,$user_id)
+  {
+    return self::where('start_date', '<', $time)
+    ->where('user_id', $user_id)
+    ->orderBy('start_date','desc')
+    ->first();
+  }
+
+  
 }

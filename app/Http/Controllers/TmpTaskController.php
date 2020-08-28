@@ -2,6 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Library\DHL\GetRateRequest;
+use Illuminate\Http\Request;
+
 class TmpTaskController extends Controller
 {
 
@@ -84,6 +87,36 @@ class TmpTaskController extends Controller
             }
         }
 
+    }
+
+    public function importProduct()
+    {
+        $scraped_product = \App\ScrapedProducts::orderBy("id","desc")->first();
+        app('App\Services\Products\ProductsCreator')->createProduct($scraped_product);
+    }
+
+    public function testEmail(Request $request)
+    {
+        $order = \App\Order::latest()->first();
+        
+        if($order) {
+            
+            $customer           = $order->customer;
+            $orderItems         = $order->order_product;
+
+            $data["order"]      = $order;
+            $data["customer"]   = $customer;
+            $data["orderItems"] = $orderItems;
+            
+            Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
+        }
+
+    }
+
+    public function dhl(Request $request)
+    {
+        $rate   = new GetRateRequest("soap");
+        $result = $rate->call();
     }
 
 }

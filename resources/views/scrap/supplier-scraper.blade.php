@@ -42,6 +42,7 @@
                 <th>Id</th>
                 <th>Scraper name</th>
                 <th>Supplier</th>
+                <th>Full Scrape</th>
                 <th style="width: 5%">Start Time</th>
                 <th style="width: 5%">End Time</th>
                 <th>Run Gap</th>
@@ -55,6 +56,7 @@
                 <th>&nbsp;</th>
                 <th><input type="text" id="scraper_name" class="form-control"></th>
                 <th><input type="text" id="supplier_name" class="form-control"></th>
+                <th style="width: 5%">&nbsp;</th>
                 <th style="width: 5%">&nbsp;</th>
                 <th style="width: 5%">&nbsp;</th>
                 <th><input type="text" id="run_gap_search" class="form-control"></th>
@@ -141,6 +143,7 @@
             $("#starting_url").val(scraper.starting_urls);
             $("#designer_url").val(scraper.designer_url_selector);
             $("#product_url_selector").val(scraper.product_url_selector);
+            $("#full_scrape").val(scraper.full_scrape);
             $("#scrapEditModal").modal('show');
         }
 
@@ -157,7 +160,8 @@
                     designer_url : $("#designer_url").val(),
                     product_url_selector : $("#product_url_selector").val(),
                     run_gap : $("#run_gap").val(),
-                    time_out: $("#time_out").val()
+                    time_out: $("#time_out").val(),
+                    full_scrape : $("#full_scrape").val(),
                 },
                 beforeSend: function () {
                     $("#loading-image").show();
@@ -206,5 +210,52 @@
                 });
             });
         });
+
+        function changeFullScrape(id) {
+            value = $('#full_scrape'+id).val();
+            if(value == 1){
+                var result = confirm("Are you sure ? you want to run Full Scrape");
+                if (result) {
+                    $.ajax({
+                    url: '/scrap/generic-scraper/full-scrape',
+                    dataType: "json",
+                    type : "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        value : value,
+                        id : id,
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        $("#loading-image").hide();
+                        alert('No response from server');
+                    });    
+                }
+            }else{
+                $.ajax({
+                    url: '/scrap/generic-scraper/full-scrape',
+                    dataType: "json",
+                    type : "POST",
+                    data: {
+                        "_token": "{{ csrf_token() }}",
+                        value : value,
+                        id : id,
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    }).done(function (data) {
+                        $("#loading-image").hide();
+                    }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                        $("#loading-image").hide();
+                        alert('No response from server');
+                    }); 
+            }
+            
+        }
     </script>
 @endsection

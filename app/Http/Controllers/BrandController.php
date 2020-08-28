@@ -6,6 +6,8 @@ use App\Brand;
 use App\Setting;
 use App\Product;
 use Illuminate\Http\Request;
+use \App\StoreWebsiteBrand;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class BrandController extends Controller
 {
@@ -19,9 +21,27 @@ class BrandController extends Controller
     public function index()
     {
 
-        $brands = Brand::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
+        $brands = Brand::leftJoin("store_website_brands as swb","swb.brand_id","brands.id")
+        ->leftJoin("store_websites as sw","sw.id","swb.store_website_id")
+        ->select(["brands.*",\DB::raw("group_concat(sw.id) as selling_on")])
+        ->groupBy("brands.id")
+        ->oldest()->whereNull('brands.deleted_at');
 
-        return view('brand.index', compact('brands'))
+        $keyword = request('keyword');
+        if(!empty($keyword)) {
+            $brands = $brands->where("name","like","%".$keyword."%");
+        }
+
+        $brands = $brands->paginate(Setting::get('pagination'));
+
+        $storeWebsite = \App\StoreWebsite::all()->pluck("website","id")->toArray();
+
+        $attachedBrands = \App\StoreWebsiteBrand::groupBy("store_website_id")->select(
+            [\DB::raw("count(brand_id) as total_brand"),"store_website_id"]
+        )->get()->toArray();
+
+
+        return view('brand.index', compact('brands','storeWebsite','attachedBrands'))
             ->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -189,7 +209,7 @@ class BrandController extends Controller
 
     public function brandReference()
     {
-        $brands = Brand::select('name','references')->get();
+        $brands = Brand::select('name','references')->where('magento_id', '>', 0)->get();
         foreach ($brands as $brand) {
             $referenceArray[] = $brand->name;
             if(!empty($brand->references)){
@@ -208,5 +228,69 @@ class BrandController extends Controller
         
        return json_encode($referenceArray);
 
+    }
+
+    public function attachWebsite(Request $request)
+    {
+        $website = $request->get("website");
+        $brandId = $request->get("brand_id");
+
+        if(!empty($website) && !empty($brandId)) {
+             
+             if(is_array($website)) {
+                StoreWebsiteBrand::where("brand_id",$brandId)->whereNotIn("store_website_id",$website)->delete();
+                foreach ($website as $key => $web) {
+                    $sbrands = StoreWebsiteBrand::where("brand_id",$brandId)
+                     ->where("store_website_id",$web)
+                     ->first();
+
+                    if(!$sbrands)  {
+                        $sbrands = new StoreWebsiteBrand;
+                        $sbrands->brand_id = $brandId;
+                        $sbrands->store_website_id = $web;
+                        $sbrands->save();
+                    }
+                }
+
+                return response()->json(["code" => 200 , "data" => [], "message" => "Website attached successfully"]);
+             }else{
+                return response()->json(["code" => 500 , "data" => [], "message" => "There is no website selected"]);
+             }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
+    }
+
+    public function createRemoteId(Request $request, $id)
+    {
+        $brand = \App\Brand::where("id",$id)->first();
+        
+        if(!empty($brand)) {
+            if($brand->magento_id == '' || $brand->magento_id <= 0) {
+                $brand->magento_id = 10000 + $brand->id;
+                $brand->save(); 
+                return response()->json(["code" => 200, "data" => $brand, "message" => "Remote id created successfully"]);
+            }else{
+                return response()->json(["code" => 500, "data" => $brand, "message" => "Remote id already exist"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "data" => $brand, "message" => "Brand not found"]);
+
+    }
+
+    public function changeSegment(Request $request) 
+    {
+        $id = $request->get("brand_id",0);
+        $brand = \App\Brand::where("id",$id)->first();
+        $segment = $request->get("segment");
+
+        if($brand) {
+           $brand->brand_segment = $segment;
+           $brand->save();
+           return response()->json(["code" => 200 , "data" => []]);
+        }
+
+        return response()->json(["code" => 500 , "data" => []]);
     }
 }

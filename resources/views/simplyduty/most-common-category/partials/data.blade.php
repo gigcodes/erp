@@ -1,4 +1,4 @@
- @if($categories->isEmpty())
+ @if(count($categories) == 0)
 
             <tr>
                 <td>
@@ -6,14 +6,19 @@
                 </td>
             </tr>
 @else
+@php
+$count = 0;
+@endphp
+@foreach ($categories as $category)
 
-@foreach ($categories as $id => $category)
-    @foreach($category as $cat)
-    <tr>
-        <td><input type="checkbox" class="form-control checkBoxClass" value="" name="composition"></td>
-        <td>{{ $id }}</td>
-        <td>{{ $cat }}</td>
-    </tr>
-    @endforeach   
+    <tr class="category{{ $category['id'] }}{{ $count }}">
+        <td><input type="checkbox" class="form-control checkBoxClass" name="composition" data-name="{{ $category['composition'] }} {{ $category['name'] }}" data-category="{{ $category['id'] }}" data-count="{{ $count }}"></td>
+        <td>
+        {{ $category['name'] }}</td>
+        <td>{{ $category['composition'] }}</td>
+    </tr> 
+    @php
+    $count++;
+    @endphp    
 @endforeach
 @endif

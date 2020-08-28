@@ -1,0 +1,317 @@
+<?php
+
+namespace App\Http\Controllers;
+
+use Illuminate\Http\Request;
+use App\Email;
+use App\EmailRemark;
+use Webklex\IMAP\Client;
+use App\Mails\Manual\PurchaseEmail;
+use Mail;
+use Auth;
+use App\Mails\Manual\ReplyToEmail;
+use App\Mails\Manual\ForwardEmail;
+use Illuminate\Support\Facades\Validator;
+
+class EmailController extends Controller
+{
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function index(Request $request)
+    {
+        // Set default type as incoming
+        $type = "incoming";
+
+        $term = $request->term ?? '';
+        $date = $request->date ?? '';
+        $type = $request->type ?? $type;
+        $seen = $request->seen ?? '';
+        $query = (new Email())->newQuery();
+        $trash_query = false;
+
+
+        // If type is bin, check for status only
+        if($type == "bin"){
+            $trash_query = true;
+            $query = $query->where('status',"bin");
+        }else{
+            $query = $query->where('type',$type);
+        }
+
+        if($date) {
+            $query = $query->whereDate('created_at',$date);
+        }
+        if($term) {
+            $query = $query->where(function ($query) use ($term) {
+                $query->where('from','like','%'.$term.'%')
+                ->orWhere('to','like','%'.$term.'%')
+                ->orWhere('subject','like','%'.$term.'%')
+                ->orWhere('message','like','%'.$term.'%');
+            });
+        }
+
+        if(isset($request->seen)){
+            if($seen != 'both'){
+                $query = $query->where('seen',$seen);
+            }
+        }
+
+        // If it isn't trash query remove email with status trashed
+        if(!$trash_query){
+            $query = $query->where(function($query){ return $query->where('status','<>',"bin")->orWhereNull('status');});
+        }
+
+        $emails = $query->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('emails.search', compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$emails->links(),
+                'count' => $emails->total(),
+                'emails' => $emails
+            ], 200);
+        }
+
+        // suggested search for email forwarding
+        $search_suggestions = $this->getAllEmails();
+
+        // dd(array_values($search_suggestions));
+
+        // if($request->AJAX()) {
+        //     return view('emails.search',compact('emails'));
+        // }
+
+        // dont load any data, data will be loaded by tabs based on ajax
+        // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions ])->with('i', ($request->input('page', 1) - 1) * 5);
+
+    }
+
+    /**
+     * Show the form for creating a new resource.
+     *
+     * @return \Illuminate\Http\Response
+     */
+    public function create()
+    {
+        //
+    }
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    public function store(Request $request)
+    {
+        //
+    }
+
+    /**
+     * Display the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function show($id)
+    {
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function edit($id)
+    {
+        //
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function update(Request $request, $id)
+    {
+        //
+    }
+
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function destroy($id)
+    {
+        $email = Email::find($id);
+        $status = "bin";
+        $message = "Email has been trashed";
+
+        // If status is already trashed, move to inbox
+        if($email->status == 'bin'){
+            $status = "";
+            $message = "Email has been sent to inbox";
+        }
+
+        $email->status= $status;
+        $email->update();
+
+        return response()->json(['message' => $message]);
+    }
+
+    public function resendMail($id) {
+        $email = Email::find($id);
+        $attachment = [];
+
+        $imap = new Client([
+            'host' => env('IMAP_HOST_PURCHASE'),
+            'port' => env('IMAP_PORT_PURCHASE'),
+            'encryption' => env('IMAP_ENCRYPTION_PURCHASE'),
+            'validate_cert' => env('IMAP_VALIDATE_CERT_PURCHASE'),
+            'username' => env('IMAP_USERNAME_PURCHASE'),
+            'password' => env('IMAP_PASSWORD_PURCHASE'),
+            'protocol' => env('IMAP_PROTOCOL_PURCHASE')
+        ]);
+
+        $imap->connect();
+
+        $array = is_array(json_decode($email->additional_data, true)) ? json_decode($email->additional_data, true) : [];
+
+        if (array_key_exists('attachment', $array)) {
+            $temp = json_decode($email->additional_data, true)[ 'attachment' ];
+        }
+        if (!is_array($temp)) {
+            $attachment[] = $temp;
+        } else {
+            $attachment = $temp;
+        }
+        $customConfig = [
+            'from' =>  $email->from,
+        ];
+        Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
+        return response()->json(['message' => 'Mail resent successfully']);
+   }
+
+   /**
+    * Provide view for email reply modal
+    *
+    * @param [type] $id
+    * @return view
+    */
+    public function replyMail($id) {
+        $email = Email::find($id);
+        return view('emails.reply-modal',compact('email'));
+    }
+
+    /**
+     * Provide view for email forward modal
+     *
+     * @param [type] $id
+     * @return void
+     */
+    public function forwardMail($id) {
+        $email = Email::find($id);
+        return view('emails.forward-modal',compact('email'));
+        }
+
+    /**
+     * Handle the email reply
+     *
+     * @param Request $request
+     * @return json
+     */
+    public function submitReply(Request $request)
+    {
+       $validator = Validator::make($request->all(), [
+           'message' => 'required'
+       ]);
+
+       if ($validator->fails()) {
+           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+       }
+
+       $email = Email::find($request->reply_email_id);
+       Mail::send(new ReplyToEmail($email, $request->message));
+
+       return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+   }
+
+   /**
+    * Handle the email forward
+    *
+    * @param Request $request
+    * @return json
+    */
+   public function submitForward(Request $request)
+   {
+       $validator = Validator::make($request->all(), [
+           'email' => 'required'
+       ]);
+
+       if ($validator->fails()) {
+           return response()->json(['success' => false, 'errors' => $validator->errors()->all()]);
+       }
+
+       $email = Email::find($request->forward_email_id);
+       Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
+
+       return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
+   }
+
+
+   public function getRemark(Request $request)
+    {
+        $email_id = $request->input('email_id');
+
+        $remark = EmailRemark::where('email_id', $email_id)->get();
+
+        return response()->json($remark, 200);
+    }
+
+    public function addRemark(Request $request)
+    {
+        $remark = $request->input('remark');
+        $email_id = $request->input('id');
+        $created_at = date('Y-m-d H:i:s');
+        $update_at = date('Y-m-d H:i:s');
+
+        if (!empty($remark)) {
+            $remark_entry = EmailRemark::create([
+                'email_id' => $email_id,
+                'remarks' => $remark,
+                'user_name' => Auth::user()->name
+            ]);
+        }
+
+        return response()->json(['remark' => $remark], 200);
+    }
+
+    public function markAsRead($id){
+        $email = Email::find($id);
+        $email->seen = 1;
+        $email->update();
+        return response()->json(['success' => true, 'message' => 'Email has been read.']);
+    }
+
+    public function getAllEmails(){
+            $available_models = ["supplier" =>\App\Supplier::class,"vendor"=>\App\Vendor::class,
+                             "customer"=>\App\Customer::class,"users"=>\App\User::class];
+            $email_list = [];
+            foreach ($available_models as $key => $value) {
+                $email_list = array_merge($email_list, $value::whereNotNull('email')->pluck('email')->unique()->all());
+            }
+        // dd($email_list);
+        return array_values(array_unique($email_list));
+    }
+
+
+}

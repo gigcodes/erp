@@ -35,6 +35,11 @@
           padding: 5px;
           text-align: left;
         }
+
+        .selecte-choice-reply {
+            cursor: pointer;
+        }
+
     </style>
 @endsection
 
@@ -57,6 +62,15 @@
 
     @include('partials.flash_messages')
     <div class="col-md-12 margin-tb" style="margin-top:10px;">
+        <ul class="pagination" role="navigation">
+            <?php for($i = 1; $i <= $recordsNeedToBeShown; $i++) { ?>
+                 <li  class="page-item @if($activeNo == $i) active  @endif" style="display:inline-block;margin-right: 2px;">
+                    <a class="page-link" href="{{ route('chatbot.mostUsedPhrases', request()->except('page') + ['page' => ($i * $multiple)]) }}" rel="prev" aria-label="From {{ $i }}">From {{ $i * $multiple }} >></a>
+                </li>
+            <?php } ?>
+        </ul>
+    </div>    
+    <div class="col-md-12 margin-tb" style="margin-top:10px;">
         <table class="table table-bordered">
             <thead>
             <tr>
@@ -68,10 +82,11 @@
             <tbody>
                 @foreach ($mostUsedPhrases as $key => $phrases)
                     <tr>
-                        <td><input type="checkbox" name="phrase" data-keyword="{{ $phrases->id }}" value="{{ $phrases->id }}">  {{ $phrases->phrase }}</td>
+                        <td><input type="checkbox" data-message-id="{{ $phrases->chat_id }}" name="phrase" data-keyword="{{ $phrases->id }}" value="{{ $phrases->id }}">  {{ $phrases->phrase }}</td>
                         <td>{{ $phrases->total_count }}</td>
                         <td>
                             <button data-id="{{ $phrases->chat_id }}" class="btn btn-image get-chat-details"><img src="/images/chat.png"></button>
+                            <button data-id="{{ $phrases->id }}" class="btn btn-image delete-row-btn"><i class="fa fa-trash"></i></button>
                         </td>
                     </tr>
                 @endforeach
@@ -153,22 +168,23 @@
             });
         });
 
-        /*$(document).on("click",".delete-row-btn",function() {
+        $(document).on("click",".delete-row-btn",function() {
             var $this = $(this);
             var dataId = $(this).data("id");
-            $.ajax({
-                type: 'POST',
-                url: "autoreply/delete-chat-word",
-                data: {
-                    _token: "{{ csrf_token() }}",
-                    id: dataId,
-                }
-            }).done(function () {
-                $this.closest("tr").remove();
-                $("#phrases_"+dataId).remove();
-            }).fail(function (response) {
-            });
-        });*/
+            if(confirm("Are you sure you want to do this operation ?")) {
+                $.ajax({
+                    type: 'POST',
+                    url: "autoreply/delete-most-used-phrases",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        id: dataId,
+                    }
+                }).done(function () {
+                    $this.closest("tr").remove();
+                }).fail(function (response) {
+                });
+            }
+        });
 
         var callingMoreChat = function(chatId, pageId) {
             $.ajax({
@@ -282,21 +298,57 @@
         });
 
         function addGroupPhrase(){
-             var phraseId = [];
+            var phraseId = [];
+            var messageId = [];
             $.each($("input[name='phrase']:checked"), function(){
                 phraseId.push($(this).val());
+                messageId.push($(this).data("message-id"));
             });
-           if(phraseId.length == 0){
+
+            $.ajax({
+                type: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                url: '{{ route('autoreply.group.phrases.reply') }}',
+                data: {
+                    message_ids: messageId
+                },
+                dataType : "json"
+            }).done(response => {
+                if(response.code == 200) {
+                    var html = "<ul class='list-group'>";
+                    $.each(response.data,function(e,r){
+                        html += "<li class='selecte-choice-reply list-group-item'>"+r+"</li>";
+                    });
+                    html += "</ul>";
+                    $("#groupPhraseCreateModal").find(".list-of-reply").html(html);
+                }
+            }).fail(function (response) {
+                alert('Not found any response');
+            });
+
+
+            if(phraseId.length == 0){
                 alert('Please Select Phrase From Keywords');
             }else{
                 $('#groupPhraseCreateModal').modal('show');
             }
         }
 
+        $(document).on("click",".selecte-choice-reply",function() {
+           $("#autochat-reply").val($(this).html());  
+        });
+
+        $(document).on("change","#phraseGroup",function(){
+           $("#autochat-reply").val($(this).find(':selected').data("suggested-reply"));
+        });
+
         function createGroupPhrase() {
             var phraseId = [];
             name = $('#phrasename').val();
             phrase_group = $('#phraseGroup').val();
+            reply = $('#autochat-reply').val();
             $.each($("input[name='phrase']:checked"), function(){
                 phraseId.push($(this).val());
                 keyword = $(this).attr("data-keyword")
@@ -316,9 +368,11 @@
                     keyword : keyword,
                     name : name,
                     phrase_group : phrase_group,
+                    reply : reply,
                 },
                 }).done(response => {
                     alert('Added Phrase Group');
+                    location.reload();
                 }).fail(function (response) {
                     alert('Could not add Phrase group!');
                 });

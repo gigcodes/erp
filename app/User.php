@@ -8,10 +8,15 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Spatie\Permission\Traits\HasRoles;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 use Cache;
 use App\UserLog;
 use DB;
 use Redirect;
+use App\Hubstaff\HubstaffPaymentAccount;
+use App\Hubstaff\HubstaffActivity;
+use Carbon\Carbon;
 
 
 class User extends Authenticatable
@@ -19,6 +24,9 @@ class User extends Authenticatable
     use HasApiTokens, Notifiable;
     use HasRoles;
     use SoftDeletes;
+    use Mediable;
+
+    const USER_ADMIN_ID = 6;
 
     /**
      * The attributes that are mass assignable.
@@ -34,7 +42,9 @@ class User extends Authenticatable
         'agent_role',
         'whatsapp_number',
         'amount_assigned',
-        'auth_token_hubstaff'
+        'auth_token_hubstaff',
+        'payment_frequency',
+        'fixed_price_user_or_job'
     ];
 
     public function getIsAdminAttribute()
@@ -138,6 +148,16 @@ class User extends Authenticatable
         return $this->belongsToMany(Permission::class);
     }
 
+    public function teams()
+    {
+        return $this->belongsToMany(Team::class);
+    }
+
+    public function teamLeads()
+    {
+        return $this->hasMany(Team::class);
+    }
+
     /**
      * The attributes helps to check if User is Admin.
      *
@@ -155,6 +175,38 @@ class User extends Authenticatable
     }
 
     /**
+    * We can use this function to give same page rights like admin
+    *
+    */
+    public function isReviwerLikeAdmin()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        $needToBeCheck = ["Admin","master-developer"];
+
+        foreach($needToBeCheck as $nc) {
+            if (in_array($nc, $roles)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    public function isInCustomerService()
+    {
+        $roles = $this->roles->pluck('name')->toArray();
+
+        if (in_array('crm', $roles)) {
+            return true;
+        }
+
+        return false;
+    }
+
+
+
+    /**
      * The attributes helps to check if User has Permission Using Route To Check Page.
      *
      * @var array
@@ -163,7 +215,7 @@ class User extends Authenticatable
     {
         if ($name == '/') {
             $genUrl = 'mastercontrol';
-            header("Location: /development/list/devtask");
+            header("Location: /development/list");
         } else {
             $url = explode('/', $name);
             $model = $url[0];
@@ -182,7 +234,11 @@ class User extends Authenticatable
         $permission = Permission::where('route', $genUrl)->first();
 
         if (empty($permission)) {
-            echo 'unauthorized route doesnt not exist - ' . $genUrl;
+            echo 'unauthorized route doesnt not exist - new permission save' . $genUrl;
+            $per = new Permission;
+            $per->name = $genUrl;
+            $per->route = $genUrl;
+            $per->save();
             die();
             return false;
         }
@@ -239,12 +295,12 @@ class User extends Authenticatable
         return false;
     }
 
-    public function hasRole($role)
+    /*public function hasRole($role)
     {
 
         $roles = Role::where('name', $role)->first();
 
-        $role = ($roles) ? $roles->toArray() : [];
+        $role = ($roles) ? [$roles->id] : [];
 
         $user_role = $this->roles()
             ->pluck('id')->unique()->toArray();
@@ -255,7 +311,7 @@ class User extends Authenticatable
             }
         }
         return false;
-    }
+    }*/
 
     public function user_logs()
     {
@@ -358,4 +414,86 @@ class User extends Authenticatable
         )
             ->latest();
     }
+
+    public function latestRate()
+    {
+        return $this->hasOne(
+            'App\UserRate',
+            'user_id',
+            'id'
+        )->latest('start_date');
+    }
+
+    public static function selectList()
+    {
+        return self::pluck("name","id")->toArray();
+    }
+
+    public function payments()
+    {
+        return $this->hasMany(Payment::class);
+    }
+
+
+    public function lastOnline() {
+        $hubstaff_activity = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_members.user_id',$this->id)->orderBy('hubstaff_activities.starts_at','desc')->first();
+        if($hubstaff_activity) {
+            return $hubstaff_activity->starts_at;
+        }
+        else {
+            return false;
+        }
+         
+    }
+
+
+    public function taskList()
+    {
+        return $this->hasMany(\App\ErpPriority::class, "user_id","id");
+    }
+
+    public function yesterdayHrs()
+    {
+        $records = \App\Hubstaff\HubstaffActivity::join("hubstaff_members as hm","hm.hubstaff_user_id","hubstaff_activities.user_id")
+        ->where("hm.user_id",$this->id)
+        ->whereDate("starts_at",date("Y-m-d", strtotime('-1 days')))
+        ->groupBy('hubstaff_activities.user_id')
+        ->select(\DB::raw("sum(hubstaff_activities.tracked) as total_seconds"))
+        ->first();
+
+        if($records) {
+            return number_format((($records->total_seconds / 60) / 60),2,".",",");
+        }
+
+        return 0;
+    }
+
+    /**
+     * Get supplier category permission
+     */
+    public function supplierCategoryPermission()
+    {
+        return $this->belongsToMany('App\SupplierCategory', 'supplier_category_permissions', 'user_id', 'supplier_category_id');
+    }
+    public function previousDue($lastPaidOn)
+    {
+        $pendingPyments = HubstaffPaymentAccount::where('user_id',$this->id)->where('billing_start','>',$lastPaidOn)->get();
+        $total = 0;
+        foreach($pendingPyments as $pending) {
+            $total = $total + ($pending->hrs * $pending->rate * $pending->ex_rate);
+        }
+        return $total;
+    }
+
+
+    public function vendorCategoryPermission()
+    {
+        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
+    }
+
+    public function user_availabilities()
+    {
+        return $this->hasOne('App\UserAvaibility','user_id','id');
+    }
+
 }

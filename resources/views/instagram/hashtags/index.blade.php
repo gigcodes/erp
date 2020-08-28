@@ -143,9 +143,10 @@ input:checked + .slider:before {
                 <tr>
                     <th>S.N</th>
                     <th>Tag Name</th>
-                    <th>Count</th>
-                    <th>Rating</th>
-                    <th>Actions</th>
+                    <th>Comments</th>
+                    <th>Users</th>
+                    <th>Post Count</th>
+                    <th>User Links</th>
                     <th>Priority</th>
                 </tr>
                 @foreach($hashtags as $key=>$hashtag)
@@ -156,9 +157,20 @@ input:checked + .slider:before {
                                 {{ $hashtag->hashtag }}
                             </a>
                         </td>
-                        <td>{{$hashtag->instagramPost->count()}}</td>
-                        <td>{{ $hashtag->rating }}</td>
                         <td>
+                            <a href="{{ action('HashtagController@showGridComments',$hashtag->id) }}">
+                                Link
+                            </a>
+                        </td>
+                        <td>
+                            <a href="{{ action('HashtagController@showGridUsers',$hashtag->hashtag) }}">
+                                Link
+                            </a>
+                        </td>
+                        <td>{{$hashtag->instagramPost->count()}}</td>
+                        <td></td>
+                        <!-- <td>{{ $hashtag->rating }}</td> -->
+                        <!-- <td>
                             <form method="post" action="{{ action('HashtagController@destroy', $hashtag->id) }}">
                                 <a class="btn btn-default btn-image" href="{{ action('HashtagController@showGrid', $hashtag->id) }}">
                                     <img src="{{ asset('images/view.png') }}" alt="">
@@ -173,7 +185,7 @@ input:checked + .slider:before {
                                 </button>
                                 
                             </form>
-                        </td>
+                        </td> -->
                         <td>
                           <label class="switch">
                                   @if($hashtag->priority == 1)
@@ -183,7 +195,6 @@ input:checked + .slider:before {
                                   @endif
                                   <span class="slider round"></span>
                                 </label>
-                                <button onclick="runCommand({{ $hashtag->id }})">Run Command</button>
                         </td>
                     </tr>
                 @endforeach

@@ -82,8 +82,8 @@
                 <h3>Vendor Page</h3>
             </div>
             <div class="pull-right mt-4">
-                <a class="btn btn-xs btn-secondary" href="{{ route('vendor.index') }}">Back</a>
-                <a href="{{route('vendor.payments', $vendor->id)}}" class="btn btn-secondary btn-xs" title="Vendor Payments" target="_blank">Payments </a>
+                <a class="btn btn-xs btn-secondary" href="{{ route('vendors.index') }}">Back</a>
+                <a href="{{route('vendors.payments', $vendor->id)}}" class="btn btn-secondary btn-xs" title="Vendor Payments" target="_blank">Payments </a>
                 {{-- <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
                 <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
                 <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal" data-target="#privateViewingModal">Set Up for Private Viewing</button> --}}
@@ -97,7 +97,7 @@
 
     @include('vendors.partials.product-modals')
 
-    <div id="exTab2" class="container">
+    <div id="exTab2" class="mb-3">
         <ul class="nav nav-tabs">
             <li class="active">
                 <a href="#info-tab" data-toggle="tab">Vendor Info</a>
@@ -159,7 +159,7 @@
                             <div class="form-group">
                                 <select name="whatsapp_number" id="vendor_whatsapp_number" class="form-control input-sm">
                                     <option value>Whatsapp Number</option>
-                                    <option value="919004780634" {{ '919004780634' == $vendor->whatsapp_number ? ' selected' : '' }}>919004780634 Indian</option>
+                                    <option value="971569119192" {{ '971569119192' == $vendor->whatsapp_number ? ' selected' : '' }}>971569119192 Indian</option>
                                     <option value="971502609192" {{ '971502609192' == $vendor->whatsapp_number ? ' selected' : '' }}>971502609192 Dubai</option>
                                 </select>
                             </div>
@@ -239,6 +239,28 @@
 
                             <div class="form-group">
                                 <input type="text" name="account_swift" id="vendor_account_swift" class="form-control input-sm" placeholder="SWIFT" value="{{ $vendor->account_swift }}">
+                            </div>
+
+                            <div class="form-group">
+                                <input type="text" name="frequency_of_payment" id="vendor_frequency_of_payment" class="form-control" value="{{ $vendor->frequency_of_payment }}" placeholder="Frequency of Payment">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="bank_name" id="vendor_bank_name" class="form-control" value="{{ $vendor->bank_name }}" placeholder="Bank Name">
+                            </div>
+                            <div class="form-group">
+                                <textarea name="bank_address" id="vendor_bank_address" class="form-control" placeholder="Bank Address">{{ $vendor->bank_address }}</textarea>
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="city" id="vendor_city" class="form-control" value="{{ $vendor->city }}" placeholder="City">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="country" id="vendor_country" class="form-control" value="{{ $vendor->country }}" placeholder="Country">
+                            </div>
+                            <div class="form-group">
+                                <input type="text" name="ifsc_code" id="vendor_ifsc_code" class="form-control" value="{{ $vendor->ifsc_code }}" placeholder="IFSC">
+                            </div>
+                            <div class="form-group">
+                                <textarea name="remark" id="vendor_remark" class="form-control" placeholder="Remark">{{ $vendor->remark }}</textarea>
                             </div>
 
                             <div class="form-group">
@@ -419,15 +441,22 @@
                     </div>
 
                 </form>
-
+                
                 <h4>Remarks</h4>
-
                 <div class="row">
                     <div class="col-xs-12">
                         <div class="form-group">
                             <textarea class="form-control" name="remark" rows="3" cols="10" placeholder="Remark"></textarea>
                         </div>
-
+                        <div class="row">
+                            <div class="col-xs-12">
+                                <div><b>Created Date:</b> {{ $vendor->created_at }}</div>
+                            </div>
+                            <div class="col-xs-12">
+                                <div><b>Updated Date:</b> {{ $vendor->updated_at }}</div>
+                            </div>
+                        </div>
+                        <div class="row"><div class="col-xs-12">&nbsp;</div></div>
                         <div class="form-inline">
                             <button type="button" class="btn btn-xs btn-secondary" id="sendRemarkButton">Send</button>
                             <button type="button" class="btn btn-xs btn-secondary ml-1" id="hideRemarksButton">Show</button>
@@ -528,7 +557,7 @@
                             <td>
                                 <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png"/></button>
 
-                                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                                {!! Form::open(['method' => 'DELETE','route' => ['vendors.product.destroy', $product->id],'style'=>'display:inline']) !!}
                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                                 {!! Form::close() !!}
                             </td>
@@ -585,7 +614,7 @@
                                             <td>
                                                 <button type="button" class="btn btn-image edit-product" data-toggle="modal" data-target="#productEditModal" data-product="{{ $product }}"><img src="/images/edit.png"/></button>
 
-                                                {!! Form::open(['method' => 'DELETE','route' => ['vendor.product.destroy', $product->id],'style'=>'display:inline']) !!}
+                                                {!! Form::open(['method' => 'DELETE','route' => ['vendors.product.destroy', $product->id],'style'=>'display:inline']) !!}
                                                 <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                                                 {!! Form::close() !!}
                                             </td>
@@ -1084,10 +1113,17 @@
             var account_name = $('#vendor_account_name').val();
             var account_iban = $('#vendor_account_iban').val();
             var account_swift = $('#vendor_account_swift').val();
+            var frequency_of_payment = $('#vendor_frequency_of_payment').val();
+            var bank_name = $('#vendor_bank_name').val();
+            var bank_address = $('#vendor_bank_address').val();
+            var city = $('#vendor_city').val();
+            var country = $('#vendor_country').val();
+            var ifsc_code = $('#vendor_ifsc_code').val();
+            var remark = $('#vendor_remark').val();
 
             $.ajax({
                 type: "POST",
-                url: "{{ url('vendor') }}/" + id,
+                url: "{{ url('vendors') }}/" + id,
                 data: {
                     _token: "{{ csrf_token() }}",
                     _method: "PUT",
@@ -1106,6 +1142,13 @@
                     account_name: account_name,
                     account_swift: account_swift,
                     account_iban: account_iban,
+                    frequency_of_payment: frequency_of_payment,
+                    bank_name: bank_name,
+                    bank_address: bank_address,
+                    city: city,
+                    country: country,
+                    ifsc_code: ifsc_code,
+                    remark: remark,
                 },
                 beforeSend: function () {
                     $(thiss).text('Saving...');
@@ -1214,7 +1257,7 @@
 
         $(document).on('click', '.edit-product', function () {
             var product = $(this).data('product');
-            var url = "{{ url('vendor/product') }}/" + product.id;
+            var url = "{{ url('vendors/product') }}/" + product.id;
 
             $('#productEditModal form').attr('action', url);
             $('#vendor_vendor_id').val(product.vendor_id);
@@ -1308,7 +1351,7 @@
             var type = $(this).data('type');
 
             $.ajax({
-                url: "{{ route('vendor.email.inbox') }}",
+                url: "{{ route('vendors.email.inbox') }}",
                 type: "GET",
                 data: {
                     vendor_id: vendor_id,

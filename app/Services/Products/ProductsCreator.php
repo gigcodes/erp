@@ -16,6 +16,7 @@ use App\Helpers\ProductHelper;
 use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
+use App\Setting;
 
 class ProductsCreator
 {
@@ -73,7 +74,11 @@ class ProductsCreator
             Log::channel('productUpdates')->debug("[validator] fails - sku exists " . ProductHelper::getSku($image->sku));
 
             // Try to get the product from the database
-            $product = Product::where('sku', $data[ 'sku' ])->first();
+            if($image->product_id > 0) {
+                $product = Product::where('id', $image->product_id)->first();
+            }else{
+                $product = Product::where('sku', $data[ 'sku' ])->first();
+            }
 
             // Does the product exist? This should not fail, since the validator told us it's there
             if (!$product) {
@@ -87,25 +92,25 @@ class ProductsCreator
             // Is the product not approved yet?
             if (!StatusHelper::isApproved($image->status_id)) {
                 // Check if we can update the title - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_TITLE')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->name = ProductHelper::getRedactedText($image->title, 'name');
                 }
 
                 // Check if we can update the short description - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COLOR')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     $product->color = $color;
                 }
 
                 // Check if we can update the composition - not manually entered
-                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->first();
+                $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
                     if (isset($image->properties[ 'composition' ])) {
@@ -118,8 +123,11 @@ class ProductsCreator
                     }
                 }
 
-                // Update the category
-                $product->category = $formattedDetails[ 'category' ];
+                $manual = ProductStatus::where('name', 'MANUAL_CATEGORY')->where("product_id",$product->id)->first();
+                if ($manual == null || (int)$manual->value == 0) {
+                    // Update the category
+                    $product->category = $formattedDetails[ 'category' ];
+                }
             }
 
             // Get current sizes
@@ -128,15 +136,20 @@ class ProductsCreator
             // Update with scraped sizes
             if (is_array($image->properties[ 'sizes' ]) && count($image->properties[ 'sizes' ]) > 0) {
                 $sizes = $image->properties[ 'sizes' ];
+                $euSize = [];
 
                 // Loop over sizes and redactText
                 if (is_array($sizes) && $sizes > 0) {
                     foreach ($sizes as $size) {
-                        $allSize[] = ProductHelper::getRedactedText($size, 'composition');
+                        $helperSize = ProductHelper::getRedactedText($size, 'composition');
+                        $allSize[] = $helperSize;
+                        //find the eu size and update into the field
+                        $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
                     }
                 }
 
                 $product->size = implode(',', $allSize);
+                $product->size_eu = implode(',', $euSize);
             }
 
             // Store measurement
@@ -152,17 +165,46 @@ class ProductsCreator
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
             $product->save();
             $product->attachImagesToProduct();
+            // check that if product has no title and everything then send to the external scraper
+            $product->checkExternalScraperNeed();
+
 
             if ($image->is_sale) {
                 $product->is_on_sale = 1;
                 $product->save();
             }
 
+            // check that if the product color is white then we need to remove that 
+            $product->isNeedToIgnore();
+
+
             if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
                 $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
             })->first()) {
                 if ($product) {
-                    $product->suppliers()->syncWithoutDetaching([
+
+                    $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+                    if(!$productSupplier)  {
+                        $productSupplier = new \App\ProductSupplier;
+                        $productSupplier->supplier_id = $db_supplier->id;
+                        $productSupplier->product_id = $product->id;
+                    }
+
+                    $productSupplier->title = $image->title;
+                    $productSupplier->description = $image->description;
+                    $productSupplier->supplier_link = $image->url;
+                    $productSupplier->stock = 1;
+                    $productSupplier->price = $formattedPrices[ 'price_eur' ];
+                    $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+                    $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+                    $productSupplier->size = $formattedDetails[ 'size' ];
+                    $productSupplier->color = $formattedDetails[ 'color' ];
+                    $productSupplier->composition = $formattedDetails[ 'composition' ];
+                    $productSupplier->sku = $image->original_sku;
+                    $productSupplier->save();
+
+
+                    /*$product->suppliers()->syncWithoutDetaching([
                         $db_supplier->id => [
                             'title' => $image->title,
                             'description' => $image->description,
@@ -176,7 +218,7 @@ class ProductsCreator
                             'composition' => $formattedDetails[ 'composition' ],
                             'sku' => $image->original_sku
                         ]
-                    ]);
+                    ]);*/
                 }
             }
 
@@ -210,7 +252,7 @@ class ProductsCreator
                 'status' => 1
             ];
 
-            ScrapActivity::create($params);
+            //ScrapActivity::create($params);
 
             Log::channel('productUpdates')->debug("[Success] Updated product");
 
@@ -225,8 +267,8 @@ class ProductsCreator
             Log::channel('productUpdates')->debug("[Skipped] Product is null");
             return;
         }
-
-        $product->status_id = 2;
+        // Changed status to auto crop now
+        $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
         $product->sku = str_replace(' ', '', $image->sku);
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;
@@ -248,6 +290,21 @@ class ProductsCreator
         $product->measurement_size_type = $formattedDetails[ 'measurement_size_type' ];
         $product->made_in = $formattedDetails[ 'made_in' ];
         $product->category = $formattedDetails[ 'category' ];
+        // start to update the eu size
+        if(!empty($product->size)) {
+            $sizeExplode = explode(",", $product->size);
+            if(!empty($sizeExplode) && is_array($sizeExplode)){
+                $euSize = [];
+                foreach($sizeExplode as $sizeE){
+                    $helperSize = ProductHelper::getRedactedText($sizeE, 'composition');
+                    //find the eu size and update into the field
+                    $euSize[]  = ProductHelper::getWebsiteSize($image->size_system, $helperSize, $product->category);
+                }
+                if(!empty($euSize)) {
+                    $product->size_eu = implode(',', $euSize);
+                }
+            }
+        }
 
         $product->price = $formattedPrices[ 'price_eur' ];
         $product->price_eur_special = $formattedPrices[ 'price_eur_special' ];
@@ -258,7 +315,14 @@ class ProductsCreator
 
         try {
             $product->save();
+            $image->product_id = $product->id;
+            $image->save();
             $product->attachImagesToProduct();
+
+            // check that if product has no title and everything then send to the external scraper
+            $product->checkExternalScraperNeed();
+            $product->isNeedToIgnore();
+
             Log::channel('productUpdates')->debug("[New] Product created with ID " . $product->id);
         } catch (\Exception $exception) {
             Log::channel('productUpdates')->alert("[Exception] Couldn't create product");
@@ -269,7 +333,28 @@ class ProductsCreator
         if ($db_supplier = Supplier::select('suppliers.id')->leftJoin("scrapers as sc", "sc.supplier_id", "suppliers.id")->where(function ($query) use ($supplier) {
             $query->where('supplier', '=', $supplier)->orWhere('sc.scraper_name', '=', $supplier);
         })->first()) {
-            $product->suppliers()->syncWithoutDetaching([
+
+            $productSupplier = \App\ProductSupplier::where("supplier_id",$db_supplier->id)->where("product_id",$product->id)->first();
+            if(!$productSupplier)  {
+                $productSupplier = new \App\ProductSupplier;
+                $productSupplier->supplier_id = $db_supplier->id;
+                $productSupplier->product_id = $product->id;
+            }
+
+            $productSupplier->title = $image->title;
+            $productSupplier->description = $image->description;
+            $productSupplier->supplier_link = $image->url;
+            $productSupplier->stock = 1;
+            $productSupplier->price = $formattedPrices[ 'price_eur' ];
+            $productSupplier->price_special = $formattedPrices[ 'price_eur_special' ];
+            $productSupplier->price_discounted = $formattedPrices[ 'price_eur_discounted' ];
+            $productSupplier->size = $formattedDetails[ 'size' ];
+            $productSupplier->color = $formattedDetails[ 'color' ];
+            $productSupplier->composition = $formattedDetails[ 'composition' ];
+            $productSupplier->sku = $image->original_sku;
+            $productSupplier->save();
+
+            /*$product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,
                     'description' => $image->description,
@@ -283,7 +368,7 @@ class ProductsCreator
                     'composition' => $formattedDetails[ 'composition' ],
                     'sku' => $image->original_sku
                 ]
-            ]);
+            ]);*/
         }
     }
 
@@ -333,7 +418,7 @@ class ProductsCreator
     public function getGeneralDetails($properties_array)
     {
         if (array_key_exists('material_used', $properties_array)) {
-            $composition = (string)$properties_array[ 'material_used' ];
+            $composition = (is_array($properties_array[ 'material_used' ])) ? implode(" ",$properties_array[ 'material_used' ]) : (string)$properties_array[ 'material_used' ];
         }
 
         if (array_key_exists('color', $properties_array)) {

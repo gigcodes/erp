@@ -20,7 +20,7 @@
         </div>
     @endif
 
-    <form action="{{ $modify ? route('order.update',$id) : route('order.store')  }}" method="POST" enctype="multipart/form-data">
+    <form id="createOrderForm" name="createOrderForm" action="{{ $modify ? route('order.update',$id) : route('order.store')  }}" method="POST" enctype="multipart/form-data">
         @csrf
         @if($modify)
             @method('PUT')
@@ -327,14 +327,14 @@
                 <div class="form-group">
                     <strong> Status :</strong>
                     <?php
-                        if(isset($defaultSelected["order_status"])) {
-                            $order_status = $defaultSelected["order_status"];
+                        if(isset($defaultSelected["order_status_id"])) {
+                            $order_status = $defaultSelected["order_status_id"];
                         }
                     ?>
                     <?php
                     $orderStatus = new \App\ReadOnly\OrderStatus;
 
-                    echo Form::select('order_status',$orderStatus->all(), ( old('order_status') ? old('order_status') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
+                    echo Form::select('order_status_id',$orderStatus->all(), ( old('order_status_id') ? old('order_status_id') : $order_status ), ['placeholder' => 'Select a status','class' => 'form-control']);?>
 
                     @if ($errors->has('order_status'))
                         <div class="alert alert-danger">{{$errors->first('order_status')}}</div>
@@ -410,7 +410,8 @@
         </div>   
         <div class="row"> 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
-                <button type="submit" class="btn btn-secondary">+</button>
+                <input type="hidden" name="hdn_order_mail_status" id="hdn_order_mail_status" value="" />
+                <button type="submit" class="btn btn-secondary" id="btn_saveorder">+</button>
             </div>
         </div>
     </form>
@@ -419,12 +420,55 @@
       @csrf
     </form>
 
+    <div id="myModalOrderConfirmation" class="myModalOrderConfirmation modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Order Confirmation</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <div class="container-form">
+                        Are you sure to send order confirmation email?
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" onclick="orderconfirmation(1)" class="btn btn-primary" id="orderconfirmationYes">Yes</button>
+                    <button type="button" onclick="orderconfirmation(0)" class="btn" id="orderconfirmationNo">No</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
+        function openConformattionMailBox()
+        {
+            jQuery("#myModalOrderConfirmation").modal('show');
+        }
+        function orderconfirmation(mail_status)
+        {
+            if(mail_status == 1)
+            {
+                $("#hdn_order_mail_status").val("1");
+            }
+            else
+            {
+                $("#hdn_order_mail_status").val("0");
+            }
+            jQuery("#myModalOrderConfirmation").modal('hide');
+            var form$ = jQuery("#createOrderForm");
+            form$.get(0).submit();  
+        }
       $(document).ready(function() {
         $('.datepicker-block').datetimepicker({
           format: 'YYYY-MM-DD'
+        });
+        jQuery("#createOrderForm").submit(function() {
+            openConformattionMailBox();
+            // Submit from callback
+            return false;
         });
         $('#createProduct').on('click', function() {
           var token = "{{ csrf_token() }}";

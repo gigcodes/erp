@@ -7,7 +7,7 @@ use App\Http\Controllers\Controller;
 use App\HashTag;
 use App\Setting;
 use App\Affiliates;
-use App\Mail\AffiliateEmail;
+use App\Mails\Manual\AffiliateEmail;
 use Illuminate\Support\Facades\Mail;
 
 class GoogleAffiliateController extends Controller
@@ -38,7 +38,7 @@ class GoogleAffiliateController extends Controller
 		if($request->term || $request->priority ){
 
 			if($request->term != null && $request->priority == 'on'){
-                
+
 				$keywords  = HashTag::query()
                                 ->where('priority', '1')
 								->where('platforms_id', $this->platformsId)
@@ -50,7 +50,7 @@ class GoogleAffiliateController extends Controller
 			}
 			else if($request->priority == 'on'){
 				$keywords = HashTag::where('priority',1)->where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
-            
+
                 $queryString = 'priority=' . $request->priority . '&';
 			}
 			else if($request->term != null){
@@ -59,7 +59,7 @@ class GoogleAffiliateController extends Controller
 								->where('platforms_id', $this->platformsId)
                                 ->orderBy($sortBy, $orderBy)
 								->paginate(Setting::get('pagination'));
-                
+
                 $queryString = 'term=' . $request->term . '&';
 			}
 
@@ -67,7 +67,7 @@ class GoogleAffiliateController extends Controller
 			$keywords = HashTag::where('platforms_id', $this->platformsId)->orderBy($sortBy, $orderBy)->paginate(Setting::get('pagination'));
 		}
 
-		return view('google.affiliate.index', compact('keywords', 'queryString', 'orderBy')); 
+		return view('google.affiliate.index', compact('keywords', 'queryString', 'orderBy'));
     }
 
     /**
@@ -142,7 +142,7 @@ class GoogleAffiliateController extends Controller
 
         $hashtag = HashTag::findOrFail($id);
         $hashtag->priority = $request->type;
-        $hashtag->update(); 
+        $hashtag->update();
         return response()->json([
             'status' => 'success'
         ]);
@@ -167,7 +167,7 @@ class GoogleAffiliateController extends Controller
     */
     public function apiPost(Request $request)
     {
-        // Get raw body        
+        // Get raw body
         $payLoad = $request->all();
 
         $payLoad = json_decode(json_encode($payLoad), true);
@@ -179,8 +179,9 @@ class GoogleAffiliateController extends Controller
             ], 400);
         }
         else {
+            $postedData = $payLoad['json'];
             // Loop over posts
-            foreach ($payLoad as $postJson) {
+            foreach ($postedData as $postJson) {
                 // Set tag
                 $tag = $postJson[ 'searchKeyword' ];
 
@@ -210,7 +211,7 @@ class GoogleAffiliateController extends Controller
                     $affiliateResults->phone = (isset($postJson[ 'phone' ])) ? $postJson[ 'phone' ] : '';
                     $affiliateResults->emailaddress = (isset($postJson[ 'emailaddress' ])) ? $postJson[ 'emailaddress' ] : '';
                     $affiliateResults->source = 'google';
-                    $affiliateResults->save();                    
+                    $affiliateResults->save();
                 }
             }
         }
@@ -322,6 +323,18 @@ class GoogleAffiliateController extends Controller
         return response()->json(['is_flagged' => $affiliates->is_flagged]);
     }
 
+    public function deleteSearch($id)
+    {
+      $affiliates = Affiliates::find($id);
+
+      if($affiliates){
+        $affiliates->delete();
+      }
+
+      return response()->json(['message' => "delete successfully"]);
+
+    }
+
     public function emailSend(Request $request)
     {
         $this->validate($request, [
@@ -349,5 +362,51 @@ class GoogleAffiliateController extends Controller
         Email::create($params);
 
         return redirect()->route('affiliates.index', $customer->id)->withSuccess('You have successfully sent an email!');
+    }
+
+    /**
+    * function to call google scraper
+    *
+    * @param  \Illuminate\Http\Request $request, id of keyword to scrap
+    * @return success, failure
+    */
+    function callScraper(Request $request){
+        $id = $request->input('id');
+
+        $searchKeywords = HashTag::where('id', $id)->get(['hashtag', 'id']);
+
+        if (is_null($searchKeywords)){
+            // Return
+            return response()->json([
+                'error' => 'Keyword not found'
+            ], 400);
+        }
+        else{
+            $postData = ['data' => $searchKeywords];
+            $postData = json_encode($postData);
+
+            $curl = curl_init();
+            curl_setopt_array($curl, array(
+            CURLOPT_URL => env('NODE_SCRAPER_SERVER') . "api/googleSearchDetails",
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_ENCODING => "",
+            CURLOPT_MAXREDIRS => 10,
+            CURLOPT_TIMEOUT => 30,
+            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+            CURLOPT_CUSTOMREQUEST => "POST",
+            CURLOPT_HTTPHEADER => array(
+                "Content-Type: application/json",
+            ),
+            CURLOPT_POSTFIELDS => "$postData"
+            ));
+            $response = curl_exec($curl);
+            $err = curl_error($curl);
+            curl_close($curl);
+
+            // Return
+            return response()->json([
+                'success - scrapping initiated'
+            ], 200);
+        }
     }
 }

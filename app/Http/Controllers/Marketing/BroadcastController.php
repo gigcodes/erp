@@ -16,6 +16,8 @@ use App\ApiKey;
 use App\ErpLeads;
 use App\ImQueue;
 use App\Marketing\WhatsappConfig;
+use App\ColdLeadBroadcasts;
+use App\CompetitorPage;
 
 class BroadcastController extends Controller
 {
@@ -574,6 +576,41 @@ class BroadcastController extends Controller
             'data' => $count,
         ]);
     }
+
+    public function switchBroadcast(Request $request)
+    {
+        $id = $request->id;
+        if($id == $request->newId){
+            return redirect()->back()->with('message', 'Both Number Are Same');
+        }
+        $whatsAppNew = WhatsappConfig::find($request->newId);
+        $whatsAppOld = WhatsappConfig::find($id);
+        
+        $messages = ImQueue::where('number_from',$whatsAppOld->number)->get();
+        foreach ($messages as $message) {
+            $message->number_from = $whatsAppNew->number; 
+            $message->update();  
+        }
+
+        return redirect()->back()->with('message', 'Broadcast Switch To Another Number');
+    }
+
+
+    public function instagram(Request $request)
+    {
+        if ($request->get('date')) {
+            $leads = ColdLeadBroadcasts::whereDate('created_at',$request->get('date'));
+        } else {
+            $leads = new ColdLeadBroadcasts;
+        }
+
+        $leads = $leads->orderBy('updated_at', 'DESC')->paginate($request->get('pagination'));
+        $competitors = CompetitorPage::select('id','name')->where('platform', 'instagram')->get();
+
+        return view('marketing.broadcasts.instagram.index',compact('leads','competitors'));
+    }
+
+    
     
     
 }

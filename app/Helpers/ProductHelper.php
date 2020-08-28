@@ -8,7 +8,13 @@ use App\AttributeReplacement;
 use App\Brand;
 use App\GoogleServer;
 use App\Loggers\LogListMagento;
+use App\Product;
+use App\StoreWebsiteCategory;
+use App\StoreWebsiteBrand;
 
+
+
+        
 class ProductHelper extends Model
 {
     private static $_attributeReplacements = [];
@@ -106,7 +112,17 @@ class ProductHelper extends Model
             }
 
             // Remove html special chars
-            $text = htmlspecialchars_decode($text);
+            try {
+                if(!empty($text)){
+                    $text = htmlspecialchars_decode($text);
+                }else{
+                    $text = '';
+                }
+            } catch (\Exception $e) {
+               $text = ''; 
+            }
+            
+            
         }
 
         // Return redacted text
@@ -597,12 +613,12 @@ class ProductHelper extends Model
         return $size;
     }
 
-    public static function checkReadinessForLive($product)
+    public static function checkReadinessForLive($product, $storeWebsiteId = null)
     {
         // Check for mandatory fields
         if (empty($product->name)) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -610,7 +626,7 @@ class ProductHelper extends Model
 
         if (empty($product->short_description)) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -619,7 +635,7 @@ class ProductHelper extends Model
         // Check for price range
         if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
             // Log info
-            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency');
+            LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
 
             // Return false
             return false;
@@ -665,4 +681,107 @@ class ProductHelper extends Model
             return str_replace('_', ' ', substr($tmp, 0, 17));
         }
     }
+
+
+    public static function storeWebsite()
+    {
+        return \App\storeWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
+
+    }
+
+
+    /**
+     * get product images by helper class
+     * $params = []
+     * @return [] 
+     */
+
+    public static function getImagesByProduct($params = [])
+    {
+        $brand             = !empty($params["brand"]) ? $params["brand"] : null;
+        $category          = !empty($params["category"]) ? $params["category"] : null;
+        $numberOfProduts   = !empty($params["number_of_products"]) ? $params["number_of_products"] : 10;
+        $quick_sell_groups = !empty($params["quick_sell_groups"]) ? $params["quick_sell_groups"] : [];
+
+        $product = new Product;
+        $toBeRun = false;
+
+        // search by brand
+        if (!empty($brand)) {
+            $toBeRun = true;
+            $product = $product->where("brand", $brand);
+        }
+
+        // search by category
+        if (!empty($category) && $category != 1) {
+            $toBeRun = true;
+            $product = $product->where("category", $category);
+        }
+
+        // search by quicksell groups
+        if (!empty($quick_sell_groups)) {
+            $toBeRun           = true;
+            $quick_sell_groups = rtrim(ltrim($quick_sell_groups, ","), ",");
+            $product           = $product->whereRaw("(products.id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . $quick_sell_groups . ") ))");
+        }
+
+        // check able to run queue ?
+        if ($toBeRun) {
+            
+            // set limit if any
+            $limit       = (!empty($numberOfProduts) && is_numeric($numberOfProduts)) ? $numberOfProduts : 10;
+            
+            // run query
+            $imagesQuery = $product->where("stock",">",0)
+                ->join("mediables as m", function($q) {
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class);
+                })
+                ->select("media_id","products.id")->groupBy("products.id")
+                ->limit($limit)
+                ->get()->pluck("media_id","id")->toArray();
+            
+            // run result with query
+            if (!empty($imagesQuery)) {
+                return array_unique($imagesQuery);
+            }
+        }
+
+        return [];
+    }
+
+    public static function getStoreWebsiteName($id)
+    {
+        $product = Product::find($id);
+
+        $brand = $product->brand;
+
+        $category = $product->category;
+        
+        $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
+        $websiteArray = [];
+
+       foreach ($storeCategories as $storeCategory) {
+            $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
+            if(!empty($storeBrands)){
+                foreach ($storeBrands as $storeBrand) {
+                    $websiteArray[] = $storeBrand->store_website_id;
+                }
+            }
+        }
+
+         //Exception for o-labels
+        if($product->landingPageProduct){
+            $websiteForLandingPage = \App\StoreWebsite::whereNotNull('cropper_color')->where('title','LIKE','%o-labels%')->first();
+            if($websiteForLandingPage){
+                if(!in_array($websiteForLandingPage->id,$websiteArray))
+                {
+                    $websiteArray[] = $websiteForLandingPage->id;   
+                }
+            }
+        }
+
+        return $websiteArray;
+
+    }
+
 }

@@ -33,6 +33,7 @@ phpunit.phar
 /public/hot
 /public/storage
 /storage/*.key
+/storage/tmp
 /.vscode
 /.vagrant
 Homestead.json
@@ -46,6 +47,7 @@ cronjob-magecontroller.php
 trash.php
 /merge_conflicts
 temp.php
+temp.txt
 logs
 .git.zip
 _MACOSX
@@ -60,3 +62,9 @@ public/zoom/*
 public/tmp_images/*
 
 /deployment_scripts_test
+
+# private files
+app/Console/Commands/DispatchJob.php 
+.env.example
+.htaccess
+app/Http/Composers/GlobalComposer.php

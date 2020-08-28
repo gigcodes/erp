@@ -14,7 +14,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/css/dropify.min.css">
-    
+
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
     <style>
@@ -82,6 +82,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) <a href="{{ action('ProductController@showSOP') }}?type=ListingApproved" class="pull-right">SOP</a></h2>
 
             <div class="pull-left">
+
                 <form class="form-inline" action="{{ action('ProductController@approvedListing') }}" method="GET">
 
                     <div class="form-group mr-3 mb-3">
@@ -165,13 +166,21 @@
                             @endforeach
                         </select>
                     </div>
+                    @if(auth()->user()->isAdmin())
+                        <div class="form-group mr-3">
+                            <?php echo Form::checkbox("submit_for_approval","on",(bool)(request('submit_for_approval') == "on"),["class" => "form-control"]); ?>
+                            <lable for="submit_for_approval">Submit For approval ?</lable>
+                        </div>
+                    @endif
 
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
                     <a href="{{url()->current()}}" class="btn btn-image"><img src="/images/clear-filters.png"/></a>
                 </form>
-            </div>
+              </div>
         </div>
     </div>
+
+    <input type="button" onclick="pushProduct()" class="btn btn-danger btn-lg" value="Push product"/>
 
     {{-- @include('development.partials.modal-task')
     @include('development.partials.modal-quick-task') --}}
@@ -203,8 +212,8 @@
                                             $product = \App\Product::find($product->id)
                                         @endphp
                                         <?php $gridImage = ''; ?>
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            @foreach($product->getMedia(config('constants.media_tags')) as $media)
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
                                                 @if(stripos($media->filename, 'crop') !== false)
                                                     <?php
                                                     $width = 0;
@@ -235,13 +244,13 @@
                                         @endif
                                     </div>
                                     <div class="col-md-4" id="col-large-image{{ $product->id }}">
-                                        @if ($product->hasMedia(config('constants.media_tags')))
-                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
+                                        @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                            <div onclick="bigImg('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}'); background-size: 300px" id="image{{ $product->id }}">
                                                 <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}" class="quick-image-container img-responive" style="width: 100%;" alt="" data-toggle="tooltip" data-placement="top" title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
                                             </div>
-                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
-                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
-                                            
+                                            <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')" class="btn btn-secondary">Crop Image</button>
+                                            <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')" class="btn btn-secondary">Crop</button>
+
                                         @endif
                                     </div>
                                     <div class="col-md-3">
@@ -250,8 +259,18 @@
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
                                             <span style="text-decoration: line-through">EUR {{ number_format($product->price) }}</span> EUR {{ number_format($product->price_eur_special) }}
+
                                         </p>
-                                        <br/>
+                                        <?php
+                                            // check brand sengment
+                                            if($product->brands) {
+                                                $segmentPrice = \App\Brand::getSegmentPrice($product->brands->brand_segment, $product->category);
+                                                if($segmentPrice) {
+                                                    echo "<p class='same-color'>Min Segment Price : ".$segmentPrice->min_price."<br>
+                                                    Max Segment Price : ".$segmentPrice->max_price."</p>";
+                                                }
+                                            }
+                                        ?>
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline">Description</strong>
                                             <br/>
@@ -272,17 +291,34 @@
                                                     </span>
                                                     <p>
                                                         <button class="btn btn-default btn-sm use-description" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Use this description ({{ $description->website }})</button>
+
+                                                        <button class="btn btn-default btn-sm set-description-site" data-id="{{ $product->id }}" data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">Set Description</button>
                                                     </p>
                                                 @endif
                                             @endforeach
                                             <hr/>
                                         @endif
 
+                                        @php
+                                        //getting proper composition and hscode
+                                        $composition = $product->commonComposition($product->category , $product->composition);
+
+                                        $hscode =  $product->hsCode($product->category , $product->composition);
+
+                                        @endphp
                                         <p>
                                             <strong class="same-color" style="text-decoration: underline;">Composition</strong>
                                             <br/>
                                             <span class="same-color flex-column">
-                                                {{ strtoupper($product->commonComposition($product->category , $product->composition)) }}
+                                                {{ strtoupper($composition) }}
+                                            </span>
+                                        </p>
+
+                                        <p>
+                                            <strong class="same-color" style="text-decoration: underline;">HsCode</strong>
+                                            <br/>
+                                            <span class="same-color flex-column">
+                                                {{ strtoupper($hscode) }}
                                             </span>
                                         </p>
 
@@ -405,19 +441,21 @@
                                                 </tr>
                                             @endif
                                         </table>
-                                        <p class="text-right mt-5">
-                                            <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
-                                            @if ($product->status_id == 9)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                            @elseif ($product->status_id == 12)
-                                                <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                                            @endif
-                                        </p>
+                                        @if(auth()->user()->isAdmin())
+                                            <p class="text-right mt-5">
+                                                <button class="btn btn-xs btn-default edit-product-show" data-id="{{$product->id}}">Toggle Edit</button>
+                                                @if ($product->status_id == 9)
+                                                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                                                @elseif ($product->status_id == 12)
+                                                    <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                                                @endif
+                                            </p>
+                                        @endif
                                         <div>
                                             <input class="form-control send-message" data-sku="{{$product->sku}}" type="text" placeholder="Message..." id="message_{{$product->approved_by}}" data-id="{{$product->approved_by}}">
                                         </div>
                                         @php
-                                            $logScrapers = \App\Loggers\LogScraper::where('sku', $product->sku)->where('validated', 1)->get();
+                                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
                                         @endphp
                                         @if ($logScrapers)
                                             <div>
@@ -426,7 +464,7 @@
                                                 <ul>
                                                     @foreach($logScrapers as $logScraper)
                                                         @if($logScraper->url != "N/A")
-                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->updated_at ?> )</li>
+                                                            <li><a href="<?= $logScraper->url ?>" target="_blank"><?= $logScraper->website ?></a> ( <?= $logScraper->last_inventory_at ?> )</li>
                                                         @else
                                                             <li><?= $logScraper->website ?></li>
                                                         @endif
@@ -602,19 +640,21 @@
 
                                 <td>
                                     {{ $product->isUploaded }} {{ $product->isFinal }}
-
-                                    @if ($product->is_approved == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
-                                    @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
-                                    @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                                    @if(auth()->user()->isAdmin())
+                                        @if ($product->is_approved == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="approve">Approve</button>
+                                        @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="list">List</button>
+                                        @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="enable">Enable</button>
+                                        @else
+                                            <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
+                                        @endif
+                                        @if ($product->product_user_id != null)
+                                            {{ \App\User::find($product->product_user_id)->name }}
+                                        @endif
                                     @else
-                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="update">Update</button>
-                                    @endif
-
-                                    @if ($product->product_user_id != null)
-                                        {{ \App\User::find($product->product_user_id)->name }}
+                                        <button type="button" class="btn btn-xs btn-secondary upload-magento" data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For Approval</button>
                                     @endif
                                 </td>
                                 <td style="min-width: 80px;">
@@ -753,10 +793,28 @@
     </div>
     @include('partials.modals.remarks')
     @include('partials.modals.image-expand')
+    @include('partials.modals.set-description-site-wise')
 
 @endsection
 
 @section('scripts')
+        <script>
+          function pushProduct(){
+            $.ajax({
+           type: "POST",
+           headers: {
+             "X-CSRF-TOKEN": "{{csrf_token()}}"
+           },
+           cache: false,
+           contentType: false,
+           processData: false,
+           url: "{{ url('products/listing/final/pushproduct') }}",
+           success: function(html) {
+            swal(html.message);
+           }
+         })
+          }
+        </script>
     <style>
         .same-color {
             color: #898989;
@@ -776,7 +834,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
-   
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js"></script>
+
     <script type="text/javascript">
         var categoryJson = <?php echo json_encode($category_array); ?>;
 
@@ -1619,7 +1678,7 @@
 
             $.when.apply($, ajaxes)
                 .done(function () {
-                    location.reload();
+                    //location.reload();
                 });
         });
 
@@ -1635,6 +1694,8 @@
                 url = "{{ url('products') }}/" + id + '/listMagento';
             } else if (type == 'enable') {
                 url = "{{ url('products') }}/" + id + '/approveMagento';
+            } else if (type == 'submit_for_approval') {
+                url = "{{ url('products') }}/" + id + '/submitForApproval';
             } else {
                 url = "{{ url('products') }}/" + id + '/updateMagento';
             }
@@ -1758,7 +1819,7 @@
             }
         });
 
-        
+
 
         function bigImg(img) {
             $('#large-image').attr("src", img);
@@ -1774,7 +1835,7 @@
             $('#image'+id).removeAttr("style");
             $('#image'+id).prop("onclick", null).off("click");
             $('#image'+id).height('336');
-           
+
            var example = $('#image'+id).cropme();
             example.cropme('bind', {
                 url: img,
@@ -1809,24 +1870,60 @@
                 var n  = d.toLocaleTimeString();
                 newurl = img+'?version='+n;
                 html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+newurl+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+img+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+img+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
-        
+
                 $('#col-large-image'+id).empty().append(html);
                 alert('Image Cropped and Saved Successfully');
             })
             .fail(function() {
                 console.log("error");
             });
-            
+
         }
 
         function replaceThumbnail(id,url,gridImage){
             html = '<div onclick="bigImg(\''+url+'\')" style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url(\''+url+'\'); background-size: 300px" id="image'+id+'"><img style="width: 300px;" src="/images/'+gridImage+'" class="quick-image-container img-responive" alt="" data-toggle="tooltip" data-placement="top" title="ID: '+id+'" id="image-tag'+id+'"></div><button onclick="cropImage(\''+url+'\','+id+')" class="btn btn-secondary">Crop Image</button><button onclick="crop(\''+url+'\','+id+',\''+gridImage+'\')" class="btn btn-secondary">Crop</button>';
-        
-        $('#col-large-image'+id).empty().append(html);
-           
 
-            
+        $('#col-large-image'+id).empty().append(html);
+
+
+
         }
+
+        $(document).on("click",".set-description-site",function() {
+            var $this = $(this);
+            var modal = $("#set-description-site-wise");
+                modal.find("#store-product-id").val($this.data("id"));
+                modal.find("#store-product-description").val($this.data("description"));
+                modal.find("#show-description-summery").html($this.data("description"));
+                modal.modal("show");
+        });
+
+        $(document).on("click",".btn-save-store",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: '/product/store-website-description',
+                type: 'POST',
+                dataType: 'json',
+                beforeSend:function() {
+                    $("#loading-image-preview").show();
+                },
+                data: form.serialize(),
+                dataType:"json"
+            }).done(function(response) {
+                $("#loading-image-preview").hide();
+                if(response.code == 200) {
+                    $("#set-description-site-wise").modal("hide");
+                    toastr["success"](response.message);
+                }else{
+                    toastr["error"](response.message);
+                }
+            }).fail(function() {
+                $("#loading-image-preview").hide();
+                console.log("error");
+            });
+
+        })
 
     </script>
 @endsection

@@ -231,7 +231,9 @@ class CategoryController extends Controller
 
         $allStatus = ["" => "N/A"] + \App\Helpers\StatusHelper::getStatus();
 
-        return view( 'category.references', compact( 'fillerCategories', 'categories','allStatus') );
+        $allCategoriesDropdown = Category::attr([ 'name' => 'new_cat_id', 'class' => 'form-control' , 'style' => "width:100%"])->renderAsDropdown();
+
+        return view( 'category.references', compact( 'fillerCategories', 'categories','allStatus','allCategoriesDropdown') );
     }
 
     public function saveReferences( Request $request )
@@ -267,6 +269,72 @@ class CategoryController extends Controller
         return redirect()->back()->with( 'message', 'Category updated successfully!' );
     }
 
+    public function saveReference(Request $request)
+    {
+        $oldCatId = $request->get("old_cat_id");
+        $newcatId = $request->get("new_cat_id");
+        $catName  = strtolower($request->get("cat_name"));
+
+        // assigned new category
+        $newCategory = null;
+        $oldCategory = null;
+
+        // checking category id
+        if(!empty($oldCatId) && !empty($newcatId))  {
+            $oldCategory = Category::find($oldCatId);
+            if(!empty($oldCategory)) {
+                $catArray = explode(",",$oldCategory->references);
+                $catArray = array_map('strtolower', $catArray);
+
+                // check matched array we got
+                $findMe = array_search($catName, $catArray);
+                if($findMe !== false) {
+                    unset($catArray[$findMe]);
+                }
+
+                // update new category
+                $oldCategory->references = implode(",", array_unique(array_filter($catArray)));
+                $oldCategory->save();
+            }
+            // update with new category id
+            $newCategory = Category::find($newcatId);
+
+            if($newCategory)  {
+                
+                $newCatArr = explode(",", $newCategory->references);
+                $newCatArr = array_map('strtolower', $newCatArr);
+                $newCatArr[] = strtolower($catName);
+                $newCategory->references = implode(",", array_unique(array_filter($newCatArr)));
+                $newCategory->save();
+
+                // once we have new category id then we need to update all product from that old category
+                $products = \App\Product::where("category",$oldCatId)->select(["products.id","products.sku"])->get();
+                if(!$products->isEmpty()) {
+                    foreach($products as $product) {
+                        $scraped_products = $product->many_scraped_products;
+                        if(!$scraped_products->isEmpty()) {
+                            foreach($scraped_products as $scraped_product) {
+                                if(isset($scraped_product->properties['category'])) {
+                                    if(is_array($scraped_product->properties['category'])) {
+                                        $namesList = array_map('strtolower', $scraped_product->properties['category']);
+                                        if(in_array(strtolower($catName), $namesList)) {
+                                            $product->category = $newcatId;
+                                            $product->save();
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
+
+        return response()->json(["code" => 200 , "data" => $newCategory]);
+
+    }
+
     public function updateField(Request $request) 
     {
         $id = $request->get("id");
@@ -282,6 +350,28 @@ class CategoryController extends Controller
         }
 
         return response()->json(["code" => 500]);
+
+    }
+
+    public function saveForm(Request $request)
+    {
+        $id = $request->id;
+        if($id != null) {
+            $category = \App\Category::find($id);
+            if(!empty($category)) {
+                $findChild = \App\Category::whereNull("simplyduty_code")->where("parent_id",$category->id)->get(); 
+                if(!empty($findChild) && !$findChild->isEmpty()){
+                    foreach($findChild as $child) {
+                        $child->simplyduty_code = $request->simplyduty_code;
+                        $child->save();
+                    }
+                }
+                $category->simplyduty_code = $request->simplyduty_code;
+                $category->save();
+            }
+        }
+
+        return response()->json(["code" => 200 ,"message" => "Success"]);
 
     }
 }

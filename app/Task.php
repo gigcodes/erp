@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\WhatsAppGroup;
-
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class Task extends Model {
 
 	use SoftDeletes;
-
+	use Mediable;
 	protected $fillable = [
 		'category',
 		'task_details',
@@ -20,12 +21,32 @@ class Task extends Model {
 		'assign_from',
 		'assign_to',
 		'is_statutory',
+		'actual_start_date',
 		'is_completed',
 		'sending_time',
 		'recurring_type',
 		'statutory_id',
 		'model_type',
 		'model_id',
+		'general_category_id',
+		'cost',
+		'is_milestone',
+		'no_of_milestone',
+		'milestone_completed',
+		'customer_id',
+		'hubstaff_task_id',
+		'master_user_id',
+		'lead_hubstaff_task_id',
+		'due_date'
+	];
+
+	const TASK_TYPES = [
+		"Other Task",
+		"Statutory Task",
+		"Calendar Task",
+		"Discussion Task",
+		"Developer Task",
+		"Developer Issue",
 	];
 
 	protected $dates = ['deleted_at'];
@@ -55,10 +76,15 @@ class Task extends Model {
 	{
 		return $this->hasMany('App\Remark', 'taskid')->where('module_type', 'task-note')->latest();
 	}
-
+	
 	public function users()
 	{
 		return $this->belongsToMany('App\User', 'task_users', 'task_id', 'user_id')->where('type', 'App\User');
+	}
+
+	public function assignedTo()
+	{
+		return $this->belongsTo('App\User', 'assign_to', 'id');
 	}
 
 	public function contacts()
@@ -71,8 +97,31 @@ class Task extends Model {
 		return $this->hasOne(WhatsAppGroup::class);
 	}
 
-	public function whatsappAll()
+	public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+    	if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+
+        return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+	}
+	
+	public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'task_id', 'id')->orderBy('id','desc');
+    }
+	public function customer()
+	{
+		return $this->belongsTo('App\Customer', 'customer_id', 'id');
+	}
+
+	public function timeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
     }
 }

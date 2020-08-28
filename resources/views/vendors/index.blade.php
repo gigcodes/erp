@@ -6,6 +6,7 @@
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
     <style type="text/css">
     .numberSend {
           width: 160px;
@@ -30,6 +31,80 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+    .cls_filter_inputbox{
+        width: 14%;
+        text-align: center;
+    }
+    .message-chat-txt {
+        color: #333 !important;
+    }
+    .cls_remove_leftpadding{
+        padding-left: 0px !important;
+    }
+    .cls_remove_rightpadding{
+        padding-right: 0px !important;
+    }
+    .cls_action_btn .btn{
+        padding: 6px 12px;
+    } 
+    .cls_remove_allpadding{
+        padding-left: 0px !important;
+        padding-right: 0px !important;   
+    }
+    .cls_quick_message{
+        width: 100% !important;
+        height: 35px !important;
+    }
+    .cls_filter_box{
+        width: 100%;
+    }
+    .select2-selection.select2-selection--single{
+        height: 35px;
+    }
+    .cls_action_btn .btn-image img {
+        width: 13px !important;
+    }
+    .cls_action_btn .btn {
+        padding: 6px 2px;
+    }
+    .cls_textarea_subbox{
+        width: 100%;
+    }
+    .btn.btn-image.delete_quick_comment {
+        padding: 4px;
+    }
+    .vendor-update-status-icon {
+        padding: 0px;
+    }
+    .cls_commu_his{
+        width: 100% !important;
+    }
+    .vendor-update-status-icon{
+        margin-top: -7px;
+    }
+    .clsphonebox .btn.btn-image{
+        padding: 5px;
+    }
+    .clsphonebox {
+        margin-top: -8px;
+    }
+    .send-message1{
+        padding: 0px 10px;
+    }
+    .load-communication-modal{
+        margin-top: -6px;
+        margin-left: 4px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 35px;
+    }
+    .select2-selection__arrow{
+        display: none;
+    }
+    .cls_mesg_box{
+        margin-top: -7px;
+        font-size: 12px;
+    }
 
   </style>
 @endsection
@@ -40,11 +115,13 @@
    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Vendor Info</h2>
-            <div class="pull-left">
-                <form class="form-inline" action="{{ route('vendor.index') }}" method="GET">
-                    <div class="form-group" style="width: 441px; margin-right: 10px;">
-                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+            <?php $base_url = URL::to('/');?>
+            <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
+            <div class="pull-left cls_filter_box">
+                <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Name</label>
+                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -52,39 +129,75 @@
                             ?>
                         </select>
                     </div>
-
-                    {{-- <div class="form-group ml-3">
-                      <select class="form-control" name="type">
-                        <option value="">Select Type</option>
-                        ndr<option value="has_error" {{ isset($type) && $type == 'has_error' ? 'selected' : '' }}>Has Error</option>
-                      </select>
-                    </div> --}}
-
-                    <div class="form-group">
-                        <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                        <label for="with_archived">Archived</label>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Phone Number</label>
+                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
+                            <?php
+                                if (request()->get('phone')) {
+                                    echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
-                    <div class="form-group" style="margin-left: 10px;">
-                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <label for="with_archived">Category</label>
+                        <?php
+                        $category_post = request('category'); 
+                        ?>
+                        <select class="form-control" name="category" id="category">
+                            <option value="">Select Category</option>
+                            <?php
+                            foreach ($vendor_categories as $row_cate) { ?>
+                                <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
+                            <?php } 
+                            ?>
+                        </select>
                     </div>
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <label for="with_archived">Communication History</label>
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Status</label>
+                        <?php echo Form::select("status",[
+                            "" => "- Select -",
+                            "0" => "De-Active",
+                            "1" => "Active"
+                        ],request('status'),["class"=> "form-control"]) ?>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_updated_by">Updated by</label>
+                        <?php echo Form::select("updated_by",
+                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
+                            request('updated_by'),
+                            ["class"=> "form-control"]
+                        ); ?>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_checkbox">
+                    <label for="with_archived">Archived</label>
+                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                    </div>
+                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
-            <div class="pull-right">
+        </div>
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-right mt-3">
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
             </div>
-        </div>
+        </div>   
     </div>
 
     @include('partials.flash_messages')
 
     <div class="row">
         <div class="col-md-12">
-            <div class="panel-group">
-                <div class="panel mt-5 panel-default">
+            <div class="panel-group" style="margin-bottom: 5px;">
+                <div class="panel mt-3 panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
@@ -118,37 +231,21 @@
 
         </div>
     </div>
-
+    <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%"><a href="/vendor{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="10%">Name</th>
-                <th width="10%">Phone</th>
-                <th width="10%">Email</th>
-                <th width="10%">Address</th>
+                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
+                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
+                <th width="7%">Name</th>
+                <th width="7%">Phone</th>
+                <th width="7%">Email</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
-                <th width="20%">Send</th>
-                <th width="10%">Communication</th>
-                <th width="5%">Created At</th>
-                <th width="5%">Updated At</th>
-                <th width="5%">Updated By</th>
+               
+                <th width="25%">Communication</th>
                 <th width="2%">Action</th>
-            </tr>
-
-            <tr>
-                <th width="5%"><input type="text" id="id" class="search form-control" placeholder="Id"></th>
-                <th width="5%"><input type="text" id="category" class="search form-control" placeholder="Category"></th>
-                <th width="10%"><input type="text" id="name" class="search form-control" placeholder="Name" name="name"></th>
-                <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
-                <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
-                <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
-                <th></th>
             </tr>
             </thead>
 
@@ -160,7 +257,8 @@
         </table>
     </div>
 
-    {!! $vendors->render(); !!}
+    {!! $vendors->appends(Request::except('page'))->links() !!}
+    </div>
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
@@ -179,22 +277,21 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label for="frequency">Frequency (in Minutes)</label>
-                        <select class="form-control" name="frequency" id="frequency">
-                            <option value="0">Disabled</option>
-                            <option value="5">5</option>
-                            <option value="10">10</option>
-                            <option value="15">15</option>
-                            <option value="20">20</option>
-                            <option value="25">25</option>
-                            <option value="30">30</option>
-                            <option value="35">35</option>
-                            <option value="40">40</option>
-                            <option value="45">45</option>
-                            <option value="50">50</option>
-                            <option value="55">55</option>
-                            <option value="60">60</option>
-                        </select>
+                        <label for="frequency">Frequency</label>
+                        <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency"]); ?>
+                    </div>
+                    <div class="form-group">
+                        <label for="frequency">Reminder Start From</label>
+                        <input type="text" name="reminder_from" id="reminder_from" class="form-control">
+                    </div>
+                    <div class="form-group">
+                        <label for="reminder_message">Check Last Message?</label>
+                        <label class="radio-inline">
+                          <input type="radio" id="reminder_last_reply" name="reminder_last_reply" value="1" checked>Yes
+                        </label>
+                        <label class="radio-inline">
+                          <input type="radio" id="reminder_last_reply_no" name="reminder_last_reply" value="0">No
+                        </label>
                     </div>
                     <div class="form-group">
                         <label for="reminder_message">Reminder Message</label>
@@ -287,7 +384,9 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
                
                     <div class="modal-body">
-                        <button class="btn btn-secondary" id="vendor_id">Create ERP User from Vendor</button>
+                        <div><button class="btn btn-secondary m-1" id="vendor_id">Create ERP User from Vendor</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteGithub()">Invite to Github</button></div>
+                        <div><button class="btn btn-secondary m-1" onclick="inviteHubstaff()">Invite to Hubstaff</button></div>
                     </div>
 
                     <div class="modal-footer">
@@ -296,19 +395,55 @@
             </div>
         </div>
     </div>
+
+    <div id="create_broadcast" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+
+            <!-- Modal content-->
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Send Message to Vendors</h4>
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                </div>
+                <form id="send_message" method="POST">
+                    <div class="modal-body">
+                        <div class="form-group">
+                            <strong>Message</strong>
+                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Send Message</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+    <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
 
     <script type="text/javascript">
+
+        <?php if(!empty($updatedProducts)) {
+            foreach($updatedProducts as $updatedProduct) {
+                echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated');";
+            }
+        } ?>
+
+
         $('.selectpicker').select2({
             tags: true,
             width : '100%',
             ajax: {
-                url: '/erp-leads/customer-search',
+                url: BASE_URL+'/erp-leads/customer-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -349,7 +484,7 @@
             tags: true,
             width : '100%',
             ajax: {
-                url: '/vendor-search',
+                url: BASE_URL+'/vendor-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -371,7 +506,7 @@
                     };
                 },
             },
-            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            placeholder: 'Search by name',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -379,10 +514,53 @@
             templateResult: function (customer) {
 
                 if (customer.name) {
-                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    return "<p>" + customer.name +"</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        var vendorToRemind = null;
+        $('#vendor-phone-number').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: BASE_URL+'/vendor-search-phone',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].phone ? data[i].phone : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search by phone number',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+
+                if (customer.name) {
+                    return "<p style='color:#BABABA;'>"+ customer.phone+ "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.phone,
 
         });
 
@@ -414,16 +592,26 @@
             let vendorId = $(this).data('id');
             let frequency = $(this).data('frequency');
             let message = $(this).data('reminder_message');
+            let reminder_from = $(this).data('reminder_from');
+            let reminder_last_reply = $(this).data('reminder_last_reply');
 
             $('#frequency').val(frequency);
             $('#reminder_message').val(message);
+            $("#reminderModal").find("#reminder_from").val(reminder_from);
+            if(reminder_last_reply == 1) {
+                $("#reminderModal").find("#reminder_last_reply").prop("checked",true);
+            }else{
+                $("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
+            }
             vendorToRemind = vendorId;
-
         });
 
         $(document).on('click', '.save-reminder', function () {
+            var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
+            let reminder_from = reminderModal.find("#reminder_from").val();
+            let reminder_last_reply = (reminderModal.find('#reminder_last_reply').is(":checked")) ? 1 : 0;
 
             $.ajax({
                 url: "{{action('VendorController@updateReminder')}}",
@@ -435,6 +623,8 @@
                     vendor_id: vendorToRemind,
                     frequency: frequency,
                     message: message,
+                    reminder_from: reminder_from,
+                    reminder_last_reply: reminder_last_reply,
                     _token: "{{ csrf_token() }}"
                 }
             });
@@ -442,7 +632,7 @@
 
         $(document).on('click', '.edit-vendor', function () {
             var vendor = $(this).data('vendor');
-            var url = "{{ url('vendor') }}/" + vendor.id;
+            var url = "{{ url('vendors') }}/" + vendor.id;
 
             $('#vendorEditModal form').attr('action', url);
             $('#vendor_category option[value="' + vendor.category_id + '"]').attr('selected', true);
@@ -547,7 +737,7 @@
                 headers: {
                     'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                 },
-                url: '{{ route('vendor.email') }}',
+                url: '{{ route('vendors.email') }}',
                 data: {
                     id: id
                 },
@@ -638,7 +828,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: '/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -664,7 +854,45 @@
                 alert('Please enter a message first');
             }
         });
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var vendor_id = $(this).data('vendorid');
+            var message = $("#messageid_"+vendor_id).val();
+            data.append("vendor_id", vendor_id);
+            data.append("message", message);
+            data.append("status", 1);
 
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        $("#message-chat-txt-"+vendor_id).html(message);
+                        $("#messageid_"+vendor_id).val('');
+                        
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
         $(document).on('change', '.update-category-user', function () {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
@@ -764,7 +992,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "{{ route('vendor.block') }}",
+                url: "{{ route('vendors.block') }}",
                 data: {
                     _token: "{{ csrf_token() }}",
                     vendor_id: vendor_id
@@ -794,7 +1022,7 @@
       });
 
           $(document).ready(function() {
-              src = "{{ route('vendor.index') }}";
+              src = "{{ route('vendors.index') }}";
               $(".search").autocomplete({
                   source: function (request, response) {
                       id = $('#id').val();
@@ -840,7 +1068,7 @@
 
 
               $(document).ready(function () {
-                  src = "{{ route('vendor.index') }}";
+                  src = "{{ route('vendors.index') }}";
                   $("#search_id").autocomplete({
                       source: function (request, response) {
                           $.ajax({
@@ -881,7 +1109,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/reply/add",
+                          url: BASE_URL+"/vendors/reply/add",
                           dataType: "json",
                           method: "POST",
                           data: {reply: message}
@@ -904,7 +1132,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/reply/delete",
+                          url: BASE_URL+"/vendors/reply/delete",
                           dataType: "json",
                           method: "GET",
                           data: {id: deleteAuto}
@@ -924,10 +1152,17 @@
               });
           });
 
-        function createUserFromVendor(id){
-            $('#vendor_id').attr('data-id', id);
-            $('#createUser').modal('show');   
-        }
+          function createUserFromVendor(id, email) {
+                $('#vendor_id').attr('data-id', id);
+                if (email) {
+                    $('#createUser').attr('data-email', email);
+                }
+                $('#createUser').modal('show');
+            }
+
+            $('#createUser').on('hidden.bs.modal', function() {
+                $('#createUser').removeAttr('data-email');
+            })
 
          $(document).on("click", "#vendor_id", function () {
             $('#createUser').modal('hide');
@@ -936,7 +1171,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendor/create-user",
+                          url: BASE_URL+"/vendors/create-user",
                           dataType: "json",
                           method: "POST",
                           data: {id: id},
@@ -954,5 +1189,170 @@
                           alert('No response from server');
                       });
           });
+
+          function inviteGithub() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+
+            $.ajax({
+                type: "POST",
+                url: "/vendors/inviteGithub",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            });
+
+            console.log(email);
+        }
+
+        function inviteHubstaff() {
+            $('#createUser').modal('hide');
+            const email = $('#createUser').attr('data-email');
+            console.log(email);
+
+            $.ajax({
+                type: "POST",
+                url: BASE_URL+"/vendors/inviteHubstaff",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    email
+                }
+            })
+            .done(function(data){
+                alert(data.message);
+            })
+            .fail(function(error) {
+                alert(error.responseJSON.message);
+            })
+        }
+
+        $('#reminder_from').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+        });
+
+        $(document).on("change",".vendor-update-status",function(){
+            var $this = $(this);
+            $.ajax({
+                type: "POST",
+                url: BASE_URL +"vendors/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: $this.data("id"),
+                    status : $this.prop('checked')
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    toastr["success"](data.message);
+                }
+            }).fail(function(error) {
+                
+            })
+        });
+        $(document).on("click",".vendor-update-status-icon",function(){
+            var $this = $(this);
+            var vendor_id = $(this).attr("data-id");
+            var hdn_vendorstatus = $("#hdn_vendorstatus_"+vendor_id).val();
+            $.ajax({
+                type: "POST",
+                url: BASE_URL +"vendors/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: $this.data("id"),
+                    status : hdn_vendorstatus
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    //toastr["success"](data.message);
+                    if(hdn_vendorstatus == "true")
+                    {
+                        var img_url = BASE_URL + 'images/do-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","On");
+                        $("#hdn_vendorstatus_"+vendor_id).val('false');    
+                    }
+                    else
+                    {
+                        var img_url = BASE_URL + 'images/do-not-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');  
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","Off");
+                        $("#hdn_vendorstatus_"+vendor_id).val('true');    
+                    }
+                    
+                }
+            }).fail(function(error) {
+                
+            })
+        });
+
+    $('ul.pagination').hide();
+    $('.infinite-scroll').jscroll({
+        autoTrigger: true,
+        // debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+            $('ul.pagination').hide();
+        }
+    });
+
+    $(document).on('click', '.create_broadcast', function () {
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+        $("#create_broadcast").modal("show");
+    });
+
+    $("#send_message").submit(function (e) {
+        e.preventDefault();
+        var vendors = [];
+        $(".select_vendor").each(function () {
+            if ($(this).prop("checked") == true) {
+                vendors.push($(this).val());
+            }
+        });
+        if (vendors.length == 0) {
+            alert('Please select vendor');
+            return false;
+        }
+
+        if ($("#send_message").find("#message_to_all_field").val() == "") {
+            alert('Please type message ');
+            return false;
+        }
+
+        $.ajax({
+            type: "POST",
+            url: "{{ route('vendors/send/message') }}",
+            data: {
+                _token: "{{ csrf_token() }}",
+                message: $("#send_message").find("#message_to_all_field").val(),
+                vendors: vendors
+            }
+        }).done(function () {
+            window.location.reload();
+        }).fail(function (response) {
+            $(thiss).text('No');
+
+            alert('Could not say No!');
+            console.log(response);
+        });
+    });
     </script>
 @endsection

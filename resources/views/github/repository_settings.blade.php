@@ -52,9 +52,21 @@
         <h2 class="page-heading"><i>{{ $repository->name }}</i> branches ({{sizeof($branches)}})</h2>
     </div>
 </div>
+
+@if(Session::has('message'))
+<div class="alert alert-warning alert-dismissible">
+    {{Session::get('message')}}
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
+@endif
+
+
 <div class="container">
     <div class="text-right">
         <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}">Deploy Master</a>
+        <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch=master') }}&composer=true">Deploy Master + Composer</a>
     </div>
     <table id="branches-table" class="table table-bordered">
         <thead>
@@ -81,6 +93,9 @@
                     <span class="badge badge-pill badge-light">Deployed</span>
                     @else
                     <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($branch->branch_name)) }}">Deploy</a>
+                        @if($repository->name == "erp")
+                            <a class="btn btn-sm btn-secondary" href="{{ url('/github/repos/'.$repository->id.'/deploy?branch='.urlencode($branch->branch_name)) }}&composer=true">Deploy + Composer</a>
+                        @endif
                     @endif
                 </td>
                 <td>

@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="{{ asset('css/dashboard.css') }}">
 
     <section class="dashboard-counts section-padding">
-        <div class="container-fluid">
+        <div class="container-fluid" style="display: inline-block;">
             <div class="row">
                 <div class="col-lg-12">
                     <form action="{{ route('activity') }}" method="GET" enctype="multipart/form-data">
@@ -102,12 +102,14 @@
                         <th>Unable to scrape images</th>
                         <th>Crop Rejected</th>
                         <th>Crop Skipped</th>
+                        <th>Send To External Scraper</th>
                     </tr>
                     <tr>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrape]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrape] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$unableToScrapeImages]) ? (int) $productStats[\App\Helpers\StatusHelper::$unableToScrapeImages] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropRejected]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropRejected] : 0 }}</td>
                         <td>{{ isset($productStats[\App\Helpers\StatusHelper::$cropSkipped]) ? (int) $productStats[\App\Helpers\StatusHelper::$cropSkipped] : 0 }}</td>
+                        <td>{{ isset($productStats[\App\Helpers\StatusHelper::$requestForExternalScraper]) ? (int) $productStats[\App\Helpers\StatusHelper::$requestForExternalScraper] : 0 }}</td>
                     </tr>
                     <tr>
                         <th colspan="3">&nbsp;</th>

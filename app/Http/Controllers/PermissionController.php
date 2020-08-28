@@ -15,8 +15,25 @@ class PermissionController extends Controller
      */
     public function index(Request $request)
     {
+        $query = Permission::query();
+
+        if($request->term){
+            $query = $query->where('route', 'LIKE','%'.$request->term.'%');
+        }
+
+        
         $users = User::where('is_active',1)->get();
-        $permissions = Permission::orderBy('id', 'DESC')->paginate(10);
+
+        $permissions =  $query->orderBy('id', 'DESC')->paginate(25)->appends(request()->except(['page']));
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('permissions.partials.list-permission', compact('permissions'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$permissions->render(),
+                'count' => $permissions->total(),
+            ], 200);
+        }
+
         return view('permissions.index',compact('users','permissions'))->with('i', ($request->input('page', 1) - 1) * 10);
     }
 
@@ -48,8 +65,9 @@ class PermissionController extends Controller
         $permission->route = $request->route;
         $permission->save();
       
-        return redirect()->route('permissions.index')
-                         ->with('success','Role created successfully');
+
+        return redirect()->back()
+                         ->with('success','Permission created successfully');
     }
 
     /**
@@ -109,7 +127,8 @@ class PermissionController extends Controller
      */
     public function destroy($id)
     {
-        Permission::delete($id);
+        $permission = Permission::find($id);
+        $permission->delete();
         return redirect()->route('permissions.index')
                          ->with('success','Role deleted successfully');
     }

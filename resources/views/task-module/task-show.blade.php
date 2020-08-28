@@ -1,5 +1,7 @@
 @extends('layouts.app')
 
+@section('favicon' , 'task.png')
+
 @section('title', 'Task Show')
 
 @section('styles')
@@ -86,7 +88,8 @@
     }
 
     .th-created_at{
-      width:18%; padding-top:14px !important;
+      padding:0px 10px !important;
+      /* width:18%; padding-top:14px !important; */
     }
 
 </style>
@@ -133,11 +136,14 @@
      @if ($task->task_subject)<h4 style="margin-top: 23px !important;">Subject : {{ $task->task_subject }}</h4>@endif
       <span type="text" name="subject" id="task_subject_field" class="form-control span-sm hidden" value="{{ $task->task_subject }}">
       <a href="#" id="edit_subject_button" class="btn btn-secondary btn-xs">Edit</a>
-                         
+      </span>
       
       
     </div>
     <div class="pull-right mt-4">
+		@if (count($hiddenRemarks))
+		  <button type="button" class="btn btn-default" data-toggle="modal" data-target="#hidden_remark_modal">Hidden Notes</button>
+	  @endif
       {{-- <a class="btn btn-xs btn-secondary" href="{{ route('customer.index') }}">Back</a>
       <a class="btn btn-xs btn-secondary" href="#" id="quick_add_lead">+ Lead</a>
       <a class="btn btn-xs btn-secondary" href="#" id="quick_add_order">+ Order</a>
@@ -156,13 +162,16 @@
   
 
 
-    @if($task->is_statutory == 3)
+	@if($task->is_statutory == 3)
+		<div class="col-md-12">
+		<div class="infinite-scroll">
         <table class="table table-striped table-bordered">
             <tr>
                 <th width="25%">Update</th>
-                <th width="75%">Remarks</th>
+                <th width="50%">Remarks</th>
+                <th width="25%">Action</th>
             </tr>
-            @foreach ($task->notes as $key=>$note)
+            @foreach ($taskNotes as $key=>$note)
                 <tr>
                     <td>
                         {{ $note->remark }}
@@ -183,47 +192,44 @@
                       <td class="td-style">
 
                         <table class="table table-style">  
-                          
                           <tbody> 
-
                             <tr class="tr-style"> 
-
-                              <th class="table-head-row expand-row table-hover-cell th-remark" id="remark{{$note->id}}"> 
-                                
+                              <th class="table-head-row expand-row table-hover-cell" id="remark{{$note->id}}">
                                 <span class="td-mini-container">
-                                    {{ strlen( $note->singleSubnotes->remark  ) > 20 ? substr( $note->singleSubnotes->remark  , 0, 20).'...' :  $note->singleSubnotes->remark  }}
+                                    {{ strlen( $note->singleSubnotes->remark  ) > 70 ? substr( $note->singleSubnotes->remark  , 0, 70).'...' :  $note->singleSubnotes->remark  }}
                                 </span>
                                 <span class="td-full-container hidden">
                                 {{ $note->singleSubnotes->remark }} 
                                 </span>
-                              
                               </th>
-                               
-                               <th class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </th> <input type="hidden" id="current-remark-id"> 
-                              
-                               <th class="table-head-row" style="width:23%"> 
-                                 <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})"><img src="/images/add.png" /></button>
-                                
-                                 <div style="display:none;" id="divremark{{ $note->id }}">
-                                    <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
-                                      @foreach($users as $user)
-                                        <option value="{{ $user->id }}">{{ $user->name }}</option>
-                                      @endforeach
-                                    </select>
-                                  </div>
-                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
-                                 <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->singleSubnotes->id }} , {{ $note->id }})"><img src="/images/archive.png" /></button>
-                                
-                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}"><img src="/images/advance-link.png" /></button>
-
-
-                               </th> 
-                             
-                              <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
-                          
                           </tr>
                         </tbody> 
                       </table>
+                      <div class="row" style="margin-bottom:0px;margin-left:0px;margin-right:0px;">
+                      <div class="col-md-8" style="padding:5px;">
+                          <span class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </span>
+                      </div>
+                        <div class="col-md-4" style="padding:5px;">
+                        <span style="vertical-align: middle !important;" class="table-head-row th-add-user th-created_at" id="created{{$note->id}}"> {{ $note->singleSubnotes->created_at->format('d-m-Y H:i:s') }}   </span> <input type="hidden" id="current-remark-id">
+                        </div>
+                      </div>
+                    </td>
+                    <td>
+                    <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})" title="Add Task Note"><img src="/images/add.png" /></button>
+                                  
+                                  <div style="display:none;" id="divremark{{ $note->id }}">
+                                      <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
+                                        @foreach($users as $user)
+                                          <option value="{{ $user->id }}">{{ $user->name }}</option>
+                                        @endforeach
+                                      </select>
+                                    </div>
+                                  <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}" title="Chat History"><img src="/images/chat.png" /></button>
+                                  <button type="button" class="btn btn-image" onclick="archiveRemark({{ $note->singleSubnotes->id }} , {{ $note->id }})" title="Archive Remark"><img src="/images/archive.png" /></button>
+                                  
+                                  <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}" title="Archive Remark History"><img src="/images/advance-link.png" /></button>
+                                  <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                                  <button type="button" class="btn hide-task-note" data-task-note-id="{{ $note->id }}" title="Hide"><i class="fa fa-eye-slash" aria-hidden="true"></i></button>  
                     </td>
                       @else 
                       <input type="hidden"  id="remark-text{{ $note->id }}">
@@ -241,10 +247,30 @@
                               No Remark   
                               </th>
                                
-                               <th class="table-head-row th-add-user th-created_at" id="created{{$note->id}}">   </th> <input type="hidden" id="current-remark-id"> 
-                              
-                               <th class="table-head-row" style="width:23%"> 
-                                 <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})"><img src="/images/add.png" /></button>
+                               
+                          
+                          </tr>
+                        </tbody> 
+                      </table>
+
+                      <div class="row" style="margin-bottom:0px;margin-left:0px;margin-right:0px;">
+                      <div class="col-md-8" style="padding:5px;">
+
+                          <span class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""></span>
+
+                      </div>
+                        <div class="col-md-4" style="padding:5px;">
+                        <span style="vertical-align: middle !important;" class="table-head-row th-add-user th-created_at" id="created{{$note->id}}">   </span> <input type="hidden" id="current-remark-id">
+                        </div>
+                      </div>
+
+
+
+
+                    </td> 
+                    <td>
+                    
+                    <button type="button" class="btn btn-image create-quick-task-note-button" onclick="createTaskNoteButton({{  $note->id }})" title="Add Task Note"><img src="/images/add.png" /></button>
                                 
                                  <div style="display:none;" id="divremark{{ $note->id }}">
                                     <select class="form-control selectpicker" data-live-search="true" style="display:none !important;" onchange="sendUserTask({{ $note->id }})" id="user-selected{{ $note->id }}">
@@ -253,22 +279,15 @@
                                       @endforeach
                                     </select>
                                   </div>
-                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}"><img src="/images/chat.png" /></button>
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#chat-list-history{{ $note->id }}" title="Chat History"><img src="/images/chat.png" /></button>
                                  <button type="button" class="btn btn-image" onclick="archiveRemarkRefresh()"><img src="/images/archive.png" /></button>
                                 
-                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}"><img src="/images/advance-link.png" /></button>
-
-
-                               </th> 
-                             
-                              <th class="table-head-row">   <input type="text" class="form-control input-sm create-subnote-for-appointment" data-id="{{ $note->id }}" name="note" placeholder="Note" value=""> </th>
-                          
-                          </tr>
-                        </tbody> 
-                      </table>
-                    </td>     
+                                 <button type="button" class="btn btn-image" data-toggle="modal" data-target="#archive-list-history{{ $note->id }}" title="Archive Remark History"><img src="/images/advance-link.png" /></button>
+								 <button type="button" class="btn remove-task-note" data-task-note-id="{{ $note->id }}" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+								 <button type="button" class="btn hide-task-note" data-task-note-id="{{ $note->id }}" title="Hide"><i class="fa fa-eye-slash" aria-hidden="true"></i></button>
+                    
+                    </td>
                    @endif
-                      
                     
                   </tr>
                   @include('task-module.partials.modal-remark')
@@ -279,8 +298,12 @@
                     <input type="text" id="create-note-field-for-appointment" class="form-control input-sm" name="note" placeholder="Add New Update..." value="">
                 </td>
                 <td></td>
+                <td></td>
             </tr>
-        </table>
+		</table>
+		{!! $taskNotes->appends(Request::except('page'))->links() !!}
+		</div>
+		</div>
     @else
         <div class="col-xs-12 col-md-4 py-3 border">
             <div class="row text-muted">
@@ -566,6 +589,34 @@
 
 @include('task-module.partials.modal-reminder')
 
+<div id="hidden_remark_modal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+  
+	  <!-- Modal content-->
+	  <div class="modal-content">
+		<div class="modal-header">
+		  <h4 class="modal-title">Hidden Notes</h4>
+		  <button type="button" class="close" data-dismiss="modal">&times;</button>
+		</div>
+		  <div class="modal-body">
+			<div class="row">
+			  <div class="col-md-12">
+				@forelse ($hiddenRemarks as $item)
+					<p>{{ $item->remark }}</p>
+				@empty
+					
+				@endforelse
+			  </div>
+			</div>
+		  </div>
+  
+		  <div class="modal-footer">
+			<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+		  </div>
+	  </div>
+  
+	</div>
+  </div>
 
 @endsection
 
@@ -573,6 +624,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+  <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>	
 
   <script type="text/javascript">
     $(document).ready(function() {
@@ -1544,7 +1597,6 @@
       var key = e.which;
       var thiss = $(this);
       var id = $(this).data('id');
-
       if (key == 13) {
           e.preventDefault();
           var note = $(thiss).val();
@@ -1735,7 +1787,7 @@
         
         $.ajax({
             type: "POST",
-            url: "/task-remark/"+id+"/delete",
+            url: "{{url('/')}}/task-remark/"+id+"/delete",
             
             data: {
               _token: "{{ csrf_token() }}",
@@ -1764,5 +1816,75 @@
          function archiveRemarkRefresh() {
            location.reload();
          }
+
+	$('ul.pagination').hide();
+	$('.infinite-scroll').jscroll({
+        autoTrigger: true,
+		// debug: true,
+        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        padding: 20,
+        nextSelector: '.pagination li.active + li a',
+        contentSelector: 'div.infinite-scroll',
+        callback: function () {
+            $('ul.pagination').first().remove();
+			$('ul.pagination').hide();
+        }
+    });
+
+	$(document).on('click', '.remove-task-note', function() {
+    var noteId = $(this).data('task-note-id');
+		swal({
+			title: "Are you sure?",
+			text: "You will not be able to recover this!",
+			icon: "warning",
+			buttons: [
+				'No',
+				'Yes'
+			],
+			dangerMode: true,
+			}).then(function(isConfirm) {
+			if (isConfirm) {
+				$.ajax({
+					url: "{{ route('delete/task/note') }}",
+					type: 'GET',
+					data: {note_id: noteId},
+					success: function() {
+						location.reload();
+					}
+				})
+				.fail(function(response) {
+					alert('Could not delete task note');
+				});
+			}
+		});
+	});
+
+	$(document).on('click', '.hide-task-note', function() {
+    var noteId = $(this).data('task-note-id');
+		swal({
+			title: "Are you sure?",
+			// text: "You will not be able to recover this imaginary file!",
+			icon: "warning",
+			buttons: [
+				'No',
+				'Yes'
+			],
+			dangerMode: true,
+			}).then(function(isConfirm) {
+			if (isConfirm) {
+				$.ajax({
+					url: "{{ route('hide/task/remark') }}",
+					type: 'GET',
+					data: {note_id: noteId},
+					success: function() {
+						location.reload();
+					}
+				})
+				.fail(function(response) {
+					alert('Could not hide task note');
+				});
+			}
+		});
+	});
   </script>
 @endsection

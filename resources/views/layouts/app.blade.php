@@ -10,7 +10,12 @@
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @if (trim($__env->yieldContent('favicon')))
+        <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
+    @else
+        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @endif
+
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 
@@ -26,8 +31,33 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script src="{{asset('js/readmore.js')}}" defer></script>
-    <script src="/js/generic.js" defer></script>
+    <script src="{{asset('/js/generic.js')}}" defer></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <style type="text/css">
+        .select2-container--open{
+            z-index:9999999
+        }
+        #message-chat-data-box .p1[data-count]:after{
+          position:absolute;
+          right:10%;
+          top:8%;
+          content: attr(data-count);
+          font-size:90%;
+          padding:.1em;
+          border-radius:50%;
+          line-height:1em;
+          color: white;
+          background:rgba(255,0,0,.85);
+          text-align:center;
+          min-width: 1em;
+          //font-weight:bold;
+        }
+        #quick-sidebar {
+            padding-top: 35px;
+        }
+
+    </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
     @yield('link-css')
@@ -62,14 +92,14 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.6/twilio.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+    <script src="{{ asset('js/calls.js') }}"></script>
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -93,7 +123,9 @@
         loggedinuser = "{{Auth::user()->id}}";
     </script>
     @endif
-
+    <script type="text/javascript">
+        var BASE_URL = '{{ config('app.url') }}';
+    </script>
 
 
     <!-- Fonts -->
@@ -145,11 +177,11 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-
     <script>
         initializeTwilio();
     </script>
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+
 
     @endif
 
@@ -157,7 +189,14 @@
 
     <script src="{{ asset('js/chat.js') }}"></script> --}}
 
-
+    <style type="text/css">
+        .back-to-top {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -371,6 +410,10 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
+                                                <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
+                                                <a class="dropdown-item" href="{{ route('product.color.index.list') }}">Product Color history</a>
                                             </ul>
                                         </li>
                                         @if(auth()->user()->isAdmin())
@@ -432,7 +475,15 @@
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
-                                    <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Supplier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier.index') }}">Supplier List</a></a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('supplier/category/permission') }}">Supplier Category <br> Permission</a></a>
+                                        </li>
+                                    </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Scraping<span class="caret"></span></a>
@@ -444,6 +495,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
@@ -451,6 +503,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapController@index') }}">Google Images</a>
                                             <a class="dropdown-item" href="{{ action('SocialTagsController@index') }}">Social Tags</a>
                                             <a class="dropdown-item" href="{{ action('DubbizleController@index') }}">Dubzzle</a>
+                                            <a class="dropdown-item" href="{{ route('log-scraper.index') }}">Scraper log</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -468,6 +521,12 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('Logging\LogListMagentoController@index') }}">Log List Magento</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/magento/status">Order Status Mapping</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/languages">Language</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -479,15 +538,29 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ action('LaravelLogController@index') }}">Laravel Log</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@liveLogs') }}">Live Laravel Log</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('LaravelLogController@scraperLiveLogs') }}">Live Scraper Log</a>
+                                        </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-translation')}}">Product translate</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.product-assign')}}">Assign Products</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">CRM <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
+                                <li class="nav-item">
+                                    <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -542,6 +615,12 @@
                                     </ul>
 
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick.customer.index') }}">Quick Customer</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -554,6 +633,12 @@
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
                                             </ul>
                                         </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="{{ action('OrderController@viewAllInvoices') }}" role="button" aria-haspopup="true" aria-expanded="false" v-pre>Invoices<span></span></a>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="" href="{{ route('store-website.all.status') }}" role="button" aria-haspopup="true" aria-expanded="false">Statuses<span></span></a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -563,7 +648,9 @@
                                             <a class="dropdown-item" href="{{ route('complaint.index') }}">Customer Complaints</a>
                                         </li>
                                     </ul>
-
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -615,6 +702,7 @@
                                             <a class="dropdown-item" href="{{ route('broadcast.index') }}">Broadcast Grid</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.images') }}">Broadcast Images</a>
                                             <a class="dropdown-item" href="{{ route('broadcast.calendar') }}">Broadcast Calender</a>
+                                            <a class="dropdown-item" href="/marketing/instagram-broadcast">Instagram Broadcast</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -623,6 +711,8 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('whatsapp.config.index') }}">WhatsApp Config</a>
+                                            <a class="dropdown-item" href="/marketing/accounts/instagram">Instagram Config</a>
+                                            <a class="dropdown-item" href="/marketing/accounts/facebook">Facebook Config</a>
                                             <a class="dropdown-item" href="{{ route('platforms.index') }}">Platforms</a>
                                             <a class="dropdown-item" href="{{ route('broadcasts.index') }}">BroadCast</a>
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
@@ -631,6 +721,17 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Checkout<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('coupons.index') }}">Coupons</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -638,10 +739,22 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('vendor.index') }}">Vendor Info</a>
+                                    <a class="dropdown-item" href="{{ route('vendors.index') }}">Vendor Info</a>
                                 </li>
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ route('vendor.product.index') }}">Product Info</a>
+                                    <a class="dropdown-item" href="{{ route('vendor-category.index') }}">Vendor Category</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendors.product.index') }}">Product Info</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.vendor.form') }}">Vendor Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('developer.supplier.form') }}">Supplier Form</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('vendor-category.permission') }}">Vendor Category Permission</a>
                                 </li>
                             </ul>
                         </li>
@@ -667,7 +780,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ route('users.login.index') }}">User Logins</a>
                                         </li>
-
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Roles<span class="caret"></span></a>
 
@@ -687,6 +799,9 @@
 
 
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('user-management.index') }}">New Management</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -711,6 +826,9 @@
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="/calendar">Calendar</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -718,7 +836,7 @@
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Email Accounts
+                                    <a class="dropdown-item" href="{{ action('PreAccountController@index') }}">Other Email Accounts
                                     </a>
                                 </li>
                                 @if(auth()->user()->isAdmin())
@@ -729,6 +847,12 @@
                                             <a class="dropdown-item" href="{{ action('InstagramPostsController@grid') }}">Instagram Posts (Grid)</a>
                                             <a class="dropdown-item" href="{{ action('InstagramPostsController@index') }}">Instagram Posts</a>
                                             <a class="dropdown-item" href="{{ action('HashtagController@influencer') }}">Influencers</a>
+                                            <a class="dropdown-item" href="/instagram/hashtag/comments/">Hashtag Comments</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Direct Message</a>
+                                            <a class="dropdown-item" href="/instagram/post">Posts</a>
+                                            <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/users">Get User Post</a>
                                         </li>
 
                                         <hr />
@@ -977,6 +1101,15 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrases')}}">Most used phrases</a>
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.mostUsedPhrasesDeleted')}}">Most used phrases Updated</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.analytics.list')}}">Analytics</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.messages.list')}}">Messages</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -1003,9 +1136,40 @@
                                                     <a class="dropdown-item" href="{{route('google.affiliate.results')}}">Search Results</a>
                                                 </li>
                                             </ul>
-                                        </li>                                        
+                                        </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
+                                    </a>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Plesk<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <li class="nav-item dropdown">
+                                                <a class="dropdown-item" href="{{route('plesk.domains')}}">Domains</a>
+                                                </li>
+                                            </ul>
+                                        </li>
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/instagram/post">Posts</a>
+                                            <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/direct">Direct</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -1019,16 +1183,34 @@
                                     <a class="dropdown-item" href="{{ route('development.overview') }}">Overview</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/devtask') }}">Tasks</a>
+                                    <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ route('task-types.index') }}">Task Types</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ url('development/list/issue') }}">Issue list</a>
+                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="dropdown-item" href="{{ route('development.issue.create') }}">Submit Issue</a>
+                                    <a class="dropdown-item" href="{{ url('deploy-node') }}">Deploy Node</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('master.dev.task') }}">Dev Master Control</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.index') }}">Database Size</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('database.states') }}">Database States</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-modules.index') }}">Manage Module</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('manage-task-category.index') }}">Manage Task Category</a>
                                 </li>
                             </ul>
                         </li>
@@ -1055,6 +1237,46 @@
                                 <ul class="dropdown-menu multi-level">
                                     <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('message-queue.index') }}">Message Queue</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('message-queue.approve') }}">Message Queue Approval</a>
+                                    </li>
+                                </ul>
+                            </li>
+                        @endif
+                        @if(auth()->user()->isAdmin())
+                            <li class="nav-item dropdown">
+                                <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Multi Site<span class="caret"></span></a>
+                                <ul class="dropdown-menu multi-level">
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.index') }}">Store Website</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('site-development-status.stats') }}">Multi Site status</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('content-management.index') }}">Content Management</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.brand.list') }}">Store Brand</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.list') }}">Country duty list</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('country.duty.index') }}">Country duty search</a>
+                                    </li>
+                                    <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.country-group.index') }}">Country Group</a>
                                     </li>
                                 </ul>
                             </li>
@@ -1101,9 +1323,19 @@
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
 
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+
                                     </ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+                                    <li class="nav-item dropdown">
+                                        <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                    </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1179,6 +1411,9 @@
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
+                                        </li>
+                                        <li>
                                             <a class="dropdown-item" href="{{route('cron.index')}}">Cron</a>
                                         </li>
                                     </ul>
@@ -1196,6 +1431,9 @@
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/groups') }}">Groups</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('/github/pullRequests') }}">Pull requests</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('/github/sync') }}">Synchronise from online</a>
@@ -1220,13 +1458,31 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('hubstaff/tasks') }}">Tasks</a>
                                         </li>
-
-                                        <li class="nav-item dropdown">
+                                        <!-- <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('hubstaff/payments') }}">Payments</a>
+                                        </li> -->
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff-payment') }}">Payments Report</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/notification') }}">Activity Notofication</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ url('hubstaff-activities/activities') }}">Activities</a>
                                         </li>
                                     </ul>
                                 </li>
-
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Database<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('database.index') }}">Historical Data</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('database.states') }}">States</a>
+                                        </li>
+                                    </ul>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Encryption<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1236,6 +1492,18 @@
                                     </ul>
                                 </li>
 
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Courier<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <a class="dropdown-item" href="{{ route('shipment.index') }}">Shipment</a>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('email.index') }}">Emails</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -1278,7 +1546,6 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('products.index')}}">Product</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
 
                                             <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>
@@ -1304,6 +1571,9 @@
 
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('brand/size/chart')}}">Brand Size Chart</a>
                                         </li>
                                         @if(auth()->user()->checkPermission('category-edit'))
                                         <li class="nav-item dropdown">
@@ -1455,57 +1725,88 @@
         @include('partials.modals.quick-task')
         @include('partials.modals.quick-instruction')
         @include('partials.modals.quick-development-task')
+        @include('partials.modals.quick-instruction-notes')
+        @include('partials.modals.quick-user-event-notification')
+        @include('partials.modals.quick-chatbox-window')
+        @include('partials.modals.quick-zoom-meeting-window')
+        @include('partials.modals.quick-create-task-window')
         @php
-        $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $liveChatUsers = \App\LiveChatUser::where('user_id',Auth::id())->first();
+            $key = \App\LivechatincSetting::first();
         @endphp
         @if($liveChatUsers != '' && $liveChatUsers != null)
+        <input type="hidden" id="live_chat_key" value="@if(isset($key)){{ $key->key}}@else @endif">
         @include('partials.chat')
         @endif
         @endif
-
-        <main class="container">
-
-            <!-- Showing fb like page div to all pages  -->
-
-            {{-- @if(Auth::check())
-
-     <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
-
-     @endif --}}
-
-
-
-            <!-- End of fb page like  -->
-
-
-
-            @yield('content')
-
-        </main>
-
-        <div class="col-md-12">
-            @yield('large_content')
-        </div>
-
-    </div>
-
-    @if(Auth::check())
-    <div class="help-button-wrapper">
-        <div class="col-md-8 page-notes-list-rt dis-none">
-            <div class="well">
-                <textarea class="note-content" name="note_content"></textarea>
+        @if(Auth::check())
+            <!---start section for the sidebar toggle -->
+            <nav id="quick-sidebar">
+                <ul class="list-unstyled components">
+                    <li>
+                        <a class="notification-button quick-icon" href="#"><span><i class="fa fa-bell fa-2x"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="instruction-button quick-icon" href="#"><span><i class="fa fa-question-circle fa-2x" aria-hidden="true"></i></span></a>
+                    </li>
+                    <li>
+                        <a class="daily-planner-button quick-icon" target="__blank" href="{{ route('dailyplanner.index') }}">
+                            <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    <li>
+                        <a id="message-chat-data-box" class="quick-icon">
+                           <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
+                                <i class="fa fa-comment fa-2x xfa-inverse" data-count="4b"></i>
+                           </span>
+                        </a>
+                    </li>
+                    @endif
+                    <li>
+                        <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
+                            <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                    <li>
+                        <a class="create-easy-task quick-icon" data-toggle="modal" data-target="#quick-create-task">
+                            <span><i class="fa fa-tasks fa-2x" aria-hidden="true"></i></span>
+                        </a>
+                    </li>
+                </ul>
+            </nav>
+            <!-- end section for sidebar toggle -->
+        @endif
+        @if (trim($__env->yieldContent('large_content')))
+            <div class="col-md-11">
+                @yield('large_content')
             </div>
-        </div>
-        <div class="col-md-5">
-            <button class="help-button"><span>+</span></button>
-        </div>
+        @elseif (trim($__env->yieldContent('core_content')))
+            @yield('core_content')
+        @else
+            <main class="container" style="display: inline-block;">
+                <!-- Showing fb like page div to all pages  -->
+                {{-- @if(Auth::check())
+                <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
+
+                @endif --}}
+                @yield('content')
+                <!-- End of fb page like  -->
+            </main>
+        @endif
+
+
+         <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-
-
+    <?php /*
+    @if(Auth::check())
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
-            <button class="chat-button"><img src="/images/chat.png" class="img-responsive"/><span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span></button>
+            <button class="chat-button">
+                <img src="/images/chat.png" class="img-responsive"/>
+                <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
+            </button>
         </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
@@ -1578,9 +1879,9 @@
                                     <div class="selectedValue">
                                          <select id="autoTranslate" class="form-control auto-translate">
                                             <option value="">Translation Language</option>
-                                            @foreach ($language as $key => $value) 
+                                            @foreach ($language as $key => $value)
                                                 <option value="{{$value}}">{{$key}}</option>
-                                            @endforeach  
+                                            @endforeach
                                         </select>
                                     </div>
                                 </div>
@@ -1630,19 +1931,19 @@
                         <div class="chat-righbox">
                             <div class="title">Visited Pages</div>
                             <div id="chatVisitedPages">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Additional info</div>
                             <div class="line-spacing" id="chatAdditionalInfo">
-                                
+
                             </div>
                         </div>
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="chatTechnology">
-                                
+
                             </div>
                         </div>
                     </div>
@@ -1652,11 +1953,13 @@
     </div>
     @endif
     @endif
+    */ ?>
 
     <!-- Scripts -->
 
-    {{-- @include('partials.chat') --}}
-
+   {{--  @include('partials.chat')--}}
+    <div id="loading-image-preview" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif')50% 50% no-repeat;display:none;">
+    </div>
 
 
     <!-- Like page plugin script  -->
@@ -1679,9 +1982,21 @@
 
     @yield('scripts')
     <script type="text/javascript" src="{{asset('js/jquery.richtext.js')}}"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.24.0/moment.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
         $(document).ready(function() {
-            $('.note-content').richText();
+            $('#editor-note-content').richText();
+            $('#editor-instruction-content').richText();
+            $('#notification-date').datetimepicker({
+                format: 'YYYY-MM-DD'
+            });
+
+            $('#notification-time').datetimepicker({
+                format: 'HH:mm'
+            });
+
+            $(".selectx-vendor").select2({tags :true});
         });
         window.token = "{{ csrf_token() }}";
 
@@ -1708,17 +2023,86 @@
             $('.page-notes-list-rt').toggleClass('dis-none');
         });
 
+        $('.instruction-button').on('click', function() {
+            $("#quick-instruction-modal").modal("show");
+            //$('.help-button-wrapper').toggleClass('expanded');
+            //$('.instruction-notes-list-rt').toggleClass('dis-none');
+        });
+
+        $('.notification-button').on('click', function() {
+            $("#quick-user-event-notification-modal").modal("show");
+        });
+
+        $(document).on("submit","#notification-submit-form",function(e){
+            e.preventDefault();
+            var $form = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                url: $form.attr("action"),
+                data: $form.serialize(),
+                dataType: "json",
+                success: function(data) {
+                    if (data.code == 200) {
+                        $form[0].reset();
+                        $("#quick-user-event-notification-modal").modal("hide");
+                        toastr['success'](data.message, 'Message');
+                    }else{
+                        toastr['error'](data.message, 'Message');
+                    }
+                },
+                error : function(xhr, status, error) {
+                    var errors = xhr.responseJSON;
+                    $.each(errors, function (key, val) {
+                        $("#" + key + "_error").text(val[0]);
+                    });
+                }
+            });
+        });
+
+        //setup before functions
+        var typingTimer;                //timer identifier
+        var doneTypingInterval = 5000;  //time in ms, 5 second for example
+        var $input = $('#editor-instruction-content');
+        //on keyup, start the countdown
+        $input.on('keyup', function () {
+          clearTimeout(typingTimer);
+          typingTimer = setTimeout(doneTyping, doneTypingInterval);
+        });
+
+        //on keydown, clear the countdown
+        $input.on('keydown', function () {
+          clearTimeout(typingTimer);
+        });
+
+        //user is "finished typing," do something
+        function doneTyping () {
+          //do something
+        }
+
         // started for chat button
+        // open chatbox now into popup
+
         var chatBoxOpen = false;
+
+        $("#message-chat-data-box").on("click",function(e) {
+            e.preventDefault();
+           $("#quick-chatbox-window-modal").modal("show");
+           chatBoxOpen = true;
+           openChatBox(true);
+        });
+
+        $('#quick-chatbox-window-modal').on('hidden.bs.modal', function () {
+           chatBoxOpen = false;
+           openChatBox(false);
+        });
+
         $('.chat-button').on('click', function () {
             $('.chat-button-wrapper').toggleClass('expanded');
             $('.page-chat-list-rt').toggleClass('dis-none');
-
             if($('.chat-button-wrapper').hasClass('expanded')){
                 chatBoxOpen = true;
                 openChatBox(true);
-            }
-            else{
+            }else{
                 chatBoxOpen = false;
                 openChatBox(false);
             }
@@ -1757,7 +2141,7 @@
         });
 
         @if(session()->has('encrpyt'))
-        
+
         var inactivityTime = function () {
             var time;
             window.onload = resetTimer;
@@ -1782,18 +2166,18 @@
             })
             .fail(function() {
                 console.log("error");
-            })  
+            })
         }
 
         function resetTimer() {
             clearTimeout(time);
-            time = setTimeout(remove_key, 1200000)
+            time = setTimeout(remove_key, 1200000);
             // 1000 milliseconds = 1 second
         }
         };
 
         window.onload = function() {
-            inactivityTime(); 
+            inactivityTime();
         }
 
         @endif
@@ -1868,7 +2252,7 @@
         });
         @endif
     </script>
-    @if ( !empty($_SERVER['HTTP_HOST']) && !stristr($_SERVER['HTTP_HOST'], '.mac') )
+    @if ( !empty($_SERVER['HTTP_HOST']) && !empty($_SERVER['REMOTE_ADDR'])  && $_SERVER['REMOTE_ADDR'] != "127.0.0.1" && !stristr($_SERVER['HTTP_HOST'], '.mac') )
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-147736165-1"></script>
     <script>
@@ -1879,7 +2263,7 @@
         }
 
         gtag('js', new Date());
-        gtag('config', 'UA-147736165-1');
+        gtag('config', 'UA-171553493-1');
     </script>
     @endif
     <script>
@@ -1947,7 +2331,195 @@
                 }
             })
         });
-       
+
+        $(document).ready(function(){
+            $(window).scroll(function () {
+                if ($(this).scrollTop() > 50) {
+                    $('#back-to-top').fadeIn();
+                } else {
+                    $('#back-to-top').fadeOut();
+                }
+            });
+            // scroll body to 0px on click
+            $('#back-to-top').click(function () {
+                $('body,html').animate({
+                    scrollTop: 0
+                }, 400);
+                return false;
+            });
+
+            $('#sidebarCollapse').on('click', function () {
+                $('#sidebar').toggleClass('active');
+            });
+            $(".select2-vendor").select2({});
+        });
+
+        $(document).on('click', '.save-meeting-zoom', function () {
+            var user_id = $('#quick_user_id').val();
+            var meeting_topic = $('#quick_meeting_topic').val();
+            var csrf_token = $('#quick_csrfToken').val();
+            var meeting_url = $('#quick_meetingUrl').val();
+            $.ajax({
+                url: meeting_url,
+                type: 'POST',
+                success: function (response) {
+                    var status = response.success;
+                    if(false == status){
+                        toastr['error'](response.data.msg);
+                    }else{
+                        $('#quick-zoomModal').modal('toggle');
+                        window.open(response.data.meeting_link);
+                        var html = '';
+                        html += response.data.msg+'<br>';
+                        html += 'Meeting URL: <a href="'+response.data.meeting_link+'" target="_blank">'+response.data.meeting_link+'</a><br><br>';
+                        html += '<a class="btn btn-primary" target="_blank" href="'+response.data.start_meeting+'">Start Meeting</a>';
+                        $('#qickZoomMeetingModal').modal('toggle');
+                        $('.meeting_link').html(html);
+                        toastr['success'](response.data.msg);
+                    }
+                },
+                data: {
+                    user_id: user_id,
+                    meeting_topic: meeting_topic,
+                    _token: csrf_token,
+                    user_type : "vendor"
+                },
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+
+            });
+        });
+
+        $(document).on("click",".save-task-window",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: form.attr("action"),
+                type: 'POST',
+                data: form.serialize(),
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                },
+                success: function (response) {
+                    if(response.code == 200){
+                        form[0].reset();
+                        toastr['success'](response.message);
+                        $("#quick-create-task").modal("hide");
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+            });
+        });
+        $('select.select2-discussion').select2({tags: true});
+        $(document).on("change",".type-on-change",function(e) {
+            e.preventDefault();
+            var task_type = $(this).val();
+            console.log(task_type);
+            if(task_type == 3) {
+                // $('.normal-subject').hide();
+                    // $('.discussion-task-subject').show();
+                $.ajax({
+                url: '/task/get-discussion-subjects',
+                type: 'GET',
+                success: function (response) {
+                    $('select.select2-discussion').select2({tags: true});
+                    var option = '<option value="" >Select</option>';
+                    $.each(response.discussion_subjects, function(i, item) {
+                    console.log(item);
+
+                            option = option + '<option value="'+i+'">'+item+'</option>';
+                        });
+                        $('.add-discussion-subjects').html(option);
+                    }
+                }).fail(function (response) {
+                    toastr['error'](response.responseJSON.message);
+                });
+            }
+            else {
+                // $('select.select2-discussion').select2({tags: true});
+                $("select.select2-discussion").empty().trigger('change'); 
+            }
+            
+            
+        });
+
+        $(document).on('change', '#keyword_category', function () {
+            console.log("inside");
+            if ($(this).val() != "") {
+                var category_id = $(this).val();
+                var store_website_id = $('#live_selected_customer_store').val();
+                $.ajax({
+                    url: "{{ url('get-store-wise-replies') }}"+'/'+category_id+'/'+store_website_id,
+                    type: 'GET',
+                    dataType: 'json'
+                }).done(function(data){
+                    console.log(data);
+                    if(data.status == 1){
+                        $('#live_quick_replies').empty().append('<option value="">Quick Reply</option>');
+                        var replies = data.data;
+                        replies.forEach(function (reply) {
+                            $('#live_quick_replies').append($('<option>', {
+                                value: reply.reply,
+                                text: reply.reply,
+                                'data-id': reply.id
+                            }));
+                        });
+                    }
+                });
+
+            }
+        });
+
+        $('.quick_comment_add_live').on("click", function () {
+            var textBox = $(".quick_comment_live").val();
+            var quickCategory = $('#keyword_category').val();
+
+            if (textBox == "") {
+                alert("Please Enter New Quick Comment!!");
+                return false;
+            }
+
+            if (quickCategory == "") {
+                alert("Please Select Category!!");
+                return false;
+            }
+            console.log("yes");
+
+            $.ajax({
+                type: 'POST',
+                url: "{{ route('save-store-wise-reply') }}",
+                dataType: 'json',
+                data: {
+                    '_token': "{{ csrf_token() }}",
+                    'category_id' : quickCategory,
+                    'reply' : textBox,
+                    'store_website_id' : $('#live_selected_customer_store').val()
+                }
+            }).done(function (data) {
+                console.log(data);
+                $(".live_quick_comment").val('');
+                $('#live_quick_replies').append($('<option>', {
+                    value: data.data,
+                    text: data.data
+                }));
+            })
+        });
+
+        $('#live_quick_replies').on("change", function(){
+            $('.type_msg').text($(this).val());
+        });
+
+
+
+
+
+
     </script>
 
 </body>

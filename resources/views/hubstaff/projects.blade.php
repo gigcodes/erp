@@ -24,47 +24,76 @@
 </div>
 @endif
 
-<h2 class="text-center">Projects List from Hubstaff </h2>
+<h2 class="text-center">Projects List from Hubstaff <i class="fa fa-plus add-project"></i></h2>
 
 <div class="container">
   @if(!empty($projects))
-  <div class="row">
-    <table class="table table-bordered">
-      <thead>
-        <tr>
-          <th>Project ID</th>
-          <th>Name</th>
-          <th>Description</th>
-          <th>Status</th>
-          <th>Action</th>
-        </tr>
-      </thead>
-      @foreach($projects as $project)
-      <tbody>
-        <tr>
-          <td>{{ $project->hubstaff_project_id }}</td>
-          <td>{{ ucwords($project->hubstaff_project_name) }}</td>
-          <td> {{ $project->hubstaff_project_description }} </td>
-          <td>
-            @if($project->hubstaff_project_status == "active")
-            <span class="badge badge-success">Active</span>
-            @else
-            <span class="badge badge-danger">In active</span>
-            @endif
-          </td>
-          <td>
-            <a href="projects/{{$project->id}}">Edit</a>
-          </td>
-        </tr>
-      </tbody>
-      @endforeach
-    </table>
-    <br>
-    <hr>
-  </div>
+    <div class="row">
+      <table class="table table-bordered">
+        <thead>
+          <tr>
+            <th>Project ID</th>
+            <th>Name</th>
+            <th>Description</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        @foreach($projects as $project)
+        <tbody>
+          <tr>
+            <td>{{ $project->hubstaff_project_id }}</td>
+            <td>{{ ucwords($project->hubstaff_project_name) }}</td>
+            <td> {{ $project->hubstaff_project_description }} </td>
+            <td>
+              @if($project->hubstaff_project_status == "active")
+              <span class="badge badge-success">Active</span>
+              @else
+              <span class="badge badge-danger">In active</span>
+              @endif
+            </td>
+            <td>
+              <a href="projects/{{$project->id}}">Edit</a>
+            </td>
+          </tr>
+        </tbody>
+        @endforeach
+      </table>
+      <br>
+      <hr>
+    </div>
   @else
-  <div style="text-align: center;color: red;font-size: 14px;">
-  </div>
+    <div style="text-align: center;color: red;font-size: 14px;">
+    </div>
   @endif
 </div>
+@endsection
+
+@include("hubstaff.partials.project-modal")
+@section("scripts")
+<script type="text/javascript">
+    $(document).on("click",".add-project", function() {
+       $("#project-modal-view").modal("show");
+    });
+
+    $(document).on("click",".store-project",function(e){
+      e.preventDefault();
+      var form = $(this).closest("form");
+      $.ajax({
+        url: '/hubstaff/projects/create',
+        type: 'POST',
+        dataType: 'json',
+        data:form.serialize(),
+      }).done(function(response) {
+        if(response.code == 200) {
+           location.reload();
+        }else{
+          toastr["erorr"](response.message);
+        }
+      }).fail(function(r) {
+          console.log(r);
+      });
+    });
+
+</script>
 @endsection

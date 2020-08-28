@@ -17,6 +17,8 @@
     <br>
     <div class="col-lg-12 margin-tb">
 		<button data-toggle="collapse" href="#collapse-message-queue" class="collapsed btn btn-secondary" aria-expanded="false">Search message queue count</button>
+		<button data-toggle="collapse" href="#collapse-show-queue" class="collapsed btn btn-secondary" aria-expanded="false">Show Chat API Queue Count</button>
+		<button data-toggle="collapse" href="#pending-queue-no-wise" class="collapsed btn btn-secondary" aria-expanded="false">Show Message Queue Count</button>
 		<div class="panel-group">
 			<div id="collapse-message-queue" class="panel-collapse collapse" aria-expanded="false" style="height: 0px;">
 				<div class="panel-body">
@@ -43,8 +45,65 @@
 					</div>
 				</div>
 			</div>
+			<div class="collapse" id="pending-queue-no-wise" style="margin-top: 5px;">
+	            <div class="card card-body">
+	              <?php if(!empty($countQueue)) { ?>
+	                <div class="row col-md-12">
+	                    <?php foreach($countQueue as $queue) { ?>
+	                      <div class="col-md-2">
+	                            <div class="card">
+	                              <div class="card-header">
+	                                <?php echo $queue->whatsapp_number; ?>
+	                              </div>
+	                              <div class="card-body">
+	                                  <?php echo $queue->total_message; ?>
+	                              </div>
+	                          </div>
+	                       </div> 
+	                  <?php } ?>
+	                </div>
+	              <?php } else  { 
+	                echo "Sorry , No data available";
+	              } ?>
+	            </div>
+	        </div>
 		</div>
-    </div>	
+    </div>
+
+    <div class="col-lg-12 margin-tb">
+		<div class="panel-group">
+			<div class="panel-body">
+				<div class="row">
+				    <div class="col-md-12">
+				        <div class="collapse" id="collapse-show-queue">
+				            <div class="card card-body">
+				              <?php if(!empty($waitingMessages)) { ?>
+				                <div class="row col-md-12">
+				                    <?php foreach($waitingMessages as $no => $queue) { ?>
+				                      <div class="col-md-2">
+				                            <div class="card">
+				                              <div class="card-header">
+				                                <?php echo $no; ?>
+				                              </div>
+				                              <div class="card-body">
+				                                    <a class="recall-api" data-no="<?php echo $no; ?>" href="javascript:;"><img title="Recall" src="/images/icons-refresh.png"></img></a>&nbsp;
+					                              <?php echo $queue; ?>
+				                              </div>
+				                          </div>
+				                       </div> 
+				                  <?php } ?>
+				                </div>
+				              <?php } else  { 
+				                echo "Sorry , No data available";
+				              } ?>
+				            </div>
+				        </div>
+				    </div>    
+				</div>	
+			</div>	
+		</div>
+    </div>
+
     <div class="col-lg-12 margin-tb">
     	<div class="row" style="margin-bottom:20px;">
 	    	<div class="col col-md-5">
@@ -58,7 +117,18 @@
 							    	<option value="">-- Select --</option>
 							    	<option value="change_to_broadcast">Change to Broadcast</option>
 							    	<option value="delete_records">Delete Records</option>
-							    	<option value="delete_all">Delete All Records</option>	
+							    	<option value="delete_all">Delete All Records</option>
+							    	<option value="change_customer_number">Change Customer Number</option>	
+							    </select>
+						  	</div>
+						  	<div class="form-group sending-number-section" style="display: none;">
+							    <label for="action">Sending Number:</label>
+							    <select class="form-control" name="sending-number" id="sending-number">
+								    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+				                        @if($number != "0")
+				                            <option value="{{ $number }}">{{ $number }}</option>
+				                        @endif
+				                    @endforeach
 							    </select>
 						  	</div>
 						  	<div class="form-group">
@@ -74,10 +144,14 @@
 						<?php echo csrf_field(); ?>
 					  	<div class="row">
 					  		<div class="col">
-					  			<div class="form-group">
-								    <label for="message_sending_limit">Message Per 5 Min:</label>
-								    {{ Form::text("message_sending_limit",isset($sendingLimit) ? $sendingLimit : 0,["class" => "form-control message_sending_limit"] ) }}
-							  	</div>		
+					  			@foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+			                        @if($number != "0")
+				                        <div class="form-group">
+										    <label for="message_sending_limit">Limit for {{ $number }}:</label>
+										    {{ Form::text("message_sending_limit[{$number}]",isset($sendingLimit[$number]) ? $sendingLimit[$number] : 0,["class" => "form-control message_sending_limit"] ) }}
+									  	</div>
+			                        @endif
+			                    @endforeach		
 					  		</div>
 					  	</div>
 					  	<div class="row">
@@ -112,7 +186,14 @@
 						  	</div>
 				  			<div class="form-group">
 							    <label for="from">From:</label>
-							    <?php echo Form::text("from",request("from"),["class"=> "form-control","placeholder" => "Enter Number from"]) ?>
+							    <select class="form-control" name="from" id="sending-number-from">
+							    	<option value="">-- Select --</option>
+								    @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+				                        @if($number != "0")
+				                            <option value="{{ $number }}">{{ $number }}</option>
+				                        @endif
+				                    @endforeach
+							    </select>
 						  	</div>
 						  	<div class="form-group">
 							    <label for="to">To:</label>

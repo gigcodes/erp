@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Github;
 
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
+use App\Helpers\githubTrait;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use Artisan;
@@ -14,10 +15,12 @@ use GuzzleHttp\Client;
 use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Support\Facades\Input;
-use Twilio\TwiML\Messaging\Body;
 
 class RepositoryController extends Controller
 {
+
+    use githubTrait;
+
     private $client;
 
     function __construct()
@@ -83,22 +86,82 @@ class RepositoryController extends Controller
             'current_branch' => $currentBranch
         ]);
 
-
-
         //print_r($repository);
     }
 
     public function deployBranch($repoId)
     {
-        $repository = GithubRepository::find($repoId);
+        $source = 'master';
+        $destination = Input::get('branch');
 
-        $branch = Input::get('branch');
-        //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
-        $result = exec('/usr/bin/sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch);
-        return redirect(url('/github/repos/' . $repoId . '/branches'))->with([
-            'message' => $result,
+        $url = "https://api.github.com/repositories/" . $repoId . "/merges";
+
+        try {
+            // Merge master into branch
+            $this->client->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        'base' => $destination,
+                        'head' => $source,
+                    ])
+                ]
+            );
+            echo 'done';
+            //Artisan::call('github:load_branch_state');
+            if($source == 'master'){
+                $this->updateBranchState($repoId, $destination);
+            }else if($destination == 'master'){
+                $this->updateBranchState($repoId, $source);
+            }
+
+            // Deploy branch
+            $repository = GithubRepository::find($repoId);
+
+            $branch = Input::get('branch');
+            $composerupdate = request("composer",false);
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' '.$composerupdate. ' 2>&1';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+            $allOutput = array();
+            $allOutput[] = $cmd;
+            $result = exec($cmd, $allOutput);
+
+        } catch (Exception $e) {
+            print_r($e->getMessage());
+            return redirect(url('/github/pullRequests'))->with(
+                [
+                    'message' => 'Failed to Merge!',
+                    'alert-type' => 'error'
+                ]
+            );
+        }
+
+        return redirect(url('/github/pullRequests'))->with([
+            'message' => print_r($allOutput, true),
             'alert-type' => 'success'
         ]);
+    }
+
+    private function updateBranchState($repoId, $branchName){
+        $comparison = $this->compareRepoBranches($repoId, $branchName);
+
+        GithubBranchState::updateOrCreate(
+            [
+                'repository_id' => $repoId,
+                'branch_name'   => $branchName,
+            ],
+            [
+                'repository_id'               => $repoId,
+                'branch_name'                 => $branchName,
+                'ahead_by'                    => $comparison['ahead_by'],
+                'behind_by'                   => $comparison['behind_by'],
+                'last_commit_author_username' => $comparison['last_commit_author_username'],
+                'last_commit_time'            => $comparison['last_commit_time'],
+            ]
+        );
     }
 
     public function mergeBranch($id)
@@ -120,17 +183,35 @@ class RepositoryController extends Controller
                 ]
             );
             echo 'done';
-            Artisan::call('github:load_branch_state');
+            //Artisan::call('github:load_branch_state');
+            if($source == 'master'){
+                $this->updateBranchState($id, $destination);
+            }else if($destination == 'master'){
+                $this->updateBranchState($id, $source);
+            }
+
+            // Deploy branch
+            $repository = GithubRepository::find($id);
+
+            $branch = 'master';
+            //echo 'sh '.getenv('DEPLOYMENT_SCRIPTS_PATH').'erp/deploy_branch.sh '.$branch;
+
+            $cmd = 'sh ' . getenv('DEPLOYMENT_SCRIPTS_PATH') . $repository->name . '/deploy_branch.sh ' . $branch . ' 2>&1';
+
+            $allOutput = array();
+            $allOutput[] = $cmd;
+            $result = exec($cmd, $allOutput);
+
         } catch (Exception $e) {
             print_r($e->getMessage());
-            return redirect(url('/github/repos/' . $id . '/branches'))->with(
+            return redirect(url('/github/pullRequests'))->with(
                 [
                     'message' => 'Failed to Merge!',
                     'alert-type' => 'error'
                 ]
             );
         }
-        return redirect(url('/github/repos/' . $id . '/branches'))->with([
+        return redirect(url('/github/pullRequests'))->with([
             'message' => 'Branch merged successfully',
             'alert-type' => 'success'
         ]);
@@ -138,21 +219,27 @@ class RepositoryController extends Controller
 
     private function getPullRequests($repoId)
     {
-        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
-        $response = $this->client->get($url);
-
-        $decodedJson = json_decode($response->getBody()->getContents());
-
         $pullRequests = array();
-        foreach ($decodedJson as $pullRequest) {
-            $pullRequests[] = array(
-                'id' => $pullRequest->number,
-                'title' => $pullRequest->title,
-                'number' => $pullRequest->number,
-                'source' => $pullRequest->head->ref,
-                'destination' => $pullRequest->base->ref
-            );
+        $url = "https://api.github.com/repositories/" . $repoId . "/pulls";
+        try{
+            $response = $this->client->get($url);
+            $decodedJson = json_decode($response->getBody()->getContents());
+            foreach ($decodedJson as $pullRequest) {
+                $pullRequests[] = array(
+                    'id' => $pullRequest->number,
+                    'title' => $pullRequest->title,
+                    'number' => $pullRequest->number,
+                    'username' => $pullRequest->user->login,
+                    'userId' => $pullRequest->user->id,
+                    'updated_at' => $pullRequest->updated_at,
+                    'source' => $pullRequest->head->ref,
+                    'destination' => $pullRequest->base->ref
+                );
+            }
+        }catch(Exception $e) {
+
         }
+
 
         return $pullRequests;
     }
@@ -185,5 +272,39 @@ class RepositoryController extends Controller
             'pullRequests' => $pullRequests,
             'repository' => $repository
         ]);
+    }
+
+    public function listAllPullRequests()
+    {
+        $repositories = GithubRepository::all(['id', 'name']);
+
+        $allPullRequests = [];
+        foreach ($repositories as $repository) {
+            $pullRequests = $this->getPullRequests($repository->id);
+
+            $pullRequests = array_map(
+                function($pullRequest) use($repository){
+                    $pullRequest['repository'] = $repository;
+                    return $pullRequest;    
+                },
+                $pullRequests
+            );
+
+            $allPullRequests = array_merge($allPullRequests, $pullRequests);
+        }
+
+        //echo print_r($allPullRequests, true);
+
+        //exit;
+        return view(
+            'github.all_pull_requests',
+            [
+                'pullRequests' =>  $allPullRequests
+            ]
+        );
+    }
+
+    function deployNodeScrapers(){
+        return $this->getRepositoryDetails(231924853);
     }
 }

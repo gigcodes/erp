@@ -37,6 +37,7 @@
                             <label for="platform_id">Platform</label>
                             <select name="platform" id="platform" class="form-control">
                                 <option value="instagram">Instagram</option>
+                                <option value="facebook">Facebook</option>
                             </select>
                         </div>
                     </div>

@@ -8,7 +8,7 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
 
-      <form action="{{ route('vendor.email.send') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('vendors.email.send') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="vendor_id" value="{{ isset($vendor) ? $vendor->id : '' }}">
 

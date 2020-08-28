@@ -291,12 +291,12 @@
                         @foreach($plannedTasks as $task)
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}
-                                    @if(auth()->user()->isAdmin() && $task->status != 'Done')
-                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                    @if(auth()->user()->isReviwerLikeAdmin() && $task->status != 'Done')
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
                                     @endif
                                 </td>
                                 <td>
-                                    @if(Auth::user()->hasRole('Admin'))
+                                    @if(Auth::user()->isReviwerLikeAdmin())
                                         @php
                                             $userId = $task->user_id;
                                         @endphp
@@ -392,11 +392,11 @@
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}
                                     @if($task->status != 'Done')
-                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, $priority) ? 'checked' : ''}}>
+                                        <input type="checkbox" name="selected_issue[]" value="{{$task->id}}" {{in_array($task->id, isset($priority) ? $priority : []) ? 'checked' : ''}}>
                                     @endif
                                 </td>
                                 <td>
-                                    @if(Auth::user()->hasRole('Admin'))
+                                    @if(Auth::user()->isReviwerLikeAdmin())
                                         @php
                                             $userId = $task->user_id;
                                         @endphp
@@ -467,7 +467,7 @@
                             <tr id="tr_{{$task->id}}">
                                 <td>{{ $task->id }}</td>
                                 <td>
-                                    @if(Auth::user()->hasRole('Admin'))
+                                    @if(Auth::user()->isReviwerLikeAdmin())
                                         @php
                                             $userId = $task->user_id;
                                         @endphp
@@ -577,7 +577,7 @@
                             </div>
                             <div class="col-md-8">
                                 <div class="form-group">
-                                    @if(auth()->user()->isAdmin())
+                                    @if(auth()->user()->isReviwerLikeAdmin())
                                         <select class="form-control" name="user_id" id="priority_user_id">
                                             @foreach ($users as $id => $name)
                                                 <option value="{{ $id }}">{{ $name }}</option>
@@ -594,7 +594,7 @@
                                 <strong>Remarks:</strong>
                             </div>
                             <div class="col-md-8">
-                                @if(auth()->user()->isAdmin())
+                                @if(auth()->user()->isReviwerLikeAdmin())
                                      <div class="form-group">
                                         <textarea cols="45" class="form-control" name="global_remarkes"></textarea>
                                     </div>
@@ -622,7 +622,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    @if(auth()->user()->isAdmin())
+                    @if(auth()->user()->isReviwerLikeAdmin())
                         <button type="submit" class="btn btn-secondary">Confirm</button>
                     @endif
                 </div>

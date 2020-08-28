@@ -215,7 +215,10 @@
                         <strong>Special Price:</strong>
                         <input type="text" class="form-control" name="special_price" placeholder="Enter Special Price" >
                     </div>
-                   
+                   <div class="form-group">
+                        <strong>Location:</strong>
+                        <?php echo Form::select("location",\App\ProductLocation::pluck("name","name")->toArray(),null,["class" =>"select2 form-control"]); ?>
+                   </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

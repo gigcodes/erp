@@ -15,26 +15,77 @@ class LogScraperController extends Controller
 {
     public function index(Request $request)
     {
-        $scraperLogs = DB::table('log_scraper')->where('validated', 0);
+        $customrange = $request->get("customrange",null);
+
+        $from = null;
+        $to  = null;
+
+        if(!empty($customrange)) {
+            list($from,$to) = explode(" - ", $customrange);
+        }
+
+        $scraperLogs = DB::table('scraped_products')->where('validated', 0);
+
+        if (!empty($request->id)) {
+            $scraperLogs = $scraperLogs->where('id', '=' ,$request->id);
+        }
+
+        if (!empty($request->ip_address)) {
+            $scraperLogs = $scraperLogs->where('ip_address', 'LIKE', '%' . $request->ip_address . '%');
+        }
 
         if (!empty($request->website)) {
             $scraperLogs = $scraperLogs->where('website', 'LIKE', '%' . $request->website . '%');
         }
 
-        if (!empty($request->result)) {
-            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->result . '%');
+        if (!empty($request->url)) {
+            $scraperLogs = $scraperLogs->where('url', 'LIKE', '%' . $request->url . '%');
         }
 
-        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        if (!empty($request->sku)) {
+            $scraperLogs = $scraperLogs->where('sku', 'LIKE', '%' . $request->sku . '%');
+        }
 
-        return view('log.scraper', compact('scraperLogs'));
+        if (!empty($request->original_sku)) {
+            $scraperLogs = $scraperLogs->where('original_sku', 'LIKE', '%' . $request->original_sku . '%');
+        }
+
+        if (!empty($request->title)) {
+            $scraperLogs = $scraperLogs->where('title', 'LIKE', '%' . $request->title . '%');
+        }
+
+        if (!empty($request->validation_result)) {
+            $scraperLogs = $scraperLogs->where('validation_result', 'LIKE', '%' . $request->validation_result . '%');
+        }
+
+        if(!empty($from) && !empty($to)) {
+            $scraperLogs = $scraperLogs->where('created_at',">=", $from)->where('created_at', "<=", $to);   
+        }
+
+        $logsByGroup  = clone($scraperLogs);
+        $logsByGroup  = $logsByGroup->where("validation_result","!=" ,"");
+        $logsByGroup  = $logsByGroup->select(["website",\DB::raw("count(*) as total_error")]);
+        $logsByGroup  = $logsByGroup->groupBy("website");
+        $logsByGroup  = $logsByGroup->having("total_error",">",0)->get();
+
+        $scraperLogs = $scraperLogs->orderBy('created_at', 'DESC')->paginate(25);
+        
+        // For ajax
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('logging.partials.scraper-logs', compact('scraperLogs'))->render(),
+                'links' => (string)$scraperLogs->appends(request()->except("page"))->links()
+            ], 200);
+        }
+
+        return view('logging.scraper', compact('scraperLogs','customrange','logsByGroup'));
     }
 
     public function logSKU(Request $request)
     {
        
-        $logScrapper = LogScraper::select('log_scraper.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
-            $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
+        $logScrapper = \App\ScrapedProducts::select('scraped_products.*','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
+            $join->on('scraped_products.website', '=', 'scrapers.scraper_name');
         });
 
         
@@ -79,7 +130,7 @@ class LogScraperController extends Controller
         //last_update < DATE_SUB(NOW(), INTERVAL sp.inventory_lifetime DAY)
         
         // Get paginated result
-        $logScrapper->whereRaw('log_scraper.updated_at > DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
+        $logScrapper->whereRaw('scraped_products.last_inventory_at > DATE_SUB(NOW(), INTERVAL scrapers.inventory_lifetime DAY)');
 
         $logScrappers = $logScrapper->paginate(25)->appends(request()->except(['page']));
 
@@ -89,7 +140,7 @@ class LogScraperController extends Controller
 
         $lastCreatedIssue = DeveloperTask::whereNotNull('reference')->orderBy('created_at','desc')->first();
 
-        $logs = LogScraper::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
+        $logs = \App\ScrapedProducts::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
         foreach ($logs as $log) {
             $category_selection[] = str_replace(',','>',$log->dataUnserialize($log->category));
         }
@@ -115,10 +166,11 @@ class LogScraperController extends Controller
     {
        
 
-        $logScrapper = LogScraper::select('log_scraper.*','brands.sku_search_url','sku_formats.sku_examples','sku_formats.sku_format','scrapers.inventory_lifetime')->leftJoin('scrapers', function($join) {
-            $join->on('log_scraper.website', '=', 'scrapers.scraper_name');
+        $logScrapper = \App\ScrapedProducts::select('scraped_products.*','brands.sku_search_url','sku_formats.sku_examples','sku_formats.sku_format','scrapers.inventory_lifetime')
+        ->leftJoin('scrapers', function($join) {
+            $join->on('scraped_products.website', '=', 'scrapers.scraper_name');
         })->leftJoin('brands', function($join){
-            $join->on('log_scraper.brand','=','brands.name');
+            $join->on('scraped_products.brand','=','brands.name');
         })->leftJoin('sku_formats',function($join){
             $join->on('brands.id','sku_formats.brand_id');
         });
@@ -165,9 +217,9 @@ class LogScraperController extends Controller
 
         if(!empty($request->order) || $request->order == 0){
             if($request->order == 1){
-                $logScrapper->select('*', \DB::raw('count("log_scraper.website") as total'))->orderBy('total','asc');
+                $logScrapper->select('*', \DB::raw('count("scraped_products.website") as total'))->orderBy('total','asc');
             }else{
-                $logScrapper->select('*', \DB::raw('count("log_scraper.website") as total'))->orderBy('total','DESC');
+                $logScrapper->select('*', \DB::raw('count("scraped_products.website") as total'))->orderBy('total','DESC');
             }
         }
         
@@ -216,7 +268,7 @@ class LogScraperController extends Controller
 
         $lastCreatedIssue = DeveloperTask::whereNotNull('reference')->orderBy('created_at','desc')->first();
 
-        $logs = LogScraper::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
+        $logs = \App\ScrapedProducts::select('id','category','properties')->whereNotNull('category')->groupBy('category')->get();
         foreach ($logs as $log) {
             $category_selection[] = str_replace(',','>',$log->dataUnserialize($log->category));
         }

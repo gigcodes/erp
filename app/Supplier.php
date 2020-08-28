@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id','supplier_status_id','is_blocked'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id','supplier_sub_category_id','scrapper','supplier_status_id','is_blocked'
     ];
 
     protected static function boot()
@@ -77,9 +77,13 @@ class Supplier extends Model
         //return $this->hasMany('App\SupplierStatus');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'supplier_id')->whereIn('status', ['7', '8', '9', '10'])->latest();
+        }
+
+        return $this->hasMany('App\ChatMessage', 'supplier_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function whoDid()
@@ -103,10 +107,10 @@ class Supplier extends Model
     }
 
     public function getSupplierExcelFromSupplierEmail(){
-            
+
         if($this->scraper != null){
             if (strpos($this->scraper->scraper_name, 'excel') !== false) {
-                return $this->scraper->scraper_name;  
+                return $this->scraper->scraper_name;
             }
         }
         $supplier_array = ['birba_excel','colognese_excel','cologneseSecond_excel','cologneseThird_excel',
@@ -125,7 +129,24 @@ class Supplier extends Model
         }
 
         return $supplier = 'master';
-                  
+
+    }
+
+    /**
+     *  Get information by ids
+     *  @param []
+     *  @return Mixed
+     */
+
+    public static function getInfoByIds($ids, $fields = ["*"], $toArray = false)
+    {
+        $list = self::whereIn("id",$ids)->select($fields)->get();
+
+        if($toArray) {
+            $list = $list->toArray();
+        }
+
+        return $list;
     }
 
 }

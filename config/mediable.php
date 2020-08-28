@@ -77,12 +77,14 @@ return [
                 'image/jpeg',
                 'image/png',
                 'image/gif',
+                'image/vnd.adobe.photoshop'
             ],
             'extensions' => [
                 'jpg',
                 'jpeg',
                 'png',
                 'gif',
+                'psd'
             ]
         ],
         Plank\Mediable\Media::TYPE_IMAGE_VECTOR => [
@@ -146,6 +148,7 @@ return [
         Plank\Mediable\Media::TYPE_DOCUMENT => [
             'mime_types' => [
                 'text/plain',
+                'text/html',
                 'application/plain',
                 'text/xml',
                 'text/json',
@@ -160,6 +163,7 @@ return [
                 'text',
                 'xml',
                 'json',
+                'html',
             ]
         ],
         Plank\Mediable\Media::TYPE_SPREADSHEET => [

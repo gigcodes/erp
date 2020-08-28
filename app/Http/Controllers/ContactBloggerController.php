@@ -30,7 +30,7 @@ class ContactBloggerController extends Controller
         $email_template = BloggerEmailTemplate::first();
         $subject = $request->get('email_subject') ?: optional($email_template)->subject;
         $message = $request->get('email_message') ?: optional($email_template)->message;
-        Mail::to($request->user())->send(new \App\Mail\ContactBlogger($subject, $message));
+        Mail::to($request->user())->send(new \App\Mails\Manual\ContactBlogger($subject, $message));
         Email::create([
             'model_id'        => $blogger_contact->id,
             'model_type'      => ContactBlogger::class,

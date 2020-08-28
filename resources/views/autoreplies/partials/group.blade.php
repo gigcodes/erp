@@ -15,10 +15,10 @@
                     <div class="form-group">
                         <strong>Existing Group:</strong>
                         <select class="form-control selectpicker" id="keywordGroup" data-live-search="true">
-                        <option value="">Select Keyword Group</option>    
-                        @foreach($groupKeywords as $groupKeyword)
-                        <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->keyword }}</option>
-                       @endforeach
+                            <option value="">Select Keyword Group</option>    
+                            @foreach($groupKeywords as $groupKeyword)
+                                <option value="{{ $groupKeyword->id }}">{{ $groupKeyword->keyword }}</option>
+                            @endforeach
                        </select>
                     </div>
                 </div>
@@ -50,11 +50,18 @@
                     <div class="form-group">
                         <strong>Existing Group:</strong>
                          <select class="form-control" id="phraseGroup">
-                        <option value="">Select Phrase Group</option>
-                        @foreach($groupPhrases as $groupPhrase)
-                            <option value="{{ $groupPhrase->id }}">{{ $groupPhrase->value }}</option>
-                       @endforeach
-                       </select>
+                            <option value="">Select Phrase Group</option>
+                                @foreach($groupPhrases as $groupPhrase)
+                                    <option data-suggested-reply="{{ $groupPhrase->suggested_reply }}" value="{{ $groupPhrase->id }}">{{ $groupPhrase->value }}</option>
+                                @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <strong>Reply:</strong>
+                        <textarea name="reply" id="autochat-reply" class="form-control"></textarea>
+                    </div>
+                    <div class="form-group list-of-reply">
+
                     </div>
                 </div>
                 <div class="modal-footer">

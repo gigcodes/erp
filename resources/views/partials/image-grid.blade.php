@@ -23,6 +23,33 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+        .carousel-control:focus, .carousel-control:hover {
+            color: #0284b8 !important;
+        }
+
+        .product-slider { padding: 45px; }
+
+        
+          .product-slider #carousel { margin: 0; }
+
+           .product-slider .maincarousel .item { height: 150px; } 
+
+           .product-slider .carousel-inner img {object-fit: contain;}
+
+          .product-slider .thumbcarousel { margin: 12px 0 0; padding: 0 45px; }
+
+          .product-slider .thumbcarousel .item { text-align: center; }
+
+          .product-slider .thumbcarousel .item .thumb {  width: 20%; margin: 0 2%; display: inline-block; vertical-align: middle; cursor: pointer; max-width: 35px; }
+
+          .product-slider .maincarousel .item img { width: 100%; height: 150px; }
+
+          .carousel-control { color: #0284b8; text-align: center; text-shadow: none; font-size: 30px; width: 30px; height: 30px; line-height: 20px; top: 23%; }
+          .carousel-caption, .carousel-control .fa { font: normal normal normal 30px/26px FontAwesome; }
+          .carousel-control { background-color: rgba(0, 0, 0, 0); bottom: auto; font-size: 20px; left: 0; position: absolute; top: 30%; width: auto; }
+
+          .carousel-control.right, .carousel-control.left { background-color: rgba(0, 0, 0, 0); background-image: none; }
+
     </style>
 @endsection
 
@@ -35,7 +62,13 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) {{ \App\Customer::find($customerId)->name }} @endif</h2>
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) 
+                    @if(auth()->user()->isInCustomerService())
+                        #{{ $customerId }} 
+                    @else
+                        {{ \App\Customer::find($customerId)->name }} 
+                    @endif
+                @endif</h2>
 
                 <!--pending products count-->
                 @if(auth()->user()->isAdmin())
@@ -55,10 +88,8 @@
             <!--Product Search Input -->
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
-                    @csrf
-                    {{-- <div class="form-group">
-                        <div class="row"> --}}
-                    <input type="hidden" name="selected_products" id="selected_products" value="">
+                    <input type="hidden" name="return_url" value="{{ request('return_url') }}">
+                    <input type="hidden" name="selected_products" id="selected_products" value="{{ request('selected_products') }}">
                     <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
@@ -81,12 +112,12 @@
                     </div>
 
                     <div class="form-group mr-3">
-                        @php $brands = \App\Brand::getAll(); @endphp
+                        @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple" name="brand[]" multiple data-placeholder="Brands...">
                             <optgroup label="Brands">
                                 @foreach ($brands as $key => $name)
-                                    <option value="{{ $key }}" {{ isset($brand) && $brand == $key ? 'selected' : '' }}>{{ $name }}</option>
+                                    <option value="{{ $key }}" {{ isset($brand) && is_array($brand) && in_array($key,$brand) ? 'selected' : '' }}>{{ $name }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
@@ -94,35 +125,42 @@
 
                     <div class="form-group mr-3">
                         {{-- <strong>Color</strong> --}}
-                        @php $colors = new \App\Colors(); @endphp
+                        @php 
+                            $color  = request('color',[]);  
+                            $colors = new \App\Colors(); 
+                        @endphp
                         {{-- {!! Form::select('color[]',$colors->all(), (isset($color) ? $color : ''), ['placeholder' => 'Select a Color','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple" name="color[]" multiple data-placeholder="Colors...">
                             <optgroup label="Colors">
                                 @foreach ($colors->all() as $key => $col)
-                                    <option value="{{ $key }}" {{ isset($color) && $color == $key ? 'selected' : '' }}>{{ $col }}</option>
+                                    <option value="{{ $key }}" {{ isset($color) && is_array($color) && in_array($key, $color) ? 'selected' : '' }}>{{ $col }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
                     </div>
 
                     <div class="form-group mr-3">
-                        {{-- @php $suppliers = new \App\ReadOnly\SupplierList(); @endphp --}}
-                        {{-- {!! Form::select('supplier[]',$suppliers->all(), (isset($supplier) ? $supplier : ''), ['placeholder' => 'Select a Supplier','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
+                        @php 
+                            $supplier  = request('supplier',[]);
+                        @endphp
                         <select class="form-control select-multiple" name="supplier[]" multiple data-placeholder="Supplier...">
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $supp)
-                                    <option value="{{ $supp->id }}" {{ isset($supplier) && $supplier == $supp->id ? 'selected' : '' }}>{{ $supp->supplier }}</option>
+                                    <option value="{{ $supp->id }}" {{ isset($supplier) && is_array($supplier) && in_array($supp->id, $supplier)  ? 'selected' : '' }}>{{ $supp->supplier }}</option>
                                 @endforeach
                             </optgroup>
                         </select>
                     </div>
 
                     @if (Auth::user()->hasRole('Admin'))
+                        @php
+                            $location  = request('location',[]);  
+                        @endphp
                         <div class="form-group mr-3">
                             <select class="form-control select-multiple" name="location[]" multiple data-placeholder="Location...">
                                 <optgroup label="Locations">
                                     @foreach ($locations as $name)
-                                        <option value="{{ $name }}" {{ isset($location) && $location == $name ? 'selected' : '' }}>{{ $name }}</option>
+                                        <option value="{{ $name }}" {{ isset($location) && is_array($location) && in_array($name,$location) ? 'selected' : '' }}>{{ $name }}</option>
                                     @endforeach
                                 </optgroup>
                             </select>
@@ -131,7 +169,7 @@
 
                     <div class="form-group mr-3">
                         <input name="size" type="text" class="form-control"
-                               value="{{ isset($size) ? $size : '' }}"
+                               value="{{ request('size') }}"
                                placeholder="Size">
                     </div>
                      <div class="form-group mr-3">
@@ -151,7 +189,7 @@
                     </div>
                     <div class="form-group mr-3">
                         <strong class="mr-3">Price</strong>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ isset($price) ? $price[0] : '0' }},{{ isset($price) ? $price[1] : '400000' }}]"/>
+                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{ request('price') }}]"/>
                     </div>
 
 
@@ -159,17 +197,13 @@
                     <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : 'nothing' }}" value="{{ $model_id }}" id="attach_all_model_id">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
                     &nbsp;
-                    <input type="checkbox" class="is_on_sale" id="is_on_sale" name="is_on_sale"><label
+                    <input type="checkbox" class="is_on_sale" {{ (request('is_on_sale')) == 'on' ? 'checked' : '' }} id="is_on_sale" name="is_on_sale"><label
                             for="is_on_sale">Sale Products</label>
-                    <input type="checkbox" class="random" id="random" name="random"><label
+                    <input type="checkbox" class="random" {{ (request('random')) == 'on' ? 'checked' : '' }} id="random" name="random"><label
                             for="random">Random</label>
-                    <input type="checkbox" class="unsupported" id="unsupported" name="unsupported"><label
-                            for="unsupported">Unsupported Images</label>        
-
-
+                    <input type="checkbox" class="unsupported" id="unsupported" {{ (request('unsupported')) == 'on' ? 'checked' : '' }} name="unsupported"><label
+                            for="unsupported">Unsupported Images</label>
                     <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                    {{-- </div>
-                </div> --}}
                 </form>
 
                 <form action="{{ url()->current() }}" method="GET" id="quickProducts" class="form-inline align-items-start my-3">
@@ -219,6 +253,7 @@
     </div>
     @php
         $action = url('whatsapp/updateAndCreate/');
+
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -227,12 +262,18 @@
             $action =  route('purchase.product.replace');
         } else if ($model_type == 'broadcast-images') {
             $action =  route('broadcast.images.link');
-        } else if ($model_type == 'customer') {
+        } else if ($model_type == 'customer' || $model_type == 'livechat') {
             $action =  route('attachImages.queue');
         } else if ($model_type == 'selected_customer' || $model_type == 'selected_customer_token') {
             $action =  route('whatsapp.send_selected_customer');
         } else if ($model_type == 'product-templates') {
             $action =  route('product.templates');
+        } else if ($model_type == 'landing-page') {
+            $action =  route('landing-page.save');
+        } else if($model_type == 'live-chat') {
+            $action =  route('live-chat.attach.image');
+        }else if ($model_type == 'direct'){
+            $action =  route('direct.send.file');
         }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">
@@ -242,16 +283,17 @@
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
         @endif
-
+        
         @if (request()->get('return_url'))
             <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
         @endif
 
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
+        <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
+        <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
@@ -262,9 +304,17 @@
             <div class="modal-content">
                 <div class="modal-body">
                     <p>Choose the format for sending</p>
-                    <div class="form-group mr-3"
+                    <div class="form-group mr-3">
                         <strong class="mr-3">Custom File Name</strong>
                         <input type="text" name="file_name" id="pdf-file-name" />
+                    </div>
+                    <div class="form-group mr-3">
+                        <strong class="mr-3">Is Queue?</strong>
+                        <select class="form-control" id="is_queue_option" name="is_queue_option">
+                            <option>Select queue</option>
+                            <option value="1">in Queue</option>
+                            <option value="0">Send later</option>
+                        </select>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -593,8 +643,9 @@
 
             var url = "{{ url()->current() }}";
             var formData = $('#searchForm').serialize();
+            $('#searchForm').submit();
 
-            $.ajax({
+            /*$.ajax({
                 url: url,
                 data: formData
             }).done(function (data) {
@@ -608,7 +659,7 @@
 
             }).fail(function () {
                 alert('Error searching for products');
-            });
+            });*/
         });
         var isQuickProductsFrom = false;
         $('#quickProducts').on('submit', function (e) {
@@ -674,7 +725,6 @@
             @if ($model_type == 'purchase-replace')
             if (image_array.length > 1) {
                 alert('Please select only one product');
-
                 return;
             }
             @endif
@@ -685,7 +735,7 @@
                 $('#images').val(JSON.stringify(image_array));
                 var form = $('#attachImageForm');
                 var modelType = form.data("model-type");
-                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers") {
+                if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                 }else{
                     $('#attachImageForm').submit();
@@ -695,12 +745,14 @@
 
         $(".btn-approve-pdf").on("click",function() {
             $("#send_pdf").val("1");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
 
         $(".btn-ignore-pdf").on("click",function() {
             $("#send_pdf").val("0");
+            $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
             $('#attachImageForm').submit();
         });
@@ -740,29 +792,41 @@
                 data: {
                     _token: "{{ csrf_token() }}",
                 },
+                beforeSend: function () {
+                  $("#loading-image").show();
+                },
                 success: function(result){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
                     if(result[0] == 'success'){
                         $('#old_category').text(result[1]);
                         $('#changed_category').text(category);
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
+                        if(typeof result[2] != "undefined") {
+                            $("#no_of_product_will_affect").html(result[2]);
+                        }
                     }else{
                         $('#old_category').text('No Scraped Product Present');
                         $('#changed_category').text(category);
                         $('#product_id').val(product_id);
                         $('#category_id').val(category_id);
+                        $("#no_of_product_will_affect").html(0);
                     }
                 },
                 error: function (){
+                    $("#loading-image").hide();
+                    $('#categoryUpdate').modal('show');
                     $('#old_category').text('No Scraped Product Present');
                     $('#changed_category').text(category);
                     $('#product_id').val(product_id);
                     $('#category_id').val(category_id);
+                    $("#no_of_product_will_affect").html(0);
                 }
             });
 
             
-            $('#categoryUpdate').modal('show');
+            //$('#categoryUpdate').modal('show');
             
         });        
         
@@ -813,9 +877,16 @@
 @section('scripts')
 <script type="text/javascript">
     function myFunction(id){
-    $('#description'+id).toggle();
-    $('#description_full'+id).toggle();
-   }
+        $('#description'+id).toggle();
+        $('#description_full'+id).toggle();
+    }
+
+    $(document).on("click",".attach-thumb-created .item",function(e){
+        e.preventDefault();
+        var imageID = $(this).find(".thumb").data("image");
+        var card = $(this).closest(".product-list-card");
+            card.find(".attach-photo").attr("data-image",imageID);
+    });
 </script>
 
 @endsection

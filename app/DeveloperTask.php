@@ -13,7 +13,7 @@ class DeveloperTask extends Model
 
     protected $fillable = [
         'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by',
-        'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id'
+        'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id'
     ];
 
     public function user()
@@ -60,9 +60,13 @@ class DeveloperTask extends Model
         return $this->belongsTo(User::class, 'created_by', 'id');
     }
 
-    public function whatsappAll()
+    public function whatsappAll($needBroadCast = false)
     {
-        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9'])->latest();
+        if($needBroadCast) {
+            return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereIn('status', ['7', '8', '9', '10'])->latest();    
+        }
+        
+        return $this->hasMany('App\ChatMessage', 'developer_task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
     }
 
     public function countUserTaskFromReference($id){
@@ -82,5 +86,25 @@ class DeveloperTask extends Model
         )
         ->selectRaw('task_id, SUM(tracked) as tracked')
         ->groupBy('task_id');
+    }
+
+    public function leadtimeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'lead_hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
+    }
+
+    public function taskType()
+    {
+        return $this->belongsTo(TaskTypes::class, 'task_type_id', 'id');
+    }
+
+    public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'developer_task_id', 'id')->orderBy('id','desc');
     }
 }

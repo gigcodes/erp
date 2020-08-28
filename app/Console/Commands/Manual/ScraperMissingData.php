@@ -40,7 +40,7 @@ class ScraperMissingData extends Command
      */
     public function handle()
     {
-        try {
+        /*try {*/
             $report = CronJobReport::create([
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
@@ -52,7 +52,7 @@ class ScraperMissingData extends Command
                 website,
                 url,
                 sku,
-                brand,
+                brand_id,
                 category,
                 title,
                 description,
@@ -64,7 +64,7 @@ class ScraperMissingData extends Command
                 discounted_price,
                 is_sale
             FROM
-                log_scraper
+                scraped_products
             WHERE
                 validated=1 AND
                 description LIKE '%shoe%'
@@ -77,12 +77,12 @@ class ScraperMissingData extends Command
                 echo "website;SKU;URL;Brand;Gender;Category;Title;Description;Color;Sizes;Dimension;Images;Size System;Currency;Price;Discounted Price;Is Sale\n";
                 foreach ($results as $result) {
                     // Get properties
-                    $properties = unserialize($result->properties);
+                    $properties = !empty($result->properties) ? unserialize($result->properties) : [];
 
                     echo '"' . $result->website . '";' .
                     '"' . $result->sku . '";' .
                     '"' . $result->url . '";' .
-                    '"' . $result->brand . '";' .
+                    '"' . $result->brand_id . '";' .
                     '"' . (isset($properties['gender']) ? $properties['gender'] : '') . '";' .
                     '"' . (!empty($properties['category']) && is_array($properties['category']) ? implode(',', $properties['category']) : '') . '";' .
                     '"' . $result->title . '";' .
@@ -101,8 +101,8 @@ class ScraperMissingData extends Command
             }
 
             $report->update(['end_time' => Carbon::now()]);
-        } catch (\Exception $e) {
+        /*} catch (\Exception $e) {
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
-        }
+        }*/
     }
 }

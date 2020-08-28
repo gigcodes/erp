@@ -3,7 +3,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('vendor.store') }}" method="POST">
+      <form action="{{ route('vendors.store') }}" method="POST">
         @csrf
 
         <div class="modal-header">
@@ -133,6 +133,62 @@
               <div class="alert alert-danger">{{$errors->first('account_swift')}}</div>
             @endif
           </div>
+          <div class="form-group">
+            <strong>Frequency of Payment:</strong>
+            <input type="text" name="frequency_of_payment" class="form-control" value="{{ old('frequency_of_payment') }}">
+
+            @if ($errors->has('frequency_of_payment'))
+              <div class="alert alert-danger">{{$errors->first('frequency_of_payment')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Bank Name:</strong>
+            <input type="text" name="bank_name" class="form-control" value="{{ old('bank_name') }}">
+
+            @if ($errors->has('bank_name'))
+              <div class="alert alert-danger">{{$errors->first('bank_name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Bank Address:</strong>
+            <textarea name="bank_address" class="form-control">{{ old('bank_address') }}</textarea>
+
+            @if ($errors->has('bank_address'))
+              <div class="alert alert-danger">{{$errors->first('bank_address')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>City:</strong>
+            <input type="text" name="city" class="form-control" value="{{ old('city') }}">
+
+            @if ($errors->has('city'))
+              <div class="alert alert-danger">{{$errors->first('city')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Country:</strong>
+            <input type="text" name="country" class="form-control" value="{{ old('country') }}">
+
+            @if ($errors->has('country'))
+              <div class="alert alert-danger">{{$errors->first('country')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>IFSC:</strong>
+            <input type="text" name="ifsc_code" class="form-control" value="{{ old('ifsc_code') }}">
+
+            @if ($errors->has('ifsc_code'))
+              <div class="alert alert-danger">{{$errors->first('ifsc_code')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Remark:</strong>
+            <textarea name="remark" class="form-control">{{ old('remark') }}</textarea>
+
+            @if ($errors->has('remark'))
+              <div class="alert alert-danger">{{$errors->first('remark')}}</div>
+            @endif
+          </div>
 
           <div class="form-group">
             <strong>Create User:</strong>
@@ -140,6 +196,24 @@
 
             @if ($errors->has('create_user'))
               <div class="alert alert-danger">{{$errors->first('create_user')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Invite (Github):</strong>
+            <input type="checkbox" name="create_user_github" class="form-control">
+
+            @if ($errors->has('create_user'))
+              <div class="alert alert-danger">{{$errors->first('create_user_github')}}</div>
+            @endif
+          </div>
+
+          <div class="form-group">
+            <strong>Invite (Hubstaff):</strong>
+            <input type="checkbox" name="create_user_hubstaff" class="form-control">
+
+            @if ($errors->has('create_user'))
+              <div class="alert alert-danger">{{$errors->first('create_user_hubstaff')}}</div>
             @endif
           </div>
 
@@ -289,6 +363,62 @@
 
             @if ($errors->has('account_swift'))
               <div class="alert alert-danger">{{$errors->first('account_swift')}}</div>
+            @endif
+		  </div>
+		  <div class="form-group">
+            <strong>Frequency of Payment:</strong>
+            <input type="text" name="frequency_of_payment" class="form-control" value="{{ old('frequency_of_payment') }}">
+
+            @if ($errors->has('frequency_of_payment'))
+              <div class="alert alert-danger">{{$errors->first('frequency_of_payment')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Bank Name:</strong>
+            <input type="text" name="bank_name" class="form-control" value="{{ old('bank_name') }}">
+
+            @if ($errors->has('bank_name'))
+              <div class="alert alert-danger">{{$errors->first('bank_name')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Bank Address:</strong>
+            <textarea name="bank_address" class="form-control">{{ old('bank_address') }}</textarea>
+
+            @if ($errors->has('bank_address'))
+              <div class="alert alert-danger">{{$errors->first('bank_address')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>City:</strong>
+            <input type="text" name="city" class="form-control" value="{{ old('city') }}">
+
+            @if ($errors->has('city'))
+              <div class="alert alert-danger">{{$errors->first('city')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Country:</strong>
+            <input type="text" name="country" class="form-control" value="{{ old('country') }}">
+
+            @if ($errors->has('country'))
+              <div class="alert alert-danger">{{$errors->first('country')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>IFSC:</strong>
+            <input type="text" name="ifsc_code" class="form-control" value="{{ old('ifsc_code') }}">
+
+            @if ($errors->has('ifsc_code'))
+              <div class="alert alert-danger">{{$errors->first('ifsc_code')}}</div>
+            @endif
+          </div>
+          <div class="form-group">
+            <strong>Remark:</strong>
+            <textarea name="remark" class="form-control">{{ old('remark') }}</textarea>
+
+            @if ($errors->has('remark'))
+              <div class="alert alert-danger">{{$errors->first('remark')}}</div>
             @endif
           </div>
         </div>

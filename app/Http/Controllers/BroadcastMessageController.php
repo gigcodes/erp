@@ -17,6 +17,8 @@ use App\ImQueue;
 use App\Marketing\WhatsappConfig;
 use Illuminate\Pagination\LengthAwarePaginator;
 use DB;
+use App\Marketing\MarketingPlatform;
+use App\Account;
 
 class BroadcastMessageController extends Controller
 {
@@ -43,12 +45,14 @@ class BroadcastMessageController extends Controller
 
         
         foreach ($message_groups as $group_id => $datas) {
+
             $pending_count = 0;
             $received_count = 0;
             $stopped_count = 0;
             $failed_count = 0;
             $total_count = 0;
             foreach ($datas as $data) {
+
             if($data->sent_at != null && $data->sent_at != '2002-02-02 02:02:02'){
                     $received_count++;
                 }
@@ -68,10 +72,29 @@ class BroadcastMessageController extends Controller
                     $pending_count++;
                 }
 
-                $whatsappConfig = WhatsappConfig::where('number',$data->number_from)->first();
-                if($whatsappConfig == null){
-                    $whatsappConfig->frequency = 0;
+                if($data->im_client == 'facebook'){
+                    $account = Account::where('platform','facebook')->where('last_name',$data->number_from)->first();
+                    if($account == null){
+                        $frequency = 0;
+                    }else{
+                        $frequency = $account->frequency;
+                    }
+                }elseif($data->im_client == 'instagram'){
+                    $account = Account::where('platform','instagram')->where('last_name',$data->number_from)->first();
+                    if($account == null){
+                        $frequency = 0;
+                    }else{
+                        $frequency = $account->frequency;
+                    }
+                }else{
+                    $whatsappConfig = WhatsappConfig::where('number',$data->number_from)->first();
+                    if($whatsappConfig == null){
+                        $frequency = 0;
+                    }else{
+                        $frequency = $whatsappConfig->frequency;
+                    }
                 }
+                    
 
                 //Start Date And Time 
                 $firstMessage = ImQueue::where('broadcast_id',$group_id)->orderBy('send_after','asc')->first();
@@ -89,7 +112,7 @@ class BroadcastMessageController extends Controller
                 $message_groups_array[ 'end_time' ] = $lastMessage->send_after;
                 $message_groups_array[ 'message' ] = $data->text;
                 $message_groups_array[ 'broadcast_number' ] = $data->number_from;
-                $message_groups_array[ 'frequency' ] = $whatsappConfig->frequency;
+                $message_groups_array[ 'frequency' ] = $frequency;
                 $message_groups_array[ 'image' ] = $data->image;
                 $message_groups_array[ 'can_be_stopped' ] = $can_be_stopped;
                 $message_groups_array[ 'sending_time' ] = $data->send_after;
@@ -128,8 +151,11 @@ class BroadcastMessageController extends Controller
         // Get all numbers from config
         $configWhatsApp = WhatsappConfig::select('id','number')->where('status',1)->get();
         
+        $platforms = MarketingPlatform::all();
+        
         return view('customers.broadcast', [
             'broadcasts' => $new_data,
+            'platforms' => $platforms,
             
         ]);
     }
@@ -157,9 +183,12 @@ class BroadcastMessageController extends Controller
         $broadcast_images = BroadcastImage::orderBy('id', 'DESC')->paginate(Setting::get('pagination'));
         $api_keys = ApiKey::select('number')->get();
 
+        $platforms = MarketingPlatform::all();
+
         return view('customers.broadcast-images', [
             'broadcast_images' => $broadcast_images,
-            'api_keys' => $api_keys
+            'api_keys' => $api_keys,
+            'platforms' => $platforms,
         ]);
     }
 

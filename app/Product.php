@@ -23,6 +23,13 @@ use App\Services\Products\ProductsCreator;
 class Product extends Model
 {
 
+    CONST STOCK_STATUS = [
+        1 => "Active",
+        2 => "Reserved",
+        3 => "Damaged",
+        4 => "On Hold"
+    ];
+
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
@@ -34,8 +41,14 @@ class Product extends Model
     protected $fillable = [
         'sku',
         'is_barcode_check',
-        'has_mediables'
+        'has_mediables',
+        'size_eu',
+        'stock_status',
+        'shopify_id',
+        'scrap_priority',
+        'assigned_to'
     ];
+
     protected $dates = ['deleted_at'];
     protected $appends = [];
     protected $communication = '';
@@ -50,7 +63,17 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
+        });
+
+        static::updating(function ($product) {
+            $oldCatID = $product->category;
+            $newCatID = $product->getOriginal('category');
+            if($oldCatID != $newCatID) {
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+            }
         });
 
         static::created(function ($model) {
@@ -58,7 +81,9 @@ class Product extends Model
             if ($model->hasMedia(config('constants.attach_image_tag'))) {
                 $flag = 1;
             }
-            \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            if($model->has_mediables != $flag) {
+                \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
+            }
         });
     }
 
@@ -71,7 +96,7 @@ class Product extends Model
     public static function createProductByJson($json, $isExcel = 0, $nextExcelStatus = 2)
     {
         // Log before validating
-        LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
+        //LogScraper::LogScrapeValidationUsingRequest($json, $isExcel);
 
         // Check for required values
         if (
@@ -91,7 +116,18 @@ class Product extends Model
             // If validator fails we have an existing product
             if ($validator->fails()) {
                 // Get the product from the database
-                $product = Product::where('sku', $data[ 'sku' ])->first();
+                try {
+                    
+                    if($json->product_id > 0) {
+                        $product = Product::where('id', $json->product_id)->first();
+                    }else{
+                        $product = Product::where('sku', $data[ 'sku' ])->first();
+                    }
+
+                } catch (\Exception $e) {
+                    $product = Product::where('sku', $data[ 'sku' ])->first();
+                }
+                
 
                 // Return false if no product is found
                 if (!$product) {
@@ -179,6 +215,9 @@ class Product extends Model
 
                 }
 
+                $product->checkExternalScraperNeed();
+
+
                 // Update the product status
                 ProductStatus::updateStatus($product->id, 'UPDATED_EXISTING_PRODUCT_BY_JSON', 1);
 
@@ -201,6 +240,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -249,7 +289,7 @@ class Product extends Model
                 ];
 
                 // Log scrap activity
-                ScrapActivity::create($params);
+                //ScrapActivity::create($params);
 
                 // Return
                 //returning 1 for Product Updated
@@ -295,6 +335,9 @@ class Product extends Model
                 // Try to save the product
                 try {
                     $product->save();
+                    $product->checkExternalScraperNeed();
+                    //$json->product_id = $product->id;
+                    //$json->save();
                 } catch (\Exception $exception) {
                     $product->save();
                     return false;
@@ -316,6 +359,7 @@ class Product extends Model
                                 'stock' => $json->stock,
                                 'price' => $formattedPrices[ 'price_eur' ],
                                 'price_special' => $formattedPrices[ 'price_eur_special' ],
+                                'supplier_id' => $dbSupplier->id,
                                 'price_discounted' => $formattedPrices[ 'price_eur_discounted' ],
                                 'size' => $json->properties[ 'size' ] ?? null,
                                 'color' => $json->properties[ 'color' ],
@@ -510,17 +554,17 @@ class Product extends Model
 
     public function orderproducts()
     {
-        return $this->hasMany('App\OrderProduct', 'sku', 'sku');
+        return $this->hasMany('App\OrderProduct', 'product_id', 'id');
     }
 
     public function scraped_products()
     {
-        return $this->hasOne('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasOne('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function many_scraped_products()
     {
-        return $this->hasMany('App\ScrapedProducts', 'sku', 'sku');
+        return $this->hasMany('App\ScrapedProducts', 'product_id', 'id');
     }
 
     public function user()
@@ -575,13 +619,24 @@ class Product extends Model
 
     public function attachImagesToProduct($arrImages = null)
     {
-        if (!$this->hasMedia(\Config('constants.media_original_tag')) || is_array($arrImages)) {
+
+        // check media exist or
+        $mediaRecords = false;
+        if ($this->hasMedia(\Config('constants.media_original_tag'))) {
+            foreach($this->getMedia(\Config('constants.media_original_tag')) as $mRecord) {
+                if(file_exists($mRecord->getAbsolutePath())) {
+                    $mediaRecords = true;
+                }
+            }
+        }
+        
+        if (!$mediaRecords || is_array($arrImages)) {
             // images given
             if (is_array($arrImages) && count($arrImages) > 0) {
                 $scrapedProduct = true;
             } else {
                 //getting image details from scraped Products
-                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->latest()->first();
+                $scrapedProduct = ScrapedProducts::where('sku', $this->sku)->orderBy('updated_at','desc')->first();
             }
 
             if ($scrapedProduct != null and $scrapedProduct != '') {
@@ -601,14 +656,28 @@ class Product extends Model
 
                     try {
                         //generating image from image
+                        //this was quick fix for redirect url issue
+                        $redirect = \App\Helpers::findUltimateDestination($image,2);
+                        if($redirect != null) {
+                           $image = str_replace(" ","%20",$redirect);
+                        }
                         $jpg = \Image::make($image)->encode('jpg');
                     } catch (\Exception $e) {
                         // if images are null
                         $jpg = null;
+                        // need to define error update
+                        if($scrapedProduct && is_object($scrapedProduct)) {
+                            $lastScraper = ScrapedProducts::where("sku", $this->sku)->latest()->first();
+                            if($lastScraper) {
+                                $lastScraper->validation_result = $lastScraper->validation_result.PHP_EOL."[error] One or more images has an invalid URL : ".$image.PHP_EOL;
+                                $lastScraper->save();
+                            }
+                        }
+
                     }
                     if ($jpg != null) {
                         $filename = substr($image, strrpos($image, '/'));
-                        $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', $filename);
+                        $filename = str_replace(['/', '.JPEG', '.JPG', '.jpeg', '.jpg', '.PNG', '.png'], '', urldecode($filename));
 
                         //save image to media
                         $media = MediaUploader::fromString($jpg)->toDirectory('/product/' . floor($this->id / 10000) . '/' . $this->id)->useFilename($filename)->onDuplicateReplace()->upload();
@@ -666,7 +735,7 @@ class Product extends Model
             if($group != null && $group != '' && $group->composition != null){
                 return $group->composition;
             }else{
-                $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+                $hscodeDetails = HsCode::find($group->hs_code_id);
                 if($hscodeDetails != null && $hscodeDetails != ''){
                     if($hscodeDetails->correct_composition != null){
                         return $hscodeDetails->correct_composition;
@@ -691,9 +760,9 @@ class Product extends Model
         {
             $groupId = $hscodeList->hs_code_group_id;
             $group = HsCodeGroup::find($groupId);
-            $hscodeDetails = SimplyDutyCategory::find($group->hs_code_id);
+            $hscodeDetails = HsCode::find($group->hs_code_id);
             if($hscodeDetails != null && $hscodeDetails != ''){
-                if($hscodeDetails->correct_composition != null){
+                if($hscodeDetails->description != null){
                     return $hscodeDetails->code;
                 }else{
                     return false;
@@ -723,4 +792,190 @@ class Product extends Model
         }      
     }
 
+
+    public function websiteProducts()
+    {
+        return $this->hasMany("App\WebsiteProduct","product_id","id");
+    }
+
+    
+    public function publishedOn()
+    {
+        return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
+
+
+    }
+
+    /**
+     * get product images from watson
+     * 
+     */
+
+    public static function attachProductChat($brands = [], $category = [], $existeProducts = [])
+    {
+        return \App\Product::whereIn("brand", $brands)->whereIn("category", $category)
+                ->whereNotIn("id", $existeProducts)
+                ->join("mediables as m",function($q){
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
+                })
+                ->where("stock",">",0)
+                ->orderBy("created_at", "desc")
+                ->limit(\App\Library\Watson\Action\SendProductImages::SENDING_LIMIT)
+                ->get();
+    }
+
+    /**
+    * Get price calculation
+    * @return float
+    **/
+    public function getPrice($websiteId,$countryId = null, $countryGroup = null)
+    {
+        $website        = \App\StoreWebsite::find($websiteId);
+        $priceRecords   = null;
+
+        if($website) {
+
+           $brand    = @$this->brands->brand_segment;
+           $category = $this->category;
+           $country  = $countryId;
+
+           if($countryGroup == null) {
+               $listOfGroups = \App\CountryGroup::join("country_group_items as cgi","cgi.country_group_id","country_groups.id")->where("cgi.country_code",$country)->first();
+               if($listOfGroups) {
+                  $countryGroup = $listOfGroups->country_group_id;
+               }
+           }
+
+           $priceModal = \App\PriceOverride::where("store_website_id",$website->id);
+           $priceCModal = clone $priceModal;
+
+           if(!empty($brand) && !empty($category) && !empty($countryGroup))  {
+              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->where("brand_segment",$brand)->where("category_id",$category)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where(function($q) use($brand, $category, $countryGroup) {
+                $q->orWhere(function($q) use($brand, $category) {
+                    $q->where("brand_segment", $brand)->where("category_id",$category);
+                })->orWhere(function($q) use($brand, $countryGroup) {
+                    $q->where("brand_segment", $brand)->where("country_group_id",$countryGroup);
+                })->orWhere(function($q) use($countryGroup, $category) {
+                    $q->where("country_group_id", $countryGroup)->where("category_id",$category);
+                });
+              })->first();
+           }
+
+           if(!$priceRecords) {
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("brand_segment",$brand)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("category_id",$category)->first();
+           }
+
+           if(!$priceRecords) {
+              $priceModal = $priceCModal;
+              $priceRecords = $priceModal->where("country_group_id",$countryGroup)->first();
+           }
+
+           if($priceRecords) {
+              if($priceRecords->calculated == "+") {
+                 if($priceRecords->type == "PERCENTAGE")  {
+                    $price = ($this->price * $priceRecords->value) / 100;
+                    return ["original_price" => $this->price , "promotion" => $price , "total" =>  $this->price + $price];
+                 }else{
+                    return ["original_price" => $this->price , "promotion" => $priceRecords->value , "total" =>  $this->price + $priceRecords->value];
+                 }
+              }
+              if($priceRecords->calculated == "-") {
+                 if($priceRecords->type == "PERCENTAGE")  {
+                    $price = ($this->price * $priceRecords->value) / 100;
+                    return ["original_price" => $this->price , "promotion" => -$price , "total" =>  $this->price - $price];
+                 }else{
+                    return ["original_price" => $this->price , "promotion" => - $priceRecords->value , "total" =>  $this->price - $priceRecords->value];
+                 }
+              }
+           }
+        }
+
+        return ["original_price" => $this->price , "promotion" => "0.00", "total" =>  $this->price];
+    }
+
+    public function getDuty($countryCode)
+    {
+       $hsCode = ($this->product_category) ? $this->product_category->simplyduty_code : null;
+       if(!empty($hsCode)){
+            $duty = \App\CountryDuty::leftJoin("duty_groups as dg","dg.id","country_duties.duty_group_id")
+            ->where("country_duties.hs_code",$hsCode)
+            ->where("country_duties.destination",$countryCode)
+            ->select(["country_duties.*","dg.id as has_group","dg.duty as group_duty","dg.vat as group_vat"])
+            ->first();
+
+            if($duty) {
+                if($duty->has_group != null) {
+                    return $duty->group_duty + $duty->group_vat;
+                }else{
+                    return $duty->duty_percentage + $duty->vat_percentage;
+                }
+            }
+       }
+        
+        return (float)"0.00";
+
+    }
+
+    public function storeWebsiteProductAttributes($storeId = 0)
+    {
+        return \App\StoreWebsiteProductAttribute::where("product_id", $this->id)->where("store_website_id",$storeId)->first();
+    }
+
+    public function checkExternalScraperNeed()
+    {
+        if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
+            $this->status_id = StatusHelper::$requestForExternalScraper;
+            $this->save();
+        }else{
+            // if validation pass and status is still external scraper then remove and put for the auto crop
+            if($this->status_id == StatusHelper::$requestForExternalScraper) {
+               $this->status_id =  StatusHelper::$autoCrop;
+               $this->save();
+            }
+        }
+    }
+
+    public function landingPageProduct()
+    {
+        return $this->hasOne('App\LandingPageProduct','product_id','id');
+    }
+
+    /**
+    * This is using for ingoring the product for next step
+    * like due to problem in crop we are not sending white product on approval
+    *
+    */
+    public function isNeedToIgnore()
+    {
+        if(strtolower($this->color) == "white") {
+            $this->status_id = \App\Helpers\StatusHelper::$scrape;
+            $this->save();
+        }
+    }
+
+    public function getStoreBrand($storeId)
+    {
+        $platformId = 0;
+
+        $brand = $this->brands;
+        if($brand) {
+            $storeWebsiteBrand = \App\StoreWebsiteBrand::where("brand_id",$brand->id)->where("store_website_id",$storeId)->first();
+            if($storeWebsiteBrand) {
+                $platformId = $storeWebsiteBrand->magento_value;
+            }
+        }
+
+        return $platformId;
+    }
 }

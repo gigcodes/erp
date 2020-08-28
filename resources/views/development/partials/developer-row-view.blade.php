@@ -1,18 +1,24 @@
-<tr>
+<tr style="color:grey;">
     <td>
         <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
-            @if($issue->is_resolved==0)
-                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>
-            @endif
+            @if($issue->is_resolved==0)	
+                <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
+            @endif	
         </a>
+
+
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
+        <br>
+        {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
+        @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
     </td>
     <td><a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->developerModule ? $issue->developerModule->name : 'Not Specified' }}</a></td>
+
     <td>{{ $issue->subject }}</td>
-    <td>{!! ['N/A', '<strong class="text-danger">Critical</strong>', 'Urgent', 'Normal'][$issue->priority] ?? 'N/A' !!}</td>
+    
     <td>
-        {{ $issue->task }}
+    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
         @if ($issue->getMedia(config('constants.media_tags'))->first())
             <br>
             @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -33,33 +39,62 @@
             </div>
         </div>
     </td>
-    <td>{{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}</td>
-    <td>&nbsp;</td>
-    <td>{{ (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0) ? $issue->timeSpent->tracked : '' }}</td>
+    <td data-id="{{ $issue->id }}">
+        <div class="form-group">
+            <div class='input-group estimate_minutes'>
+                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_time = $time_history->new_value;
+                    }
+                    else {
+                        $est_time = 0;
+                    }
+                @endphp
+                @if($est_time)
+                    Approved : {{$est_time}}
+                @endif
+            </div>            
+        </div>
+    </td>
     <td>
+    @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
+    Developer : {{ formatDuration($issue->timeSpent->tracked) }}
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        @endif
+
+        @if (isset($issue->leadtimeSpent) && $issue->leadtimeSpent->task_id > 0)
+        Lead : {{ formatDuration($issue->leadtimeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="lead"><i class="fa fa-info-circle"></i></button>
+        @endif
+    
+    </td>
+    <td>
+    <label for="" style="font-size: 12px;">Assigned To :</label>
         @if($issue->assignedUser)
-            {{ $issue->assignedUser->name }}
+            <p>{{ $issue->assignedUser->name }}</p>
         @else
-            Unassigned
+            <p>Unassigned</p>
+        @endif
+        <label for="" style="font-size: 12px;">Lead :</label>
+        @if($issue->masterUser)
+            <p>{{ $issue->masterUser->name  }}</p>
+        @else
+            <p>N/A</p>
         @endif
     </td>
     <td>
         @if($issue->is_resolved)
-            <strong>Resolved</strong>
+            <strong>Done</strong>
         @else
-            <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
-                <option value="">Please Select</option>
-                <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
-                <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
-                <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
+            <select name="task_status" id="task_status" class="form-control" onchange="resolveIssue(this,{{$issue->id}})">
+                @foreach($statusList  as $status)
+                <option value="{{$status}}" {{ (!empty($issue->status) && $issue->status ==  $status ? 'selected' : '') }}>{{$status}}</option>
+                @endforeach
             </select>
-        @endif
-    </td>
-    <td>
-        @if($issue->masterUser)
-            {{ $issue->masterUser->name  }}
-        @else
-            N/A
         @endif
     </td>
     <td>
@@ -70,7 +105,19 @@
         @endif
     </td>
     <td>
+    @if($issue->is_milestone)
+        <p style="margin-bottom:0px;">Milestone : @if($issue->is_milestone) Yes @else No @endif</p>
+        <p style="margin-bottom:0px;">Total : {{$issue->no_of_milestone}}</p>
+        <p style="margin-bottom:0px;">Completed : {{$issue->milestone_completed}}</p>
+    @else
+    No 
+    @endif
+
+    </td>
+
+    <td>
         <?php echo $issue->language; ?>
+
     </td>
     </tr>
     <tr>

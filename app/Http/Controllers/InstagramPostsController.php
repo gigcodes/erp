@@ -8,6 +8,7 @@ namespace App\Http\Controllers;
 use App\Account;
 use App\HashTag;
 use App\InstagramPosts;
+use App\Post;
 use App\InstagramPostsComments;
 use App\Setting;
 use Illuminate\Http\Request;
@@ -17,19 +18,67 @@ use File;
 use App\CommentsStats;
 use App\InstagramCommentQueue;
 use App\ScrapInfluencer;
+use Carbon\Carbon;
+use App\InstagramUsersList;
+use App\Library\Instagram\PublishPost;
+use Plank\Mediable\Media;
 
 class InstagramPostsController extends Controller
 {
     public function index(Request $request)
     {
         // Load posts
-        $posts = $this->_getFilteredInstagramPosts($request);
-
+        if($request->hashtag){
+            $posts = $this->_getFilteredInstagramPosts($request);
+        }else{
+            $posts = InstagramPosts::orderBy('id','desc');
+        }
         // Paginate
         $posts = $posts->paginate(Setting::get('pagination'));
-
         // Return view
         return view('social-media.instagram-posts.index', compact('posts'));
+    }
+
+
+    public function post()
+    {
+        $accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
+        $used_space = 0;
+        $storage_limit = 0;
+        return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
+    }
+
+    public function createPost(Request $request){
+        
+        //resizing media 
+        
+        //dd($request->media);
+        foreach ($request->media as $media) {
+           
+            $mediaFile = Media::where('id',$media)->first();
+            $image = self::resize_image_crop($mediaFile,640,640);
+        }
+        
+
+
+        $post = new Post();
+
+        $post->account_id = $request->account;
+        $post->type       = $request->type;
+        $post->caption    = $request->caption;
+        $post->ig         = [
+            'media'    => $request->media,
+            'location' => '',
+        ];
+
+        if (new PublishPost($post)) {
+            return redirect()->route('post.index')
+                ->with('success', __('Your post has been published'));
+        } else {
+            return redirect()->route('post.index')
+                ->with('error', __('Post failed to published'));
+        }
+
     }
 
     public function grid(Request $request)
@@ -192,51 +241,229 @@ class InstagramPostsController extends Controller
      return response()->json(['username' => $account->last_name , 'password' => $account->password], 200);
     }
 
-    public function getComments($username , $password)
+    public function getComments($username)
     {
-        $account = Account::where('last_name',$username)->where('password',$password)->first();
+        $account = Account::where('last_name',$username)->first();
 
         if($account == null && $account == ''){
-             return response()->json(['message' => 'Account Not Found'], 400);
+             return response()->json(['result' =>  false,'message' => 'Account Not Found'], 400);
         }
-        $comments = InstagramCommentQueue::where('account_id',$account->id)->where('is_send',0)->get()->take(20);
-        foreach ($comments as $comment) {
-            $commentArray[] = $comment->message;
-            $codeArray[] = str_replace(["https://www.instagram.com/p/","/"],'',$comment->getPost->location);
+
+        $comments = InstagramCommentQueue::select('id','post_id','message')->where('account_id',$account->id)->where('is_send',0)->take(20)->get();
+        if(count($comments) != 0){
+            return response()->json(['result' => true , 'comments' => $comments],200); 
+        }else{
+            return response()->json(['result' =>  false, 'message' => 'No messages'],200); 
         }
-        
-        return response()->json(['comment' => $commentArray , 'code' => $codeArray ],200);        
+               
 
     }
 
     public function commentSent(Request $request)
     {
-        $comment = $request->comment;
-        $postId = $request->post_id;
-        $comments = InstagramCommentQueue::where('post_id',$postId)->where('message','LIKE','%'.$comment)->first().'%';
-        $comments->is_send = 1;
-        $comments->save();
+        $id = $request->id;
+        $comment = InstagramCommentQueue::find($id);
+        $comment->is_send = 1;
+        $comment->save();
 
     }    
 
     public function getHashtagList()
     {
-        $hastags = HashTag::select('id','hashtag')->where('priority',1)->get();
+        $hastags = HashTag::select('id','hashtag')->where('is_processed',0)->first();
 
-        if(count($hastags) == 0){
-            $hastags = HashTag::select('id','hashtag')->where('priority',2)->get();
-        }
-
-        if(count($hastags) == 0){
-            return response()->json(['hastag' => []],200);
-        }
-
-        foreach ($hastags as $hastag) {
-            $hastagIdArray[] = $hastag->id;
-            $hastagArray[] = $hastag->hashtag;
+        if(!$hastags){
+            $hastags = HashTag::select('id','hashtag')->where('is_processed',2)->first();
         }
         
-        return response()->json(['hastag' => $hastagArray ],200);
+        if(!$hastags){
+            return response()->json(['hastag' => ''],200);
+        }
 
+        return response()->json(['hastag' => $hastags ],200);
+
+    }
+
+    public function saveFromLocal(Request $request)
+    {
+        // Get raw JSON
+        $receivedJson = json_decode($request->getContent());
+        
+        //Saving post details 
+        if(isset($receivedJson->post)){
+            
+            $checkIfExist = InstagramPosts::where('post_id', $receivedJson->post->post_id)->first();
+
+            if(empty($checkIfExist)){
+                $media             = new InstagramPosts();
+                $media->post_id    = $receivedJson->post->post_id;
+                $media->caption    = $receivedJson->post->caption;
+                $media->user_id    = $receivedJson->post->user_id;
+                $media->username   = $receivedJson->post->username;
+                $media->media_type = $receivedJson->post->media_type;
+                $media->code       = $receivedJson->post->code;
+                $media->location   = $receivedJson->post->location;
+                $media->hashtag_id = $receivedJson->post->hashtag_id;
+                $media->likes = $receivedJson->post->likes;
+                $media->comments_count = $receivedJson->post->comments_count;
+                $media->media_url = $receivedJson->post->media_url;
+                $media->posted_at = $receivedJson->post->posted_at;
+                $media->save();
+
+            if($media){
+                if(isset($receivedJson->comments)){
+                    $comments = $receivedJson->comments;
+                        foreach ($comments as $comment) {
+
+                            $commentEntry = InstagramPostsComments::where('comment_id', $comment->comment_id)->where('user_id', $comment->user_id)->first();
+
+                            if (!$commentEntry) {
+                                $commentEntry = new InstagramPostsComments();
+                            }
+
+                            $commentEntry = new InstagramPostsComments();
+                            $commentEntry->user_id = $comment->user_id;
+                            $commentEntry->name = $comment->name;
+                            $commentEntry->username = $comment->username;
+                            $commentEntry->instagram_post_id = $comment->instagram_post_id;
+                            $commentEntry->comment_id = $comment->comment_id;
+                            $commentEntry->comment = $comment->comment;
+                            $commentEntry->profile_pic_url = $comment->profile_pic_url;
+                            $commentEntry->posted_at = $comment->posted_at;
+                            $commentEntry->save();
+                    }        
+                        }
+                }
+
+            if(isset($receivedJson->userdetials)){    
+                $detials = $receivedJson->userdetials;
+                $userList = InstagramUsersList::where('user_id',$detials->user_id)->first();
+                if(empty($userList)){
+                    $user = new InstagramUsersList;
+                    $user->username = $detials->username;
+                    $user->user_id = $detials->user_id;
+                    $user->image_url = $detials->image_url;
+                    $user->bio = $detials->bio;
+                    $user->rating = 0;
+                    $user->location_id = 0;
+                    $user->because_of = $detials->because_of;
+                    $user->posts = $detials->posts;
+                    $user->followers = $detials->followers;
+                    $user->following = $detials->following;
+                    $user->location = $detials->location;
+                    $user->save();
+                }else{
+                    if($userList->posts == ''){
+                        $userList->posts = $detials->posts;
+                        $userList->followers = $detials->followers;
+                        $userList->following = $detials->following;
+                        $userList->location = $detials->location;
+                        $userList->save();
+                    }
+                }        
+            } 
+
+
+          }     
+
+            
+        }
+    }
+
+    public function viewPost(Request $request)
+    {
+        $accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
+
+        $data = Post::whereNotNull('id')->paginate(10);
+        
+        return view('instagram.post.index', compact(
+            'accounts',
+            'data'
+        ));
+    }
+
+
+    public function users(Request $request)
+    {
+        $users = \App\InstagramUsersList::whereNotNull('username')->where('is_manual',1)->orderBy('id','desc')->paginate(25);
+        return view('instagram.users',compact('users'));
+    }
+
+
+    public function getUserForLocal()
+    {
+        $users = \App\InstagramUsersList::select('id','user_id')->whereNotNull('username')->where('is_manual',1)->where('is_processed',0)->orderBy('id','desc')->first();
+        return json_encode($users);
+        
+    }
+
+    public function userPost($id)
+    {
+        dd($id);
+    }
+
+    public function resizeToRatio()
+    {
+        
+    }
+
+    public  function resize_image_crop($image,$width,$height) {
+        
+        $newImage = $image;
+        $type = $image->mime_type;
+        
+        if($type == 'image/jpeg'){
+            $src_img = imagecreatefromjpeg($image->getAbsolutePath());    
+        }elseif($type == 'image/png'){
+            $src_img = imagecreatefrompng($image->getAbsolutePath());
+        }elseif ($type == 'image/gif') {
+            $src_img = imagecreatefromgif($image->getAbsolutePath());
+        }
+        
+        $image = $src_img;
+        $w = imagesx($image); //current width
+        
+        $h = @imagesy($image); //current height
+        
+        if ((!$w) || (!$h)) { $GLOBALS['errors'][] = 'Image could not be resized because it was not a valid image.'; return false; }
+        if (($w == $width) && ($h == $height)) { return $image; } //no resizing needed
+
+        //try max width first...
+        $ratio = $width / $w;
+        $new_w = $width;
+        $new_h = $h * $ratio;
+
+        //if that created an image smaller than what we wanted, try the other way
+        if ($new_h < $height) {
+            $ratio = $height / $h;
+            $new_h = $height;
+            $new_w = $w * $ratio;
+        }
+
+        $image2 = imagecreatetruecolor ($new_w, $new_h);
+        imagecopyresampled($image2,$image, 0, 0, 0, 0, $new_w, $new_h, $w, $h);
+
+        //check to see if cropping needs to happen
+        if (($new_h != $height) || ($new_w != $width)) {
+            $image3 = imagecreatetruecolor($width, $height);
+            if ($new_h > $height) { //crop vertically
+                $extra = $new_h - $height;
+                $x = 0; //source x
+                $y = round($extra / 2); //source y
+                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
+            }
+            else {
+                $extra = $new_w - $width;
+                $x = round($extra / 2); //source x
+                $y = 0; //source y
+                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
+            }
+            imagedestroy($image2);
+            imagejpeg($image3,$newImage->getAbsolutePath());
+            return $image3;
+        }
+        else {
+            return $image2;
+        }
     }
 }

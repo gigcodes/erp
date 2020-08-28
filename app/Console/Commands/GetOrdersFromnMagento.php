@@ -184,19 +184,20 @@ class GetOrdersFromnMagento extends Command
 
                 $id = DB::table('orders')->insertGetId(
                     array(
-                        'customer_id'    => $customer_id,
-                        'order_id'       => $results['increment_id'],
-                        'order_type'     => 'online',
-                        'order_status'   => $order_status,
-                        'payment_mode'   => $payment_method,
-                        'order_date'     => $results['created_at'],
-                        'client_name'    => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
-                        'city'           => $results['billing_address']['city'],
-                        'advance_detail' => $paid,
-                        'contact_detail' => $final_phone,
-                        'balance_amount' => $balance_amount,
-                        'created_at'     => $results['created_at'],
-                        'updated_at'     => $results['created_at'],
+                        'customer_id'     => $customer_id,
+                        'order_id'        => $results['increment_id'],
+                        'order_type'      => 'online',
+                        'order_status'    => $order_status,
+                        'order_status_id' => $order_status,
+                        'payment_mode'    => $payment_method,
+                        'order_date'      => $results['created_at'],
+                        'client_name'     => $results['billing_address']['firstname'] . ' ' . $results['billing_address']['lastname'],
+                        'city'            => $results['billing_address']['city'],
+                        'advance_detail'  => $paid,
+                        'contact_detail'  => $final_phone,
+                        'balance_amount'  => $balance_amount,
+                        'created_at'      => $results['created_at'],
+                        'updated_at'      => $results['created_at'],
                     ));
 
                 $noproducts = sizeof($results['items']);
@@ -216,6 +217,7 @@ class GetOrdersFromnMagento extends Command
                         DB::table('order_products')->insert(
                             array(
                                 'order_id'      => $id,
+                                'product_id'    => !empty($skuAndColor['product_id']) ? $skuAndColor['product_id'] : null,
                                 'sku'           => $skuAndColor['sku'],
                                 'product_price' => round($results['items'][$i]['price']),
                                 'qty'           => round($results['items'][$i]['qty_ordered']),
@@ -265,7 +267,7 @@ class GetOrdersFromnMagento extends Command
                         'type'       => 'initial-advance',
                         'method'     => 'whatsapp',
                     ]);
-                } elseif ($order->order_status == 'Prepaid' && $results['state'] == 'processing') {
+                } elseif ($order->order_status_id == \App\Helpers\OrderHelper::$prepaid && $results['state'] == 'processing') {
                     $params = [
                         'number'      => null,
                         'user_id'     => 6,
@@ -354,7 +356,8 @@ class GetOrdersFromnMagento extends Command
                 $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
                 if ($product) {
-                    $result['sku'] = $product->sku;
+                    $result['product_id']   = $product->id;
+                    $result['sku']          = $product->sku;
                 } else {
                     $result['sku'] = $sku;
                 }
@@ -369,7 +372,8 @@ class GetOrdersFromnMagento extends Command
         $product = Product::where('sku', 'LIKE', "%$sku%")->first();
 
         if ($product) {
-            $result['sku'] = $product->sku;
+            $result['product_id']   = $product->id;
+            $result['sku']          = $product->sku;
         } else {
             $result['sku'] = $sku;
         }

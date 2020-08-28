@@ -78,7 +78,7 @@ input:checked + .slider:before {
    </div>
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Google Search Keywords</h2>
+            <h2 class="page-heading">Google Search Keywords (<span>{{ $keywords->total() }}</span>) </h2>
         </div>
         <div class="col-md-12">
             @if(Session::has('message'))
@@ -141,6 +141,7 @@ input:checked + .slider:before {
                     <th><a href="/google/search/keyword{{ ($queryString) ? '?'.$queryString : '?' }}sortby=keyword{{ ($orderBy == 'DESC') ? '&orderby=ASC' : '' }}">Keyword</a></th>
                     <th>Actions</th>
                     <th>Priority</th>
+                    <th>Run Scraper</th>
                 </tr>
                 @foreach($keywords as $key=>$keyword)
                     <tr>
@@ -167,6 +168,9 @@ input:checked + .slider:before {
                               <span class="slider round"></span>
                             </label>
                         </td>
+                        <td>
+                          <button id="runScrapper_{{ $keyword->id }}" onclick="callScraper({{ $keyword->id }})">Run Scraper For {{ $keyword->hashtag }}</button>
+                        </td>
                     </tr>
                 @endforeach
             </table>
@@ -181,6 +185,7 @@ input:checked + .slider:before {
 
 @section('scripts')
     <script>
+    $(document).ready(function() {
         $(".checkbox").change(function() {
             id = $(this).val();
                
@@ -220,6 +225,26 @@ input:checked + .slider:before {
                     }); 
             }
         });
+    });
 
+    function callScraper(id){
+        var buttonCaption = $('#runScrapper_'+id).html();
+        $('#runScrapper_'+id).html('Initiating...');
+        $('#runScrapper_'+id).prop('disabled', true);
+        //ajax call coming here...
+        $.ajax({
+            url: "{{ route('google.search.keyword.scrap') }}",
+            type: 'GET',
+            data: {
+                id: id,
+                _token: "{{ csrf_token() }}"
+            },            
+            success: function(data) {
+                $('#runScrapper_'+id).prop('disabled', false);
+                $('#runScrapper_'+id).html(buttonCaption);
+                alert('Scapper initiated successfully');
+            }
+        });
+    }
     </script>
 @endsection

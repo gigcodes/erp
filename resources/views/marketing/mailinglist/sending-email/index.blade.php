@@ -241,6 +241,9 @@
                 <th style="">Mailinglist</th>
                 <th style="">Actions</th>--}}
                 <td>Subject</td>
+                <td>Total Subscribers</td>
+                <td>Send Mail</td>
+                <td>Pending Mail</td>
                 <td>Audience</td>
                 <td>Template</td>
 {{--                <td>Subject</td>--}}
@@ -255,6 +258,9 @@
                     <tr>
                         <td>{{$value->id}}</td>
                         <td>{{$value->subject}}</td>
+                        <td>{{$value->total_emails_scheduled}}</td>
+                        <td>{{$value->total_emails_sent}}</td>
+                        <td>{{$value->total_emails_undelivered}}</td>
                         <td>{{$value->audience->name}}</td>
                         <td>{{$value->template->name}}</td>
               {{--          <td>{{$value["subject"]}}</td>--}}
@@ -317,17 +323,21 @@
             }
 
         });
-
+        var imgSrcSel = null;
         $(document).on('click','.put-index-here img',function () {
             $(this).addClass('img-fluid');
             $('.open-modal-img').click();
             $('.open-modal-img').attr('data-id',$(this).attr('id'));
+            imgSrcSel = $(this);
         });
 
         $('.modal-img-item').on('click',function () {
             var src = $(this).attr('src');
-            var id = $('.open-modal-img').attr('data-id');
-            $('img[id="'+id+'"]').attr('src',src);
+            if(imgSrcSel.length > 0) {
+                imgSrcSel.attr('src',src);
+            }
+            //var id = $('.open-modal-img').attr('data-id');
+            //$('img[id="'+id+'"]').attr('src',src);
             $('#exampleModalCenter').css('overflow-y','scroll');
             $('.close-images').click();
         });
@@ -358,7 +368,6 @@
                     return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
                 },
             }).done(function(data) {
-                console.log(data);
                 if(data.html){
                     $('.preview-body').html(data.html.html);
                 }
@@ -409,9 +418,7 @@
             e.preventDefault();
             $('.error-span').html('');
             var html =    $('.put-index-here').html();
-            var formData = $('#form-store').serialize() + '&html=' + html;
-
-
+            var formData = $('#form-store').serialize() + '&html=' + escape(html);
             $.ajax({
                 type: "POST",
                 url: "/marketing/mailinglist-ajax-store",
@@ -439,9 +446,21 @@
             });
         });
 
-        /*
-        $("#template").on('change', function() {
-            alert(this.dataset.textcount);
-        });*/
+        
+        function getStats(id){
+
+            $.ajax({
+                type: "POST",
+                url: "/marketing/mailinglist-stats",
+                data: { 'id' : id},
+
+                beforeSend: function (request) {
+                    return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+                },
+            }).done(function(data) {
+                console.log(data)
+            }).fail(function(data) {
+            });
+        }
     </script>
 @endsection

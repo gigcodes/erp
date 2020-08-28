@@ -3,7 +3,7 @@
 @section('content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Email Accounts ({{count($accounts)}})</h2>
+            <h2 class="page-heading">OTHER EMAIL ACCOUNTS ({{count($accounts)}})</h2>
         </div>
     </div>
     <div class="row">
@@ -74,8 +74,8 @@
                             <th><input type="text" name="email[{{$key}}]" placeholder="E-mail" class="form-control"></th>
                             <th><input type="text" name="password[{{$key}}]" placeholder="Password" class="form-control"></th>
                         </tr>
+                        @php $key++ @endphp
                     @endforeach
-                    @php $key++ @endphp
                     @foreach($accounts as $account)
                         <tr>
                             <th>{{$key+1}}</th>
