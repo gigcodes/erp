@@ -2,8 +2,11 @@
 
 @section('content')
 
-
-
+<br>
+<a style="color:white;" title="Add invoice" class="btn btn-secondary add-invoice-btn pd-5 pull-right" data-id='q'>
+  + Add New
+</a>
+<br>
 <div class="table-responsive" style="margin-top:20px;">
       <table class="table table-bordered" style="border: 1px solid #ddd;">
         <thead>
@@ -30,6 +33,7 @@
                     <!-- <i class="fa fa-edit"></i> -->
                     <img title="View Invoice" src="/images/view.png" />
                 </a>
+              
               </td>
             </tr>
           @endforeach
@@ -38,7 +42,30 @@
       {{$invoices->links()}}
 </div>
 @include("partials.modals.edit-invoice-modal")
-
+<div id="addInvoice" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+      <!-- Modal content-->
+      <div class="modal-content ">
+      <div class="modal-header">
+        <div class="row" style="width:100%;">
+          <div class="form-group" style="width:100%;">
+          <label for="">Search :</label>
+          <select name="term" type="text" class="form-control" placeholder="Search" id="order-search" data-allow-clear="true">
+                          <?php 
+                              if (request()->get('term')) {
+                                  echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                              }
+                          ?>
+                      </select>
+            </div>
+          </div>
+      </div>
+      <div id="add-invoice-content" style="min-height:200px;">
+        
+        </div>
+      </div>
+    </div>
+</div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
 </div>
 
@@ -80,5 +107,69 @@
            $("#editInvoice").hide();
         });
     });
+
+    $(document).on("click",".add-invoice-btn",function(e){
+       e.preventDefault();
+       $('#addInvoice').modal('show');
+    });
+
+
+    $('#order-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/order/order-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].id ? data[i].id : data[i].order_id;
+                    }
+
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search by Order id, customer id,name, no',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (order) {
+                if (order.loading) {
+                    return order.order_id;
+                }
+                if (order.order_id) {
+                    return "<p><b>Order id:</b> " + order.order_id + ": <b>Name:</b> " + order.name + " <b>Phone:</b> " + order.phone +"</p>";
+                }
+            },
+            templateSelection: (order) => order.text || order.order_id,
+
+        });
+
+        $('#order-search').on('select2:select', function (e) {
+          e.preventDefault();
+          var $this = $(this);
+          $.ajax({
+              url: "/order/"+$this.val()+"/add-invoice",
+              type: "get"
+            }).done(function(response) {
+              $("#add-invoice-content").html(response); 
+            }).fail(function(errObj) {
+              toastr['error'](errObj.responseJSON.message);
+            });
+        });
+
   </script>
 @endsection

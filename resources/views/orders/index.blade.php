@@ -367,7 +367,7 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: BASE_URL+"order/"+$this.data("id")+"/send-invoice",
+          url: "/order/"+$this.data("id")+"/send-invoice",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -391,7 +391,7 @@
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
-          url: BASE_URL+"order/"+$this.data("id")+"/send-order-email",
+          url: "/order/"+$this.data("id")+"/send-order-email",
           type: "get",
           beforeSend: function() {
             $("#loading-image").show();
@@ -412,7 +412,7 @@
        e.preventDefault();
        var $this = $(this);
        $.ajax({
-          url: BASE_URL+"order/"+$this.data("id")+"/add-invoice",
+          url: "/order/"+$this.data("id")+"/add-invoice",
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');

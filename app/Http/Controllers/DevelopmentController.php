@@ -38,9 +38,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Response;
 use Storage;
-
-define('SEED_REFRESH_TOKEN', getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
-define('HUBSTAFF_TOKEN_FILE_NAME', 'hubstaff_tokens.json');
+use App\Helpers\HubstaffTrait;
 
 class DevelopmentController extends Controller
 {
@@ -49,8 +47,10 @@ class DevelopmentController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
+    use hubstaffTrait;
     private $githubClient;
+    
+
 
     public function __construct()
     {
@@ -58,6 +58,7 @@ class DevelopmentController extends Controller
         $this->githubClient = new Client([
             'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
         ]);
+        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
     }
     /*public function index_bkup(Request $request)
     {
@@ -655,47 +656,47 @@ class DevelopmentController extends Controller
         return view('development.issue-create');
     }
 
-    private function getTokens()
-    {
-        if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
-            $this->generateAccessToken(SEED_REFRESH_TOKEN);
-        }
-        $tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
-        return $tokens;
-    }
+    // private function getTokens()
+    // {
+    //     if (!Storage::disk('local')->exists(HUBSTAFF_TOKEN_FILE_NAME)) {
+    //         $this->generateAccessToken(SEED_REFRESH_TOKEN);
+    //     }
+    //     $tokens = json_decode(Storage::disk('local')->get(HUBSTAFF_TOKEN_FILE_NAME));
+    //     return $tokens;
+    // }
 
-    private function generateAccessToken(string $refreshToken)
-    {
-        $httpClient = new Client();
-        try {
-            $response = $httpClient->post(
-                'https://account.hubstaff.com/access_tokens',
-                [
-                    RequestOptions::FORM_PARAMS => [
-                        'grant_type' => 'refresh_token',
-                        'refresh_token' => $refreshToken
-                    ]
-                ]
-            );
+    // private function generateAccessToken(string $refreshToken)
+    // {
+    //     $httpClient = new Client();
+    //     try {
+    //         $response = $httpClient->post(
+    //             'https://account.hubstaff.com/access_tokens',
+    //             [
+    //                 RequestOptions::FORM_PARAMS => [
+    //                     'grant_type' => 'refresh_token',
+    //                     'refresh_token' => $refreshToken
+    //                 ]
+    //             ]
+    //         );
 
-            $responseJson = json_decode($response->getBody()->getContents());
+    //         $responseJson = json_decode($response->getBody()->getContents());
 
-            $tokens = [
-                'access_token' => $responseJson->access_token,
-                'refresh_token' => $responseJson->refresh_token
-            ];
+    //         $tokens = [
+    //             'access_token' => $responseJson->access_token,
+    //             'refresh_token' => $responseJson->refresh_token
+    //         ];
 
-            return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
-        } catch (Exception $e) {
-            return false;
-        }
-    }
+    //         return Storage::disk('local')->put(HUBSTAFF_TOKEN_FILE_NAME, json_encode($tokens));
+    //     } catch (Exception $e) {
+    //         return false;
+    //     }
+    // }
 
-    private function refreshTokens()
-    {
-        $tokens = $this->getTokens();
-        $this->generateAccessToken($tokens->refresh_token);
-    }
+    // private function refreshTokens()
+    // {
+    //     $tokens = $this->getTokens();
+    //     $this->generateAccessToken($tokens->refresh_token);
+    // }
 
     private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
     {
@@ -727,9 +728,9 @@ class DevelopmentController extends Controller
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
-        } catch (Exception $e) {
-            if ($e instanceof ClientException) {
-                $this->refreshTokens();
+        } catch (ClientException $e) {
+        	if($e->getCode() == 401) {
+        		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->createHubstaffTask(
                         $taskSummary,
@@ -738,7 +739,7 @@ class DevelopmentController extends Controller
                         false
                     );
                 }
-            }
+        	}
         }
         return false;
     }
@@ -1307,9 +1308,9 @@ class DevelopmentController extends Controller
             $parsedResponse = json_decode($response->getBody()->getContents());
 
             return $parsedResponse->task->lock_version;
-        } catch (Exception $e) {
-            if ($e instanceof ClientException) {
-                $this->refreshTokens();
+        } catch (ClientException $e) {
+            if($e->getCode() == 401) {
+        		$this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->getHubstaffLockVersion(
                         $hubstaffTaskId,
@@ -1358,8 +1359,8 @@ class DevelopmentController extends Controller
             );
             $parsedResponse = json_decode($response->getBody()->getContents());
             return $parsedResponse->task->id;
-        } catch (Exception $e) {
-            if ($e instanceof ClientException) {
+        } catch (ClientException $e) {
+            if($e->getCode() == 401) {
                 $this->refreshTokens();
                 if ($shouldRetry) {
                     return $this->updateHubstaffAssignee(
