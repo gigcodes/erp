@@ -34,7 +34,7 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-
+        dd($accounts);
     	foreach ($accounts as $account) {
     		try {
                 	$instagram = new Instagram();
