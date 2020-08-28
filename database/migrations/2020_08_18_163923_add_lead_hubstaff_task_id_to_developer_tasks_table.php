@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFieldModelInDeveloperTasksHistoryTable extends Migration
+class AddLeadHubstaffTaskIdToDeveloperTasksTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function up()
     {
-        
-        Schema::table('developer_tasks_history', function (Blueprint $table) {
-           // $table->string('model')->nullable();
+        Schema::table('developer_tasks', function (Blueprint $table) {
+            $table->integer('lead_hubstaff_task_id')->nullable();
         });
     }
 
@@ -26,7 +25,7 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function down()
     {
-        Schema::table('developer_tasks_history', function (Blueprint $table) {
+        Schema::table('developer_tasks', function (Blueprint $table) {
             //
         });
     }

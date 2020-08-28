@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFieldModelInDeveloperTasksHistoryTable extends Migration
+class AddIsApprovedToDeveloperTasksHistoryTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function up()
     {
-        
         Schema::table('developer_tasks_history', function (Blueprint $table) {
-           // $table->string('model')->nullable();
+            $table->boolean('is_approved')->default(0);
         });
     }
 

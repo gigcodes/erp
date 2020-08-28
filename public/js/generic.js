@@ -3,7 +3,7 @@ var workingOn =  null;
 var load_type =  null;
 
 var getMoreChatConvo = function(params) {
-
+    var AllMessages = [];
     workingOn = $.ajax({
         type: "GET",
         url: params.url,
@@ -19,6 +19,7 @@ var getMoreChatConvo = function(params) {
     }).done(function (response) {
         workingOn = null;
         if(response.messages.length > 0) {
+            AllMessages = AllMessages.concat(response.messages);
             var li = getHtml(response);
 
             if ($('#chat-list-history').length > 0) {
@@ -64,12 +65,17 @@ var getHtml = function(response) {
         var parentMedia = '';
         var parentImgSrc = '';
         var li = '<div class="speech-wrapper '+classMaster+'">';
-        
-        if(message.inout == 'out') {
-            fullHtml = fullHtml + '<tr class="out-background">';
+        if(message.is_reviewed == 1) {
+            var reviewed_msg = 'reviewed_msg';
         }
         else {
-            fullHtml = fullHtml + '<tr class="in-background">'; 
+            var reviewed_msg = '';
+        }
+        if(message.inout == 'out') {
+            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'">';
+        }
+        else {
+            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg">'; 
         }
         fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
@@ -209,9 +215,10 @@ var getHtml = function(response) {
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
         }
-
-      
-
+        if(message.is_reviewed != 1) {
+            button += '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' + message.id + '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+        }
+        
         if (message.inout == 'out' || message.inout == 'in') {
             button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
@@ -360,7 +367,6 @@ $(document).on('click', '.load-communication-modal', function () {
 
         alert('Could not load messages');
 
-        console.log(response);
     });
 });
 $(document).on('click', '.btn-approve', function (e) {
@@ -769,6 +775,28 @@ $(document).on('click', '.resend-message', function () {
     });
 });
 
+$(document).on('click', '.review-btn', function () {
+    var id = $(this).data('id');
+    var thiss = $(this);
+    $.ajax({
+        type: "POST",
+        url: "/chat-messages/" + id + "/set-reviewed",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            id:id
+        },
+        beforeSend: function () {
+            $(thiss).text('Reviewing...');
+        }
+    }).done(function (response) {
+        toastr["success"](response.message);
+        $(thiss).hide();
+    }).fail(function (response) {
+        toastr["error"](response.message);
+        $(thiss).text('');
+    });
+});
+
 $(document).on('click', '.create-product-order', function(e) {
     e.preventDefault();
 
@@ -874,9 +902,16 @@ $('#forward_message_id').val(id);
 
 $(document).on("keyup", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
-    $(".speech-wrapper .bubble").filter(function() {
-        $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    $(".filter-message").each(function () {
+        if ($(this).text().search(new RegExp(value, "i")) < 0) {
+            $(this).hide();
+        } else {
+            $(this).show()
+        }
     });
+    // $(".speech-wrapper .bubble").filter(function() {
+    //     $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    // });
 });
 
 $(document).on("click", '.show-product-info', function() {

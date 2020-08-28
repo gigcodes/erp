@@ -1,4 +1,4 @@
-var page = {
+    var page = {
     init: function(settings) {
 
         page.config = {
@@ -345,6 +345,7 @@ $(document).on('click', '.check-product', function() {
 
 $(document).on("click",'.open_images', function(){
     var block_id = $(this).data('attr');
-    $('.hideall').attr('hidden', true);
-    $('#'+block_id).attr('hidden', false);
+    // $('.hideall').hide();
+
+    $('#'+block_id).toggle();
 });

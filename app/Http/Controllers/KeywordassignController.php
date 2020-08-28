@@ -57,7 +57,13 @@ class KeywordassignController extends Controller
             'assign_to' => 'required'
         ]);
         // Create the task
-        $keyword = $request->keyword;
+        $exp_keyword = explode(",", $request->keyword);
+        $new_keywordstr = "";
+        for($i=0;$i<count($exp_keyword);$i++)
+        {
+            $new_keywordstr.=trim($exp_keyword[$i]).",";
+        }
+        $keyword = trim($new_keywordstr,",");
         $task_category = $request->task_category;
         $task_description = $request->task_description;
         $assign_to = $request->assign_to;

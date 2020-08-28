@@ -4,7 +4,7 @@ use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
 
-class CreateStoreWebsiteIdInLandingProduct extends Migration
+class CreateStoreWebsiteIdInLandingProductPart extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,7 @@ class CreateStoreWebsiteIdInLandingProduct extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-           
-            //$table->unsignedInteger('store_website_id')->nullable()->after('shopify_id');
+            $table->unsignedInteger('store_website_id')->nullable()->after('shopify_id');
         });
     }
 

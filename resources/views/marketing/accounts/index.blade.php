@@ -78,6 +78,7 @@
           <tr>
             <!-- <th style="width: 3% !important;">ID</th> -->
             <th style="width: 3% !important;">User</th>
+            <th style="width: 3% !important;">Website</th>
             <th style="width: 3% !important;">Pass</th>
             <th style="width: 3% !important;">No.</th>
             <th style="width: 3% !important;">Email.</th>
@@ -85,8 +86,6 @@
             <th style="width: 3% !important;">Provider</th>
             <th style="width: 3% !important;">Freq</th>
             <th style="width: 3% !important;">Cust Support</th>
-            <th style="width: 3% !important;">Start Time</th>
-            <th style="width: 3% !important;">End Time</th>
             <th style="width: 12% !important;">Actions</th>
           </tr>
 
