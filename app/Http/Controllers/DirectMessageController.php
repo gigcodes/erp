@@ -12,6 +12,8 @@ use \App\InstagramThread;
 use Plank\Mediable\Media;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+
 class DirectMessageController extends Controller
 {
     public function index()
@@ -36,8 +38,8 @@ class DirectMessageController extends Controller
     	foreach ($accounts as $account) {
     		try {
                 	$instagram = new Instagram();
+                    $instagram->setProxy($account->proxy);
 				    $instagram->login($account->last_name, $account->password);
-				    $instagram->setProxy($account->proxy);
 				    $this->instagram = $instagram;
                 } catch (\Exception $e) {
                     dd($e);
