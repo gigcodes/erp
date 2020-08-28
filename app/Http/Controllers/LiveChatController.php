@@ -210,7 +210,7 @@ class LiveChatController extends Controller
                 $websiteId = null;
                 try {
                     $websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
-                    $website 	= \App\StoreWebsite::where("website","like","%".$websiteURL."%")->first();
+                    $website    = \App\StoreWebsite::where("website","like","%".$websiteURL."%")->first();
                     if($website) {
                        $websiteId = $website->id;
                     }
@@ -220,7 +220,7 @@ class LiveChatController extends Controller
                 //dd($websiteURL);
                 $customer = Customer::where('email', $userEmail);
                 if($websiteId > 0) {
-                	$customer = $customer->where("store_website_id",$websiteId);
+                    $customer = $customer->where("store_website_id",$websiteId);
                 }
                 $customer = $customer->first();
 
@@ -502,13 +502,13 @@ class LiveChatController extends Controller
 
     public function getChatMessagesWithoutRefresh()
     {
-    	$messagess = [];
+        $messagess = [];
         if (session()->has('chat_customer_id')) {
-        	$lastMessageId = request("last_msg_id");
+            $lastMessageId = request("last_msg_id");
             $chatId   = session()->get('chat_customer_id');
             $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2);
             if($lastMessageId != null) {
-            	$messages = $messages->where('id',">", $lastMessageId);
+                $messages = $messages->where('id',">", $lastMessageId);
             }
             $messages = $messages->get();
             //getting customer name from chat
@@ -516,9 +516,9 @@ class LiveChatController extends Controller
             $name           = $customer->name;
             $customerInital = substr($name, 0, 1);
             if (count($messages) == 0) {
-            	if($lastMessageId == null) {
-	                ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
-	            }
+                if($lastMessageId == null) {
+                    ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
+                }
             } else {
                 foreach ($messages as $message) {
 
@@ -635,315 +635,24 @@ class LiveChatController extends Controller
             $customerInital = substr($customer->name, 0, 1);
             if ($liveChatCustomer->status == 0) {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-				                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon offline"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is offline</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li><li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon offline"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is offline</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li><li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             } elseif ($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0) {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-								<input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             } else {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-								<input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             }
         }
         if (empty($customers)) {
             $customers[] = '<li><div class="d-flex bd-highlight"><div class="img_cont">
-								</div><div class="user_info"><span>No User Found</span><p></p></div></div></li>';
-<<<<<<< HEAD
-		}
-		//Getting chat counts 
-		$count = CustomerLiveChat::where('seen',0)->count();
-		
-		return response()->json([
-						'status' => 'success',
-						'data' => array('count' => $count, 'message' => $customers),
-        			]);
-		
-	}
-
-
-	//Upload FIle COde 
-	// public function sendImage($request){
-	// 	$uploadedFile = $request->file('file');
-	// 	$filename = $uploadedFile->getPathname().'/'.$uploadedFile->getClientOriginalName();
-	// 	$target_url = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
-	// 	$cFile = curl_file_create($uploadedFile);
-	// 	$post = array('file'=> $cFile);
-	// 	$ch = curl_init();
-		
-	// 	curl_setopt($ch, CURLOPT_URL,$target_url);
-	// 	curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
-	// 	curl_setopt($ch, CURLOPT_POST,1);
-	// 	curl_setopt($ch, CURLOPT_POSTFIELDS, $post);
-	// 	curl_setopt($ch, CURLOPT_HTTPHEADER,  array(
-	// 			"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-	// 			"Content-Type: multipart/form-data",));
-	// 	$response = curl_exec($ch);
-	// 	$err = curl_error($ch);
-	// 	curl_close ($ch);
-	// 	if ($err) {
-	// 			return false;
-	// 		} else {
-	// 			$response = json_decode($response);
-	// 			if(isset($response->error)){
-	// 				return false;
-	// 			}else{
-	// 				return $response->url;
-	// 			}
-	// 		}	
-
-		
-		
-	// }
-
-	/**
-	* function to get customer details from livechatinc
-	* https://api.livechatinc.com/v3.1/agent/action/get_customers
-	*
-	* @param customer's email address
-	*   
-	* @return - response livechatinc object of customer information. If error return false
-	*/
-	function getLiveChatIncCustomer($email='', $out='JSON'){
-		$threadId = '';
-		if($email == '' && session()->has('chat_customer_id')){
-			$chatId = session()->get('chat_customer_id');
-			$messages = ChatMessage::where('customer_id',$chatId)->where('message_application_id', 2)->get();
-			//getting customer name from chat
-			$customer = Customer::findorfail($chatId);
-			$email = $customer->email;
-
-			$liveChatCustomer = CustomerLiveChat::where('customer_id',$chatId)->first();
-			$threadId = $liveChatCustomer->thread;
-		}
-
-		$returnVal = '';
-		if($email != ''){
-			$postURL = 'https://api.livechatinc.com/v3.1/agent/action/get_customers';
-
-			$postData = array('filters' => array('email' => array('values' => array($email))));
-			$postData = json_encode($postData);
-			
-			$returnVal = '';
-			$result = self::curlCall($postURL, $postData, 'application/json');
-			if($result['err']){
-				// echo "ERROR 1:<br>";
-				// print_r($result['err']);
-				$returnVal = false;
-			}
-			else{
-				$response = json_decode($result['response']);
-				if(isset($response->error)){
-					// echo "ERROR 2:<br>";
-					// print_r($response);				
-					$returnVal = false;
-				}
-				else{
-					// echo "SUCSESS:<BR>";
-					// print_r($response);
-					$returnVal = $response->customers[0];
-				}
-			}
-		}
-
-		if($out == 'JSON'){
-			return response()->json(['status' => 'success', 'threadId' => $threadId, 'customerInfo' => $returnVal], 200);
-		}
-		else{
-			return $returnVal;
-		}
-	}
-	
-	/**
-	* function to upload file/image to liveshatinc
-	* upload file to livechatinc using their agent /action/upload_file api which will respond with livechatinc CDN url for file uploaded
-	* https://api.livechatinc.com/v3.1/agent/action/upload_file
-	*
-	* @param request
-	*   
-	* @return - response livechatinc CDN url for the file. If error return false
-	*/
-	function uploadFileToLiveChatInc(Request $request){
-		//To try with static file from local file, uncomment below
-		//$filename = 'delete-red-cross.png';
-		//$fileURL = public_path() . '/images/' . $filename;
-		$uploadedFile = $request->file('file');
-		$mimeType = $uploadedFile->getMimeType();
-		$filename = $uploadedFile->getClientOriginalName();
-
-		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
-
-		//echo 'File: ' . $fileURL . ', MType: ' . mime_content_type($fileURL) .'<br>';
-		//$postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
-		//echo 'File: ' . $filename . ', MType: ' . $mimeType;
-
-		$postData = array('file' => curl_file_create($uploadedFile, $mimeType, $filename));
-		
-		$result = self::curlCall($postURL, $postData, 'multipart/form-data');
-		if($result['err']){
-			// echo "ERROR 1:<br>";
-			// print_r($result['err']);
-			return false;
-		}
-		else{
-			$response = json_decode($result['response']);
-			if(isset($response->error)){
-				// echo "ERROR 2:<br>";
-				// print_r($response);				
-				return false;
-			}
-			else{
-				// echo "SUCSESS:<BR>";
-				// print_r($response);
-				return ['CDNPath' => $response->url, 'filename' => $filename];
-			}
-		}
-	}
-
-	/**
-	* curlCall function to make a curl call
-	*
-	* @param 
-	*   URL - url that we need to access and make curl call,
-	*   method - curl call method - GET, POST etc
-	*   contentType - Content-Type value to set in headers
-	*   data - data that has to be sent in curl call. This can be optional if GET
-	* @return - response from curl call, array(response, err)
-	*/
-	function curlCall($URL, $data=false, $contentType=false, $defaultAuthorization=true, $method='POST', $additionalHeaders=false){
-		$curl = curl_init();
-
-		$curlData = array(
-			CURLOPT_URL => $URL,
-			CURLOPT_RETURNTRANSFER => true,
-			CURLOPT_ENCODING => "",
-			CURLOPT_MAXREDIRS => 10,
-			CURLOPT_TIMEOUT => 30,
-			CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1
-		);
-
-		if($method == 'POST'){
-			$curlData[CURLOPT_POST] = 1;
-		}
-		else{
-			$curlData[CURLOPT_CUSTOMREQUEST] = $method;
-		}
-		if($contentType){
-			$curlData[CURLOPT_HTTPHEADER] = [];
-			if($defaultAuthorization){
-				array_push($curlData[CURLOPT_HTTPHEADER], "Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13");
-			}
-			// $curlData[CURLOPT_HTTPHEADER] = array(
-			// 	"Authorization: Basic NTYwNzZkODktZjJiZi00NjUxLTgwMGQtNzE5YmEyNTYwOWM5OmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
-			// 	"Content-Type: " . $contentType
-			// );
-			array_push($curlData[CURLOPT_HTTPHEADER], "Content-Type: " . $contentType);
-		}
-		if($data){
-			$curlData[CURLOPT_POSTFIELDS] = $data;
-		}
-		if($additionalHeaders){
-			$curlData += $additionalHeaders;
-		}
-		curl_setopt_array($curl, $curlData);
-		$response = curl_exec($curl);
-		$err = curl_error($curl);
-		curl_close($curl);
-
-		return array('response' => $response, 'err' => $err);
-	}
-
-	/**
-	* CDN URL got after uploading file to livechatinc will expire in 24hrs unless its used in sent_event api
-	* send the CDN URL to livechatinc using sent_event api to keep the CDN URL alive
-	* https://developers.livechatinc.com/docs/messaging/agent-chat-api/#file
-	* https://developers.livechatinc.com/docs/messaging/agent-chat-api/#send-event
-	*/
-	function sendFileToLiveChatInc(Request $request){
-		$chatId = $request->id;
-		//Get Thread ID From Customer Live Chat
-		$customer = CustomerLiveChat::where('customer_id', $chatId)->first();
-		if($customer != '' && $customer != null){
-			$thread = $customer->thread;
-		}
-		else{
-			return response()->json(['status' => 'errors', 'errorMsg' => 'Thread not found'], 200);
-		}
-
-		$fileUploadResult = self::uploadFileToLiveChatInc($request);
-
-		if(!$fileUploadResult){ //There is some error, we didn't get the CDN file path
-			//return false;
-			return response()->json(['status' => 'errors', 'errorMsg' => 'Error uploading file'], 200);
-		}
-		else{
-			$fileCDNPath = $fileUploadResult['CDNPath'];
-			$filename = $fileUploadResult['filename'];
-		}
-
-		$postData = array('chat_id' => $thread, 'event' => array('type' => 'file', 'url' => $fileCDNPath, 'recipients' => 'all',));
-		$postData = json_encode($postData);
-
-		$postURL = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
-
-		$result = self::curlCall($postURL, $postData, 'application/json');
-		if($result['err']){
-			// echo "ERROR 1:<br>";
-			// print_r($result['err']);
-			//return false;
-			return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
-		}
-		else{
-			$response = json_decode($result['response']);
-			if(isset($response->error)){
-				// echo "ERROR 2:<br>";
-				// print_r($response);				
-				return response()->json(['status' => 'errors', $response], 403);
-			}
-			else{
-				// echo "SUCSESS:<BR>";
-				// print_r($response);
-				//return $response->url;
-				return response()->json(['status' => 'success', 'filename' => $filename, 'fileCDNPath' => $fileCDNPath, 'responseData' => $response], 200);
-			}
-		}
-	}
-
-	/**
-	* Get tickets from livechat inc and put them as unread messages
-	* 
-	* https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
-	* https://api.livechatinc.com/tickets?assigned=0
-	*/
-	function getLiveChatIncTickets(){
-
-		$postURL = 'https://api.livechatinc.com/v2/tickets';
-		$additionalHeaders = [];
-		$additionalHeaders[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-		$additionalHeaders[CURLOPT_USERPWD] = 'yogeshmordani@icloud.com:dal:TCq0caYaTk2wBLrwu8-hmw';
-		$additionalHeaders[CURLOPT_HTTPHEADER] = ['X-API-Version: 2'];
-
-		$result = self::curlCall($postURL, false, false, false, 'GET', $additionalHeaders);
-		if($result['err']){
-			return false;
-		}
-		else{
-			$response = json_decode($result['response']);
-			if(isset($response->error)){			
-				return false;
-			}
-			else{
-				$responseData = json_decode($result['response'], true);
-				return $responseData['tickets'];
-			}
-		}
-	}
-}
-=======
+                                </div><div class="user_info"><span>No User Found</span><p></p></div></div></li>';
         }
         //Getting chat counts
         $count = CustomerLiveChat::where('seen', 0)->count();
@@ -1067,7 +776,7 @@ class LiveChatController extends Controller
 
     public static function useAbsPathUpload($fileURL)
     {
-    	$filename = basename($fileURL);
+        $filename = basename($fileURL);
         $postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
         $postURL  = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
         $result   = self::curlCall($postURL, $postData, 'multipart/form-data');
@@ -1278,5 +987,33 @@ class LiveChatController extends Controller
 
         return redirect(route('livechat.get.chats')."?open_chat=true");
     }
+
+    /**
+    * Get tickets from livechat inc and put them as unread messages
+    * 
+    * https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
+    * https://api.livechatinc.com/tickets?assigned=0
+    */
+    function getLiveChatIncTickets(){
+
+        $postURL = 'https://api.livechatinc.com/v2/tickets';
+        $additionalHeaders = [];
+        $additionalHeaders[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
+        $additionalHeaders[CURLOPT_USERPWD] = '6f43fdd5-9900-49f8-b83b-e8dc86fe7872:dal:tRAPufTrQe-TdAB8cjEj3g';
+        $additionalHeaders[CURLOPT_HTTPHEADER] = ['X-API-Version: 2'];
+
+        $result = self::curlCall($postURL, false, false, false, 'GET', $additionalHeaders);
+        if($result['err']){
+            return false;
+        }else{
+            $response = json_decode($result['response']);
+            if(isset($response->error)){            
+                return false;
+            }
+            else{
+                $responseData = json_decode($result['response'], true);
+                return $responseData['tickets'];
+            }
+        }
+    }
 }
->>>>>>> master
