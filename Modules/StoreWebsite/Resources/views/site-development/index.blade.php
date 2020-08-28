@@ -22,7 +22,7 @@
             display: none;
         }
 		.pd-5 {
-			padding: 5px;
+			padding: 3px;
 		}
 		.toggle.btn {
 			min-height:25px;
@@ -30,10 +30,13 @@
 		.toggle-group .btn {
 			padding: 2px 12px;
 		}
+		.latest-remarks-list-view tr td {
+			padding:3px !important;
+		}
 </style>
 @endsection
 
-@section('content')
+@section('large_content')
 
 <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -47,7 +50,7 @@
     	<div class="row">
 	    	<div class="col col-md-12">
 		    	<div class="row">
-					<div class="col-md-4">
+					<div class="col-md-3">
 					<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 					  <div class="row">
 				  		<div class="col">
@@ -65,7 +68,7 @@
 					  </div>
 					</form>
 					</div>
-					<div class="col-md-8">
+					<div class="col-md-9">
 						<form class="form-inline handle-search">
 								<div class="form-group" style="margin-right:10px;">
 									<label for="keyword">Search keyword:</label>
@@ -251,6 +254,49 @@
     </div>
 </div>
 
+
+
+<div id="create-quick-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+		<form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
+		<?php echo csrf_field(); ?>
+		<div class="modal-header">
+                <h4 class="modal-title">Create Task</h4>
+            </div>
+			<div class="modal-body">
+			
+			<input class="form-control" value="0" type="hidden"  name="task_type" />
+			<input class="form-control" value="49" type="hidden"  name="category_id" />
+
+				<div class="form-group">
+					<label for="">Subject</label>
+					<input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+				</div>
+
+				<div class="form-group">
+					<label for="">Details</label>
+					<input class="form-control" type="text"  name="task_detail" />
+				</div>
+
+				<div class="form-group">
+					<label for="">Assign to</label>
+					<select name="task_asssigned_to"  class="form-control assign-to select2">
+					@foreach($allUsers as $user)
+					<option value="{{$user->id}}">{{$user->name}}</option>
+					@endforeach
+					</select>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-default create-task">Submit</button>
+            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
 <div id="preview-website-image" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -280,13 +326,13 @@
         <div class="modal-content">
         	<div class="modal-body">
     			<div class="col-md-12">
-	        		<table class="table table-bordered">
+	        		<table class="table table-bordered" style="table-layout:fixed;">
 					    <thead>
 					      <tr>
-					        <th>Sl no</th>
-					        <th>Category</th>
-					        <th>Remarks</th>
-					        <th>Communication</th>
+					        <th style="width:5%;">Sl no</th>
+					        <th style="width:15%;">Category</th>
+					        <th style="width:40%;">Remarks</th>
+					        <th style="width:40%;">Communication</th>
 					      </tr>
 					    </thead>
 					    <tbody class="latest-remarks-list-view">
@@ -335,6 +381,10 @@
 <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
+
+$('.assign-to.select2').select2({
+	width: "100%"
+});
 
 // $('.infinite-scroll').jscroll({
 //         autoTrigger: true,
@@ -444,8 +494,7 @@
 				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text , site : site},
 			})
 			.done(function(data) {
-				console.log(data)
-				console.log("success");
+				toastr["success"]("Successful");
 			})
 			.fail(function(data) {
 				console.log(data)
@@ -540,6 +589,33 @@
 		});
 	}
 
+	$(document).on('click', '.create-quick-task', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		title = $(this).data("title");
+		if(!title || title == '') {
+			toastr["error"]("Please add title first");
+			return;
+		}
+
+		$("#create-quick-task").modal("show");
+		$("#hidden-task-subject").val(title);
+
+		// $.ajax({
+		// 		url: '/site-development/get-user-involved/'+site,
+		// 		dataType: "json",
+		// 		type: 'GET',
+		// 	}).done(function (response) {
+		// 		var option = '<option value="" > Select user </option>';
+		// 		$.each(response.data,function(k,v){
+		// 			option = option + '<option value="'+v.id+'" > '+v.name+' </option>';
+		// 		});
+				
+		// 	}).fail(function (jqXHR, ajaxOptions, thrownError) {
+		// 	    toastr["error"](jqXHR.responseJSON.message);
+		// });
+	});
+
 	$(document).on('click', '.send-message-site-quick', function() {
 		var $this = $(this);
 		site = $(this).data("id");
@@ -547,7 +623,6 @@
 		message = $this.closest("td").find(".quick-message-field").val();
 		userId = $this.data("user");
 		prefix = $this.data("prefix");
-
 		var users = [userId];
 		
 		if(users.length <= 0){
@@ -572,29 +647,40 @@
 		}
 	});
 
-
 	$(document).on('click', '.send-message-site', function() {
 		var $this = $(this);
 		site = $(this).data("id");
 		category = $(this).data("category");
 		message = $('#message-'+site).val();
 		userId = $('#user-'+site+' option:selected').val();
-
+		prefix = $this.data("prefix");
 		var users = [];
 		
 		var hidden_row_class = 'hidden_row_'+category;
 		
 		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
 			var value = $('.hidden_row_'+category).find("select[name='developer_id']").val();
-			users.push(value);
+			if(value != "") {
+				users.push(value);
+			}
 		}
 		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
 			var value = $('.hidden_row_'+category).find("select[name='designer_id']").val();
-			users.push(value);
+			if(value != "") {
+				users.push(value);
+			}
 		}
 		if($this.closest("tr").find("input[name='html']:checked").length > 0){
 			var value = $('.hidden_row_'+category).find("select[name='html_designer']").val();
-			users.push(value);
+			if(value != "") {
+				users.push(value);
+			}
+		}
+		if($this.closest("tr").find("input[name='tester']:checked").length > 0){
+			var value = $('.hidden_row_'+category).find("select[name='tester_id']").val();
+			if(value != "") {
+				users.push(value);
+			}
 		}
 		if(users.length <= 0){
 			alert('Please Select User');
@@ -603,7 +689,7 @@
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
 				type: 'POST',
-				data: { 'site_development_id' : site , 'message' : message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				data: { 'site_development_id' : site , 'message' : prefix +' => '+message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
 				beforeSend: function() {
 					$('#message-'+site).attr('disabled', true);
                	}
@@ -876,7 +962,7 @@
 						var storeWebsite = response.data[i-1].sw_website;
 						var storeDev = response.data[i-1].sd_title;
 						var user_id = response.data[i-1].user_id;
-						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
 					}
 					$("#latest-remarks-modal").modal("show");
 					$(".latest-remarks-list-view").html(tr);
@@ -912,6 +998,31 @@
                 }
             });
 		});
+
+
+		$(document).on("click",".create-task",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: form.attr("action"),
+                type: 'POST',
+                data: form.serialize(),
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                },
+                success: function (response) {
+                    if(response.code == 200){
+                        form[0].reset();
+                        toastr['success'](response.message);
+                        $("#create-quick-task").modal("hide");
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+            });
+        });
 		
 		$(document).on("click", ".toggle-class", function () {
             $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
