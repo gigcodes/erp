@@ -202,7 +202,7 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
-        StoreLiveChats::class
+        StoreLiveChats::class,
         RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,

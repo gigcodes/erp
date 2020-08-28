@@ -40,6 +40,7 @@ class StoreLiveChats extends Command
     public function handle()
     {
         $data = app(\App\Http\Controllers\LiveChatController::class)->getLiveChatIncTickets();
+        echo "<pre>"; print_r($data);  echo "</pre>";die;
         if($data) {
             foreach ($data as $key => $value) {
                 $email =$value['events'][0]['author']['id'];
