@@ -37,6 +37,7 @@ class DirectMessageController extends Controller
     	foreach ($accounts as $account) {
 
     		//try {
+                    dd($account->last_name);
                 	$instagram = new Instagram();
 				    $instagram->login($account->last_name, $account->password);
 				    $instagram->setProxy($account->proxy);
