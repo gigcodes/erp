@@ -2610,7 +2610,7 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($task->master_user_id);
 
                     if (!$user) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'Master user not found'],500);
                     }
                     $params[ 'user_id' ]  = $user->id;
                     if ($task->is_statutory != 1) {
@@ -2621,7 +2621,7 @@ class WhatsAppController extends FindByNumberController
                     
                     $number = $user->phone;
                     if(!$number) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'User whatsapp no not available'],500);
                     }
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);

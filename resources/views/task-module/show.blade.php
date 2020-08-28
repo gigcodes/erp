@@ -225,9 +225,10 @@
     ?>
 <div class="row mb-2">
         <div class="col-xs-12">
-            <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
+            <form action="{{ route('task.create.task.shortcut') }}" method="POST" id="taskCreateForm">
                 @csrf
                 <input type="hidden" name="has_render" value="1">
+                <input type="hidden" name="from" value="task-page">
                 <div class="row">
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
@@ -240,9 +241,9 @@
                     </div>
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
-                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
-                            @if ($errors->has('task_details'))
-                                <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_detail" placeholder="Task Details" id="task_details" required>{{ old('task_detail') }}</textarea>
+                            @if ($errors->has('task_detail'))
+                                <div class="alert alert-danger">{{$errors->first('task_detail')}}</div>
                             @endif
                         </div>
                     </div>
@@ -327,7 +328,7 @@
                     </div>
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
-                            <select name="is_statutory" class="form-control is_statutory input-sm">
+                            <select name="task_type" class="form-control is_statutory input-sm">
                                 <option value="0">Other Task</option>
                                 <option value="1">Statutory Task</option>
                                 <option value="2">Calendar Task</option>
@@ -338,13 +339,13 @@
                     @if(auth()->user()->isAdmin())
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
-                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                            <select id="multi_users" class="form-control input-sm" name="task_asssigned_to[]" multiple>
                                 @foreach ($data['users'] as $user)
                                     <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('assign_to'))
-                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                            @if ($errors->has('task_asssigned_to'))
+                                <div class="alert alert-danger">{{$errors->first('task_asssigned_to')}}</div>
                             @endif
                         </div>
                     </div>
@@ -663,10 +664,10 @@
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
                                             </div>
                                             @if(!$task->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->assign_to)) 
-                                            <button style="margin-top:10px;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
+                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
                                             @endif
                                             @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id)) 
-                                            <button style="margin-top:10px;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
+                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
                                             @endif
                                         </div>
                                     </td>
@@ -1525,8 +1526,6 @@
 
         $(document).ready(function () {
             $(document).on('change', '.is_statutory', function () {
-
-
                 if ($(".is_statutory").val() == 1) {
 
                     // $('input[name="completion_date"]').val("1976-01-01");
@@ -1535,7 +1534,7 @@
                     $('#appointment-container').hide();
 
                     if (!isAdmin)
-                        $('select[name="assign_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+                        $('select[name="task_asssigned_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
 
                     $('#recurring-task').show();
                 } else if ($(".is_statutory").val() == 2) {
@@ -1555,7 +1554,7 @@
                     let select_html = '';
                     for (user of users)
                         select_html += `<option value="${user['id']}">${ user['name'] }</option>`;
-                    $('select[name="assign_to"]').html(select_html);
+                    $('select[name="task_asssigned_to"]').html(select_html);
 
                     $('#recurring-task').hide();
 
@@ -1684,8 +1683,6 @@
             var thiss = $(this);
             var task_id = $(this).data('taskid');
             var message = $(this).siblings('input').val();
-            console.log(task_id);
-            console.log(message);
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
@@ -1705,6 +1702,8 @@
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
                         $(thiss).attr('disabled', false);
+                        toastr['error'](errObj.responseJSON.message);
+
                         alert("Could not send message");
                         console.log(errObj);
                     });
