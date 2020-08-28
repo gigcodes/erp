@@ -34,7 +34,7 @@ class DirectMessageController extends Controller
     public function incomingPendingRead(Request $request)
     {
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
-        dd($accounts);
+
     	foreach ($accounts as $account) {
     		try {
                 	$instagram = new Instagram();
@@ -52,6 +52,7 @@ class DirectMessageController extends Controller
 
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
+                     dd($incomingThread);
                 	if($incomingThread['unseen_count'] != 0){
 	                    $threads = $inbox['inbox']['threads'];
 	                    foreach ($threads as $thread) {
