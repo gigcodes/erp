@@ -10,22 +10,43 @@
         <button type="button" class="close" data-dismiss="modal">&times;</button>
     </div>
     <div class="modal-body">
-    <div class="table-responsive">
-        <table class="table table-bordered">
+    <div>
+        <table class="table table-bordered" style="table-layout:fixed;">
         <tr>
-          <th>Date & time</th>
-          <th>Time tracked</th>
-          <th>Task Id</th>
-          <th colspan="2" class="text-center">Action &nbsp;<input type="checkbox" name="sample" class="selectall"/></th>
+          <th style="width:40%">Date & time</th>
+          <th style="width:10%">Time tracked</th>
+          <th style="width:10%">Time Approved</th>
+          <th style="width:30%">Task</th>
+          <th style="width:10%" class="text-center">Action</th>
         </tr>
           @foreach ($activityrecords as $record)
             <tr>
-            <td>{{ $record->starts_at }} </td>
-              <td>{{ number_format($record->tracked / 60,2,".",",") }}</td>
-              <td>{{ $record->devtask_id}}</td>
+            <td>{{ $record->OnDate }} {{$record->onHour}}:00:00 </td>
+              <td>{{ number_format($record->total_tracked / 60,2,".",",") }}</td>
+              <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
+              <td></td>
               <td>
-                <input type="checkbox" value="{{$record->id}}" name="activities[]" {{$record->status ? 'checked' : ''}}>
+              &nbsp;<input type="checkbox" name="sample" {{$record->sample ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
+                <a data-toggle="collapse" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><img style="height:15px;" src="/images/forward.png"></a>
               </td>
+            </tr>
+            <tr style="width:100%;" id="collapse_{{ $record->OnDate }}{{$record->onHour}}" class="panel-collapse collapse">
+            <td colspan="5" style="padding:0px;">
+              <table style="table-layout:fixed;" class="table table-bordered">
+              @foreach ($record->activities as $a)
+                <tr>
+                <td style="width:40%">{{ $a->starts_at}}</td>
+                  <td style="width:10%">{{ number_format($a->tracked / 60,2,".",",") }}</td>
+                  <td style="width:10%">{{ number_format($a->totalApproved / 60,2,".",",") }}</td>
+                  <td style="width:30%">{{ $a->taskSubject}}</td>
+                  <td style="width:10%">
+                    <input type="checkbox" class="{{ $record->OnDate }}{{$record->onHour}}" value="{{$a->id}}" name="activities[]" {{$a->status ? 'checked' : ''}}>
+                  </td>
+                </tr>
+              @endforeach
+              </table>
+            </td>
+            </tr>
           @endforeach
       </table>
     </div>
@@ -88,7 +109,7 @@
     @if($hubActivitySummery)
     <div class="form-group">
         <label for="">Previous remarks</label>
-        <textarea class="form-control" cols="30" rows="5" placeholder="Rejection note...">@if($hubActivitySummery){{$hubActivitySummery->rejection_note}}@endif</textarea>
+        <textarea class="form-control" cols="30" rows="5" name="previous_remarks" placeholder="Rejection note...">@if($hubActivitySummery){{$hubActivitySummery->rejection_note}}@endif</textarea>
     </div>
     @endif
     <div class="form-group">

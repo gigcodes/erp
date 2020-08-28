@@ -18,6 +18,11 @@ class Account extends Model
     return $this->hasMany('App\Review');
   }
 
+  public function thread()
+  {
+    return $this->hasMany('App\InstagramThread','account_id','id')->whereNotNull('instagram_user_id');
+  }
+
   public function has_posted_reviews()
   {
     $count = $this->hasMany('App\Review')->where('status', 'posted')->count();
@@ -28,5 +33,10 @@ class Account extends Model
   public function imQueueBroadcast()
   {
     return $this->hasMany(ImQueue::class,'number_from','last_name');
+  }
+
+  public function storeWebsite()
+  {
+      return $this->hasOne('\App\StoreWebsite','id','store_website_id');
   }
 }

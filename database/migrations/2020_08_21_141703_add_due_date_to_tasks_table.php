@@ -14,7 +14,8 @@ class AddDueDateToTasksTable extends Migration
     public function up()
     {
         Schema::table('tasks', function (Blueprint $table) {
-            $table->dateTime('due_date')->nullable();
+            
+            //$table->dateTime('due_date')->nullable();
         });
     }
 

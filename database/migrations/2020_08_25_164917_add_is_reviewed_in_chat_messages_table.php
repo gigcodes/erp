@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFieldModelInDeveloperTasksHistoryTable extends Migration
+class AddIsReviewedInChatMessagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,9 +13,8 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function up()
     {
-        
-        Schema::table('developer_tasks_history', function (Blueprint $table) {
-           // $table->string('model')->nullable();
+        Schema::table('chat_messages', function (Blueprint $table) {
+            //$table->boolean('is_reviewed')->nullable();
         });
     }
 
@@ -26,7 +25,7 @@ class AddFieldModelInDeveloperTasksHistoryTable extends Migration
      */
     public function down()
     {
-        Schema::table('developer_tasks_history', function (Blueprint $table) {
+        Schema::table('chat_messages', function (Blueprint $table) {
             //
         });
     }
