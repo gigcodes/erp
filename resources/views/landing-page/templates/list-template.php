@@ -71,7 +71,7 @@
 			        	{{/if}}
 			        </td>
 			      </tr>
-			      <tr class="hideall" id="{{:prop.id}}" hidden>
+			      <tr class="hideall" id="{{:prop.id}}" style="display:none;">
 			      		 {{props prop.images}}
 			      		<td>
 			      			<div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">
