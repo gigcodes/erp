@@ -462,6 +462,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('meetings/show-data', 'Meeting\ZoomMeetingController@showData')->name('meetings.show.data');
     Route::get('meetings/show', 'Meeting\ZoomMeetingController@show')->name('meetings.show');
 
+    Route::get('task/time/history', 'TaskModuleController@getTimeHistory')->name('task.time.history');
+    Route::get('task/categories', 'TaskModuleController@getTaskCategories')->name('task.categories');
     Route::get('task/list', 'TaskModuleController@list')->name('task.list');
     Route::get('task/get-discussion-subjects', 'TaskModuleController@getDiscussionSubjects')->name('task.discussion-subjects');
     // Route::get('task/create-task', 'TaskModuleController@createTask')->name('task.create-task');
@@ -469,6 +471,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/plan', 'TaskModuleController@plan')->name('task.plan');
     Route::post('task/assign/messages', 'TaskModuleController@assignMessages')->name('task.assign.messages');
     Route::post('task/loadView', 'TaskModuleController@loadView')->name('task.load.view');
+    Route::post('task/bulk-complete', 'TaskModuleController@completeBulkTasks')->name('task.bulk.complete');
+    Route::post('task/bulk-delete', 'TaskModuleController@deleteBulkTasks')->name('task.bulk.delete');
+    Route::post('task/send-document', 'TaskModuleController@sendDocument')->name('task.send-document');
     Route::post('task/message/reminder', 'TaskModuleController@messageReminder')->name('task.message.reminder');
     Route::post('task/{id}/convertTask', 'TaskModuleController@convertTask')->name('task.convert.appointment');
     Route::post('task/{id}/updateSubject', 'TaskModuleController@updateSubject')->name('task.update.subject');
@@ -490,6 +495,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/get/details', 'TaskModuleController@getDetails')->name('task.json.details');
     Route::post('task/get/save-notes', 'TaskModuleController@saveNotes')->name('task.json.saveNotes');
     Route::post('task_category/{id}/approve', 'TaskCategoryController@approve');
+    Route::post('task_category/change-status', 'TaskCategoryController@changeStatus');
     Route::resource('task_category', 'TaskCategoryController');
     Route::post('task/addWhatsAppGroup', 'TaskModuleController@addWhatsAppGroup')->name('task.add.whatsapp.group');
     Route::post('task/addGroupParticipant', 'TaskModuleController@addGroupParticipant')->name('task.add.whatsapp.participant');
@@ -832,6 +838,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/task/relist-task', 'DevelopmentController@relistTask');
     Route::post('development/task/update-status', 'DevelopmentController@changeTaskStatus');
     Route::post('development/task/upload-document', 'DevelopmentController@uploadDocument');
+    Route::post('development/task/bulk-delete', 'DevelopmentController@deleteBulkTasks');
     Route::get('development/task/get-document', 'DevelopmentController@getDocument');
 
 

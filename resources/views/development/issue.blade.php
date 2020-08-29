@@ -87,6 +87,10 @@
              @if (auth()->user()->isAdmin())
              <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
             @endif
+            @if (auth()->user()->isAdmin())
+             <a class="btn btn-secondary" style="color:white;" id="make_delete_button">Delete Tasks</a>
+            @endif
+
         </div>
 
 
@@ -617,7 +621,7 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -899,6 +903,48 @@
             }
             else {
                 $('#no_of_milestone').removeAttr('required');
+            }
+        });
+
+        var selected_tasks = [];
+
+        $(document).on('click', '.select_task_checkbox', function () {
+            var checked = $(this).prop('checked');
+            var id = $(this).data('id');
+
+            if (checked) {
+                selected_tasks.push(id);
+            } else {
+                var index = selected_tasks.indexOf(id);
+
+                selected_tasks.splice(index, 1);
+            }
+
+            console.log(selected_tasks);
+        });
+
+        $(document).on("click","#make_delete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{action('DevelopmentController@deleteBulkTasks')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not delete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
             }
         });
     </script>

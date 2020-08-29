@@ -59,6 +59,7 @@
                                     <th>Date</th>
                                     <th>Old Value</th>
                                     <th>New Value</th>
+                                    <th>Updated by</th>
                                     <th></th>
                                 </tr>
                             </thead>

@@ -155,6 +155,7 @@
     @include('task-module.partials.modal-task-category')
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
+
     @include('partials.flash_messages')
 
     <div class="row">
@@ -485,12 +486,15 @@
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
-            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
-                <div class="row" style="margin:0px;">
+                <div class="row" style="margin:0px;"> 
                     <!-- <h4>List Of Pending Tasks</h4> -->
                     <div class="col-12">
                         <table class="table table-sm table-bordered">
@@ -612,6 +616,7 @@
 
                                         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
                                             <br>
+                                            @if(auth()->user()->isAdmin())
                                             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
                                             <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
                                                 <option value="">Select...</option>
@@ -624,6 +629,11 @@
                                                     @endif
                                                 @endforeach
                                             </select>
+                                            @else 
+                                                @if($task->master_user_id) 
+                                                <p>{{$users[$task->master_user_id]}}</p>
+                                                @endif
+                                            @endif
 
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
@@ -698,7 +708,18 @@
                                                 @if (isset($task->message))
                                                     <div class="d-flex justify-content-between">
                                                         <span class="td-mini-container" style="margin:0px;">
-                                                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                                                           
+                                                            <?php 
+                                                            $pos = strpos($task->message,$task->task_subject);
+                                                            $length = strlen($task->task_subject);
+                                                            if($pos) {
+                                                                $start = $pos + $length + 1;
+                                                            }
+                                                            else {
+                                                                $start = 0;
+                                                            }
+                                                            ?>
+                                                            {{substr($task->message, $start)}}
                                                         </span>
                                                                                         <span class="td-full-container hidden">
                                                             {{ $task->message }}
@@ -710,12 +731,14 @@
                                             </div>
                                             <div class="expand-col dis-none">
                                             <br>
+                                            @if(auth()->user()->isAdmin())
                                             <label for="">Lead:</label>
                                                 <div class="d-flex">
                                                     <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                                                     <button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
                                                   
-                                                    </div>
+                                                </div>
+                                                @endif
                                             </div>
                                         @else
                                             Private
@@ -726,6 +749,10 @@
                                             <div class="row cls_action_box" style="margin:0px;">
                                                 @if(auth()->user()->isAdmin())
                                                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
+
+                                                    <button type="button" class='btn delete-single-task pd-5' data-id="{{ $task->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+
+                                                    
                                                 @endif
 
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
@@ -969,6 +996,15 @@
         </div>
     </div>
 
+
+    <div id="allTaskCategoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content" id="category-list-area">
+            
+            </div>
+        </div>
+    </div>
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -1009,6 +1045,7 @@
 					      <tr>
 					        <th>Sl no</th>
 					        <th>Files</th>
+					        <th>Send to</th>
 					        <th>Action</th>
 					      </tr>
 					    </thead>
@@ -1701,14 +1738,13 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+                        console.log(response);
                         $(thiss).siblings('input').val('');
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
+                        console.log(errObj);
                         $(thiss).attr('disabled', false);
                         toastr['error'](errObj.responseJSON.message);
-
-                        alert("Could not send message");
-                        console.log(errObj);
                     });
                 }
             } else {
@@ -2380,6 +2416,40 @@
             console.log(selected_tasks);
         });
 
+        $('#view_categories_button').on('click', function () {
+                $.ajax({
+                    type: "GET",
+                    url: "{{ url('task/categories') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }
+                }).done(function (response) {
+                    console.log(response);
+                    $('#category-list-area').html(response);
+
+                    $('#allTaskCategoryModal').modal();
+                }).fail(function (response) {
+                    console.log("failed");
+                });
+        });
+
+
+        $(document).on('click', '.submit-category-status', function (e) {
+            e.preventDefault();
+            var form  = $(this).closest('form');
+                $.ajax({
+                    type: "POST",
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                }).done(function (response) {
+                    toastr["success"](response.message);
+                    $('#allTaskCategoryModal').modal('hide');
+                }).fail(function (response) {
+                });
+        });
+
+
+        
         $('#view_tasks_button').on('click', function () {
             var selected = $(this).data('selected');
 
@@ -2631,7 +2701,7 @@
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
             $.ajax({
-                url: "{{ route('development/time/history') }}",
+                url: "{{ route('task.time.history') }}",
                 data: {id: issueId},
                 success: function (data) {
                     // if(data != 'error') {
@@ -2659,7 +2729,7 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -2956,5 +3026,127 @@ $(document).on("click",".btn-save-documents",function(e){
                 }
             });
         });
+
+
+        $(document).on("keyup",".search-category",function() {
+            console.log("aaaaaa");
+            var input, filter, ul, li, a, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            ul = document.getElementById("myUL");
+            li = ul.getElementsByTagName("li");
+            for (i = 0; i < li.length; i++) {
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+        });
+
+        $(document).on("click","#make_complete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to complete these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-complete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not complete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
+            }
+        });
+        $(document).on("click","#make_delete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-delete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not delete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
+            }
+        });
+
+
+        $(document).on("click",".delete-single-task",function() {
+            var id = $(this).data('id');
+            if(!id) {
+                return;
+            }
+            console.log(id);
+            selected_tasks.push(id);
+            console.log(selected_tasks);
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-delete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not delete task');
+                });
+        });
+
+
+        $(document).on("click",".link-send-document",function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
+		$.ajax({
+			url: '/task/send-document',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: { id : id , user_id: user_id},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]("Document sent successfully");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+
+	});
+
     </script>
 @endsection
