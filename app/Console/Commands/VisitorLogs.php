@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 
 class VisitorLogs extends Command
 {
+    const LIVE_CHAT_CREDNTIAL = "NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn";
     /**
      * The name and signature of the console command.
      *
@@ -42,7 +43,7 @@ class VisitorLogs extends Command
             $curl = curl_init();
 
             curl_setopt_array($curl, array(
-                CURLOPT_URL            => "https://api.livechatinc.com/v2/visitors/",
+                CURLOPT_URL            => "https://api.livechatinc.com/v2/visitors",
                 CURLOPT_RETURNTRANSFER => true,
                 CURLOPT_ENCODING       => "",
                 CURLOPT_MAXREDIRS      => 10,
@@ -51,7 +52,7 @@ class VisitorLogs extends Command
                 CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
                 CURLOPT_CUSTOMREQUEST  => "GET",
                 CURLOPT_HTTPHEADER     => array(
-                    "Authorization: Basic eW9nZXNobW9yZGFuaUBpY2xvdWQuY29tOmRhbDpUQ3EwY2FZYVRrMndCTHJ3dTgtaG13",
+                    "Authorization: Basic ".self::LIVE_CHAT_CREDNTIAL,
                 ),
             ));
 
@@ -67,7 +68,7 @@ class VisitorLogs extends Command
                     foreach ($logs as $log) {
 
                         $logExist = VisitorLog::where('ip', $log->ip)->whereDate('last_visit', '<=', $log->last_visit)->first();
-                        if ($logExist != null) {
+                        if ($logExist == null) {
                             $logSave           = new VisitorLog();
                             $logSave->ip       = $log->ip;
                             $logSave->browser  = $log->browser;
@@ -83,7 +84,6 @@ class VisitorLogs extends Command
                             $logSave->customer_name = $log->name;
                             $logSave->save();
                         }
-
                     }
                 }
             }
