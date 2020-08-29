@@ -35,7 +35,7 @@ class DirectMessageController extends Controller
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
     	foreach ($accounts as $account) {
-            dd($account->last_name);
+            
     		try {
                 	$instagram = new Instagram();
                     $instagram->setProxy($account->proxy);
@@ -49,7 +49,7 @@ class DirectMessageController extends Controller
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-
+                dd($inbox);
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
                 	if($incomingThread['unseen_count'] != 0){
