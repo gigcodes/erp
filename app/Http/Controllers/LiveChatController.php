@@ -993,27 +993,33 @@ class LiveChatController extends Controller
     * 
     * https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
     * https://api.livechatinc.com/tickets?assigned=0
+    dal:ZP6x3Uc3QMa9W-Ve4sp86A
     */
     function getLiveChatIncTickets(){
 
-        $postURL = 'https://api.livechatinc.com/v2/tickets';
-        $additionalHeaders = [];
-        $additionalHeaders[CURLOPT_HTTPAUTH] = CURLAUTH_BASIC;
-        $additionalHeaders[CURLOPT_USERPWD] = '6f43fdd5-9900-49f8-b83b-e8dc86fe7872:dal:tRAPufTrQe-TdAB8cjEj3g';
-        $additionalHeaders[CURLOPT_HTTPHEADER] = ['X-API-Version: 2'];
+        $curl = curl_init();
 
-        $result = self::curlCall($postURL, false, false, false, 'GET', $additionalHeaders);
-        if($result['err']){
-            return false;
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.livechatinc.com/v2/tickets",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+          CURLOPT_HTTPHEADER => array(
+            "Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        $result = json_decode($response,true);
+        if(!empty($result['tickets'])) {
+            return $result['tickets'];
         }else{
-            $response = json_decode($result['response']);
-            if(isset($response->error)){            
-                return false;
-            }
-            else{
-                $responseData = json_decode($result['response'], true);
-                return $responseData['tickets'];
-            }
+            return false;
         }
     }
 }
