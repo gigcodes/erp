@@ -210,7 +210,7 @@ class LiveChatController extends Controller
                 $websiteId = null;
                 try {
                     $websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
-                    $website 	= \App\StoreWebsite::where("website","like","%".$websiteURL."%")->first();
+                    $website    = \App\StoreWebsite::where("website","like","%".$websiteURL."%")->first();
                     if($website) {
                        $websiteId = $website->id;
                     }
@@ -220,7 +220,7 @@ class LiveChatController extends Controller
                 //dd($websiteURL);
                 $customer = Customer::where('email', $userEmail);
                 if($websiteId > 0) {
-                	$customer = $customer->where("store_website_id",$websiteId);
+                    $customer = $customer->where("store_website_id",$websiteId);
                 }
                 $customer = $customer->first();
 
@@ -502,13 +502,13 @@ class LiveChatController extends Controller
 
     public function getChatMessagesWithoutRefresh()
     {
-    	$messagess = [];
+        $messagess = [];
         if (session()->has('chat_customer_id')) {
-        	$lastMessageId = request("last_msg_id");
+            $lastMessageId = request("last_msg_id");
             $chatId   = session()->get('chat_customer_id');
             $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2);
             if($lastMessageId != null) {
-            	$messages = $messages->where('id',">", $lastMessageId);
+                $messages = $messages->where('id',">", $lastMessageId);
             }
             $messages = $messages->get();
             //getting customer name from chat
@@ -516,9 +516,9 @@ class LiveChatController extends Controller
             $name           = $customer->name;
             $customerInital = substr($name, 0, 1);
             if (count($messages) == 0) {
-            	if($lastMessageId == null) {
-	                ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
-	            }
+                if($lastMessageId == null) {
+                    ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
+                }
             } else {
                 foreach ($messages as $message) {
 
@@ -635,24 +635,24 @@ class LiveChatController extends Controller
             $customerInital = substr($customer->name, 0, 1);
             if ($liveChatCustomer->status == 0) {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-				                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon offline"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is offline</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li><li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon offline"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is offline</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li><li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             } elseif ($liveChatCustomer->status == 1 && $liveChatCustomer->seen == 0) {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-								<input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div><span class="new_message_icon"></span></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             } else {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
-								<input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
-								<div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
-								</div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
+                                <input type="hidden" id="live_selected_customer_store" value="' . $customer->store_website_id . '" />
+                                <div class="d-flex bd-highlight"><div class="img_cont"><span class="rounded-circle user_inital">' . $customerInital . '</span><span class="online_icon"></span>
+                                </div><div class="user_info"><span>' . $customer->name . '</span><p style="margin-bottom: 0px;">' . $customer->name . ' is online</p><p style="margin-bottom: 0px;">' . $liveChatCustomer->website . '</p></div></div></li>'; //<img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img">
             }
         }
         if (empty($customers)) {
             $customers[] = '<li><div class="d-flex bd-highlight"><div class="img_cont">
-								</div><div class="user_info"><span>No User Found</span><p></p></div></div></li>';
+                                </div><div class="user_info"><span>No User Found</span><p></p></div></div></li>';
         }
         //Getting chat counts
         $count = CustomerLiveChat::where('seen', 0)->count();
@@ -776,7 +776,7 @@ class LiveChatController extends Controller
 
     public static function useAbsPathUpload($fileURL)
     {
-    	$filename = basename($fileURL);
+        $filename = basename($fileURL);
         $postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
         $postURL  = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
         $result   = self::curlCall($postURL, $postData, 'multipart/form-data');
@@ -986,5 +986,40 @@ class LiveChatController extends Controller
         }
 
         return redirect(route('livechat.get.chats')."?open_chat=true");
+    }
+
+    /**
+    * Get tickets from livechat inc and put them as unread messages
+    * 
+    * https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
+    * https://api.livechatinc.com/tickets?assigned=0
+    dal:ZP6x3Uc3QMa9W-Ve4sp86A
+    */
+    function getLiveChatIncTickets(){
+
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.livechatinc.com/v2/tickets",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 0,
+          CURLOPT_FOLLOWLOCATION => true,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+          CURLOPT_HTTPHEADER => array(
+            "Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+
+        $result = json_decode($response,true);
+        if(!empty($result['tickets'])) {
+            return $result['tickets'];
+        }else{
+            return false;
+        }
     }
 }
