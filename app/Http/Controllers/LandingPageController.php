@@ -247,7 +247,7 @@ class LandingPageController extends Controller
                         foreach ($message as $msg) {
                             $errors[] = ucwords($key) . " " . $msg;
                         }
-                    }eles{
+                    }else{
                         $errors[] = ucwords($key) . " " . $message;
                     }
                 }
