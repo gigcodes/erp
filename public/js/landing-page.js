@@ -279,7 +279,6 @@
         }
     },
     pushShopifyProduct : function(ele) {
-        console.log(ele);
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
             method: "GET",
