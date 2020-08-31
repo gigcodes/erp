@@ -1,6 +1,8 @@
 var currentChatParams = {};
 var workingOn =  null;
 var load_type =  null;
+var is_admin =  null;
+var is_hod_crm =  null;
 
 var getMoreChatConvo = function(params) {
     var AllMessages = [];

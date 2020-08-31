@@ -147,7 +147,6 @@ $(document).on("change","#customer_name",function() {
     var cus_id = $(this).val();
     if(cus_id == ''){
         $('.input_customer_city').val('');
-        $('.input_customer_country').val('');
         $('.input_customer_phone').val('');
         $('.input_customer_address1').val('');
         $('.input_customer_pincode').val('');
@@ -159,7 +158,15 @@ $(document).on("change","#customer_name",function() {
         if(response.status == 1)
         {
             $('.input_customer_city').val(response.data.city);
-            $('.input_customer_country').val(response.data.country);
+            let countryField = $('.input_customer_country');
+            let countryOptionsField = countryField.find('option')
+            if (countryOptionsField && countryOptionsField.length){
+                for (let i in countryOptionsField){
+                    if (countryOptionsField[i].innerText && countryOptionsField[i].innerText.toLowerCase() === response.data.country.toLowerCase()){
+                        countryField.val(countryOptionsField[i].value)
+                    }
+                }
+            }
             $('.input_customer_phone').val(response.data.phone);
             $('.input_customer_address1').val(response.data.address);
             $('.input_customer_pincode').val(response.data.pincode);
@@ -181,6 +188,10 @@ $(document).on("change", '#email_name', function(){
             }
         }
     })
+});
+$(document).on("click", '.add-shipment', function(){
+    $('#generate-shipment-form .form-error').html(''),
+    $('.any-message').html('');
 });
 
 </script>
