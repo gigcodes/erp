@@ -1504,6 +1504,9 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
+                                    <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+                                </li>
                             </ul>
                         </li>
                         @endif

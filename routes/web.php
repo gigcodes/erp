@@ -580,6 +580,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('search/', 'SearchController@search')->name('search');
     Route::get('pending/{roletype}', 'SearchController@getPendingProducts')->name('pending');
 
+    Route::get('loadEnvManager/', 'EnvController@loadEnvManager')->name('load_env_manager');
+    
     //	Route::post('productAttachToSale/{sale}/{product_id}','SaleController@attachProduct');
     //	Route::get('productSelectionGrid/{sale}','SaleController@selectionGrid')->name('productSelectionGrid');
 
