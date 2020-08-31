@@ -123,6 +123,24 @@ class ChatMessagesController extends Controller
                         mediable_type LIKE 'App%ChatMessage'
                 ) )");
                 break;
+            case 'text_with_incoming_img':
+                    $chatMessages = $chatMessages->where(function($query) use ($object) {
+                    $query->whereRaw("(chat_messages.number = ".$object->phone." and ( media_url is not null 
+                                                or id in (
+                                                select
+                                                    mediable_id
+                                                from
+                                                    mediables
+                                                    join media on id = media_id and extension != 'pdf'
+                                                WHERE
+                                                    mediable_type LIKE 'App%ChatMessage'
+                                            )) )")->orWhere(function($query) {
+                                                $query->whereNotNull("message")
+                                                ->whereNull("media_url")
+                                                ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
+                                            });
+                    });                    
+                break;
         }
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
