@@ -710,7 +710,7 @@
                     toastr['success']('created successfully!');
                     $("#loading-image").hide();
                 },
-                error: function () {
+                error: function (error) {
                     $("#loading-image").hide();
                     toastr["error"](error.responseJSON.message);
                 }
