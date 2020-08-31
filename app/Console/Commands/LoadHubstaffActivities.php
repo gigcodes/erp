@@ -58,8 +58,8 @@ class LoadHubstaffActivities extends Command
             ]);
 
             $time      = strtotime(date("c"));
-            $time      = $time - ((10 * 60)); //10 minutes
-            $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
+            $time      = $time - ((20 * 60)); //10 minutes
+            $startTime = date("c", $time);
             $time     = strtotime($startTime);
             $time     = $time + (10 * 60); //10 minutes
             $stopTime = date("c", $time);
