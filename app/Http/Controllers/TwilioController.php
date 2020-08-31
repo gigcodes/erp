@@ -113,19 +113,23 @@ class TwilioController extends FindByNumberController
         //$number = '919748940238';
 
         Log::info('Enter in Incoming Call Section ');
-        $response = new Twiml();
+        $response = new VoiceResponse();
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
         if (!$context) {
-            $reject = $response->reject([
-                'reason' => 'Busy'
-            ]);
-            return Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
+            $context='customers';
+            $object = new Customer;
+            $object->name = 'Customer from Call';
+            $object->phone = str_replace("+", "", $number);
+            $object->rating = 1;
+            $object->save();
         }
 
-        $dial = $response->dial([
-            'record' => 'true',
-            'recordingStatusCallback' => \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&amp;internalId=" . $object->id
-        ]);
+        $dial = $response->dial('',
+            [
+            'record' => true,
+            'recordingStatusCallback' => config('app.url') . "/twilio/recordingStatusCallback?context=" . $context . "&amp;internalId=" . $object->id
+        ]
+        );
 
         $clients = $this->getConnectedClients();
         /** @var Helpers $client */
@@ -436,13 +440,6 @@ class TwilioController extends FindByNumberController
 
         list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
         if (!$context) {
-            $customer = new Customer;
-
-            $customer->name = 'Customer from Call';
-            $customer->phone = str_replace("+", "", $number);
-            $customer->rating = 1;
-
-            $customer->save();
 
             return response()->json(['found' => FALSE, 'number' => $number]);
         }
@@ -508,7 +505,7 @@ class TwilioController extends FindByNumberController
     private function getConnectedClients($role = "")
     {
         $hods = Helpers::getUsersByRoleName('HOD of CRM');
-        $andy = User::find(56);
+        $andy = User::find(216);
         $yogesh = User::find(6);
         $clients = [];
         /** @var Helpers $hod */
