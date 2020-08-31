@@ -1475,8 +1475,11 @@ class WhatsAppController extends FindByNumberController
 
                     // check that match if this the assign to is auto user 
                     // then send price and deal
+                    \Log::info("Price Lead section started for customer id : ". $customer->id);
                     if($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
+                        \Log::info("Auto section started for customer id : ". $customer->id);
                        if(!empty($parentMessage)) {
+                        \Log::info("Auto section parent message found started for customer id : ". $customer->id);
                           $parentMessage->sendLeadPrice($customer);
                        }
                     }

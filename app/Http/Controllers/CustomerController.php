@@ -2353,7 +2353,7 @@ class CustomerController extends Controller
     public function dispatchBroadSendPrice($customer, $product_ids)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
-
+            \Log::info("Customer with phone found for customer id : ". $customer->id." and product ids ".json_encode($product_ids));
             if (!empty(array_filter($product_ids))) {
 
                 foreach($product_ids as $pid) {
