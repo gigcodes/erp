@@ -34,7 +34,7 @@ var common = {
                 }
             }
         }).fail(function(jqXhr) {
-            toastr["error"](xhr.responseText,"");
+            toastr["error"](jqXhr.responseText,"");
         });
     },
     sendFormDataAjax: function(params, callback, fallback) {
@@ -66,7 +66,7 @@ var common = {
                 self[callback](result);
             }
         }).fail(function(jqXhr) {
-            toastr["error"](xhr.responseText,"");
+            toastr["error"](jqXhr.responseText,"");
         });
     },
     checkTypeOf: function(params, key, defaultVal) {
