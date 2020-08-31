@@ -81,6 +81,7 @@ use App\ColdLeads;
 class WhatsAppController extends FindByNumberController
 {
     CONST MEDIA_PDF_CHUNKS = 50;
+    CONST AUTO_LEAD_SEND_PRICE = 281;
 
     /**
      * Incoming message URL for whatsApp
@@ -1010,7 +1011,8 @@ class WhatsAppController extends FindByNumberController
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();  
+        $data = $request->json()->all();
+        $needToSendLeadPrice = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1470,6 +1472,14 @@ class WhatsAppController extends FindByNumberController
                         "type"=>"App\User"
                     );
                     DB::table('task_users')->insert($task_users_array);
+
+                    // check that match if this the assign to is auto user 
+                    // then send price and deal
+                    if($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
+                       if(!empty($parentMessage)) {
+                          $parentMessage->sendLeadPrice($customer);
+                       }
+                    }
 
                     //START CODE Task message to send message in whatsapp
                 

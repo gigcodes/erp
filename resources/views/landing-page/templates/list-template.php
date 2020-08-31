@@ -27,8 +27,8 @@
 			        	<br>
 			        	<div class="row">
 			        		<select name="store_website_id" class="form-control store-website-change" data-id="{{:prop.id}}">
+			        		<option value="">--SELECT-</option>
 			        		<?php foreach(\App\StoreWebsite::shopifyWebsite() as $k => $v) {  ?>
-			        			<option value="">--SELECT-</option>
 			        			<option {{if prop.store_website_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
 			        		<?php } ?>
 			        		</select>

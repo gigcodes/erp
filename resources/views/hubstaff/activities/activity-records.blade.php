@@ -36,7 +36,7 @@
               @foreach ($record->activities as $a)
                 <tr>
                 <td style="width:40%">{{ $a->starts_at}}</td>
-                  <td style="width:10%">{{ number_format($a->tracked / 60,2,".",",") }}</td>
+                  <td style="width:10%">{{ number_format($a->tracked / 60,2,".",",") }}@if($a->is_manual) (Manual time) @endif</td>
                   <td style="width:10%">{{ number_format($a->totalApproved / 60,2,".",",") }}</td>
                   <td style="width:30%">{{ $a->taskSubject}}</td>
                   <td style="width:10%">

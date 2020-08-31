@@ -253,6 +253,7 @@
     </div>
     @php
         $action = url('whatsapp/updateAndCreate/');
+
         if ($model_type == 'images') {
             $action =  route('image.grid.attach');
         } else if ($model_type == 'customers') {
@@ -269,6 +270,8 @@
             $action =  route('product.templates');
         } else if ($model_type == 'landing-page') {
             $action =  route('landing-page.save');
+        } else if($model_type == 'live-chat') {
+            $action =  route('live-chat.attach.image');
         }else if ($model_type == 'direct'){
             $action =  route('direct.send.file');
         }
@@ -280,7 +283,7 @@
         @if ($model_type == 'customers')
             <input type="hidden" name="sending_time" value="{{ $sending_time }}"/>
         @endif
-
+        
         @if (request()->get('return_url'))
             <input type="hidden" name="return_url" value="{{ request()->get('return_url') }}"/>
         @endif
@@ -289,8 +292,8 @@
         <input type="hidden" name="image" value="">
         <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
         <input type="hidden" name="screenshot_path" value="">
-        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' ? "$message_body" : '' }}">
-        <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
+        <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
+        <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}">
         <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
