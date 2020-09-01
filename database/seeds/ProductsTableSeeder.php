@@ -18,11 +18,15 @@ class ProductsTableSeeder extends Seeder
 
         // Load Faker
         $faker = \Faker\Factory::create();
-
+        $status = DB::table('status')->orderBy('id')->first();
+        if(!$status) {
+            DB::table('status')->insert(['name' => 'import']);
+        }
+        $status_id = DB::table('status')->orderBy('id')->first()->id;
         // Create 10.000 products
         for ($i = 0; $i < 2; $i++) {
             $product = new Product;
-            $product->status_id = rand(1, 19);
+            $product->status_id = $status_id;
             $product->name = $faker->name;
             $product->short_description = $faker->paragraph;
             $product->sku = $faker->ean13;

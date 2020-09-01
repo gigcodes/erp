@@ -95,7 +95,6 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
-
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -123,6 +122,24 @@ class ChatMessagesController extends Controller
                     WHERE
                         mediable_type LIKE 'App%ChatMessage'
                 ) )");
+                break;
+            case 'text_with_incoming_img':
+                    $chatMessages = $chatMessages->where(function($query) use ($object) {
+                    $query->whereRaw("(chat_messages.number = ".$object->phone." and ( media_url is not null 
+                                                or id in (
+                                                select
+                                                    mediable_id
+                                                from
+                                                    mediables
+                                                    join media on id = media_id and extension != 'pdf'
+                                                WHERE
+                                                    mediable_type LIKE 'App%ChatMessage'
+                                            )) )")->orWhere(function($query) {
+                                                $query->whereNotNull("message")
+                                                ->whereNull("media_url")
+                                                ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
+                                            });
+                    });                    
                 break;
         }
         $chatMessages = $chatMessages->get();
@@ -308,6 +325,7 @@ class ChatMessagesController extends Controller
                 'approved' => $chatMessage->approved,
                 'error_status' => $chatMessage->error_status,
                 'is_queue' => $chatMessage->is_queue,
+                'is_reviewed' => $chatMessage->is_reviewed,
                 'quoted_message_id' => $chatMessage->quoted_message_id
             ];
         }
@@ -316,6 +334,8 @@ class ChatMessagesController extends Controller
         return response()->json([
             'messages' => $messages
         ]);
+
+       
     }
 
     public function getSupplierIntials($string)
@@ -339,5 +359,18 @@ class ChatMessagesController extends Controller
 
         return $size;
 
+    }
+
+    public function setReviewed($id) {
+        $message = ChatMessage::find($id);
+        if($message) {
+            $message->update(['is_reviewed' => 1]);
+            return response()->json([
+                'message' => 'Successful'
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Error'
+        ],500);
     }
 }

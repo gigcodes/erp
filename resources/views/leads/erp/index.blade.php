@@ -275,7 +275,7 @@
             contentType : false,
             processData:false
           }).done(function() {
-            window.location.reload();
+            // window.location.reload();
           }).fail(function(response) {
             $(thiss).text('No');
 
@@ -343,7 +343,7 @@
                 data: 'id',
                 render : function ( data, type, row ) {
                       // Combine the first and last names into a single table field
-                      return '<div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">'+data+'</label></div>';
+                      return '<div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">'+data+'aa</label></div>';
                }       
               },
               {data: 'status_name', name: 'status_name'},

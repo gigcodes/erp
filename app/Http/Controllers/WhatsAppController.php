@@ -81,6 +81,7 @@ use App\ColdLeads;
 class WhatsAppController extends FindByNumberController
 {
     CONST MEDIA_PDF_CHUNKS = 50;
+    CONST AUTO_LEAD_SEND_PRICE = 281;
 
     /**
      * Incoming message URL for whatsApp
@@ -1010,7 +1011,8 @@ class WhatsAppController extends FindByNumberController
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();  
+        $data = $request->json()->all();
+        $needToSendLeadPrice = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1440,9 +1442,8 @@ class WhatsAppController extends FindByNumberController
                 $exp_mesaages = explode(" ", $params[ 'message' ]);
                 for($i=0;$i<count($exp_mesaages);$i++)
                 {
-                    $keywordassign = DB::table('keywordassigns')
-                    ->select('*')
-                    ->where('keyword', 'like', '%'.$exp_mesaages[$i].'%')
+                    $keywordassign = DB::table('keywordassigns')->select('*')
+                    ->whereRaw('FIND_IN_SET(?,keyword)', [strtolower($exp_mesaages[$i])])
                     ->get();
                     if(count($keywordassign) > 0)
                     {
@@ -1453,15 +1454,15 @@ class WhatsAppController extends FindByNumberController
                 if(count($keywordassign) > 0)
                 {
                     $task_array =  array(
-                        "category"=>42,
-                        "is_statutory"=>0,
-                        "task_subject"=>"#".$customer->id."-".$keywordassign[0]->task_description,
-                        "task_details"=>$keywordassign[0]->task_description,
+                        "category" => 42,
+                        "is_statutory" => 0,
+                        "task_subject" => "#".$customer->id."-".$keywordassign[0]->task_description,
+                        "task_details" => $keywordassign[0]->task_description,
                         "assign_from" => \App\User::USER_ADMIN_ID,
-                        "assign_to"=>$keywordassign[0]->assign_to,
-                        "customer_id"=>$customer->id,
-                        "created_at"=>date("Y-m-d H:i:s"),
-                        "updated_at"=>date("Y-m-d H:i:s")
+                        "assign_to" => $keywordassign[0]->assign_to,
+                        "customer_id" => $customer->id,
+                        "created_at" => date("Y-m-d H:i:s"),
+                        "updated_at" => date("Y-m-d H:i:s")
                     );
                     DB::table('tasks')->insert($task_array);
                     $taskid = DB::getPdo()->lastInsertId();
@@ -1471,6 +1472,14 @@ class WhatsAppController extends FindByNumberController
                         "type"=>"App\User"
                     );
                     DB::table('task_users')->insert($task_users_array);
+
+                    // check that match if this the assign to is auto user 
+                    // then send price and deal
+                    if($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
+                       if(!empty($parentMessage)) {
+                          $parentMessage->sendLeadPrice($customer);
+                       }
+                    }
 
                     //START CODE Task message to send message in whatsapp
                 
@@ -2610,7 +2619,7 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($task->master_user_id);
 
                     if (!$user) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'Master user not found'],500);
                     }
                     $params[ 'user_id' ]  = $user->id;
                     if ($task->is_statutory != 1) {
@@ -2621,7 +2630,7 @@ class WhatsAppController extends FindByNumberController
                     
                     $number = $user->phone;
                     if(!$number) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'User whatsapp no not available'],500);
                     }
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);

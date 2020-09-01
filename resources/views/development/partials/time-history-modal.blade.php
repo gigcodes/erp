@@ -2,13 +2,15 @@
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
-                <h5 class="modal-title">Estimated Time History</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                <span aria-hidden="true">&times;</span>
-                </button>
+            <h5 class="modal-title">Estimated Time History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
-            <div class="modal-body">
+            <form action="" id="approve-time-btn" method="POST">
+                @csrf
+                <div class="modal-body">
                 <div class="row">
+                <input type="hidden" name="developer_task_id" id="developer_task_id">
+
                     <div class="col-md-12" id="time_history_div">
                         <table class="table">
                             <thead>
@@ -16,6 +18,7 @@
                                     <th>Date</th>
                                     <th>Old Value</th>
                                     <th>New Value</th>
+                                    <th></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -23,10 +26,14 @@
                         </table>
                     </div>
                 </div>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    @if(auth()->user()->isReviwerLikeAdmin())
+                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                    @endif
+                </div>
+            </form>
         </div>
     </div>
 </div> -->

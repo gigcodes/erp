@@ -31,7 +31,7 @@ class ChatMessage extends Model
 
     use Mediable;
 
-    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id'];
+    protected $fillable = ['is_queue', 'unique_id', 'lead_id', 'order_id', 'customer_id', 'supplier_id', 'vendor_id', 'user_id', 'task_id', 'erp_user', 'contact_id', 'dubbizle_id', 'assigned_to', 'purchase_id', 'message', 'media_url', 'number', 'approved', 'status', 'error_status', 'resent', 'is_reminder', 'created_at', 'issue_id', 'developer_task_id', 'lawyer_id', 'case_id', 'blogger_id', 'voucher_id', 'document_id', 'group_id','old_id','message_application_id','is_chatbot','sent_to_user_id','site_development_id','social_strategy_id','store_social_content_id','quoted_message_id','is_reviewed'];
     protected $table = "chat_messages";
     protected $dates = ['created_at', 'updated_at'];
     protected $casts = array(
@@ -360,6 +360,29 @@ class ChatMessage extends Model
     public function vendor()
     {
         return $this->belongsTo('App\Vendor', 'vendor_id');
+    }
+
+
+    /**
+    * Check send lead price
+    * $customer object
+    * customer
+    **/
+    public function sendLeadPrice($customer)
+    {
+        $media = $this->getMedia(config('constants.attach_image_tag'))->first();
+        if($media) {
+           $mediable = \DB::table("mediables")->where("media_id",$media->id)
+           ->where("mediable_type",\App\Product::class)
+           ->first();
+           if(!empty($mediable)) {
+                try{
+                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
+                }catch(\Exception $e) {
+                    \Log::info($e->getMessage());
+                }
+           }
+        }
     }
 
 

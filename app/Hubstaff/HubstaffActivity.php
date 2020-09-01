@@ -17,7 +17,8 @@ class HubstaffActivity extends Model
         'overall',
         'hubstaff_payment_account_id',
         'status',
-        'paid'
+        'paid',
+        'is_manual'
     ];
 
     public static function getActivitiesForWeek($week, $year)

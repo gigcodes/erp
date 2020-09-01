@@ -49,9 +49,12 @@ class ShipmentController extends Controller
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
-		return view( 'shipment.index', ['waybills_array' => $waybills_array, 'customers' => $customers, 'template_names' => $mailinglist_templates]);
+		return view( 'shipment.index', ['waybills_array' => $waybills_array,
+            'customers' => $customers, 'template_names' => $mailinglist_templates,
+            'countries' => config('countries')
+        ]);
     }
-    
+
     /**
      * Send an email to dhl
      */
@@ -129,7 +132,7 @@ class ShipmentController extends Controller
         $this->emails::create($params);
 
         return redirect()->route('shipment.index')->withSuccess('You have successfully sent an email!');
-        
+
     }
 
     /**
@@ -156,6 +159,30 @@ class ShipmentController extends Controller
 
     public function generateShipment(Request $request)
     {
+        $inputs = $request->all();
+        $validator = Validator::make($inputs, [
+            'customer_id' => 'required|numeric',
+            'customer_city' => 'required|string',
+            'customer_country' => 'required|string',
+            'customer_phone' => 'required|numeric',
+            'customer_address1' => 'required|string',
+            'customer_address2' => 'required|string',
+            'customer_pincode' => 'required|string',
+            'actual_weight' => 'required|numeric',
+            'box_length' => 'required|numeric',
+            'box_width' => 'required|numeric',
+            'box_height' => 'required|numeric',
+            'amount' => 'required|numeric',
+            'currency' => 'required',
+            'pickup_time' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'errors' => $validator->errors(),
+            ]);
+        }
+
         try {
             $params = $request->all();
             //get customer details
@@ -214,12 +241,23 @@ class ShipmentController extends Controller
                         $waybill->save();
                     }
                 }
-                return redirect()->back()->with('success', 'Shipment created successfully');
+                return response()->json([
+                    'success' => true
+                ]);
+//                return redirect()->back()->with('success', 'Shipment created successfully');
             }else{
-                return redirect()->back()->withErrors($response->getErrorMessage());
+                return response()->json([
+                    'success' => false,
+                    'globalErrors' => $response->getErrorMessage(),
+                ]);
+//                return redirect()->back()->withErrors($response->getErrorMessage());
             }
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors([$e->getMessage()]);
+            return response()->json([
+                'success' => false,
+                'globalErrors' => $e->getMessage(),
+            ]);
+//            return redirect()->back()->withErrors([$e->getMessage()]);
         }
     }
 

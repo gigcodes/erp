@@ -1154,6 +1154,25 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/instagram/post">Posts</a>
+                                            <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/direct">Direct</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}

@@ -14,6 +14,8 @@ use App\UserRate;
 use App\PaymentMethod;
 use App\PaymentReceipt;
 use Auth;
+use App\DeveloperTask;
+use App\Task;
 use App\Team;
 class HubstaffActivitiesController extends Controller
 {
@@ -98,8 +100,8 @@ class HubstaffActivitiesController extends Controller
     public function getActivityUsers(Request $request)
     {
         $title = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date("Y-m-d");
-        $end_date = $request->end_date ? $request->end_date : date("Y-m-d");
+        $start_date = $request->start_date ? $request->start_date : date('Y-m-d',strtotime("-1 days"));
+        $end_date = $request->end_date ? $request->end_date : date('Y-m-d',strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
 
         $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
@@ -114,19 +116,22 @@ class HubstaffActivitiesController extends Controller
             if(!count($members)) {
                 $members = [Auth::user()->id];
             }
+            else {
+                $members[] =  Auth::user()->id;
+            }
             $query = $query->whereIn('hubstaff_members.user_id',$members);
             $users = User::whereIn('id',$members)->pluck('name','id')->toArray();
         }
-     
 
         if($request->user_id) {
             $query = $query->where('hubstaff_members.user_id',$request->user_id);
         }
+     
+
         $activities  = $query->select(DB::raw("
         hubstaff_activities.user_id,
         SUM(hubstaff_activities.tracked) as total_tracked,DATE(hubstaff_activities.starts_at) as date,hubstaff_members.user_id as system_user_id")
       )->groupBy('date','user_id')->orderBy('date','desc')->get();
-
 
       $activityUsers = collect([]);
 
@@ -165,6 +170,7 @@ class HubstaffActivitiesController extends Controller
                             $a['totalApproved'] = $totalApproved;
                             $a['totalNotPaid'] = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
+                            $a['note'] = $hubActivitySummery->rejection_note;
                             $activityUsers->push($a);
                         }
                     }
@@ -187,6 +193,7 @@ class HubstaffActivitiesController extends Controller
                             $a['totalApproved'] = $totalApproved;
                             $a['totalNotPaid'] = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
+                            $a['note'] = $hubActivitySummery->rejection_note;
                             $activityUsers->push($a);
                         }
                     }
@@ -209,6 +216,7 @@ class HubstaffActivitiesController extends Controller
                             $a['totalApproved'] = $totalApproved;
                             $a['totalNotPaid'] = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
+                            $a['note'] = $hubActivitySummery->rejection_note;
                             $activityUsers->push($a);
                         }
                     }
@@ -230,6 +238,7 @@ class HubstaffActivitiesController extends Controller
                             $a['totalApproved'] = $totalApproved;
                             $a['totalNotPaid'] = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
+                            $a['note'] = '';
                             $activityUsers->push($a);
                     }
                 }
@@ -259,6 +268,7 @@ class HubstaffActivitiesController extends Controller
                         else {
                             $final_approval = 0;
                         }
+                        $note = $hubActivitySummery->rejection_note;
                     }
                     else {
                         $forworded_to = Auth::user()->id;
@@ -266,6 +276,7 @@ class HubstaffActivitiesController extends Controller
                         $totalApproved = 0;
                         $totalNotPaid = 0;
                         $final_approval = 0;
+                        $note = null;
                     }
                             $a['user_id'] = $activity->user_id;
                             $a['total_tracked'] = $activity->total_tracked;
@@ -276,6 +287,7 @@ class HubstaffActivitiesController extends Controller
                             $a['totalApproved'] = $totalApproved;
                             $a['totalNotPaid'] = $totalNotPaid;
                             $a['final_approval'] = $final_approval;
+                            $a['note'] = $note;
                             $activityUsers->push($a);
 
                 }  
@@ -298,8 +310,11 @@ class HubstaffActivitiesController extends Controller
 
 
 
-        $activityrecords  = HubstaffActivity::leftJoin('developer_tasks','hubstaff_activities.task_id','developer_tasks.hubstaff_task_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*','developer_tasks.id as devtask_id')->get();
+        $activityrecords = DB::select( DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
+        FROM hubstaff_activities where DATE(starts_at) = '".$request->date."' and user_id = ".$request->user_id."
+        GROUP BY hour( starts_at ) , day( starts_at )"));
 
+        // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
 
 
         $admins = User::join('role_user','role_user.user_id','users.id')->join('roles','roles.id','role_user.role_id')
@@ -330,12 +345,48 @@ class HubstaffActivitiesController extends Controller
             }
         }
         foreach($activityrecords as $record) {
-            if(in_array($record->id, $approved_ids)) {
-                $record->status = 1;
+            $activities = DB::select( DB::raw("SELECT hubstaff_activities.*
+            FROM hubstaff_activities where DATE(starts_at) = '".$request->date."' and user_id = ".$request->user_id." and hour(starts_at) = ".$record->onHour.""));
+            $totalApproved = 0;
+            $isAllSelected = 0;
+            foreach($activities as $a) {
+                if(in_array($a->id, $approved_ids)) {
+                    $isAllSelected = $isAllSelected + 1;
+                    $a->status = 1;
+                    $hubAct = HubstaffActivity::where('id',$a->id)->first();
+                    if($hubAct) {
+                        $totalApproved = $totalApproved + $a->tracked;
+                    }
+                    $a->totalApproved = $a->tracked;
+                }
+                else {
+                    $a->status = 0;
+                    $a->totalApproved = 0;
+                }
+                $taskSubject = '';
+                if($a->task_id) {
+                    $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                    if($task) {
+                        $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                    }
+                    else {
+                        $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                        if($task) {
+                            $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                        }
+                    }
+                }
+    
+                $a->taskSubject = $taskSubject;
+            }
+            if($isAllSelected == count($activities)) {
+                $record->sample = 1;
             }
             else {
-                $record->status = 0;
+                $record->sample = 0;
             }
+            $record->activities = $activities;
+            $record->totalApproved = $totalApproved;
         }
         $user_id = $request->user_id;
         $isAdmin = false;
@@ -356,7 +407,6 @@ class HubstaffActivitiesController extends Controller
     }
 
     public function approveActivity(Request $request) {
-        
         if(!$request->forworded_person) {
             return response()->json([
                 'message' => 'Please forword someone'
@@ -396,6 +446,12 @@ class HubstaffActivitiesController extends Controller
             }
             else {
                 $rejectedJson = null;
+            }
+            if(!$request->rejection_note) {
+                $request->rejection_note = '';
+            }
+            else {
+                $request->rejection_note = $request->previous_remarks. ' || '.$request->rejection_note. ' ( '.Auth::user()->name.' ) ';
             }
 
             $hubActivitySummery = new HubstaffActivitySummary;
@@ -447,14 +503,15 @@ class HubstaffActivitiesController extends Controller
     public function finalSubmit(Request $request) {
         $approvedArr = [];
         $rejectedArr = [];
+        $approved = 0;
         if($request->activities && count($request->activities) > 0) {
-            $approved = 0;
             foreach($request->activities as $id) {
                $hubActivity = HubstaffActivity::where('id',$id)->first();
                $hubActivity->update(['status' => 1]);
                $approved = $approved + $hubActivity->tracked;
                $approvedArr[] = $id;
             }
+
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id);
 
             $totalTracked = $query->sum('tracked');
@@ -462,8 +519,28 @@ class HubstaffActivitiesController extends Controller
             $user_id = $activity->user_id;
             $rejected = $totalTracked - $approved;
             $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->whereNotIn('hubstaff_activities.id',$approvedArr)->pluck('hubstaff_activities.id')->toArray();
+        }
+        else {
+            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id);
 
-            $approvedJson = json_encode($approvedArr);
+            $totalTracked = $query->sum('tracked');
+            $activity = $query->select('hubstaff_members.user_id')->first();
+            $user_id = $activity->user_id;
+            $rejected = $totalTracked;
+            $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->pluck('hubstaff_activities.id')->toArray();
+        }
+
+           
+
+            
+            if(count($approvedArr) > 0) {
+                $approvedJson = json_encode($approvedArr);
+            }
+            else {
+                $approvedJson = null;
+            }
+
+
             if(count($rejectedArr) > 0) {
                 $rejectedJson = json_encode($rejectedArr);
             }
@@ -473,7 +550,15 @@ class HubstaffActivitiesController extends Controller
             if(!$request->rejection_note) {
                 $request->rejection_note = '';
             }
-
+            else {
+                if($request->previous_remarks) {
+                    $prev = $request->previous_remarks. ' || ' ;
+                }
+                else {
+                    $prev = '';
+                }
+                $request->rejection_note = $prev. $request->rejection_note. ' ( '.Auth::user()->name.' ) ';
+            }
             $hubActivitySummery = new HubstaffActivitySummary;
             $hubActivitySummery->user_id = $user_id;
             $hubActivitySummery->date =  $request->date;
@@ -491,7 +576,6 @@ class HubstaffActivitiesController extends Controller
             return response()->json([
                 'totalApproved' => $approved
             ],200);
-        }
         return response()->json([
             'message' => 'Can not update data'
         ],500);
@@ -502,10 +586,6 @@ class HubstaffActivitiesController extends Controller
         $start_date = $request->start_date ? $request->start_date : date("Y-m-d");
         $end_date = $request->end_date ? $request->end_date : date("Y-m-d");
         $user_id = $request->user_id ? $request->user_id : null;
-
-
-
-
         if($user_id) {
             $activityUsers = DB::select( DB::raw("select system_user_id, sum(tracked) as total_tracked,starts_at from (select a.* from (SELECT hubstaff_activities.id,hubstaff_activities.user_id,cast(hubstaff_activities.starts_at as date) as starts_at,hubstaff_activities.status,hubstaff_activities.paid,hubstaff_members.user_id as system_user_id,hubstaff_activities.tracked FROM `hubstaff_activities` left outer join hubstaff_members on hubstaff_members.hubstaff_user_id = hubstaff_activities.user_id where hubstaff_activities.status = 1 and hubstaff_activities.paid = 0 and hubstaff_members.user_id = ".$user_id.") as a left outer join payment_receipts on a.system_user_id = payment_receipts.user_id where a.starts_at <= payment_receipts.date) as b group by starts_at,system_user_id"));
         }
@@ -552,6 +632,38 @@ class HubstaffActivitiesController extends Controller
 
        HubstaffActivity::whereDate('starts_at',$request->starts_at)->where('user_id',$hubstaff_user_id)->where('status',1)->where('paid',0)->update(['paid' => 1]);
         return redirect()->back()->with('success','Successfully submitted');
+    }
+
+
+    public function submitManualRecords(Request $request) {
+        if($request->starts_at && $request->starts_at != '' && $request->total_time > 0) {
+            $member = HubstaffMember::where('user_id',Auth::user()->id)->first();
+            if($member) {
+                $firstId = HubstaffActivity::orderBy('id','asc')->first();
+                if($firstId) {
+                    $previd = $firstId->id - 1;
+                }
+                else {
+                    $previd = 1;  
+                }
+            $activity = new HubstaffActivity;
+            $activity->id = $previd;
+            $activity->user_id = $member->hubstaff_user_id;
+            $activity->starts_at = $request->starts_at;
+            $activity->tracked = $request->total_time * 60;
+            $activity->keyboard = 0;
+            $activity->mouse = 0;
+            $activity->overall = 0;
+            $activity->status = 0;
+            $activity->is_manual = 1;
+            $activity->save();
+            return response()->json(["message" => 'Successful'],200);
+            }
+            return response()->json(["message" => 'Hubstaff member not found'],500);
+        }
+        else {
+            return response()->json(["message" => 'Fill all the data first'],500);
+        }
     }
    
 }
