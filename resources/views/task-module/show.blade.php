@@ -18,7 +18,7 @@
             display: none;
         }
         .pd-5 {
-            padding:5px;
+            padding:3px;
         }
         .cls_task_detailstextarea{
             height: 30px !important;
@@ -506,8 +506,8 @@
                                 <th width="10%">Task Subject</th>
                                 <th width="13%">Assign To</th>
                                 <th width="10%">Tracked time</th>
-                                <th width="34%">Communication</th>
-                                <th width="17%">Action&nbsp;
+                                <th width="33%">Communication</th>
+                                <th width="18%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
                                 </th>
@@ -693,7 +693,7 @@
                                                 $text_box = "";
                                                 if(isset($task->message))
                                                 {
-                                                    $text_box = "55";
+                                                    $text_box = "50";
                                                 }
                                                 else
                                                 {
@@ -701,13 +701,13 @@
                                                 }
                                                 ?>
                                                 <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                                                <!-- <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
-                                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button> -->
-                                                    <img style="width:16px;height:16px;margin-top: 7px;" title="Send message" data-taskid="{{ $task->id }}" class="btn-image send-message" src="{{asset('images/filled-sent.png')}}"/>
-                                                <img style="width:16px;height:16px;margin-top: 7px;margin-left:2px;margin-right:2px;" class="btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages" src="{{asset('images/chat.png')}}" alt="">
+                                                <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
                                                 @if (isset($task->message))
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="td-mini-container" style="margin:0px;">
+                                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                                                @endif
+                                                @if (isset($task->message))
+                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
                                                            
                                                             <?php 
                                                             $pos = strpos($task->message,$task->task_subject);
@@ -719,15 +719,15 @@
                                                                 $start = 0;
                                                             }
                                                             ?>
-                                                            {{substr($task->message, $start)}}
+                                                            {{substr($task->message, $start,28)}}
                                                         </span>
-                                                                                        <span class="td-full-container hidden">
-                                                            {{ $task->message }}
-                                                        </span>
-
                                                     </div>
                                                 @endif 
-
+                                            </div>
+                                            <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                <span class="td-full-container-{{$task->id}} hidden">
+                                                    {{ $task->message }}
+                                                </span>
                                             </div>
                                             <div class="expand-col dis-none">
                                             <br>
@@ -1363,6 +1363,14 @@
             //   // }
             //
             // });
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
 
         $(document).on('click', '.expand-row', function () {
