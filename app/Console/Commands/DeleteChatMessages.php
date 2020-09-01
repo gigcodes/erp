@@ -22,7 +22,7 @@ class DeleteChatMessages extends Command
      *
      * @var string
      */
-    protected $description = 'delete Chat Messages which have 3 month old records which have status 7,8,9,10 and have null value in message';
+    protected $description = ' delete Chat Messages which have 3 month old records which have status 7,8,9,10 and have null value in message';
 
     /**
      Created By : Maulik jadvani
