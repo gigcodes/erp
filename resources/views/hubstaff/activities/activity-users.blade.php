@@ -12,6 +12,7 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
         <div class="pull-right">
+        <a class="btn btn-secondary" data-toggle="modal" data-target="#open-add-activity-modal" style="color:white;">Fetch Activities</a>
         <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
         <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
     </div>
@@ -106,6 +107,33 @@
   	</div>	
 </div>
 
+<div id="open-add-activity-modal" class="modal" role="dialog">
+  	<div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <form>
+            @csrf
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group">
+                <label for="">From </label>
+                <input type="text" name="time_from" value="" class="form-control" id="time_from" required placeholder="Start Date">
+            </div>
+            <div class="form-group">
+                <label for="">To </label>
+                <input type="text" name="time_to" value="" class="form-control" id="time_to" placeholder="End Date">
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger submit-add-activity">Submit</button> 
+            </div>
+        </form>
+      </div>
+  	</div>	
+</div>
 
 <div id="open-timing-modal" class="modal" role="dialog">
   	<div class="modal-dialog modal-lg" role="document">
@@ -145,6 +173,10 @@ $(".select2").select2({tags:true});
 
 $('#starts_at').datetimepicker({
     format: 'YYYY-MM-DD'
+});
+
+$('#time_from, #time_to').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm'
 });
 
 let r_s = jQuery('input[name="start_date"]').val();
@@ -280,6 +312,29 @@ let r_s = jQuery('input[name="start_date"]').val();
             }).done( function(response) {
             $("#loading-image").hide();
             $('#open-timing-modal').modal('hide');
+            toastr['success']('Successful');
+            }).fail(function(errObj) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+            $("#loading-image").hide();
+            });
+        });
+
+        $(document).on('click', '.submit-add-activity', function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        var thiss = $(this);
+        var type = 'POST';
+            $.ajax({
+            url: '/hubstaff-activities/activities/fetch-activities',
+            type: type,
+            dataType: 'json',
+            data: form.serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done( function(response) {
+            $("#loading-image").hide();
+            $('#open-add-activity-modal').modal('hide');
             toastr['success']('Successful');
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');

@@ -10,6 +10,7 @@ use DB;
 use Artisan;
 use App\Hubstaff\HubstaffActivitySummary;
 use App\Hubstaff\HubstaffMember;
+use App\Helpers\hubstaffTrait;
 use App\UserRate;
 use App\PaymentMethod;
 use App\PaymentReceipt;
@@ -20,12 +21,22 @@ use App\Team;
 class HubstaffActivitiesController extends Controller
 {
 
-   
+    use hubstaffTrait;
+
+    private $client;
     /**
      * Display a listing of the resource.
      *
      * @return \Illuminate\Http\Response
      */
+
+    public function __construct()
+    {
+        parent::__construct();
+        $this->client = new Client();
+        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    }
+
     public function index()
     {
         
@@ -665,5 +676,91 @@ class HubstaffActivitiesController extends Controller
             return response()->json(["message" => 'Fill all the data first'],500);
         }
     }
-   
+
+
+    public function fetchManualActivities(Request $request) {
+        if(!$request->time_from || $request->time_from == '') {
+            return response()->json(["message" => 'From date is required'],500);
+        }
+        $time_from = strtotime($request->time_from);
+        $time_to = $request->time_to;
+        if(!$time_to || $time_to == '') {
+            $time_to = date('Y-m-d H:i:s');
+        }
+        $time_to = strtotime($time_to);
+        $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time_from)));
+        $stopTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time_to)));
+
+        try {
+            $activities = $this->getActivitiesBetween($startTime, $stopTime);
+            if ($activities === false) {
+                return response()->json(["message" => 'No data found'],500);
+            }
+            
+            foreach ($activities as $id => $data) {
+                HubstaffActivity::updateOrCreate(
+                    [
+                        'id' => $id,
+                    ],
+                    [
+                        'user_id'   => $data['user_id'],
+                        'task_id'   => is_null($data['task_id']) ? 0 : $data['task_id'],
+                        'starts_at' => $data['starts_at'],
+                        'tracked'   => $data['tracked'],
+                        'keyboard'  => $data['keyboard'],
+                        'mouse'     => $data['mouse'],
+                        'overall'   => $data['overall'],
+                    ]
+                );
+            }
+        } catch (\Exception $e) {
+            dd($e);
+        }
+
+
+        
+    }
+
+    private function getActivitiesBetween($start, $stop)
+    {
+
+        try {
+            $response = $this->doHubstaffOperationWithAccessToken(
+                function ($accessToken) use ($start, $stop) {
+                    $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/activities?time_slot[start]=' . $start . '&time_slot[stop]=' . $stop;
+                    // echo $url . PHP_EOL;
+                    return $this->client->get(
+                        $url,
+                        [
+                            RequestOptions::HEADERS => [
+                                'Authorization' => 'Bearer ' . $accessToken,
+                            ],
+                        ]
+                    );
+                },
+                true
+            );
+
+            $responseJson = json_decode($response->getBody()->getContents());
+
+            $activities = array();
+
+            foreach ($responseJson->activities as $activity) {
+
+                $activities[$activity->id] = array(
+                    'user_id'   => $activity->user_id,
+                    'task_id'   => $activity->task_id,
+                    'starts_at' => $activity->starts_at,
+                    'tracked'   => $activity->tracked,
+                    'keyboard'  => $activity->keyboard,
+                    'mouse'     => $activity->mouse,
+                    'overall'   => $activity->overall,
+                );
+            }
+            return $activities;
+        } catch (Exception $e) {
+            echo $e->getMessage() . PHP_EOL;
+            return false;
+        }
+    }
 }
