@@ -609,6 +609,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
+            Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
         });
     });
 
@@ -1275,6 +1276,11 @@ Route::post('livechat/save-token', 'LiveChatController@saveToken')->name('livech
 Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name('livechat.new.chat');
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
+
+Route::prefix('livechat')->group(function () {
+    Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
+});
+
 /* ---------------------------------------------------------------------------------- */
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');

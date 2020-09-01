@@ -243,8 +243,12 @@ class LandingPageController extends Controller
             $errors = [];
             if (!empty($response->errors)) {
                 foreach ((array)$response->errors as $key => $message) {
-                    foreach ($message as $msg) {
-                        $errors[] = ucwords($key) . " " . $msg;
+                    if(is_array($message)) {
+                        foreach ($message as $msg) {
+                            $errors[] = ucwords($key) . " " . $msg;
+                        }
+                    }else{
+                        $errors[] = ucwords($key) . " " . $message;
                     }
                 }
             }

@@ -81,6 +81,7 @@ use App\ColdLeads;
 class WhatsAppController extends FindByNumberController
 {
     CONST MEDIA_PDF_CHUNKS = 50;
+    CONST AUTO_LEAD_SEND_PRICE = 281;
 
     /**
      * Incoming message URL for whatsApp
@@ -1010,7 +1011,8 @@ class WhatsAppController extends FindByNumberController
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();  
+        $data = $request->json()->all();
+        $needToSendLeadPrice = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1025,7 +1027,7 @@ class WhatsAppController extends FindByNumberController
         }
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
-
+            $quoted_message_id = null;
             // Convert false and true text to false and true
             if ($chatapiMessage[ 'fromMe' ] === "false") {
                 $chatapiMessage[ 'fromMe' ] = false;
@@ -1037,9 +1039,9 @@ class WhatsAppController extends FindByNumberController
             try {
                 // check if quotedMsgId is available, if available then we will search for parent message
                 if(isset($chatapiMessage[ 'quotedMsgId' ])) {
-                    $parentMessage = ChatMessage::where('unique_id', $params['quotedMsgId'])->first();
+                    $parentMessage = ChatMessage::where('unique_id', $chatapiMessage['quotedMsgId'])->first();
                     if($parentMessage) {
-                        $params['quoted_message_id'] = $parentMessage->id;
+                        $quoted_message_id = $parentMessage->id;
                     }
                 } 
             } catch (\Exception $e) {
@@ -1126,6 +1128,7 @@ class WhatsAppController extends FindByNumberController
                 'dubizzle_id' => null,
                 'vendor_id' => null,
                 'customer_id' => null,
+                'quoted_message_id' => $quoted_message_id
             ];
 
             try {
@@ -1471,6 +1474,14 @@ class WhatsAppController extends FindByNumberController
                     );
                     DB::table('task_users')->insert($task_users_array);
 
+                    // check that match if this the assign to is auto user 
+                    // then send price and deal
+                    if($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
+                       if(!empty($parentMessage)) {
+                          $parentMessage->sendLeadPrice($customer);
+                       }
+                    }
+
                     //START CODE Task message to send message in whatsapp
                 
                     $task_info = DB::table('tasks')
@@ -1493,7 +1504,8 @@ class WhatsAppController extends FindByNumberController
                                 'approved'     => 1,
                                 'status'       => 2,
                                 'task_id'      => $taskid,
-                                'message'      => $task_info[0]->task_details
+                                'message'      => $task_info[0]->task_details,
+                                'quoted_message_id' => $quoted_message_id
                             ];
                             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
 
@@ -1602,6 +1614,7 @@ class WhatsAppController extends FindByNumberController
                             'approved' => 1,
                             'status' => 9,
                             'customer_id' => $customer->id,
+                            'quoted_message_id' => $quoted_message_id,
                             'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                         ];
                         $auto_dnd_message = ChatMessage::create($dnd_params);
@@ -1770,6 +1783,7 @@ class WhatsAppController extends FindByNumberController
                 $m->issue_id = explode(' ', $message)[ 0 ];
                 $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
+                $m->quoted_message_id = $quoted_message_id;
                 $m->save();
             }
 
@@ -1779,6 +1793,7 @@ class WhatsAppController extends FindByNumberController
                 $m->developer_task_id = explode(' ', $message)[ 0 ];
                 $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
+                $m->quoted_message_id = $quoted_message_id;
                 $m->save();
             }
         }

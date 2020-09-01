@@ -11,6 +11,7 @@ use \App\InstagramUsersList;
 use \App\InstagramThread;
 use Plank\Mediable\Media;
 use InstagramAPI\Media\Photo\InstagramPhoto;
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class DirectMessageController extends Controller
 {
@@ -34,10 +35,11 @@ class DirectMessageController extends Controller
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
     	foreach ($accounts as $account) {
+            
     		try {
                 	$instagram = new Instagram();
+                    $instagram->setProxy($account->proxy);
 				    $instagram->login($account->last_name, $account->password);
-				    $instagram->setProxy($account->proxy);
 				    $this->instagram = $instagram;
                 } catch (\Exception $e) {
                     dd($e);
@@ -47,7 +49,7 @@ class DirectMessageController extends Controller
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-
+                dd($inbox);
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
                 	if($incomingThread['unseen_count'] != 0){
