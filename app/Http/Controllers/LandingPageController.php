@@ -222,6 +222,10 @@ class LandingPageController extends Controller
             // if stock status exist then store it
             if ($request->stock_status != null) {
                 $landingPage->stock_status = $request->stock_status;
+                if($landingPage->stock_status == 1) {
+                    $landingPage->start_date = date("Y-m-d H:i:s");
+                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date. ' + 1 days'));
+                }
                 $landingPage->save();
             }
 
