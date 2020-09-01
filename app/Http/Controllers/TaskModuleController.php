@@ -49,17 +49,26 @@ class TaskModuleController extends Controller {
 		} else {
 			$userid = $request->input( 'selected_user' );
 		}
+		
 		if ( !$request->input( 'type' ) || $request->input( 'type' ) == '' ) {
 			$type = 'pending';
 		} else {
 			$type = $request->input( 'type' );
 		}
+		$activeCategories = TaskCategory::where('is_active',1)->pluck('id')->all();
 		$categoryWhereClause = '';
 		$category = '';
-		if ($request->category != '' && $request->category != 1) {
-			$categoryWhereClause = "AND category = $request->category";
-
-			$category = $request->category;
+		$request->category = $request->category ? $request->category : 1;
+		if ($request->category != '') {
+			if($request->category != 1) {
+				$categoryWhereClause = "AND category = $request->category";
+				$category = $request->category;
+			}
+			else {
+				$category_condition  = implode(',', $activeCategories);
+				$category_condition = '( '.$category_condition.' )';
+				$categoryWhereClause = "AND category in ".$category_condition;
+			}
 		}
 
 		$term = $request->term ?? "";
@@ -98,6 +107,10 @@ class TaskModuleController extends Controller {
 			
 			$orderByClause .= ' is_flagged DESC, message_created_at DESC';
 			$isCompleteWhereClose = ' AND is_verified IS NULL ';
+
+			if(!Auth::user()->isAdmin()) {
+				$isCompleteWhereClose = ' AND is_completed IS NULL AND is_verified IS NULL ';
+			}
 			if($request->filter_by == 1) {
 				$isCompleteWhereClose = ' AND is_completed IS NULL ';
 			}
@@ -123,7 +136,7 @@ class TaskModuleController extends Controller {
 				  FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
 			  ) as chat_messages  ON chat_messages.task_id = tasks.id
 			) AS tasks
-			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
+			WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 '.$isCompleteWhereClose.' AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.'; ');
 
 
 			foreach ($data['task']['pending'] as $task) {
@@ -184,7 +197,7 @@ class TaskModuleController extends Controller {
 					FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\\\Task"
                  ) AS chat_messages ON chat_messages.task_id = tasks.id
                 ) AS tasks
-                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
+                WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory != 1 AND is_verified IS NOT NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ' AND type LIKE "%User%")) ' . $categoryWhereClause . $searchWhereClause .$orderByClause.' limit '.$paginate.' offset '.$offSet.';');
 				
 
 				foreach ($data['task']['completed'] as $task) {
@@ -247,7 +260,7 @@ class TaskModuleController extends Controller {
 	                 ) AS chat_messages ON chat_messages.task_id = tasks.id
 
 	               ) AS tasks
-				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
+				   WHERE (deleted_at IS NULL) AND (id IS NOT NULL) AND is_statutory = 1 AND is_verified IS NULL AND (assign_from = ' . $userid . ' OR master_user_id = ' . $userid . ' OR id IN (SELECT task_id FROM task_users WHERE user_id = ' . $userid . ')) ' . $categoryWhereClause . $orderByClause .' limit '.$paginate.' offset '.$offSet.';');
 				   
 				   foreach ($data['task']['statutory_not_completed'] as $task) {
 					array_push($assign_to_arr, $task->assign_to);
@@ -709,8 +722,12 @@ class TaskModuleController extends Controller {
 	
 			$task->approximate = $request->approximate;
 			$task->save();
+			return response()->json(['msg' => 'success']);
 		}
-		return response()->json(['msg' => 'success']);
+		else {
+			return response()->json(['msg' => 'Unauthorized access'],500);
+		}
+		
 	}
 
 	public function taskListByUserId(Request $request)
@@ -1929,7 +1946,8 @@ class TaskModuleController extends Controller {
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
 			$data["customer_id"]	= $request->get("customer_id");
-
+			$data["created_by"]	= Auth::id();
+			
 			
 			if($taskType == 5 || $taskType == 6) {
 				$data["task_type_id"]	= 3;
@@ -2303,6 +2321,11 @@ class TaskModuleController extends Controller {
         $task = Task::find($id);
         $records = [];
             if ($task) {
+				$userList = User::pluck('name','id')->all();
+				// $usrSelectBox = "";
+				// if (!empty($userList)) {
+				// 	$usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
+				// }
                     if ($task->hasMedia(config('constants.media_tags'))) {
                         foreach ($task->getMedia(config('constants.media_tags')) as $media) {
 
@@ -2322,6 +2345,7 @@ class TaskModuleController extends Controller {
                                 'url'       => $media->getUrl(),
 								'task_id'   => $task->id,
 								'isImage'   => $isImage,
+								'userList'  => $userList
 							];
                         }
                     }
@@ -2436,5 +2460,72 @@ class TaskModuleController extends Controller {
 				'message' => 'Task not found'
 			],500);
 		}
+		}
+
+		public function getTaskCategories() {
+			$categories = TaskCategory::where('is_approved',1)->get();
+			return view( 'task-module.partials.all-task-category', compact('categories'));
+		}
+
+		public function completeBulkTasks(Request $request) {
+			if(count($request->selected_tasks) > 0) {
+				foreach($request->selected_tasks as $t) {
+					$task = Task::find($t);
+					$task->is_completed = date( 'Y-m-d H:i:s' );
+					$task->is_verified = date( 'Y-m-d H:i:s' );
+					if($task->assignedTo) {
+						if($task->assignedTo->fixed_price_user_or_job == 1) {
+								// Fixed price task.
+								continue;
+						}
+					}
+					$task->save();
+				}
+			}
+			return response()->json(['message' => 'Successful']);
+		}
+
+
+		public function deleteBulkTasks(Request $request) {
+			if(count($request->selected_tasks) > 0) {
+				foreach($request->selected_tasks as $t) {
+					$task = Task::where('id',$t)->delete();
+				}
+			}
+			return response()->json(['message' => 'Successful']);
+		}
+
+		public function getTimeHistory(Request $request)
+		{
+			$id = $request->id;
+			$task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\Task')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
+			if($task_module) {
+				return $task_module;
+			}
+			return 'error';
+		}
+
+
+		public function sendDocument(Request $request)
+		{
+			if ($request->id != null && $request->user_id != null) {
+				$media        = \Plank\Mediable\Media::find($request->id);
+				$user         = \App\User::find($request->user_id);
+				if ($user) {
+					if ($media) {
+						\App\ChatMessage::sendWithChatApi(
+							$user->phone,
+							null,
+							"Please find attached file",
+							$media->getUrl()
+						);
+						return response()->json(["message" => "Document send succesfully"],200);
+					}
+				}else{
+					return response()->json(["message" => "User  not available"],500);
+				}
+			}
+	
+			return response()->json(["message" => "Sorry required fields is missing like id , userid"],500);
 		}
 }

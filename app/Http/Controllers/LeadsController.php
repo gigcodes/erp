@@ -124,7 +124,6 @@ class LeadsController extends Controller
                 $leads = $leads->oldest()->where('assigned_user', '=', Auth::id());
             }
         }
-
         if (!empty($term)) {
             $leads = $leads->whereHas('customer', function ($query) use ($term) {
                 return $query->where('name', 'LIKE', "%$term%");
@@ -141,9 +140,7 @@ class LeadsController extends Controller
                     ->orWhere('status', (new Status())->getIDCaseInsensitive($term));
             });
         }
-
         $leads_array = $leads->whereNull('deleted_at')->get()->toArray();
-
         if ($sortby == 'communication') {
             if ($orderby == 'asc') {
                 $leads_array = array_values(array_sort($leads_array, function ($value) {
@@ -158,6 +155,7 @@ class LeadsController extends Controller
             }
 
         }
+
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
         $perPage = Setting::get('pagination');
         $currentItems = array_slice($leads_array, $perPage * ($currentPage - 1), $perPage);
