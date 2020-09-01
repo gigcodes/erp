@@ -701,10 +701,10 @@
                                                 }
                                                 ?>
                                                 <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
-                                                <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
-                                                @if (isset($task->message))
-                                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
-                                                @endif
+                                                <!-- <button class="btn btn-sm btn-image send-message" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
+                                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button> -->
+                                                    <img style="width:16px;height:16px;margin-top: 7px;" title="Send message" data-taskid="{{ $task->id }}" class="btn-image send-message" src="{{asset('images/filled-sent.png')}}"/>
+                                                <img style="width:16px;height:16px;margin-top: 7px;margin-left:2px;margin-right:2px;" class="btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages" src="{{asset('images/chat.png')}}" alt="">
                                                 @if (isset($task->message))
                                                     <div class="d-flex justify-content-between">
                                                         <span class="td-mini-container" style="margin:0px;">
