@@ -712,19 +712,16 @@ $.views.helpers({
 
 
     $(document).on('click', '.show-time-history', function() {
-        var data = $(this).data('history');
         var issueId = $(this).data('id');
+        var type = $(this).data('type');
         $('#time_history_div table tbody').html('');
-
-        if(type == 'TASK') {
+        $('#hidden_task_type').val(type);
         
-        }
-        else {
+        if(type == 'TASK') {
             $.ajax({
-                url: "{{ route('development/time/history') }}",
+                url: "/task/time/history",
                 data: {id: issueId},
                 success: function (data) {
-                    
                     if(data != 'error') {
                         $("#developer_task_id").val(issueId);
                         $.each(data, function(i, item) {
@@ -738,7 +735,33 @@ $.views.helpers({
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/development/time/history",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -747,4 +770,39 @@ $.views.helpers({
             });
         }
         $('#time_history_modal').modal('show');
+    });
+
+
+    $(document).on('submit', '#approve-time-btn', function(event) {
+        event.preventDefault();
+        var type = $('#hidden_task_type').val();
+        if(type == 'TASK') {
+             $.ajax({
+                url: "/task/time/history/approve",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/development/time/history/approve",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+   
     });

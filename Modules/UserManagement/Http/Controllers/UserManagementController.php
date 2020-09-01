@@ -740,9 +740,9 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-         $tasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time');
+         $tasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
          $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
-         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time');
+         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','end_time as due_date');
          $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
 
          $taskList = $devTasks->union($tasks)->get();

@@ -100,8 +100,8 @@ class HubstaffActivitiesController extends Controller
     public function getActivityUsers(Request $request)
     {
         $title = "Hubstaff Activities";
-        $start_date = $request->start_date ? $request->start_date : date("Y-m-d");
-        $end_date = $request->end_date ? $request->end_date : date("Y-m-d");
+        $start_date = $request->start_date ? $request->start_date : date('Y-m-d',strtotime("-1 days"));
+        $end_date = $request->end_date ? $request->end_date : date('Y-m-d',strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
 
         $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
@@ -503,14 +503,15 @@ class HubstaffActivitiesController extends Controller
     public function finalSubmit(Request $request) {
         $approvedArr = [];
         $rejectedArr = [];
+        $approved = 0;
         if($request->activities && count($request->activities) > 0) {
-            $approved = 0;
             foreach($request->activities as $id) {
                $hubActivity = HubstaffActivity::where('id',$id)->first();
                $hubActivity->update(['status' => 1]);
                $approved = $approved + $hubActivity->tracked;
                $approvedArr[] = $id;
             }
+
             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id);
 
             $totalTracked = $query->sum('tracked');
@@ -518,8 +519,28 @@ class HubstaffActivitiesController extends Controller
             $user_id = $activity->user_id;
             $rejected = $totalTracked - $approved;
             $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->whereNotIn('hubstaff_activities.id',$approvedArr)->pluck('hubstaff_activities.id')->toArray();
+        }
+        else {
+            $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id);
 
-            $approvedJson = json_encode($approvedArr);
+            $totalTracked = $query->sum('tracked');
+            $activity = $query->select('hubstaff_members.user_id')->first();
+            $user_id = $activity->user_id;
+            $rejected = $totalTracked;
+            $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->pluck('hubstaff_activities.id')->toArray();
+        }
+
+           
+
+            
+            if(count($approvedArr) > 0) {
+                $approvedJson = json_encode($approvedArr);
+            }
+            else {
+                $approvedJson = null;
+            }
+
+
             if(count($rejectedArr) > 0) {
                 $rejectedJson = json_encode($rejectedArr);
             }
@@ -530,9 +551,14 @@ class HubstaffActivitiesController extends Controller
                 $request->rejection_note = '';
             }
             else {
-                $request->rejection_note = $request->previous_remarks. ' || '.$request->rejection_note. ' ( '.Auth::user()->name.' ) ';
+                if($request->previous_remarks) {
+                    $prev = $request->previous_remarks. ' || ' ;
+                }
+                else {
+                    $prev = '';
+                }
+                $request->rejection_note = $prev. $request->rejection_note. ' ( '.Auth::user()->name.' ) ';
             }
-
             $hubActivitySummery = new HubstaffActivitySummary;
             $hubActivitySummery->user_id = $user_id;
             $hubActivitySummery->date =  $request->date;
@@ -550,7 +576,6 @@ class HubstaffActivitiesController extends Controller
             return response()->json([
                 'totalApproved' => $approved
             ],200);
-        }
         return response()->json([
             'message' => 'Can not update data'
         ],500);
@@ -630,6 +655,7 @@ class HubstaffActivitiesController extends Controller
             $activity->mouse = 0;
             $activity->overall = 0;
             $activity->status = 0;
+            $activity->is_manual = 1;
             $activity->save();
             return response()->json(["message" => 'Successful'],200);
             }

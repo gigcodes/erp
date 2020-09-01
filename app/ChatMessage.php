@@ -370,20 +370,18 @@ class ChatMessage extends Model
     **/
     public function sendLeadPrice($customer)
     {
-        if($this->hasMedia(config('constants.attach_image_tag'))) {
-            $media = $this->getMedia(config('constants.attach_image_tag'))->first();
-            if($media) {
-               $mediable = \DB::table("mediables")->where("media_id",$media->id)
-               ->where("mediable_type",\App\Product::class)
-               ->first();
-               if(!empty($mediable)) {
-                    try{
-                        app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
-                    }catch(\Exception $e) {
-                        \Log::info($e->getMessage());
-                    }
-               }
-            }
+        $media = $this->getMedia(config('constants.attach_image_tag'))->first();
+        if($media) {
+           $mediable = \DB::table("mediables")->where("media_id",$media->id)
+           ->where("mediable_type",\App\Product::class)
+           ->first();
+           if(!empty($mediable)) {
+                try{
+                    app('App\Http\Controllers\CustomerController')->dispatchBroadSendPrice($customer, array_unique([$mediable->mediable_id]));
+                }catch(\Exception $e) {
+                    \Log::info($e->getMessage());
+                }
+           }
         }
     }
 

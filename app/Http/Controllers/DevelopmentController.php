@@ -2001,7 +2001,7 @@ class DevelopmentController extends Controller
     public function getTimeHistory(Request $request)
     {
         $id = $request->id;
-        $task_module = DeveloperTaskHistory::where('developer_task_id', $id)->get();
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
         if($task_module) {
             return $task_module;
         }
