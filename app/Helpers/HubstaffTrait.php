@@ -88,7 +88,7 @@ trait hubstaffTrait
         try {
             return $functionToDo($tokens->access_token);
         } catch (Exception $e) {
-            if ($e instanceof ClientException && $e->getCode() == 401) {
+            if ($e instanceof ClientException) {
                 echo "Got error";
                 $this->refreshTokens();
                 if ($shouldRetry) {

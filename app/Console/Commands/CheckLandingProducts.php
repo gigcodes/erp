@@ -40,11 +40,12 @@ class CheckLandingProducts extends Command
     public function handle()
     {
         $client          = new ShopifyClient();
-        $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->get();
+        $landingProducts = LandingPageProduct::whereRaw('timestamp(end_date) < NOW()')->orWhere("status",0)->get();
         foreach ($landingProducts as $product) {
             $productData = [
                 'product' => [
-                    'published' => false,
+                    'published'       => false,
+                    'published_scope' => false,
                 ],
             ];
             if ($product->shopify_id) {

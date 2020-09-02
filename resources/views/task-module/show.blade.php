@@ -18,7 +18,7 @@
             display: none;
         }
         .pd-5 {
-            padding:5px;
+            padding:3px;
         }
         .cls_task_detailstextarea{
             height: 30px !important;
@@ -133,6 +133,11 @@
     .pd-2 {
         padding:2px;
     }
+    .zoom-img:hover {
+    -ms-transform: scale(1.5); /* IE 9 */
+    -webkit-transform: scale(1.5); /* Safari 3-8 */
+    transform: scale(1.5); 
+    }
 
     </style>
 @endsection
@@ -150,6 +155,7 @@
     @include('task-module.partials.modal-task-category')
     @include('task-module.partials.modal-task-view')
     @include('task-module.partials.modal-whatsapp-group')
+
     @include('partials.flash_messages')
 
     <div class="row">
@@ -225,9 +231,10 @@
     ?>
 <div class="row mb-2">
         <div class="col-xs-12">
-            <form action="{{ route('task.store') }}" method="POST" id="taskCreateForm">
+            <form action="{{ route('task.create.task.shortcut') }}" method="POST" id="taskCreateForm">
                 @csrf
                 <input type="hidden" name="has_render" value="1">
+                <input type="hidden" name="from" value="task-page">
                 <div class="row">
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
@@ -240,9 +247,9 @@
                     </div>
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
-                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_details" placeholder="Task Details" id="task_details" required>{{ old('task_details') }}</textarea>
-                            @if ($errors->has('task_details'))
-                                <div class="alert alert-danger">{{$errors->first('task_details')}}</div>
+                            <textarea rows="1" class="form-control input-sm cls_task_detailstextarea" name="task_detail" placeholder="Task Details" id="task_details" required>{{ old('task_detail') }}</textarea>
+                            @if ($errors->has('task_detail'))
+                                <div class="alert alert-danger">{{$errors->first('task_detail')}}</div>
                             @endif
                         </div>
                     </div>
@@ -327,7 +334,7 @@
                     </div>
                     <div class="col-xs-12 col-md-1 pd-2">
                         <div class="form-group cls_task_subject">
-                            <select name="is_statutory" class="form-control is_statutory input-sm">
+                            <select name="task_type" class="form-control is_statutory input-sm">
                                 <option value="0">Other Task</option>
                                 <option value="1">Statutory Task</option>
                                 <option value="2">Calendar Task</option>
@@ -338,13 +345,13 @@
                     @if(auth()->user()->isAdmin())
                     <div class="col-xs-12 col-md-2 pd-2">
                         <div class="form-group">
-                            <select id="multi_users" class="form-control input-sm" name="assign_to[]" multiple>
+                            <select id="multi_users" class="form-control input-sm" name="task_asssigned_to[]" multiple>
                                 @foreach ($data['users'] as $user)
                                     <option value="{{ $user['id'] }}">{{ $user['name'] }} - {{ $user['email'] }}</option>
                                 @endforeach
                             </select>
-                            @if ($errors->has('assign_to'))
-                                <div class="alert alert-danger">{{$errors->first('assign_to')}}</div>
+                            @if ($errors->has('task_asssigned_to'))
+                                <div class="alert alert-danger">{{$errors->first('task_asssigned_to')}}</div>
                             @endif
                         </div>
                     </div>
@@ -479,12 +486,15 @@
             <li><a href="#2" data-toggle="tab" class="btn-call-data" data-type="statutory_not_completed">Statutory Activity</a></li>
             <li><a href="#3" data-toggle="tab" class="btn-call-data" data-type="completed">Completed Task</a></li>
             <li><a href="#unassigned-tab" data-toggle="tab">Unassigned Messages</a></li>
-            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_tasks_button" data-selected="0">View Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="view_categories_button">Categories</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_complete_button">Complete Tasks</button></li>&nbsp;
+            <li><button type="button" class="btn btn-xs btn-secondary my-3" id="make_delete_button">Delete Tasks</button></li>&nbsp;
         </ul>
         <div class="tab-content ">
             <!-- Pending task div start -->
             <div class="tab-pane active" id="1">
-                <div class="row" style="margin:0px;">
+                <div class="row" style="margin:0px;"> 
                     <!-- <h4>List Of Pending Tasks</h4> -->
                     <div class="col-12">
                         <table class="table table-sm table-bordered">
@@ -496,8 +506,8 @@
                                 <th width="10%">Task Subject</th>
                                 <th width="13%">Assign To</th>
                                 <th width="10%">Tracked time</th>
-                                <th width="34%">Communication</th>
-                                <th width="17%">Action&nbsp;
+                                <th width="33%">Communication</th>
+                                <th width="18%">Action&nbsp;
                                     <input type="checkbox" class="show-finished-task" name="show_finished" value="on">
                                     <label>Finished</label>
                                 </th>
@@ -606,6 +616,7 @@
 
                                         <div class="col-md-12 expand-col dis-none" style="padding:0px;">
                                             <br>
+                                            @if(auth()->user()->isAdmin())
                                             <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
                                             <select id="master_user_id" class="form-control assign-master-user select2" data-id="{{$task->id}}" name="master_user_id" id="user_{{$task->id}}">
                                                 <option value="">Select...</option>
@@ -618,6 +629,11 @@
                                                     @endif
                                                 @endforeach
                                             </select>
+                                            @else 
+                                                @if($task->master_user_id) 
+                                                <p>{{$users[$task->master_user_id]}}</p>
+                                                @endif
+                                            @endif
 
                                             <label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
                                             <div class="d-flex">
@@ -662,6 +678,12 @@
                                                 <input type="text" placeholder="Cost" class="update_cost form-control input-sm" name="cost" data-id="{{$task->id}}" value="{{$task->cost}}">
                                                 <span class="text-success update_cost_msg" style="display: none;">Successfully updated</span>
                                             </div>
+                                            @if(!$task->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->assign_to)) 
+                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$task->id}}" data-type="developer">Create D Task</button>
+                                            @endif
+                                            @if(!$task->lead_hubstaff_task_id && $task->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $task->master_user_id)) 
+                                            <button style="margin-top:10px;color:black;" type="button" class="btn btn-secondary btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$task->id}}" data-type="lead">Create L Task</button>
+                                            @endif
                                         </div>
                                     </td>
                                     <td class="table-hover-cell p-2 {{ ($task->message && $task->message_status == 0) || $task->message_is_reminder == 1 || ($task->message_user_id == $task->assign_from && $task->assign_from != Auth::id()) ? 'text-danger' : '' }}">
@@ -671,7 +693,7 @@
                                                 $text_box = "";
                                                 if(isset($task->message))
                                                 {
-                                                    $text_box = "55";
+                                                    $text_box = "50";
                                                 }
                                                 else
                                                 {
@@ -684,26 +706,39 @@
                                                     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='task' data-id="{{ $task->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                                                 @endif
                                                 @if (isset($task->message))
-                                                    <div class="d-flex justify-content-between">
-                                                        <span class="td-mini-container" style="margin:0px;">
-                                                            {{ strlen($task->message) > 25 ? substr($task->message, 0, 25) . '...' : $task->message }}
+                                                    <div class="d-flex justify-content-between expand-row-msg" data-id="{{$task->id}}">
+                                                        <span class="td-mini-container-{{$task->id}}" style="margin:0px;">
+                                                           
+                                                            <?php 
+                                                            $pos = strpos($task->message,$task->task_subject);
+                                                            $length = strlen($task->task_subject);
+                                                            if($pos) {
+                                                                $start = $pos + $length + 1;
+                                                            }
+                                                            else {
+                                                                $start = 0;
+                                                            }
+                                                            ?>
+                                                            {{substr($task->message, $start,28)}}
                                                         </span>
-                                                                                        <span class="td-full-container hidden">
-                                                            {{ $task->message }}
-                                                        </span>
-
                                                     </div>
                                                 @endif 
-
+                                            </div>
+                                            <div class="expand-row-msg" data-id="{{$task->id}}">
+                                                <span class="td-full-container-{{$task->id}} hidden">
+                                                    {{ $task->message }}
+                                                </span>
                                             </div>
                                             <div class="expand-col dis-none">
                                             <br>
+                                            @if(auth()->user()->isAdmin())
                                             <label for="">Lead:</label>
                                                 <div class="d-flex">
                                                     <input type="text" style="width: <?php echo $text_box;?>%;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
                                                     <button class="btn btn-sm btn-image send-message-lead" title="Send message" data-taskid="{{ $task->id }}"><img src="{{asset('images/filled-sent.png')}}"/></button>
                                                   
-                                                    </div>
+                                                </div>
+                                                @endif
                                             </div>
                                         @else
                                             Private
@@ -714,6 +749,10 @@
                                             <div class="row cls_action_box" style="margin:0px;">
                                                 @if(auth()->user()->isAdmin())
                                                     <button type="button" class='btn btn-image whatsapp-group pd-5' data-id="{{ $task->id }}" data-toggle='modal' data-target='#whatsAppMessageModal'><img src="{{asset('images/whatsapp.png')}}" /></button>
+
+                                                    <button type="button" class='btn delete-single-task pd-5' data-id="{{ $task->id }}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+
+                                                    
                                                 @endif
 
                                                 @if ($special_task->users->contains(Auth::id()) || $task->assign_from == Auth::id())
@@ -957,6 +996,15 @@
         </div>
     </div>
 
+
+    <div id="allTaskCategoryModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content" id="category-list-area">
+            
+            </div>
+        </div>
+    </div>
+
     <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -997,6 +1045,7 @@
 					      <tr>
 					        <th>Sl no</th>
 					        <th>Files</th>
+					        <th>Send to</th>
 					        <th>Action</th>
 					      </tr>
 					    </thead>
@@ -1240,9 +1289,7 @@
 
             $('#task_subject, #task_details').autocomplete({
                 source: function (request, response) {
-                    console.log(taskSuggestions);
                     var results = $.ui.autocomplete.filter(taskSuggestions, request.term);
-                    console.log(results);
                     response(results.slice(0, 10));
                 }
             });
@@ -1316,6 +1363,14 @@
             //   // }
             //
             // });
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
 
         $(document).on('click', '.expand-row', function () {
@@ -1519,8 +1574,6 @@
 
         $(document).ready(function () {
             $(document).on('change', '.is_statutory', function () {
-
-
                 if ($(".is_statutory").val() == 1) {
 
                     // $('input[name="completion_date"]').val("1976-01-01");
@@ -1529,7 +1582,7 @@
                     $('#appointment-container').hide();
 
                     if (!isAdmin)
-                        $('select[name="assign_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
+                        $('select[name="task_asssigned_to"]').html(`<option value="${current_userid}">${ current_username }</option>`);
 
                     $('#recurring-task').show();
                 } else if ($(".is_statutory").val() == 2) {
@@ -1549,7 +1602,7 @@
                     let select_html = '';
                     for (user of users)
                         select_html += `<option value="${user['id']}">${ user['name'] }</option>`;
-                    $('select[name="assign_to"]').html(select_html);
+                    $('select[name="task_asssigned_to"]').html(select_html);
 
                     $('#recurring-task').hide();
 
@@ -1678,8 +1731,6 @@
             var thiss = $(this);
             var task_id = $(this).data('taskid');
             var message = $(this).siblings('input').val();
-            console.log(task_id);
-            console.log(message);
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
@@ -1695,12 +1746,13 @@
                             $(thiss).attr('disabled', true);
                         }
                     }).done(function (response) {
+                        console.log(response);
                         $(thiss).siblings('input').val('');
                         $(thiss).attr('disabled', false);
                     }).fail(function (errObj) {
-                        $(thiss).attr('disabled', false);
-                        alert("Could not send message");
                         console.log(errObj);
+                        $(thiss).attr('disabled', false);
+                        toastr['error'](errObj.responseJSON.message);
                     });
                 }
             } else {
@@ -2372,6 +2424,40 @@
             console.log(selected_tasks);
         });
 
+        $('#view_categories_button').on('click', function () {
+                $.ajax({
+                    type: "GET",
+                    url: "{{ url('task/categories') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    }
+                }).done(function (response) {
+                    console.log(response);
+                    $('#category-list-area').html(response);
+
+                    $('#allTaskCategoryModal').modal();
+                }).fail(function (response) {
+                    console.log("failed");
+                });
+        });
+
+
+        $(document).on('click', '.submit-category-status', function (e) {
+            e.preventDefault();
+            var form  = $(this).closest('form');
+                $.ajax({
+                    type: "POST",
+                    url: form.attr("action"),
+                    data: form.serialize(),
+                }).done(function (response) {
+                    toastr["success"](response.message);
+                    $('#allTaskCategoryModal').modal('hide');
+                }).fail(function (response) {
+                });
+        });
+
+
+        
         $('#view_tasks_button').on('click', function () {
             var selected = $(this).data('selected');
 
@@ -2436,13 +2522,12 @@
                             data: form.serialize(),
                             dataType : "json"
                         }).done(function (response) {
-                            console.log(response);
                             $("#loading-image").hide();
                             if(response.code == 200) {
-                                if(response.statutory != 1) {
-                                    $(".pending-row-render-view").prepend(response.raw);
-                                }else{
+                                if(response.statutory == 1) {
                                     $(".statutory-row-render-view").prepend(response.raw);
+                                }else{
+                                    $(".pending-row-render-view").prepend(response.raw);
                                 }
                             }
                             //window.location.reload();
@@ -2461,7 +2546,6 @@
             var category_id = $(this).val();
             var is_approved = $(this).find('option:selected').data('approved');
             var is_admin = "{{ Auth::user()->hasRole('Admin') }}";
-            console.log(is_approved, is_admin);
             if (is_admin == 1 && !is_approved) {
                 $('#approveTaskCategoryButton').parent().removeClass('hidden');
             } else {
@@ -2625,7 +2709,7 @@
             var issueId = $(this).data('id');
             $('#time_history_div table tbody').html('');
             $.ajax({
-                url: "{{ route('development/time/history') }}",
+                url: "{{ route('task.time.history') }}",
                 data: {id: issueId},
                 success: function (data) {
                     // if(data != 'error') {
@@ -2653,7 +2737,7 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -2926,5 +3010,151 @@ $(document).on("click",".btn-save-documents",function(e){
             });
             $('#time_tracked_modal').modal('show');
         });
+
+
+        $(document).on('click', '.create-hubstaff-task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $(this).css('display','none');
+            $.ajax({
+                url: "{{ route('task.create.hubstaff_task') }}",
+                type: 'POST',
+                data: {id: issueId,type:type,_token: "{{csrf_token()}}"},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (data) {
+                    
+                    toastr['success']('created successfully!');
+                    $("#loading-image").hide();
+                },
+                error: function () {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        });
+
+
+        $(document).on("keyup",".search-category",function() {
+            console.log("aaaaaa");
+            var input, filter, ul, li, a, i, txtValue;
+            input = document.getElementById("myInput");
+            filter = input.value.toUpperCase();
+            ul = document.getElementById("myUL");
+            li = ul.getElementsByTagName("li");
+            for (i = 0; i < li.length; i++) {
+                a = li[i].getElementsByTagName("a")[0];
+                txtValue = a.textContent || a.innerText;
+                if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                    li[i].style.display = "";
+                } else {
+                    li[i].style.display = "none";
+                }
+            }
+        });
+
+        $(document).on("click","#make_complete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to complete these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-complete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not complete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
+            }
+        });
+        $(document).on("click","#make_delete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-delete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not delete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
+            }
+        });
+
+
+        $(document).on("click",".delete-single-task",function() {
+            var id = $(this).data('id');
+            if(!id) {
+                return;
+            }
+            console.log(id);
+            selected_tasks.push(id);
+            console.log(selected_tasks);
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{ url('task/bulk-delete') }}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+                    alert('Could not delete task');
+                });
+        });
+
+
+        $(document).on("click",".link-send-document",function(e) {
+		e.preventDefault();
+		var id = $(this).data("id");
+		var user_id = $(this).closest("tr").find(".send-message-to-id").val();
+		$.ajax({
+			url: '/task/send-document',
+			type: 'POST',
+			headers: {
+	      		'X-CSRF-TOKEN': "{{ csrf_token() }}"
+	    	},
+	    	dataType:"json",
+			data: { id : id , user_id: user_id},
+			beforeSend: function() {
+				$("#loading-image").show();
+           	}
+		}).done(function (data) {
+			$("#loading-image").hide();
+			toastr["success"]("Document sent successfully");
+		}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			toastr["error"](jqXHR.responseJSON.message);
+			$("#loading-image").hide();
+		});
+
+	});
+
     </script>
 @endsection

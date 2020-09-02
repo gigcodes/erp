@@ -8,6 +8,7 @@
                 <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
             @endif	
         </a>
+        <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $issue->id }}" value="">	
 
 
         
@@ -59,13 +60,37 @@
                 <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
             </div>
             <!-- <button class="btn btn-secondary btn-xs estimate-time-change" data-id="{{$issue->id}}">Save</button> -->
-            
+            @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_time = $time_history->new_value;
+                    }
+                    else {
+                        $est_time = 0;
+                    }
+                @endphp
+                @if($est_time)
+                    Approved : {{$est_time}}
+                @endif
         </div>
     </td>
     <td>
         @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
-        {{ formatDuration($issue->timeSpent->tracked) }}
-        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+        Developer : {{ formatDuration($issue->timeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        @endif
+
+        @if (isset($issue->leadtimeSpent) && $issue->leadtimeSpent->task_id > 0)
+        Lead : {{ formatDuration($issue->leadtimeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="lead"><i class="fa fa-info-circle"></i></button>
+        @endif
+        @if(!$issue->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to)) 
+        <button type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$issue->id}}" data-type="developer">Create D Task</button>
+        @endif
+        @if(!$issue->lead_hubstaff_task_id && $issue->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->master_user_id)) 
+        <button style="margin-top:10px;" type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$issue->id}}" data-type="lead">Create L Task</button>
         @endif
     </td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
