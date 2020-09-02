@@ -666,7 +666,7 @@ class OrderController extends Controller {
 			$order_new = Order::find($id_order_inc);
 			if (!$order_new->is_sent_offline_confirmation()) {
 				if ($order_new->order_type == 'offline') {
-                    if($order_new->customer) {
+                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
     					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
     					$view = (new OrderConfirmation($order))->render();
     					$params = [
