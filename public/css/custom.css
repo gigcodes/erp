@@ -93,6 +93,20 @@
     width: 100% !important;
 }
 
+/*.quick-customer .next_action{
+  height: 27px;
+  padding: 4px 12px;
+}*/
+.quick-customer #sno{
+  width: 0.1%;
+}
+
+.quick-customer #new_action_td{
+  height: 100px;
+}
+.quick-customer .next_action_div{
+  margin-top: 8px;
+}
 
 @media (max-width: 480px) {
     .notification-dropdown ul:first-of-type{
