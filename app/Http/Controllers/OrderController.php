@@ -666,25 +666,27 @@ class OrderController extends Controller {
 			$order_new = Order::find($id_order_inc);
 			if (!$order_new->is_sent_offline_confirmation()) {
 				if ($order_new->order_type == 'offline') {
-					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-					$view = (new OrderConfirmation($order))->render();
-					$params = [
-				        'model_id'    		=> $order_new->customer->id,
-				        'model_type'  		=> Customer::class,
-				        'from'        		=> 'customercare@sololuxury.co.in',
-				        'to'          		=> $order_new->customer->email,
-				        'subject'     		=> "New Order # " . $order_new->order_id,
-				        'message'     		=> $view,
-						'template'				=> 'order-confirmation',
-						'additional_data'	=> $order_new->id
-		      		];
-		      		Email::create($params);
-					CommunicationHistory::create([
-						'model_id'		=> $order_new->id,
-						'model_type'	=> Order::class,
-						'type'				=> 'offline-confirmation',
-						'method'			=> 'email'
-					]);
+                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
+    					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+    					$view = (new OrderConfirmation($order))->render();
+    					$params = [
+    				        'model_id'    		=> $order_new->customer->id,
+    				        'model_type'  		=> Customer::class,
+    				        'from'        		=> 'customercare@sololuxury.co.in',
+    				        'to'          		=> $order_new->customer->email,
+    				        'subject'     		=> "New Order # " . $order_new->order_id,
+    				        'message'     		=> $view,
+    						'template'				=> 'order-confirmation',
+    						'additional_data'	=> $order_new->id
+    		      		];
+    		      		Email::create($params);
+    					CommunicationHistory::create([
+    						'model_id'		=> $order_new->id,
+    						'model_type'	=> Order::class,
+    						'type'				=> 'offline-confirmation',
+    						'method'			=> 'email'
+    					]);
+                    }
 				}
 			}
 		}

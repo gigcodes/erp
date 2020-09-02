@@ -89,6 +89,14 @@ class LandingPageProduct extends Model
             'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
 
+        if($this->stock_status != 1) {
+            $productData['product']['published'] = false;
+            $productData['product']['published_scope'] = false;
+        }else{
+            $productData['product']['published'] = true;
+            $productData['product']['published_scope'] = "web";
+        }
+
         if (!empty($landingPageProduct->size)) {
             $productSizes = explode(',', $landingPageProduct->size);
             $values       = [];
