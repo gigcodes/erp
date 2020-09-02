@@ -96,7 +96,8 @@ class LandingPageController extends Controller
         }
 
         if($request->get("debug") != null) {
-            return $items;
+            echo serialize($items);
+            die;
         }
 
         return response()->json(["code" => 200, "data" => $items, "total" => $records->total(), "pagination" => (string) $records->render()]);
