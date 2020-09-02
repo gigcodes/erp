@@ -400,6 +400,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/send/confirmationEmail', 'OrderController@sendConfirmation')->name('order.send.confirmation.email');
     Route::post('order/{id}/refund/answer', 'OrderController@refundAnswer')->name('order.refund.answer');
     Route::post('order/send/Delivery', 'OrderController@sendDelivery')->name('order.send.delivery');
+    Route::post('order/deleteBulkOrders', 'OrderController@deleteBulkOrders')->name('order.deleteBulkOrders');
     Route::post('order/{id}/send/suggestion', 'OrderController@sendSuggestion')->name('order.send.suggestion');
     Route::post('order/{id}/changestatus', 'OrderController@updateStatus');
     Route::post('order/{id}/sendRefund', 'OrderController@sendRefund');
@@ -410,7 +411,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/generateInvoice', 'OrderController@generateInvoice')->name('order.generate.invoice');
     Route::get('order/{id}/send-invoice', 'OrderController@sendInvoice')->name('order.send.invoice');
     Route::get('order/{id}/send-order-email', 'OrderController@sendOrderEmail')->name('order.send.email');
-
+// Route::get('order/{id}/view-products', 'OrderController@viewproducts')->name('order.view.products');
     Route::get('order/{id}/preview-invoice', 'OrderController@previewInvoice')->name('order.perview.invoice');
     Route::post('order/{id}/createProductOnMagento', 'OrderController@createProductOnMagento')->name('order.create.magento.product');
     Route::get('order/{id}/download/PackageSlip', 'OrderController@downloadPackageSlip')->name('order.download.package-slip');
@@ -419,6 +420,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/generate/awb/dhl', 'OrderController@generateAWBDHL')->name('order.generate.awbdhl');
     Route::get('order/generate/awb/rate-request', 'OrderController@generateRateRequet')->name('order.generate.rate-request');
@@ -2092,6 +2094,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/', 'ReturnExchangeController@index')->name('return-exchange.list');
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
+    Route::get('/getProducts/{id}', 'ReturnExchangeController@getProducts');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
 
     Route::prefix('{id}')->group(function () {

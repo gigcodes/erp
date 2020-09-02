@@ -198,4 +198,28 @@ class ReturnExchangeController extends Controller
 
         return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
     }
+
+    public function getProducts($id)
+    {
+        if (!empty($id)) {
+            $order  = \App\Order::find($id);
+            $orderData = [];
+
+             if (!empty($order)) {
+                $products = $order->order_product;
+                if (!empty($products)) {
+                    foreach ($products as $product) {
+                        $pr = \App\Product::find($product->product_id);
+                        if($pr) {
+                        $orderData[] = ['id' => $product->id, 'name' => $pr->name];
+                        }
+                    }
+                }
+            }
+        }
+        $status   = ReturnExchange::STATUS;
+        $id = $order->customer_id;
+        $response = (string) view("partials.order-return-exchange", compact('id', 'orderData', 'status'));
+        return response()->json(["code" => 200, "html" => $response]);
+    }
 }
