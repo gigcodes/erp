@@ -95,6 +95,10 @@ class LandingPageController extends Controller
             $items[]          = $rec;
         }
 
+        if($request->get("debug") != null) {
+            echo "<pre>"; print_r($items);  echo "</pre>";die;
+        }
+
         return response()->json(["code" => 200, "data" => $items, "total" => $records->total(), "pagination" => (string) $records->render()]);
     }
 
