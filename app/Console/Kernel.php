@@ -98,6 +98,7 @@ use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\StoreLiveChats;
 use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
@@ -201,6 +202,7 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
+        StoreLiveChats::class,
         RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
@@ -428,6 +430,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
+        $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');

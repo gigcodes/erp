@@ -14,12 +14,11 @@ class CreateStoreSocialContentReviewsTable extends Migration
     public function up()
     {
         Schema::create('store_social_content_reviews', function (Blueprint $table) {
-          
-           // $table->increments('id');
-           // $table->integer('file_id');
-          //  $table->text('review');
-          //  $table->string('review_by');
-         //   $table->timestamps();
+           $table->increments('id');
+           $table->integer('file_id');
+           $table->text('review');
+           $table->string('review_by');
+           $table->timestamps();
         });
     }
 

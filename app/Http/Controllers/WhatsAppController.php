@@ -81,6 +81,7 @@ use App\ColdLeads;
 class WhatsAppController extends FindByNumberController
 {
     CONST MEDIA_PDF_CHUNKS = 50;
+    CONST AUTO_LEAD_SEND_PRICE = 281;
 
     /**
      * Incoming message URL for whatsApp
@@ -1010,7 +1011,8 @@ class WhatsAppController extends FindByNumberController
     public function webhook(Request $request, GuzzleClient $client)
     {
         // Get json object
-        $data = $request->json()->all();  
+        $data = $request->json()->all();
+        $needToSendLeadPrice = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
@@ -1025,7 +1027,7 @@ class WhatsAppController extends FindByNumberController
         }
         // Loop over messages
         foreach ($data[ 'messages' ] as $chatapiMessage) {
-
+            $quoted_message_id = null;
             // Convert false and true text to false and true
             if ($chatapiMessage[ 'fromMe' ] === "false") {
                 $chatapiMessage[ 'fromMe' ] = false;
@@ -1037,9 +1039,9 @@ class WhatsAppController extends FindByNumberController
             try {
                 // check if quotedMsgId is available, if available then we will search for parent message
                 if(isset($chatapiMessage[ 'quotedMsgId' ])) {
-                    $parentMessage = ChatMessage::where('unique_id', $params['quotedMsgId'])->first();
+                    $parentMessage = ChatMessage::where('unique_id', $chatapiMessage['quotedMsgId'])->first();
                     if($parentMessage) {
-                        $params['quoted_message_id'] = $parentMessage->id;
+                        $quoted_message_id = $parentMessage->id;
                     }
                 } 
             } catch (\Exception $e) {
@@ -1126,6 +1128,7 @@ class WhatsAppController extends FindByNumberController
                 'dubizzle_id' => null,
                 'vendor_id' => null,
                 'customer_id' => null,
+                'quoted_message_id' => $quoted_message_id
             ];
 
             try {
@@ -1471,6 +1474,17 @@ class WhatsAppController extends FindByNumberController
                     );
                     DB::table('task_users')->insert($task_users_array);
 
+                    // check that match if this the assign to is auto user 
+                    // then send price and deal
+                    \Log::info("Price Lead section started for customer id : ". $customer->id);
+                    if($keywordassign[0]->assign_to == self::AUTO_LEAD_SEND_PRICE) {
+                        \Log::info("Auto section started for customer id : ". $customer->id);
+                       if(!empty($parentMessage)) {
+                        \Log::info("Auto section parent message found started for customer id : ". $customer->id);
+                          $parentMessage->sendLeadPrice($customer);
+                       }
+                    }
+
                     //START CODE Task message to send message in whatsapp
                 
                     $task_info = DB::table('tasks')
@@ -1493,7 +1507,8 @@ class WhatsAppController extends FindByNumberController
                                 'approved'     => 1,
                                 'status'       => 2,
                                 'task_id'      => $taskid,
-                                'message'      => $task_info[0]->task_details
+                                'message'      => $task_info[0]->task_details,
+                                'quoted_message_id' => $quoted_message_id
                             ];
                             app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($users_info[0]->phone, $users_info[0]->whatsapp_number, $task_info[0]->task_details);
 
@@ -1602,6 +1617,7 @@ class WhatsAppController extends FindByNumberController
                             'approved' => 1,
                             'status' => 9,
                             'customer_id' => $customer->id,
+                            'quoted_message_id' => $quoted_message_id,
                             'message' => AutoReply::where('type', 'auto-reply')->where('keyword', 'customer-dnd')->first()->reply
                         ];
                         $auto_dnd_message = ChatMessage::create($dnd_params);
@@ -1770,6 +1786,7 @@ class WhatsAppController extends FindByNumberController
                 $m->issue_id = explode(' ', $message)[ 0 ];
                 $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
+                $m->quoted_message_id = $quoted_message_id;
                 $m->save();
             }
 
@@ -1779,6 +1796,7 @@ class WhatsAppController extends FindByNumberController
                 $m->developer_task_id = explode(' ', $message)[ 0 ];
                 $m->user_id = isset($user->id) ? $user->id : null;
                 $m->message = $originalMessage;
+                $m->quoted_message_id = $quoted_message_id;
                 $m->save();
             }
         }
@@ -2062,7 +2080,21 @@ class WhatsAppController extends FindByNumberController
                                 $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data[ 'message' ]);
                             }
                         }
-                    } else {
+                    }
+                    else if($task->master_user_id == Auth::id()) {
+                        foreach ($task->users as $key => $user) {
+                            if ($key == 0) {
+                                $data[ 'erp_user' ] = $user->id;
+                            } else {
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $data[ 'message' ]);
+                            }
+                        }
+                        $adm = User::find($task->assign_from);
+                        if($adm) {
+                            $this->sendWithThirdApi($adm->phone, $adm->whatsapp_number, $data[ 'message' ]);
+                        }
+                    }
+                    else {
                         if (!$task->users->contains(Auth::id())) {
                             $data[ 'erp_user' ] = $task->assign_from;
 
@@ -2149,11 +2181,8 @@ class WhatsAppController extends FindByNumberController
                     $data[ 'dubbizle_id' ] = $request->dubbizle_id;
                     $module_id = $request->dubbizle_id;
                 } elseif ($context == 'issue') {
-
                     $sendTo = $request->get('sendTo',"to_developer");
-
                     $params[ 'issue_id' ] = $request->get('issue_id');
-                    //$issue                  = Issue::find($request->get('issue_id'));
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId  = $issue->assigned_to;
@@ -2182,6 +2211,13 @@ class WhatsAppController extends FindByNumberController
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                            if(Auth::id() == $issue->master_user_id) {
+                                $creator = User::find($issue->created_by);
+                                if ($creator) {
+                                    $num = $creator->phone;
+                                    $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                }
+                            }
                             $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
                             $params[ 'media_url' ] = $image->getUrl();
                             $chat_message = ChatMessage::create($params);
@@ -2193,6 +2229,13 @@ class WhatsAppController extends FindByNumberController
                                 $media = MediaUploader::fromSource($image)->upload();
                                 $issue->attachMedia($media, config('constants.media_tags'));
                                 $this->sendWithThirdApi($number, null, '', $media->getUrl());
+                                if(Auth::id() == $issue->master_user_id) {
+                                    $creator = User::find($issue->created_by);
+                                    if ($creator) {
+                                        $num = $creator->phone;
+                                        $this->sendWithThirdApi($num, null, '', $media->getUrl());
+                                    }
+                                }
                                 $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
                                 $params[ 'media_url' ] = $media->getUrl();
                                 $chat_message = ChatMessage::create($params);
@@ -2203,6 +2246,13 @@ class WhatsAppController extends FindByNumberController
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                         $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                        if(Auth::id() == $issue->master_user_id) {
+                            $creator = User::find($issue->created_by);
+                            if ($creator) {
+                                $num = $creator->phone;
+                                $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                            }
+                        }
                         $chat_message = ChatMessage::create($params);
 
 
@@ -2213,7 +2263,6 @@ class WhatsAppController extends FindByNumberController
                                 $this->sendWithThirdApi($number, null, '', $image->getUrl());
                             }
                         }
-
                     }
                     ChatMessagesQuickData::updateOrCreate([
                         'model' => \App\DeveloperTask::class,
@@ -2609,7 +2658,7 @@ class WhatsAppController extends FindByNumberController
                     $user = User::find($task->master_user_id);
 
                     if (!$user) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'Master user not found'],500);
                     }
                     $params[ 'user_id' ]  = $user->id;
                     if ($task->is_statutory != 1) {
@@ -2620,7 +2669,7 @@ class WhatsAppController extends FindByNumberController
                     
                     $number = $user->phone;
                     if(!$number) {
-                        return response()->json(['message' => null]);
+                        return response()->json(['message' => 'User whatsapp no not available'],500);
                     }
                     $this->sendWithThirdApi($number, null, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);

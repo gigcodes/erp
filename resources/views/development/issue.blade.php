@@ -82,8 +82,15 @@
             </a>
             <a style="color:white;" class="btn btn-secondary  priority_model_btn">Priority</a>
             @if(auth()->user()->isReviwerLikeAdmin())
-                    <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
-                @endif
+                <a href="javascript:" class="btn btn-secondary" id="newTaskModalBtn" data-toggle="modal" data-target="#newTaskModal">Add New Dev Task </a>
+             @endif
+             @if (auth()->user()->isAdmin())
+             <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
+            @endif
+            @if (auth()->user()->isAdmin())
+             <a class="btn btn-secondary" style="color:white;" id="make_delete_button">Delete Tasks</a>
+            @endif
+
         </div>
 
 
@@ -130,6 +137,7 @@
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
     @include("development.partials.time-tracked-modal")
+    @include("development.partials.add-status-modal")
 @endsection
 
 @section('scripts')
@@ -599,13 +607,21 @@
                 url: "{{ route('development/time/history') }}",
                 data: {id: issueId},
                 success: function (data) {
+                    
                     if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
                         $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
                             $('#time_history_div table tbody').append(
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -614,6 +630,28 @@
             });
             $('#time_history_modal').modal('show');
         });
+
+
+        $(document).on('submit', '#approve-time-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('development/time/history/approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+       
+        });
+
+        
 
         function humanizeDuration(input, units ) { 
             // units is a string with possible values of y, M, w, d, h, m, s, ms
@@ -632,10 +670,11 @@
 
         $(document).on('click', '.show-tracked-history', function() {
             var issueId = $(this).data('id');
+            var type = $(this).data('type');
             $('#time_tracked_div table tbody').html('');
             $.ajax({
                 url: "{{ route('development/tracked/history') }}",
-                data: {id: issueId},
+                data: {id: issueId,type:type},
                 success: function (data) {
                     if(data != 'error') {
                         $.each(data.histories, function(i, item) {
@@ -652,6 +691,30 @@
                 }
             });
             $('#time_tracked_modal').modal('show');
+        });
+
+
+        $(document).on('click', '.create-hubstaff-task', function() {
+            var issueId = $(this).data('id');
+            var type = $(this).data('type');
+            $(this).css('display','none');
+            $.ajax({
+                url: "{{ route('development/create/hubstaff_task') }}",
+                type: 'POST',
+                data: {id: issueId,type:type,_token: "{{csrf_token()}}"},
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (data) {
+                    
+                    toastr['success']('created successfully!');
+                    $("#loading-image").hide();
+                },
+                error: function (error) {
+                    $("#loading-image").hide();
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
         });
 
         $(document).on('change', '.change-task-status', function () {
@@ -761,7 +824,6 @@
         });
 
         function resolveIssue(obj, task_id) {
-
             let id = task_id;
             let status = $(obj).val();
             let self = this;
@@ -841,6 +903,48 @@
             }
             else {
                 $('#no_of_milestone').removeAttr('required');
+            }
+        });
+
+        var selected_tasks = [];
+
+        $(document).on('click', '.select_task_checkbox', function () {
+            var checked = $(this).prop('checked');
+            var id = $(this).data('id');
+
+            if (checked) {
+                selected_tasks.push(id);
+            } else {
+                var index = selected_tasks.indexOf(id);
+
+                selected_tasks.splice(index, 1);
+            }
+
+            console.log(selected_tasks);
+        });
+
+        $(document).on("click","#make_delete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{action('DevelopmentController@deleteBulkTasks')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not delete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
             }
         });
     </script>

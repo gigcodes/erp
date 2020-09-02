@@ -76,7 +76,26 @@
                     <div class="row">
                         <div class="col-md-10 cls_remove_allpadding">
                             <div class="d-flex">
-                                <?php echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]); ?>
+                                <?php
+                                //echo "<pre>";print_r($replies);echo "</pre>"; 
+                                ?>
+                                <?php 
+                                //echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]);
+
+                                ?>
+                                <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;">
+                                    <option value="">Auto Reply</option>
+                                    <?php
+                                    foreach ($replies as $key_r => $value_r) { ?>
+                                        <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
+                                            <?php 
+                                            $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
+                                            echo $reply_msg;
+                                            ?>
+                                        </option>
+                                    <?php } 
+                                    ?>
+                                </select>
                                 <a class="btn btn-image delete_quick_comment"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
                             </div>
                         </div> 
@@ -91,7 +110,7 @@
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">    
                     {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
                     </span>
-                    <span class="td-full-container hidden">
+                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
                       {{ $vendor->chat_messages[0]->message }}
                     </span>
                 @endif    
@@ -99,9 +118,12 @@
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
                     {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
                     </span>
-                    <span class="td-full-container hidden">
+                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
                       {{ $vendor->message }}
                     </span>
+                @else
+                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
+                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>    
                 @endif
                 </div>
             </div>

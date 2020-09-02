@@ -39,11 +39,43 @@
             </div>
         </div>
     </td>
-    <td>&nbsp;</td>
+    <td data-id="{{ $issue->id }}">
+        <div class="form-group">
+            <div class='input-group estimate_minutes'>
+                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->estimate_minutes }}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_minutes_{{$issue->id}}">
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimation_minute')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_time = $time_history->new_value;
+                    }
+                    else {
+                        $est_time = 0;
+                    }
+                @endphp
+                @if($est_time)
+                    Approved : {{$est_time}}
+                @endif
+            </div>            
+        </div>
+    </td>
     <td>
     @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
-        {{ formatDuration($issue->timeSpent->tracked) }}
-        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+    Developer : {{ formatDuration($issue->timeSpent->tracked) }}
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="developer"><i class="fa fa-info-circle"></i></button>
+        @endif
+
+        @if (isset($issue->leadtimeSpent) && $issue->leadtimeSpent->task_id > 0)
+        Lead : {{ formatDuration($issue->leadtimeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="lead"><i class="fa fa-info-circle"></i></button>
+        @endif
+
+        @if(!$issue->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to)) 
+        <button type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$issue->id}}" data-type="developer">Create D Task</button>
+        @endif
+        @if(!$issue->lead_hubstaff_task_id && $issue->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->master_user_id)) 
+        <button style="margin-top:10px;" type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$issue->id}}" data-type="lead">Create L Task</button>
         @endif
     
     </td>
@@ -65,11 +97,10 @@
         @if($issue->is_resolved)
             <strong>Done</strong>
         @else
-            <select name="task_status" id="task_status" class="form-control change-task-status" data-id="{{$issue->id}}">
-                <option value="">Please Select</option>
-                <option value="Planned" {{ (!empty($issue->status) && $issue->status ==  'Planned' ? 'selected' : '') }}>Planned</option>
-                <option value="In Progress" {{ (!empty($issue->status) && $issue->status  ==  'In Progress' ? 'selected' : '') }}>In Progress</option>
-                <option value="Done" {{ (!empty($issue->status) && $issue->status ==   'Done' ? 'selected' : '') }}>Done</option>
+            <select name="task_status" id="task_status" class="form-control" onchange="resolveIssue(this,{{$issue->id}})">
+                @foreach($statusList  as $status)
+                <option value="{{$status}}" {{ (!empty($issue->status) && $issue->status ==  $status ? 'selected' : '') }}>{{$status}}</option>
+                @endforeach
             </select>
         @endif
     </td>

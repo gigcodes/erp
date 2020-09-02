@@ -77,14 +77,26 @@
     </style>
 
     @if($task->priority == 1)
-        <?php $task_type = 'Normal';
-            $bg_color = 'background: green;'; $priority_clr = 'color:green';?>
+        <?php 
+            $task_type = 'Normal';
+            $bg_color = 'background: green;'; 
+            $priority_clr = 'color:green';?>
     @elseif($task->priority == 2)
-        <?php $task_type = 'Urgent'; $bg_color = 'background: orange;'; $priority_clr = 'color:orange';?>
+        <?php 
+        $task_type = 'Urgent'; 
+        $bg_color = 'background: orange;'; 
+        $priority_clr = 'color:orange';?>
 
     @elseif($task->priority == 3)
-        <?php $task_type = 'Critical';$bg_color = 'background: red;'; $priority_clr = 'color:red'; ?>
-
+        <?php 
+        $task_type = 'Critical';
+        $bg_color = 'background: red;'; 
+        $priority_clr = 'color:red'; ?>
+    @else
+        <?php 
+         $task_type = 'Normal';
+         $bg_color = 'background: green;'; 
+         $priority_clr = 'color:green';?>
     @endif
 <div class="content" style="margin-top: 10px;">
     <div class="container">

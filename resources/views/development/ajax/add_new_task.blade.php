@@ -122,9 +122,12 @@
                     <div class="form-group">
                         <strong>Status:</strong>
                         <select class="form-control" name="status" required>
-                            <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
+                            <!-- <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
                             <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
+                            <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option> -->
+                            @foreach($statusList  as $key => $status)
+                            <option value="{{$key}}" {{ old('status') == $status ? 'selected' : '' }}>{{$status}}</option>
+                            @endforeach
                         </select>
 
                         @if ($errors->has('status'))
