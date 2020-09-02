@@ -4,9 +4,9 @@
 		    <thead>
 		      <tr>
 		      	<th id="sno">#</th>
-		      	<th width="5%">Customer Name</th>
+		      	<th width="3%">Customer Name</th>
 		        <th width="1%">Next Action</th>
-		        <th width="17%">Shortcuts</th>
+		        <th width="18%">Shortcuts</th>
 		        <th width="12%">Communication box</th>
 		      </tr>
 		    </thead>
@@ -52,7 +52,7 @@
 						            </div>
 						            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
 						                <div style="float: left; width: 86%">
-						                    <select name="quickCategory" class="form-control mb-3 quickCategory">
+						                    <select name="quickCategory" class="form-control mb-3 quickCategory ml-2">
 						                        <option value="">Select Category</option>
 						                        <?php foreach ($reply_categories as $category) { ?>
 						                            <option value='<?php echo $category->approval_leads;?>' data-id="<?=$category->id;?>"><?=$category->name;?></option>
@@ -69,7 +69,7 @@
 						            </div>
 						            <div class="col-6 d-inline form-inline" style="padding-left: 0px;">
 						                <div style="float: left; width: 86%">
-						                    <select name="quickComment" class="form-control quickComment">
+						                    <select name="quickComment" class="form-control quickComment ml-2">
 						                        <option value="">Quick Reply</option>
 						                    </select>
 						                </div>
@@ -181,7 +181,7 @@
 					      <div class="col-md-12">
 					         <div class="row">
 					            <div class="col-md-6">
-					               <textarea rows="1" style="width: 100%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
+					               <textarea rows="3" style="width: 100%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
 					            </div>
 					            <div class="col-md-6 form-inline">
 					               <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-customerid="{{:prop.id}}"><img src="/images/filled-sent.png"></button>
