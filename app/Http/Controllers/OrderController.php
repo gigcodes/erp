@@ -246,7 +246,9 @@ class OrderController extends Controller {
 			$orders = $orders;
 		else{
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
-				return $query->where('name', 'LIKE', '%'.$term.'%');
+				return $query->where('name', 'LIKE', '%'.$term.'%')
+							->orWhere('id', 'LIKE', '%'.$term.'%')
+							->orWhere('email', 'LIKE', '%'.$term.'%');
 			})
            ->orWhere('orders.order_id','like','%'.$term.'%')
            ->orWhere('order_type',$term)
@@ -293,11 +295,10 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
-
+		$totalOrders = sizeOf($orders->get());
 		$orders_array = $orders->paginate(20);
-		// dd($orders_array);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
 	}
 
 	public function products(Request $request)
@@ -2120,14 +2121,15 @@ public function createProductOnMagento(Request $request, $id){
 		$status = $request->get("status");
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
+			$statuss = OrderStatus::where("id",$status)->first();
 			if($order) {
-				$order->order_status 	= $status;
+				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
 			
-				$statuss = OrderStatus::where("id",$status)->first();
+				
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2647,4 +2649,62 @@ public function createProductOnMagento(Request $request, $id){
 		return $store_master_statuses;
 	}
 
+
+	public function deleteBulkOrders(Request $request) {
+		foreach($request->ids as $id) {
+			Order::where('id',$id)->delete();
+		}
+		return response()->json(['message' => 'Order has been archived']);
+	}
+
+	// public function viewproducts($id) {
+	// 	dd($id);
+	// 	return response()->json(['message' => 'Order has been archived']);
+	// }
+
+	public function updateCustomer(Request $request) {
+		if($request->update_type == 1) {
+			// dd("only send message");
+			$ids = explode(",",$request->selected_orders);
+			foreach($ids as $id) {
+				$order = \App\Order::where("id", $id)->first();
+				if($order && $request->customer_message && $request->customer_message != "") {
+					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message);
+				}
+			}
+		}
+		else {
+			// dd("send message and update status");
+			$ids = explode(",",$request->selected_orders);
+			foreach($ids as $id) {
+				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->order_status) {
+					$order = \App\Order::where("id", $id)->first();
+					$statuss = OrderStatus::where("id",$request->order_status)->first();
+					if($order) {
+						$order->order_status 	= $statuss->status;
+						$order->order_status_id = $request->order_status;
+						$order->save();
+						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message);
+						
+						$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
+						if($storeWebsiteOrder) {
+							$website = StoreWebsite::find($storeWebsiteOrder->website_id);
+							if($website) {
+								$store_order_status = Store_order_status::where('order_status_id',$request->order_status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
+								if($store_order_status) {
+									$magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+									if($magento_status) {
+										$magentoHelper = new MagentoHelperv2;
+										$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
+									}
+								}
+							}
+							$storeWebsiteOrder->update(['order_id',$request->order_status]);
+						}
+					}
+				}
+			}
+		}
+		return response()->json(['message' => 'Successful'],200);
+	}
 }
