@@ -2,7 +2,7 @@
 
 @section('favicon' , 'vendor.png')
 
-@section('title', 'Vendor Info')
+@section('title', 'Quick Dev Task')
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -116,7 +116,7 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
-            <h2 class="page-heading">Summary Info</h2>
+            <h2 class="page-heading">Quick Dev Task</h2>
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
                     
