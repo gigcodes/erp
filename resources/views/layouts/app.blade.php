@@ -1185,6 +1185,9 @@
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
                                 </li>
+                                  <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Summary list</a>
+                                </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
                                 </li>

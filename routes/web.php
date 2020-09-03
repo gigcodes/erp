@@ -856,6 +856,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    
+    Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
+
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
