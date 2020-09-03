@@ -14,6 +14,8 @@ use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
 
+use App\Tickets;
+
 class LiveChatController extends Controller
 {
     //Webhook
@@ -995,7 +997,7 @@ class LiveChatController extends Controller
     * https://api.livechatinc.com/tickets?assigned=0
     dal:ZP6x3Uc3QMa9W-Ve4sp86A
     */
-    function getLiveChatIncTickets(){
+    public function getLiveChatIncTickets(){
 
         $curl = curl_init();
 
@@ -1022,4 +1024,60 @@ class LiveChatController extends Controller
             return false;
         }
     }
+
+
+    /**  Created By Maulik Jadvani
+     * function to Get tickets list.
+     *
+     * @param request
+     *
+     * @return -all tickets list 
+     */
+    public function tickets(Request $request)
+    {
+        $title = 'tickets';
+
+        
+        
+        $query = Tickets::query();
+
+        if($request->ticket_id)
+        {
+			$query = $query->where('ticket_id', $request->ticket_id);
+        }
+        
+		if($request->term !=""){
+
+			$query = $query->where('name', 'LIKE','%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%');
+        }
+        
+        if($request->status_id !='')
+        {
+			$query = $query->where('status_id', $request->status_id);
+        }
+
+        if($request->date !='')
+        {
+			$query = $query->whereDate('date', $request->date);
+        }
+
+        $data = $query->orderBy('date', 'DESC')->paginate(25)->appends(request()->except(['page']));
+        
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$data->render(),
+                'count' => $data->total(),
+            ], 200);
+        }
+       // dd($data);
+		return view('livechat.tickets', compact('data'))
+            ->with('i', ($request->input('page', 1) - 1) * 5);
+            
+        
+        
+    }
+
+
+    
 }

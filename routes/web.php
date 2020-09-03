@@ -1279,6 +1279,7 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 
+
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
 });
@@ -1287,6 +1288,9 @@ Route::prefix('livechat')->group(function () {
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
+/*------------------------------------------- livechat tickets -------------------------------- */
+Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');

@@ -216,7 +216,8 @@ class Kernel extends ConsoleKernel
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
-        ScrapLogs::class
+        ScrapLogs::class,
+        getLiveChatIncTickets::class,
     ];
 
     /**
@@ -463,6 +464,9 @@ class Kernel extends ConsoleKernel
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
+
+        // Get tickets from Live Chat inc and put them as unread messages
+        // $schedule->command('livechat:tickets')->everyMinute();
     }
 
     /**
