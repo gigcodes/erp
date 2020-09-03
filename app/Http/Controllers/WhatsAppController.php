@@ -2134,7 +2134,9 @@ class WhatsAppController extends FindByNumberController
                     $data[ 'erp_user' ] = $request->user_id;
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);
-                    $this->sendWithThirdApi($user->phone, null, $request->message);
+                    if($user && $user->phone) {
+                        $this->sendWithThirdApi($user->phone, null, $request->message);
+                    }
                 }
                 elseif ($context == 'overdue') {
                     $data[ 'erp_user' ] = $request->user_id;
