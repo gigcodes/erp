@@ -33,7 +33,9 @@ var common = {
                     self[callback](result);
                 }
             }
-        }).fail(function(jqXhr) {});
+        }).fail(function(jqXhr) {
+            toastr["error"](jqXhr.responseText,"");
+        });
     },
     sendFormDataAjax: function(params, callback, fallback) {
         var self = this;
@@ -63,7 +65,9 @@ var common = {
             if (callback) {
                 self[callback](result);
             }
-        }).fail(function(jqXhr) {});
+        }).fail(function(jqXhr) {
+            toastr["error"](jqXhr.responseText,"");
+        });
     },
     checkTypeOf: function(params, key, defaultVal) {
 	     return (params && typeof params[key] != "undefined") ? params[key] : defaultVal;

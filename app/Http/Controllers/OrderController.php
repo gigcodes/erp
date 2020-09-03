@@ -667,25 +667,27 @@ class OrderController extends Controller {
 			$order_new = Order::find($id_order_inc);
 			if (!$order_new->is_sent_offline_confirmation()) {
 				if ($order_new->order_type == 'offline') {
-					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-					$view = (new OrderConfirmation($order))->render();
-					$params = [
-				        'model_id'    		=> $order_new->customer->id,
-				        'model_type'  		=> Customer::class,
-				        'from'        		=> 'customercare@sololuxury.co.in',
-				        'to'          		=> $order_new->customer->email,
-				        'subject'     		=> "New Order # " . $order_new->order_id,
-				        'message'     		=> $view,
-						'template'				=> 'order-confirmation',
-						'additional_data'	=> $order_new->id
-		      		];
-		      		Email::create($params);
-					CommunicationHistory::create([
-						'model_id'		=> $order_new->id,
-						'model_type'	=> Order::class,
-						'type'				=> 'offline-confirmation',
-						'method'			=> 'email'
-					]);
+                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
+    					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+    					$view = (new OrderConfirmation($order))->render();
+    					$params = [
+    				        'model_id'    		=> $order_new->customer->id,
+    				        'model_type'  		=> Customer::class,
+    				        'from'        		=> 'customercare@sololuxury.co.in',
+    				        'to'          		=> $order_new->customer->email,
+    				        'subject'     		=> "New Order # " . $order_new->order_id,
+    				        'message'     		=> $view,
+    						'template'				=> 'order-confirmation',
+    						'additional_data'	=> $order_new->id
+    		      		];
+    		      		Email::create($params);
+    					CommunicationHistory::create([
+    						'model_id'		=> $order_new->id,
+    						'model_type'	=> Order::class,
+    						'type'				=> 'offline-confirmation',
+    						'method'			=> 'email'
+    					]);
+                    }
 				}
 			}
 		}
@@ -2373,7 +2375,7 @@ public function createProductOnMagento(Request $request, $id){
 
 
 	public function viewAllInvoices() {
-		$invoices = Invoice::orderBy('id','desc')->paginate(10);
+		$invoices = Invoice::orderBy('id','desc')->paginate(30);
 		return view( 'orders.invoices.index', compact('invoices') );
 	}
 
@@ -2399,7 +2401,7 @@ public function createProductOnMagento(Request $request, $id){
 			$nextInvoiceNumber = '1001';
 		}
 		$invoice_number = $prefix.'-'.$nextInvoiceNumber;
-		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->where('id','!=',$firstOrder->id)->get();
+		$more_orders = Order::where('customer_id',$firstOrder->customer_id)->where('invoice_id',null)->get();
 		return view( 'orders.invoices.add', compact('firstOrder','invoice_number','more_orders') );
 	}
 
@@ -2423,7 +2425,9 @@ public function createProductOnMagento(Request $request, $id){
 		if($request->order_ids && count($request->order_ids) > 0) {
 			$orders = Order::whereIn('id',$request->order_ids)->get();
 			foreach($orders as $order) {
-				$order->update(['invoice_id' => $invoice->id]);
+				if($order->id != $request->first_order_id) {
+					$order->update(['invoice_id' => $invoice->id]);
+				}
 			}
 		}
 		return redirect()->action(
@@ -2649,62 +2653,24 @@ public function createProductOnMagento(Request $request, $id){
 		return $store_master_statuses;
 	}
 
+	public function searchOrderForInvoice(Request $request) {
+		$term = $request->q;
+		$orders = Order::leftJoin('customers','customers.id','orders.customer_id')
+			->where('orders.invoice_id',null)
+			->where(function($q) use ($term) {
+			$q->where('orders.order_id','like','%'.$term.'%')
+			->orWhere('orders.order_type',$term)
+			->orWhere('orders.sales_person',Helpers::getUserIdByName($term))
+			->orWhere('orders.received_by',Helpers::getUserIdByName($term))
+			->orWhere('orders.client_name','like','%'.$term.'%')
+			->orWhere('customers.city','like','%'.$term.'%')
+			->orWhere('customers.name','like','%'.$term.'%')
+			->orWhere('customers.id','like','%'.$term.'%')
+			->orWhere('customers.phone','like','%'.$term.'%');
+			})
+			->select('orders.*','customers.name','customers.phone')
+			->get();
+	return $orders;
 
-	public function deleteBulkOrders(Request $request) {
-		foreach($request->ids as $id) {
-			Order::where('id',$id)->delete();
-		}
-		return response()->json(['message' => 'Order has been archived']);
-	}
-
-	// public function viewproducts($id) {
-	// 	dd($id);
-	// 	return response()->json(['message' => 'Order has been archived']);
-	// }
-
-	public function updateCustomer(Request $request) {
-		if($request->update_type == 1) {
-			// dd("only send message");
-			$ids = explode(",",$request->selected_orders);
-			foreach($ids as $id) {
-				$order = \App\Order::where("id", $id)->first();
-				if($order && $request->customer_message && $request->customer_message != "") {
-					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message);
-				}
-			}
-		}
-		else {
-			// dd("send message and update status");
-			$ids = explode(",",$request->selected_orders);
-			foreach($ids as $id) {
-				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->order_status) {
-					$order = \App\Order::where("id", $id)->first();
-					$statuss = OrderStatus::where("id",$request->order_status)->first();
-					if($order) {
-						$order->order_status 	= $statuss->status;
-						$order->order_status_id = $request->order_status;
-						$order->save();
-						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message);
-						
-						$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
-						if($storeWebsiteOrder) {
-							$website = StoreWebsite::find($storeWebsiteOrder->website_id);
-							if($website) {
-								$store_order_status = Store_order_status::where('order_status_id',$request->order_status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
-								if($store_order_status) {
-									$magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
-									if($magento_status) {
-										$magentoHelper = new MagentoHelperv2;
-										$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
-									}
-								}
-							}
-							$storeWebsiteOrder->update(['order_id',$request->order_status]);
-						}
-					}
-				}
-			}
-		}
-		return response()->json(['message' => 'Successful'],200);
 	}
 }

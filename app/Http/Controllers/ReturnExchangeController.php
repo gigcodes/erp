@@ -144,6 +144,9 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             $data["return_exchange"] = $returnExchange;
             $data["status"]          = ReturnExchange::STATUS;
+            if($request->from == 'erp-customer') {
+                return view('ErpCustomer::partials.edit-return-summery', compact('data'));
+            }
             return response()->json(["code" => 200, "data" => $data]);
         }
         // if not found then add error response

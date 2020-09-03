@@ -155,7 +155,7 @@
 @endsection
 
 @section('large_content')
-
+    
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
@@ -737,7 +737,7 @@
                             <form class="d-inline" action="{{ route('instruction.store') }}" method="POST">
                                 @csrf
                                 <input type="hidden" name="customer_id" value="{{ $customer->id }}">
-                                <input type="hidden" name="instruction" value="{{ $users_array[\App\Setting::get('call_shortcut')] }} call this client">
+                                <input type="hidden" name="instruction" value="{{ @$users_array[\App\Setting::get('call_shortcut')] }} call this client">
                                 <input type="hidden" name="category_id" value="10">
                                 <input type="hidden" name="assigned_to" value="{{ \App\Setting::get('call_shortcut') }}">
 

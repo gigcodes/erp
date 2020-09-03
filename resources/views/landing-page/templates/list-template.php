@@ -27,8 +27,8 @@
 			        	<br>
 			        	<div class="row">
 			        		<select name="store_website_id" class="form-control store-website-change" data-id="{{:prop.id}}">
+			        		<option value="">--SELECT-</option>
 			        		<?php foreach(\App\StoreWebsite::shopifyWebsite() as $k => $v) {  ?>
-			        			<option value="">--SELECT-</option>
 			        			<option {{if prop.store_website_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
 			        		<?php } ?>
 			        		</select>
@@ -71,7 +71,7 @@
 			        	{{/if}}
 			        </td>
 			      </tr>
-			      <tr class="hideall" id="{{:prop.id}}" hidden>
+			      <tr class="hideall" id="{{:prop.id}}" style="display:none;">
 			      		 {{props prop.images}}
 			      		<td>
 			      			<div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">

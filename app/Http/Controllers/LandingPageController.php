@@ -13,6 +13,7 @@ use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
+    const GALLERY_TAG_NAME = "gallery_";
 
     public function __construct()
     {
@@ -91,6 +92,7 @@ class LandingPageController extends Controller
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $rec['stores'] = $store_websites;
             $rec->short_dec   = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15).".." : $rec->description;
+            $rec->short_dec   = utf8_encode($rec->short_dec);
             $items[]          = $rec;
         }
 
@@ -221,6 +223,10 @@ class LandingPageController extends Controller
             // if stock status exist then store it
             if ($request->stock_status != null) {
                 $landingPage->stock_status = $request->stock_status;
+                if($landingPage->stock_status == 1) {
+                    $landingPage->start_date = date("Y-m-d H:i:s");
+                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date. ' + 1 days'));
+                }
                 $landingPage->save();
             }
 
@@ -242,8 +248,12 @@ class LandingPageController extends Controller
             $errors = [];
             if (!empty($response->errors)) {
                 foreach ((array)$response->errors as $key => $message) {
-                    foreach ($message as $msg) {
-                        $errors[] = ucwords($key) . " " . $msg;
+                    if(is_array($message)) {
+                        foreach ($message as $msg) {
+                            $errors[] = ucwords($key) . " " . $msg;
+                        }
+                    }else{
+                        $errors[] = ucwords($key) . " " . $message;
                     }
                 }
             }
