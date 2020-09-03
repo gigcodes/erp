@@ -92,6 +92,7 @@ class LandingPageController extends Controller
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $rec['stores'] = $store_websites;
             $rec->short_dec   = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15).".." : $rec->description;
+            $rec->short_dec   = utf8_encode($rec->short_dec);
             $items[]          = $rec;
         }
 
