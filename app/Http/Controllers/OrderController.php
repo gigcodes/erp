@@ -2577,18 +2577,23 @@ public function createProductOnMagento(Request $request, $id){
 		$magentoHelper = new MagentoHelperv2;
 		$result = $magentoHelper->fetchOrderStatus($website);
 		if($result) {
-			$statuses = $result;
-			foreach($statuses as $status) {
-				StoreMasterStatus::updateOrCreate([
-					'store_website_id' => $request->store_website_id,
-					'value' => $status->value
-					], [
-					'label' => $status->label
-				]);
+			if($result['code'] == 200) {
+				$statuses = $result['data'];
+				foreach($statuses as $status) {
+					StoreMasterStatus::updateOrCreate([
+						'store_website_id' => $request->store_website_id,
+						'value' => $status->value
+						], [
+						'label' => $status->label
+					]);
+				}
+			}
+			else {
+				return redirect()->back()->with('error',$result['data']->message);
 			}
 		}
 		else {
-			return redirect()->back()->with('success','Something went wrong');
+			return redirect()->back()->with('error','Could not fetch the statuses');
 		}
 		return redirect()->back()->with('success','Status successfully updated');
 	}
