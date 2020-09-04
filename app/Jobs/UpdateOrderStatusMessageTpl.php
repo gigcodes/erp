@@ -15,15 +15,17 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
 
     public $tries = 1;
     private $orderId;
+    private $message;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($orderId)
+    public function __construct($orderId, $message = NULL)
     {
         $this->orderId = $orderId;
+        $this->message = $message;
     }
 
     /**
@@ -36,17 +38,24 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
         $order = \App\Order::where('id', $this->orderId)->first();
         if ($order) {
             $statusModal       = \App\OrderStatus::where("id", $order->order_status_id)->first();
-            $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
-            if ($statusModal && !empty($statusModal->message_text_tpl)) {
-                $defaultMessageTpl = $statusModal->message_text_tpl;
+            
+            if(!$this->message || $this->message == "") {
+                $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
+                if ($statusModal && !empty($statusModal->message_text_tpl)) {
+                    $defaultMessageTpl = $statusModal->message_text_tpl;
+                }
+                $msg = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $defaultMessageTpl);
             }
-
+            else {
+                $defaultMessageTpl = $this->message; 
+                $msg = $this->message;
+            }
             // start update the order status
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
                 'customer_id' => $order->customer_id,
-                'message'     => str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $order->order_status], $defaultMessageTpl),
+                'message'     => $msg,
                 'status'      => 0,
                 'order_id'    => $order->id,
             ]);
