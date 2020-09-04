@@ -12,7 +12,7 @@ class LandingPageProduct extends Model
         "Active",
     ];
 
-    const GALLERY_TAG_NAME = "gallery_";
+    const GALLERY_TAG_NAME = "gallery";
 
     protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'start_date', 'end_date', 'created_at', 'updated_at'];
 

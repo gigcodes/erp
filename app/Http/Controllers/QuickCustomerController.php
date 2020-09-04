@@ -12,7 +12,9 @@ class QuickCustomerController extends Controller
     {
         $title         = "Quick Customer";
         $nextActionArr = \DB::table('customer_next_actions')->get();
-        return view("quick-customer.index", compact('title', 'nextActionArr'));
+
+        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
+        return view("quick-customer.index", compact('title', 'nextActionArr','reply_categories'));
     }
 
     public function records(Request $request)
@@ -22,6 +24,7 @@ class QuickCustomerController extends Controller
         $chatMessagesWhere = "WHERE status not in (7,8,9,10)";
 
         $customer = \App\Customer::query();
+        
 
         if ($type == "unread") {
             $customer = $customer->join("chat_messages_quick_datas as cmqs", function ($q) {
@@ -57,7 +60,7 @@ class QuickCustomerController extends Controller
         //Setting::get('pagination')
 
         $customer = $customer->select(["customers.*", "cm.id as message_id", "cm.status as message_status", "cm.message"])->paginate(10);
-
+        // $customer = $customer->select("customers.*")->paginate(10);
         $items = [];
         foreach($customer->items() as $item) {
             $item["short_message"] = strlen($item->message) > 20 ? substr($item->message, 0, 20) : $item->message;

@@ -4,11 +4,11 @@
     <!-- Modal content-->
     <div class="modal-content">
       <div class="modal-header">
-        <h4 class="modal-title">Send Last 20 Scraped Images</h4>
+        <h4 class="modal-title">Send Last Scraped Images</h4>
         <button type="button" class="close" data-dismiss="modal">&times;</button>
       </div>
-
-      <form action="{{ route('customer.send.scraped') }}" method="POST" enctype="multipart/form-data">
+      <!-- id="customerSendScrap" -->
+      <form action="" id="customerSendScrap"  method="GET" enctype="multipart/form-data">
         @csrf
         <input type="hidden" name="customer_id" value="">
 
@@ -21,7 +21,7 @@
           <div class="form-group">
             <strong>Brand</strong>
 
-            <select class="form-control" name="brand[]" multiple>
+            <select class="form-control select-multiple" name="brand[]" multiple>
               <option value="">Select a Brand</option>
 
               @foreach ($brands as $brand)
@@ -29,10 +29,19 @@
               @endforeach
             </select>
           </div>
+          <div class="form-group">
+            <strong>Total</strong>
+            <input type="number" name="total_images" class="form-control" required>
+          </div>
+          <div class="form-group">
+            <strong>Keyord</strong>
+            <input type="text" name="term" class="form-control">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-          <button type="submit" class="btn btn-secondary" id="sendScrapedButton">Send</button>
+          <!-- <button type="submit" class="btn btn-secondary" id="sendScrapedButton">Send</button> -->
+          <button type="submit" class="btn btn-secondary">Send</button>
         </div>
       </form>
     </div>
