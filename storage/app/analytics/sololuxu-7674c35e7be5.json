@@ -1,0 +1,12 @@
+{
+  "type": "service_account",
+  "project_id": "annular-weaver-282119",
+  "private_key_id": "a3c7a231ecf544f4c88312ed1cb3a686d85f69d1",
+  "private_key": "-----BEGIN PRIVATE KEY-----\nMIIEvgIBADANBgkqhkiG9w0BAQEFAASCBKgwggSkAgEAAoIBAQCayOFxR5L5WqRA\nTEAIkqA7OBK0M+tckIfukQpVQE9gioIyxPTBZ37jHdtqOmP2+kDnMtlOtVskUxNX\nwQ2QzbqKn5ZVEk9+ux6PE7DBRYftjwlfPDA/vodDmjGNMQrf4kj3Jxjb32oo/WtX\nKTDblvZp4IjiQ2YID+/A19t1HWg+M206/kztJG6SAhE4oYD+bL3AKVTRc2F+DCXZ\nsHGH7xz9gwZSGvoNuV/nifmvW/1LsDt+OpB5jnSXJirpc6cRjzHAVrLS2WwpiX1T\nchLONQ8Gzp/1H57e8ulIL3NSb5pZsvh7hAVqDUhJaIVV6vtXzgV6Zu3dRn8XvGgk\nKLJA4kDfAgMBAAECggEABLY2vqcKH1MWCusHS/uCqyrSzu+Bq6iuqqF5qgyyHeM5\ngWgjdzu6Thmbk0lBv8Pwc9lFajL1Gk75GMPEsPLCSfP/tIlBKD9z97EGwWtnbuDa\nzS5c3aPkJDeuaHjkttoBlJx5EkBjz+me+eFEHnsi9yghopmgooAxsTIg+RizEqmb\n/BKsM8oMIS7IrhqX+pw8vVSK+biOrLJPEhmMcyL9SCssqHP9JGGzPnbRkxtIh667\nqpTYZxGbnQFh85wK9twc4QxY/fYdB1J6wwqGib/h9Po1OQ8rpqRhdtCOf+yCKihX\n3mj1sjdWfWkqhBV33SmU0sV1fT5A7p88aY46HtAA6QKBgQDHlIythQ6XdU6u40wL\ndKQTgPhUjS4J0YvLyDHSj1I1KWL05E4Xkx1bAVThzYkJ72bQVHIFMfzokGf6baf1\nI78XbP7Ou65M/Hdp4R3ZWyUiI+C4cWc0nB9znxnNS2I27+PScWowfRYX91ptH4Fs\nvetm7ywkHt7FnmzGTUnO0zkNWwKBgQDGioONYeTVB4n0P5zLfKrZhj6xL+2FMfUG\neqNg531pzBxeeBx+2r3xoUqElFYkIHSeMc1LQi1/X0jo4a7gpnTmdpo6SE1Bo3IM\nlCs3O5LZqAJIGxajxdZluUAVF3nvtfdwHLq7ftyqADsEKZUQglhrbUtvs2cPdvrO\nx0MFK/HdzQKBgGvtwHnh17c+X/OhxbD4PfayKxkGVBxJLpFgTNkyWmGXZQVMJZMI\nIrrhKHcIAJDX30DQOeznUH6wARrjjA28bA2OCunfgu3tJeKjM9IkQRuKTW9RHF/O\nAhAzvO9RUealqg1W+fcI3hbN1B/pBsO4nQHIW5WZAB3cg7RlfYGUpmi7AoGBAIk/\nzetZ5jAiMwrnQsQk3ZLcS9B/emoee+1LsE/YF4mgsWfZDpHfM3mrb3Exfk8hJJ0L\nfojtKbiorSVYhmUEjUGYccuimc2raLcrYqifBUhz7YfdOgxjQnA13Qf3n7LHj1Mw\neSIOdAsNd77L5CFyih9RgdmpIrC9Jmr1su4LT/ttAoGBAK2exfJWrCF9FSc/x0B/\nE0yU6q6TT8d4x54IjN9H5gaCyi/4Xc7gJuL4gQGRQB8m0RRcNNB9hXl9I5dsQSwE\nqhI7uhfTnVODqDKcIlUlGDE0M90GGfjRbRTJo9UmQ8r4cP2ZH1P8rszJ9EuzhLEH\nqV98mR5f10x459Zv5kKyrHGl\n-----END PRIVATE KEY-----\n",
+  "client_email": "erp-amourint-com@annular-weaver-282119.iam.gserviceaccount.com",
+  "client_id": "102296107699324868644",
+  "auth_uri": "https://accounts.google.com/o/oauth2/auth",
+  "token_uri": "https://oauth2.googleapis.com/token",
+  "auth_provider_x509_cert_url": "https://www.googleapis.com/oauth2/v1/certs",
+  "client_x509_cert_url": "https://www.googleapis.com/robot/v1/metadata/x509/erp-amourint-com%40annular-weaver-282119.iam.gserviceaccount.com"
+}
