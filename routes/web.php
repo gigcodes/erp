@@ -1290,6 +1290,13 @@ Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->n
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
 /*------------------------------------------- livechat tickets -------------------------------- */
 Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
+Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
+Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
+Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
+
+
+
 
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');

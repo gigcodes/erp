@@ -1,29 +1,26 @@
+
+@php($statusList = \App\TicketStatuses::all()->pluck('name','id'))
 @foreach ($data as $key => $ticket)
           <tr>
                <td>{{ ++$i }}</td>
               <th>{{ $ticket->ticket_id }}
-                    <!-- <div class="panel-group">
-                         <div class="panel panel-default" style="width: 140px;">
-                              <div class="panel-heading">
-                                   <h4 class="panel-title">
-                                        <a data-toggle="collapse" href="#collapse_{{$ticket->id}}">Messages</a>
-                                   </h4>
-                              </div>
-                         </div>
-                    </div> -->
+                    
               </th>
 
               <th>{{ $ticket->name}}</th>
               <th>{{ $ticket->email }}</th>
               <th>{{ $ticket->subject }}</th>
               <th>{{ $ticket->message }}</th>
-              <th>{{ $ticket->assigned_to }}</th>
-              <th>{{ $ticket->status_id }}</th>
+              <th>{{ $ticket->assigned_to_name }}</th>
+              <th>
+              <?php echo Form::select("task_status",$statusList,$ticket->status_id,["class" => "form-control resolve-issue","onchange" => "resolveIssue(this,".$ticket->id.")"]); ?>
+              </th>
               <th>
                     <div class="chat-righbox">
-                         <a href="javascript:;" title="Email"  ><i class="fa fa-envelope" aria-hidden="true"></i></a>&nbsp;
-                         <a href="javascript:;" title="Email"  ><i class="fa fa-whatsapp" aria-hidden="true"></i></a>&nbsp;
-                         <a href="javascript:;" title="Email"  ><i class="fa fa-comments-o" aria-hidden="true"></i></a>&nbsp;
+                    <button type="button" class="btn send-email-to-vender" data-subject="{{ $ticket->subject }}" data-message="{{ $ticket->message }}" data-email="{{ $ticket->email }}" data-id="{{$ticket->id}}"><i class="fa fa-envelope-square"></i></button>
+                    <button type="button" class="btn " data-id="{{$ticket->id}}" ><i class="fa fa-whatsapp"></i></button>
+                    <button type="button" class="btn btn-assigned-to-ticket" data-id="{{$ticket->id}}"><i class="fa fa-comments-o"></i></button>
+
                          
                     </div>
 

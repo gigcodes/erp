@@ -14,7 +14,11 @@ use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
 
+use Mail;
+use App\Mails\Manual\PurchaseEmail;
 use App\Tickets;
+use App\TicketStatuses;
+use App\Email;
 
 class LiveChatController extends Controller
 {
@@ -1038,12 +1042,21 @@ class LiveChatController extends Controller
         $title = 'tickets';
 
         
-        
+        $selectArray[] = 'tickets.*'; 
+        $selectArray[] = 'users.name AS assigned_to_name'; 
         $query = Tickets::query();
+        $query = $query->leftjoin('users','users.id', '=', 'tickets.assigned_to');
+
+        $query = $query->select($selectArray);
 
         if($request->ticket_id)
         {
 			$query = $query->where('ticket_id', $request->ticket_id);
+        }
+
+        if($request->users_id !='')
+        {
+			$query = $query->where('assigned_to', $request->users_id);
         }
         
 		if($request->term !=""){
@@ -1076,6 +1089,187 @@ class LiveChatController extends Controller
             
         
         
+    }
+
+
+    public function sendEmail(Request $request)
+    {
+        $this->validate($request, [
+            'subject' => 'required|min:3|max:255',
+            'message' => 'required',
+           
+            'cc.*' => 'nullable|email',
+            'bcc.*' => 'nullable|email'
+        ]);
+
+        $tickets = Tickets::find($request->ticket_id);
+        if(!isset($tickets->id))
+        {
+           // return false;
+        }
+
+        $fromEmail = 'buying@amourint.com';
+        $fromName  =  "buying";
+
+        if ($request->from_mail) 
+        {
+            $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
+            if ($mail) 
+            {
+                $fromEmail = $mail->from_address;
+                $fromName  = $mail->from_name;
+                $config = config("mail");
+                unset($config['sendmail']);
+                $configExtra = array(
+                'driver'    => $mail->driver,
+                'host'      => $mail->host,
+                'port'      => $mail->port,
+                'from'      => [
+                    'address' => $mail->from_address,
+                    'name' => $mail->from_name,
+                ],
+                'encryption'  => $mail->encryption,
+                'username'    => $mail->username,
+                'password'    => $mail->password
+                );
+                \Config::set('mail', array_merge($config, $configExtra));
+                (new \Illuminate\Mail\MailServiceProvider(app()))->register();
+            }
+        }
+
+        if ($tickets->email != '') 
+        {
+            $file_paths = [];
+
+            if ($request->hasFile('file')) 
+            {
+                foreach ($request->file('file') as $file) {
+                $filename = $file->getClientOriginalName();
+
+                $file->storeAs("documents", $filename, 'files');
+
+                $file_paths[] = "documents/$filename";
+                }
+            }
+
+            $cc = $bcc = [];
+            $emails[] = $tickets->email;
+
+            if ($request->has('cc')) {
+                $cc = array_values(array_filter($request->cc));
+            }
+            if ($request->has('bcc')) {
+                $bcc = array_values(array_filter($request->bcc));
+            }
+
+            if (is_array($emails) && !empty($emails)) {
+                $to = array_shift($emails);
+                $cc = array_merge($emails, $cc);
+
+                $mail = Mail::to($to);
+
+                if ($cc) {
+                $mail->cc($cc);
+                }
+                if ($bcc) {
+                $mail->bcc($bcc);
+                }
+
+                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]));
+            } else {
+                return redirect()->back()->withErrors('Please select an email');
+            }
+
+            $params = [
+                'model_id' => $tickets->id,
+                'model_type' => Tickets::class,
+                'from' => $fromEmail,
+                'to' => $tickets->email,
+                'seen' => 1,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'template' => 'customer-simple',
+                'additional_data' => json_encode(['attachment' => $file_paths]),
+                'cc' => $cc ?: null,
+                'bcc' => $bcc ?: null
+            ];
+
+            Email::create($params);
+
+            return redirect()->back()->withSuccess('You have successfully sent an email!');
+        }
+    }
+
+    public function AssignTicket(Request $request)
+    {
+        $this->validate($request, [
+            'id' => 'required|numeric',
+            'users_id' =>'required|numeric',
+           
+        ]);
+
+        $id = $request->id;
+        $users_id = $request->users_id;
+
+        $tickets = Tickets::find($request->id);
+        if(isset($tickets->id) && $tickets->id > 0)
+        {
+            $tickets->assigned_to = $users_id;
+            $tickets->save();
+
+            return redirect()->back()->withSuccess('Tickets has been successfully Assigned.');
+
+        }else
+        {
+            return redirect()->back()->withErrors('something wrong please try to again Assigned Tickets.');
+
+        }
+
+    }
+
+
+    public function TicketStatus(Request $request)
+    {
+        $this->validate($request, [
+            'name' => 'required',
+        ]);
+
+
+        $name = $request->name;
+        $TicketStatusObj = TicketStatuses::where(['name'=> $name])->first();
+        if(isset($TicketStatusObj->id) && $TicketStatusObj->id > 0)
+        {
+
+        }else
+        {
+            TicketStatuses::create(['name'=> $name]);
+        }
+
+        return redirect()->back()->withSuccess('Ticket Status has been successfully Added.');
+    }
+
+
+    public function ChangeStatus(Request $request)
+    {
+        if($request->status !='' && $request->id !='') 
+        {
+            $tickets = Tickets::find($request->id);
+            if(isset($tickets->id) && $tickets->id > 0)
+            {
+                $tickets->status_id = $request->status;
+                $tickets->save();
+
+            }
+
+           
+        }else
+        {
+
+        }
+
+        return response()->json([
+            'status' => 'success'
+        ]);
     }
 
 
