@@ -11,11 +11,13 @@
 |
 */
 
+use App\Helpers\TwilioHelper;
+
 Auth::routes();
 
 
 Route::get('/test/test', function(){
-   dd(\Cache::get('key'));
+    dd(Cache::get('fdfdas'));
 });
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
@@ -1240,6 +1242,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 });
 
+
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr');
@@ -1252,6 +1255,7 @@ Route::post('twilio/handleDialCallStatus', 'TwilioController@handleDialCallStatu
 Route::post('twilio/handleOutgoingDialCallStatus', 'TwilioController@handleOutgoingDialCallStatus');
 Route::post('twilio/storerecording', 'TwilioController@storeRecording');
 Route::post('twilio/storetranscript', 'TwilioController@storetranscript');
+Route::post('twilio/eventsFromFront', 'TwilioController@eventsFromFront');
 Route::get(
     '/twilio/hangup',
     [
