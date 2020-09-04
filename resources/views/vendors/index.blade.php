@@ -248,7 +248,7 @@
                 <th width="10%">Website</th> --}}
                
                 <th width="25%">Communication</th>
-                <th width="2%">Action</th>
+                <th width="15%">Action</th>
             </tr>
             </thead>
 
@@ -265,6 +265,7 @@
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
     @include('vendors.partials.vendor-modals')
+    @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
     @include('vendors.partials.modal-conference')
@@ -1373,5 +1374,28 @@
             console.log(response);
         });
     });
+
+
+    $(document).on('click', '.add-vendor-info', function (e) {
+          e.preventDefault();
+          $("#hidden_edit_vendor_id").val($(this).data('id'));
+          $("#add-vendor-info-modal").modal("show");
+      });
+
+      $(document).on('click', '.btn-submit-info', function (e) {
+          e.preventDefault();
+          var formData = $('#add-vendor-info-modal').find('form').serialize();
+          $.ajax({
+            type: "POST",
+            url: "{{ route('vendors.edit-vendor') }}",
+            data: formData,
+          }).done(function(response) {
+            toastr['success'](response.message);
+            $("#add-vendor-info-modal").modal("hide");
+            $('#add-vendor-info-form').trigger('reset');
+          }).fail(function(error) {
+            toastr['error'](error.responseJSON.message);
+          });
+      });
     </script>
 @endsection
