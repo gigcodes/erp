@@ -482,6 +482,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('task/{id}/updateCategory', 'TaskModuleController@updateCategory')->name('task.update.category');
     Route::post('task/list-by-user-id', 'TaskModuleController@taskListByUserId')->name('task.list.by.user.id');
     Route::post('task/set-priority', 'TaskModuleController@setTaskPriority')->name('task.set.priority');
+    Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
