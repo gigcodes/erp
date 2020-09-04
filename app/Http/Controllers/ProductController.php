@@ -1319,10 +1319,10 @@ class ProductController extends Controller
                 $product->save();
 
             //translate product title and description
-            $languages = ['hi','ar'];
+            $languages = ['ar','zh','nl','fr','de','it','ja','ko','ru','es'];
             $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
             if(!$isDefaultAvailable) {
-                $product_translation = new Product_translation;
+                $product_translation = new Product_translation();
                 $product_translation->title = $product->name;
                 $product_translation->description = $product->short_description;
                 $product_translation->product_id = $product->id;
@@ -1332,10 +1332,14 @@ class ProductController extends Controller
             foreach($languages as $language) {
                 $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
                 if(!$isLocaleAvailable) {
-                    $product_translation = new Product_translation;
+                    $product_translation = new Product_translation();
+                    $titleFromTable = Product_translation::select('title')->where('locale',$language)->where('title',$product->name)->first();
+                    $descriptionFromTable = Product_translation::select('description')->where('locale',$language)->where('description',$product->short_description)->first();
                     $googleTranslate = new GoogleTranslate();
-                    $title = $googleTranslate->translate($language,$product->name);
-                    $description = $googleTranslate->translate($language,$product->short_description);
+                    $productNames = splitTextIntoSentences($product->name);
+                    $productShortDescription =  splitTextIntoSentences($product->short_description);
+                    $title = $titleFromTable ? $titleFromTable->title : $this->translateProducts($googleTranslate,$productNames,$language);
+                    $description = $descriptionFromTable ? $descriptionFromTable->description : $this->translateProducts($googleTranslate,$productShortDescription,$language);
                     if($title && $description) {
                         $product_translation->title = $title;
                         $product_translation->description = $description;
@@ -1354,8 +1358,6 @@ class ProductController extends Controller
                     'status' => 'listed'
                 ]);
             }
-
-
         }
 
 
@@ -1364,6 +1366,19 @@ class ProductController extends Controller
             'result' => 'productNotFound',
             'status' => 'error'
         ]);
+    }
+    private function translateProducts(GoogleTranslate $googleTranslate,$language,$names = []){
+           $response = [];
+           if(count($names)){
+               foreach($names as $name){
+                   $response[] = $googleTranslate->translate($language,$name);
+               }
+               return implode($response);
+           }
+           else{
+               return '';
+           }
+
     }
 
     public function unlistMagento(Request $request, $id)
@@ -1763,7 +1778,7 @@ class ProductController extends Controller
         else {
             $perPageLimit = $request->get("per_page");
         }
-        
+
 
         if (Order::find($model_id)) {
             $selected_products = self::getSelectedProducts($model_type, $model_id);
@@ -2063,7 +2078,7 @@ class ProductController extends Controller
         else {
             $products = $products->paginate($perPageLimit);
         }
-        
+
         $products_count = $products->total();
         $all_product_ids = [];
         $from  = request("from","");
@@ -2907,7 +2922,7 @@ class ProductController extends Controller
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
         $params["is_queue"] = request("is_queue",0);
-        
+
         \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {

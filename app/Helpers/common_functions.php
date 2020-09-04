@@ -229,3 +229,7 @@ function get_field_by_number($no, $field = "name")
 
     return "";
 }
+
+function splitTextIntoSentences($text){
+    return preg_split('/(?<=[.?!])\s+(?=[a-z])/i', $text);
+}
