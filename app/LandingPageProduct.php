@@ -46,10 +46,12 @@ class LandingPageProduct extends Model
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
                     $sizeC  = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
-                    $html[] = "<p><b>Size Chart</b> : <a href='" . urlencode($sizeC) . "'>Here</a></p>";
+                    $html[] = '<p><b>Size Chart</b> : <a href="' . urlencode($sizeC) . '">Here</a></p>';
                 }
             }
         }
+
+        \Log::info(json_encode($html));
 
         if ($landingPageProduct) {
             $productData = [
