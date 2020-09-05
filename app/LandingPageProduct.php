@@ -46,7 +46,7 @@ class LandingPageProduct extends Model
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
                     $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
-                    $sizeC  = env("SHOPIFY_CDN").urlencode($sizeC);
+                    $sizeC  = env("SHOPIFY_CDN").$sizeC;
                     $html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
