@@ -213,6 +213,12 @@ var getHtml = function(response) {
                 }
             }
         }
+        if(message.type == "developer_task" ) {
+            if (message.status == 0) {
+                button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+            }
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+        }
         button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + message.id + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
