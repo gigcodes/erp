@@ -246,7 +246,9 @@ class OrderController extends Controller {
 			$orders = $orders;
 		else{
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
-				return $query->where('name', 'LIKE', '%'.$term.'%');
+				return $query->where('name', 'LIKE', '%'.$term.'%')
+							->orWhere('id', 'LIKE', '%'.$term.'%')
+							->orWhere('email', 'LIKE', '%'.$term.'%');
 			})
            ->orWhere('orders.order_id','like','%'.$term.'%')
            ->orWhere('order_type',$term)
@@ -293,11 +295,10 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
-
+		$totalOrders = sizeOf($orders->get());
 		$orders_array = $orders->paginate(20);
-		// dd($orders_array);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
 	}
 
 	public function products(Request $request)
@@ -2122,14 +2123,15 @@ public function createProductOnMagento(Request $request, $id){
 		$status = $request->get("status");
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
+			$statuss = OrderStatus::where("id",$status)->first();
 			if($order) {
-				$order->order_status 	= $status;
+				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
 			
-				$statuss = OrderStatus::where("id",$status)->first();
+				
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
