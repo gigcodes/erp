@@ -22,7 +22,9 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Live Scraper Logs</h2>
+        <h2 class="page-heading">Live Scraper Logs
+            <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
+            </h2>
         </div>
     </div>
 
