@@ -23,7 +23,6 @@ var getMoreChatConvo = function(params) {
         if(response.messages.length > 0) {
             AllMessages = AllMessages.concat(response.messages);
             var li = getHtml(response);
-
             if ($('#chat-list-history').length > 0) {
                 $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
                 $("#chat-list-history").find(".modal-body").append(li);
@@ -31,6 +30,17 @@ var getMoreChatConvo = function(params) {
             } else {
                 $("#chat-history").find("#loading-image").remove();
                 $("#chat-history").append(li);
+            }
+            var searchterm = $('.search_chat_pop').val();
+            if(searchterm && searchterm != '') {
+                var value = searchterm.toLowerCase();
+                $(".filter-message").each(function () {
+                    if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                        $(this).hide();
+                    } else {
+                        $(this).show()
+                    }
+                });
             }
         }else{
             $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
@@ -368,6 +378,18 @@ $(document).on('click', '.load-communication-modal', function () {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-history").html(li);
+        }
+
+        var searchterm = $('.search_chat_pop').val();
+        if(searchterm && searchterm != '') {
+            var value = searchterm.toLowerCase();
+            $(".filter-message").each(function () {
+                if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                    $(this).hide();
+                } else {
+                    $(this).show()
+                }
+            });
         }
 
     }).fail(function (response) {

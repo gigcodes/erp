@@ -145,10 +145,22 @@ class ChatMessagesController extends Controller
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-
+        // dd($request->object);
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
-            // Create empty media array
+
+            $objectname = null;
+            if($request->object == 'customer' || $request->object == 'user' || $request->object == 'vendor' || $request->object == 'supplier' || $request->object == 'site_development' || $request->object == 'social_strategy' || $request->object == 'content_management') {
+                $objectname = $object->name;
+            }
+            if($request->object == 'task' || $request->object == 'developer_task') {
+                $u = User::find($chatMessage->user_id);
+                if($u) {
+                    $objectname = $u->name; 
+                }
+            }
+            // Create empty media array  
+
             $media = [];
             $mediaWithDetails = [];
             $productId = null;
@@ -307,7 +319,7 @@ class ChatMessagesController extends Controller
                 'id' => $chatMessage->id,
                 'type' => $request->object,
                 'inout' => ($isOut) ? 'out' : 'in',
-                'sendBy'=> ($isOut) ? 'ERP' : $object->name,
+                'sendBy'=> ($isOut) ? 'ERP' : $objectname,
                 'sendTo'=> ($isOut) ? $object->name : 'ERP',
                 'message' => $textMessage,
                 'parentMessage' => $textParent,

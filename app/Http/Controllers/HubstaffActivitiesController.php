@@ -664,6 +664,5 @@ class HubstaffActivitiesController extends Controller
         else {
             return response()->json(["message" => 'Fill all the data first'],500);
         }
-    }
-   
+    }   
 }
