@@ -49,6 +49,7 @@
 		<img src="{{ asset('/images/loading2.gif') }}">
 		</div>
 	</div>
+
   <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
@@ -62,7 +63,6 @@
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
                 </div>
-
 
                  <div class="form-group col-md-2 pd-3 status-select-cls">
                   <select class="form-control select-multiple" name="status[]" multiple>
@@ -133,6 +133,8 @@
       </div>
     <?php } ?>  
 </div>
+
+
 <div class="row">
         <div class="col-md-12" style="padding:0px;">
             <div class="pull-right">
@@ -172,7 +174,6 @@
 			@foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td class="table-hover-cell">
-
                 <div class="form-inline">
                   @if ($order->is_priority == 1)
                     <strong class="text-danger mr-1">!!!</strong>
@@ -275,7 +276,7 @@
                     <img title="Purchase Grid" style="display: inline; width: 15px;" src="{{ asset('images/customer-order.png') }}" alt="">
                   </a>
                   <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.show',$order->id) }}"><img title="View order" src="{{asset('images/view.png')}}" /></a>
-                  <a class="btn btn-image send-invoice-btn pd-5" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
+                  <a class="btn btn-image send-invoice-btn pd-5 btn-ht" data-id="{{ $order->id }}" href="{{ route('order.show',$order->id) }}">
                     <img title="Send Invoice" src="{{asset('images/purchase.png')}}" />
                   </a>
                   <a title="Preview Order" class="btn btn-image preview-invoice-btn pd-5 btn-ht" href="{{ route('order.perview.invoice',$order->id) }}">
@@ -584,7 +585,6 @@
                 var index = selected_orders.indexOf(id);
                  selected_orders.splice(index, 1);
             }
-             
         });
         $(document).on("click",".delete-orders",function(e){
           e.preventDefault();
@@ -668,7 +668,8 @@
               $modelData.html(response.html);
             }).fail(function (response) {});
         });
-         $(document).on("click","#return-exchange-form input[name='type']",function() {
+
+        $(document).on("click","#return-exchange-form input[name='type']",function() {
             if($(this).val() == "refund") {
                 $("#return-exchange-form").find(".refund-section").show();
             }else{
@@ -691,6 +692,5 @@
                 console.log(response);
             });
         });
-
   </script>
 @endsection

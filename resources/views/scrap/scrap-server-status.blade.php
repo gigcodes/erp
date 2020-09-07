@@ -32,22 +32,40 @@
                     @if(isset($scrappers))
                         @foreach($scrappers as $scrapper)
                             <?php
-                                $start_time = new DateTime($scrapper->last_started_at);
-                                $end_time = new DateTime($scrapper->last_completed_at);
-                                $interval = $start_time->diff($end_time);
+                                $start_time = new DateTime(@$scrapper->last_started_at);
+                                $end_time = new DateTime(@$scrapper->last_completed_at);
+                                $interval = @$start_time->diff($end_time);
                             ?>
                             <tr>
-                                <td>{{ $scrapper->id }}</td>
-                                <td>{{ $scrapper->scraper_start_time }}</td>
-                                <td>{{ $scrapper->last_started_at }}</td>
-                                <td>{{ $scrapper->scraper_name }}</td>
-                                <td>{{ $scrapper->updated_at }}</td>
-                                <td>{{ $scrapper->last_completed_at }}</td>
-                                <td>{{ $interval->format('%H hours %i minutes %s seconds') }}</td>
+                                <td>{{ @$scrapper->id }}</td>
+                                <td>{{ @$scrapper->scraper_start_time }}</td>
+                                <td>{{ @$scrapper->last_started_at }}</td>
+                                <td>{{ @$scrapper->scraper_name }}</td>
+                                <td>{{ @$scrapper->updated_at }}</td>
+                                <td>{{ @$scrapper->last_completed_at }}</td>
+                                <td>{{ @$interval->format('%H hours %i minutes %s seconds') }}</td>
                                 <td>
-                                    <a class="btn d-inline btn-image" data-attr="{{ $scrapper->scraper_name }}" id="openHistory">
+                                    <a class="btn d-inline btn-image openHistory" data-attr="{{ @$scrapper->id }}" id="{{ @$scrapper->id }}">
                                         <img src="/images/view.png" />
                                     </a>
+                                </td>
+                            </tr>
+                            <tr class="close_all open_request_{{ @$scrapper->id }}" style="display: none;">
+                                <td>
+                                    <label>Start Time</label>
+                                    <span>{{ @$scrapper->getScrapHistory->start_time }}</span>
+                                </td>
+                                <td>
+                                    <label>End Time</label>
+                                    <span>{{ @$scrapper->getScrapHistory->end_time }}</span>
+                                </td>
+                                <td>
+                                    <label>Sent Request</label>
+                                    <span>{{ @$scrapper->getScrapHistory->request_sent }}</span>
+                                </td>
+                                <td>
+                                    <label>Failed Request</label>
+                                    <span>{{ @$scrapper->getScrapHistory->request_failed }}</span>
                                 </td>
                             </tr>
                         @endforeach
@@ -62,39 +80,6 @@
         </div>
     </div>
 
-    <div class="modal fade" id="showHistory" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="exampleModalLabel">Scrapper History of <span id="scrapper_name" class="text-bold"></span></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <div class="table-responsive">
-                        <table class="table table-bordered table-striped sort-priority-scrapper">
-                            <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>SST</th>
-                                <th>ATIS</th>
-                                <th>TPLS</th>
-                                <th>SET</th>
-                                <th>Dur</th>
-                            </tr>
-                            </thead>
-                            <tbody id="scrapping_history">
-
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-    </div>
-
 
 
 @endsection
@@ -102,56 +87,22 @@
 @section('scripts')
 <script type="text/javascript">
     $(document).ready(function(){
-       $(document).on("click",'#openHistory', function(){
-           var scrapper_name = $(this).data('attr');
-           $.ajax({
-               url: "{{ url('/scrap/server-statistics/history/') }}"+'/'+scrapper_name,
-               type: 'GET'
-           }).done( function(response) {
-               if(response.status == 1){
-                   $('#scrapper_name').text(response.name);
-                   $('#scrapping_history').empty();
-                   var table_body_content = '';
-                   var calc_time;
-                   for(var i = 0; i < response.data.length; i++){
-                       table_body_content += '<tr>';
-                       table_body_content += "<td>"+response.data[i]['id']+"</td>";
-                       table_body_content += "<td>"+response.data[i]['scraper_start_time']+"</td>";
-                       table_body_content += "<td>"+response.data[i]['last_started_at']+"</td>";
-                       table_body_content += "<td>"+response.data[i]['updated_at']+"</td>";
-                       table_body_content += "<td>"+response.data[i]['last_completed_at']+"</td>";
-                       calc_time = calculateDifference(response.data[i]['last_completed_at'], response.data[i]['last_started_at']);
-                       table_body_content += "<td>"+calc_time.hour+' hours '+calc_time.minute+' minutes '+calc_time.second+' seconds'+"</td>";
-                       table_body_content += '</tr>';
-                   }
-                   $('#scrapping_history').append(table_body_content);
-                   $('#showHistory').modal('show');
-               }
-           });
+       var counter = 0;
+       $(document).on("click",'.openHistory', function(){
+            if(counter == 1){
+                $('.close_all').hide();
+                counter = 0;
+            }
+            var id = $(this).attr('id');
+            if(counter == 0){
+                $('.open_request_'+id).show();
+                counter = 1;
+            }else{
+                $('.open_request_'+id).hide();
+                counter = 0;
+            }
        }) ;
     });
-
-    function calculateDifference(end_date, start_date)
-    {
-        var d = Math.abs(end_date - start_date) / 1000;                           // delta
-        var r = {};                                                                // result
-        var s = {                                                                  // structure
-            year: 31536000,
-            month: 2592000,
-            week: 604800, // uncomment row to ignore
-            day: 86400,   // feel free to add your own row
-            hour: 3600,
-            minute: 60,
-            second: 1
-        };
-
-        Object.keys(s).forEach(function(key){
-            r[key] = Math.floor(d / s[key]);
-            d -= r[key] * s[key];
-        });
-        console.log(r);
-        return r;
-    }
 
 </script>
 @endsection

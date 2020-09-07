@@ -45,7 +45,6 @@ class ReturnExchangeController extends Controller
     public function save(Request $request, $id)
     {
         $params = $request->all();
-
         $returnExchange = \App\ReturnExchange::create($params);
 
         if ($returnExchange) {
@@ -205,7 +204,7 @@ class ReturnExchangeController extends Controller
             $order  = \App\Order::find($id);
             $orderData = [];
 
-             if (!empty($order)) {
+            if (!empty($order)) {
                 $products = $order->order_product;
                 if (!empty($products)) {
                     foreach ($products as $product) {

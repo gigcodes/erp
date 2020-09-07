@@ -345,7 +345,7 @@
         </div>
     </div>
 
-    @include('customers.zoomMeeting');
+    @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 

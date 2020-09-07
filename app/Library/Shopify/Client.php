@@ -41,7 +41,6 @@ class Client
     {
         // Set URL
         $url = '/admin/products.json';
-
         // Post data
         return $this->_sendRequestToShopify($url, $json, "POST", $store_id);
     }
@@ -94,6 +93,7 @@ class Client
             $ch = curl_init($url);
         } else {
             if(!is_null($store_id)){
+
                 $ch = curl_init('https://' . $store_website->api_token . ':' . $store_website->magento_password . '@' . $store_website->magento_url . $url) ;
             }else{
                 $ch = curl_init('https://' . $this->_key . ':' . $this->_password . '@' . $this->_shopUrl . $url);

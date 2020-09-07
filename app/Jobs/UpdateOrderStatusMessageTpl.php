@@ -41,7 +41,6 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
             // if ($statusModal && !empty($statusModal->message_text_tpl)) {
             //     $defaultMessageTpl = $statusModal->message_text_tpl;
             // }
-
             if(!$this->message || $this->message == "") {
                 $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
                 if ($statusModal && !empty($statusModal->message_text_tpl)) {
@@ -53,7 +52,6 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
                 $defaultMessageTpl = $this->message; 
                 $msg = $this->message;
             }
-
             // start update the order status
             $requestData = new Request();
             $requestData->setMethod('POST');

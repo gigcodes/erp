@@ -1,6 +1,4 @@
 @extends('layouts.app')
-
-
 @section('favicon' , 'user-management.png')
 
 @section('title', 'User Info')

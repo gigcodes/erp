@@ -1959,25 +1959,29 @@ class CustomerController extends Controller
     public function sendScraped(Request $request)
     {
         $customer = Customer::find($request->customer_id);
-
+        $products = new Product;
         if ($request->brand[ 0 ] != null) {
-            $products = Product::whereIn('brand', $request->brand);
+            $products = $products->whereIn('brand', $request->brand);
         }
 
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
-            if ($request->brand[ 0 ] != null) {
-                $products = $products->whereIn('category', $request->category);
-            } else {
-                $products = Product::whereIn('category', $request->category);
-            }
+            // if ($request->brand[ 0 ] != null) {
+            //     $products = $products->whereIn('category', $request->category);
+            // } else {
+            //     $products = Product::whereIn('category', $request->category);
+            // }
+            $products = $products->whereIn('category', $request->category);
         }
 
-        if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
-            $products = (new Product)->newQuery();
+        // if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
+        //     $products = (new Product)->newQuery();
+        // }
+        $total_images = $request->total_images;
+        if(!$total_images) {
+            $total_images = 20;
         }
-
-        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
+        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take($total_images)->get();
         if (count($products) > 0) {
             $params = [
                 'number' => null,
