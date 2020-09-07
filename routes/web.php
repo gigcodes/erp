@@ -423,6 +423,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/dhl', 'OrderController@generateAWBDHL')->name('order.generate.awbdhl');
