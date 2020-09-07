@@ -1,3 +1,8 @@
+@php
+$currentRoutes = \Route::current();
+$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+@endphp
+
 <!DOCTYPE html>
 
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -18,10 +23,14 @@
 
 
     <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
-
+	<title>@yield ('title', $metaData->page_title) - {{ config('app.name') }}</title>
+	
+	
+	
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+	<meta name="description" content="{{ $metaData->page_description }}">
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -57,24 +66,6 @@
             padding-top: 35px;
         }
 
-        #confirm__call__Modal .card-in-modal{
-            padding: 0;
-            margin: 0;
-        }
-
-        #confirm__call__Modal .card-header{
-            padding: 0;
-            margin: 0;
-            background-color: #cccccc94;
-            border-radius: 5px;
-        }
-        #confirm__call__Modal .card-header h5{
-            padding: 0;
-            margin: 0;
-        }
-        #confirm__call__Modal .modal-content{
-            width: auto;
-        }
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
 
@@ -262,25 +253,6 @@
                 </div>
                 <div class="modal-footer">
                     <a href="" id="masterControlAlertUrl" class="btn btn-secondary mx-auto">OK</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="modal fade" id="confirm__call__Modal" data-keyboard="false" data-backdrop="static" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-md" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h3 class="modal-title">Incoming call to "<span class="call__to"></span>"</h3>
-                </div>
-                <div class="modal-body">
-                    <span class="text__info__call"></span>
-                    <div class="accordion" id="accordionTables">
-
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-danger call__canceled" data-dismiss="modal">Decline</button>
-                    <button type="button" class="btn btn-primary call__answer">Answer</button>
                 </div>
             </div>
         </div>
@@ -755,7 +727,6 @@
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
-                                            <a class="dropdown-item" href="/mail-templates/templates">Email Templates</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -769,9 +740,6 @@
                                 </li>
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
-                                </li>
-                                <li class="nav-item">
-                                    <a id="navbarDropdown" class="" href="{{ route('return-exchange.list') }}" role="button">Return Exchange</a>
                                 </li>
                             </ul>
                         </li>
@@ -1367,13 +1335,13 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
                                         </li>
-
-                                    </ul>
+									</ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
                                 </li>
+								
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>
                                     </li>
@@ -1545,8 +1513,8 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
-                                    <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+								<li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
                                 </li>
                             </ul>
                         </li>
@@ -2563,12 +2531,9 @@
 
 
 
-        // $('#confirm__call__Modal').modal('toggle')
+
     </script>
 
-    <script type="text/html">
-        <h1>test it</h1>
-    </script>
 </body>
 
 </html>
