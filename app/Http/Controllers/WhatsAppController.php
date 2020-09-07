@@ -2186,7 +2186,6 @@ class WhatsAppController extends FindByNumberController
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId  = $issue->assigned_to;
-                    
                     if($sendTo == "to_master") {
                        if($issue->master_user_id) {
                           $userId  = $issue->master_user_id;
@@ -2215,7 +2214,6 @@ class WhatsAppController extends FindByNumberController
 
 
                     $number = User::find($userId);
-
                     if (!$number) {
                         return response()->json(['message' => null]);
                     }
@@ -2285,7 +2283,7 @@ class WhatsAppController extends FindByNumberController
                             $master = User::find($issue->master_user_id);
                             if ($master) {
                                 $num = $master->phone;
-                                $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                $this->sendWithThirdApi($num, null, $params[ 'message' ]);
                             }
                         }
                         $chat_message = ChatMessage::create($params);
