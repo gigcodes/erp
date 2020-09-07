@@ -373,11 +373,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            window.location.reload();
+                $("#loading-image").hide();
+                window.location.reload();
             }).fail(function(errObj) {
-                toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+                window.location.reload();
             });
         });
 
