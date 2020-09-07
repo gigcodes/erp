@@ -61,6 +61,10 @@ class Order extends Model
 
     }
 
+    public function products(){
+        return $this->belongsToMany(Product::class, OrderProduct::class, 'user_id', 'role_id');
+    }
+
     public function customer()
     {
         return $this->belongsTo('App\Customer');
@@ -182,6 +186,11 @@ class Order extends Model
     public function cashFlows()
     {
         return $this->morphMany(CashFlow::class, 'cash_flow_able');
+    }
+
+    public function storeWebsiteOrder()
+    {
+        return $this->hasOne(\App\StoreWebsiteOrder::class, "order_id","id");
     }
 
 

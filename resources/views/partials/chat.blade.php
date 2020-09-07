@@ -354,6 +354,23 @@ margin-bottom: 15px !important;
 .online_icon{
 	right: -0.3em !important;
 }
+.remove-bottom-scroll {
+    scroll-snap-type: none !important; 
+}
+
+.msg_card_body>div:last-child {
+    scroll-snap-align: end;
+}
+
+.msg_card_body {
+	height: 516px;
+    scroll-snap-type: y mandatory;
+    overflow-x: hidden;
+    overflow-y: scroll;
+    display: block;
+}
+
+
 </style>
 <script src="https://cdn.livechatinc.com/accounts/accounts-sdk.min.js"></script>
 <script>
@@ -441,15 +458,10 @@ function openChatBox(show){
 		}
 		getUserList();
 		getChatsWithoutRefresh();
-		chatTimerObj = setInterval(function(){
-			getUserList();
-			getChatsWithoutRefresh();
-		}, 3000);
 	}
 	else{
-		clearInterval(chatTimerObj);
-		clearInterval(pingTimerObj);
-
+		clearTimeout(chatTimerObj);
+		clearTimeout(pingTimerObj);
 		// Close the connection, if open.
 		if (websocket.readyState === WebSocket.OPEN) {
 			websocket.close();
@@ -618,14 +630,23 @@ function getChats(id){
 
 function getChatsWithoutRefresh(){
 	var scrolled=0;
+	var lastMsgId = $("#message-recieve").find(".d-flex").last().data("chat-id");
 	$.ajax({
 		url: "{{ route('livechat.message.withoutrefresh') }}",
 		type: 'POST',
 		dataType: 'json',
-		data: { _token: "{{ csrf_token() }}" },
+		data: { _token: "{{ csrf_token() }}", last_msg_id : lastMsgId },
 	})
 	.done(function(data) {
-		 $('#message-recieve').empty().html(data.data.message);
+		 if(typeof lastMsgId != undefined) {
+		 	$('#message-recieve').append(data.data.message);
+		 	$("#message-recieve").addClass("remove-bottom-scroll");
+		 }else{
+		 	$('#message-recieve').empty().html(data.data.message);
+		 	$("#message-recieve").addClass("remove-bottom-scroll");
+		 	var objDiv = document.getElementById("message-recieve");
+				objDiv.scrollTop = objDiv.scrollHeight;
+		 }
 		 $('#message-id').val(data.data.id);
 		 getLanguage(data.data.id);
 		 $('#new_message_count').text(data.data.count);
@@ -637,10 +658,17 @@ function getChatsWithoutRefresh(){
          $(".cover").animate({
 			scrollTop:  scrolled
 		 });
-		console.log(data);
+		 chatTimerObj = setTimeout(function(){
+			getUserList();
+			getChatsWithoutRefresh();
+		}, 3000);
 	})
 	.fail(function() {
 		console.log("error");
+		chatTimerObj = setTimeout(function(){
+			getUserList();
+			getChatsWithoutRefresh();
+		}, 3000);
 	});
 }
 
@@ -670,7 +698,6 @@ function getUserList(){
 	.done(function(data) {
 		 $('#customer-list-chat').empty().html(data.data.message);
 		 $('#new_message').text(data.data.count);
-		 console.log(data);
 	})
 	.fail(function() {
 		console.log("error");
@@ -679,6 +706,7 @@ function getUserList(){
 }
 
 function sendMessage(){
+    console.log("REst");
     id = $('#message-id').val();
 	message = $('#message').val();
 	var scrolled=0;
@@ -692,9 +720,8 @@ function sendMessage(){
 		   },
     })
     .done(function(data) {
-       console.log(data);
-		chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-		$('#message-recieve').append(chat_message);
+		//chat_message = '<div class="d-flex justify-content-end mb-4"><div class="msg_cotainer">'+message+'<span class="msg_time"></span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+		//$('#message-recieve').append(chat_message);
 		$('#message').val('');
 		scrolled=scrolled+300;
         $(".cover").animate({
@@ -767,5 +794,10 @@ $( document ).ready(function() {
 
 
 checkChatCount();
+
+$(document).on("click",".send-attached-images",function() {
+	var messageId = $('#message-id').val();
+	location.href = "/attachImages/live-chat/"+messageId;
+});
 
 </script>

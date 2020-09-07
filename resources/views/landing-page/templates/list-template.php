@@ -3,19 +3,18 @@
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th width="2%">#</th>
+		      	<th width="2%"><?php echo '#'; ?></th>
 		      	<th width="2%">Id</th>
 		        <th width="10%">Product <I></I>d</th>
 		        <th width="10%">Name</th>
 		        <th width="10%">Description</th>
 		        <th width="10%">Price</th>
-		        <th width="10%">Start Date</th>
-		        <th width="10%">End Date</th>
+		        <th width="10%">Date</th>
 		        <th width="10%">Status</th>
 		        <th width="20%">Image</th>
 		        <th width="10%">Product Status</th>
 		        <th width="8%">Created At</th>
-		        <th width="18%">Action</th>
+		        <th width="25%">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -23,39 +22,66 @@
 			      <tr>
 			      	<td><input type="checkbox" value="{{:prop.product_id}}" name="check-product" class="check-product"></td>
 			      	<td>{{:prop.id}}</td>
-			        <td>{{:prop.product_id}}</td>
+			        <td>
+			        	{{:prop.product_id}}
+			        	<br>
+			        	<div class="row">
+			        		<select name="store_website_id" class="form-control store-website-change" data-id="{{:prop.id}}">
+			        		<option value="">--SELECT-</option>
+			        		<?php foreach(\App\StoreWebsite::shopifyWebsite() as $k => $v) {  ?>
+			        			<option {{if prop.store_website_id == "<?php echo $k; ?>"}} selected {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
+			        		<?php } ?>
+			        		</select>
+			        	</div>
+			        </td>
 			        <td>{{:prop.name}}</td>
-			        <td>{{:prop.description}}</td>
+			        <td>{{:prop.short_dec}}</td>
 			        <td>{{:prop.price}}</td>
-			        <td>{{:prop.start_date}}</td>
-			        <td>{{:prop.end_date}}</td>
+			        <td>Start: {{:prop.start_date}}<br>End:{{:prop.end_date}}</td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>
 			        {{props prop.images}}
+			        {{if prop.show == true}}
 			        <div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">
 						<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
 						<div class="l-middle btn-delete-image" data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}">
 							<div class="l-text"><i class="fa fa-trash"></i></div>
 						</div>
   					</div>
+  					{{/if}}
 			        {{/props}}
+  					<a href="javascript:void(0);" type="button" data-attr="{{:prop.id}}" class="btn btn-image open_images">
+                                            <img src="/images/forward.png" style="cursor: default;" width="2px;">
+                                        </a>
 			        </td>
 			        <td>{{:prop.productStatus}}</td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><i class="fa fa-trash" aria-hidden="true"></i></button>
+			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
 			        	{{if prop.shopify_id != null}}
-			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Refresh product in shopify"><i class="fa fa-refresh" aria-hidden="true"></i></button>
 			        		{{if prop.stock_status == 1}}
-			        			<button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
-			        		{{else}}	
-			        			<button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
+			        			<button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
+			        		{{else}}
+			        			<button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
 			        		{{/if}}
 			        	{{else}}
-			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon"><i class="fa fa-upload" aria-hidden="true"></i></button>
+			        		<button type="button" data-id="{{>prop.id}}" data-attr="" class="btn btn-push-icon" title="Push Product"><i class="fa fa-upload" aria-hidden="true"></i></button>
 			        	{{/if}}
 			        </td>
+			      </tr>
+			      <tr class="hideall" id="{{:prop.id}}" style="display:none;">
+			      		 {{props prop.images}}
+			      		<td>
+			      			<div data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}" class="l-container">
+								<img height=60 width=60 src="{{:prop.url}}" class="l-image"/>
+								<div class="l-middle btn-delete-image" data-id="{{:prop.id}}" data-productid="{{:prop.product_id}}">
+								<div class="l-text"><i class="fa fa-trash"></i></div>
+								</div>
+  							</div>
+  						</td>
+  						 {{/props}}
 			      </tr>
 			    {{/props}}  
 		    </tbody>

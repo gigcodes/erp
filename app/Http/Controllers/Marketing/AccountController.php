@@ -53,14 +53,16 @@ class AccountController extends Controller
 		
 		$platforms = MarketingPlatform::all();
 
+		$websites = \App\StoreWebsite::select('id','title')->get();
+		
 		if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.accounts.partials.data', compact('accounts','type','platforms'))->render(),
+                'tbody' => view('marketing.accounts.partials.data', compact('accounts','type','platforms','websites'))->render(),
                 'links' => (string)$accounts->render(),
                 'count' => $accounts->total(),
             ], 200);
         }
-		return view('marketing.accounts.index',compact('accounts','type','platforms'));	
+		return view('marketing.accounts.index',compact('accounts','type','platforms','websites'));	
 	}
 
 
@@ -96,6 +98,7 @@ class AccountController extends Controller
 		$account->send_end = $request->send_end;
 		$account->platform = $request->platform;
 		$account->status = $request->status;
+		$account->store_website_id = $request->website;
 		$account->proxy = $request->proxy;
 		$account->save();
 		
@@ -129,6 +132,7 @@ class AccountController extends Controller
 		$account->send_start = $request->send_start;
 		$account->send_end = $request->send_end;
 		$account->platform = $request->platform;
+		$account->store_website_id = $request->website;
 		$account->proxy = $request->proxy;
 		$account->status = $request->status;
 		$account->save();

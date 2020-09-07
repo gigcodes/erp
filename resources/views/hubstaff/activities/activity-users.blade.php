@@ -12,6 +12,8 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
         <div class="pull-right">
+        <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
+        <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
         <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
     </div>
     </div>
@@ -36,6 +38,16 @@
 		                        <span></span> <i class="fa fa-caret-down"></i>
 		                    </div>
 		                </div>
+                        <div class="form-group">
+						    <label for="keyword">Status:</label>
+                            <select name="status" id="" class="form-control">
+                            <option value="">Select</option>
+                            <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
+                            <option value="forwarded_to_admin" {{$status == 'forwarded_to_admin' ? 'selected' : ''}}>Forwarded to admin</option>
+                            <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
+                            <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
+                            </select>
+					  	</div>
 		               	<div class="form-group">
 					  		<label for="button">&nbsp;</label>
 					  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
@@ -57,21 +69,23 @@
           <th>Time approved</th>
           <th>Pending payment time</th>
           <th>Status</th>
+          <th>Note</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
           @foreach ($activityUsers as $user)
             <tr>
-            <td>{{ \Carbon\Carbon::parse($user->date)->format('d-m') }} </td>
-              <td>{{ $user->userName }}</td>
-              <td>{{number_format($user->total_tracked / 60,2,".",",")}}</td>
-              <td><span class="replaceme">{{$user->totalApproved}}</span> </td>
-              <td><span>{{$user->totalNotPaid}}</td>
-              <td>{{$user->status}}</td>
+            <td>{{ \Carbon\Carbon::parse($user['date'])->format('d-m') }} </td>
+              <td>{{ $user['userName'] }}</td>
+              <td>{{number_format($user['total_tracked'] / 60,2,".",",")}}</td>
+              <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
+              <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
+              <td>{{$user['status']}}</td>
+              <td>{{$user['note']}}</td>
               <td>
-                @if($user->forworded_to == Auth::user()->id && !$user->final_approval)
+                @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                 <form action="">
-                    <input type="hidden" class="user_id" name="user_id" value="{{$user->user_id}}">
-                    <input type="hidden" class="date" name="date" value="{{$user->date}}">
+                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
                     <a class="btn btn-secondary show-activities">+</a>
                 </form>
                 @endif
@@ -93,14 +107,78 @@
   	</div>	
 </div>
 
+
+<div id="open-timing-modal" class="modal" role="dialog">
+  	<div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <form>
+            @csrf
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group">
+                <label for="">Date</label>
+                <input type="text" name="starts_at" value="" class="form-control" id="starts_at" required placeholder="Enter Date">
+            </div>
+            <div class="form-group">
+                <label for="">Total time (In minutes)</label>
+                <input type="number" name="total_time" class="form-control" required>
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-danger submit-manual-record">Submit</button> 
+            </div>
+        </form>
+      </div>
+  	</div>	
+</div>
+<div id="fetch-activity-modal" class="modal" role="dialog">
+  	<div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <form>
+            @csrf
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group">
+                <label for="">Activity available up to</label>
+                <input id="activity-available" type="text"  value="" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+                <label for="">Date from</label>
+                <input type="text" name="starts_at" value="" class="form-control" id="time_from" required placeholder="Enter Date">
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary submit-fetch-activity">Submit</button> 
+            </div>
+        </form>
+      </div>
+  	</div>	
+</div>
+
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
 
 <script type="text/javascript">
 
+
+$("#activity-available").val(new Date().toUTCString());
 $(".select2").select2({tags:true});
 
+$('#starts_at').datetimepicker({
+    format: 'YYYY-MM-DD'
+});
+$('#time_from').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm:ss'
+});
 let r_s = jQuery('input[name="start_date"]').val();
         let r_e = jQuery('input[name="end_date"]').val()
 
@@ -209,7 +287,32 @@ let r_s = jQuery('input[name="start_date"]').val();
             $("#loading-image").hide();
             thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
             $('#records-modal').modal('hide');
-            $(".show-activities").css("display", "none");
+            thisRaw.closest("tr").find('.show-activities').css("display", "none");
+            }).fail(function(errObj) {
+                toastr['error'](errObj.responseJSON.message, 'error');
+            $("#loading-image").hide();
+            });
+        });
+
+
+
+        $(document).on('click', '.submit-manual-record', function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        var thiss = $(this);
+        var type = 'POST';
+            $.ajax({
+            url: '/hubstaff-activities/activities/manual-record',
+            type: type,
+            dataType: 'json',
+            data: form.serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done( function(response) {
+            $("#loading-image").hide();
+            $('#open-timing-modal').modal('hide');
+            toastr['success']('Successful');
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
             $("#loading-image").hide();
@@ -217,10 +320,11 @@ let r_s = jQuery('input[name="start_date"]').val();
         });
 
         $(document).on('click', '.selectall', function(e) {
+            var cls = '.'+$(this).data("id");
             if ($(this).is(':checked')) {
-                $('td input').attr('checked', true);
+                $(cls).attr('checked', true);
             } else {
-                $('td input').attr('checked', false);
+                $(cls).attr('checked', false);
             }
         });
 
@@ -246,13 +350,44 @@ let r_s = jQuery('input[name="start_date"]').val();
             $("#loading-image").hide();
             thisRaw.closest("tr").find('.replaceme').html(response.totalApproved);
             $('#records-modal').modal('hide');
-            $(".show-activities").css("display", "none");
+            // $(".show-activities").css("display", "none");
+            thisRaw.closest("tr").find('.show-activities').css("display", "none");
             }).fail(function(errObj) {
                 toastr['error'](errObj.responseJSON.message, 'error');
             $("#loading-image").hide();
             });
         });
 
+
+        $(document).on('click', '.submit-fetch-activity', function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        var thiss = $(this);
+        var type = 'POST';
+            $.ajax({
+            url: '/hubstaff-activities/activities/fetch',
+            type: type,
+            dataType: 'json',
+            data: form.serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done( function(response) {
+                $("#loading-image").hide();
+                window.location.reload();
+            }).fail(function(errObj) {
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+                window.location.reload();
+            });
+        });
+
+
+        $(document).on('click', '.expand-row-btn', function () {
+            $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
+        });
+
 </script>
 @endsection
-

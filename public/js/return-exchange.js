@@ -16,17 +16,14 @@ var msQueue = {
         //initialize pagination
         msQueue.config.bodyView.on("click",".page-link",function(e) {
         	e.preventDefault();
-            
             var activePage = $(this).closest(".pagination").find(".active").text();
             var clickedPage = $(this).text();
-
             if(clickedPage == "‹" || clickedPage < activePage) {
                 $('html, body').animate({scrollTop: ($(window).scrollTop() - 500) + "px"}, 200);
                 msQueue.getResults($(this).attr("href"));
             }else{
                 msQueue.getResults($(this).attr("href"));
             }
-
         });
 
         msQueue.config.bodyView.on("click",".btn-edit-template",function(e) {

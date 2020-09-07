@@ -937,6 +937,12 @@ class Product extends Model
         if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
+        }else{
+            // if validation pass and status is still external scraper then remove and put for the auto crop
+            if($this->status_id == StatusHelper::$requestForExternalScraper) {
+               $this->status_id =  StatusHelper::$autoCrop;
+               $this->save();
+            }
         }
     }
 
@@ -956,5 +962,20 @@ class Product extends Model
             $this->status_id = \App\Helpers\StatusHelper::$scrape;
             $this->save();
         }
+    }
+
+    public function getStoreBrand($storeId)
+    {
+        $platformId = 0;
+
+        $brand = $this->brands;
+        if($brand) {
+            $storeWebsiteBrand = \App\StoreWebsiteBrand::where("brand_id",$brand->id)->where("store_website_id",$storeId)->first();
+            if($storeWebsiteBrand) {
+                $platformId = $storeWebsiteBrand->magento_value;
+            }
+        }
+
+        return $platformId;
     }
 }

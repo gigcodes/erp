@@ -63,16 +63,6 @@
                         @endif
                     </div>
 
-                    <div class="form-group">
-                        <label for="hubstaff_project">Hubstaff Project:</label>
-                        <br />
-                        <select style="width:100%" class="form-control select2" id="hubstaff_project" name="hubstaff_project">
-                            @foreach ($projects as $project)
-                            <option value="{{ $project->id }}" {{ $project->id == old('hubstaff_project') ? 'selected' : '' }}>{{ $project->hubstaff_project_name }}</option>
-                            @endforeach
-                        </select>
-                    </div>
-
                     <!-- <div class="form-group">
                         <label for="priority">Priority:</label>
                         <select class="form-control" name="priority" id="priority" required>
@@ -132,9 +122,12 @@
                     <div class="form-group">
                         <strong>Status:</strong>
                         <select class="form-control" name="status" required>
-                            <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
+                            <!-- <option value="Planned" {{ old('status') == 'Planned' ? 'selected' : '' }}>Planned</option>
                             <option value="In Progress" {{ old('status') == 'In Progress' ? 'selected' : '' }}>In Progress</option>
-                            <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option>
+                            <option value="Done" {{ old('status') == 'Done' ? 'selected' : '' }}>Done</option> -->
+                            @foreach($statusList  as $key => $status)
+                            <option value="{{$key}}" {{ old('status') == $status ? 'selected' : '' }}>{{$status}}</option>
+                            @endforeach
                         </select>
 
                         @if ($errors->has('status'))

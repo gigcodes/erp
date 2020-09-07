@@ -65,6 +65,20 @@
                             <div class="alert alert-danger">{{$errors->first('frequency')}}</div>
                             @endif
                         </div>
+                        
+                        <div class="form-group">
+                            <strong>Website:</strong>
+                            <select class="form-control" name="website">
+                                <option value="0">Select Website</option>
+                                @foreach($websites as $website)
+                                <option value="{{ $website->id }}">{{ $website->title }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('website'))
+                            <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            @endif
+                        </div>
 
     					<div class="form-group">
     						<strong>Customer Support:</strong>

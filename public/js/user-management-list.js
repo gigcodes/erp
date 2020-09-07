@@ -146,6 +146,7 @@ var page = {
         })
     },
     loadFirst: function() {
+        console.log("first");
         var _z = {
             url: this.config.mainUrl+"/records",
             method: "get",
@@ -156,6 +157,7 @@ var page = {
         this.sendAjax(_z, "showResults");
     },
     getResults: function(href) {
+        console.log(href);
     	var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl+"/records",
             method: "get",
@@ -177,6 +179,7 @@ var page = {
         var tplHtml       = addProductTpl.render(response);
 
         $(".count-text").html("("+response.total+")");
+        $(".page_no").val(response.page);
 
     	page.config.bodyView.find("#page-view-result").html(tplHtml);
 
@@ -282,6 +285,21 @@ var page = {
     taskListHistoryResult : function(response) {
         var communicationHistoryTemplate = $.templates("#template-task-history");
         var tplHtml = communicationHistoryTemplate.render(response);
+        // $('.modal').css({
+        //     "padding": "0 !important"
+        // });
+        // $('.modal .modal-dialog').css({
+        //     "width": "100%",
+        //     "max-width": "none",
+        //     "margin": "0"
+        // });
+        // $('.modal .modal-content').css({
+        //     "border": "0",
+        //     "border-radius": "0"
+        // });
+        // $('.modal .modal-body').css({
+        //     "overflow-y": "auto"
+        // });
         var common =  $(".common-modal");
             common.find(".modal-dialog").html(tplHtml); 
             common.modal("show");
@@ -516,7 +534,7 @@ var page = {
     },
     userActivate : function(ele) {
         var _z = {
-            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate",
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/"+ele.data("id")+"/activate?page="+$('.page_no').val(),
             method: "post",
             data : ele.closest("form").serialize(),
             beforeSend : function() {
@@ -526,9 +544,11 @@ var page = {
         this.sendAjax(_z, "saveActivate");
     },
     saveActivate : function(response) {
+        console.log(response);
+
         if(response.code  == 200) {
             toastr['success']('Successfully updated', 'success');
-            page.loadFirst();
+            page.getResults(this.config.mainUrl+"/records?page="+response.page);
         }else {
             toastr["error"](response.error,"");
         }
@@ -653,4 +673,136 @@ $.views.helpers({
             $(this).find('.div-team-mini').toggleClass('hidden');
             $(this).find('.div-team-max').toggleClass('hidden');
         }
+    });
+
+    $(document).on('keyup', '.estimate-time-change', function () {
+        if (event.keyCode != 13) {
+            return;
+        }
+        let issueId = $(this).data('id');
+        let estimate_minutes = $("#estimate_minutes_" + issueId).val();
+        let type = $(this).data('type');
+        if(type == 'TASK') {
+            $.ajax({
+                type: 'POST',
+                url: "/task/update/approximate",
+                data: {
+                    _token: $('meta[name="csrf-token"]').attr('content'),
+                    approximate: estimate_minutes,
+                    task_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/development/issue/estimate_minutes/assign",
+                data: {
+                    estimate_minutes: estimate_minutes,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
+                }
+            });
+        }
+    });
+
+
+    $(document).on('click', '.show-time-history', function() {
+        var issueId = $(this).data('id');
+        var type = $(this).data('type');
+        $('#time_history_div table tbody').html('');
+        $('#hidden_task_type').val(type);
+        
+        if(type == 'TASK') {
+            $.ajax({
+                url: "/task/time/history",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/development/time/history",
+                data: {id: issueId},
+                success: function (data) {
+                    if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td><td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+        }
+        $('#time_history_modal').modal('show');
+    });
+
+
+    $(document).on('submit', '#approve-time-btn', function(event) {
+        event.preventDefault();
+        var type = $('#hidden_task_type').val();
+        if(type == 'TASK') {
+             $.ajax({
+                url: "/task/time/history/approve",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+        else {
+            $.ajax({
+                url: "/development/time/history/approve",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+   
     });
