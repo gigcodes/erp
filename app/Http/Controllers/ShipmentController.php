@@ -165,9 +165,7 @@ class ShipmentController extends Controller
             'customer_city' => 'required|string',
             'customer_country' => 'required|string',
             'customer_phone' => 'required|numeric',
-            'customer_address1' => 'required|string',
-            'customer_address2' => 'required|string',
-            'customer_pincode' => 'required|string',
+            'customer_address1' => 'required|string|min:1|max:40',
             'actual_weight' => 'required|numeric',
             'box_length' => 'required|numeric',
             'box_width' => 'required|numeric',
@@ -175,6 +173,7 @@ class ShipmentController extends Controller
             'amount' => 'required|numeric',
             'currency' => 'required',
             'pickup_time' => 'required',
+            'service_type' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -201,7 +200,7 @@ class ShipmentController extends Controller
                 "street" 		=> $request->customer_address1,
                 "city" 			=> $request->customer_city,
                 "postal_code" 	=> $request->customer_pincode,
-                "country_code" 	=> 'IN',
+                "country_code" 	=> $request->customer_country,
                 "person_name" 	=> $customer->name,
                 "company_name" 	=> $customer->name,
                 "phone" 		=> $request->customer_phone
@@ -221,7 +220,7 @@ class ShipmentController extends Controller
 
             $phone = !empty($request->customer_phone) ? $request->customer_phone : '';
             $rateReq->setMobile($phone);
-
+            $rateReq->setServiceType($request->service_type);
             $response = $rateReq->call();
             if(!$response->hasError()) {
                 $receipt = $response->getReceipt();
@@ -229,7 +228,7 @@ class ShipmentController extends Controller
                     if(strtolower($receipt["label_format"]) == "pdf") {
                         Storage::disk('files')->put('waybills/' . $receipt["tracking_number"] . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
                         $waybill = new Waybill;
-                        $waybill->order_id = 0;
+                        $waybill->order_id = null;
                         $waybill->customer_id = $request->customer_id;
                         $waybill->awb = $receipt["tracking_number"];
                         $waybill->box_width = $request->box_width;

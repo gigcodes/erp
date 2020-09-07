@@ -68,6 +68,7 @@ Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-visitor-logs', 'VisitorController@index')->name('logging.visitor.log');
     Route::get('log-scraper', 'Logging\LogScraperController@index')->name('log-scraper.index');
     Route::get('live-scraper-logs', 'LaravelLogController@scraperLiveLogs')->name('logging.live.scraper-logs');
+    Route::get('live-laravel-logs/downloads', 'LaravelLogController@liveLogDownloads')->name('logging.live.downloads');
 });
 
 Route::prefix('category-messages')->group(function () {
@@ -422,6 +423,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/products/list', 'OrderController@products')->name('order.products');
     Route::get('order/missed-calls', 'OrderController@missedCalls')->name('order.missed-calls');
     Route::get('order/calls/history', 'OrderController@callsHistory')->name('order.calls-history');
+    Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/number', 'OrderController@generateAWB')->name('order.generate.awb');
     Route::post('order/update/customer', 'OrderController@updateCustomer')->name('order.update.customer');
     Route::post('order/generate/awb/dhl', 'OrderController@generateAWBDHL')->name('order.generate.awbdhl');
@@ -874,14 +876,19 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
+    Route::post('development/time/meeting/approve/{task_id}', 'DevelopmentController@approveMeetingHistory')->name('development/time/meeting/approve');
+    Route::post('development/time/meeting/store', 'DevelopmentController@storeMeetingTime')->name('development/time/meeting/store');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
     Route::post('development/issue/create', 'DevelopmentController@issueStore')->name('development.issue.store');
     Route::get('development/issue/user/assign', 'DevelopmentController@assignUser');
     Route::get('development/issue/master/assign', 'DevelopmentController@assignMasterUser');
+    Route::get('development/issue/team-lead/assign', 'DevelopmentController@assignTeamlead');
+    Route::get('development/issue//tester/assign', 'DevelopmentController@assignTester');
+    Route::get('development/issue/time/meetings', 'DevelopmentController@getMeetingTimings');
     Route::get('development/issue/module/assign', 'DevelopmentController@changeModule');
     Route::get('development/issue/user/resolve', 'DevelopmentController@resolveIssue');
     Route::get('development/issue/estimate_date/assign', 'DevelopmentController@saveEstimateTime');
-    Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes');
+    Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes')->name('development.issue.estimate_minutes.store');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
     Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
@@ -925,6 +932,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
+    Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
 

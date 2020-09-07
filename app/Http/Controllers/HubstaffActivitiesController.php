@@ -698,9 +698,14 @@ class HubstaffActivitiesController extends Controller
         else {
             return response()->json(['message' => 'Hubstaff member not found'],500);
         }
-        $exitCode = Artisan::call('hubstaff:load_past_activities', [
-            'start' => $starts_at, 'user_ids' => $hubstaff_user_id
-        ]);
+        try {
+            $exitCode = Artisan::call('hubstaff:load_past_activities', [
+                'start' => $starts_at, 'user_ids' => $hubstaff_user_id
+            ]);
+        }
+        catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()],500);
+        }
         return response()->json(['message' => 'Successful'],200);
    }
 
