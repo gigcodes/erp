@@ -1629,7 +1629,7 @@ class DevelopmentController extends Controller
                     'message' => 'Select one time first'
                 ],500);
             }
-            DeveloperTaskHistory::where('developer_task_id',$request->developer_task_id)->where('attribute','estimation_minute')->update(['is_approved' => 0]);
+            DeveloperTaskHistory::where('developer_task_id',$request->developer_task_id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
@@ -1653,7 +1653,7 @@ class DevelopmentController extends Controller
                 'attribute' => "estimation_minute",
                 'old_value' => $issue->estimate_minutes,
                 'new_value' => $request->estimate_minutes,
-                'user_id' => $issue->user_id,
+                'user_id' => Auth::id(),
             ]);
         }
 
@@ -2085,5 +2085,14 @@ class DevelopmentController extends Controller
                 'message' => 'Task not found'
             ],500);
         }
+    }
+
+    public function deleteBulkTasks(Request $request) {
+        if(count($request->selected_tasks) > 0) {
+            foreach($request->selected_tasks as $t) {
+                DeveloperTask::where('id',$t)->delete();
+            }
+        }
+        return response()->json(['message' => 'Successful']);
     }
 }

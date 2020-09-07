@@ -105,6 +105,9 @@
         margin-top: -7px;
         font-size: 12px;
     }
+    .td-full-container{
+        color: #333;
+    }
 
   </style>
 @endsection
@@ -342,7 +345,7 @@
         </div>
     </div>
 
-    @include('customers.zoomMeeting');
+    @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
@@ -557,7 +560,7 @@
             templateResult: function (customer) {
 
                 if (customer.name) {
-                    return "<p style='color:#BABABA;'>"+ customer.phone+ "</p>";
+                    return "<p style='color:#333;'>"+ customer.phone+ "</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.phone,
@@ -858,6 +861,7 @@
             var thiss = $(this);
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
+
             var message = $("#messageid_"+vendor_id).val();
             data.append("vendor_id", vendor_id);
             data.append("message", message);
@@ -878,7 +882,18 @@
                         }
                     }).done(function (response) {
                         //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
-                        $("#message-chat-txt-"+vendor_id).html(message);
+                        if(message.length > 30)
+                        {
+                            var res_msg = message.substr(0, 27)+"..."; 
+                            $("#message-chat-txt-"+vendor_id).html(res_msg);
+                            $("#message-chat-fulltxt-"+vendor_id).html(message);    
+                        }
+                        else
+                        {
+                            $("#message-chat-txt-"+vendor_id).html(message); 
+                            $("#message-chat-fulltxt-"+vendor_id).html(message);      
+                        }
+                        
                         $("#messageid_"+vendor_id).val('');
                         
                         $(thiss).attr('disabled', false);
@@ -1119,7 +1134,11 @@
                           alert('No response from server');
                       });
                   }
-                  $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+                  //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+                  var vendors_id = $(this).find("option:selected").attr("data-vendorid");
+                  //alert(vendors_id);
+                  var message_re = $(this).find("option:selected").attr("title");
+                  $("textarea#messageid_"+vendors_id).val($.trim(message_re));
 
               });
 

@@ -12,7 +12,7 @@ class LandingPageProduct extends Model
         "Active",
     ];
 
-    const GALLERY_TAG_NAME = "gallery_";
+    const GALLERY_TAG_NAME = "gallery";
 
     protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'start_date', 'end_date', 'created_at', 'updated_at'];
 
@@ -88,6 +88,14 @@ class LandingPageProduct extends Model
             'inventory_policy'     => 'deny',
             'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
+
+        if($this->stock_status != 1) {
+            $productData['product']['published'] = false;
+            $productData['product']['published_scope'] = false;
+        }else{
+            $productData['product']['published'] = true;
+            $productData['product']['published_scope'] = "web";
+        }
 
         if (!empty($landingPageProduct->size)) {
             $productSizes = explode(',', $landingPageProduct->size);

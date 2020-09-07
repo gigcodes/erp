@@ -246,7 +246,9 @@ class OrderController extends Controller {
 			$orders = $orders;
 		else{
 			$orders = $orders->whereHas('customer', function($query) use ($term) {
-				return $query->where('name', 'LIKE', '%'.$term.'%');
+				return $query->where('name', 'LIKE', '%'.$term.'%')
+							->orWhere('id', 'LIKE', '%'.$term.'%')
+							->orWhere('email', 'LIKE', '%'.$term.'%');
 			})
            ->orWhere('orders.order_id','like','%'.$term.'%')
            ->orWhere('order_type',$term)
@@ -293,11 +295,10 @@ class OrderController extends Controller {
 
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
-
+		$totalOrders = sizeOf($orders->get());
 		$orders_array = $orders->paginate(20);
-		// dd($orders_array);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
 	}
 
 	public function products(Request $request)
@@ -666,25 +667,27 @@ class OrderController extends Controller {
 			$order_new = Order::find($id_order_inc);
 			if (!$order_new->is_sent_offline_confirmation()) {
 				if ($order_new->order_type == 'offline') {
-					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-					$view = (new OrderConfirmation($order))->render();
-					$params = [
-				        'model_id'    		=> $order_new->customer->id,
-				        'model_type'  		=> Customer::class,
-				        'from'        		=> 'customercare@sololuxury.co.in',
-				        'to'          		=> $order_new->customer->email,
-				        'subject'     		=> "New Order # " . $order_new->order_id,
-				        'message'     		=> $view,
-						'template'				=> 'order-confirmation',
-						'additional_data'	=> $order_new->id
-		      		];
-		      		Email::create($params);
-					CommunicationHistory::create([
-						'model_id'		=> $order_new->id,
-						'model_type'	=> Order::class,
-						'type'				=> 'offline-confirmation',
-						'method'			=> 'email'
-					]);
+                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
+    					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+    					$view = (new OrderConfirmation($order))->render();
+    					$params = [
+    				        'model_id'    		=> $order_new->customer->id,
+    				        'model_type'  		=> Customer::class,
+    				        'from'        		=> 'customercare@sololuxury.co.in',
+    				        'to'          		=> $order_new->customer->email,
+    				        'subject'     		=> "New Order # " . $order_new->order_id,
+    				        'message'     		=> $view,
+    						'template'				=> 'order-confirmation',
+    						'additional_data'	=> $order_new->id
+    		      		];
+    		      		Email::create($params);
+    					CommunicationHistory::create([
+    						'model_id'		=> $order_new->id,
+    						'model_type'	=> Order::class,
+    						'type'				=> 'offline-confirmation',
+    						'method'			=> 'email'
+    					]);
+                    }
 				}
 			}
 		}
@@ -2120,14 +2123,15 @@ public function createProductOnMagento(Request $request, $id){
 		$status = $request->get("status");
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
+			$statuss = OrderStatus::where("id",$status)->first();
 			if($order) {
-				$order->order_status 	= $status;
+				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
 			
-				$statuss = OrderStatus::where("id",$status)->first();
+				
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2575,18 +2579,23 @@ public function createProductOnMagento(Request $request, $id){
 		$magentoHelper = new MagentoHelperv2;
 		$result = $magentoHelper->fetchOrderStatus($website);
 		if($result) {
-			$statuses = $result;
-			foreach($statuses as $status) {
-				StoreMasterStatus::updateOrCreate([
-					'store_website_id' => $request->store_website_id,
-					'value' => $status->value
-					], [
-					'label' => $status->label
-				]);
+			if($result['code'] == 200) {
+				$statuses = $result['data'];
+				foreach($statuses as $status) {
+					StoreMasterStatus::updateOrCreate([
+						'store_website_id' => $request->store_website_id,
+						'value' => $status->value
+						], [
+						'label' => $status->label
+					]);
+				}
+			}
+			else {
+				return redirect()->back()->with('error',$result['data']->message);
 			}
 		}
 		else {
-			return redirect()->back()->with('success','Something went wrong');
+			return redirect()->back()->with('error','Could not fetch the statuses');
 		}
 		return redirect()->back()->with('success','Status successfully updated');
 	}
