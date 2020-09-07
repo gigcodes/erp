@@ -111,6 +111,7 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\DeleteChatMessages;
 
 class Kernel extends ConsoleKernel
 {
