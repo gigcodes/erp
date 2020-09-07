@@ -1,7 +1,7 @@
 
 
 <tr style="color:grey;">
-    <td  >
+    <td>
 
     <a href="{{ url("development/task-detail/$issue->id") }}">{{ $issue->id }}
             @if($issue->is_resolved==0)	
@@ -10,9 +10,7 @@
         </a>
 
 
-        
-        <!-- <a href="{{ url("development/task-detail/{$issue->id}") }}">{{ $issue->id }}
-        </a> -->
+      
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
         <br>
@@ -32,7 +30,32 @@
             @endforeach
         </select>
     </td>
-    <td style="vertical-align: middle;word-break: break-all;"><p>{{ $issue->subject ?? 'N/A' }}</p> </td>
+       <td>
+        <label for="" style="font-size: 12px;">Assigned To :</label>
+        <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
+            <option value="">Select...</option>
+            <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
+            @foreach($users as $id => $name)
+                @if( $assignedId == $id )
+                    <option value="{{$id}}" selected>{{ $name }}</option>
+                @else
+                    <option value="{{$id}}">{{ $name }}</option>
+                @endif
+            @endforeach
+        </select>
+        <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
+        <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
+            <option value="">Select...</option>
+            <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
+            @foreach($users as $id=>$name)
+                @if( $masterUser == $id )
+                    <option value="{{$id}}" selected>{{ $name }}</option>
+                @else
+                    <option value="{{$id}}">{{ $name }}</option>
+                @endif
+            @endforeach
+        </select>
+    </td>
     <td class="expand-row">
     <!-- class="expand-row" -->
     <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
