@@ -1109,12 +1109,16 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
         });
+
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
         Route::post('merge-category', 'HubstaffPaymentController@mergeCategory')->name('hubstaff-payment.merge-category');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'HubstaffPaymentController@edit')->name('hubstaff-payment.edit');
             Route::get('delete', 'HubstaffPaymentController@delete')->name('hubstaff-payment.delete');
         });
+
+        Route::post('add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('efficiency.save');
+
     });
 
     Route::prefix('manage-modules')->group(function () {

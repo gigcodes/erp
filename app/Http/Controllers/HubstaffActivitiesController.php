@@ -17,6 +17,7 @@ use Auth;
 use App\DeveloperTask;
 use App\Task;
 use App\Team;
+use App\HubstaffTaskEfficiency;
 class HubstaffActivitiesController extends Controller
 {
 
@@ -126,7 +127,8 @@ class HubstaffActivitiesController extends Controller
         if($request->user_id) {
             $query = $query->where('hubstaff_members.user_id',$request->user_id);
         }
-     
+
+        
 
         $activities  = $query->select(DB::raw("
         hubstaff_activities.user_id,
@@ -137,6 +139,25 @@ class HubstaffActivitiesController extends Controller
 
         foreach($activities as $activity) {
             $a = [];
+
+
+            $efficiencyObj = HubstaffTaskEfficiency::where('user_id',$activity->user_id)->first();
+
+            if(isset($efficiencyObj->id) && $efficiencyObj->id > 0)
+            {
+                $a['admin_efficiency'] = $efficiencyObj->admin_input;
+                $a['user_efficiency'] = $efficiencyObj->user_input;
+                $a['efficiency'] = (Auth::user()->isAdmin()) ? $efficiencyObj->admin_input : $efficiencyObj->user_input;
+
+            }else
+            {
+                $a['admin_efficiency'] = "";
+                $a['user_efficiency'] = "";
+                
+                $a['efficiency'] = "";
+
+            }
+
            
             if($activity->system_user_id) {
                 $user = User::find($activity->system_user_id);
@@ -293,7 +314,7 @@ class HubstaffActivitiesController extends Controller
                 }  
         }
 
-        // dd($activityUsers);
+         //dd($activityUsers);
         $status = $request->status;
         
         return view("hubstaff.activities.activity-users", compact('title','status','activityUsers','start_date','end_date','users','user_id'));
@@ -682,4 +703,64 @@ class HubstaffActivitiesController extends Controller
         ]);
         return response()->json(['message' => 'Successful'],200);
    }
+
+   /*
+   * process to Add Efficiency
+   * 
+   *@params Request $request
+   *@return 
+   */
+    public function AddEfficiency(Request $request)
+    {
+        $validator = Validator::make($request->all(), [
+            'efficiency' => 'required',
+            'user_id' => 'required',
+        ]);
+
+        if ($validator->fails()) 
+        {
+            return response()->json(['message' => $validator->messages()->first()],500);
+							
+        } else 
+        {
+			
+            $requestArr = $request->all();
+            
+
+            if(Auth::user()->isAdmin())
+            {
+                $admin_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
+                $user_input =  '';
+
+            }else
+            {
+                $admin_input = "";
+                $user_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
+
+            }
+
+            $user_id = (isset($requestArr['user_id'])) ? $requestArr['user_id'] : '';
+
+            $insert_array = array(
+                'user_id' => $user_id,
+                'admin_input' => $admin_input,
+                'user_input' => $user_input,
+                'date' => date('y-m-d'),
+               
+            );
+
+            $userObj = HubstaffTaskEfficiency::where('user_id',$user_id)->first();
+            if(isset($userObj->id) && $userObj->id > 0)
+            {
+                HubstaffTaskEfficiency::where('user_id',$user_id)->update($insert_array);
+
+
+            }else
+            {
+                HubstaffTaskEfficiency::create($insert_array);
+            }
+        }
+
+        return response()->json(['message' => 'Successful'],200);
+    }
 }

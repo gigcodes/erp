@@ -69,6 +69,7 @@
           <th>Time approved</th>
           <th>Pending payment time</th>
           <th>Status</th>
+          <th>Task Efficiency</th>
           <th>Note</th>
           <th width="10%" colspan="2" class="text-center">Action</th>
         </tr>
@@ -80,7 +81,33 @@
               <td><span class="replaceme">{{number_format($user['totalApproved'] / 60,2,".",",")}}</span> </td>
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
+              <td>
+              <div class="form-group">
+                   <p> <strong>Admin :</strong> {{ (isset($user['admin_efficiency'])) ? $user['admin_efficiency'] : '-'}}</p>
+                   <p> <strong>Users :</strong> {{ (isset($user['user_efficiency'])) ? $user['user_efficiency'] : '-'}}</p>
+
+                   @if(isset($users)) 
+                   
+                    <select name="efficiency" class="task_efficiency form-control"  data-user_id="{{ $user['user_id']}}">
+                        <option value="">Select One</option>
+                        <option value="Excellent" {{ (isset($user['efficiency']) && $user['efficiency'] =='Excellent') ? 'selected' : '' }} >Excellent</option>
+                        <option value="Good" {{ (isset($user['efficiency']) && $user['efficiency'] =='Good') ? 'selected' : '' }}>Good</option>
+                        <option value="Average" {{ (isset($user['efficiency']) && $user['efficiency'] =='Average') ? 'selected' : '' }}>Average </option>
+                        <option value="Poor" {{ (isset($user['efficiency']) && $user['efficiency'] =='Poor') ? 'selected' : '' }}>Poor</option>
+                    </select>
+                    
+                    
+                    
+
+                    @endif
+
+
+                </div>
+
+
+              </td>
               <td>{{$user['note']}}</td>
+              
               <td>
                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                 <form action="">
@@ -169,6 +196,34 @@
 
 <script type="text/javascript">
 
+$(document).on('change', '.task_efficiency', function(e) 
+{
+    $user_id = $(this).data('user_id');
+    $efficiency = $(this).val();
+
+    var $action_url = '{{ route("efficiency.save") }}';						
+		jQuery.ajax({
+				
+			type: "POST",
+			url: $action_url,
+			data: { user_id: $user_id,efficiency:$efficiency },
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			//cache: false,
+			//dataType: 'json',
+            success: function(data)
+            {
+                toastr['success'](data.message);
+				
+			},
+            error: function(error)
+            {
+                toastr['error'](data.message);
+            },
+            	
+		});
+		return false;
+
+});
 
 $("#activity-available").val(new Date().toUTCString());
 $(".select2").select2({tags:true});
