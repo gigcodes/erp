@@ -199,6 +199,100 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script type="text/javascript">
+        
+        $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignMasterUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+         $(document).on('change', '.set-responsible-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                data: {
+                    responsible_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                }
+            });
+        });
+
+         $(document).on('change', '.assign-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignUser')}}",
+                data: {
+                    assigned_to: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+    </script>
+
+    <script type="text/javascript">
+         function resolveIssue(obj, task_id) {
+            let id = task_id;
+            let status = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{action('DevelopmentController@resolveIssue')}}",
+                data: {
+                    issue_id: id,
+                    is_resolved: status
+                },
+                success: function () {
+                    toastr["success"]("Status updatedd!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+    </script>
 
     <script type="text/javascript">
 
