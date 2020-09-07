@@ -738,7 +738,6 @@ class TwilioController extends FindByNumberController
     public function storeRecording(Request $request)
     {
 
-
         $params = [
             'recording_url' => $request->input('RecordingUrl'),
             'twilio_call_sid' => $request->input('Caller'),
