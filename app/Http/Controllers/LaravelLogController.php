@@ -80,7 +80,6 @@ class LaravelLogController extends Controller
     public function liveLogs()
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-
         $path     = storage_path('logs');
         $fullPath = $path . $filename;
         try {
@@ -152,5 +151,13 @@ class LaravelLogController extends Controller
 
         return $errors;
 
+    }
+
+    public function liveLogDownloads() {
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+
+        $path     = storage_path('logs');
+        $fullPath = $path . $filename;
+        return response()->download($fullPath,str_replace('/', '', $filename));
     }
 }
