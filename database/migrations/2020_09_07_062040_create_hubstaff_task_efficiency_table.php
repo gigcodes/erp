@@ -14,9 +14,9 @@ class CreateHubstaffTaskEfficiencyTable extends Migration
     public function up()
     {
         Schema::create('hubstaff_task_efficiency', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->integer('user_id')->default(0); // " hubstaff_members hubstaff_user_id"
-           $table->string('admin_input',255)->nullable();
+            $table->string('admin_input',255)->nullable();
             $table->string('user_input',255)->nullable();
             $table->date('date')->nullable();
             $table->integer('time')->nullable();
