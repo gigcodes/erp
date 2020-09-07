@@ -20,17 +20,24 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
     @else
         <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
     @endif
-
-
-    <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
-	<title>@yield ('title', $metaData->page_title) - {{ config('app.name') }}</title>
 	
+	@if(isset($metaData->page_title) && $metaData->page_title!='')
+		<title>@yield ('title', $metaData->page_title)</title>
+	@else
+		<title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
+	@endif
 	
 	
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
-	<meta name="description" content="{{ $metaData->page_description }}">
+	
+	@if(isset($metaData->page_description) && $metaData->page_description!='')
+		<meta name="description" content="{{ $metaData->page_description }}">
+	@else
+		<meta name="description" content="{{ config('app.name') }}">
+	@endif
+	
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 

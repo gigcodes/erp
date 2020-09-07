@@ -1,30 +1,9 @@
 @extends('layouts.app')
 
-@section('styles')
-    <style>
-        #collapse {
-            overflow-y: scroll;
-            height: 600px;
-        }
-        #collapse1 {
-            overflow-y: scroll;
-            height: 600px;
-        }
-
-        li {
-            list-style-type: none;
-        }
-        .padding-left-zero {
-            padding-left: 0px;
-        }
-
-    </style>
-@endsection
 @section('content')
 	<?php $base_url = URL::to('/');?>
 	<div class="row">
 		
-	
 		@if(Session::has('message'))
 			<p class="alert alert-info">{{ Session::get('message') }}</p>
 		@endif

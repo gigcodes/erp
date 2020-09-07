@@ -7,6 +7,8 @@ use App\Http\Controllers\Controller;
 use App\Helpers;
 use DB;
 use Session;
+use Artisan;
+
 
 class RoutesController extends Controller
 {
@@ -31,24 +33,9 @@ class RoutesController extends Controller
 			$query = $query->where('url', 'LIKE','%'.$request->search.'%')->orWhere('page_title', 'LIKE', '%'.$request->search.'%')
                     ->orWhere('page_description', 'LIKE', '%'.$request->search.'%');
 		}
-
 		$routesData = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
-		/*if ($request->ajax()) {
-            return response()->json([
-                'tbody' => view('users.partials.list-users', compact('data'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
-                'links' => (string)$data->render(),
-                'count' => $data->total(),
-            ], 200);
-        }*/
-		/*echo "<pre>";
-		print_r($data);
-		exit;*/
-		
 		return view('routes.index', compact('routesData'))
 			->with('i', ($request->input('page', 1) - 1) * 5);
-			
-			
-			
 			
 	}
 
@@ -59,20 +46,12 @@ class RoutesController extends Controller
 	 * $param String $request
 	 * @return \Illuminate\Http\Response
 	 */
-	/*public function sync(Request $request)
+	public function sync(Request $request)
 	{
-		$routes = $this->getRoutesByMethod("GET");
-		foreach ($routes as $route ){
-			if (Routes::where('url', '=', $route->uri)->count() > 0) 
-			{	
-				continue;
-			}
-			$uriNo[] = $route->uri;
-			Routes::create(['url' => $route->uri]);
-		}
-		exit;
-		//return view ('urldata.index',compact('routes'));
-	}*/
+		Artisan::call('routes:sync');
+		Session::flash('message', 'Data Sync Completed!'); 
+		return redirect()->back();
+	}
 	
 	/**
 	 * Get all the register route
@@ -99,8 +78,11 @@ class RoutesController extends Controller
 			$updateData = array('page_title'=>$request->post('page_title'), 'page_description'=>$request->post('page_description'));
 			Routes::whereId($id)->update($updateData);
 			Session::flash('message', 'Data Updated Successfully'); 
+			return redirect()->route('routes.update', [$id]);
 		}
 		return view ('routes.update',compact('routes'));
+		//return redirect('routes.update');
+		
 	}
 	
 }

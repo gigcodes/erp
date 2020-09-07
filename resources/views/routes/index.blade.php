@@ -6,14 +6,19 @@
 @endsection
 
 @section('large_content')
-     <div id="myDiv">
-       <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
-   </div>
+	<?php $base_url = URL::to('/');?>
 	<div class = "row">
 		<div class="col-lg-12 margin-tb">
-			<?php $base_url = URL::to('/');?>
 			<h2 class="page-heading">Routes Data</h2>
-            <div class="pull-left cls_filter_box">
+        </div>
+	</div>
+	@if(Session::has('message'))
+		<p class="alert alert-info">{{ Session::get('message') }}</p>
+	@endif
+
+	<div class = "row">
+		<div class="col-lg-6 margin-tb">
+			<div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('routes.index') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Search</label>
@@ -21,13 +26,12 @@
                     </div>
                 </form>
             </div>
-        </div>
-        <!--div class="col-lg-12 margin-tb">
+		</div>	
+        <div class="col-lg-6 margin-tb">
             <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal"> Route Sync</button>
-                
+                <a class="btn btn-default" href="{{ route('routes.sync') }}">Route Sync</a>
             </div>
-        </div-->
+        </div>
 	</div>
    
     <div class="row">
