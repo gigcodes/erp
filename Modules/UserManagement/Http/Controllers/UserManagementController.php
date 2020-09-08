@@ -92,6 +92,7 @@ class UserManagementController extends Controller
 
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
                 $u["isAdmin"] = $u->isAdmin();
+                $u['is_online'] = $u->isOnline();
 
                 $online_now = $u->lastOnline();
                 if($online_now) {
