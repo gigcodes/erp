@@ -3,8 +3,10 @@
 @section('title', 'Erp Leads')
 
 @section("styles")
+
   <link rel="stylesheet" type="text/css" href="//cdn.datatables.net/1.10.18/css/dataTables.bootstrap4.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
+  
 @section('content')
 <div class="row">
   <div class="col-lg-12 margin-tb">
@@ -50,50 +52,130 @@
   </div>
   */?>
   <div class="col-md-12">
+<?php $base_url = URL::to('/');?>
+  <div class="pull-left cls_filter_box">
+                <!-- <form class="form-inline" action="{{ route('vendors.index') }}" method="POST"> -->
+                <form class="form-inline" method="POST">
+                @csrf
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Status</label>
+                        <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+                          <option value="">Status</option>
+                          @foreach($erpLeadStatus as $status)
+                            <option value="{{$status['id']}}">{{$status['name']}}</option>
+                          @endforeach
+                        </select>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Customer</label>
+                        <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <label for="with_archived">Brand</label>
+                    
+                       <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
+                    <option value="">Brand</option>
+                    @foreach($brands as $brand_item)
+                      <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                    @endforeach
+                  </select>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <label for="with_archived">Brand Segment</label>
+                       <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Category</label>
+                        <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_updated_by">Color</label>
+                        <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_checkbox">
+                    <label for="with_archived">Size</label>
+                       <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size">
+                    </div>
+                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                </form>
+            </div>
+
+            <div class="col-lg-12 margin-tb">
+            <div class="pull-right mt-3">
+                <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button> -->
+                <label style="margin-right: 13px;">
+                    <input type="checkbox" class="all_customer_check"> Select This Page
+                  </label>
+                  <label style="margin-right: 13px;">
+                    <input type="checkbox" class="all_page_check"> Select All Page
+                  </label>
+                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+                <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
+            </div>
+        </div> 
     <div class="table-responsive">
       <table style="font-size: 12px;" cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
         <thead>
-            <tr>
-                <th width="2%">#</th>
-                <th>Status</th>
-                <th>Customer</th>
-                <th width="140px">Image</th>
-                <th>Brand</th>
-                <th>Brand Segment</th>
-                <th>Category</th>
-                <th>Color</th>
-                <th>Size</th>
+            <!-- <tr style="background: #f9f9f9;"> -->
+            <tr class="tbl-head">
+                <th style="text-align: center;" width="2%">#</th>
+                <th style="text-align: center;">Status</th>
+                <th style="text-align: center;">Customer</th>
+                <th width="140px" style="text-align: center;">Image</th>
+                <th style="text-align: center;">Brand</th>
+                <th style="text-align: center;">Brand Segment</th>
+                <th style="text-align: center;">Category</th>
+                <th style="text-align: center;">Color</th>
+                <th style="text-align: center;">Size</th>
             </tr>
-            <tr>
+            <!-- <tr>
                 <th></th>
                 <th>
-                  <select style="width:138px; font-size: 12px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
+                  <select style="width:100px; font-size: 12px; border-radius: 2px;" name="status_id[]" class="lead_status multi_lead_status" multiple="">
                     <option value="">Status</option>
                     @foreach($erpLeadStatus as $status)
                       <option value="{{$status['id']}}">{{$status['name']}}</option>
                     @endforeach
                   </select>
                 </th>
-                <th><input type="text" style="width: 138px;" class="field_search lead_customer" name="lead_customer" placeholder="" /></th>
-                <th style="width: 138px;"></th>
+                <th><input type="text" style="width: 100px; width: 100px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    line-height: 29px;" class="field_search lead_customer" name="lead_customer" placeholder="" /></th>
+                <th style="width: 100px; border-radius: 2px;" ></th>
                 <th>
-                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 138px;">
+                  <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
                     <option value="">Brand</option>
                     @foreach($brands as $brand_item)
                       <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
                     @endforeach
                   </select>
                 </th>
-                <th><input type="text" class="field_search brand_segment" name="brand_segment"/></th>
-                <th><input type="text" class="field_search lead_category" name="lead_category" /></th>
-                <th><input type="text" class="field_search lead_color" name="lead_color" /></th>
-                <th><input type="text" class="field_search lead_shoe_size" name="lead_shoe_size"/></th>
-            </tr>
+                <th><input style="width: 100px; width: 100px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    line-height: 29px;" type="text" class="field_search brand_segment" name="brand_segment"/></th>
+                <th><input style="width: 100px; width: 100px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    line-height: 29px;" type="text" class="field_search lead_category" name="lead_category" /></th>
+                <th><input style="width: 100px; width: 100px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    line-height: 29px;" type="text" class="field_search lead_color" name="lead_color" /></th>
+                <th><input style="width: 100px; width: 100px;
+    border-radius: 4px;
+    border: 1px solid #aaa;
+    line-height: 29px;" type="text" class="field_search lead_shoe_size" name="lead_shoe_size"/></th>
+            </tr> -->
         </thead>
         <tbody>
         </tbody>
-        <thead>
-            <tr>
+        <!-- <thead> -->
+            <!-- <tr>
                 <th colspan="8">
                   <label>
                     <input type="checkbox" class="all_customer_check"> Select This Page
@@ -105,8 +187,8 @@
                   <a href="javascript:;" class="btn btn-image px-1 images_attach"><img src="/images/attach.png"></a>
                 </h2>
               </th>
-            </tr>
-        </thead>
+            </tr> -->
+        <!-- </thead> -->
       </table>
     </div>
   </div>
@@ -203,6 +285,51 @@
               } 
           });
       });
+
+      $('#btnFileterErpLeads').click(function(e){
+        e.preventDefault();
+        alert('hjsd')
+        var token = "{{ csrf_token() }}";
+        var url = "{{ route('erp-leads.filterErpLeads') }}";
+   
+        var form_data = new FormData();
+        form_data.append('_token', token);
+
+        var status = $("select[name='status_id[]']").val();//alert(status)
+        var brand = $("select[name='brand_id[]'").val();
+        var customer = $("input[name='customer']").val()
+        var brandSegment = $("input[name='brand_segment']").val()
+        var category = $("input[name='category']").val()
+        var color = $("input[name='color']").val()
+        var size = $("input[name='size']").val()
+        // alert(customer)
+        form_data.append('status_id', status)
+        form_data.append('brand', brand)
+        form_data.append('customer', customer)
+        form_data.append('brand_segment', brandSegment)
+        form_data.append('category', category)
+        form_data.append('color', color)
+        form_data.append('size', size)
+
+        $.ajax({
+            type: 'POST',
+            url: url,
+            processData: false,
+            contentType: false,
+            // enctype: 'multipart/form-data',
+            data: form_data,
+            dataType :'json',
+            success: function(response) {
+                console.log('saved');
+                // console.log(response);
+                // console.log(response.order.id);
+                // $('#c_order_id').val(response.order.id);
+                // openConformattionMailBox();
+               // jQuery("#myModalOrderConfirmation").modal('show');
+            }
+          });
+
+      })
 
       $(".all_page_check").click(function(){
           $('.customer_message').prop('checked', this.checked);

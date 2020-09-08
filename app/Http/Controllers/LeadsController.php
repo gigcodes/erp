@@ -851,6 +851,10 @@ class LeadsController extends Controller
         ]);
     }
 
+    public function filterErpLeads(){
+        echo "filter";
+        print_r($_POST);
+    }
     public function erpLeadsResponse(Request $request)
     {
 

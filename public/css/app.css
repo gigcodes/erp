@@ -1920,7 +1920,15 @@ pre code {
         margin-left: 91.66666667%;
     }
 }
-
+.table-striped>tbody>tr:nth-of-type(odd) {
+    background-color: #fff !important;
+}
+.tbl-head{
+    background: #f9f9f9;
+}
+input.form-control-sm.cls_commu_his.form-control.input-size {
+    width: 161px;
+}
 .table {
     width: 100%;
     margin-bottom: 1rem;
