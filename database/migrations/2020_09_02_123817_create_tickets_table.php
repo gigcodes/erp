@@ -15,7 +15,7 @@ class CreateTicketsTable extends Migration
     public function up()
     {
         Schema::create('tickets', function (Blueprint $table) {
-            $table->id();
+            $table->increments('id');
             $table->integer('customer_id');
            // $table->foreign('customer_id')->references('id')->on('customers')->onDelete('cascade');
             $table->string('name')->nullable();
