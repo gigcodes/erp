@@ -18,7 +18,7 @@
     @foreach ($issues as $key => $issue)
         @if($isReviwerLikeAdmin)
             @include("development.partials.admin-row-view")
-        @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
+        @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID || $issue->team_lead_id == $userID || $issue->tester_id == $userID)
             @include("development.partials.developer-row-view")
         @endif
     @endforeach
