@@ -71,8 +71,12 @@ class MasterDevTaskController extends Controller
         ->groupBy("cron_jobs.signature")
         ->get();
 
-        $scraperReports = null;
-        $scraperReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 3 HOUR)"))->select(
+        $scraper1hrsReports = null;
+        $scraper1hrsReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 1 HOUR)"))->select(
+            [\DB::raw("count(*) as cnt")]
+        )->first();
+        $scraper24hrsReports = null;
+        $scraper24hrsReports = \App\CroppedImageReference::where("created_at",">=",\DB::raw("DATE_SUB(NOW(),INTERVAL 24 HOUR)"))->select(
             [\DB::raw("count(*) as cnt")]
         )->first();
 
@@ -115,6 +119,7 @@ class MasterDevTaskController extends Controller
         $scrapeData = \DB::select($sql);
 
 
-        return view("master-dev-task.index",compact('currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData'));
+        return view("master-dev-task.index",compact(
+            'currentSize','sizeBefore','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports'));
     }
 }
