@@ -22,7 +22,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
     @endif
 	
 	@if(isset($metaData->page_title) && $metaData->page_title!='')
-		<title>@yield ('title', $metaData->page_title)</title>
+		<title>{{$metaData->page_title}}</title>
 	@else
 		<title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
 	@endif
