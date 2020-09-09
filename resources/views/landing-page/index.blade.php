@@ -53,8 +53,8 @@
 					<form class="form-inline message-search-handler mb-2 fr" method="post" style="float: right;">
 						<div class="row">
 							<div class="form-group" style="margin-left: 2px">
-								<label for="keyword">Keyword:</label>
-								<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+								<label for="keyword">Product d:</label>
+								<?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter Product d"]) ?>
 							</div>
 							<div class="form-group" style="margin-left: 2px">
 								<label for="stock_status">Stock Status:</label>
@@ -62,17 +62,35 @@
 							</div>
 							<div class="form-group" style="margin-left: 2px">
 								<label for="status">Status:</label>
-								<?php echo Form::select("status",[0 => "De-Active", 1 => "Active"],request("status"),["class"=> "form-control","placeholder" => "Status"]) ?>
+								@php
+									echo Form::select("status",array_values($statuses),request("statuses"),
+												["class"=> "form-control","placeholder" => "Status"]);
+								@endphp
+<!--								--><?php //echo Form::select("status",[0 => "De-Active", 1 => "Active"],request("status"),["class"=> "form-control","placeholder" => "Status"]) ?>
 							</div>
 							<div class="form-group" style="margin-left: 2px">
 								<label for="status">Product Status:</label>
 								<?php echo Form::select("product_status",[9 => "Final Approval", 4 => "Auto Crop"],request("product_status"),["class"=> "form-control","placeholder" => "Product Status"]) ?>
+							</div>
+							<div class="form-group" style="margin-left: 2px">
+								<label for="status">Brand:</label>
+								<?php echo Form::text("brand",request("brand"),["class"=> "form-control","placeholder" => "Brand"]) ?>
+							</div>
+							<div class="form-group" style="margin-left: 2px">
+								<label for="">Date:</label>
+								<?php echo Form::date("date_from",request("date_from"),["class"=> "form-control","placeholder" => "From date"]) ?>
+								<?php echo Form::date("date_to",request("date_to"),["class"=> "form-control","placeholder" => "To date"]) ?>
 							</div>
 							<div class="form-group">
 								<label for="button">&nbsp;</label>
 								<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 									<img src="/images/search.png" style="cursor: default;">
 								</button>
+							</div>
+							<div class="col-lg-12 margin-tb">
+								<div class="pull-right mt-3">
+									<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createStatusModal">Create Status</button>
+								</div>
 							</div>
 						</div>
 					</form>
@@ -94,6 +112,7 @@
 @include("landing-page.templates.list-template")
 @include("landing-page.templates.create-website-template")
 @include("landing-page.templates.update-time")
+@include('landing-page.partials.add-status-modals')
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
