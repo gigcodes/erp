@@ -17,11 +17,97 @@ class SettingController extends Controller
 	//	$this->middleware('permission:setting-create',['only' => ['store']]);
 	}
 
-	public function index()
+
+	public function index(Request $request)
+	{
+		$setting = [];
+		
+		$allSettings = Setting::getAllSettings();
+		$keyArray = array('image_shortcut','price_shortcut', 'call_shortcut','screenshot_shortcut','details_shortcut','purchase_shortcut','forward_users');
+		//$keyArray = array('forward_users');
+		$usersArray = Helpers::getUserArray(User::all());
+		foreach($allSettings as $settingData)
+		{
+			if(in_array($settingData->name, $keyArray))
+			{
+				if(strpos($settingData->val, ','))
+				{
+					$forwardUserArray = json_decode($settingData->val);
+					$userList= [];
+					foreach ($usersArray as $index => $user)
+					{
+						if(in_array($index, $forwardUserArray))
+						{
+							$userList[] = $user;
+						}
+					}
+					$setting[$settingData->id][$settingData->name] = ($userList)?implode(', ',$userList):'';
+					
+				}else{
+					$setting[$settingData->id][$settingData->name] = ($usersArray[$settingData->val])?$usersArray[$settingData->val]:'';
+				}
+			}else{
+				$setting[$settingData->id][$settingData->name] = ($settingData->val)?$settingData->val:'';
+			}
+			
+			
+		}
+		$searchByID = [];
+		$searchByName = [];
+		$searchByValue = [];
+		if( (isset($request->id) && $request->id!='') && $setting[$request->id])
+		{
+			$searchByID[$request->id] = $setting[$request->id];
+		}
+		if(isset($request->name) && $request->name!='')
+		{
+			foreach($setting as $key1=>$val1)
+			{
+				$nameMatch = 0;
+				foreach($val1 as $key11=> $val11)
+				{
+					if(stripos($key11,$request->name)!==false)
+					{
+						$nameMatch = 1;  
+						break;
+					}
+				}
+				if($nameMatch)
+				{
+					$searchByName[$key1] = $val1;
+				}
+			}
+		}
+		if(isset($request->value) && $request->value!='')
+		{
+			foreach($setting as $key2=>$val2)
+			{
+				$valMatch = 0;
+				foreach($val2 as $key22=> $val22)
+				{
+					if(stripos($val22,$request->value)!==false)
+					{
+						$valMatch = 1;  
+						break;
+					}
+				}
+				if($valMatch)
+				{
+					$searchByValue[$key2] = $val2;
+				}
+			}
+		}
+		$data = array_replace($searchByID,$searchByName,$searchByValue);
+		return view('setting.index',compact('data'));
+	}
+
+
+	
+	public function update(Request $request)
 	{
 		$data = [];
-//		$data['euro_to_inr'] = Setting::get('euro_to_inr');
-//		$data['special_price_discount'] = Setting::get('special_price_discount');
+		$data['euro_to_inr'] = Setting::get('euro_to_inr');
+		$data['special_price_discount'] = Setting::get('special_price_discount');
 		$data['pagination'] = Setting::get('pagination');
 		$data['disable_twilio'] = Setting::get('disable_twilio');
 		$data['incoming_calls_yogesh'] = Setting::get('incoming_calls_yogesh');
@@ -47,9 +133,9 @@ class SettingController extends Controller
 		$data['welcome_message'] = Setting::get('welcome_message');
 		$data['forward_users'] = json_decode(Setting::get('forward_users'));
 		$data['api_keys'] = ApiKey::get()->toArray();
-
-		return view('setting.index',$data);
+		return view('setting.update',$data);
 	}
+
 
 	public function store(Request $request)
 	{
