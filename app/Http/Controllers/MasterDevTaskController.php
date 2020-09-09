@@ -120,6 +120,6 @@ class MasterDevTaskController extends Controller
 
 
         return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports'));
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports'));
     }
 }
