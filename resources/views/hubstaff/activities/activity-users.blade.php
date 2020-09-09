@@ -12,6 +12,7 @@
 	<div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
         <div class="pull-right">
+        <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
         <a class="btn btn-secondary" data-toggle="modal" data-target="#open-timing-modal" style="color:white;">Add manual timings</a>
         <a class="btn btn-secondary" href="{{ route('hubstaff-acitivties.pending-payments') }}">Approved timings</a>
     </div>
@@ -134,6 +135,33 @@
       </div>
   	</div>	
 </div>
+<div id="fetch-activity-modal" class="modal" role="dialog">
+  	<div class="modal-dialog modal-lg" role="document">
+      <div class="modal-content">
+        <form>
+            @csrf
+            <div class="modal-header">
+                <h4 class="modal-title"></h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            <div class="form-group">
+                <label for="">Activity available up to</label>
+                <input id="activity-available" type="text"  value="" class="form-control" readonly>
+            </div>
+            <div class="form-group">
+                <label for="">Date from</label>
+                <input type="text" name="starts_at" value="" class="form-control" id="time_from" required placeholder="Enter Date">
+            </div>
+            </div>
+            <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-secondary submit-fetch-activity">Submit</button> 
+            </div>
+        </form>
+      </div>
+  	</div>	
+</div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
@@ -141,12 +169,16 @@
 
 <script type="text/javascript">
 
+
+$("#activity-available").val(new Date().toUTCString());
 $(".select2").select2({tags:true});
 
 $('#starts_at').datetimepicker({
     format: 'YYYY-MM-DD'
 });
-
+$('#time_from').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm:ss'
+});
 let r_s = jQuery('input[name="start_date"]').val();
         let r_e = jQuery('input[name="end_date"]').val()
 
@@ -327,10 +359,35 @@ let r_s = jQuery('input[name="start_date"]').val();
         });
 
 
+        $(document).on('click', '.submit-fetch-activity', function(e) {
+        e.preventDefault();
+        var form = $(this).closest("form");
+        var thiss = $(this);
+        var type = 'POST';
+            $.ajax({
+            url: '/hubstaff-activities/activities/fetch',
+            type: type,
+            dataType: 'json',
+            data: form.serialize(),
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+            }).done( function(response) {
+                $("#loading-image").hide();
+                window.location.reload();
+            }).fail(function(errObj) {
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+                window.location.reload();
+            });
+        });
+
+
         $(document).on('click', '.expand-row-btn', function () {
             $(this).closest("tr").find(".expand-col").toggleClass('dis-none');
         });
 
 </script>
 @endsection
-

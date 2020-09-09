@@ -665,5 +665,26 @@ class HubstaffActivitiesController extends Controller
             return response()->json(["message" => 'Fill all the data first'],500);
         }
     }
-   
+   public function fetchActivitiesFromHubstaff(Request $request) {
+        if(!$request->starts_at || $request->starts_at == '') {
+            return response()->json(['message' => 'Select date first'],500);
+        }
+        $starts_at = $request->starts_at;
+        $member = $hubstaff_user_id = HubstaffMember::where('user_id',Auth::user()->id)->first();
+        if($member) {
+            $hubstaff_user_id = $member->hubstaff_user_id;
+        }
+        else {
+            return response()->json(['message' => 'Hubstaff member not found'],500);
+        }
+        try {
+            $exitCode = Artisan::call('hubstaff:load_past_activities', [
+                'start' => $starts_at, 'user_ids' => $hubstaff_user_id
+            ]);
+        }
+        catch (\Exception $e) {
+            return response()->json(['message' => $e->getMessage()],500);
+        }
+        return response()->json(['message' => 'Successful'],200);
+   }
 }
