@@ -16,7 +16,6 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
     public $tries = 1;
     private $orderId;
     private $message;
-
     /**
      * Create a new job instance.
      *
@@ -38,7 +37,10 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
         $order = \App\Order::where('id', $this->orderId)->first();
         if ($order) {
             $statusModal       = \App\OrderStatus::where("id", $order->order_status_id)->first();
-            
+            // $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
+            // if ($statusModal && !empty($statusModal->message_text_tpl)) {
+            //     $defaultMessageTpl = $statusModal->message_text_tpl;
+            // }
             if(!$this->message || $this->message == "") {
                 $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
                 if ($statusModal && !empty($statusModal->message_text_tpl)) {
