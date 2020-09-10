@@ -14,20 +14,19 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <?php 
+        if(isset($metaData->page_title) && $metaData->page_title!='') {
+            $title = $metaData->page_title;
+        }else{
+            $title = trim($__env->yieldContent('title'));
+        }
+    ?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
     @else
-        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+        <link rel="shortcut icon" href="/generate-favicon?title={{$title}}" />
     @endif
-	
-	@if(isset($metaData->page_title) && $metaData->page_title!='')
-		<title>{{$metaData->page_title}}</title>
-	@else
-		<title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
-	@endif
-	
-	
+	<title>{{$title}}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -1520,7 +1519,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
                                 </li>
-								<li class="nav-item dropdown">
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
                                 </li>
                             </ul>
