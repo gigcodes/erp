@@ -27,7 +27,7 @@
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
               <td></td>
               <td>
-              <div class="form-group">
+              <div class="form-group" style="margin:0px;">
                    @if(isset($member))
                    <?php
                     $eficiency = \App\HubstaffTaskEfficiency::where('user_id',$member->user_id)->where('date',$record->OnDate)->where('time',$record->onHour)->first();
@@ -38,8 +38,8 @@
                       $admin_input = $eficiency->admin_input;
                     }
                     ?>
-                     <p> <strong>Admin : {{$admin_input}}</strong></p>
-                     <p> <strong>User : {{$user_input}}</strong></p>
+                     <p style="margin:0px;"> <strong>Admin : {{$admin_input}}</strong></p>
+                     <p style="margin:0px;"> <strong>User : {{$user_input}}</strong></p>
                    @if(Auth::user()->id == $member->user_id) 
                     <select name="efficiency" class="task_efficiency form-control"  data-type="user" data-date="{{ $record->OnDate }}" data-hour="{{$record->onHour}}" data-user_id="{{$member->user_id}}">
                         <option value="">Select One</option>
