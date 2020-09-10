@@ -56,7 +56,7 @@
 								<th>Setting Value</th>
 								<th>Setting Type</th>
 								<th>Welcome Message</th>
-								<th>Action<td>
+								<th>Action</th>
 							</tr>
 							@foreach ($data as $key => $val )
 								<tr id = "row_{{$val->id}}">
