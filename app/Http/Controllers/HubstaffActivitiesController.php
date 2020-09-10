@@ -424,7 +424,9 @@ class HubstaffActivitiesController extends Controller
             $taskOwner = true;
         }
         $date = $request->date;
-        return view("hubstaff.activities.activity-records", compact('activityrecords','user_id','date','hubActivitySummery','teamLeaders','admins','users','isAdmin','isTeamLeader','taskOwner'));
+
+        $member = HubstaffMember::where('hubstaff_user_id',$request->user_id)->first();
+        return view("hubstaff.activities.activity-records", compact('activityrecords','user_id','date','hubActivitySummery','teamLeaders','admins','users','isAdmin','isTeamLeader','taskOwner','member'));
     }
 
     public function approveActivity(Request $request) {
@@ -720,46 +722,59 @@ class HubstaffActivitiesController extends Controller
         $validator = Validator::make($request->all(), [
             'efficiency' => 'required',
             'user_id' => 'required',
+            'type' => 'required',
+            'date' => 'required',
+            'hour' => 'required',
         ]);
-
         if ($validator->fails()) 
         {
             return response()->json(['message' => $validator->messages()->first()],500);
 							
         } else 
         {
-			
-            $requestArr = $request->all();
+            // $requestArr = $request->all();
             
 
-            if(Auth::user()->isAdmin())
-            {
-                $admin_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
-                $user_input =  '';
+            // if(Auth::user()->isAdmin())
+            // {
+            //     $admin_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
+            //     $user_input =  '';
 
-            }else
-            {
-                $admin_input = "";
-                $user_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
+            // }else
+            // {
+            //     $admin_input = "";
+            //     $user_input = (isset($requestArr['efficiency'])) ? $requestArr['efficiency'] : '';
 
-            }
+            // }
 
-            $user_id = (isset($requestArr['user_id'])) ? $requestArr['user_id'] : '';
 
+            // $user_id = (isset($requestArr['user_id'])) ? $requestArr['user_id'] : '';
+            $admin_input = null;
+            $user_input = null;
+                if($request->type == 'admin') {
+                    $admin_input = $request->efficiency;
+                }
+                else {
+                    $user_input = $request->efficiency; 
+                }
             $insert_array = array(
-                'user_id' => $user_id,
+                'user_id' => $request->user_id,
                 'admin_input' => $admin_input,
                 'user_input' => $user_input,
-                'date' => date('y-m-d'),
-               
+                'date' => $request->date,
+                'time' => $request->hour
             );
 
-            $userObj = HubstaffTaskEfficiency::where('user_id',$user_id)->first();
-            if(isset($userObj->id) && $userObj->id > 0)
+            $userObj = HubstaffTaskEfficiency::where('user_id',$request->user_id)->where('date',$request->date)->where('time',$request->hour)->first();
+            if($userObj)
             {
-                HubstaffTaskEfficiency::where('user_id',$user_id)->update($insert_array);
-
-
+                if($request->type == 'admin') {
+                    $user_input = $userObj->user_input;
+                }
+                else {
+                    $admin_input = $userObj->admin_input;
+                }
+                $userObj->update(['admin_input' => $admin_input, 'user_input' => $user_input]);
             }else
             {
                 HubstaffTaskEfficiency::create($insert_array);
