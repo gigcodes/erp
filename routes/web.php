@@ -251,7 +251,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('most-used-phrases/deleted', 'AutoReplyController@mostUsedPhrasesDeleted')->name("chatbot.mostUsedPhrasesDeleted");
     Route::get('most-used-phrases/deleted/records', 'AutoReplyController@mostUsedPhrasesDeletedRecords')->name("chatbot.mostUsedPhrasesDeletedRecords");
 
-	Route::get('settings/update', 'SettingController@update');
+	Route::post('settings/update', 'SettingController@update');
 	Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
    

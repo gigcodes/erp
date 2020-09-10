@@ -7,6 +7,8 @@ use App\Helpers;
 use App\User;
 use App\ApiKey;
 use Illuminate\Http\Request;
+use DB;
+use Session;
 
 class SettingController extends Controller
 {
@@ -22,82 +24,17 @@ class SettingController extends Controller
 	{
 		$setting = [];
 		
-		$allSettings = Setting::getAllSettings();
-		$keyArray = array('image_shortcut','price_shortcut', 'call_shortcut','screenshot_shortcut','details_shortcut','purchase_shortcut','forward_users');
-		//$keyArray = array('forward_users');
-		$usersArray = Helpers::getUserArray(User::all());
-		foreach($allSettings as $settingData)
-		{
-			if(in_array($settingData->name, $keyArray))
-			{
-				if(strpos($settingData->val, ','))
-				{
-					$forwardUserArray = json_decode($settingData->val);
-					$userList= [];
-					foreach ($usersArray as $index => $user)
-					{
-						if(in_array($index, $forwardUserArray))
-						{
-							$userList[] = $user;
-						}
-					}
-					$setting[$settingData->id][$settingData->name] = ($userList)?implode(', ',$userList):'';
-					
-				}else{
-					$setting[$settingData->id][$settingData->name] = ($usersArray[$settingData->val])?$usersArray[$settingData->val]:'';
-				}
-			}else{
-				$setting[$settingData->id][$settingData->name] = ($settingData->val)?$settingData->val:'';
-			}
-			
-			
+		$query = Setting::query();
+		if($request->name){
+			$query = $query->where('name', 'LIKE','%'.$request->name.'%');
 		}
-		$searchByID = [];
-		$searchByName = [];
-		$searchByValue = [];
-		if( (isset($request->id) && $request->id!='') && $setting[$request->id])
-		{
-			$searchByID[$request->id] = $setting[$request->id];
+		if($request->value){
+			$query = $query->orWhere('val', 'LIKE','%'.$request->value.'%');
 		}
-		if(isset($request->name) && $request->name!='')
-		{
-			foreach($setting as $key1=>$val1)
-			{
-				$nameMatch = 0;
-				foreach($val1 as $key11=> $val11)
-				{
-					if(stripos($key11,$request->name)!==false)
-					{
-						$nameMatch = 1;  
-						break;
-					}
-				}
-				if($nameMatch)
-				{
-					$searchByName[$key1] = $val1;
-				}
-			}
+		if($request->type){
+			$query = $query->orWhere('type', 'LIKE','%'.$request->type.'%');
 		}
-		if(isset($request->value) && $request->value!='')
-		{
-			foreach($setting as $key2=>$val2)
-			{
-				$valMatch = 0;
-				foreach($val2 as $key22=> $val22)
-				{
-					if(stripos($val22,$request->value)!==false)
-					{
-						$valMatch = 1;  
-						break;
-					}
-				}
-				if($valMatch)
-				{
-					$searchByValue[$key2] = $val2;
-				}
-			}
-		}
-		$data = array_replace($searchByID,$searchByName,$searchByValue);
+		$data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
 		return view('setting.index',compact('data'));
 	}
 
@@ -105,35 +42,18 @@ class SettingController extends Controller
 	
 	public function update(Request $request)
 	{
-		$data = [];
-		$data['euro_to_inr'] = Setting::get('euro_to_inr');
-		$data['special_price_discount'] = Setting::get('special_price_discount');
-		$data['pagination'] = Setting::get('pagination');
-		$data['disable_twilio'] = Setting::get('disable_twilio');
-		$data['incoming_calls_yogesh'] = Setting::get('incoming_calls_yogesh');
-		$data['incoming_calls_andy'] = Setting::get('incoming_calls_andy');
-		$data['whatsapp_number_change'] = Setting::get('whatsapp_number_change');
-		$data['users_array'] = Helpers::getUserArray(User::all());
-		$data['image_shortcut'] = Setting::get('image_shortcut');
-		$data['price_shortcut'] = Setting::get('price_shortcut');
-		$data['call_shortcut'] = Setting::get('call_shortcut');
-		$data['screenshot_shortcut'] = Setting::get('screenshot_shortcut');
-		$data['details_shortcut'] = Setting::get('details_shortcut');
-		$data['purchase_shortcut'] = Setting::get('purchase_shortcut');
-		$data['consignor_name'] = Setting::get('consignor_name');
-		$data['consignor_address'] = Setting::get('consignor_address');
-		$data['consignor_city'] = Setting::get('consignor_city');
-		$data['consignor_country'] = Setting::get('consignor_country');
-		$data['consignor_phone'] = Setting::get('consignor_phone');
-		$data['forward_messages'] = Setting::get('forward_messages');
-		$data['forward_start_date'] = Setting::get('forward_start_date');
-		$data['forward_end_date'] = Setting::get('forward_end_date');
-		$data['start_time'] = Setting::get('start_time');
-		$data['end_time'] = Setting::get('end_time');
-		$data['welcome_message'] = Setting::get('welcome_message');
-		$data['forward_users'] = json_decode(Setting::get('forward_users'));
-		$data['api_keys'] = ApiKey::get()->toArray();
-		return view('setting.update',$data);
+		$data = array('name'=>$request->post('name'), 'val'=>$request->post('val'), 'type'=>$request->post('type'), 'welcome_message'=>$request->post('welcome_message'));
+		if($request->post('id'))
+		{
+			Setting::whereId($request->post('id'))->update($data);
+			Session::flash('message', 'Settings Updated Successfully'); 
+		}else{
+			//Setting::add('disable_twilio', $disable_twilio, 'tinyint');
+			Setting::create($data);
+			Session::flash('message', 'Settings Created Successfully'); 
+		}
+		
+		return redirect('/settings');
 	}
 
 
