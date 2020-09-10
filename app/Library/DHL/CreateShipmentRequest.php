@@ -326,7 +326,7 @@ class CreateShipmentRequest extends APIAbstract
                         $xml->startElement('ShipmentNotifications');
                             $xml->startElement('ShipmentNotification');
                                 $xml->writeElement('NotificationMethod', 'EMAIL');
-                                $xml->writeElement('EmailAddress', 'solanki7492@gmail.com');
+                                $xml->writeElement('EmailAddress', 'info@theluxuryunlimited.com');
                                 $xml->writeElement('MobilePhoneNumber', $this->mobile);
                             $xml->endElement();
                         $xml->endElement();
