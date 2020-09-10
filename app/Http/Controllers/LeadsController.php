@@ -842,7 +842,9 @@ class LeadsController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');*/
         $brands = Brand::all()->toArray();
+        // print_r($brands);
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
+        // print_r($erpLeadStatus);die;
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
@@ -865,6 +867,7 @@ class LeadsController extends Controller
                                 ->leftJoin("brands as br","br.id","erp_leads.brand_id")
                                 ->orderBy("erp_leads.id","desc")
                                 ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
 
         /*$term = $request->get('term');
         if (!empty($term)) {
@@ -939,10 +942,10 @@ class LeadsController extends Controller
 
             if (empty($source[$key]->media_url) && $value->product_id) {
                 $product = Product::find($value->product_id);
-                $media = $product->getMedia(config('constants.media_tags'))->first();
-                if ($media) {
-                    $source[$key]->media_url = $media->getUrl();
-                }
+                // $media = $product->getMedia(config('constants.media_tags'))->first();
+                // if ($media) {
+                //     $source[$key]->media_url = $media->getUrl();
+                // }
             }
         }
         return response()->json([

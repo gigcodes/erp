@@ -68,36 +68,44 @@
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Customer</label>
-                        <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size">
+                        <!-- <input placeholder="Customer" type="text" name="customer" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
+                        <input type="text" class="form-control-sm cls_commu_his form-control field_search lead_customer input-size" name="lead_customer" placeholder="Customer" />
+
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                         <label for="with_archived">Brand</label>
                     
-                       <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
-                    <option value="">Brand</option>
-                    @foreach($brands as $brand_item)
-                      <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
-                    @endforeach
-                  </select>
+                        <select name="brand_id[]" class="lead_brand multi_brand" multiple="" style="width: 100px; border-radius: 2px;">
+                          <option value="">Brand</option>
+                          @foreach($brands as $brand_item)
+                            <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
+                          @endforeach
+                        </select>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <label for="with_archived">Brand Segment</label>
-                       <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size">
+                       <!-- <input placeholder="Brand Segment" type="text" name="brand_segment" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
+                       <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search brand_segment" name="brand_segment" placeholder="Brand Segment"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Category</label>
-                        <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size">
+                        <!-- <input placeholder="Category" type="text" name="category" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_category" name="lead_category" placeholder="Category"/>
                     </div>
                     <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_updated_by">Color</label>
-                        <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size">
+                        <!-- <input placeholder="Color" type="text" name="color" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
+                        <input type="text" class="form-control-sm cls_commu_his form-control input-size field_search lead_color" name="lead_color" placeholder="Color"/>
+
                     </div>
                     <div class="form-group ml-3 cls_filter_checkbox">
                     <label for="with_archived">Size</label>
-                       <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size">
+                       <!-- <input placeholder="Size" type="text" name="size" value="" class="form-control-sm cls_commu_his form-control input-size"> -->
+                       <input type="text" class="field_search lead_shoe_size form-control-sm cls_commu_his form-control input-size" name="lead_shoe_size" placeholder="Size"/>
                     </div>
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <!-- <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button> -->
                 </form>
+                <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image" id="btnFileterErpLeads"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
             </div>
 
             <div class="col-lg-12 margin-tb">
@@ -117,7 +125,7 @@
             </div>
         </div> 
     <div class="table-responsive">
-      <table style="font-size: 12px;" cellspacing="0" role="grid" class="table table-striped table-bordered datatable mdl-data-table dataTable" `:100%">
+      <table style="font-size: 12px;" cellspacing="0" role="grid" class="table table-striped table-bordered mdl-data-table dataTable" `:100%">
         <thead>
             <!-- <tr style="background: #f9f9f9;"> -->
             <tr class="tbl-head">
@@ -260,7 +268,10 @@
   <script src="//cdn.datatables.net/1.10.18/js/dataTables.bootstrap4.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Dropify/0.2.2/js/dropify.min.js"></script>
+  <script src="https://cdn.datatables.net/scroller/2.0.2/js/dataTables.scroller.min.js"></script>
   <script type="text/javascript">
+
+
     var customers = [];
     var allLeadCustomersId = [];
     $(document).ready(function() {
@@ -286,50 +297,6 @@
           });
       });
 
-      $('#btnFileterErpLeads').click(function(e){
-        e.preventDefault();
-        alert('hjsd')
-        var token = "{{ csrf_token() }}";
-        var url = "{{ route('erp-leads.filterErpLeads') }}";
-   
-        var form_data = new FormData();
-        form_data.append('_token', token);
-
-        var status = $("select[name='status_id[]']").val();//alert(status)
-        var brand = $("select[name='brand_id[]'").val();
-        var customer = $("input[name='customer']").val()
-        var brandSegment = $("input[name='brand_segment']").val()
-        var category = $("input[name='category']").val()
-        var color = $("input[name='color']").val()
-        var size = $("input[name='size']").val()
-        // alert(customer)
-        form_data.append('status_id', status)
-        form_data.append('brand', brand)
-        form_data.append('customer', customer)
-        form_data.append('brand_segment', brandSegment)
-        form_data.append('category', category)
-        form_data.append('color', color)
-        form_data.append('size', size)
-
-        $.ajax({
-            type: 'POST',
-            url: url,
-            processData: false,
-            contentType: false,
-            // enctype: 'multipart/form-data',
-            data: form_data,
-            dataType :'json',
-            success: function(response) {
-                console.log('saved');
-                // console.log(response);
-                // console.log(response.order.id);
-                // $('#c_order_id').val(response.order.id);
-                // openConformattionMailBox();
-               // jQuery("#myModalOrderConfirmation").modal('show');
-            }
-          });
-
-      })
 
       $(".all_page_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
@@ -443,14 +410,22 @@
 
       });
      
-      var table = $('.datatable').DataTable({
+      var table = $('.dataTable').DataTable({
             processing: true,
             serverSide: true,
             searching: false,
             ordering: false,
+            deferRender:    true,
+        scrollY:        200,
+        scrollCollapse: true,
+        scroller:       true,
+            // bScrollInfinite: true,
+            // bScrollCollapse: true,
+            // sScrollY: "200px",
             ajax: {
               "url" : '{{ route('leads.erpLeadsResponse') }}',
               data: function ( d ) {
+                console.log(d, "opopop");
                 d.lead_customer = $('.lead_customer').val();
                 d.lead_brand = $('.lead_brand').val();
                 d.lead_category = $('.lead_category').val();
@@ -494,13 +469,16 @@
           ]
         });
 
-        $( '.field_search' ).on( 'keyup change', function () {
+        // $( '.field_search' ).on( 'keyup change', function () {
+        //     table.draw();
+        // });btnFileterErpLeads
+        $( '#btnFileterErpLeads' ).on( 'click', function () {
             table.draw();
         });
 
-        $( '.multi_brand' ).on( 'change', function () {
-            table.draw();
-        });
+        // $( '.multi_brand' ).on( 'change', function () {
+        //     table.draw();
+        // });
         
     });
    

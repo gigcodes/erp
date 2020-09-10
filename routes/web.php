@@ -287,7 +287,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
     Route::get('erp-leads', 'LeadsController@erpLeads');
-    Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
+    // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
