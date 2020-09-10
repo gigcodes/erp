@@ -3,7 +3,7 @@
 
 @section('title', 'Intent | Chatbot')
 
-@section('content')
+@section('large_content')
 <style type="text/css">
 	table.dataTable thead .sorting:after,
 	table.dataTable thead .sorting:before,
@@ -16,6 +16,12 @@
 	table.dataTable thead .sorting_desc_disabled:after,
 	table.dataTable thead .sorting_desc_disabled:before {
 	bottom: .5em;
+	}
+	.table>tbody>tr>td {
+		padding:4px;
+	}
+	.pd-3 {
+		padding: 3px;
 	}
 </style>
 <div class="row">
@@ -33,6 +39,12 @@
 				    </div>
 				    <div class="col">
 				      <select name="category_id" class="select-chatbot-category form-control"></select>
+				    </div>
+					<div class="col">
+				      <select name="keyword_or_question" class="form-control">
+					  <option value="question" {{request()->get('keyword_or_question') == 'question' ? 'selected' : ''}}>Question</option>
+					  <option value="keyword" {{request()->get('keyword_or_question') == 'keyword' ? 'selected' : ''}}>Keyword</option>
+					  </select>
 				    </div>
 				    <div class="col">
 				      <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
@@ -55,9 +67,11 @@
 			    <tr>
 			      <th class="th-sm">Id</th>
 			      <th class="th-sm">Intent</th>
+			      <th class="th-sm">Type</th>
                   <th class="th-sm">Suggested Reply</th>
 			      <th class="th-sm">User Example</th>
 			      <th class="th-sm">Category</th>
+			      <th class="th-sm">Keyword value</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
 			  </thead>
@@ -66,12 +80,51 @@
 				    <tr>
 				      <td><?php echo $chatQuestion->id; ?></td>
 				      <td><?php echo $chatQuestion->value; ?></td>
-                      <td><?php echo $chatQuestion->suggested_reply; ?></td>
-				      <td><?php echo $chatQuestion->questions; ?></td>
-				      <td><?php echo $chatQuestion->category_name; ?></td>
+				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
+                      <td>
+					  @if($chatQuestion->keyword_or_question == 'question') 
+						{{$chatQuestion->suggested_reply}}
+					  @endif
+					  </td>
 				      <td>
-                        <a class="btn btn-image edit-button" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
-                        <a class="btn btn-image delete-button" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
+					  <?php
+					  if($chatQuestion->keyword_or_question == 'question') {
+						$example = \App\ChatbotQuestionExample::where('chatbot_question_id',$chatQuestion->id)->select(\DB::raw("group_concat(question) as `questions`"))->get();
+						if($example) {
+							echo $example[0]->questions;
+						}
+					  }
+					  ?>
+					  </td>
+				      <td>
+					  @if($chatQuestion->keyword_or_question == 'question')
+					  	<select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
+						  <option value="">Select</option>
+						  @foreach($allCategoryList as $cat)
+						  	<option {{$cat['id'] == $chatQuestion->category_id ? 'selected' : ''}} value="{{$cat['id']}}">{{$cat['text']}}</option>
+						  @endforeach
+						  </select>
+					  @endif
+					  </td>
+				      <td>
+					  <?php
+					  if($chatQuestion->keyword_or_question == 'keyword') {
+						$value = \App\ChatbotKeywordValue::where('chatbot_keyword_id',$chatQuestion->id)->select(\DB::raw("group_concat(value) as `values`"))->get();
+						if($value) {
+							echo $value[0]->values;
+						}
+					  }
+					  ?>
+					  </td>
+				      <td>
+					  	@if($chatQuestion->keyword_or_question == 'question')
+							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
+							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
+						@endif
+						@if($chatQuestion->keyword_or_question == 'keyword')
+						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
+                        <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
+						@endif
 				      </td>
 				    </tr>
 				<?php } ?>
@@ -80,9 +133,11 @@
 			    <tr>
 			      <th>Id</th>
 			      <th>Intent</th>
+			      <th>Type</th>
 			      <th>Suggested Reply</th>
                   <th>User Example</th>
 			      <th>Category</th>
+				  <th>Keyword value</th>
 			      <th>Action</th>
 			    </tr>
 			  </tfoot>
@@ -136,6 +191,26 @@
                     };
                 }
             }
-        });		
+        });	
+
+		$(document).on('change', '.question-category', function () {
+            var id = $(this).data("id");
+            var category_id = $(this).val();
+            $.ajax({
+                url: "/chatbot/question/change-category",
+                type: 'POST',
+                data: {
+                    id: id,
+                    _token: "{{csrf_token()}}",
+                    category_id: category_id
+                },
+                success: function () {
+                    toastr['success']('Category Changed successfully!')
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        });	
 </script>
 @endsection

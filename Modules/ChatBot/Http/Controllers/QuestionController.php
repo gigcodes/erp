@@ -21,14 +21,15 @@ class QuestionController extends Controller
     {
         $q           = request("q", "");
         $category_id = request("category_id", 0);
-
-        $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
-            ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
-            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
-
+        $keyword_or_question = request("keyword_or_question", 'question');
+        // $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
+        //     ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
+        //     ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
+        $chatQuestions = ChatbotQuestion::where('keyword_or_question',$keyword_or_question);
         if (!empty($q)) {
             $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
-                $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
+                // $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
+                $query->where("chatbot_questions.value", "like", "%" . $q . "%");
             });
         }
 
@@ -38,9 +39,17 @@ class QuestionController extends Controller
 
         $chatQuestions = $chatQuestions->groupBy("chatbot_questions.id")
             ->orderBy("chatbot_questions.id", "desc")
-            ->paginate(10);
+            ->paginate(10)->appends(request()->except(['page','_token']));
 
-        return view('chatbot::question.index', compact('chatQuestions'));
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
+        
+        return view('chatbot::question.index', compact('chatQuestions','allCategoryList'));
     }
 
     public function create()
@@ -51,10 +60,12 @@ class QuestionController extends Controller
     public function save(Request $request)
     {
         $params          = $request->all();
+
         $params["value"] = str_replace(" ", "_", $params["value"]);
 
         $validator = Validator::make($params, [
             'value' => 'required|unique:chatbot_questions|max:255',
+            'keyword_or_question' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -107,7 +118,6 @@ class QuestionController extends Controller
 
     public function update(Request $request, $id)
     {
-
         $params                        = $request->all();
         $params["value"]               = str_replace(" ", "_", $params["value"]);
         $params["chatbot_question_id"] = $id;
@@ -314,6 +324,18 @@ class QuestionController extends Controller
 
         return response()->json(["incomplete_results" => false, "items" => $allCategoryList, "total_count" => count($allCategoryList)]);
 
+    }
+
+    public function changeCategory(Request $request) {
+        if($request->category_id && $request->id) {
+            $chatbotQuestion = ChatbotQuestion::find($request->id);
+            if($chatbotQuestion) {
+                $chatbotQuestion->category_id = $request->category_id;
+                $chatbotQuestion->save();
+                return response()->json(['message' => 'Success'],200);
+            }
+        }
+        return response()->json(['message' => 'Question or category not found'],500);
     }
 
 }
