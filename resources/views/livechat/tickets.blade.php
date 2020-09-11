@@ -29,9 +29,7 @@
                     </div>
                         
                     <div class="col-md-2">
-                        <select class="form-control" name="status_id" id="status_id">
-                            <option value="">Select Status</option>
-                        </select>
+                        <?php echo Form::select("status_id",["" => "Select Status"] + \App\TicketStatuses::pluck("name","id")->toArray(),request('status_id'),["class" => "form-control", "id" => "status_id"]); ?>
                     </div>
                     <div class="col-md-2">
                         <div class='input-group date' id='filter_date'>

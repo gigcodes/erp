@@ -1061,7 +1061,7 @@ class LiveChatController extends Controller
         
 		if($request->term !=""){
 
-			$query = $query->where('name', 'LIKE','%'.$request->term.'%')->orWhere('email', 'LIKE', '%'.$request->term.'%');
+			$query = $query->where('tickets.name', 'LIKE','%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
         }
         
         if($request->status_id !='')
