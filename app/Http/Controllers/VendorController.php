@@ -65,7 +65,7 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
-
+   
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
