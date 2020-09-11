@@ -34,4 +34,8 @@ class ChatbotQuestionExample extends Model
 
         return $selectedAn;
     }
+
+    public function chatbotKeywordValueTypes() {
+        return $this->hasMany("App\ChatbotKeywordValueTypes", "chatbot_keyword_value_id", "id");
+    }
 }

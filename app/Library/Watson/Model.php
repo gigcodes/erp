@@ -41,23 +41,23 @@ class Model
             return true;
         }
 
-        $keyword     = ChatbotKeyword::where("id", $id)->first();
+        $keyword     = ChatbotQuestion::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 
         if ($keyword) {
 
             $storeParams                = [];
-            $storeParams["entity"]      = $keyword->keyword;
+            $storeParams["entity"]      = $keyword->value;
             $storeParams["fuzzy_match"] = true;
-            $values                     = $keyword->chatbotKeywordValues()->get();
+            $values                     = $keyword->chatbotQuestionExamples()->get();
             $storeParams["values"]      = [];
             $typeValue                  = [];
             foreach ($values as $value) {
-                $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
+                $typeValue = ChatbotQuestionExample::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
                 if ($value["types"] == "synonyms") {
-                    $storeParams["values"][] = ["value" => $value["value"], "synonyms" => $typeValue];
+                    $storeParams["values"][] = ["value" => $value["question"], "synonyms" => $typeValue];
                 } else {
-                    $storeParams["values"][] = ["value" => $value["value"], "type" => "patterns", "patterns" => $typeValue];
+                    $storeParams["values"][] = ["value" => $value["question"], "type" => "patterns", "patterns" => $typeValue];
                 }
             }
 
@@ -67,7 +67,7 @@ class Model
             );
 
             if (!empty($keyword->workspace_id)) {
-                $result = $watson->update($keyword->workspace_id, $keyword->keyword, $storeParams);
+                $result = $watson->update($keyword->workspace_id, $keyword->value, $storeParams);
             } else {
                 $result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
@@ -187,9 +187,15 @@ class Model
             $sendMentions = [];
             if (!$mentions->isEmpty()) {
                 foreach ($mentions as $key => $mRaw) {
-                    if ($mRaw->chatbotKeyword) {
+                    // if ($mRaw->chatbotKeyword) {
+                    //     $sendMentions[] = [
+                    //         "entity"   => $mRaw->chatbotKeyword->keyword,
+                    //         "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
+                    //     ];
+                    // }
+                    if ($mRaw->chatbotQuestion) {
                         $sendMentions[] = [
-                            "entity"   => $mRaw->chatbotKeyword->keyword,
+                            "entity"   => $mRaw->chatbotQuestion->value,
                             "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
                         ];
                     }

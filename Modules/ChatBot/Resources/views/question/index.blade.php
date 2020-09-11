@@ -23,27 +23,30 @@
 	.pd-3 {
 		padding: 3px;
 	}
+	.select2-container .select2-selection--single {
+	height:33px !important;
+	}
 </style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
-	    <h2 class="page-heading">Intent | Chatbot</h2>
+	    <h2 class="page-heading">Intent / entity | Chatbot</h2>
 	</div>
 </div>
 <div class="row">
     <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
-    	<div class="pull-left">
+    	<div class="col-md-10 pull-left">
     		<form action="" method="get">
 	            <div class="row">
 				    <div class="col">
-				      <input type="text" name="q" value="<?php echo request("q",""); ?>" class="form-control" placeholder="Keyword">
+				      <input type="text" name="q" value="<?php echo request("q",""); ?>" class="form-control" placeholder="Search Entiry / Keyword">
 				    </div>
 				    <div class="col">
 				      <select name="category_id" class="select-chatbot-category form-control"></select>
 				    </div>
 					<div class="col">
 				      <select name="keyword_or_question" class="form-control">
-					  <option value="question" {{request()->get('keyword_or_question') == 'question' ? 'selected' : ''}}>Question</option>
-					  <option value="keyword" {{request()->get('keyword_or_question') == 'keyword' ? 'selected' : ''}}>Keyword</option>
+					  <option value="intent" {{request()->get('keyword_or_question') == 'intent' ? 'selected' : ''}}>Intent</option>
+					  <option value="entity" {{request()->get('keyword_or_question') == 'entity' ? 'selected' : ''}}>Entity</option>
 					  </select>
 				    </div>
 				    <div class="col">
@@ -52,8 +55,8 @@
 				</div>
 			</form>
         </div>
-        <div class="pull-right">
-            <div class="form-inline">
+        <div class="col-md-2">
+            <div class="form-inline pull-right">
                 <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
         	</div>
         </div>
@@ -66,12 +69,11 @@
 			  <thead>
 			    <tr>
 			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Intent</th>
+			      <th class="th-sm">Intent / entity</th>
 			      <th class="th-sm">Type</th>
-                  <th class="th-sm">Suggested Reply</th>
-			      <th class="th-sm">User Example</th>
+			      <th class="th-sm">User Intent / entity</th>
+                  <th class="th-sm">Suggested Response</th>
 			      <th class="th-sm">Category</th>
-			      <th class="th-sm">Keyword value</th>
 			      <th class="th-sm">Action</th>
 			    </tr>
 			  </thead>
@@ -81,50 +83,25 @@
 				      <td><?php echo $chatQuestion->id; ?></td>
 				      <td><?php echo $chatQuestion->value; ?></td>
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
+					  <td><?php echo $chatQuestion->questions; ?></td>
                       <td>
-					  @if($chatQuestion->keyword_or_question == 'question') 
-						{{$chatQuestion->suggested_reply}}
-					  @endif
+					  		{{$chatQuestion->suggested_reply}}
 					  </td>
 				      <td>
-					  <?php
-					  if($chatQuestion->keyword_or_question == 'question') {
-						$example = \App\ChatbotQuestionExample::where('chatbot_question_id',$chatQuestion->id)->select(\DB::raw("group_concat(question) as `questions`"))->get();
-						if($example) {
-							echo $example[0]->questions;
-						}
-					  }
-					  ?>
-					  </td>
-				      <td>
-					  @if($chatQuestion->keyword_or_question == 'question')
-					  	<select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
+					  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
 						  <option value="">Select</option>
 						  @foreach($allCategoryList as $cat)
 						  	<option {{$cat['id'] == $chatQuestion->category_id ? 'selected' : ''}} value="{{$cat['id']}}">{{$cat['text']}}</option>
 						  @endforeach
-						  </select>
-					  @endif
+						</select>
 					  </td>
 				      <td>
-					  <?php
-					  if($chatQuestion->keyword_or_question == 'keyword') {
-						$value = \App\ChatbotKeywordValue::where('chatbot_keyword_id',$chatQuestion->id)->select(\DB::raw("group_concat(value) as `values`"))->get();
-						if($value) {
-							echo $value[0]->values;
-						}
-					  }
-					  ?>
-					  </td>
-				      <td>
-					  	@if($chatQuestion->keyword_or_question == 'question')
 							<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
 							<a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.question.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
-						@endif
-						@if($chatQuestion->keyword_or_question == 'keyword')
+						<!-- @if($chatQuestion->keyword_or_question == 'entity')
 						<a class="btn btn-image edit-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.edit",[$chatQuestion->id]); ?>"><img src="/images/edit.png"></a>
                         <a class="btn btn-image delete-button pd-3" data-id="<?php echo $chatQuestion->id; ?>" href="<?php echo route("chatbot.keyword.delete",[$chatQuestion->id]); ?>"><img src="/images/delete.png"></a>
-						@endif
+						@endif -->
 				      </td>
 				    </tr>
 				<?php } ?>
@@ -134,10 +111,9 @@
 			      <th>Id</th>
 			      <th>Intent</th>
 			      <th>Type</th>
-			      <th>Suggested Reply</th>
-                  <th>User Example</th>
+			      <th class="th-sm">User Intent / entity</th>
+			      <th class="th-sm">Suggested Response</th>
 			      <th>Category</th>
-				  <th>Keyword value</th>
 			      <th>Action</th>
 			    </tr>
 			  </tfoot>
@@ -212,5 +188,68 @@
                 }
             });
         });	
+		// $('#intent_details').hide();
+		$('#entity_details').hide();
+		$('#erp_details').hide();
+		$(document).on('change', '.view_details_div', function () {
+            var type = $(this).val();
+			if(type =='intent') {
+				$('#intent_details').show();
+				$('#entity_details').hide();
+				$('#erp_details').hide();
+			}
+			else if(type =='entity') {
+				$('#intent_details').hide();
+				$('#entity_details').show();
+				$('#erp_details').hide();
+			}
+			else if(type =='erp') {
+				$('#intent_details').hide();
+				$('#entity_details').hide();
+				$('#erp_details').show();
+			}
+			else {
+				$('#intent_details').show();
+				$('#entity_details').hide();
+				$('#erp_details').hide();
+			}
+        });
+
+		var intentValue = 1;
+		$(".add-more-intent-condition-btn").on("click", function(e){
+			intentValue++;
+		var removeBtnId = '#intentValue_'+(intentValue-1);
+		$(removeBtnId).append('<input type="button" value="-" class="btn btn-secondary" onclick="remove(this)"/>');
+		    $("<div style='margin-bottom:5px;' class='row align-items-end' id='intentValue_"+intentValue+"' ><div class='col-md-9'><input type='text' name='question[]' class='form-control' placeholder='Enter User Intent'/></div><div class='col-md-2' id='add-intent-value-btn'></div></div>").insertBefore(removeBtnId)
+	});
+
+		function remove(ele) {
+		$(ele).parents('div.row').remove()
+	}
+
+	var idValue=1;
+	$(".add-more-condition-btn").on("click", function(e){
+		idValue++;
+		var removeBtnId = '#typeValue_'+(idValue-1);
+		var selectedType = $(this).closest("form").find("select[name = 'types']").val();
+		if ( selectedType == "synonyms" || idValue<=5 ){
+			$(removeBtnId).append('<input type="button" value="-" class="btn btn-secondary" onclick="remove_entity(this)"/>');
+		    $("<div class='form-group col-md-4' ><div class='row align-items-end' id='typeValue_"+idValue+"' ><div class='col-md-9'><label for='type'>&nbsp</label><input type='text' name='type[]' class='form-control' placeholder='Enter value' maxLength = 64/><div/></div></div>").insertBefore('#add-type-value-btn')
+		} else {
+			alert("maximum pattern value limit reached : 5")
+			idValue--;
+		}
+	});
+	$("#types").on("change", function(e) {
+		var typeValueCount = $(this).closest("form").find("input[name = 'type[]']").length;
+		if(e.target.value == 'patterns' && typeValueCount>5) {
+			alert('You are changing a synonym value to a pattern value. You currently have '+ typeValueCount+ ' synonyms associated with this value, but patterns may only have 5');
+			$(this).closest("form").find("select[name = 'types']").val('synonyms').change()
+			e.preventDefault();
+		}
+	});
+	function remove_entity(ele) {
+		$(ele).parents('div.row').remove()
+	}
 </script>
 @endsection

@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use \App\ChatbotCategory;
 use \App\ChatbotQuestion;
 use \App\ChatbotQuestionExample;
-
+use \App\ChatbotKeywordValueTypes;
 class QuestionController extends Controller
 {
     /**
@@ -21,15 +21,16 @@ class QuestionController extends Controller
     {
         $q           = request("q", "");
         $category_id = request("category_id", 0);
-        $keyword_or_question = request("keyword_or_question", 'question');
-        // $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
-        //     ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
-        //     ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
-        $chatQuestions = ChatbotQuestion::where('keyword_or_question',$keyword_or_question);
+        $keyword_or_question = request("keyword_or_question", 'intent');
+        $chatQuestions = ChatbotQuestion::leftJoin("chatbot_question_examples as cqe", "cqe.chatbot_question_id", "chatbot_questions.id")
+            ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
+            ->where('keyword_or_question',$keyword_or_question)
+            ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
+        // $chatQuestions = ChatbotQuestion::where('keyword_or_question',$keyword_or_question);
         if (!empty($q)) {
             $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
-                // $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
-                $query->where("chatbot_questions.value", "like", "%" . $q . "%");
+                $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
+                // $query->where("chatbot_questions.value", "like", "%" . $q . "%");
             });
         }
 
@@ -54,40 +55,85 @@ class QuestionController extends Controller
 
     public function create()
     {
-        return view('chatbot::question.create');
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
+        return view('chatbot::question.create',compact('allCategoryList'));
     }
 
     public function save(Request $request)
     {
+        // dd(empty($params["question"]));
+        // dd($request->all());
         $params          = $request->all();
 
         $params["value"] = str_replace(" ", "_", $params["value"]);
-
         $validator = Validator::make($params, [
             'value' => 'required|unique:chatbot_questions|max:255',
             'keyword_or_question' => 'required',
         ]);
-
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => []]);
         }
+        
 
         $chatbotQuestion = ChatbotQuestion::create($params);
-
         if (!empty($params["question"])) {
-            $params["chatbot_question_id"] = $chatbotQuestion->id;
-            $chatbotQuestionExample        = new ChatbotQuestionExample;
-            $chatbotQuestionExample->fill($params);
-            $chatbotQuestionExample->save();
+            foreach($params["question"] as $qu) {
+                if($qu) {
+                    $params["chatbot_question_id"] = $chatbotQuestion->id;
+                    $chatbotQuestionExample        = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = $qu;
+                    $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                    $chatbotQuestionExample->save();
+                }
+            }
         }
 
-        $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+        if (array_key_exists("types",$params) && $params["types"] != NULL && array_key_exists("type",$params) && $params["type"] != NULL) {
+            $chatbotQuestionExample = null;
+            if(!empty($params["value_name"])) {
+                $chatbotQuestionExample        = new ChatbotQuestionExample;
+                $chatbotQuestionExample->question = $params["value_name"];
+                $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                $chatbotQuestionExample->types = $params["types"];
+                $chatbotQuestionExample->save();
+            }
 
-        if (property_exists($result, 'error')) {
-            ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
-            return response()->json(["code" => $result->code, "error" => $result->error]);
+            if($chatbotQuestionExample) {
+                $valueType = [];
+                $valueType["chatbot_keyword_value_id"] =  $chatbotQuestionExample->id;
+                if(!empty($params["type"])) {
+                    foreach ($params["type"] as $value) {
+                        if($value != NULL) {
+                            $valueType["type"] = $value;
+                            $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
+                            $chatbotKeywordValueTypes->fill($valueType);
+                            $chatbotKeywordValueTypes->save();
+                        }
+                    }
+                }
+            }
         }
 
+        if($request->erp_or_watson == 'watson') {
+            if($request->keyword_or_question == 'intent') {
+                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+            }
+            
+            if($request->keyword_or_question == 'entity') {
+                $result = json_decode(WatsonManager::pushKeyword($chatbotQuestion->id));
+            }
+
+            if (property_exists($result, 'error')) {
+                ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
+                return response()->json(["code" => $result->code, "error" => $result->error]);
+            }
+        }
         return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => route("chatbot.question.edit", [$chatbotQuestion->id])]);
     }
 
@@ -103,7 +149,6 @@ class QuestionController extends Controller
                 WatsonManager::deleteQuestion($chatbotQuestion->id);
                 return redirect()->back();
             }
-
         }
 
         return redirect()->back();
@@ -112,8 +157,15 @@ class QuestionController extends Controller
     public function edit(Request $request, $id)
     {
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
 
-        return view("chatbot::question.edit", compact('chatbotQuestion'));
+        return view("chatbot::question.edit", compact('chatbotQuestion','allCategoryList'));
     }
 
     public function update(Request $request, $id)
@@ -124,55 +176,111 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
 
-        $validator = Validator::make($params, [
-            'question' => 'required|unique:chatbot_question_examples',
-        ]);
-
-        if ($validator->fails()) {
-            return redirect()->back()->withErrors($validator)->withInput();
-        }
-
+       
         if ($chatbotQuestion) {
+            if($chatbotQuestion->keyword_or_question == 'intent') {
+                $validator = Validator::make($params, [
+                    'question' => 'required|unique:chatbot_question_examples',
+                ]);
+        
+                if ($validator->fails()) {
+                    return redirect()->back()->withErrors($validator)->withInput();
+                }
 
-            $chatbotQuestion->fill($params);
-            $chatbotQuestion->save();
-
-            if (!empty($params["category_id"])) {
-                if (is_numeric($params["category_id"])) {
-                    $chatbotQuestion->category_id = $params["category_id"];
-                    $chatbotQuestion->save();
-                } else {
-                    $catModel = ChatbotCategory::create([
-                        "name" => $params["category_id"],
-                    ]);
-
-                    if ($catModel) {
-                        $chatbotQuestion->category_id = $catModel->id;
+                $chatbotQuestion->fill($params);
+                $chatbotQuestion->save();
+                if (!empty($params["category_id"])) {
+                    if (is_numeric($params["category_id"])) {
+                        $chatbotQuestion->category_id = $params["category_id"];
                         $chatbotQuestion->save();
+                    } else {
+                        $catModel = ChatbotCategory::create([
+                            "name" => $params["category_id"],
+                        ]);
+    
+                        if ($catModel) {
+                            $chatbotQuestion->category_id = $catModel->id;
+                            $chatbotQuestion->save();
+                        }
                     }
                 }
+
+                if (!empty($params["question"])) {
+                    $chatbotQuestionExample = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->fill($params);
+                    $chatbotQuestionExample->save();
+                }
+
+                WatsonManager::pushQuestion($chatbotQuestion->id);
             }
+            else if($chatbotQuestion->keyword_or_question == 'entity') {
+                $validator = Validator::make($params, [
+                    'question' => 'required|unique:chatbot_question_examples',
+                ]);
+        
+                if ($validator->fails()) {
+                    return redirect()->back()->withErrors($validator)->withInput();
+                }
 
-            if (!empty($params["question"])) {
-                $chatbotQuestionExample = new ChatbotQuestionExample;
-                $chatbotQuestionExample->fill($params);
-                $chatbotQuestionExample->save();
+                $chatbotQuestion->fill($params);
+                $chatbotQuestion->save();
+                if (!empty($params["category_id"])) {
+                    if (is_numeric($params["category_id"])) {
+                        $chatbotQuestion->category_id = $params["category_id"];
+                        $chatbotQuestion->save();
+                    } else {
+                        $catModel = ChatbotCategory::create([
+                            "name" => $params["category_id"],
+                        ]);
+    
+                        if ($catModel) {
+                            $chatbotQuestion->category_id = $catModel->id;
+                            $chatbotQuestion->save();
+                        }
+                    }
+                }
+                
+                if(!empty($params["question"])) {
+                    $chatbotQuestionExample        = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = $params["question"];
+                    $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                    $chatbotQuestionExample->types = $params["types"];
+                    $chatbotQuestionExample->save();
+                }
+
+                if($chatbotQuestionExample) {
+                    $valueType = [];
+                    $valueType["chatbot_keyword_value_id"] =  $chatbotQuestionExample->id;
+                    if(!empty($params["type"])) {
+                        foreach ($params["type"] as $value) {
+                            if($value != NULL) {
+                                $valueType["type"] = $value;
+                                $chatbotKeywordValueTypes = new ChatbotKeywordValueTypes;
+                                $chatbotKeywordValueTypes->fill($valueType);
+                                $chatbotKeywordValueTypes->save();
+                            }
+                        }
+                    }
+                }
+                WatsonManager::pushKeyword($chatbotQuestion->id);
             }
-
-            WatsonManager::pushQuestion($chatbotQuestion->id);
-
         }
-
         return redirect()->back();
-
     }
 
     public function destroyValue(Request $request, $id, $valueId)
     {
+
         $cbValue = ChatbotQuestionExample::where("chatbot_question_id", $id)->where("id", $valueId)->first();
+        $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
         if ($cbValue) {
             $cbValue->delete();
+            if($chatbotQuestion->keyword_or_question == 'intent') {
             WatsonManager::pushQuestion($id);
+            }
+            if($chatbotQuestion->keyword_or_question == 'entity') {
+                WatsonManager::pushKeyword($id);
+            }
         }
         return redirect()->back();
     }
@@ -261,9 +369,8 @@ class QuestionController extends Controller
 
     public function saveAnnotation(Request $request)
     {
-
         $validator = Validator::make($request->all(), [
-            'chatbot_keyword_id' => 'required',
+            'chatbot_question_id' => 'required',
         ]);
 
         if ($validator->fails()) {
@@ -273,7 +380,7 @@ class QuestionController extends Controller
         $model = \App\ChatbotIntentsAnnotation::updateOrCreate(
             [
                 "question_example_id" => $request->get("question_example_id"),
-                "chatbot_keyword_id"  => $request->get("chatbot_keyword_id"),
+                "chatbot_keyword_id"  => $request->get("chatbot_question_id"),
                 "start_char_range"    => $request->get("start_char_range"),
                 "end_char_range"      => $request->get("end_char_range"),
             ],
@@ -281,11 +388,16 @@ class QuestionController extends Controller
         );
 
         if ($model) {
-            $chatbotKeywordValue = \App\ChatbotKeywordValue::create([
-                "chatbot_keyword_id" => $model->chatbot_keyword_id,
-                "value"              => $request->get("keyword_value"),
+            // $chatbotKeywordValue = \App\ChatbotKeywordValue::create([
+            //     "chatbot_keyword_id" => $model->chatbot_keyword_id,
+            //     "value"              => $request->get("keyword_value"),
+            // ]);
+            $chatbotQuestionExample = \App\ChatbotQuestionExample::create([
+                "chatbot_question_id" => $model->chatbot_keyword_id,
+                "question"              => $request->get("keyword_value"),
             ]);
-            $model->chatbot_value_id = $chatbotKeywordValue->id;
+            
+            $model->chatbot_value_id = $chatbotQuestionExample->id;
             $model->save();
             WatsonManager::pushValue($model->question_example_id);
         }
@@ -336,6 +448,22 @@ class QuestionController extends Controller
             }
         }
         return response()->json(['message' => 'Question or category not found'],500);
+    }
+
+    public function searchKeyword(Request $request)
+    {
+        $keyword = request("term","");
+        $allKeyword = ChatbotQuestion::where("value","like","%".$keyword."%")->limit(10)->get();
+
+        $allKeywordList = [];
+        if(!$allKeyword->isEmpty()) {
+            foreach($allKeyword as $all) {
+                $allKeywordList[] = ["id" => $all->id , "text" => $all->value]; 
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items"=> $allKeywordList, "total_count" => count($allKeywordList)]);
+
     }
 
 }
