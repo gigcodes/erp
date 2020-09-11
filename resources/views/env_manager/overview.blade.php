@@ -16,6 +16,7 @@ All needed files are included within this file, so nothing could break if you ex
             <div class="row">
                 <div class="col-lg-12 margin-tb">
                     <h2 class="page-heading">Env Manager</h2>
+                      <input id="search-input" type="text" placeholder="Search..">
                     <button type="button" id="add-new" class="btn btn-primary float-right">
                         Add New
                     </button>
@@ -80,11 +81,13 @@ All needed files are included within this file, so nothing could break if you ex
                 </a>
               </p>
             </div>-->
+            
               <a href="javascript:;" class="btn btn-primary hide loadEnvButton" id="loadEnvButton" @click="loadEnv">
                   {{ trans('dotenv-editor::views.overview_button') }}
               </a>
             <div class="table-responsive" v-show="!loadButton">
-              <table class="table table-striped">
+            
+              <table class="table table-striped" id="env-table">
                 <tr>
                 <th>Sr No.</th>
                   <th>{{ trans('dotenv-editor::views.overview_table_key') }}</th>
@@ -93,8 +96,8 @@ All needed files are included within this file, so nothing could break if you ex
                 </tr>
                 <tr v-for="(index,entry) in entries">
                   <td>@{{ index+1 }}</td>
-                  <td>@{{ entry.key }}</td>
-                  <td>@{{ entry.value }}</td>
+                  <td style="word-wrap: anywhere;">@{{ entry.key }}</td>
+                  <td style="word-wrap: anywhere;">@{{ entry.value }}</td>
                   <td>
                     <a href="javascript:;" @click="editEntry(entry)"
                     title="{{ trans('dotenv-editor::views.overview_table_popover_edit') }}">
@@ -573,6 +576,15 @@ All needed files are included within this file, so nothing could break if you ex
       $("#add-new-modal").modal("show");
     })
   })
+  
+
+  $("#search-input").on("keyup", function() {
+    var value = $(this).val().toLowerCase();
+    $("#env-table tr").filter(function() {
+      $(this).toggle($(this).text().toLowerCase().indexOf(value) > -1)
+    });
+  });
+
 </script>
 
 @endsection
