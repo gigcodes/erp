@@ -1242,6 +1242,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/store', 'ErpEventController@store')->name('erp-events.store');
         Route::get('/dummy', 'ErpEventController@dummy')->name('erp-events.dummy');
     });
+
+    Route::get('/drafted-products', 'ProductController@draftedProducts');
+    Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */

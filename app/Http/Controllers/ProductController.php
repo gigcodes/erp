@@ -3532,4 +3532,30 @@ class ProductController extends Controller
           $username = $user->name;
         return response()->json(['message' => 'Successful','user' => $username]);
     }
+
+    public function draftedProducts()
+    {
+        $products = Product::where('quick_product', 1)->
+            with('brands')->paginate()->appends(request()->except(['page']));
+        return view('drafted-supplier-product.index', compact('products'));
+    }
+
+    public function editDraftedProducts(Request $request)
+    {
+        $draftedProduct = Product::where("id", $request->id)->first();
+
+        if ($draftedProduct) {
+            $draftedProduct->update([
+                'brand' => $request->brand,
+                'category' => $request->category,
+                'short_description' => $request->short_description,
+                'price' => $request->price,
+                'status' => $request->status
+            ]);
+
+            return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong row id!"]);
+    }
 }
