@@ -17,6 +17,7 @@ use App\ScrapEntries;
 use App\ScrapeQueues;
 use App\Scraper;
 use App\ScraperResult;
+use App\ScrapRequestHistory;
 use App\ScrapStatistics;
 use App\Services\Products\AttachSupplier;
 use App\Services\Products\GnbProductsCreator;
@@ -261,13 +262,41 @@ class ScrapController extends Controller
             $scrapedProduct->save();
         }
 
+        $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
+        $this->saveScrapperRequest($scrap_details, $errorLog);
+
         // Create or update product
         app(ProductsCreator::class)->createProduct($scrapedProduct);
 
         // Return response
         return response()->json([
-            'status' => 'Added items successfuly!'
+            'status' => 'Added items successfully!'
         ]);
+    }
+
+    public function saveScrapperRequest($scrap_details, $errorLog)
+    {
+        try {
+            //check if scraper of same id have records with same day , then only update the end time
+            $check_history = ScrapRequestHistory::where(['scraper_id' => $scrap_details->id , 'start_date' => Carbon::now()])->firstOrFail();
+            //update the request data
+            ScrapRequestHistory::where(['scraper_id' => $scrap_details->id])->update([
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? intval($check_history->request_sent + 1) : intval($check_history->request_sent),
+                'request_failed' => empty($errorLog) ? intval($check_history->request_failed) : intval($check_history->request_failed + 1)
+            ]);
+        }
+        catch (\Exception $e) {
+            ScrapRequestHistory::create([
+                'scraper_id' => $scrap_details->id,
+                'date' => Carbon::now(),
+                'start_time' => Carbon::now(),
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? 1 : 0,
+                'request_failed' => empty($errorLog) ? 0 : 1
+            ]);
+        }
+        return true;
     }
 
     private function downloadImagesForSites($data, $prefix = 'img'): array
