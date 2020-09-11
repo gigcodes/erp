@@ -39,8 +39,10 @@
                 <th>Id</th>
                 <th>Sku</th>
                 <th>Name</th>
+                <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
+                <th>Created Date</th>
                 <th>Actions</th>
             </tr>
             </thead>
@@ -85,69 +87,66 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
 
+            $('body').delegate('.show-medias-modal','click',function() {
+                let data = $(this).parent().parent().find('.medias-data').attr('data')
 
+                let result = '';
 
-        $('.show-medias-modal').click(function() {
-            let data = $(this).parent().parent().find('.medias-data').attr('data')
+                if(data != '[]') {
+                    data = JSON.parse(data)
 
-            let result = '';
+                    result += '<table class="table table-bordered">';
+                    result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
+                    result += '<tbody>';
+                    for(let value in data) {
+                        result += '<tr>';
+                        result += "<td>"+data[value].directory+"</td>"
+                        result += "<td>"+data[value].filename+"</td>"
+                        result += "<td>"+data[value].extension+"</td>"
+                        result += "<td>"+data[value].disk+"</td>"
+                        result += '</tr>';
+                    }
+                    result += '</tbody>';
+                    result += '</table>';
 
-            if(data != '[]') {
-                data = JSON.parse(data)
-
-                result += '<table class="table table-bordered">';
-                result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
-                result += '<tbody>';
-                for(let value in data) {
-                    result += '<tr>';
-                    result += "<td>"+data[value].directory+"</td>"
-                    result += "<td>"+data[value].filename+"</td>"
-                    result += "<td>"+data[value].extension+"</td>"
-                    result += "<td>"+data[value].disk+"</td>"
-                    result += '</tr>';
+                } else {
+                    result = '<h3>this product dont have any media</h3>';
                 }
-                result += '</tbody>';
-                result += '</table>';
 
-            } else {
-                result = '<h3>this product dont have any media</h3>';
-            }
+                $('#medias-modal .modal-body').html(result)
 
-            $('#medias-modal .modal-body').html(result)
+                $('#medias-modal').modal('show')
+            })
 
-            $('#medias-modal').modal('show')
-        })
+            $('body').delegate('.show-status-history-modal','click',function() {
 
-        $('.show-status-history-modal').click(function() {
+                let data = $(this).parent().parent().find('.status-history').attr('data')
+                let result = '';
 
-            let data = $(this).parent().parent().find('.status-history').attr('data')
-            let result = '';
+                if(data != '[]') {
+                    data = JSON.parse(data)
 
-            if(data != '[]') {
-                data = JSON.parse(data)
+                    result += '<table class="table table-bordered">';
+                    result += '<thead><th>old status</th><th>new status</th><th>created at</th></thead>';
+                    result += '<tbody>';
+                    for(let value in data) {
+                        result += '<tr>';
+                        result += "<td>"+data[value].old_status+"</td>"
+                        result += "<td>"+data[value].new_status+"</td>"
+                        result += "<td>"+data[value].created_at+"</td>"
+                        result += '</tr>';
+                    }
+                    result += '</tbody>';
+                    result += '</table>';
 
-                result += '<table class="table table-bordered">';
-                result += '<thead><th>old status</th><th>new status</th><th>created at</th></thead>';
-                result += '<tbody>';
-                for(let value in data) {
-                    result += '<tr>';
-                    result += "<td>"+data[value].old_status+"</td>"
-                    result += "<td>"+data[value].new_status+"</td>"
-                    result += "<td>"+data[value].created_at+"</td>"
-                    result += '</tr>';
+                } else {
+                    result = '<h3>this Product dont have status history</h3>';
                 }
-                result += '</tbody>';
-                result += '</table>';
 
-            } else {
-                result = '<h3>this Product dont have status history</h3>';
-            }
+                $('#status-history-modal .modal-body').html(result)
 
-            $('#status-history-modal .modal-body').html(result)
-
-            $('#status-history-modal').modal('show')
-        })
-
+                $('#status-history-modal').modal('show')
+            })
 
         var isLoadingProducts = false;
         let page = 1;
@@ -155,9 +154,8 @@
         $(function () {
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-
+                    // iconActions();
                     loadMoreProducts();
-
                 }
             });
         });
@@ -169,7 +167,6 @@
 
             var loader = $('.infinite-scroll-products-loader');
             page++;
-            console.log('{{ url('productinventory/inventory-list?page=') }}'+page)
             $.ajax({
                 url: '{{ url('productinventory/inventory-list?page=') }}'+page,
                 type: 'GET',
