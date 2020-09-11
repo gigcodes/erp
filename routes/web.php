@@ -2112,6 +2112,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::get('/getProducts/{id}', 'ReturnExchangeController@getProducts');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
+	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
+	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
