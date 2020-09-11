@@ -984,7 +984,7 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList()
     {
-        $inventory_data = \App\Product::paginate(8);
+        $inventory_data = \App\Product::paginate(20);
 
         $status_list = \App\Helpers\StatusHelper::getStatus();
 
