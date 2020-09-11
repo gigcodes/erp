@@ -2,7 +2,7 @@
 
 @section('favicon' , 'vendor.png')
 
-@section('title', 'Vendor Info')
+@section('title', 'Quick Dev Task')
 
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -105,9 +105,6 @@
         margin-top: -7px;
         font-size: 12px;
     }
-    .td-full-container{
-        color: #333;
-    }
 
   </style>
 @endsection
@@ -119,312 +116,81 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
-            <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
+            <h2 class="page-heading">Quick Dev Task</h2>
             <div class="pull-left cls_filter_box">
-                <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Name</label>
-                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
-                            <?php
-                                if (request()->get('term')) {
-                                    echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
-                                }
-                            ?>
-                        </select>
+                <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
+                    
+                   
+                    <div class="form-group" style="margin-left: 50px;">
+                    <label for="with_archived">Issue Id / Subject</label>
+                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control-mg" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_archived">Search Phone Number</label>
-                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
-                            <?php
-                                if (request()->get('phone')) {
-                                    echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
-                                }
-                            ?>
-                        </select>
-                    </div>
+
                     <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Category</label>
-                        <?php
-                        $category_post = request('category'); 
-                        ?>
-                        <select class="form-control" name="category" id="category">
-                            <option value="">Select Category</option>
-                            <?php
-                            foreach ($vendor_categories as $row_cate) { ?>
-                                <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
-                            <?php } 
-                            ?>
+                        <label for="with_archived">Module</label>
+                        
+                        <select class="form-control" name="module_id" id="module_id">
+                             <option value>Select a Module</option>
+                     @foreach($modules as $module)
+                    <option {{ $request->get('module') == $module->id ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
+                @endforeach
                         </select>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                    <label for="with_archived">Communication History</label>
-                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
+                    <div class="form-group" style="margin-left: 50px;">
+                    <label for="with_archived">DEVELOPER</label>
+                         <input type="text" name="developer" id="developer" placeholder="DEVELOPER" class="form-control-mg" value="">
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
+                    <div class="form-group" style="margin-left: 50px;">
                         <label for="with_archived">Status</label>
-                        <?php echo Form::select("status",[
-                            "" => "- Select -",
-                            "0" => "De-Active",
-                            "1" => "Active"
-                        ],request('status'),["class"=> "form-control"]) ?>
+                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control multiselect","multiple" => true]); ?>
                     </div>
-                    <div class="form-group ml-3 cls_filter_inputbox">
-                        <label for="with_updated_by">Updated by</label>
-                        <?php echo Form::select("updated_by",
-                            ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
-                            request('updated_by'),
-                            ["class"=> "form-control"]
-                        ); ?>
-                    </div>
-                    <div class="form-group ml-3 cls_filter_checkbox">
-                    <label for="with_archived">Archived</label>
-                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                    </div>
+                    
+                    
                     <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
         </div>
-        <div class="col-lg-12 margin-tb">
-            <div class="pull-right mt-3">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
-            </div>
-        </div>   
+       
     </div>
 
     @include('partials.flash_messages')
 
-    <div class="row">
-        <div class="col-md-12">
-            <div class="panel-group" style="margin-bottom: 5px;">
-                <div class="panel mt-3 panel-default">
-                    <div class="panel-heading">
-                        <h4 class="panel-title">
-                            <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
-                        </h4>
-                    </div>
-                    <div id="collapse1" class="panel-collapse collapse">
-                        <div class="panel-body">
-                            <table class="table table-bordered table-striped">
-                                <tr>
-                                    <th>Category</th>
-                                    <th>Responsible User</th>
-                                </tr>
-                                @foreach($vendor_categories as $cat)
-                                    <tr>
-                                        <td>{{ $cat->title }}</td>
-                                        <td>
-                                            <select class="form-control update-category-user" data-categoryId="{{$cat->id}}" name="user_id" id="user_id_{{$cat->id}}">
-                                                <option value="">None</option>
-                                                @foreach($users as $user)
-                                                    <option value="{{$user->id}}" {{$user->id==$cat->user_id ? 'selected': ''}}>{{ $user->name }}</option>
-                                                @endforeach
-                                            </select>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            </table>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="vendor-table">
             <thead>
             <tr>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
-                <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="7%">Name</th>
-                <th width="7%">Phone</th>
-                <th width="7%">Email</th>
+                <th width="5%">ID</a></th>
+                <th width="7%">MODULE</th>
+                <th width="7%">DEVELOPER</th>
+                <th width="25%">Communication</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
-                <th width="25%">Communication</th>
-                <th width="15%">Action</th>
+                <th width="7%">Status</th>
             </tr>
             </thead>
 
             <tbody id="vendor-body">
+                 <?php
+        $isReviwerLikeAdmin =  auth()->user()->isReviwerLikeAdmin();
+        $userID =  Auth::user()->id;
+    ?>
+    @foreach ($issues as $key => $issue)
+        @if($isReviwerLikeAdmin)
+            @include("development.partials.summarydata")
+        @elseif($issue->created_by == $userID || $issue->master_user_id == $userID || $issue->assigned_to == $userID)
+            @include("development.partials.developer-row-view")
+        @endif
+    @endforeach
 
-            @include('vendors.partials.data')
 
                      </tbody>
+ <?php echo $issues->appends(request()->except("page"))->links(); ?>
         </table>
     </div>
 
-    {!! $vendors->appends(Request::except('page'))->links() !!}
-    </div>
-    @include('partials.modals.remarks')
-    @include('vendors.partials.modal-emailToAll')
-    @include('vendors.partials.vendor-modals')
-    @include('vendors.partials.add-vendor-info-modal')
-    {{-- @include('vendors.partials.agent-modals') --}}
-    @include('vendors.partials.vendor-category-modals')
-    @include('vendors.partials.modal-conference')
-
-    <div id="reminderModal" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Set/Edit Reminder</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <div class="modal-body">
-                    <div class="form-group">
-                        <label for="frequency">Frequency</label>
-                        <?php echo Form::select("frequency",drop_down_frequency(),null,["class" => "form-control", "id" => "frequency"]); ?>
-                    </div>
-                    <div class="form-group">
-                        <label for="frequency">Reminder Start From</label>
-                        <input type="text" name="reminder_from" id="reminder_from" class="form-control">
-                    </div>
-                    <div class="form-group">
-                        <label for="reminder_message">Check Last Message?</label>
-                        <label class="radio-inline">
-                          <input type="radio" id="reminder_last_reply" name="reminder_last_reply" value="1" checked>Yes
-                        </label>
-                        <label class="radio-inline">
-                          <input type="radio" id="reminder_last_reply_no" name="reminder_last_reply" value="0">No
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label for="reminder_message">Reminder Message</label>
-                        <textarea name="reminder_message" id="reminder_message" class="form-control" rows="4"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-secondary save-reminder">Save</button>
-                    </div>
-
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <div id="chat-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Communication</h4>
-                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="email-list-history" class="modal fade" role="dialog">
-        <div class="modal-dialog modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Email Communication</h4>
-                    <input type="text" name="search_email_pop"  class="form-control search_email_pop" placeholder="Search Email" style="width: 200px;">
-                </div>
-                <div class="modal-body" style="background-color: #999999;">
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    @include('customers.zoomMeeting')
-    <div id="forwardModal" class="modal fade" role="dialog">
-      <div class="modal-dialog">
-
-        <!-- Modal content-->
-        <div class="modal-content">
-          <form action="{{ route('whatsapp.forward') }}" method="POST">
-            @csrf
-            <input type="hidden" name="message_id" id="forward_message_id" value="">
-
-            <div class="modal-header">
-              <h4 class="modal-title">Forward Message</h4>
-              <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="modal-body">
-              <div class="form-group">
-                  <strong>Client:</strong>
-                  <select class="selectpicker form-control" name="customer_id[]" title="Choose a Customer" required multiple></select>
-
-                  @if ($errors->has('customer_id'))
-                      <div class="alert alert-danger">{{$errors->first('customer_id')}}</div>
-                  @endif
-              </div>
-            </div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-              <button type="submit" class="btn btn-secondary">Forward Message</button>
-            </div>
-          </form>
-        </div>
-
-      </div>
-    </div>
-
-    <div class="modal fade" id="createUser" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-               
-                    <div class="modal-body">
-                        <div><button class="btn btn-secondary m-1" id="vendor_id">Create ERP User from Vendor</button></div>
-                        <div><button class="btn btn-secondary m-1" onclick="inviteGithub()">Invite to Github</button></div>
-                        <div><button class="btn btn-secondary m-1" onclick="inviteHubstaff()">Invite to Hubstaff</button></div>
-                    </div>
-
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                    </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="create_broadcast" class="modal fade" role="dialog">
-        <div class="modal-dialog">
-
-            <!-- Modal content-->
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h4 class="modal-title">Send Message to Vendors</h4>
-                    <button type="button" class="close" data-dismiss="modal">&times;</button>
-                </div>
-                <form id="send_message" method="POST">
-                    <div class="modal-body">
-                        <div class="form-group">
-                            <strong>Message</strong>
-                            <textarea name="message" id="message_to_all_field" rows="8" cols="80" class="form-control"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-secondary">Send Message</button>
-                    </div>
-                </form>
-            </div>
-
-        </div>
-    </div>
+   </div>
 @endsection
 
 @section('scripts')
@@ -433,56 +199,126 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script type="text/javascript">
+        
+        $(document).on('change', '.assign-master-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignMasterUser')}}",
+                data: {
+                    master_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Master User assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+         $(document).on('change', '.set-responsible-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignResponsibleUser')}}",
+                data: {
+                    responsible_user_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                }
+            });
+        });
+
+         $(document).on('change', '.assign-user', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignUser')}}",
+                data: {
+                    assigned_to: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("User assigned successfully!", "Message")
+                },   
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+
+        });
+
+         $(document).on('change', '.task-module', function () {
+            let id = $(this).attr('data-id');
+            let moduleID = $(this).val();
+
+            if (moduleID == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@changeModule')}}",
+                data: {
+                    module_id: moduleID,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Module assigned successfully!", "Message")
+                }
+            });
+
+        });
+    </script>
+
+    <script type="text/javascript">
+         function resolveIssue(obj, task_id) {
+            let id = task_id;
+            let status = $(obj).val();
+            let self = this;
+
+            $.ajax({
+                url: "{{action('DevelopmentController@resolveIssue')}}",
+                data: {
+                    issue_id: id,
+                    is_resolved: status
+                },
+                success: function () {
+                    toastr["success"]("Status updatedd!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+        }
+    </script>
 
     <script type="text/javascript">
 
-        <?php if(!empty($updatedProducts)) {
-            foreach($updatedProducts as $updatedProduct) {
-                echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated');";
-            }
-        } ?>
 
 
-        $('.selectpicker').select2({
-            tags: true,
-            width : '100%',
-            ajax: {
-                url: BASE_URL+'/erp-leads/customer-search',
-                dataType: 'json',
-                delay: 750,
-                data: function (params) {
-                    return {
-                        q: params.term, // search term
-                    };
-                },
-                processResults: function (data, params) {
-                    params.page = params.page || 1;
-
-                    return {
-                        results: data,
-                        pagination: {
-                            more: (params.page * 30) < data.total_count
-                        }
-                    };
-                },
-            },
-            placeholder: 'Search for Customer by id, Name, No',
-            escapeMarkup: function (markup) {
-                return markup;
-            },
-            minimumInputLength: 1,
-            templateResult: function (customer) {
-                if (customer.loading) {
-                    return customer.name;
-                }
-
-                if (customer.name) {
-                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
-                }
-            },
-            templateSelection: (customer) => customer.text || customer.name,
-
-        });
         var vendorToRemind = null;
         $('#vendor-search').select2({
             tags: true,
@@ -561,7 +397,7 @@
             templateResult: function (customer) {
 
                 if (customer.name) {
-                    return "<p style='color:#333;'>"+ customer.phone+ "</p>";
+                    return "<p style='color:#BABABA;'>"+ customer.phone+ "</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.phone,
@@ -693,7 +529,7 @@
                 $.each(response, function (index, value) {
                     html += ' <p> ' + value.remark + ' <br> <small>By ' + value.user_name + ' updated on ' + moment(value.created_at).format('DD-M H:mm') + ' </small></p>';
                     html + "<hr>";
-                });
+                }); 
                 $("#makeRemarkModal").find('#remark-list').html(html);
             });
         });
@@ -862,7 +698,6 @@
             var thiss = $(this);
             var data = new FormData();
             var vendor_id = $(this).data('vendorid');
-
             var message = $("#messageid_"+vendor_id).val();
             data.append("vendor_id", vendor_id);
             data.append("message", message);
@@ -883,18 +718,7 @@
                         }
                     }).done(function (response) {
                         //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
-                        if(message.length > 30)
-                        {
-                            var res_msg = message.substr(0, 27)+"..."; 
-                            $("#message-chat-txt-"+vendor_id).html(res_msg);
-                            $("#message-chat-fulltxt-"+vendor_id).html(message);    
-                        }
-                        else
-                        {
-                            $("#message-chat-txt-"+vendor_id).html(message); 
-                            $("#message-chat-fulltxt-"+vendor_id).html(message);      
-                        }
-                        
+                        $("#message-chat-txt-"+vendor_id).html(message);
                         $("#messageid_"+vendor_id).val('');
                         
                         $(thiss).attr('disabled', false);
@@ -1135,11 +959,7 @@
                           alert('No response from server');
                       });
                   }
-                  //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
-                  var vendors_id = $(this).find("option:selected").attr("data-vendorid");
-                  //alert(vendors_id);
-                  var message_re = $(this).find("option:selected").attr("title");
-                  $("textarea#messageid_"+vendors_id).val($.trim(message_re));
+                  $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
 
               });
 
@@ -1374,28 +1194,5 @@
             console.log(response);
         });
     });
-
-
-    $(document).on('click', '.add-vendor-info', function (e) {
-          e.preventDefault();
-          $("#hidden_edit_vendor_id").val($(this).data('id'));
-          $("#add-vendor-info-modal").modal("show");
-      });
-
-      $(document).on('click', '.btn-submit-info', function (e) {
-          e.preventDefault();
-          var formData = $('#add-vendor-info-modal').find('form').serialize();
-          $.ajax({
-            type: "POST",
-            url: "{{ route('vendors.edit-vendor') }}",
-            data: formData,
-          }).done(function(response) {
-            toastr['success'](response.message);
-            $("#add-vendor-info-modal").modal("hide");
-            $('#add-vendor-info-form').trigger('reset');
-          }).fail(function(error) {
-            toastr['error'](error.responseJSON.message);
-          });
-      });
     </script>
 @endsection
