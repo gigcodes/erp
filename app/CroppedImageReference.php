@@ -22,6 +22,10 @@ class CroppedImageReference extends Model
         return $this->where('original_media_id',$original_media_id)->get();
     }
 
+    public function differentWebsiteImages() {
+        return $this->hasMany(self::class, 'original_media_id', 'original_media_id');
+    }
+
     public function getDifferentWebsiteName($media_id) {
        $media =  DB::table('mediables')->select('tag')->where('media_id',$media_id)->first();
        if($media->tag == 'gallery'){

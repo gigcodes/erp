@@ -83,6 +83,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+
+    //Ajax request for select2
+    Route::get('/crop-references-grid/getCategories', 'CroppedImageReferenceController@getCategories');
+    Route::get('/crop-references-grid/getProductIds', 'CroppedImageReferenceController@getProductIds');
+    Route::get('/crop-references-grid/getBrands', 'CroppedImageReferenceController@getBrands');
+    Route::get('/crop-references-grid/getSupplier', 'CroppedImageReferenceController@getSupplier');
+
+
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
     Route::get('/magento/status', 'MagentoController@addStatus');

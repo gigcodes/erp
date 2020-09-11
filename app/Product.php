@@ -39,6 +39,7 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
+        'id',
         'sku',
         'is_barcode_check',
         'has_mediables',
