@@ -72,7 +72,18 @@ class Product extends Model
             $oldCatID = $product->category;
             $newCatID = $product->getOriginal('category');
             if($oldCatID != $newCatID) {
-                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
+            }
+
+            $old_status_id = $product->status_id;
+            $new_status_id = $product->getOriginal('status_id');
+            if($old_status_id != $new_status_id) {
+                $data = array(
+                    'product_id' => $product->id,
+                    'old_status' => $old_status_id,
+                    'new_status' => $new_status_id
+                );
+                \App\ProductStatusHistory::addStatusToProduct($data);
             }
         });
 

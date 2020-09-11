@@ -8,6 +8,8 @@ use App\Stage;
 use App\Brand;
 use App\Category;
 use App\Helpers;
+use App\Mediables;
+use App\ProductStatusHistory;
 use App\ReadOnly\LocationList;
 use Dompdf\Css\Style;
 use Dompdf\Css\Stylesheet;
@@ -979,4 +981,26 @@ class ProductInventoryController extends Controller
 		return response()->json(["code" => 500,"message" => "Oops, Required field is missing"]);
 
 	}
+
+	public function inventoryList()
+    {
+        $inventory_data = \App\Product::paginate(8);
+
+        $status_list = \App\Helpers\StatusHelper::getStatus();
+
+        foreach ($inventory_data as $product) {
+            $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
+            $product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+            foreach ($product_history as $each) {
+                $each['old_status'] = $status_list[$each['old_status']];
+                $each['new_status'] = $status_list[$each['new_status']];
+            }
+            $product['status_history'] = $product_history;
+        }
+
+
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
+
+        return view('product-inventory.inventory-list',compact('inventory_data'));
+    }
 }
