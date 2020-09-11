@@ -55,6 +55,17 @@ class TaskCategoryController extends Controller
 		return redirect()->back()->with('success','Category created successfully');
 	}
 
+	public function changeStatus(Request $request) {
+		$categories = TaskCategory::all();
+		foreach($categories as $cat) {
+			$cat->update(['is_active' => 0]);
+		}
+		foreach($request->categoriesList as $category) {
+			TaskCategory::where('id',$category)->update(['is_active' => 1]);
+		}
+		return response()->json(['message' => 'Successful'],200);
+	}
+
 	public function update(Request $request,TaskCategory $task_category){
 
 		$this->validate($request,[

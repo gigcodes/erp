@@ -53,6 +53,10 @@ class Scraper extends Model
         return $parentScraper = $this->where('parent_id',$scraper->id)->count();
     }
 
+    public function getScrapHistory()
+    {
+        return $this->hasOne('App\ScrapRequestHistory', 'scraper_id', 'id');
+    }
     
 
     

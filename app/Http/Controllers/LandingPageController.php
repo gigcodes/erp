@@ -13,7 +13,7 @@ use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
-    const GALLERY_TAG_NAME = "gallery_";
+    const GALLERY_TAG_NAME = "gallery";
 
     public function __construct()
     {
@@ -92,6 +92,7 @@ class LandingPageController extends Controller
             $rec->status_name = isset(\App\LandingPageProduct::STATUS[$rec->status]) ? \App\LandingPageProduct::STATUS[$rec->status] : $rec->status;
             $rec['stores'] = $store_websites;
             $rec->short_dec   = (strlen($rec->description) > 15) ? substr($rec->description, 0, 15).".." : $rec->description;
+            $rec->short_dec   = utf8_encode($rec->short_dec);
             $items[]          = $rec;
         }
 
@@ -222,6 +223,10 @@ class LandingPageController extends Controller
             // if stock status exist then store it
             if ($request->stock_status != null) {
                 $landingPage->stock_status = $request->stock_status;
+                if($landingPage->stock_status == 1) {
+                    $landingPage->start_date = date("Y-m-d H:i:s");
+                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date. ' + 1 days'));
+                }
                 $landingPage->save();
             }
 

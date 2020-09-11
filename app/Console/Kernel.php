@@ -111,6 +111,7 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\DeleteChatMessages;
 
 class Kernel extends ConsoleKernel
 {
@@ -216,7 +217,8 @@ class Kernel extends ConsoleKernel
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
-        ScrapLogs::class
+        ScrapLogs::class,
+        DeleteChatMessages::class
     ];
 
     /**
@@ -463,6 +465,9 @@ class Kernel extends ConsoleKernel
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
+
+        // delate chat message 
+         //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
     }
 
     /**

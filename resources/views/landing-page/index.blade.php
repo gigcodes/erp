@@ -58,7 +58,7 @@
 							</div>
 							<div class="form-group" style="margin-left: 2px">
 								<label for="stock_status">Stock Status:</label>
-								<?php echo Form::select("stock_status",[0 => "Sold out", 1 => "Stock Status"],request("stock_status"),["class"=> "form-control","placeholder" => "Stock status"]) ?>
+								<?php echo Form::select("stock_status",[0 => "Sold out", 1 => "In Stock"],request("stock_status"),["class"=> "form-control","placeholder" => "Stock status"]) ?>
 							</div>
 							<div class="form-group" style="margin-left: 2px">
 								<label for="status">Status:</label>
@@ -97,6 +97,8 @@
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="//cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <script type="text/javascript" src="/js/common-helper.js"></script>
 <script type="text/javascript" src="/js/landing-page.js"></script>
 

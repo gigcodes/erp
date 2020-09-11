@@ -12,7 +12,7 @@ class LandingPageProduct extends Model
         "Active",
     ];
 
-    const GALLERY_TAG_NAME = "gallery_";
+    const GALLERY_TAG_NAME = "gallery";
 
     protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'start_date', 'end_date', 'created_at', 'updated_at'];
 
@@ -45,11 +45,14 @@ class LandingPageProduct extends Model
             $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $this->store_website_id);
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
-                    $sizeC  = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
-                    $html[] = "<p><b>Size Chart</b> : <a href='" . $sizeC . "'>Here</a></p>";
+                    $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
+                    $sizeC  = env("SHOPIFY_CDN").$sizeC;
+                    $html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
         }
+
+        \Log::info(json_encode($html));
 
         if ($landingPageProduct) {
             $productData = [
@@ -88,6 +91,14 @@ class LandingPageProduct extends Model
             'inventory_policy'     => 'deny',
             'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
+
+        if($this->stock_status != 1) {
+            $productData['product']['published'] = false;
+            $productData['product']['published_scope'] = false;
+        }else{
+            $productData['product']['published'] = true;
+            $productData['product']['published_scope'] = "web";
+        }
 
         if (!empty($landingPageProduct->size)) {
             $productSizes = explode(',', $landingPageProduct->size);
