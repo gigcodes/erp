@@ -32,8 +32,9 @@ td+td {
 				<th>Paid on</th>
 				<?php if(Auth::user()->isAdmin()) { ?>
 				<th style="width:200px;">Send</th>
-				<th style="width:200px;">Action</th>
 				<?php } ?>
+
+				<th style="width:200px;">Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
@@ -48,24 +49,35 @@ td+td {
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
 
-										{{if prop.team_leads}}
-										{{props prop.team_leads}}
+										{{if prop.team}}
+										<span class="expand-row">
+										<span class="div-team-mini">
+												<span><span><strong> {{if prop.team.name}} {{:prop.team.name}} {{else}} 'Team' {{/if}} :</strong> ({{:prop.team_leads}})</span></span>
+											</span>
+											<span class="div-team-max hidden">
 											{{if prop.name}}
-											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> {{:prop.name}}</span></span><br>
-											{{else}}
-											<span data-id="{{:prop.id}}" class="load-team-modal"><span><strong>Team :</strong> No name</span></span><br>
+											{{props prop.team_members}}
+												<p style="margin:0px;" class="search-team-member" data-keyword="{{:prop.name}}"> {{:prop.name}}</p>
+											{{/props}}
 											{{/if}}
-										{{/props}}
+											</span>
+										</span>
+										<br>
 										{{/if}}
-
 									<?php if(Auth::user()->isAdmin()) { ?>
 									{{if prop.is_active == 1}}
-									<button type="button" class="btn btn-image change-activation" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
+									<button title="Deactive user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-disturb.png" /></button>
 									{{else}}
-									<button type="button" class="btn btn-image change-activation" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
+									<button title="Activate user" type="button" class="btn btn-image change-activation pd-5" data-id="{{:prop.id}}"><img src="/images/do-not-disturb.png" /></button>
 									{{/if}}
-									<button type="button" class="btn btn-image load-team-add-modal" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+									{{if !prop.user_in_team}}
+									<button type="button" class="btn btn-image load-team-add-modal pd-5" data-id="{{:prop.id}}"><img src="/images/add.png" /></button>
+									{{/if}}
+									{{if prop.team}}
+									<button title="Edit Team" type="button" class="btn btn-image load-team-modal pd-5" data-id="{{:prop.id}}"><img src="/images/edit.png" /></button>
+									{{/if}}
 									<?php } ?>
+									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
 								</div> 
 							</div>   
 						</div>    	  
@@ -106,7 +118,9 @@ td+td {
 						</div>  
 						
 					</td>
+					<?php } ?>
 			        <td>
+					<?php if(Auth::user()->isAdmin()) { ?>
 					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
 					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
 					</button>
@@ -120,9 +134,9 @@ td+td {
 					
 					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
-					
-					</td>
 					<?php } ?>
+					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					</td>
 			      </tr>
 			    {{/props}}  
 		    </tbody>

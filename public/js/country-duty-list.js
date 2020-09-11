@@ -28,6 +28,14 @@ var page = {
             }
         });
 
+        page.config.bodyView.on("keypress",".change-inline-field",function(e){
+            console.log($(this));
+            var keycode = (event.keyCode ? event.keyCode : event.which);
+            if(keycode == '13'){
+               page.updateGroupField($(this)); 
+            }
+        });
+
         
 
         $(".common-modal").on("click",".submit-form",function(e) {
@@ -104,6 +112,24 @@ var page = {
         }
         this.sendAjax(_z, 'redirect');
     },
+
+    updateGroupField : function(ele) {
+
+        var _z = {
+            url: this.config.mainUrl + "/update-group-field",
+            method: "post",
+            data : {
+                id : ele.data("field-master"),
+                field : ele.data("field"),
+                value : ele.val()
+            },
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+
+        this.sendAjax(_z, "redirect");
+    }
 }
 
 $.extend(page, common);

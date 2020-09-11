@@ -17,6 +17,7 @@ use App\ScrapEntries;
 use App\ScrapeQueues;
 use App\Scraper;
 use App\ScraperResult;
+use App\ScrapRequestHistory;
 use App\ScrapStatistics;
 use App\Services\Products\AttachSupplier;
 use App\Services\Products\GnbProductsCreator;
@@ -261,13 +262,41 @@ class ScrapController extends Controller
             $scrapedProduct->save();
         }
 
+        $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
+        $this->saveScrapperRequest($scrap_details, $errorLog);
+
         // Create or update product
         app(ProductsCreator::class)->createProduct($scrapedProduct);
 
         // Return response
         return response()->json([
-            'status' => 'Added items successfuly!'
+            'status' => 'Added items successfully!'
         ]);
+    }
+
+    public function saveScrapperRequest($scrap_details, $errorLog)
+    {
+        try {
+            //check if scraper of same id have records with same day , then only update the end time
+            $check_history = ScrapRequestHistory::where(['scraper_id' => $scrap_details->id , 'start_date' => Carbon::now()])->firstOrFail();
+            //update the request data
+            ScrapRequestHistory::where(['scraper_id' => $scrap_details->id])->update([
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? intval($check_history->request_sent + 1) : intval($check_history->request_sent),
+                'request_failed' => empty($errorLog) ? intval($check_history->request_failed) : intval($check_history->request_failed + 1)
+            ]);
+        }
+        catch (\Exception $e) {
+            ScrapRequestHistory::create([
+                'scraper_id' => $scrap_details->id,
+                'date' => Carbon::now(),
+                'start_time' => Carbon::now(),
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? 1 : 0,
+                'request_failed' => empty($errorLog) ? 0 : 1
+            ]);
+        }
+        return true;
     }
 
     private function downloadImagesForSites($data, $prefix = 'img'): array
@@ -1087,9 +1116,22 @@ class ScrapController extends Controller
     }
 
     /**
-     * Store scraper completed time
+     * Store scraper starting time
      */
     public function scraperReady(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
+        if(!empty($scraper)) {
+                $scraper->last_started_at = Carbon::now();
+                $scraper->save();
+        }
+       return response()->json(['success'],200);
+    }
+
+    /**
+     * Store scraper completed time
+     */
+    public function scraperCompleted(Request $request)
     {
         $scraper = Scraper::where('scraper_name', $request->scraper_name)->first();
         if(!empty($scraper)) {
@@ -1102,8 +1144,19 @@ class ScrapController extends Controller
     public function needToStart(Request $request)
     {
         if($request->server_id != null) {
-            $scraper = Scraper::where('server_id', $request->server_id)->pluck("scraper_name");
-            return response()->json(["code" => 200, "data" => $scraper, "message" => ""]);
+
+            $totalScraper = [];
+            $scrapers = Scraper::select('parent_id','scraper_name')->where('server_id', $request->server_id)->where("scraper_start_time",\DB::raw("HOUR(now())"))->get();
+            foreach($scrapers as $scraper){
+                if(!$scraper->parent_id){
+                    $totalScraper[] = $scraper->scraper_name;
+                }else{
+                    $totalScraper[] = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+                }
+                
+            }
+            //dd($scraper);
+            return response()->json(["code" => 200, "data" => $totalScraper, "message" => ""]);
         }else{
             return response()->json(["code" => 500, "message" => "Please send server id"]);
         }
@@ -1124,8 +1177,15 @@ class ScrapController extends Controller
     public function restartNode(Request $request)
     {
         if($request->name && $request->server_id){
-            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$request->name.'.js';
-            //dd($url);
+            $scraper = Scraper::where('scraper_name',$request->name)->first();
+            if(!$scraper->parent_id){
+                $name = $scraper->scraper_name;
+            }else{
+                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+            }
+
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$name.'.js';
+            
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
             $curl = curl_init();
@@ -1141,4 +1201,34 @@ class ScrapController extends Controller
             
         }
     }
+
+
+    public function saveChildScraper(Request $request)
+    {
+        $scraper = Scraper::where('scraper_name',$request->scraper_name)->whereNull('parent_id')->first();
+        //dd($scraper);
+        if($scraper){
+            $parentId = $scraper->id;
+            $checkIfChildScraperExist = Scraper::where('parent_id',$parentId)->where('scraper_name',$request->name)->first();
+            if(!$checkIfChildScraperExist){
+                $scraperChild = new Scraper;
+                $scraperChild->scraper_name = $request->name;
+                $scraperChild->supplier_id =  $scraper->supplier_id;
+                $scraperChild->parent_id = $parentId;
+                $scraperChild->run_gap = $request->run_gap;
+                $scraperChild->start_time = $request->start_time;
+                $scraperChild->scraper_made_by = $request->scraper_made_by;
+                $scraperChild->server_id = $request->server_id;
+                $scraperChild->save();
+            }else{
+                 return redirect()->back()->with('message', 'Scraper Already Exist');
+            }
+                return redirect()->back()->with('message', 'Child Scraper Saved');
+        }
+                return redirect()->back()->with('message', 'Scraper Not Found');
+          
+            
+        
+    }
 }
+

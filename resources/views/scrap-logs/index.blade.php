@@ -36,30 +36,59 @@
 		<table class="table table-bordered table-striped" id="log-table">
 		    <thead>
 			    <tr>
-			    	     <th width="10%">S.No</th>
+			    	<th width="10%">S.No</th>
 			        <th width="10%">FolderName</th>
 			        <th width="30%">FileName</th>
+			        <th width="30%">Log Message</th>
 			    </tr>
 		    	<tbody>
 		    	</tbody>
 		    </thead>
 		</table>
 	</div>
+
+	<div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Log Messages</h4>
+                </div>
+                <div class="modal-body">
+                	<div class="cls_log_popup">
+                		<table class="table">
+                			<thead>
+                				<td>Scraper ID</td>
+                				<td>File Name</td>
+                				<td>Log Messages</td>
+                			</thead>
+                			<tbody id="log_popup_body">
+                				
+                			</tbody>
+                		</table>
+                	</div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @endsection
 
 @section('scripts')
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
   <script>
 	$(document).ready(function() 
 	{
-		tableData();
+		tableData(BASE_URL);
 		$("#tabledata").click(function(e) {
-			tableData();
+			tableData(BASE_URL);
 		});
-		function tableData() {
+		function tableData(BASE_URL) {
 			var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
 			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
 			$.ajax({
-				url: "/scrap-logs/fetch/"+search+"/"+date,
+				url: BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
 				headers: {
 				    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -69,12 +98,30 @@
 				success: function(data) {
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
-							$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a></td></tr>");
+							$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td></tr>");
 						});
+						
 					}
 			});
 		}
 	});
-
+	function openLasttenlogs(scraper_id){
+		$.ajax({
+			url: BASE_URL+"/fetchlog",
+			method:"get",
+			headers: {
+			    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+			  },
+			data:{},
+			cache: false,
+			success: function(data) {
+				$("#log_popup_body").empty();
+				$.each(data.file_list, function(i,row){
+					$("#log_popup_body").append("<tr><td>"+row['scraper_id']+"</td><td>"+row['filename']+"</td><td>"+row['log_msg']+"</td></tr>");
+				});
+			}
+		});
+		$('#chat-list-history').modal("show");
+	}
 </script> 
 @endsection

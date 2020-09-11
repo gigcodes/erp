@@ -4,9 +4,11 @@ namespace App\Console\Commands;
 
 use App\Helpers\hubstaffTrait;
 use App\Hubstaff\HubstaffActivity;
+use App\Hubstaff\HubstaffMember;
 use Carbon\Carbon;
 use Exception;
 use GuzzleHttp\Client;
+use Illuminate\Http\Request;
 use GuzzleHttp\RequestOptions;
 use Illuminate\Console\Command;
 
@@ -58,18 +60,15 @@ class LoadHubstaffActivities extends Command
             $time      = strtotime(date("c"));
             $time      = $time - ((60 * 60)); //one hour
             $startTime = date("c", strtotime(gmdate('Y-m-d H:i:s', $time)));
-
             $time     = strtotime($startTime);
-            $time     = $time + (60 * 60); //one hour
+            $time     = $time + (10 * 60); //10 mins
             $stopTime = date("c", $time);
-
 
             $activities = $this->getActivitiesBetween($startTime, $stopTime);
             if ($activities === false) {
                 echo 'Error in activities' . PHP_EOL;
                 return;
             }
-            
             echo "Got activities(count): " . sizeof($activities) . PHP_EOL;
             foreach ($activities as $id => $data) {
                 HubstaffActivity::updateOrCreate(
@@ -86,6 +85,17 @@ class LoadHubstaffActivities extends Command
                         'overall'   => $data['overall'],
                     ]
                 );
+
+                if(is_null($data['task_id'])) {
+                    $user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
+                    if($user) {
+                        $message = "You haven't selected any task on your last activity period ".$startTime. " to ".$stopTime." , Please select appropriate task or put notes on it.";
+                        $requestData = new Request();
+                        $requestData->setMethod('POST');
+                        $requestData->request->add(['user_id' => $user->user_id, 'message' => $message, 'status' => 1]);
+                        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
+                    }
+                }
             }
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
@@ -109,7 +119,8 @@ class LoadHubstaffActivities extends Command
                             ],
                         ]
                     );
-                }
+                },
+                true
             );
 
             $responseJson = json_decode($response->getBody()->getContents());

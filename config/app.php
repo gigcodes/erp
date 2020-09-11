@@ -191,6 +191,8 @@ return [
         Intervention\Image\ImageServiceProvider::class,
         Milon\Barcode\BarcodeServiceProvider::class,
         App\Providers\WhatsappConfigProvider::class,
+        Webklex\IMAP\Providers\LaravelServiceProvider::class,
+        Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
     ],
 
     /*
@@ -263,6 +265,7 @@ return [
         'DNS2D' => Milon\Barcode\Facades\DNS2DFacade::class,
         'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
+        'DotenvEditor' => Brotzka\DotenvEditor\DotenvEditorFacade::class,
     ],
 
 ];

@@ -1,6 +1,6 @@
 <!-- Modal -->
 <div id="quick-chatbox-window-modal" class="modal fade" role="dialog">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-lg" style="width:90%; max-width: 90%;">
         <!-- Modal content-->
         <div class="modal-content">
             <div class="modal-body">
@@ -8,12 +8,13 @@
                     <div class="col-md-3 chat" style="margin-top : 0px !important;">
                         <div class="card_chat mb-sm-3 mb-md-0 contacts_card">
                             <div class="card-header">
-                                <div class="input-group">
-                                    {{-- <input type="text" placeholder="Search..." name="" class="form-control search">
+                                <h3>Chats</h3>
+                                <!-- <div class="input-group">
+                                    <input type="text" placeholder="Search..." name="" class="form-control search">
                                         <div class="input-group-prepend">
                                             <span class="input-group-text search_btn"><i class="fa fa-search"></i></span>
-                                        </div> --}}
-                                </div>
+                                        </div> 
+                                </div> -->
                             </div>
                             <div class="card-body contacts_body">
                                 @php
@@ -26,7 +27,9 @@
                                     $customer = \App\Customer::where('id',$chatId->customer_id)->first();
                                     $customerInital = substr($customer->name, 0, 1);
                                     @endphp
-                                    <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+                                        <input type="hidden" id="live_selected_customer_store" value="{{ $customer->store_website_id }}" />
+                                        <li onclick="getChats('{{ $customer->id }}')" id="user{{ $customer->id }}" style="cursor: pointer;">
+
                                         <div class="d-flex bd-highlight">
                                             <div class="img_cont">
                                                 <soan class="rounded-circle user_inital">{{ $customerInital }}</soan>
@@ -95,16 +98,15 @@
                             <div class="typing-indicator" id="typing-indicator"></div>
                             <div class="card-footer">
                                 <div class="input-group">
-                                    {{-- <div class="input-group-append">
-                                        <span class="input-group-text attach_btn" onclick="sendMessage()"><i class="fa fa-paperclip"></i></span>
-                                        <input type="file" id="imgupload" style="display:none" />
-                                    </div> --}}
                                     <div class="card-footer">
                                         <div class="input-group">
-                                            <div class="input-group-append">
-                                                <span class="input-group-text attach_btn" onclick="sendImage()"><i class="fa fa-paperclip"></i></span>
-                                                <input type="file" id="imgupload" style="display:none" />
-                                            </div>
+                                            @if(isset($customer))
+                                                <div class="input-group-append">
+                                                    <a class="btn btn-image px-1 send-attached-images">
+                                                        <img src="/images/attach.png"/>
+                                                    </a>
+                                                </div>
+                                            @endif
                                             <input type="hidden" id="message-id" name="message-id" />
                                             <textarea name="" class="form-control type_msg" placeholder="Type your message..." id="message"></textarea>
                                             <div class="input-group-append">
@@ -137,8 +139,29 @@
                         <div class="chat-righbox">
                             <div class="title">Technology</div>
                             <div class="line-spacing" id="chatTechnology">
-                                
                             </div>
+                        </div>
+                        <div class="chat-rightbox">
+                            @php
+                            $all_categories = \App\ReplyCategory::all();
+                            @endphp
+                            <select class="form-control" id="keyword_category">
+                                <option value="">Select Category</option>
+                                @if(isset($all_categories))
+                                    @foreach ($all_categories as $category)
+                                        <option value="{{ $category->id }}">{{ $category->name }}</option>
+                                    @endforeach
+                                @endif
+                            </select>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <input type="text" name="quick_comment_live" placeholder="New Quick Comment" class="form-control quick_comment_live">
+                            <button class="btn btn-secondary quick_comment_add_live">+</button>
+                        </div>
+                        <div class="chat-rightbox mt-4">
+                            <select class="form-control" id="live_quick_replies">
+                                <option value="">Quick Reply</option>
+                            </select>
                         </div>
                     </div>
                 </div>

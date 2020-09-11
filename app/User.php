@@ -26,6 +26,8 @@ class User extends Authenticatable
     use SoftDeletes;
     use Mediable;
 
+    const USER_ADMIN_ID = 6;
+
     /**
      * The attributes that are mass assignable.
      *
@@ -213,7 +215,7 @@ class User extends Authenticatable
     {
         if ($name == '/') {
             $genUrl = 'mastercontrol';
-            header("Location: /development/list/devtask");
+            header("Location: /development/list");
         } else {
             $url = explode('/', $name);
             $model = $url[0];
@@ -482,4 +484,16 @@ class User extends Authenticatable
         }
         return $total;
     }
+
+
+    public function vendorCategoryPermission()
+    {
+        return $this->belongsToMany('App\VendorCategory', 'vendor_category_permission', 'user_id', 'vendor_category_id');
+    }
+
+    public function user_availabilities()
+    {
+        return $this->hasOne('App\UserAvaibility','user_id','id');
+    }
+
 }

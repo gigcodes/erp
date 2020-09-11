@@ -35,6 +35,7 @@ class StoreWebsite extends Model
         'mysql_password',
         'mysql_staging_username',
         'mysql_staging_password',
+        'website_source',
     ];
 
     // Append attributes
@@ -82,5 +83,10 @@ class StoreWebsite extends Model
     public function sizeBrand()
     {
         return $this->belongsToMany('App\Brand', 'brand_category_size_charts', 'store_website_id', 'brand_id');
+    }
+
+    public static function shopifyWebsite()
+    {
+        return self::where("website_source","shopify")->pluck("title","id")->toArray();
     }
 }

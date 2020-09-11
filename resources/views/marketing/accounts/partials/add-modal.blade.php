@@ -65,6 +65,20 @@
                             <div class="alert alert-danger">{{$errors->first('frequency')}}</div>
                             @endif
                         </div>
+                        
+                        <div class="form-group">
+                            <strong>Website:</strong>
+                            <select class="form-control" name="website">
+                                <option value="0">Select Website</option>
+                                @foreach($websites as $website)
+                                <option value="{{ $website->id }}">{{ $website->title }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('website'))
+                            <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            @endif
+                        </div>
 
     					<div class="form-group">
     						<strong>Customer Support:</strong>
@@ -92,6 +106,15 @@
                                 <div class="alert alert-danger" >{{$errors->first('token')}}</div>
                             @endif
                         </div>
+
+                        <div class="form-group">
+                            <strong>Proxy:</strong>
+                            <input type="text" name="proxy" class="form-control" value="{{ old('proxy') }}">
+                            @if ($errors->has('proxy'))
+                                <div class="alert alert-danger" >{{$errors->first('proxy')}}</div>
+                            @endif
+                        </div>
+
                         <div class="form-group">
                             <strong>Is Default ?:</strong>
                             <select class="form-control" name="is_default">
@@ -174,13 +197,15 @@
                         @if($type)
                             <input type="hidden" name="platform" class="platform" value="{{ $type }}">
                         @else
-
+                             <strong>Platform:</strong>
                             <select class="form-control" name="platform">
                                @foreach($platforms as $platform)
                                <option value="{{ $platform->name }}">{{ $platform->name }}</option>
                                @endforeach 
                             </select>
                         @endif
+
+
 
 
                         <div class="form-group">

@@ -49,7 +49,7 @@ class LogListMagentoController extends Controller
 
     public function index(Request $request)
     {
-        $this->check_successfully_listed_products();
+        //$this->check_successfully_listed_products();
         /*
         $logListMagentos = LogListMagento::join('products', 'log_list_magentos.product_id', '=', 'products.id')
             ->join('brands', 'products.brand', '=', 'brands.id')
@@ -59,6 +59,7 @@ class LogListMagentoController extends Controller
 
         // Get results
         $logListMagentos = \App\Product::join('log_list_magentos', 'log_list_magentos.product_id', '=', 'products.id')
+            ->leftJoin('store_websites as sw', 'sw.id', '=', 'log_list_magentos.store_website_id')
             ->join('brands', 'products.brand', '=', 'brands.id')
             ->join('categories', 'products.category', '=', 'categories.id')
             ->orderBy('log_list_magentos.created_at', 'DESC');
@@ -95,7 +96,8 @@ class LogListMagentoController extends Controller
             'brands.name as brand_name',
             'categories.title as category_title',
             'log_list_magentos.id as log_list_magento_id',
-            'log_list_magentos.created_at as log_created_at'
+            'log_list_magentos.created_at as log_created_at',
+            'sw.website as website'
         );
         $logListMagentos = $logListMagentos->paginate(25);
 

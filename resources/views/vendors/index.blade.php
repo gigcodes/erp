@@ -31,6 +31,83 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+    .cls_filter_inputbox{
+        width: 14%;
+        text-align: center;
+    }
+    .message-chat-txt {
+        color: #333 !important;
+    }
+    .cls_remove_leftpadding{
+        padding-left: 0px !important;
+    }
+    .cls_remove_rightpadding{
+        padding-right: 0px !important;
+    }
+    .cls_action_btn .btn{
+        padding: 6px 12px;
+    } 
+    .cls_remove_allpadding{
+        padding-left: 0px !important;
+        padding-right: 0px !important;   
+    }
+    .cls_quick_message{
+        width: 100% !important;
+        height: 35px !important;
+    }
+    .cls_filter_box{
+        width: 100%;
+    }
+    .select2-selection.select2-selection--single{
+        height: 35px;
+    }
+    .cls_action_btn .btn-image img {
+        width: 13px !important;
+    }
+    .cls_action_btn .btn {
+        padding: 6px 2px;
+    }
+    .cls_textarea_subbox{
+        width: 100%;
+    }
+    .btn.btn-image.delete_quick_comment {
+        padding: 4px;
+    }
+    .vendor-update-status-icon {
+        padding: 0px;
+    }
+    .cls_commu_his{
+        width: 100% !important;
+    }
+    .vendor-update-status-icon{
+        margin-top: -7px;
+    }
+    .clsphonebox .btn.btn-image{
+        padding: 5px;
+    }
+    .clsphonebox {
+        margin-top: -8px;
+    }
+    .send-message1{
+        padding: 0px 10px;
+    }
+    .load-communication-modal{
+        margin-top: -6px;
+        margin-left: 4px;
+    }
+    .select2-container--default .select2-selection--single .select2-selection__rendered{
+        line-height: 35px;
+    }
+    .select2-selection__arrow{
+        display: none;
+    }
+    .cls_mesg_box{
+        margin-top: -7px;
+        font-size: 12px;
+    }
+    .td-full-container{
+        color: #333;
+    }
 
   </style>
 @endsection
@@ -41,11 +118,13 @@
    </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
+            <?php $base_url = URL::to('/');?>
             <h2 class="page-heading">Vendor Info ({{ $totalVendor }})</h2>
-            <div class="pull-left">
+            <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('vendors.index') }}" method="GET">
-                    <div class="form-group" style="width: 441px; margin-right: 10px;">
-                       <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Name</label>
+                        <select name="term" type="text" class="form-control" placeholder="Search" id="vendor-search" data-allow-clear="true">
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
@@ -53,14 +132,35 @@
                             ?>
                         </select>
                     </div>
-                    <div class="form-group ml-3">
-                        <input type="checkbox" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
-                        <label for="with_archived">Archived</label>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Phone Number</label>
+                        <select name="phone" type="text" class="form-control" placeholder="Search" id="vendor-phone-number" data-allow-clear="true">
+                            <?php
+                                if (request()->get('phone')) {
+                                    echo '<option value="'.request()->get('phone').'" selected>'.request()->get('phone').'</option>';
+                                }
+                            ?>
+                        </select>
                     </div>
-                    <div class="form-group ml-3" style="margin-left: 10px;">
-                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm form-control">
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                        <label for="with_archived">Category</label>
+                        <?php
+                        $category_post = request('category'); 
+                        ?>
+                        <select class="form-control" name="category" id="category">
+                            <option value="">Select Category</option>
+                            <?php
+                            foreach ($vendor_categories as $row_cate) { ?>
+                                <option value="<?php echo $row_cate->id;?>" <?php if($category_post == $row_cate->id) echo "selected"; ?>><?php echo $row_cate->title;?></option>
+                            <?php } 
+                            ?>
+                        </select>
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <label for="with_archived">Communication History</label>
+                       <input placeholder="Communication History" type="text" name="communication_history" value="{{request()->get('communication_history')}}" class="form-control-sm cls_commu_his form-control">
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_archived">Status</label>
                         <?php echo Form::select("status",[
                             "" => "- Select -",
@@ -68,7 +168,7 @@
                             "1" => "Active"
                         ],request('status'),["class"=> "form-control"]) ?>
                     </div>
-                    <div class="form-group ml-3">
+                    <div class="form-group ml-3 cls_filter_inputbox">
                         <label for="with_updated_by">Updated by</label>
                         <?php echo Form::select("updated_by",
                             ["" => "-- Select --"] +\App\User::pluck("name","id")->toArray(),
@@ -76,25 +176,31 @@
                             ["class"=> "form-control"]
                         ); ?>
                     </div>
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
+                    <div class="form-group ml-3 cls_filter_checkbox">
+                    <label for="with_archived">Archived</label>
+                        <input type="checkbox" class="form-control" style="margin-left: 30px;" name="with_archived" id="with_archived" {{ Request::get('with_archived')=='on'? 'checked' : '' }}>
+                    </div>
+                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
         </div>
         <div class="col-lg-12 margin-tb">
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
-            <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
-            <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
-        </div>    
+            <div class="pull-right mt-3">
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createVendorCategorytModal">Create Category</button>
+                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#vendorCreateModal">+</button>
+                <a class="btn btn-secondary create_broadcast" href="javascript:;">Create Broadcast</a>
+            </div>
+        </div>   
     </div>
 
     @include('partials.flash_messages')
 
     <div class="row">
         <div class="col-md-12">
-            <div class="panel-group">
-                <div class="panel mt-5 panel-default">
+            <div class="panel-group" style="margin-bottom: 5px;">
+                <div class="panel mt-3 panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" href="#collapse1">Category Assignments</a>
@@ -135,30 +241,14 @@
             <tr>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">ID</a></th>
                 <th width="5%"><a href="/vendors{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=category{{ ($orderby == 'ASC') ? '&orderby=DESC' : '' }}">Category</a></th>
-                <th width="10%">Name</th>
-                <th width="10%">Phone</th>
-                <th width="10%">Email</th>
-                <th width="10%">Address</th>
+                <th width="7%">Name</th>
+                <th width="7%">Phone</th>
+                <th width="7%">Email</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
-                <th width="20%">Send</th>
-                <th width="10%">Communication</th>
-                <th width="5%">Created At</th>
-                <th width="5%">Updated At</th>
-                <th width="5%">Updated By</th>
+               
+                <th width="25%">Communication</th>
                 <th width="2%">Action</th>
-            </tr>
-
-            <tr>
-                <th width="5%"><input type="text" id="id" class="search form-control" placeholder="Id"></th>
-                <th width="5%"><input type="text" id="category" class="search form-control" placeholder="Category"></th>
-                <th width="10%"><input type="text" id="name" class="search form-control" placeholder="Name" name="name"></th>
-                <th width="10%"><input type="text" id="phone" class="search form-control" placeholder="Phone"></th>
-                <th width="10%"><input type="text" id="email" class="search form-control" placeholder="Email"></th>
-                <th width="10%"><input type="text" id="address" class="search form-control" placeholder="Address"></th>
-                <th></th>
-                <th></th>
-                <th></th>
             </tr>
             </thead>
 
@@ -255,7 +345,7 @@
         </div>
     </div>
 
-    @include('customers.zoomMeeting');
+    @include('customers.zoomMeeting')
     <div id="forwardModal" class="modal fade" role="dialog">
       <div class="modal-dialog">
 
@@ -356,7 +446,7 @@
             tags: true,
             width : '100%',
             ajax: {
-                url: '/erp-leads/customer-search',
+                url: BASE_URL+'/erp-leads/customer-search',
                 dataType: 'json',
                 delay: 750,
                 data: function (params) {
@@ -419,7 +509,7 @@
                     };
                 },
             },
-            placeholder: 'Search for Vendor by name, address, phone, email, category, title',
+            placeholder: 'Search by name',
             escapeMarkup: function (markup) {
                 return markup;
             },
@@ -427,10 +517,53 @@
             templateResult: function (customer) {
 
                 if (customer.name) {
-                    return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    //return "<p> <b>Id:</b> " + customer.id + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                    return "<p>" + customer.name +"</p>";
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
+
+        });
+
+        var vendorToRemind = null;
+        $('#vendor-phone-number').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: BASE_URL+'/vendor-search-phone',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].phone ? data[i].phone : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search by phone number',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+
+                if (customer.name) {
+                    return "<p style='color:#333;'>"+ customer.phone+ "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.phone,
 
         });
 
@@ -469,15 +602,15 @@
             $('#reminder_message').val(message);
             $("#reminderModal").find("#reminder_from").val(reminder_from);
             if(reminder_last_reply == 1) {
-            	$("#reminderModal").find("#reminder_last_reply").prop("checked",true);
+                $("#reminderModal").find("#reminder_last_reply").prop("checked",true);
             }else{
-            	$("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
+                $("#reminderModal").find("#reminder_last_reply_no").prop("checked",true);
             }
             vendorToRemind = vendorId;
         });
 
         $(document).on('click', '.save-reminder', function () {
-        	var reminderModal = $("#reminderModal");
+            var reminderModal = $("#reminderModal");
             let frequency = $('#frequency').val();
             let message = $('#reminder_message').val();
             let reminder_from = reminderModal.find("#reminder_from").val();
@@ -698,7 +831,7 @@
             if (message.length > 0) {
                 if (!$(thiss).is(':disabled')) {
                     $.ajax({
-                        url: '/whatsapp/sendMessage/vendor',
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
                         "dataType": 'json',           // what to expect back from the PHP script, if anything
                         "cache": false,
@@ -724,7 +857,57 @@
                 alert('Please enter a message first');
             }
         });
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var vendor_id = $(this).data('vendorid');
 
+            var message = $("#messageid_"+vendor_id).val();
+            data.append("vendor_id", vendor_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/vendor',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        if(message.length > 30)
+                        {
+                            var res_msg = message.substr(0, 27)+"..."; 
+                            $("#message-chat-txt-"+vendor_id).html(res_msg);
+                            $("#message-chat-fulltxt-"+vendor_id).html(message);    
+                        }
+                        else
+                        {
+                            $("#message-chat-txt-"+vendor_id).html(message); 
+                            $("#message-chat-fulltxt-"+vendor_id).html(message);      
+                        }
+                        
+                        $("#messageid_"+vendor_id).val('');
+                        
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
         $(document).on('change', '.update-category-user', function () {
             let catId = $(this).attr('data-categoryId');
             let userId = $(this).val();
@@ -941,7 +1124,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/reply/add",
+                          url: BASE_URL+"/vendors/reply/add",
                           dataType: "json",
                           method: "POST",
                           data: {reply: message}
@@ -951,7 +1134,11 @@
                           alert('No response from server');
                       });
                   }
-                  $(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+                  //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
+                  var vendors_id = $(this).find("option:selected").attr("data-vendorid");
+                  //alert(vendors_id);
+                  var message_re = $(this).find("option:selected").attr("title");
+                  $("textarea#messageid_"+vendors_id).val($.trim(message_re));
 
               });
 
@@ -964,7 +1151,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/reply/delete",
+                          url: BASE_URL+"/vendors/reply/delete",
                           dataType: "json",
                           method: "GET",
                           data: {id: deleteAuto}
@@ -1003,7 +1190,7 @@
                           headers: {
                               'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
                           },
-                          url: "/vendors/create-user",
+                          url: BASE_URL+"/vendors/create-user",
                           dataType: "json",
                           method: "POST",
                           data: {id: id},
@@ -1028,7 +1215,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendors/inviteGithub",
+                url: "/vendors/inviteGithub",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email
@@ -1051,7 +1238,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "vendors/inviteHubstaff",
+                url: BASE_URL+"/vendors/inviteHubstaff",
                 data: {
                     _token: "{{ csrf_token() }}",
                     email
@@ -1073,7 +1260,7 @@
             var $this = $(this);
             $.ajax({
                 type: "POST",
-                url: "vendors/change-status",
+                url: BASE_URL +"vendors/change-status",
                 data: {
                     _token: "{{ csrf_token() }}",
                     vendor_id: $this.data("id"),
@@ -1087,18 +1274,53 @@
                 
             })
         });
+        $(document).on("click",".vendor-update-status-icon",function(){
+            var $this = $(this);
+            var vendor_id = $(this).attr("data-id");
+            var hdn_vendorstatus = $("#hdn_vendorstatus_"+vendor_id).val();
+            $.ajax({
+                type: "POST",
+                url: BASE_URL +"vendors/change-status",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    vendor_id: $this.data("id"),
+                    status : hdn_vendorstatus
+                }
+            }).done(function(data){
+                if(data.code == 200) {
+                    //toastr["success"](data.message);
+                    if(hdn_vendorstatus == "true")
+                    {
+                        var img_url = BASE_URL + 'images/do-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","On");
+                        $("#hdn_vendorstatus_"+vendor_id).val('false');    
+                    }
+                    else
+                    {
+                        var img_url = BASE_URL + 'images/do-not-disturb.png';
+                        $("#btn_vendorstatus_"+vendor_id).html('<img src="'+img_url+'" />');  
+                        $("#btn_vendorstatus_"+vendor_id).attr("title","Off");
+                        $("#hdn_vendorstatus_"+vendor_id).val('true');    
+                    }
+                    
+                }
+            }).fail(function(error) {
+                
+            })
+        });
 
     $('ul.pagination').hide();
-	$('.infinite-scroll').jscroll({
+    $('.infinite-scroll').jscroll({
         autoTrigger: true,
-		// debug: true,
+        // debug: true,
         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
         padding: 20,
         nextSelector: '.pagination li.active + li a',
         contentSelector: 'div.infinite-scroll',
         callback: function () {
             $('ul.pagination').first().remove();
-			$('ul.pagination').hide();
+            $('ul.pagination').hide();
         }
     });
 

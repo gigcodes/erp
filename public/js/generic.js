@@ -1,9 +1,11 @@
 var currentChatParams = {};
 var workingOn =  null;
 var load_type =  null;
+var is_admin =  null;
+var is_hod_crm =  null;
 
 var getMoreChatConvo = function(params) {
-
+    var AllMessages = [];
     workingOn = $.ajax({
         type: "GET",
         url: params.url,
@@ -19,16 +21,26 @@ var getMoreChatConvo = function(params) {
     }).done(function (response) {
         workingOn = null;
         if(response.messages.length > 0) {
+            AllMessages = AllMessages.concat(response.messages);
             var li = getHtml(response);
-
             if ($('#chat-list-history').length > 0) {
                 $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
                 $("#chat-list-history").find(".modal-body").append(li);
-                //$(thiss).html("<img src='/images/chat.png' alt=''>");
                 //$("#chat-list-history").modal("show");
             } else {
                 $("#chat-history").find("#loading-image").remove();
                 $("#chat-history").append(li);
+            }
+            var searchterm = $('.search_chat_pop').val();
+            if(searchterm && searchterm != '') {
+                var value = searchterm.toLowerCase();
+                $(".filter-message").each(function () {
+                    if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                        $(this).hide();
+                    } else {
+                        $(this).show()
+                    }
+                });
             }
         }else{
             $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
@@ -44,21 +56,41 @@ var getMoreChatConvo = function(params) {
 
 var getHtml = function(response) {
     var j = 0;
+    
+       
     var classMaster = (load_type == "broadcast" || load_type == "images") ? "full-match-img" : "";
-    var li = '<div class="speech-wrapper '+classMaster+'">';
+    
 
-    if(load_type == "broadcast" || load_type == "images") {
-        $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
-    }else{
-        $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
-    }
-
+    // if(load_type == "broadcast" || load_type == "images") {
+    //     $("#chat-list-history").find(".modal-dialog").addClass("modal-lg");
+    // }else{
+    //     $("#chat-list-history").find(".modal-dialog").removeClass("modal-lg");
+    // }
+    // <input type="text" id="click-to-clipboard-message" class="form-control link hidden" style="position: absolute; left: -1000px;"></input>
+    
+    var fullHtml = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"></input><table class="table table-bordered">';
 
     (response.messages).forEach(function (message) {
         // Set empty image var
         var media = '';
         var imgSrc = '';
-
+        var parentMedia = '';
+        var parentImgSrc = '';
+        var li = '<div class="speech-wrapper '+classMaster+'">';
+        if(message.is_reviewed == 1) {
+            var reviewed_msg = 'reviewed_msg';
+        }
+        else {
+            var reviewed_msg = '';
+        }
+        if(message.inout == 'out') {
+            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'">';
+        }
+        else {
+            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg">'; 
+        }
+        fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
+        var fromMsg = '';
         // Check for attached media (ERP attached media)
         if (currentChatParams.data.load_attached == 1 && message.mediaWithDetails && message.mediaWithDetails.length > 0) {
             for (var i = 0; i < message.mediaWithDetails.length; i++) {
@@ -92,7 +124,7 @@ var getHtml = function(response) {
                             media = media + '<a href="javascript:;" data-id="' + message.media[i].product_id + '" class="show-product-info "><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         } else {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
-                        } 
+                        }
                     } else {
                         if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
                             media = media + '<a class="" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
@@ -100,7 +132,7 @@ var getHtml = function(response) {
                             media = media + '<a class="show-thumbnail-image has-pdf" href="' + message.media[i].image + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                         }
                     }
-                    
+
                     if (message.media[i].product_id > 0 && message.customer_id > 0) {
                         media = media + '<br />';
                         media = media + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.media[i].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
@@ -130,8 +162,8 @@ var getHtml = function(response) {
                 media = '<input type="checkbox" class="form-control" name="checkbox[]" value="' + imgSrc + '" id="cb1_m_' + j + '" style="border: 3px solid black;"/><a href="' + message.media_url + '" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>';
                 j++;
             } else {
-                media =  '<div style="margin-bottom:10px;">'; 
-                media += '<div class="row">'; 
+                media =  '<div style="margin-bottom:10px;">';
+                media += '<div class="row">';
                 media += '<div class="'+classFive+'">';
                 media += '<a href="' + message.media_url + '" class="show-product-info" target="_blank"><img src="' + imgSrc + '" style="max-width: 100%;"></a>'; // + media;
                 media += '</div>';
@@ -140,78 +172,165 @@ var getHtml = function(response) {
             }
 
         }
+        //here
 
         // Set empty button var
         var button = "";
 
         if (message.type == "task" || message.type == "customer" || message.type == "vendor") {
-            
+
             if (message.status == 0 || message.status == 5 || message.status == 6) {
                 if (message.status == 0) {
-                    button += "<a href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'>Mark as Read </a>";
+                    
+                    button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
                 }
 
-                if (message.status == 0 || message.status == 5) {                        
-                  button += '<a href="javascript:;" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status">Mark as Replied </a>';
+                if (message.status == 0 || message.status == 5) {
+                  button += '<a href="javascript:;" title="Mark as Replied" data-url="/whatsapp/updatestatus?status=6&id=' + message.id + '" class="btn btn-xs btn-secondary ml-1 change_message_status"> <img src="/images/2.png" /> </a>';
                 }
-                button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
+                button += '&nbsp;<button title="forward"  class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
             } else if (message.status == 4) {
             } else {
                 if ( message.type == "customer") {
                     if (message.error_status == 1) {
-                        button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                        button +="<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /></a><a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
                      } else if (message.error_status == 2) {
-                       button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'>Resend</a>";
+                       button += "<a href='javascript:;' class='btn btn-image fix-message-error' data-id='" + message.id + "'><img src='/images/flagged.png' /><img src='/images/flagged.png' /></a><a title='Resend' href='#' class='btn btn-xs btn-secondary ml-1 resend-message-js' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i></a>";
                      }
-                     
+
                      if (!message.approved) {
                          if (is_admin || is_hod_crm) {
-                            approveBtn = "<button class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'>Approve</button>";
+                            approveBtn = "<button title='Approve' class='btn btn-xs btn-secondary btn-approve ml-3' data-messageid='" + message.id + "'><i class='fa fa-thumbs-up' aria-hidden='true'></i></button>";
                             button += approveBtn;
                             button += '<textarea name="message_body" rows="8" class="form-control" id="edit-message-textarea' + message.id + '" style="display: none;">' + message.message + '</textarea>';
-                            button += ' <a href="#" style="font-size: 9px" class="edit-message whatsapp-message ml-2" data-messageid="' + message.id + '">Edit</a>';
+                            button += ' <a title="Edit" href="#" style="font-size: 13px" class="btn btn-secondary edit-message whatsapp-message ml-2" data-messageid="' + message.id + '"><i class="fa fa-pencil-square-o" aria-hidden="true"></i></a>';
                          }
                      }
-                     button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" /></button><button data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message-js">Resend</button>';
-                } 
+                     button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;<button title="Resend" data-id="'+message.id+'" class="btn btn-xs btn-secondary resend-message"><i class="fa fa-repeat" aria-hidden="true"></i></button>';
+                }
+
+
 
                 if (message.type == "task" || message.type == "vendor") {
-                    button += "<a href='#' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'>Resend (" + message.resent + ")</a>";
+                    button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
                     if(message.type != "vendor") {
                         button += "<a href='#' class='btn btn-image ml-1 reminder-message' data-id='" + message.id + "' data-toggle='modal' data-target='#reminderMessageModal'><img src='/images/reminder.png' /></a>";
                     }
                 }
 
                 if (message.type == "vendor") {
-                    button += '<button class="btn btn-image forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><img src="/images/forward.png" />';
+                    button += '&nbsp;<button title="Forward" class="btn btn-secondary forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="' + message.id + '"><i class="fa fa-angle-double-right" aria-hidden="true"></i></button>&nbsp;';
                 }
             }
         }
-        button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 delete-message" data-id="' + message.id + '">- Remove</a>';
+        if(message.type == "developer_task" ) {
+            if (message.status == 0) {
+                button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+            }
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+        }
+        button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + message.id + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
         if(message.is_queue == 1) {
-           button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>'; 
+           button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
+        }
+        if(message.is_reviewed != 1) {
+            button += '&nbsp;<button title="Mark as reviewed" class="btn btn-secondary review-btn" data-id="' + message.id + '"><i class="fa fa-check" aria-hidden="true"></i></button>&nbsp;';
+        }
+        
+        if (message.inout == 'out' || message.inout == 'in') {
+            button += '<a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>';
         }
 
-        if (message.inout == 'out' || message.inout == 'in') {
-            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1 create-dialog">+ Dialog</a>'; 
-        }    
+
+        //check parent media details
+        if (message.parentMediaWithDetails && message.parentMediaWithDetails.length > 0) {
+                // Get image to display
+                parentImgSrc = getImageToDisplay(message.parentMediaWithDetails[0].image);
+                var parentProductId = message.parentMediaWithDetails[0].parentProductId;
+
+                // Set media
+                if (parentImgSrc != '') {
+                    parentMedia = parentMedia + '<div class="col-4"><a href="' + message.parentMediaWithDetails[0].image + '" target="_blank" class=""><input type="checkbox" name="product" value="' + parentProductId + '" id="cb1_' + 0 + '" /><label class="label-attached-img" for="cb1_' + 0 + '"><img src="' + parentImgSrc + '" style="max-width: 100%;"></label></a></div>';
+                }
+        }
+
+
+        if (message.parentMedia && message.parentMedia.length > 0) {
+            // for (var i = 0; i < message.media.length; i++) {
+                // Get image to display
+                parentImgSrc = getImageToDisplay(message.parentMedia[0].image);
+                
+        
+                // Set media
+                if (parentImgSrc != '') {
+                    parentMedia = parentMedia + '<div class="'+classFive+'">';
+                    var imageType = (message.parentMedia[0].image).substr( (message.parentMedia[0].image).length - 4).toLowerCase();
+                    if (message.parentMedia[0].product_id) {
+        
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            parentMedia = parentMedia + '<a href="javascript:;" data-id="' + message.parentMedia[0].product_id + '" class="show-product-info "><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        } else {
+                            parentMedia = parentMedia + '<a class="show-thumbnail-image has-pdf" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                    } else {
+                        if (imageType == '.jpg' || imageType == 'jpeg' || imageType == '.png' || imageType == '.gif') {
+                            parentMedia = parentMedia + '<a class="" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }else{
+                            parentMedia = parentMedia + '<a class="show-thumbnail-image has-pdf" href="' + message.parentMedia[0].image + '" target="_blank"><img style="height:100px;" src="' + parentImgSrc + '" style="max-width: 100%;"></a>';
+                        }
+                    }
+        
+                    if (message.parentMedia[0].product_id > 0 && message.customer_id > 0) {
+                        parentMedia = parentMedia + '<br />';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead-dimension" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Dimensions</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-lead" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Lead</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-detail_image" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">Detailed Images</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-product-order" data-id="' + message.parentMedia[0].product_id + '" data-customer-id="'+message.customer_id+'">+ Order</a>';
+                        parentMedia = parentMedia + '<a href="#" class="btn btn-xs btn-default ml-1 create-kyc-customer" data-media-key="'+message.parentMedia[0].key+'" data-customer-id="'+message.customer_id+'">+ KYC</a>';
+                    }
+                    parentMedia = parentMedia + '</div>';
+                }
+            // }
+        }
+
+       
 
         if (message.inout == 'in') {
-            li += '<div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div><div class="bubble-arrow"></div></div>';
+            if (message.quoted_message_id) {
+                if (parentMedia != '') {
+                    parentMedia = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + parentMedia + '</div></div>';
+                }
+
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
+
+
         } else if (message.inout == 'out') {
-            li += '<div class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + button + '</p><br/><span class="timestamp">' + message.datetime.date.substr(0, 19) + '</span></div> <div class="bubble-arrow alt"></div></div>';
+            if (message.quoted_message_id) {
+                if (parentMedia != '') {
+                    parentMedia = '<div style="max-width: 100%; margin-bottom: 10px;"><div class="row">' + parentMedia + '</div></div>';
+                }
+                li = li + '<div data-target="#'+message.quoted_message_id+'" class="chat-reply-div">'+ parentMedia + message.parentMessage + '</div>';
+            }
+
+            li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
         }
+        li += '</div>';
+        fullHtml = fullHtml + '<td style="width:45%">' + li + '</td>';
+        fullHtml = fullHtml + '<td style="width:30%">' + button + '</td>'; 
+        fullHtml = fullHtml + '<td style="width:20%">' + fromMsg + '</td></tr>'; 
     });
-
-    li += '</div>';
-
-    return li;
+    fullHtml = fullHtml + '</table></div>';
+    return fullHtml;
 }
 
 $(document).on('click', '.load-communication-modal', function () {
-    
     var thiss = $(this);
     var object_type = $(this).data('object');
     var object_id = $(this).data('id');
@@ -224,7 +343,7 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-
+    
 	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
@@ -249,15 +368,28 @@ $(document).on('click', '.load-communication-modal', function () {
             //$(thiss).text('Loading...');
         }
     }).done(function (response) {
-        
         var li = getHtml(response);
-
         if ($('#chat-list-history').length > 0) {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-list-history").find(".modal-body").html(li);
-            //$(thiss).html("<img src='/images/chat.png' alt=''>");
             $("#chat-list-history").modal("show");
         } else {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-history").html(li);
+        }
+
+        var searchterm = $('.search_chat_pop').val();
+        if(searchterm && searchterm != '') {
+            var value = searchterm.toLowerCase();
+            $(".filter-message").each(function () {
+                if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                    $(this).hide();
+                } else {
+                    $(this).show()
+                }
+            });
         }
 
     }).fail(function (response) {
@@ -265,7 +397,6 @@ $(document).on('click', '.load-communication-modal', function () {
 
         alert('Could not load messages');
 
-        console.log(response);
     });
 });
 $(document).on('click', '.btn-approve', function (e) {
@@ -294,6 +425,16 @@ $(document).on('click', '.btn-approve', function (e) {
      });
    }
 });
+
+
+// $(document).on('click', '.chat-reply-div', function (e) {
+//     e.preventDefault();
+//     var target = $(this).attr('data-target');
+//     $('html, body').animate({
+//       scrollTop: ($(target).offset().top)
+//     }, 2000);
+    
+//  });
 
 function getImageToDisplay(imageUrl) {
     // Trim imageUrl
@@ -388,7 +529,7 @@ $(document).on('click', '.pending-call', function (e) {
 $(document).on('click', '.create-product-lead', function (e) {
     e.preventDefault();
 
-    createLead (this,{auto_approve: 1}); 
+    createLead (this,{auto_approve: 1});
 });
 
 $(document).on('click','.delete-message',function(e) {
@@ -400,7 +541,7 @@ $(document).on('click','.delete-message',function(e) {
     }).done(response => {
         $this.closest(".bubble").remove();
     }).fail(function(response) {
-    
+
     });
 })
 
@@ -469,7 +610,7 @@ function createLead (thiss,dataSending) {
     }
 
     var text = $(thiss).text();
-    
+
     if (selected_product_images.length > 0) {
         if ($('#add_lead').length > 0 && $(thiss).hasClass('create-product-lead')) {
             $.ajax({
@@ -488,7 +629,7 @@ function createLead (thiss,dataSending) {
                 $('#add_lead').find('select[name="lead_status_id"]').val('3').trigger('change');
                 $('#add_lead').find('select[name="gender"]').val(response.gender).trigger('change');
                 $('#add_lead').find('input[name="size"]').val(response.shoe_size);
-                
+
                 var showImageHtml = "";
                 if(typeof response.price != "undefined" && response.price > 0) {
                     showImageHtml += '<div class="col-sm-12" style="padding-bottom: 10px;"><span>Price : '+response.price+'</span></div>';
@@ -502,7 +643,7 @@ function createLead (thiss,dataSending) {
                 }
 
                 $('#add_lead').find('.show-product-image').html(showImageHtml);
-                
+
                 if (!dataSending) {
                     dataSending = {};
                 }
@@ -516,7 +657,7 @@ function createLead (thiss,dataSending) {
                         name: 'product_id',
                         type: 'hidden',
                         'data-object' : JSON.stringify(dataSending),
-                    }));    
+                    }));
                 }
             })
             return false;
@@ -571,6 +712,32 @@ var observeModelOpen = function () {
         $("body").addClass("modal-open");
     }
 };
+var clipboradMsg = [];
+var clipboardFinalMsg = '';
+$(document).on('click','.click-to-clipboard', function () {
+    clipboardFinalMsg = '';
+    $("#click-to-clipboard-message").val('');
+    if ($(this).prop("checked") == true) { 
+        clipboradMsg.push({
+            id: $(this).data('id'),
+            message:  $(this).data('message')
+        });
+      } else { 
+        for (var i = 0; i < clipboradMsg.length; i++) {
+            if (clipboradMsg[i].id && clipboradMsg[i].id === $(this).data('id')) { 
+                clipboradMsg.splice(i, 1);
+                break;
+            }
+        } 
+      }
+      for (var i = 0; i < clipboradMsg.length; i++) {
+        clipboardFinalMsg = clipboardFinalMsg + clipboradMsg[i].message;
+    }
+    $("#click-to-clipboard-message").val(clipboardFinalMsg);
+    var copyText = document.getElementById("click-to-clipboard-message");
+    copyText.select();
+    document.execCommand("copy");
+});
 
 $(document).on('hidden.bs.modal','#add_lead', function () {
     observeModelOpen();
@@ -592,12 +759,12 @@ $(document).on('hidden.bs.modal','#forwardModal', function () {
 
 $(document).on('click', '.create-product-lead-dimension', function(e) {
         e.preventDefault();
-        createLead (this,{dimension: true , auto_approve: 1});         
+        createLead (this,{dimension: true , auto_approve: 1});
 });
 
 $(document).on('click', '.create-detail_image', function(e) {
     e.preventDefault();
-    createLead (this,{detailed: true , auto_approve: 1}); 
+    createLead (this,{detailed: true , auto_approve: 1});
 });
 
 $(document).on('click', '.resend-message-js', function(e) {
@@ -635,6 +802,28 @@ $(document).on('click', '.resend-message', function () {
         console.log(response);
 
         alert('Could not resend message');
+    });
+});
+
+$(document).on('click', '.review-btn', function () {
+    var id = $(this).data('id');
+    var thiss = $(this);
+    $.ajax({
+        type: "POST",
+        url: "/chat-messages/" + id + "/set-reviewed",
+        data: {
+            _token: $('meta[name="csrf-token"]').attr('content'),
+            id:id
+        },
+        beforeSend: function () {
+            $(thiss).text('Reviewing...');
+        }
+    }).done(function (response) {
+        toastr["success"](response.message);
+        $(thiss).hide();
+    }).fail(function (response) {
+        toastr["error"](response.message);
+        $(thiss).text('');
     });
 });
 
@@ -678,7 +867,7 @@ $(document).on('click', '.create-product-order', function(e) {
                     value: product_id,
                     name: 'selected_product[]',
                     type: 'hidden'
-                }));    
+                }));
             }
 
             if ($('#add_order').find('input[name="convert_order"]').length > 0) {
@@ -688,9 +877,9 @@ $(document).on('click', '.create-product-order', function(e) {
                     value: 'convert_order',
                     name: 'convert_order',
                     type: 'hidden'
-                }));    
+                }));
             }
-            
+
             $('#add_order').modal('show');
             return false;
         }
@@ -743,9 +932,16 @@ $('#forward_message_id').val(id);
 
 $(document).on("keyup", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
-    $(".speech-wrapper .bubble").filter(function() {
-        $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    $(".filter-message").each(function () {
+        if ($(this).text().search(new RegExp(value, "i")) < 0) {
+            $(this).hide();
+        } else {
+            $(this).show()
+        }
     });
+    // $(".speech-wrapper .bubble").filter(function() {
+    //     $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
+    // });
 });
 
 $(document).on("click", '.show-product-info', function() {
@@ -766,7 +962,7 @@ $(document).on("click", '.show-product-info', function() {
         $('body').append(show_product_info_model);
     }
 
-    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');           
+    $('#show_product_info_model').find('.product_page').html('<iframe class="embed-responsive-item" src="/products/'+$(this).data('id')+'"></iframe>');
     $('#show_product_info_model').modal('show');
 
 });
@@ -786,9 +982,9 @@ $(document).on("mouseover", '.show-thumbnail-image', function() {
                                     '</div>';
             $('body').append(preview_image_model);
             $('#preview-image-model').modal('show');
-                                       
+
         }else{
-            
+
             var preview_image_model =   '<div id="preview-image-model" class="modal col-6" data-backdrop="false">'+
                                     '  <span class="close">×</span>'+
                                     '  <div class="row">'+
@@ -804,15 +1000,15 @@ $(document).on("mouseover", '.show-thumbnail-image', function() {
 
 });
 
-$(document).on('mouseout', '.show-thumbnail-image', function(e) { 
+$(document).on('mouseout', '.show-thumbnail-image', function(e) {
     $('#preview-image-model').modal('hide');
     $('#preview-image-model').remove();
 });
 
 $('#chat-list-history').on("scroll", function() {
-    
+
     var $this = $(this);
-    
+
     var modal_scrollTop = $this.scrollTop();
     var modal_scrollHeight = $this.find('.modal-body').prop('scrollHeight');
 
@@ -822,7 +1018,7 @@ $('#chat-list-history').on("scroll", function() {
     if (modal_scrollTop > (modal_scrollHeight - 1000) && workingOn == null) {
         if(currentChatParams.data.hasMore && workingOn == null) {
             workingOn = true;
-            currentChatParams.data.page++; 
+            currentChatParams.data.page++;
             getMoreChatConvo(currentChatParams);
         }
     }

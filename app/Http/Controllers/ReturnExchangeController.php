@@ -45,7 +45,6 @@ class ReturnExchangeController extends Controller
     public function save(Request $request, $id)
     {
         $params = $request->all();
-
         $returnExchange = \App\ReturnExchange::create($params);
 
         if ($returnExchange) {
@@ -145,6 +144,9 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             $data["return_exchange"] = $returnExchange;
             $data["status"]          = ReturnExchange::STATUS;
+            if($request->from == 'erp-customer') {
+                return view('ErpCustomer::partials.edit-return-summery', compact('data'));
+            }
             return response()->json(["code" => 200, "data" => $data]);
         }
         // if not found then add error response
@@ -194,5 +196,29 @@ class ReturnExchangeController extends Controller
         }
 
         return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
+    }
+
+    public function getProducts($id)
+    {
+        if (!empty($id)) {
+            $order  = \App\Order::find($id);
+            $orderData = [];
+
+            if (!empty($order)) {
+                $products = $order->order_product;
+                if (!empty($products)) {
+                    foreach ($products as $product) {
+                        $pr = \App\Product::find($product->product_id);
+                        if($pr) {
+                        $orderData[] = ['id' => $product->id, 'name' => $pr->name];
+                        }
+                    }
+                }
+            }
+        }
+        $status   = ReturnExchange::STATUS;
+        $id = $order->customer_id;
+        $response = (string) view("partials.order-return-exchange", compact('id', 'orderData', 'status'));
+        return response()->json(["code" => 200, "html" => $response]);
     }
 }

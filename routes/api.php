@@ -124,15 +124,25 @@ Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
 
+Route::post('node/restart-script','ScrapController@restartNode');
+
 Route::prefix('v1')->group(function () {
     Route::prefix('product')->group(function () {
         Route::prefix('{sku}')->group(function () {
             Route::get('price', '\App\Http\Controllers\Api\v1\ProductController@price');
         });
     });
+
+    Route::prefix('account')->group(function () {
+        Route::post('create', '\App\Http\Controllers\Api\v1\AccountController@create');
+    });
 });
 
 // Scraper ready api
 Route::post('scraper/ready','ScrapController@scraperReady');
+Route::post('scraper/completed','ScrapController@scraperCompleted');
 Route::get('scraper/need-to-start','ScrapController@needToStart');
 Route::get('scraper-needed-products','ScrapController@scraperNeeded');
+
+Route::post('shopify/customer/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyCustomers');
+Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyOrders');

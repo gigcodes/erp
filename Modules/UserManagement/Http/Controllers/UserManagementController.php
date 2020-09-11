@@ -25,8 +25,10 @@ use App\Payment;
 use App\PaymentMethod;
 use App\Team;
 use App\DeveloperTask;
-
+use App\UserAvaibility;
 use DB;
+use Hash;
+use Illuminate\Support\Arr;
 
 class UserManagementController extends Controller
 {
@@ -70,8 +72,20 @@ class UserManagementController extends Controller
         if (!$user->isEmpty()) {
             foreach ($user as $u) {
                 $currentRate = $u->latestRate;
-                $u["team_leads"] = $u->teamLeads->toArray();
+                $team = Team::where('user_id', $u->id)->first();
+                $user_in_team = 0;
+                if($team) {
+                    $u["team_leads"] = $team->users->count();
+                    $u["team_members"] = $team->users->toArray();
+                    $u["team"] = $team;
+                    $user_in_team = 1;
+                }
+                $isMember = $u->teams()->first();
+                if($isMember) {
+                    $user_in_team = 1;
+                }
 
+                $u["user_in_team"] = $user_in_team;
                 $u["hourly_rate"] = ($currentRate) ? $currentRate->hourly_rate : 0;
                 $u["currency"]    = ($currentRate) ? $currentRate->currency : "USD";
 
@@ -175,14 +189,13 @@ class UserManagementController extends Controller
 			'email' => 'required|email|unique:users,email,' . $id,
 			'phone' => 'sometimes|nullable|integer|unique:users,phone,' . $id,
 			'password' => 'same:confirm-password'
-		]);
+        ]);
 		$input = $request->all();
 		$hourly_rate = $input['hourly_rate'];
 		$currency = $input['currency'];
 
 		unset($input['hourly_rate']);
 		unset($input['currency']);
-
 		$input['name'] = str_replace(' ', '_', $input['name']);
 		if (isset($input['agent_role'])) {
 			$input['agent_role'] = implode(',', $input['agent_role']);
@@ -236,6 +249,7 @@ class UserManagementController extends Controller
         return response()->json([
             "code"       => 200,
             "message"       => 'User sucessfully updated',
+            "page"       => $request->get('page')
         ]);
 
     }
@@ -726,37 +740,18 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-        // $taskList = $user->taskList;
+         $tasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
+         $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
+         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','end_time as due_date');
+         $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
 
-        // $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject');
-        // $pendingTasks = $pendingTasks->addSelect(DB::raw("'TASK' as type"));
-        // $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','task as subject');
-        // $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
-        // $taskList = $devTasks->union($pendingTasks)->get();
-
-
-         $pendingTasks = Task::where('assign_to',$id)->where('is_completed',NULL)->count();
-         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->count();
-         $taskList = [];
-         $tasks = [
-             'name' => 'TASK',
-             'total' => $pendingTasks
-         ];
-
-         $taskList[] = $tasks;
-
-         $tasks = [
-            'name' => 'DEVTASK',
-            'total' => $devTasks
-        ];
-        $taskList[] = $tasks;
+         $taskList = $devTasks->union($tasks)->get();
        
             return response()->json([
                 "code"       => 200,
                 "user"       => $user,
                 "taskList"       => $taskList
             ]);
-
     }
 
 
@@ -773,12 +768,39 @@ class UserManagementController extends Controller
 
     public function submitTeam($id, Request $request) {
         $user = User::find($id);
+        $isLeader = Team::where('user_id',$id)->first();
+        if($isLeader) {
+            return response()->json([
+                "code"       => 500,
+                "message"       => 'This user is already a team leader'
+            ]);
+        }
+
+        $isMember = $user->teams()->first();
+        if($isMember) {
+            return response()->json([
+                "code"       => 500,
+                "message"       => 'This user is already a team member'
+            ]);
+        }
         $team = new Team;
         $team->name = $request->name;
         $team->user_id = $id;
         $team->save();
         if(Auth::user()->hasRole('Admin')) {
-            $team->users()->sync($request->input('members'));
+            $members = $request->input('members');
+            if($members) {
+                foreach($members as $mem) {
+                    $u = User::find($mem);
+                    if($u) {
+                        $isMember = $u->teams()->first();
+                        $isLeader = Team::where('user_id',$mem)->first();
+                        if(!$isMember && !$isLeader) {
+                            $team->users()->attach($mem); 
+                        }
+                    }
+                }
+            }
             return response()->json([
                 "code"       => 200,
                 "message"       => 'Team created successfully'
@@ -792,10 +814,11 @@ class UserManagementController extends Controller
 
 
     public function getTeam($id) {
-        $team = Team::find($id);
+        $team = Team::where('user_id',$id)->first();
         $team->user;
         $team->members = $team->users()->pluck('name','id');
         $totalMembers =  $team->users()->count();
+       
         $users = User::where('id','!=',$id)->where('is_active',1)->get()->pluck('name', 'id');
         return response()->json([
             "code"       => 200,
@@ -811,7 +834,20 @@ class UserManagementController extends Controller
 
         if(Auth::user()->hasRole('Admin')) {
             $team->update(['name' => $request->name]);
-            $team->users()->sync($request->input('members'));
+            $members = $request->input('members');
+            if($members) {
+                $team->users()->detach();
+                foreach($members as $mem) {
+                    $u = User::find($mem);
+                    if($u) {
+                        $isMember = $u->teams()->first();
+                        $isLeader = Team::where('user_id',$mem)->first();
+                        if(!$isMember && !$isLeader) {
+                            $team->users()->attach($mem); 
+                        }
+                    }
+                }
+            }
             return response()->json([
                 "code"       => 200,
                 "message"       => 'Team updated successfully'
@@ -820,6 +856,85 @@ class UserManagementController extends Controller
         return response()->json([
             "code"       => 200,
             "message"       => 'Unauthorized access'
+        ]);
+    }
+
+    public function saveUserAvaibility(Request $request) {
+        // $this->validate($request, [
+		// 	'user_id' => 'required',
+		// 	'from' => 'required',
+		// 	'to' => 'required',
+		// 	'day' => 'required',
+		// 	'status' => 'required',
+        // ]);
+        if(!$request->user_id || $request->user_id == "" || !$request->day || $request->day == "") {
+            return response()->json([
+                "code"       => 500,
+                "error"       => 'User name and day is required'
+            ]);
+        }
+        if($request->status == 1) {
+            if(!$request->from || $request->from == "" || !$request->to || $request->to == "") {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'From and To is required'
+                ]);
+            }
+            if($request->to <= $request->from) {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'Put time in 24 hours format'
+                ]);
+            }
+        }
+
+        $note = trim($request->note);
+        if(!$request->status) {
+            
+            if(!$note || $note == "") {
+                return response()->json([
+                    "code"       => 500,
+                    "error"       => 'Please provide reason for absence'
+                ]);
+            }
+        }
+        $nextDay = 'next '.$request->day;
+        $day = date('Y-m-d', strtotime($nextDay));
+        $user_avaibility = new UserAvaibility;
+        $user_avaibility->date = $day;
+        $user_avaibility->from = $request->from;
+        $user_avaibility->user_id = $request->user_id;
+        $user_avaibility->to = $request->to;
+        $user_avaibility->status = $request->status;
+        $user_avaibility->note = $note;
+        $user_avaibility->save();
+        return response()->json([
+            "code"       => 200,
+            "message"       => 'Successful'
+        ]);
+        
+    }
+
+    public function userAvaibility($id) {
+        $user = User::find($id);
+        $today = date('Y-m-d');
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        foreach($avaibility as $av) {
+            $av->day = date('D', strtotime($av['date']));
+        }
+        $avaibility = $avaibility->toArray();
+        return response()->json([
+            "code"       => 200,
+            "user"       => $user,
+            "avaibility" => $avaibility
+        ]);
+    }
+    public function userAvaibilityUpdate($id, Request $request) {
+        UserAvaibility::find($id)->update(['status' => $request->status, 'note' => $request->note]);
+        
+        return response()->json([
+            "code"       => 200,
+            "user"       => 'Success'
         ]);
     }
 

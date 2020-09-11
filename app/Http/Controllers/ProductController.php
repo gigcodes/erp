@@ -1746,8 +1746,8 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
-
-
+        // ->where('composition', 'LIKE', '%' . request('keyword') . '%')
+        // dd($request->all());
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
@@ -1757,7 +1757,13 @@ class ProductController extends Controller
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
-        $perPageLimit = $request->get("per_page");
+        if($request->total_images) {
+            $perPageLimit = $request->total_images;
+        }
+        else {
+            $perPageLimit = $request->get("per_page");
+        }
+        
 
         if (Order::find($model_id)) {
             $selected_products = self::getSelectedProducts($model_type, $model_id);
@@ -1790,7 +1796,6 @@ class ProductController extends Controller
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
-
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
@@ -1889,7 +1894,6 @@ class ProductController extends Controller
                     ->orWhere('id', 'LIKE', "%$term%")
                     ->orWhere('name', 'LIKE', "%$term%")
                     ->orWhere('short_description', 'LIKE', "%$term%");
-
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
                 }
@@ -1905,12 +1909,13 @@ class ProductController extends Controller
                 }
 
             });
-
             if ($roletype != 'Selection' && $roletype != 'Searcher') {
 
                 $products = $products->whereNull('dnf');
             }
         }
+
+
 
         if ($request->ids[ 0 ] != null) {
             $products = $products->whereIn('id', $request->ids);
@@ -1967,19 +1972,18 @@ class ProductController extends Controller
         }
         if($request->category){
             try {
-               $filtered_category = $request->category[0];
+               $filtered_category = $request->category;
             } catch (\Exception $e) {
-                $filtered_category = 1;
+                $filtered_category = [1];
             }
         }else{
-            $filtered_category = 1;
+            $filtered_category = [1];
         }
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        //dd($category_selection);
 
 
         // category filter start count
@@ -1999,7 +2003,7 @@ class ProductController extends Controller
             }
         }
 
-        // suppliers filter start count
+        // suppliers filter start count/
         $suppliersGroups = clone($products);
         $all_product_ids = $suppliersGroups->pluck('id')->toArray();
         $countSuppliers = [];
@@ -2050,7 +2054,16 @@ class ProductController extends Controller
             }
         }
 
-        $products = $products->paginate($perPageLimit);
+        if($request->total_images) {
+            $products = $products->limit($request->total_images)->get();
+            $products = new LengthAwarePaginator($products, count($products), $request->total_images, 1, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+        }
+        else {
+            $products = $products->paginate($perPageLimit);
+        }
+        
         $products_count = $products->total();
         $all_product_ids = [];
         $from  = request("from","");
@@ -2246,15 +2259,23 @@ class ProductController extends Controller
 
     public function giveImage()
     {
-         // Get next product
-        $product = Product::where('status_id', StatusHelper::$autoCrop)
-            ->where('category', '>', 3);
+        $productId = request("product_id",null);
+        if($productId !=  null) {
+            $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3)->first();
+        } else {
+             // Get next product
+            $product = Product::where('status_id', StatusHelper::$autoCrop)
+                ->where('category', '>', 3);
 
-        // Add order
-        $product = QueryHelper::approvedListingOrder($product);
+            // Add order
+            $product = QueryHelper::approvedListingOrder($product);
 
-        // Get first product
-        $product = $product->whereHasMedia('original')->first();
+            // Get first product
+            $product = $product->whereHasMedia('original')->first();
+        }
+
+
 
         if (!$product) {
             // Return JSON
@@ -2333,7 +2354,6 @@ class ProductController extends Controller
 
         //Getting Website Color
         $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
         if(count($websiteArrays) == 0){
             $colors = [];
         }else{
@@ -2445,6 +2465,7 @@ class ProductController extends Controller
             if($productMediacount <= $cropCount){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
+                $product->scrap_priority = 0;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -2864,7 +2885,7 @@ class ProductController extends Controller
 
         $params = request()->all();
         $params["user_id"] = \Auth::id();
-        $params["is_queue"] = 1;
+        //$params["is_queue"] = 1;
         $params["status"] = \App\ChatMessage::CHAT_AUTO_BROADCAST;
 
         $token = request("customer_token","");
@@ -2885,7 +2906,8 @@ class ProductController extends Controller
 
         $groupId = \DB::table('chat_messages')->max('group_id');
         $params["group_id"] = ($groupId > 0) ? $groupId + 1 : 1;
-
+        $params["is_queue"] = request("is_queue",0);
+        
         \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
 
         if ($request->ajax()) {
@@ -3383,15 +3405,19 @@ class ProductController extends Controller
       $webData = StoreWebsite::select(['store_websites.id',DB::raw('store_website_brands.brand_id as brandId'),'store_website_categories.*'])
       ->join('store_website_brands','store_websites.id','store_website_brands.store_website_id')
       ->join('store_website_categories','store_websites.id','store_website_categories.store_website_id')
+      ->where("website_source","!=","")
       ->get();
 
       $brandIds = array_unique($webData->pluck('brandId')->toArray());
       $categoryIds = array_unique($webData->pluck('category_id')->toArray());
-      $products = Product::select('*')->whereIn('brand',$brandIds)->whereIn('category',$categoryIds)->get()->unique('brand');
+      $products = Product::select('*')->where("short_description","!=","")->where("name","!=","")->where("status_id",StatusHelper::$finalApproval)
+      ->whereIn('brand',$brandIds)
+      ->whereIn('category',$categoryIds)
+      ->groupBy("brand","category")
+      ->get();
+
       foreach($products as $key => $product){
-        if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-          $result = MagentoHelper::uploadProduct($product);
-        }
+        PushToMagento::dispatch($product)->onQueue('magento');
       }
       return response()->json(["code" => 200 , "message" => "Push product successfully"]);
 

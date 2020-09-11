@@ -213,7 +213,7 @@
                             @else
                                 <input type="hidden" id="checkbox_value_dnd">
                                 <input type="checkbox" class="checkbox" value="{{ $value->id }}"
-                                       onclick="enable({{$id}},'{{$value['email']}}')" id="marketing{{ $value->id }}">
+                                       onclick="enable('{{$id}}','{{$value['email']}}')" id="marketing{{ $value->id }}">
                             @endif
                             <span class="slider round"></span>
                         </label>

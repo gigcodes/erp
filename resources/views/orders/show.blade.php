@@ -23,7 +23,7 @@
 </style>
 @endsection
 
-@section('content')
+@section('large_content')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <div class="ajax-loader" style="display: none;">
       <div class="inner_loader">
@@ -66,7 +66,7 @@
         </div>
     @endif
 
-    <div id="exTab2" class="container">
+    <div id="exTab2" >
            <ul class="nav nav-tabs">
               <li class="active">
                  <a  href="#1" data-toggle="tab">Order Info</a>
@@ -92,6 +92,8 @@
 
 
                     <div class="col-md-6 col-12">
+                      <div class="row">
+                      <div class="col-md-12">
                       @if ($has_customer)
                         <h4>Customer Details</h4>
 
@@ -108,26 +110,34 @@
                         <strong>Pincode: </strong> {{ $customer->pincode }} <br>
                         <strong>Site Name: </strong> <a href="{{ @$customer->storeWebsite->website_url }}" target="_blank">{{$customer->storeWebsite->website ?? ''}}</a>
                       @endif
-
-                      <div class="form-group mt-5">
-                          <strong> Order Type :</strong>
-                    <?php
-
-                        $order_types = [
-                          'offline' => 'offline',
-                              'online' => 'online'
-                          ];
-
-                    echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
-                          @if ($errors->has('order_type'))
-                              <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
-                          @endif
                       </div>
-
+                      </div>
+                      <br>
+                      <div class="row">
+                      <div class="col-md-4">
                         <div class="form-group">
-                            <strong>Sale Order No. </strong> {{ $order_id }}
+                            <strong> Order Type :</strong>
+                            <?php
+
+                                $order_types = [
+                                  'offline' => 'offline',
+                                      'online' => 'online'
+                                  ];
+
+                            echo Form::select('order_type',$order_types, ( old('order_type') ? old('order_type') : $order_type ), ['class' => 'form-control']);?>
+                                  @if ($errors->has('order_type'))
+                                      <div class="alert alert-danger">{{$errors->first('order_type')}}</div>
+                                  @endif
+                              </div>
                         </div>
 
+                        <div class="col-md-4">
+                        <div class="form-group">
+                            <strong>Sale Order No. </strong> 
+                            <input type="text" value="{{ $order_id }}" class="form-control">
+                        </div>
+                        </div>
+                        <div class="col-md-4">
                         <div class="form-group">
                             <strong>Order Date:</strong>
                             <input type="date" class="form-control" name="order_date" placeholder="Order Date"
@@ -136,20 +146,48 @@
                                 <div class="alert alert-danger">{{$errors->first('order_date')}}</div>
                             @endif
                         </div>
-
+                        </div>
+                      </div>
+                      <div class="row">
+                      
+                        <div class="col-md-4">
                         <div class="form-group">
                             <strong> Price :</strong>
-                            {{ $total_price }}
+                            <input type="text" value="{{ $total_price }}" class="form-control">
                         </div>
+                        </div>
+                        <div class="col-md-4">
+                              <div class="form-group">
+                              <strong>Date of Delivery:</strong>
+                              <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
+                                    value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
+                              @if ($errors->has('date_of_delivery'))
+                                  <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
+                              @endif
+                          </div>
+                            </div>
+                            <div class="col-md-4">
+                              @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
+                              <div class="form-group">
+                                  <strong>status:</strong>
+                                  <Select name="order_status_id" class="form-control" id="order_status">
+                                        @foreach($order_statuses as $key => $value)
+                                        <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
+                                        @endforeach
+                                  </Select>
+                                  <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
+                              </div>
+                            </div>
+                      </div>
+                     
 
-                        <div class="form-group">
-                            <strong>Date of Delivery:</strong>
-                            <input type="date" class="form-control" name="date_of_delivery" placeholder="Date of Delivery"
-                                   value="{{ old('date_of_delivery') ? old('date_of_delivery') : $date_of_delivery }}"/>
-                            @if ($errors->has('date_of_delivery'))
-                                <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
-                            @endif
-                        </div>
+                        
+
+                       
+
+                       
+
+                      
 
 
                         <!-- <div class="form-group">
@@ -169,56 +207,96 @@
                                 <div class="alert alert-danger">{{$errors->first('whatsapp_number')}}</div>
                             @endif
                         </div> -->
-                        @php $status = ( new \App\ReadOnly\OrderStatus )->getNameById( $order_status ); @endphp
-                         <div class="form-group">
-                             <strong>status:</strong>
-                             <Select name="order_status_id" class="form-control" id="order_status">
-                                  @foreach($order_statuses as $key => $value)
-                                   <option value="{{$key}}" {{$order_status_id == $key ? 'Selected=Selected':''}}>{{$value->status}}</option>
-                                   @endforeach
-                             </Select>
-                             <span id="change_status_message" class="text-success" style="display: none;">Successfully changed status</span>
-                         </div>
 
-                         <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
-                           <div class="form-group">
-                             <strong>AWB Number:</strong>
-                             <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
-                             <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
-                           </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                              <strong>Estimated Delivery Date:</strong>
+                              <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
+                                      value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
+                              @if ($errors->has('estimated_delivery_date'))
+                                  <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
+                              @endif
+                            </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="form-group">
+                                <strong>Shoe Size:</strong>
+                                <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
+                                        value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
+                            </div>
+                            </div>
+                            <div class="col-md-4">
+                              <div class="form-group">
+                              <strong>Clothing Size:</strong>
+                              <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
+                                      value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-4">
+                              <div class="form-group">
+                              <strong>Note if any:</strong>
+                              <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
+                                      value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
+                              @if ($errors->has('note_if_any'))
+                                  <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
+                              @endif
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                                  <div class="form-group">
+                                      <strong>Created by:</strong>
+                                      <input class="form-control" type="text" value="{{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}">
+                                  </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="form-group">
+                              @if (strlen($contact_detail) < 12)
+                                <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
+                              @endif
+                                <strong>Contact Detail:</strong>
+                                <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
+                                      value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
+                                @if ($errors->has('contact_detail'))
+                                    <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
+                                @endif
+                            </div>
+                          </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-12">
+                            <div id="tracking-wrapper-{{ $id }}" style="display: {{ $order_status == 'Product shiped to Client' ? 'block' : 'none' }}">
+                              <div class="form-group">
+                                <strong>AWB Number:</strong>
+                                <input type="text" name="awb" class="form-control" id="awb_field_{{ $id }}" value="{{ $awb }}" placeholder="00000000000">
+                                <button type="button" class="btn btn-xs btn-secondary mt-1 track-shipment-button" data-id="{{ $id }}">Track</button>
+                              </div>
 
-                           <div class="form-group" id="tracking-container-{{ $id }}">
+                              <div class="form-group" id="tracking-container-{{ $id }}">
 
-                           </div>
-                         </div>
+                              </div>
+                            </div>
+                            </div>
+                        </div>
+                        <div class="row">
+                                  <div class="col-md-12">
+                                    <div class="form-group">
+                                        <strong>Remark</strong>
+                                        <p>{{ $remark }}</p>
+                                    </div>
+                                  </div>
+                        </div>
+                        
 
-                         <div class="form-group">
-                             <strong>Estimated Delivery Date:</strong>
-                             <input type="date" class="form-control" name="estimated_delivery_date" placeholder="Advance Date"
-                                    value="{{ old('estimated_delivery_date') ? old('estimated_delivery_date') : $estimated_delivery_date }}"/>
-                             @if ($errors->has('estimated_delivery_date'))
-                                 <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
-                             @endif
-                         </div>
-                          <div class="form-group">
-                             <strong>Shoe Size:</strong>
-                             <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size"
-                                    value="{{ old('shoe_size') ? old('shoe_size') : $shoe_size }}"/>
-                         </div>
-                         <div class="form-group">
-                             <strong>Clothing Size:</strong>
-                             <input type="text" class="form-control" name="clothing_size" placeholder="Clothing Size"
-                                    value="{{ old('clothing_size') ? old('clothing_size') : $clothing_size }}"/>
-                         </div>
+                        
 
-                         <div class="form-group">
-                             <strong>Note if any:</strong>
-                             <input type="text" class="form-control" name="note_if_any" placeholder="Note if any"
-                                    value="{{ old('note_if_any') ? old('note_if_any') : $note_if_any }}"/>
-                             @if ($errors->has('note_if_any'))
-                                 <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
-                             @endif
-                         </div>
+                         
+                          
+                         
+
+                       
 
 
                         <!-- <div class="form-group">
@@ -230,89 +308,62 @@
                             @endif
                         </div> -->
 
-                         <div class="form-group">
-                             <strong>Created by:</strong>
-                             {{ $user_id != 0 ? App\Helpers::getUserNameById($user_id) : 'Unknown' }}
-                         </div>
-                        <div class="form-group">
-                            <strong>Remark</strong>
-                            {{ $remark }}
-                        </div>
+                        
 
                     </div>
                     <div class="col-md-6 col-12">
-                      {{-- <div class="form-group">
-                          <strong>Client Name:</strong>
-                          <input type="text" readonly class="form-control" name="client_name" placeholder="Client Name"
-                                 value="{{ old('client_name') ? old('client_name') : $client_name }}"/>
-                          @if ($errors->has('client_name'))
-                              <div class="alert alert-danger">{{$errors->first('client_name')}}</div>
-                          @endif
-                      </div> --}}
-
-                      {{-- <div class="form-group">
-                          <strong>City:</strong>
-                          <input type="text" class="form-control" name="city" placeholder="City"
-                                 value="{{ old('city') ? old('city') : $city }}"/>
-                          @if ($errors->has('city'))
-                              <div class="alert alert-danger">{{$errors->first('city')}}</div>
-                          @endif
-                      </div> --}}
-
-                      <div class="form-group">
-                        @if (strlen($contact_detail) < 12)
-                          <span class="badge badge-danger" data-toggle="tooltip" data-placement="top" title="Number must be 12 digits and start with 91">!</span>
-                        @endif
-                          <strong>Contact Detail:</strong>
-                          <input type="text" class="form-control" name="contact_detail" placeholder="Contact Detail"
-                                 value="{{ old('contact_detail') ? old('contact_detail') : $contact_detail }}"/>
-                          @if ($errors->has('contact_detail'))
-                              <div class="alert alert-danger">{{$errors->first('contact_detail')}}</div>
-                          @endif
-                      </div>
 
                         <h3>Payment Details</h3>
 
-                        <div class="form-group">
-                            <strong>Balance Amount:</strong>
-                            <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
-                                   value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
-                            @if ($errors->has('balance_amount'))
-                                <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
+                        <div class="row">
+                            <div class="col-md-4">
+                                <div class="form-group">
+                                  <strong>Balance Amount:</strong>
+                                  <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                                        value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
+                                  @if ($errors->has('balance_amount'))
+                                      <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
+                                  @endif
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="form-group">
                             <strong> Payment Mode :</strong>
-        			        <?php
-        			        $paymentModes = new \App\ReadOnly\PaymentModes();
+                            <?php
+                            $paymentModes = new \App\ReadOnly\PaymentModes();
 
-        			        echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
+                            echo Form::select('payment_mode',$paymentModes->all(), ( old('payment_mode') ? old('payment_mode') : $payment_mode ), ['placeholder' => 'Select a mode','class' => 'form-control']);?>
 
-                            @if ($errors->has('payment_mode'))
-                                <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
-                            @endif
+                                  @if ($errors->has('payment_mode'))
+                                      <div class="alert alert-danger">{{$errors->first('payment_mode')}}</div>
+                                  @endif
+                              </div>
+                            </div>
+                            <div class="col-md-4">
+                            <div class="form-group">
+                              <strong>Advance Amount:</strong>
+                              <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                                    value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
+                              @if ($errors->has('advance_detail'))
+                                  <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
+                              @endif
+                          </div>
+                          </div>
                         </div>
-
-                        <div class="form-group">
-                            <strong>Advance Amount:</strong>
-                            <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
-                                   value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
-                            @if ($errors->has('advance_detail'))
-                                <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
-                            <strong>Received By:</strong>
-                            <input type="text" class="form-control" name="received_by" placeholder="Received By"
-                                   value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
-                            @if ($errors->has('received_by'))
-                                <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
-                            @endif
-                        </div>
-
-                        <div class="form-group">
+                        <div class="row">
+                          
+                          <div class="col-md-6">
+                            <div class="form-group">
+                                <strong>Received By:</strong>
+                                <input type="text" class="form-control" name="received_by" placeholder="Received By"
+                                      value="{{ old('received_by') ? old('received_by') : $received_by }}"/>
+                                @if ($errors->has('received_by'))
+                                    <div class="alert alert-danger">{{$errors->first('received_by')}}</div>
+                                @endif
+                              </div>
+                            </div>
+                            <div class="col-md-6">
+                            <div class="form-group">
                             <strong>Advance Date:</strong>
                             <input type="date" class="form-control" name="advance_date" placeholder="Advance Date"
                                    value="{{ old('advance_date') ? old('advance_date') : $advance_date }}"/>
@@ -320,6 +371,17 @@
                                 <div class="alert alert-danger">{{$errors->first('advance_date')}}</div>
                             @endif
                         </div>
+                            </div>
+                           
+                        </div>
+
+                       
+
+                        
+
+                       
+
+                       
 
                         @if ($has_customer)
                           <div class="form-group">
@@ -413,11 +475,12 @@
                               </table>
                           </div>
                       </div>
-                      {{-- {{dd($data)}} --}}
                       <div class="col-xs-12 col-sm-12 col-md-12">
                           <div class="form-group btn-group">
                               <a href="{{ route('attachProducts',['order',$id]) }}" class="btn btn-image"><img src="/images/attach.png" /></a>
-                              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
+                              <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>&nbsp;&nbsp;
+                              <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
+
                           </div>
                       </div>
 
@@ -515,9 +578,8 @@
                       </div>
                     </div>
 
-                    <div class="col-xs-12 text-center">
-                      <button type="submit" class="btn btn-secondary" id="submitButton">Update</button>
-                    </div>
+                    <!-- <div class="col-xs-12 text-center">
+                    </div> -->
                 </div>
               </form>
 
@@ -589,40 +651,47 @@
               </div>
 
               <div class="row">
-                <div class="col-md-6 col-12 mb-3">
+                <div class="col-md-12 col-12 mb-3">
                   <form action="{{ route('status.report.store') }}" method="POST">
                     @csrf
 
                     <input type="hidden" name="order_id" value="{{ $id }}">
 
-                    <div class="form-group">
-                      <strong>Next action due</strong>
-                      <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
+                    <div class="row">
+                        <div class="col-md-4">
+                          <div class="form-group">
+                          <strong>Next action due</strong>
+                          <a href="#" data-toggle="modal" data-target="#statusModal" class="btn-link">Add Action</a>
 
-                      <select class="form-control" name="status_id" required>
-                        <option value="">Select action</option>
-                        @foreach ($order_status_report as $status)
-                          <option value="{{ $status->id }}">{{ $status->status }}</option>
-                        @endforeach
-                      </select>
+                          <select class="form-control" name="status_id" required>
+                            <option value="">Select action</option>
+                            @foreach ($order_status_report as $status)
+                              <option value="{{ $status->id }}">{{ $status->status }}</option>
+                            @endforeach
+                          </select>
+                        </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group" id="completion_form_group">
+                            <strong>Completion Date:</strong>
+                            <div class='input-group date' id='completion-datetime'>
+                              <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
+
+                              <span class="input-group-addon">
+                                <span class="glyphicon glyphicon-calendar"></span>
+                              </span>
+                            </div>
+
+                            @if ($errors->has('completion_date'))
+                                <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
+                            @endif
+                          </div>
+                        
+                        </div>
+                        <div class="col-md-4">
+                          <button style="margin-top: 20px;" type="submit" class="btn btn-secondary">Add Report</button>
+                          </div>
                     </div>
-
-                    <div class="form-group" id="completion_form_group">
-                      <strong>Completion Date:</strong>
-                      <div class='input-group date' id='completion-datetime'>
-                        <input type='text' class="form-control" name="completion_date" value="{{ date('Y-m-d H:i') }}" />
-
-                        <span class="input-group-addon">
-                          <span class="glyphicon glyphicon-calendar"></span>
-                        </span>
-                      </div>
-
-                      @if ($errors->has('completion_date'))
-                          <div class="alert alert-danger">{{$errors->first('completion_date')}}</div>
-                      @endif
-                    </div>
-
-                    <button type="submit" class="btn btn-secondary">Add Report</button>
                   </form>
 
                   @if (isset($order_reports) && count($order_reports) > 0)
@@ -747,7 +816,7 @@
 
             <div class="col-xs-12 col-sm-12">
                 <div class="table-responsive">
-                    <table class="table">
+                    <table class="table table-bordered" style="border:1px solid #ddd">
                         <thead>
                             <tr>
                                 <td>Recording</td>
@@ -790,7 +859,7 @@
 
             <div class="col-xs-12 col-sm-12">
               <div class="table-responsive">
-                <table class="table">
+                <table class="table table-bordered" style="border:1px solid #ddd">
                   <thead>
                     <tr>
                       <th>Product</th>
@@ -910,7 +979,7 @@
               <button type="button" class="btn btn-secondary mb-3" data-toggle="modal" data-target="#taskModal" id="addTaskButton">Add Task</button>
 
               @if (count($tasks) > 0)
-                <table class="table">
+                <table class="table table-bordered" style="border:1px solid #ddd">
                     <thead>
                       <tr>
                           <th>Sr No</th>
@@ -920,7 +989,6 @@
                           <th>Est Completion Date</th>
                           <th>Assigned From</th>
                           <th>&nbsp;</th>
-                          {{-- <th>Remarks</th> --}}
                           <th>Action</th>
                       </tr>
                     </thead>
@@ -1314,6 +1382,7 @@
               product_row += '</tr>';
 
           $('#products-table').append(product_row);
+          $('#productModal').modal('hide');
         }
       });
     });

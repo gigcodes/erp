@@ -17,10 +17,26 @@
             left: 50%;
             margin: -50px 0px 0px -50px;
         }
+
+		.dis-none {
+            display: none;
+        }
+		.pd-5 {
+			padding: 3px;
+		}
+		.toggle.btn {
+			min-height:25px;
+		}
+		.toggle-group .btn {
+			padding: 2px 12px;
+		}
+		.latest-remarks-list-view tr td {
+			padding:3px !important;
+		}
 </style>
 @endsection
 
-@section('content')
+@section('large_content')
 
 <div id="myDiv">
     <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
@@ -32,14 +48,10 @@
     <br>
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
+	    	<div class="col col-md-12">
 		    	<div class="row">
-	    			
-				 </div> 		
-		    </div>
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
+					<div class="col-md-3">
+					<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 					  <div class="row">
 				  		<div class="col">
 				  			<div class="form-group">
@@ -51,57 +63,92 @@
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/send.png" style="cursor: default;" >
 						  		</button>
-						  	</div>		
-				  		</div>
-					  </div>	
-					</form>	
-					<form class="form-inline handle-search">
-					  <div class="row">
-				  		<div class="col">
-				  			<div class="form-group">
-							    <label for="keyword">Search keyword:</label>
-							    <?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
-							    <label for="status">Status:</label>
-							    <?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
 						  	</div>
-						  	<div class="form-group">
-						  		<label for="button">&nbsp;</label>
-						  		<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
-						  			<img src="/images/send.png" style="cursor: default;" >
-						  		</button>
-						  	</div>		
 				  		</div>
-					  </div>	
-					</form>	
-		    	</div>
+					  </div>
+					</form>
+					</div>
+					<div class="col-md-9">
+						<form class="form-inline handle-search">
+								<div class="form-group" style="margin-right:10px;">
+									<label for="keyword">Search keyword:</label>
+									<?php echo Form::text("k",request("k"),["class"=> "form-control","placeholder" => "Enter keyword","id" => "enter-keyword"]) ?>
+								</div>
+								<div class="form-group">
+									<label for="status">Status:</label>
+									<?php echo Form::select("status",["" => "All","ignored" => "Ignored"],request("status"),["class"=> "form-control","id" => "enter-status"]) ?>
+								</div>
+								<div class="form-group">
+										<label for="button">&nbsp;</label>
+										<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
+											<img src="/images/send.png" style="cursor: default;" >
+										</button>
+								</div>
+						</form>
+					</div>
+				 </div>
 		    </div>
 	    </div>
-	    <div class="row">
+		<br>
+	    <div class="row" style="margin-bottom: 10px;">
 	    	<a href="{{ route('site-development-status.index') }}" target="__blank">
 		    	<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
 		  			+ Add Status
 		  		</button>
 		  	</a>
+			<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-sm btn-secondary latest-remarks-btn">
+		  			Remarks
+		  	</button>
+		  	<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+		  		Status Count
+            </a>
 	    </div>
+
+	    <div class="row">
+		    <div class="col-md-12">
+		        <div class="collapse" id="statusFilterCount">
+		            <div class="card card-body">
+		              <?php if(!empty($statusCount)) { ?>
+		                <div class="row col-md-12">
+		                    <?php foreach($statusCount as $sC) { ?>
+		                      <div class="col-md-2">
+		                            <div class="card">
+		                              <div class="card-header">
+		                                <?php echo $sC->name; ?>
+		                              </div>
+		                              <div class="card-body">
+		                                  <?php echo $sC->total; ?>
+		                              </div>
+		                          </div>
+		                       </div> 
+		                  <?php } ?>
+		                </div>
+		              <?php } else  { 
+		                echo "Sorry , No data available";
+		              } ?>
+		            </div>
+		        </div>
+		    </div>    
+		</div>
+
 		<div class="col-md-12 margin-tb infinite-scroll">
 			<div class="row">
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
+						<th width="4%">Sl no</th>
 						<th width="10%"></th>
-						<th width="15%">Title</th>
-						<th width="25%">Description</th>
+						<th width="18%">Title</th>
+						<th width="18%">Description</th>
+						<th width="35%">Communication</th>
 						<th width="15%">Action</th>
-						<th width="25%">Communication</th>
-						<th width="5%">Created</th>
-						<th width="5%">Action</th>
 					</tr>
 					</thead>
 					<tbody>
 					@include("storewebsite::site-development.partials.data")
 					</tbody>
 				</table>
-				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}	
+				{{ $categories->appends(request()->capture()->except('page','pagination') + ['pagination' => true])->render() }}
 			</div>
 		</div>
 	</div>
@@ -139,7 +186,7 @@
 
 					        </div>
 					    </div>
-					    
+
 	            </div>
 	            <div class="modal-footer">
 	                <button type="button" class="btn btn-default btn-save-documents">Save</button>
@@ -207,6 +254,125 @@
     </div>
 </div>
 
+
+
+<div id="create-quick-task" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+		<form action="<?php echo route('task.create.task.shortcut'); ?>" method="post">
+		<?php echo csrf_field(); ?>
+		<div class="modal-header">
+                <h4 class="modal-title">Create Task</h4>
+            </div>
+			<div class="modal-body">
+			
+			<input class="form-control" value="0" type="hidden"  name="task_type" />
+			<input class="form-control" value="49" type="hidden"  name="category_id" />
+
+				<div class="form-group">
+					<label for="">Subject</label>
+					<input class="form-control" type="text" id="hidden-task-subject" name="task_subject" />
+				</div>
+
+				<div class="form-group">
+					<label for="">Details</label>
+					<input class="form-control" type="text"  name="task_detail" />
+				</div>
+
+				<div class="form-group">
+					<label for="">Assign to</label>
+					<select name="task_asssigned_to"  class="form-control assign-to select2">
+					@foreach($allUsers as $user)
+					<option value="{{$user->id}}">{{$user->name}}</option>
+					@endforeach
+					</select>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                <button type="submit" class="btn btn-default create-task">Submit</button>
+            </div>
+			</form>
+        </div>
+    </div>
+</div>
+
+<div id="preview-website-image" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Image</th>
+					      </tr>
+					    </thead>
+					    <tbody class="website-image-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="latest-remarks-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered" style="table-layout:fixed;">
+					    <thead>
+					      <tr>
+					        <th style="width:5%;">Sl no</th>
+					        <th style="width:15%;">Category</th>
+					        <th style="width:40%;">Remarks</th>
+					        <th style="width:40%;">Communication</th>
+					      </tr>
+					    </thead>
+					    <tbody class="latest-remarks-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="artwork-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+        	<div class="modal-body">
+    			<div class="col-md-12">
+	        		<table class="table table-bordered">
+					    <thead>
+					      <tr>
+					        <th>Sl no</th>
+					        <th>Date</th>
+					        <th>Status</th>
+					        <th>Username</th>
+					      </tr>
+					    </thead>
+					    <tbody class="artwork-history-list-view">
+					    </tbody>
+					</table>
+				</div>
+			</div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 
@@ -216,17 +382,21 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
 <script type="text/javascript">
 
-	$('.infinite-scroll').jscroll({
-        autoTrigger: true,
-        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        padding: 20,
-        nextSelector: '.pagination li.active + li a',
-        contentSelector: 'div.infinite-scroll',
-        callback: function () {
-            $('ul.pagination').first().remove();
-        }
-    });
-	
+$('.assign-to.select2').select2({
+	width: "100%"
+});
+
+// $('.infinite-scroll').jscroll({
+//         autoTrigger: true,
+//         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+//         padding: 20,
+//         nextSelector: '.pagination li.active + li a',
+//         contentSelector: 'div.infinite-scroll',
+//         callback: function () {
+//             $('ul.pagination').first().remove();
+//         }
+//     });
+
 	function saveCategory() {
 		var text = $('#add-category').val()
 		if(text === ''){
@@ -253,10 +423,9 @@
 				console.log(data)
 				console.log("error");
 			});
-			
+
 		}
 	}
-
 	$(function(){
 		$(document).on("focusout" , ".save-item" , function() {
 			websiteId = $('#website_id').val()
@@ -269,6 +438,33 @@
 				type: 'POST',
 				dataType: 'json',
 				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text ,site : site},
+				beforeSend: function () {
+                    $("#loading-image").show();
+                },
+			})
+			.done(function(data) {
+				console.log(data)
+				$("#loading-image").hide();
+				console.log("success");
+			})
+			.fail(function(data) {
+				console.log(data)
+				$("#loading-image").hide();
+				console.log("error");
+			});
+		});
+
+		$(document).on("click" , ".save-artwork-status" , function() {
+			websiteId = $('#website_id').val()
+			category = $(this).data("category")
+			type = $(this).data("type")
+			site = $(this).data("site")
+			var text = $(this).val();
+		    $.ajax({
+				url: '{{ route("site-development.save") }}',
+				type: 'POST',
+				dataType: 'json',
+				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text,site:site},
 				beforeSend: function () {
                     $("#loading-image").show();
                 },
@@ -298,8 +494,7 @@
 				data: {websiteId: websiteId , "_token": "{{ csrf_token() }}" , category : category , type : type , text : text , site : site},
 			})
 			.done(function(data) {
-				console.log(data)
-				console.log("success");
+				toastr["success"]("Successful");
 			})
 			.fail(function(data) {
 				console.log(data)
@@ -388,25 +583,113 @@
 		    } else {
 		        $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
 		    }
-		    
+
 		}).fail(function (jqXHR, ajaxOptions, thrownError) {
 		    alert('No response from server');
 		});
 	}
 
-	
-	$(document).on('click', '.send-message-site', function() {
-		site = $(this).data("id")
-		message = $('#message-'+site).val();
-		userId = $('#user-'+site+' option:selected').val();
-		if(userId == 'Select Developer'){
+	$(document).on('click', '.create-quick-task', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		title = $(this).data("title");
+		if(!title || title == '') {
+			toastr["error"]("Please add title first");
+			return;
+		}
+
+		$("#create-quick-task").modal("show");
+		$("#hidden-task-subject").val(title);
+
+		// $.ajax({
+		// 		url: '/site-development/get-user-involved/'+site,
+		// 		dataType: "json",
+		// 		type: 'GET',
+		// 	}).done(function (response) {
+		// 		var option = '<option value="" > Select user </option>';
+		// 		$.each(response.data,function(k,v){
+		// 			option = option + '<option value="'+v.id+'" > '+v.name+' </option>';
+		// 		});
+				
+		// 	}).fail(function (jqXHR, ajaxOptions, thrownError) {
+		// 	    toastr["error"](jqXHR.responseJSON.message);
+		// });
+	});
+
+	$(document).on('click', '.send-message-site-quick', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		category = $(this).data("category");
+		message = $this.closest("td").find(".quick-message-field").val();
+		userId = $this.data("user");
+		prefix = $this.data("prefix");
+		var users = [userId];
+		
+		if(users.length <= 0){
 			alert('Please Select User');
 		}else if(site){
 			$.ajax({
 				url: '/whatsapp/sendMessage/site_development',
 				dataType: "json",
 				type: 'POST',
-				data: { 'site_development_id' : site , 'message' : message , 'user_id' : userId , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				data: { 'site_development_id' : site , 'message' : prefix +' => '+message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
+				beforeSend: function() {
+					$this.closest("td").find(".quick-message-field").attr('disabled', true);
+               	}
+			}).done(function (data) {
+				$this.closest("td").find(".quick-message-field").attr('disabled', false);
+				$this.closest("td").find(".quick-message-field").val('');
+			}).fail(function (jqXHR, ajaxOptions, thrownError) {
+			    alert('No response from server');
+			});
+		}else{
+			alert('Site is not saved please enter value or select User');
+		}
+	});
+
+	$(document).on('click', '.send-message-site', function() {
+		var $this = $(this);
+		site = $(this).data("id");
+		category = $(this).data("category");
+		message = $('#message-'+site).val();
+		userId = $('#user-'+site+' option:selected').val();
+		prefix = $this.data("prefix");
+		var users = [];
+		
+		var hidden_row_class = 'hidden_row_'+category;
+		
+		if($this.closest("tr").find("input[name='developer']:checked").length > 0){
+			var value = $('.hidden_row_'+category).find("select[name='developer_id']").val();
+			if(value != "") {
+				users.push(value);
+			}
+		}
+		if($this.closest("tr").find("input[name='designer']:checked").length > 0){
+			var value = $('.hidden_row_'+category).find("select[name='designer_id']").val();
+			if(value != "") {
+				users.push(value);
+			}
+		}
+		if($this.closest("tr").find("input[name='html']:checked").length > 0){
+			var value = $('.hidden_row_'+category).find("select[name='html_designer']").val();
+			if(value != "") {
+				users.push(value);
+			}
+		}
+		if($this.closest("tr").find("input[name='tester']:checked").length > 0){
+			var value = $('.hidden_row_'+category).find("select[name='tester_id']").val();
+			if(value != "") {
+				users.push(value);
+			}
+		}
+		if(users.length <= 0){
+			alert('Please Select User');
+		}else if(site){
+			$.ajax({
+				url: '/whatsapp/sendMessage/site_development',
+				dataType: "json",
+				type: 'POST',
+				data: { 'site_development_id' : site , 'message' : prefix +' => '+message , 'users' : users , "_token": "{{ csrf_token() }}" , 'status' : 2},
 				beforeSend: function() {
 					$('#message-'+site).attr('disabled', true);
                	}
@@ -418,17 +701,16 @@
 			});
 		}else{
 			alert('Site is not saved please enter value or select User');
-		} 
+		}
     });
 
-    $(document).on("change",".fa-ignore-category",function() {
+    $(document).on("click",".fa-ignore-category",function() {
 		var $this = $(this);
-    	var msg = "allow";
-
-    	if($this.prop('checked')) {
-    	   msg = "disallow";
+    	var msg = "disallow";
+		var status = $this.data("status");
+    	if(status) {
+    	   msg = "allow";
     	}
-
 		if(confirm("Are you sure want to "+msg+" this category?")) {
 			var store_website_id = $this.data("site-id");
 			var category = $this.data("category-id");
@@ -436,7 +718,7 @@
 				url: '/site-development/disallow-category',
 				dataType: "json",
 				type: 'POST',
-				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : $this.prop('checked')},
+				data: { 'store_website_id' : store_website_id , 'category' : category, "_token": "{{ csrf_token() }}" ,status : status},
 				beforeSend: function() {
 					$("#loading-image").show();
                	}
@@ -517,7 +799,7 @@
 		});
 	});
 
-	
+
 	$(document).on("click",".link-send-document",function(e) {
 		e.preventDefault();
 		var id = $(this).data("id");
@@ -587,7 +869,7 @@
 				toastr["success"]("Remarks fetched successfully");
 
 				var html = "";
-				
+
 				$.each(response.data,function(k,v){
 					html += "<tr>";
 						html += "<td>"+v.id+"</td>";
@@ -630,10 +912,136 @@
       		$('form').find('input[name="document[]"][value="' + name + '"]').remove()
     	},
     	init: function () {
-	      
+
     	}
   }
 
-</script>
+  $(document).on('click', '.preview-img-btn', function (e) {
+            e.preventDefault();
+			id = $(this).data('id');
+			if(!id) {
+				alert("No data found");
+				return;
+			}
+            $.ajax({
+                url: "/site-development/preview-img/"+id,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td><img style="height:100px;" src="'+response.data[i-1].url+'"></td></tr>';
+					}
+					$("#preview-website-image").modal("show");
+					$(".website-image-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
 
+		$(document).on('click', '.latest-remarks-btn', function (e) {
+			websiteId = $('#website_id').val();
+			websiteId = $.trim(websiteId);
+            $.ajax({
+                url: "/site-development/latest-reamrks/"+websiteId,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						var siteId = response.data[i-1].site_id;
+						var cateogryId = response.data[i-1].category_id;
+						var user_id = response.data[i-1].user_id;
+						var storeWebsite = response.data[i-1].sw_website;
+						var storeDev = response.data[i-1].sd_title;
+						var user_id = response.data[i-1].user_id;
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].title+'</td><td>'+response.data[i-1].remarks+'</td><td><div class="d-flex"><input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="" id="message-'+siteId+'"><button style="padding: 2px;" class="btn btn-sm btn-image send-message-site-quick" data-prefix="# '+storeWebsite+' '+storeDev+'" data-user="'+user_id+'" data-category="'+cateogryId+'" data-id="'+siteId+'"><img src="/images/filled-sent.png"/></button></div></td></tr>';
+					}
+					$("#latest-remarks-modal").modal("show");
+					$(".latest-remarks-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+
+		$(document).on('click', '.artwork-history-btn', function (e) {
+			id = $(this).data('id');
+			if(!id) return;
+            $.ajax({
+                url: "/site-development/artwork-history/"+id,
+				type: 'GET',
+				beforeSend: function() {
+					$("#loading-image").show();
+	           	},
+                success: function (response) {
+					console.log(response);
+					var tr = '';
+					for(var i=1;i<=response.data.length;i++) {
+						tr = tr + '<tr><td>'+ i +'</td><td>'+response.data[i-1].date+'</td><td> Status changed from '+response.data[i-1].from_status+ ' to '+response.data[i-1].to_status+'</td><td>'+response.data[i-1].username+'</td></tr>';
+					}
+					$("#artwork-history-modal").modal("show");
+					$(".artwork-history-list-view").html(tr);
+					$("#loading-image").hide();
+                },
+                error: function () {
+					$("#loading-image").hide();
+                }
+            });
+		});
+
+
+		$(document).on("click",".create-task",function(e) {
+            e.preventDefault();
+            var form = $(this).closest("form");
+            $.ajax({
+                url: form.attr("action"),
+                type: 'POST',
+                data: form.serialize(),
+                beforeSend: function () {
+                    $(this).text('Loading...');
+                },
+                success: function (response) {
+                    if(response.code == 200){
+                        form[0].reset();
+                        toastr['success'](response.message);
+                        $("#create-quick-task").modal("hide");
+                    }else{
+                        toastr['error'](response.message);
+                    }
+                }
+            }).fail(function (response) {
+                toastr['error'](response.responseJSON.message);
+            });
+        });
+		
+		$(document).on("click", ".toggle-class", function () {
+            $(".hidden_row_" + $(this).data("id")).toggleClass("dis-none");
+		});
+
+</script>
+<script type="text/javascript">
+  $(document).ready(function(){
+    $( ".developer" ).change(function() {
+      $(this).closest("tr").find("input[name='developer']").prop('checked', true)
+    });
+
+    $( ".designer" ).change(function() {
+      $(this).closest("tr").find("input[name='designer']").prop('checked', true)
+    });
+
+    $( ".html" ).change(function() {
+      $(this).closest("tr").find("input[name='html']").prop('checked', true)
+    });
+  });
+  </script>
 @endsection

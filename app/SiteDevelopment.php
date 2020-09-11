@@ -12,7 +12,7 @@ class SiteDevelopment extends Model
 {
     use Mediable;
 
-    protected $fillable = ['site_development_category_id','status','title','description','developer_id','designer_id','website_id','html_designer'];
+    protected $fillable = ['site_development_category_id','status','title','description','developer_id','designer_id','website_id','html_designer','artwork_status','tester_id'];
 
 
     public function category()

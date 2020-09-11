@@ -86,23 +86,34 @@ class VendorController extends Controller
       $whereArchived = '  `deleted_at` IS NOT NULL  ';
     }
 
+    $isAdmin = Auth::user()->isAdmin();
+    if($isAdmin) {
+      $permittedCategories = [];
+    }else {
+      $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
+    }
     //getting request 
     if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
         $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
     ) {
-
-
       //Query Initiate
-      $query  = Vendor::query();
+      if($isAdmin) {
+        $query  = Vendor::query();
+      }else{
+        $imp_permi = implode(",", $permittedCategories);
+        if($imp_permi != 0)
+        {
+          $query  = Vendor::whereIn('category_id',$permittedCategories);  
+        }
+        else
+        {
+          $query  = Vendor::query();
+        }
+        
+      }
 
       if (request('term') != null) {
-        $query->where('name', 'LIKE', "%{$request->term}%")
-          ->orWhere('address', 'LIKE', "%{$request->term}%")
-          ->orWhere('phone', 'LIKE', "%{$request->term}%")
-          ->orWhere('email', 'LIKE', "%{$request->term}%")
-          ->orWhereHas('category', function ($qu) use ($request) {
-            $qu->where('title', 'LIKE', "%{$request->term}%");
-          });
+        $query->where('name', 'LIKE', "%{$request->term}%");
       }
 
       //if Id is not null 
@@ -131,20 +142,25 @@ class VendorController extends Controller
       if (request('phone') != null) {
         $query->where('phone', 'LIKE', '%' . request('phone') . '%');
       }
-
       $status = request('status');
       if ($status != null && !request('with_archived')) {
-        $query->orWhere('status', $status);
+          $query = $query->where(function ($q) use ($status) {
+            $q->orWhere('status', $status);
+          });
+        // $query->orWhere('status', $status);
       }
 
       if (request('updated_by') != null && !request('with_archived')) {
-          $query->orWhere('updated_by', request('updated_by'));
+        $query = $query->where(function ($q) use ($status) {
+          $q->orWhere('updated_by', request('updated_by'));
+        });
+          // $query->orWhere('updated_by', request('updated_by'));
       }
 
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
-          $qu->where('title', 'LIKE', '%' . request('category') . '%');
+          $qu->where('category_id', '=', request('category'));
         });
       }
 
@@ -155,24 +171,43 @@ class VendorController extends Controller
         $query->orWhereRaw("vendors.id in (select vendor_id from chat_messages where vendor_id is not null and message like '%" . $communication_history . "%')");
       }
 
+   
+
       if ($request->with_archived != null && $request->with_archived != '') {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-		}
-		$totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
-        $vendors = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
+      }
+      
+      $totalVendor = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->count();
+      $vendors = $query->orderby('name', 'asc')->whereNotNull('deleted_at')->paginate($pagination);
       } else {
         $pagination = Setting::get('pagination');
         if (request()->get('select_all') == 'true') {
           $pagination = $vendors->count();
-		}
-		$totalVendor = $query->orderby('name', 'asc')->count();
+		  }
+		    $totalVendor = $query->orderby('name', 'asc')->count();
         $vendors = $query->orderby('name', 'asc')->paginate($pagination);
       }
     } else {
+      if($isAdmin) {
+        $permittedCategories = "";
+      }else{
+        if(empty($permittedCategories)) {
+          $permittedCategories = [0];
+        }
+        $permittedCategories_all = implode(',',$permittedCategories);
+        if($permittedCategories_all == 0)
+        {
+          $permittedCategories = ''; 
+        }
+        else
+        {
+          $permittedCategories = 'and vendors.category_id in (' .implode(',',$permittedCategories). ')';  
+        }
 
-
+        
+      }
       $vendors = DB::select('
                   SELECT *,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
@@ -204,7 +239,7 @@ class VendorController extends Controller
                   address LIKE "%' . $term . '%" OR
                   social_handle LIKE "%' . $term . '%" OR
                   category_id IN (SELECT id FROM vendor_categories WHERE title LIKE "%' . $term . '%") OR
-                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%")))
+                   id IN (SELECT model_id FROM agents WHERE model_type LIKE "%Vendor%" AND (name LIKE "%' . $term . '%" OR phone LIKE "%' . $term . '%" OR email LIKE "%' . $term . '%"))) ' .$permittedCategories. '
                   ORDER BY ' . $sortByClause . ' message_created_at DESC;
               ');
 
@@ -266,14 +301,23 @@ class VendorController extends Controller
   public function vendorSearch()
   {
     $term = request()->get("q", null);
-    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+    /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
       ->orWhere('address', 'LIKE', "%" . $term . "%")
       ->orWhere('phone', 'LIKE', "%" . $term . "%")
       ->orWhere('email', 'LIKE', "%" . $term . "%")
       ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
-      })->get();
+      })->get();*/
+    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+              ->get();
     return response()->json($search);
+  }
+  public function vendorSearchPhone()
+  {
+    $term = request()->get("q", null);
+    $search = Vendor::where('phone', 'LIKE', "%" . $term . "%")
+              ->get();
+    return response()->json($search);  
   }
 
   public function email(Request $request)

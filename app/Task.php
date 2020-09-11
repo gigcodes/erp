@@ -6,12 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\DB;
 use App\WhatsAppGroup;
-
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Plank\Mediable\Mediable;
 
 class Task extends Model {
 
 	use SoftDeletes;
-
+	use Mediable;
 	protected $fillable = [
 		'category',
 		'task_details',
@@ -31,7 +32,12 @@ class Task extends Model {
 		'cost',
 		'is_milestone',
 		'no_of_milestone',
-		'milestone_completed'
+		'milestone_completed',
+		'customer_id',
+		'hubstaff_task_id',
+		'master_user_id',
+		'lead_hubstaff_task_id',
+		'due_date'
 	];
 
 	const TASK_TYPES = [
@@ -98,5 +104,24 @@ class Task extends Model {
         }
 
         return $this->hasMany('App\ChatMessage', 'task_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+	}
+	
+	public function allMessages()
+    {
+        return $this->hasMany(ChatMessage::class, 'task_id', 'id')->orderBy('id','desc');
+    }
+	public function customer()
+	{
+		return $this->belongsTo('App\Customer', 'customer_id', 'id');
+	}
+
+	public function timeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
     }
 }

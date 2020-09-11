@@ -79,13 +79,19 @@
         color: red;
         font-size: 10pt;
     }
+    .pd-5 {
+        padding:5px;
+    }
+  
 </style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @include('partials.flash_messages')
 <div class="row" id="common-page-layout">
     <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
     </div>
     <br>
+    <input type="hidden" name="page_no" class="page_no" />
     <div class="col-lg-12 margin-tb">
         <div class="row">
             <div class="col">
@@ -95,7 +101,7 @@
                             <div class="col">
                                 <div class="form-group">
                                     <label for="keyword">Keyword:</label>
-                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control","placeholder" => "Enter keyword"]) ?>
+                                    <?php echo Form::text("keyword",request("keyword"),["class"=> "form-control data-keyword","placeholder" => "Enter keyword"]) ?>
                                 </div>
                                 <div class="form-group">
                                     <label for="keyword">Active:</label>
@@ -130,6 +136,50 @@
     </div>  
 </div>
 
+
+<div id="time_history_modal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+            <h5 class="modal-title">Estimated Time History</h5>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <form action="" id="approve-time-btn" method="POST">
+                @csrf
+                <input type="hidden" name="hidden_task_type" id="hidden_task_type">
+                <div class="modal-body">
+                <div class="row">
+                <input type="hidden" name="developer_task_id" id="developer_task_id">
+
+                    <div class="col-md-12" id="time_history_div">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Old Value</th>
+                                    <th>New Value</th>
+                                    <th>Updated by</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                    @if(auth()->user()->isReviwerLikeAdmin())
+                        <button type="submit" class="btn btn-secondary">Confirm</button>
+                    @endif
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
 @include("usermanagement::templates.load-communication-history")
@@ -138,6 +188,8 @@
 @include("usermanagement::templates.load-task-history")
 @include("usermanagement::templates.add-team")
 @include("usermanagement::templates.edit-team")
+@include("usermanagement::templates.add-time")
+@include("usermanagement::templates.user-avaibility")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
@@ -149,7 +201,17 @@
 
 <script src="https://cdn.datatables.net/1.10.20/js/jquery.dataTables.min.js"> </script>
 <script src="https://cdn.datatables.net/1.10.20/js/dataTables.bootstrap4.min.js"> </script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
 <script type="text/javascript">
+ $('#due-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+});
+    $('.due-datetime').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+    });
     page.init({
         bodyView : $("#common-page-layout"),
         baseUrl : "<?php echo url("/"); ?>"

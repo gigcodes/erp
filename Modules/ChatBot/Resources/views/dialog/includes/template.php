@@ -124,7 +124,7 @@
 </script>
 
 <script id="add-more-condition" type="text/x-jsrender">
-	<div class="form-row">
+	<div class="form-row dynamic-row">
 		<div class="form-group col-md-3">
 	      <select name="conditions[]" class="form-control">
 	      	<option value="&&">AND</option>
@@ -294,6 +294,20 @@
 		    	<div class="form-group col-md-9">
 			      	<select class="form-control search-intent" name="intent[name]" placeholder="Select Intent"></select>
 			    </div>
+			</div>
+		{{else}}
+			<div class="form-row">
+		    	<div class="form-group col-md-9">
+			      	<input class="form-control example-insert" name="" value="" placeholder="Example..."/>
+			    </div>
+			</div>
+			<div class="form-row">
+		    	<div class="form-group col-md-9">
+					<input class="form-control question-insert" name="" value="" Placeholder="Question..."/>
+			    </div>
+			</div>
+			<div class="form-row">
+		    	<button class="btn btn-secondary save-example">Save</button>
 			</div>
 		{{/if}}
 		<hr>

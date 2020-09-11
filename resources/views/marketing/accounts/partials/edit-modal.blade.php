@@ -63,6 +63,20 @@
                             @endif
                         </div>
                         <div class="form-group">
+                            <strong>Website:</strong>
+                            <select class="form-control" name="website">
+                                <option value="0">Select Website</option>
+                                @foreach($websites as $website)
+                                <option value="{{ $website->id }}" @if($website->id == $account->store_website_id) selected @endif>{{ $website->title }}</option>
+                                @endforeach
+                            </select>
+
+                            @if ($errors->has('website'))
+                            <div class="alert alert-danger">{{$errors->first('website')}}</div>
+                            @endif
+                        </div>
+
+                        <div class="form-group">
                             <strong>Instance Id:</strong>
                             <input type="text" name="instance_id" class="form-control" value="{{ $account->instance_id }}">
                             @if ($errors->has('instance_id'))
@@ -74,6 +88,13 @@
                             <input type="text" name="token" class="form-control" value="{{ $account->token }}">
                             @if ($errors->has('token'))
                                 <div class="alert alert-danger" >{{$errors->first('token')}}</div>
+                            @endif
+                        </div>
+                        <div class="form-group">
+                            <strong>Proxy:</strong>
+                            <input type="text" name="proxy" class="form-control" value="{{ $account->proxy }}">
+                            @if ($errors->has('proxy'))
+                                <div class="alert alert-danger" >{{$errors->first('proxy')}}</div>
                             @endif
                         </div>
                         <div class="form-group">

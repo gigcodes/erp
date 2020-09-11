@@ -50,7 +50,7 @@ class KeywordController extends Controller
 
         $chatbotKeyword = ChatbotKeyword::create($params);
 
-        if ( $params["value"] != NULL) {
+        if (array_key_exists("value",$params) && $params["value"] != NULL) {
             $params["chatbot_keyword_id"] = $chatbotKeyword->id;
             $chatbotKeywordValue = new ChatbotKeywordValue;
             $chatbotKeywordValue->fill($params);
