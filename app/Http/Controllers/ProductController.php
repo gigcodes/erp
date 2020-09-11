@@ -1746,8 +1746,8 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
-
-
+        // ->where('composition', 'LIKE', '%' . request('keyword') . '%')
+        // dd($request->all());
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
@@ -1757,7 +1757,13 @@ class ProductController extends Controller
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
-        $perPageLimit = $request->get("per_page");
+        if($request->total_images) {
+            $perPageLimit = $request->total_images;
+        }
+        else {
+            $perPageLimit = $request->get("per_page");
+        }
+        
 
         if (Order::find($model_id)) {
             $selected_products = self::getSelectedProducts($model_type, $model_id);
@@ -1790,7 +1796,6 @@ class ProductController extends Controller
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
-
         if ($request->brand[ 0 ] != null) {
             $products = $products->whereIn('brand', $request->brand);
         }
@@ -1889,7 +1894,6 @@ class ProductController extends Controller
                     ->orWhere('id', 'LIKE', "%$term%")
                     ->orWhere('name', 'LIKE', "%$term%")
                     ->orWhere('short_description', 'LIKE', "%$term%");
-
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
                 }
@@ -1905,12 +1909,13 @@ class ProductController extends Controller
                 }
 
             });
-
             if ($roletype != 'Selection' && $roletype != 'Searcher') {
 
                 $products = $products->whereNull('dnf');
             }
         }
+
+
 
         if ($request->ids[ 0 ] != null) {
             $products = $products->whereIn('id', $request->ids);
@@ -1967,19 +1972,18 @@ class ProductController extends Controller
         }
         if($request->category){
             try {
-               $filtered_category = $request->category[0];
+               $filtered_category = $request->category;
             } catch (\Exception $e) {
-                $filtered_category = 1;
+                $filtered_category = [1];
             }
         }else{
-            $filtered_category = 1;
+            $filtered_category = [1];
         }
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        //dd($category_selection);
 
 
         // category filter start count
@@ -1999,7 +2003,7 @@ class ProductController extends Controller
             }
         }
 
-        // suppliers filter start count
+        // suppliers filter start count/
         $suppliersGroups = clone($products);
         $all_product_ids = $suppliersGroups->pluck('id')->toArray();
         $countSuppliers = [];
@@ -2050,7 +2054,16 @@ class ProductController extends Controller
             }
         }
 
-        $products = $products->paginate($perPageLimit);
+        if($request->total_images) {
+            $products = $products->limit($request->total_images)->get();
+            $products = new LengthAwarePaginator($products, count($products), $request->total_images, 1, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+        }
+        else {
+            $products = $products->paginate($perPageLimit);
+        }
+        
         $products_count = $products->total();
         $all_product_ids = [];
         $from  = request("from","");
