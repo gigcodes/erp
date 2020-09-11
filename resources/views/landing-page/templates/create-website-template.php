@@ -40,7 +40,7 @@
 	         <div class="form-group">
 	            <label for="inputState">Status?</label>
 	            <select name="status" id="inputState" class="form-control">
-	               <?php foreach($status as  $k => $s) { ?>
+	               <?php  foreach($statuses as  $k => $s) { ?>
 	               		<option {{if data && data.status == <?php echo $k; ?>}}selected{{/if}} value="<?php echo $k; ?>"><?php echo $s; ?></option>
 	               <?php } ?>
 	            </select>

@@ -7,6 +7,8 @@ use App\Helpers;
 use App\User;
 use App\ApiKey;
 use Illuminate\Http\Request;
+use DB;
+use Session;
 
 class SettingController extends Controller
 {
@@ -17,39 +19,43 @@ class SettingController extends Controller
 	//	$this->middleware('permission:setting-create',['only' => ['store']]);
 	}
 
-	public function index()
-	{
-		$data = [];
-//		$data['euro_to_inr'] = Setting::get('euro_to_inr');
-//		$data['special_price_discount'] = Setting::get('special_price_discount');
-		$data['pagination'] = Setting::get('pagination');
-		$data['disable_twilio'] = Setting::get('disable_twilio');
-		$data['incoming_calls_yogesh'] = Setting::get('incoming_calls_yogesh');
-		$data['incoming_calls_andy'] = Setting::get('incoming_calls_andy');
-		$data['whatsapp_number_change'] = Setting::get('whatsapp_number_change');
-		$data['users_array'] = Helpers::getUserArray(User::all());
-		$data['image_shortcut'] = Setting::get('image_shortcut');
-		$data['price_shortcut'] = Setting::get('price_shortcut');
-		$data['call_shortcut'] = Setting::get('call_shortcut');
-		$data['screenshot_shortcut'] = Setting::get('screenshot_shortcut');
-		$data['details_shortcut'] = Setting::get('details_shortcut');
-		$data['purchase_shortcut'] = Setting::get('purchase_shortcut');
-		$data['consignor_name'] = Setting::get('consignor_name');
-		$data['consignor_address'] = Setting::get('consignor_address');
-		$data['consignor_city'] = Setting::get('consignor_city');
-		$data['consignor_country'] = Setting::get('consignor_country');
-		$data['consignor_phone'] = Setting::get('consignor_phone');
-		$data['forward_messages'] = Setting::get('forward_messages');
-		$data['forward_start_date'] = Setting::get('forward_start_date');
-		$data['forward_end_date'] = Setting::get('forward_end_date');
-		$data['start_time'] = Setting::get('start_time');
-		$data['end_time'] = Setting::get('end_time');
-		$data['welcome_message'] = Setting::get('welcome_message');
-		$data['forward_users'] = json_decode(Setting::get('forward_users'));
-		$data['api_keys'] = ApiKey::get()->toArray();
 
-		return view('setting.index',$data);
+	public function index(Request $request)
+	{
+		$setting = [];
+		
+		$query = Setting::query();
+		if($request->name){
+			$query = $query->where('name', 'LIKE','%'.$request->name.'%');
+		}
+		if($request->value){
+			$query = $query->orWhere('val', 'LIKE','%'.$request->value.'%');
+		}
+		if($request->type){
+			$query = $query->orWhere('type', 'LIKE','%'.$request->type.'%');
+		}
+		$data = $query->orderBy('id', 'asc')->paginate(10)->appends(request()->except(['page']));
+		return view('setting.index',compact('data'));
 	}
+
+
+	
+	public function update(Request $request)
+	{
+		$data = array('name'=>$request->post('name'), 'val'=>$request->post('val'), 'type'=>$request->post('type'), 'welcome_message'=>$request->post('welcome_message'));
+		if($request->post('id'))
+		{
+			Setting::whereId($request->post('id'))->update($data);
+			Session::flash('message', 'Settings Updated Successfully'); 
+		}else{
+			//Setting::add('disable_twilio', $disable_twilio, 'tinyint');
+			Setting::create($data);
+			Session::flash('message', 'Settings Created Successfully'); 
+		}
+		
+		return redirect('/settings');
+	}
+
 
 	public function store(Request $request)
 	{

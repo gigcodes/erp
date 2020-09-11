@@ -45,6 +45,7 @@ td+td {
 					  <div class="row">
 							<div class="col-md-12">
 								<div class="col-md-12 text-primary">
+								    <span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 										<span>{{:prop.name}}</span><br>
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
