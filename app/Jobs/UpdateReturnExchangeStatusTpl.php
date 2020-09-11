@@ -50,7 +50,7 @@ class UpdateReturnExchangeStatusTpl implements ShouldQueue
                 'status'      => 0,
                 'order_id'    => $product->order_product_id,
             ]);
-            //app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+            app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
     }
 }
