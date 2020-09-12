@@ -151,7 +151,7 @@
             <tr>
                 <th width="5%">ID</th>
                 <th width="5%">Status</th>
-                <th width="7%">Customer</th>
+                <th width="10%">Customer</th>
                 <th width="7%">Image</th>
                 <th width="13%">Brand</th>
                 <th width="10%">Brand Segment</th>
@@ -166,15 +166,21 @@
 
               @foreach ($sourceData as $source)
                 <tr>
-                  <td>{{$source['id']}}</td>
-                  <td>{{$source['status_name']}}</td>
-                  <td>{{$source['customer_name']}}</td>
-                  <td></td>
-                  <td>{{$source['brand_name']}}</td>
-                  <td>{{$source['brand_segment']}}</td>
-                  <td>{{$source['cat_title']}}</td>
-                  <td>{{$source['color']}}</td>
-                  <td>{{$source['size']}}</td>
+                  <!-- <td>{{$source['id']}}</td> -->
+                  <td class="tblcell">
+                    
+                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}aa</label></div>
+                  </td>
+                  <td class="tblcell">{{$source['status_name']}}</td>
+                  <td class="tblcell"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></td>
+
+                  <td class="tblcell">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif
+</td>
+                  <td class="tblcell">{{$source['brand_name']}}</td>
+                  <td class="tblcell">{{$source['brand_segment']}}</td>
+                  <td class="tblcell">{{$source['cat_title']}}</td>
+                  <td class="tblcell">{{$source['color']}}</td>
+                  <td class="tblcell">{{$source['size']}}</td>
                 </tr>
               @endforeach
 

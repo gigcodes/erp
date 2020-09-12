@@ -2151,6 +2151,14 @@ input.form-control-sm.cls_commu_his.form-control.input-size {
     border: 0;
 }
 
+.tblcell{
+
+    font-size: 14px;
+    /*top: 226px;
+    border: navajowhite;
+    position: absolute;*/
+}
+
 .table-dark.table-striped tbody tr:nth-of-type(odd) {
     background-color: rgba(255, 255, 255, 0.05);
 }
