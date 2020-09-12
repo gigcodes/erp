@@ -616,6 +616,11 @@ pre code {
     }
 }
 
+.container.container-grow{
+    width: calc(100% - 100px);
+    max-width: calc(100% - 100px);
+}
+
 .container-fluid {
     width: 100%;
     padding-right: 15px;

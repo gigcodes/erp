@@ -1808,7 +1808,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         @elseif (trim($__env->yieldContent('core_content')))
             @yield('core_content')
         @else
-            <main class="container" style="display: inline-block;">
+            <main class="container container-grow" style="display: inline-block;">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
                 <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
