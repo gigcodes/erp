@@ -1244,7 +1244,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     });
 
     Route::get('/drafted-products', 'ProductController@draftedProducts');
+    Route::get('/drafted-products/edit', 'ProductController@editDraftedProduct');
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
+    Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
 });
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
