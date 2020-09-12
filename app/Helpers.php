@@ -326,7 +326,7 @@ class Helpers
 
     public static function selectStatusList()
     {
-        return \App\Helpers\StatusHelper::getStatus();
+        return ["" => "None"] + \App\Helpers\StatusHelper::getStatus();
     }
 
 

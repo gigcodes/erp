@@ -1111,39 +1111,6 @@ class WhatsAppController extends FindByNumberController
                         $text = $result.' -- '.$text;
                     }
                 }
-
-                try {
-                    // Get file extension
-                    $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
-                    // Set tmp file
-                    $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
-                    // Copy URL to file path
-                    copy($text, $filePath);
-                    // Upload media
-                    $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))
-                        ->toDisk('uploads')->toDirectory('chat-messages/' . $numberPath)->upload();
-
-                    // Delete the file
-                    unlink($filePath);
-
-                    if(isset($data['messages'][0]['type']))
-                        if($data['messages'][0]['type'] == 'image') {
-                            $product = new Product();
-                            $product->sku = '';
-                            $product->price = 0;
-                            $product->quick_product = 1;
-                            $product->supplier = $supplier->id;
-                            $product->price_inr = 0;
-                            $product->price_inr_special = 0;
-
-//                    $product->fill($data['message']);
-                            $product->attachMedia($media, config('constants.media_original_tag'));
-                            $product->save();
-                        }
-                } catch (\Exception $exception) {
-                    //
-                }
-
             }
             $originalMessage = $text;
             // Set params
