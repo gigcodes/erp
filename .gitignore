@@ -70,3 +70,4 @@ app/Console/Commands/DispatchJob.php
 app/Http/Composers/GlobalComposer.php
 #Instagram Library  
 app/Library/mgp25/*
+/public/mailinglist/
