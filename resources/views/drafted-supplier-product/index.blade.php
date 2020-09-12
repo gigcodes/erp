@@ -1,5 +1,5 @@
 @extends('layouts.app')
-
+@section('title', "Drafted Products")
 @section('content')
     <style type="text/css">
         .cls_commu_his{
@@ -8,6 +8,9 @@
         .cls_filter_inputbox{
             display: block;
             margin-left: 10px;
+        }
+        .btn-image img {
+            width: 17px !important
         }
     </style>
     <div class="row">
@@ -42,7 +45,7 @@
         </div>
     </div>
     <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered table-small-row">
             <tr>
                 <th> </th>
                 <th>Product id</th>
@@ -52,7 +55,7 @@
                 <th>Status</th>
                 <th>All images</th>
                 <th>Supplier</th>
-                <th width="280px">Action</th>
+                <th>Action</th>
             </tr>
             @foreach ($products as $product)
                 <tr>
@@ -69,24 +72,25 @@
                         @if ($images = $product->getMedia(config('constants.attach_image_tag')))
                             @foreach ($images as $i => $image)
                                 @if($i == 0)
-                                    <img src="{{ $image->getUrl() }}" class="img-responsive" width="70px">
+                                    <img class="more-list-btn" src="{{ $image->getUrl() }}" class="img-responsive" width="50px">
+                                    @php $extraImages[] = $image->getUrl() @endphp    
                                 @else
                                     @php $extraImages[] = $image->getUrl() @endphp    
                                 @endif
                             @endforeach
                         @endif
                         @if(!empty($extraImages))
-                            <a href="javascript:;" class="more-list-btn" data-list="{{ json_encode($extraImages) }}">More</a>
+                            <div class="more-list-btn-row" data-list="{{ json_encode($extraImages) }}"></div>
                         @endif
                     </td>
                     <td>{{ $product->supplier }}</td>
                     <td>
-                        <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-product="{{ $product->id }}"><img src="/images/edit.png" /></a>
+                        <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-product="{{ $product->id }}"><img width="3px" src="/images/edit.png" /></a>
                         <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
                             @csrf
                             @method('DELETE')
                             @if(auth()->user()->checkPermission('products-delete'))
-                                <button onclick="return confirm('Are you sure you want to delete ?')" type="submit" class="btn btn-image"><img src="/images/delete.png" /></button>
+                                <button onclick="return confirm('Are you sure you want to delete ?')" type="submit" class="btn btn-image"><img width="3px" src="/images/delete.png" /></button>
                             @endif
                         </form>
                     </td>
@@ -148,8 +152,9 @@
         });
 
         $(document).on("click",".more-list-btn",function() {
+            var row = $(this).closest("td").find(".more-list-btn-row");
             var html = "";
-            $.each($(this).data("list"),function(k,r){
+            $.each(row.data("list"),function(k,r){
                 html += '<img src="'+r+'" alt="..." class="img-thumbnail col-md-4">';
             })
             $(".show-list-here").html(html);

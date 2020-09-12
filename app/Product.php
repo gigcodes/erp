@@ -39,16 +39,13 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
-<<<<<<< HEAD
         'name',
         'brand',
         'category',
         'short_description',
         'price',
         'status_id',
-=======
         'id',
->>>>>>> master
         'sku',
         'is_barcode_check',
         'has_mediables',
