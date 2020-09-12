@@ -348,3 +348,43 @@ $(document).on("click",'.open_images', function(){
 
     $('#'+block_id).toggle();
 });
+
+$(document).on("submit",'#formCreateLandingPageStatus', function(e) {
+    e.preventDefault();
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type:'POST',
+        url: '/landing-page/create_status',
+        data:{
+            status: $("input[name=landing_page_status]").val()
+        },
+        success:function(data){
+            $("#createStatusModal").modal('hide');
+            alert(data.message);
+        }
+    });
+});
+
+$(document).on("click",'.approveLandingPageStatus', function() {
+    const that = this;
+    $.ajax({
+        type:'GET',
+        url: '/landing-page/approve-status',
+        data:{
+            id: $(this).data('id'),
+            approve: true
+        },
+        success:function(data){
+            $(that).closest('td').find('span').text('Active');
+            $(that).closest('div').hide();
+        },
+        error: function(data) {
+            alert(data.message);
+        }
+    });
+});

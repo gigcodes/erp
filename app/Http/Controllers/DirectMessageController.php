@@ -49,7 +49,7 @@ class DirectMessageController extends Controller
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-                dd($inbox);
+                
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
                 	if($incomingThread['unseen_count'] != 0){

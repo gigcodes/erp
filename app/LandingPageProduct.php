@@ -10,11 +10,13 @@ class LandingPageProduct extends Model
     const STATUS = [
         "De-active",
         "Active",
+        "APPROVED" => 2,
+        "USER_UPLOADED" => "User Uploaded"
     ];
 
     const GALLERY_TAG_NAME = "gallery";
 
-    protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'start_date', 'end_date', 'created_at', 'updated_at'];
+    protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'landing_page_status_id', 'start_date', 'end_date', 'created_at', 'updated_at'];
 
     public function product()
     {
@@ -159,5 +161,10 @@ class LandingPageProduct extends Model
 
         return $productData;
 
+    }
+
+    public function landing_page_status()
+    {
+        return $this->belongsTo(LandingPageStatus::class, 'landing_page_status_id');
     }
 }

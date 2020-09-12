@@ -83,6 +83,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     //Crop Reference
     Route::get('crop-references', 'CroppedImageReferenceController@index');
     Route::get('crop-references-grid', 'CroppedImageReferenceController@grid');
+    //Ajax request for select2
+    Route::get('/crop-references-grid/getCategories', 'CroppedImageReferenceController@getCategories');
+    Route::get('/crop-references-grid/getProductIds', 'CroppedImageReferenceController@getProductIds');
+    Route::get('/crop-references-grid/getBrands', 'CroppedImageReferenceController@getBrands');
+    Route::get('/crop-references-grid/getSupplier', 'CroppedImageReferenceController@getSupplier');
     Route::get('crop-referencesx', 'CroppedImageReferenceController@index');
 
     Route::get('/magento/status', 'MagentoController@addStatus');
@@ -253,7 +258,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('most-used-phrases/deleted', 'AutoReplyController@mostUsedPhrasesDeleted')->name("chatbot.mostUsedPhrasesDeleted");
     Route::get('most-used-phrases/deleted/records', 'AutoReplyController@mostUsedPhrasesDeletedRecords')->name("chatbot.mostUsedPhrasesDeletedRecords");
-
+    Route::post('settings/update', 'SettingController@update');
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
     Route::get('category/references', 'CategoryController@mapCategory');
@@ -615,6 +620,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/store', 'LandingPageController@store')->name('landing-page.store');
         Route::post('/update-time', 'LandingPageController@updateTime')->name('landing-page.updateTime');
         Route::get('/image/{id}/{productId}/delete', 'LandingPageController@deleteImage')->name('landing-page.deleteImage');
+        Route::post('create_status', 'LandingPageController@createStatus')->name('landing-page-create-status.store');
+        Route::get('/approve-status', 'LandingPageController@approveStatus')->name('landing-page.approveStatus');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'LandingPageController@edit')->name('landing-page.edit');
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
@@ -873,6 +880,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
+    Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
@@ -1029,6 +1037,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('cashflow', 'CashFlowController');
     Route::resource('dailycashflow', 'DailyCashFlowController');
 
+    //URL Routes Module
+    Route::get('routes', 'RoutesController@index')->name('routes.index');
+    Route::get('routes/index', 'RoutesController@index')->name('routes.index');
+    Route::get('routes/sync', 'RoutesController@sync')->name('routes.sync');
+    Route::any('routes/update/{id}', 'RoutesController@update')->name('routes.update');
+
     // Reviews Module
     Route::post('review/createFromInstagramHashtag', 'ReviewController@createFromInstagramHashtag');
     Route::get('review/instagram/reply', 'ReviewController@replyToPost');
@@ -1062,7 +1076,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('vendors/reply/delete', 'VendorController@deleteReply')->name('vendors.reply.delete');
     Route::post('vendors/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendors.email.send.bulk');
     Route::post('vendors/create-user', 'VendorController@createUser')->name('vendors.create.user');
-
+    Route::post('vendors/edit-vendor', 'VendorController@editVendor')->name('vendors.edit-vendor');
     Route::post('vendors/send/message', 'VendorController@sendMessage')->name('vendors/send/message');
     Route::post('vendors/send/email', 'VendorController@sendEmail')->name('vendors.email.send');
     Route::get('vendors/email/inbox', 'VendorController@emailInbox')->name('vendors.email.inbox');
@@ -1115,15 +1129,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::post('/change-status', 'HubstaffActivitiesController@changeStatus')->name('hubstaff-acitivties.notification.change-status');
             Route::get('/approved/pending-payments', 'HubstaffActivitiesController@approvedPendingPayments')->name('hubstaff-acitivties.pending-payments');
             Route::post('/approved/payment', 'HubstaffActivitiesController@submitPaymentRequest')->name("hubstaff-acitivties.payment-request.submit");
-
+            Route::post('/add-efficiency', 'HubstaffActivitiesController@AddEfficiency')->name('hubstaff-acitivties.efficiency.save');
 
         });
+
         Route::post('save', 'HubstaffPaymentController@save')->name('hubstaff-payment.save');
         Route::post('merge-category', 'HubstaffPaymentController@mergeCategory')->name('hubstaff-payment.merge-category');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'HubstaffPaymentController@edit')->name('hubstaff-payment.edit');
             Route::get('delete', 'HubstaffPaymentController@delete')->name('hubstaff-payment.delete');
         });
+
     });
 
     Route::prefix('manage-modules')->group(function () {
@@ -1296,6 +1312,7 @@ Route::post('livechat/check-new-chat', 'LiveChatController@checkNewChat')->name(
 
 Route::get('livechat/getLiveChats', 'LiveChatController@getLiveChats')->name('livechat.get.chats');
 
+
 Route::prefix('livechat')->group(function () {
     Route::post('/attach-image', 'LiveChatController@attachImage')->name('live-chat.attach.image');
 });
@@ -1304,6 +1321,16 @@ Route::prefix('livechat')->group(function () {
 
 Route::post('livechat/send-file', 'LiveChatController@sendFileToLiveChatInc')->name('livechat.upload.file');
 Route::get('livechat/get-customer-info', 'LiveChatController@getLiveChatIncCustomer')->name('livechat.customer.info');
+/*------------------------------------------- livechat tickets -------------------------------- */
+Route::get('livechat/tickets', 'LiveChatController@tickets')->name('livechat.get.tickets');
+Route::post('tickets/email-send', 'LiveChatController@sendEmail')->name('tickets.email.send');
+Route::post('tickets/assign-ticket', 'LiveChatController@AssignTicket')->name('tickets.assign');
+Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->name('tickets.add.status');
+Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
+
+
+
+
 
 Route::post('whatsapp/incoming', 'WhatsAppController@incomingMessage');
 Route::post('whatsapp/incomingNew', 'WhatsAppController@incomingMessageNew');

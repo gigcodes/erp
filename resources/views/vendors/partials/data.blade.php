@@ -130,7 +130,7 @@
         </div>
     </td>
     <td>
-        <div class="cls_action_btn" style="width: 233px;">
+        <div class="cls_action_btn">
             <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
 
             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
@@ -156,6 +156,7 @@
             
             <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
             <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor({{ $vendor->id }}, '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
+            <button type="button" class="btn add-vendor-info" title="Add vendor info" data-id="{{$vendor->id}}"><i class="fa fa-info-circle" aria-hidden="true"></i></button>
         </div>
     </td>
 </tr>

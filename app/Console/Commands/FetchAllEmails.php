@@ -55,7 +55,8 @@ class FetchAllEmails extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::where("driver","imap")->orderBy('id', 'asc')->get();
+
         foreach($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
@@ -69,6 +70,7 @@ class FetchAllEmails extends Command
                 ]);
 
                 $imap->connect();
+
                 $types = [
                     'inbox' => [
                         'inbox_name' => 'INBOX',

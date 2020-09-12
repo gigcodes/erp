@@ -66,6 +66,9 @@
             <th>Current Status</th>
             <th>Weight of Shipment</th>
             <th>Dimensions</th>
+            <th>Volume Weight</th>
+            <th>Cost of Shipment</th>
+            <th>Duty Cost</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -80,6 +83,9 @@
                     <td>{{ @$item->order->order_status }}</td>
                     <td>{{ @$item->actual_weight }}</td>
                     <td>{{ @$item->dimension }}</td>
+                    <td>{{ @$item->volume_weight??'N/A' }}</td>
+                    <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
+                    <td>{{ @$item->duty_cost?? 'N/A' }}</td>
                     <td>
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
