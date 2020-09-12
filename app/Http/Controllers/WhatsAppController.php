@@ -1137,7 +1137,7 @@ class WhatsAppController extends FindByNumberController
                             $product->price_inr_special = 0;
 
 //                    $product->fill($data['message']);
-                            $product->attachMedia($media, config('constants.media_tags'));
+                            $product->attachMedia($media, config('constants.media_original_tag'));
                             $product->save();
                         }
                 } catch (\Exception $exception) {
