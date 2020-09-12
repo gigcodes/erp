@@ -68,7 +68,5 @@ app/Console/Commands/DispatchJob.php
 .env.example
 .htaccess
 app/Http/Composers/GlobalComposer.php
-
-#Instagram Library
+#Instagram Library  
 app/Library/mgp25/*
-
