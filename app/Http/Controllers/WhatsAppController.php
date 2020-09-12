@@ -2222,13 +2222,26 @@ class WhatsAppController extends FindByNumberController
                     $issue = DeveloperTask::find($request->get('issue_id'));
 
                     $userId  = $issue->assigned_to;
-                    
                     if($sendTo == "to_master") {
-                       if($issue->master_user_id > 0) {
+                       if($issue->master_user_id) {
                           $userId  = $issue->master_user_id;
                        }
                     }
-                    
+
+                    if($sendTo == "to_team_lead") {
+                        if($issue->team_lead_id) {
+                           $userId  = $issue->team_lead_id;
+                        }
+                     }
+
+                     if($sendTo == "to_tester") {
+                        if($issue->tester_id) {
+                           $userId  = $issue->tester_id;
+                        }
+                     }
+                     if(Auth::user()->id == $userId) {
+                        $userId = $issue->created_by;
+                     }
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];
                     $params[ 'sent_to_user_id' ] = $userId;
@@ -2237,7 +2250,6 @@ class WhatsAppController extends FindByNumberController
 
 
                     $number = User::find($userId);
-
                     if (!$number) {
                         return response()->json(['message' => null]);
                     }
@@ -2247,10 +2259,17 @@ class WhatsAppController extends FindByNumberController
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                            if(Auth::id() == $issue->master_user_id) {
+                            if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
                                 $creator = User::find($issue->created_by);
                                 if ($creator) {
                                     $num = $creator->phone;
+                                    $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                }
+                            }
+                            if(Auth::id() == $issue->assigned_to) {
+                                $master = User::find($issue->master_user_id);
+                                if ($master) {
+                                    $num = $master->phone;
                                     $this->sendWithThirdApi($num, null, '', $image->getUrl());
                                 }
                             }
@@ -2265,11 +2284,18 @@ class WhatsAppController extends FindByNumberController
                                 $media = MediaUploader::fromSource($image)->upload();
                                 $issue->attachMedia($media, config('constants.media_tags'));
                                 $this->sendWithThirdApi($number, null, '', $media->getUrl());
-                                if(Auth::id() == $issue->master_user_id) {
+                                if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
                                     $creator = User::find($issue->created_by);
                                     if ($creator) {
                                         $num = $creator->phone;
                                         $this->sendWithThirdApi($num, null, '', $media->getUrl());
+                                    }
+                                }
+                                if(Auth::id() == $issue->assigned_to) {
+                                    $master = User::find($issue->master_user_id);
+                                    if ($master) {
+                                        $num = $master->phone;
+                                        $this->sendWithThirdApi($num, null, '', $image->getUrl());
                                     }
                                 }
                                 $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
@@ -2282,10 +2308,17 @@ class WhatsAppController extends FindByNumberController
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                         $this->sendWithThirdApi($number, null, $params[ 'message' ]);
-                        if(Auth::id() == $issue->master_user_id) {
+                        if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
                             $creator = User::find($issue->created_by);
                             if ($creator) {
                                 $num = $creator->phone;
+                                $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                            }
+                        }
+                        if(Auth::id() == $issue->assigned_to) {
+                            $master = User::find($issue->master_user_id);
+                            if ($master) {
+                                $num = $master->phone;
                                 $this->sendWithThirdApi($num, null, $params[ 'message' ]);
                             }
                         }
@@ -2295,8 +2328,22 @@ class WhatsAppController extends FindByNumberController
                         if ($issue->hasMedia(config('constants.media_tags'))) {
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                                 $params[ 'media_url' ] = $image->getUrl();
-                                $chat_message = ChatMessage::create($params);
                                 $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                                if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
+                                    $creator = User::find($issue->created_by);
+                                    if ($creator) {
+                                        $num = $creator->phone;
+                                        $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                                    }
+                                }
+                                if(Auth::id() == $issue->assigned_to) {
+                                    $master = User::find($issue->master_user_id);
+                                    if ($master) {
+                                        $num = $master->phone;
+                                        $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                    }
+                                }
+                                $chat_message = ChatMessage::create($params);
                             }
                         }
                     }
@@ -4839,7 +4886,6 @@ class WhatsAppController extends FindByNumberController
     public function resendMessage(Request $request, $id)
     {
         $chat_message = ChatMessage::find($id);
-
         if ($customer = Customer::find($chat_message->customer_id)) {
             // $params = [
             //    'number'       => NULL,

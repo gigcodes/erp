@@ -1796,46 +1796,53 @@ class ProductController extends Controller
 
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
-        if ($request->brand[ 0 ] != null) {
-            $products = $products->whereIn('brand', $request->brand);
-        }
 
-        if ($request->color[ 0 ] != null) {
-            $products = $products->whereIn('color', $request->color);
-        }
-
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
-
-            $category_children = [];
-
-            foreach ($request->category as $category) {
-
-                $is_parent = Category::isParent($category);
-
-                if ($is_parent) {
-                    $childs = Category::find($category)->childs()->get();
-
-                    foreach ($childs as $child) {
-                        $is_parent = Category::isParent($child->id);
-
-                        if ($is_parent) {
-                            $children = Category::find($child->id)->childs()->get();
-
-                            foreach ($children as $chili) {
-                                array_push($category_children, $chili->id);
-                            }
-                        } else {
-                            array_push($category_children, $child->id);
-                        }
-                    }
-                } else {
-                    array_push($category_children, $category);
-                }
+        if (isset($request->brand[ 0 ])) {
+            if($request->brand[ 0 ] != null) {
+                $products = $products->whereIn('brand', $request->brand);
             }
+        }
 
-            $products = $products->whereIn('category', $category_children);
+        if (isset($request->color[ 0 ])) {
+            if ($request->color[0] != null) {
+                $products = $products->whereIn('color', $request->color);
+            }
+        }
+
+        if (isset($request->category[ 0 ])) {
+            if ($request->category[0] != null && $request->category[0] != 1) {
+
+                $category_children = [];
+
+                foreach ($request->category as $category) {
+
+                    $is_parent = Category::isParent($category);
+
+                    if ($is_parent) {
+                        $childs = Category::find($category)->childs()->get();
+
+                        foreach ($childs as $child) {
+                            $is_parent = Category::isParent($child->id);
+
+                            if ($is_parent) {
+                                $children = Category::find($child->id)->childs()->get();
+
+                                foreach ($children as $chili) {
+                                    array_push($category_children, $chili->id);
+                                }
+                            } else {
+                                array_push($category_children, $child->id);
+                            }
+                        }
+                    } else {
+                        array_push($category_children, $category);
+                    }
+                }
+
+                $products = $products->whereIn('category', $category_children);
 
 
+            }
         }
 
         if ($request->price_min != null && $request->price_min != 0) {
@@ -1846,10 +1853,12 @@ class ProductController extends Controller
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
 
-        if ($request->supplier[ 0 ] != null) {
-            $suppliers_list = implode(',', $request->supplier);
+        if (isset($request->supplier[ 0 ])) {
+            if ($request->supplier[ 0 ] != null) {
+                $suppliers_list = implode(',', $request->supplier);
 
-            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+                $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            }
         }
 
         if (trim($request->size) != '') {
@@ -1858,22 +1867,26 @@ class ProductController extends Controller
             });
         }
 
-        if ($request->location[ 0 ] != null) {
-            $products = $products->whereIn('location', $request->location);
+        if (isset($request->location[ 0 ])) {
+            if ($request->location[ 0 ] != null) {
+                $products = $products->whereIn('location', $request->location);
+            }
         }
 
-        if ($request->type[ 0 ] != null && is_array($request->type)) {
-            if (count($request->type) > 1) {
-                $products = $products->where(function ($query) use ($request) {
-                    $query->where('is_scraped', 1)->orWhere('status', 2);
-                });
-            } else {
-                if ($request->type[ 0 ] == 'scraped') {
-                    $products = $products->where('is_scraped', 1);
-                } elseif ($request->type[ 0 ] == 'imported') {
-                    $products = $products->where('status', 2);
+        if (isset($request->type[ 0 ])) {
+            if ($request->type[ 0 ] != null && is_array($request->type)) {
+                if (count($request->type) > 1) {
+                    $products = $products->where(function ($query) use ($request) {
+                        $query->where('is_scraped', 1)->orWhere('status', 2);
+                    });
                 } else {
-                    $products = $products->where('isUploaded', 1);
+                    if ($request->type[ 0 ] == 'scraped') {
+                        $products = $products->where('is_scraped', 1);
+                    } elseif ($request->type[ 0 ] == 'imported') {
+                        $products = $products->where('status', 2);
+                    } else {
+                        $products = $products->where('isUploaded', 1);
+                    }
                 }
             }
         }
@@ -1916,9 +1929,10 @@ class ProductController extends Controller
         }
 
 
-
-        if ($request->ids[ 0 ] != null) {
-            $products = $products->whereIn('id', $request->ids);
+        if (isset($request->ids[ 0 ])) {
+            if ($request->ids[ 0 ] != null) {
+                $products = $products->whereIn('id', $request->ids);
+            }
         }
 
 

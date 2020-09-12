@@ -65,7 +65,7 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
-
+   
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
@@ -1199,5 +1199,16 @@ class VendorController extends Controller
         ChatMessage::insert($params);
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
-	}
+  }
+  
+  public function editVendor(Request $request) {
+    if(!$request->vendor_id || $request->vendor_id == "" || !$request->column || $request->column == "" || !$request->value || $request->value == "") {
+        return response()->json(['message' => 'Incomplete data'],500);
+    }
+    $vendor = Vendor::find($request->vendor_id);
+    $column = $request->column;
+    $vendor->$column = $request->value;
+    $vendor->save();
+    return response()->json(['message' => 'Successful'],200);
+  }
 }
