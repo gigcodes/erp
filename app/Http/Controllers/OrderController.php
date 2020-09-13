@@ -71,6 +71,7 @@ class OrderController extends Controller {
 
 
 	public function __construct() {
+		
 
 //		$this->middleware( 'permission:order-view', [ 'only' => ['index','show'] ] );
 //		$this->middleware( 'permission:order-create', [ 'only' => [ 'create', 'store' ] ] );
@@ -191,6 +192,7 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function index(Request $request) {
+		
 		$term = $request->input('term');
 		$order_status = $request->status ?? [''];
 		$date = $request->date ?? '';

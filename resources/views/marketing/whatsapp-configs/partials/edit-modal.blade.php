@@ -54,6 +54,35 @@
                                 <div class="alert alert-danger" >{{$errors->first('is_customer_support')}}</div>
                             @endif
                         </div>
+						
+						
+						<div class="form-group">
+    						<strong>Select Store:</strong>
+    						<select class="form-control" name="store_website_id">
+								<option value="">Select</option>
+    							@foreach($storeData as $store)
+									<option value="{{$store['id']}}" @if($whatsAppConfig->store_website_id == $store['id']) selected @endif>{{$store['title']}}</option>
+								@endforeach
+    						</select>
+    						@if ($errors->has('store_website_id'))
+								<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+    						@endif
+    					</div>
+						
+						<div class="form-group">
+    						<strong>Default For:</strong>
+    						<select class="form-control" name="default_for">
+    							<option value="1" @if($whatsAppConfig->default_for == 1) selected @endif>Customer</option>
+    							<option value="2" @if($whatsAppConfig->default_for == 2) selected @endif>Vendor</option>
+    							<option value="3" @if($whatsAppConfig->default_for == 3) selected @endif>Supplier</option>
+    							<option value="4" @if($whatsAppConfig->default_for == 4) selected @endif>User</option>
+    						</select>
+
+    						@if ($errors->has('customer_support'))
+    						<div class="alert alert-danger">{{$errors->first('default_for')}}</div>
+    						@endif
+    					</div>
+						
                         <div class="form-group">
                             <strong>Instance Id:</strong>
                             <input type="text" name="instance_id" class="form-control" value="{{ $whatsAppConfig->instance_id }}">
@@ -78,6 +107,8 @@
                                 <div class="alert alert-danger" >{{$errors->first('is_default')}}</div>
                             @endif
                         </div>
+						
+						
                         <div class="form-group">
                             <strong>Frequency:</strong>
                             <input type="text" name="frequency" class="form-control" value="{{ $whatsAppConfig->frequency }}">
