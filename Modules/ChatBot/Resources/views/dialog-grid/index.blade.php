@@ -52,12 +52,11 @@
 	        <table style='table-layout:fixed;' class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
 			  <thead>
 			    <tr>
-			      <th style="width:5%" class="th-sm">Id</th>
-			      <th style="width:5%" class="th-sm">Response type</th>
-			      <th style="width:5%" class="th-sm">Total response</th>
+			      <th style="width:7%" class="th-sm">Resp. type</th>
+			      <th style="width:7%" class="th-sm">Total Resp.</th>
 			      <th style="width:15%" class="th-sm">Name</th>
 			      <th style="width:15%" class="th-sm">Title</th>
-                  <th style="width:20%" class="th-sm">Match condition</th>
+                  <th style="width:21%" class="th-sm">Match Intent / Entity</th>
 			      <th style="width:15%" class="th-sm">Metadata</th>
 			      <th style="width:5%" class="th-sm">Dialog type</th>
 			      <th style="width:5%" class="th-sm">Parent id</th>

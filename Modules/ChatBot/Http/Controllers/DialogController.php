@@ -419,11 +419,11 @@ class DialogController extends Controller
     public function restStatus(Request $request)
     {
         $parentId = $request->get("parent_id", 0);
-
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
             ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
-            ->where("chatbot_dialogs.response_type", "standard")
+            // ->where("chatbot_dialogs.response_type", "standard")
             ->groupBy("chatbot_dialogs.id")
+            ->orderBy("chatbot_dialogs.dialog_type", "folder")
             ->orderBy("chatbot_dialogs.previous_sibling", "asc");
 
         $chatDialog = $chatDialog->where("parent_id", $parentId);

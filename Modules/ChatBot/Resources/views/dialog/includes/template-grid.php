@@ -23,7 +23,6 @@
 <script id="dialog-leaf" type="text/x-jsrender">
     
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td>{{:data.id}}</td>
 				      <td class="word-wrap">{{:data.response_type}}</td>
 				      <td class="word-wrap">{{:data.total_response}}</td>
 				      <td class="word-wrap">{{:data.name}}</td>
@@ -59,7 +58,6 @@
 
 <script id="dialog-folder-leaf" type="text/x-jsrender">
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td>{{:data.id}}</td>
 				      <td class="word-wrap">{{:data.response_type}}</td>
 				      <td class="word-wrap">{{:data.total_response}}</td>
 				      <td class="word-wrap">{{:data.name}}</td>
