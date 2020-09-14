@@ -914,10 +914,7 @@ class LeadsController extends Controller
         $source2 = clone $source;
         $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
 
-        // if($request){
-            $source = $source->offset($request->get('start', 0));
-            $source = $source->limit($request->get('length', 10));
-        // }
+    
         
         $source = $source->get();
 
