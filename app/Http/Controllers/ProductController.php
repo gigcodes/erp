@@ -57,7 +57,7 @@ use App\Loggers\LogListMagento;
 use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
-
+use App\Translations;
 
 
 class ProductController extends Controller
@@ -1369,9 +1369,21 @@ class ProductController extends Controller
     }
     private function translateProducts(GoogleTranslate $googleTranslate,$language,$names = []){
            $response = [];
-           if(count($names)){
+           if(count($names) > 0){
                foreach($names as $name){
-                   $response[] = $googleTranslate->translate($language,$name);
+                    // Check translation SEPARATE LINE exists or not
+                    $checkTranslationTable = Translations::select('text')->where('to',$language)->where('text_original',$name)->first();
+
+                    // If translation exists then USE it else do GOOGLE call
+                    if($checkTranslationTable) {
+                        $response[] = $checkTranslationTable->text;
+                    } else {
+                        $translationString = $googleTranslate->translate($language,$name);
+
+                        // Devtask-2893 : Added model to save individual line translation
+                        Translations::addTranslation($name, $translationString, 'en', $language);
+                        $response[] = $translationString;
+                    }
                }
                return implode($response);
            }

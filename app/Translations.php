@@ -30,4 +30,24 @@ class Translations extends Model
         'created_at',
         'updated_at',
     ];
+
+    /**
+     * This static method will create new translation
+     *
+     * @param String $textOriginal Description
+     * @param String $text Description
+     * @param String $from Description
+     * @param String $to Description
+     *
+     * @return bool 
+     */
+    public static function addTranslation($textOriginal, $text, $from, $to) {
+        $obj = new Translations();
+        $obj->text_original = $textOriginal;
+        $obj->text = $text;
+        $obj->from = $from;
+        $obj->to = $to;
+
+        $obj->save();
+    }
 }
