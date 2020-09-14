@@ -33,8 +33,8 @@
 	</div>
 </div>
 <div class="row">
-    <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
-    	<div class="col-md-10 pull-left">
+    <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;padding:0px;">
+    	<div class="col-md-7 pull-left">
     		<form action="" method="get">
 	            <div class="row">
 				    <div class="col">
@@ -45,8 +45,11 @@
 				    </div>
 					<div class="col">
 				      <select name="keyword_or_question" class="form-control">
+					  <!-- <option value="">Select Type</option> -->
 					  <option value="intent" {{request()->get('keyword_or_question') == 'intent' ? 'selected' : ''}}>Intent</option>
 					  <option value="entity" {{request()->get('keyword_or_question') == 'entity' ? 'selected' : ''}}>Entity</option>
+					  <option value="simple" {{request()->get('keyword_or_question') == 'simple' ? 'selected' : ''}}>Simple Text</option>
+					  <option value="priority-customer" {{request()->get('keyword_or_question') == 'priority-customer' ? 'selected' : ''}}>Priority Customer</option>
 					  </select>
 				    </div>
 				    <div class="col">
@@ -55,7 +58,7 @@
 				</div>
 			</form>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-5">
             <div class="form-inline pull-right">
                 <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
         	</div>
@@ -125,6 +128,8 @@
 	</div>
 </div>
 @include('chatbot::partial.create_question')
+@include('chatbot::partial.autoreply-create-modal')
+@include('partials.chat-history')
 <script type="text/javascript">
 	$("#create-keyword-btn").on("click",function() {
 		$("#create-question").modal("show");
@@ -203,7 +208,7 @@
 				$('#entity_details').show();
 				$('#erp_details').hide();
 			}
-			else if(type =='erp') {
+			else if(type =='simple' || type =='priority-customer') {
 				$('#intent_details').hide();
 				$('#entity_details').hide();
 				$('#erp_details').show();

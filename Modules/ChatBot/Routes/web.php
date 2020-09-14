@@ -52,6 +52,10 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
                 Route::get('/delete', 'QuestionController@destroyValue')->name("chatbot.question-example.delete");
             });
         });
+
+        Route::prefix('autoreply')->group(function () {
+            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");            
+        });
     });
 
     Route::prefix('dialog')->group(function () {
@@ -72,6 +76,21 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
 
     });
+
+
+    Route::prefix('dialog-grid')->group(function () {
+        Route::get('/', 'DialogController@dialogGrid')->name("chatbot.dialog-grid.list");
+    });
+
+    // Route::prefix('rest/dialog-grid')->group(function () {
+    //     Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+    //     Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+    //     Route::get('/status', 'DialogController@restStatus')->name("chatbot.rest.dialog.status");
+    //     Route::prefix('{id}')->group(function () {
+    //         Route::get('/', 'DialogGridController@restDetails')->name("chatbot.rest.dialog-grid.detail");
+    //         Route::get('/delete', 'DialogController@restDelete')->name("chatbot.rest.dialog.delete");
+    //     });
+    // });
 
     Route::prefix('analytics')->group(function () {
         Route::get('/', 'AnalyticsController@index')->name("chatbot.analytics.list");

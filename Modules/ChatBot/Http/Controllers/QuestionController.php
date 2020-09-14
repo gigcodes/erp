@@ -11,6 +11,10 @@ use \App\ChatbotCategory;
 use \App\ChatbotQuestion;
 use \App\ChatbotQuestionExample;
 use \App\ChatbotKeywordValueTypes;
+use App\Customer;
+use App\ScheduledMessage;
+use Auth;
+use Artisan;
 class QuestionController extends Controller
 {
     /**
@@ -19,6 +23,8 @@ class QuestionController extends Controller
      */
     public function index()
     {
+        // $call = Artisan::call('keyword:merge');
+        // dd($called);
         $q           = request("q", "");
         $category_id = request("category_id", 0);
         $keyword_or_question = request("keyword_or_question", 'intent');
@@ -26,11 +32,9 @@ class QuestionController extends Controller
             ->leftJoin("chatbot_categories as cc", "cc.id", "chatbot_questions.category_id")
             ->where('keyword_or_question',$keyword_or_question)
             ->select("chatbot_questions.*", \DB::raw("group_concat(cqe.question) as `questions`"), "cc.name as category_name");
-        // $chatQuestions = ChatbotQuestion::where('keyword_or_question',$keyword_or_question);
         if (!empty($q)) {
             $chatQuestions = $chatQuestions->where(function ($query) use ($q) {
                 $query->where("chatbot_questions.value", "like", "%" . $q . "%")->orWhere("cqe.question", "like", "%" . $q . "%");
-                // $query->where("chatbot_questions.value", "like", "%" . $q . "%");
             });
         }
 
@@ -68,7 +72,6 @@ class QuestionController extends Controller
     public function save(Request $request)
     {
         // dd(empty($params["question"]));
-        // dd($request->all());
         $params          = $request->all();
 
         $params["value"] = str_replace(" ", "_", $params["value"]);
@@ -78,6 +81,20 @@ class QuestionController extends Controller
         ]);
         if ($validator->fails()) {
             return response()->json(["code" => 500, "error" => []]);
+        }
+
+        if($request->keyword_or_question  == 'simple' || $request->keyword_or_question  == 'priority-customer') {
+            $validator = Validator::make($request->all(), [
+                'keyword'      => 'sometimes|nullable|string',
+                'suggested_reply'        => 'required|min:3|string',
+                'sending_time' => 'sometimes|nullable|date',
+                'repeat'       => 'sometimes|nullable|string',
+                'is_active'    => 'sometimes|nullable|integer',
+            ]);
+    
+            if ($validator->fails()) {
+                return response()->json(["code" => 500, "error" => []]);
+            }
         }
         
 
@@ -120,8 +137,38 @@ class QuestionController extends Controller
             }
         }
 
+
+        if($request->keyword_or_question  == 'simple' || $request->keyword_or_question  == 'priority-customer') {
+            $exploded = explode(',', $request->keyword);
+    
+            foreach ($exploded as $keyword) {
+
+                $chatbotQuestionExample        = new ChatbotQuestionExample;
+                $chatbotQuestionExample->question = trim($keyword);
+                $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                $chatbotQuestionExample->save();
+            }
+    
+            if ($request->type == 'priority-customer') {
+                if ($request->repeat == '') {
+                    $customers = Customer::where('is_priority', 1)->get();
+    
+                    foreach ($customers as $customer) {
+                        ScheduledMessage::create([
+                            'user_id'      => Auth::id(),
+                            'customer_id'  => $customer->id,
+                            'message'      => $chatbotQuestion->suggested_reply,
+                            'sending_time' => $request->sending_time,
+                        ]);
+                    }
+                }
+            }
+        }
+
+
+
         if($request->erp_or_watson == 'watson') {
-            if($request->keyword_or_question == 'intent') {
+            if($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
             }
             
@@ -210,8 +257,10 @@ class QuestionController extends Controller
                     $chatbotQuestionExample->fill($params);
                     $chatbotQuestionExample->save();
                 }
-
-                WatsonManager::pushQuestion($chatbotQuestion->id);
+                if($chatbotQuestion->erp_or_watson == 'watson') {
+                    WatsonManager::pushQuestion($chatbotQuestion->id);
+                }
+                
             }
             else if($chatbotQuestion->keyword_or_question == 'entity') {
                 $validator = Validator::make($params, [
@@ -262,7 +311,31 @@ class QuestionController extends Controller
                         }
                     }
                 }
-                WatsonManager::pushKeyword($chatbotQuestion->id);
+                if($chatbotQuestion->erp_or_watson == 'watson') {
+                    WatsonManager::pushKeyword($chatbotQuestion->id);
+                } 
+            }
+            if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer') {
+                $validator = Validator::make($request->all(), [
+                    'keyword'      => 'required|string',
+                    'sending_time' => 'sometimes|nullable|date',
+                    'repeat'       => 'sometimes|nullable|string',
+                    'is_active'    => 'sometimes|nullable|integer',
+                ]);
+        
+                if ($validator->fails()) {
+                    return redirect()->back()->withErrors($validator)->withInput();
+                }
+                $chatbotQuestion->fill($params);
+                $chatbotQuestion->save();
+
+                    $chatbotQuestionExample        = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = trim($params['keyword']);
+                    $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                    $chatbotQuestionExample->save();
+                    if($chatbotQuestion->erp_or_watson == 'watson') {
+                        WatsonManager::pushKeyword($chatbotQuestion->id);
+                    }
             }
         }
         return redirect()->back();
@@ -270,15 +343,14 @@ class QuestionController extends Controller
 
     public function destroyValue(Request $request, $id, $valueId)
     {
-
         $cbValue = ChatbotQuestionExample::where("chatbot_question_id", $id)->where("id", $valueId)->first();
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
         if ($cbValue) {
             $cbValue->delete();
-            if($chatbotQuestion->keyword_or_question == 'intent') {
+            if($chatbotQuestion->keyword_or_question == 'intent' && $chatbotQuestion->erp_or_watson == 'watson') {
             WatsonManager::pushQuestion($id);
             }
-            if($chatbotQuestion->keyword_or_question == 'entity') {
+            if($chatbotQuestion->keyword_or_question == 'entity' && $chatbotQuestion->erp_or_watson == 'watson') {
                 WatsonManager::pushKeyword($id);
             }
         }
@@ -463,7 +535,63 @@ class QuestionController extends Controller
         }
 
         return response()->json(["incomplete_results" => false, "items"=> $allKeywordList, "total_count" => count($allKeywordList)]);
-
     }
+
+
+    public function saveAutoreply(Request $request) {
+        // $this->validate($request, [
+        //     'type'         => 'required|string',
+        //     'keyword'      => 'sometimes|nullable|string',
+        //     'reply'        => 'required|min:3|string',
+        //     'sending_time' => 'sometimes|nullable|date',
+        //     'repeat'       => 'sometimes|nullable|string',
+        //     'is_active'    => 'sometimes|nullable|integer',
+        // ]);
+
+        $validator = Validator::make($request->all(), [
+            'type'         => 'required|string',
+            'keyword'      => 'sometimes|nullable|string',
+            'reply'        => 'required|min:3|string',
+            'sending_time' => 'sometimes|nullable|date',
+            'repeat'       => 'sometimes|nullable|string',
+            'is_active'    => 'sometimes|nullable|integer',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => []]);
+        }
+
+        $exploded = explode(',', $request->keyword);
+
+        foreach ($exploded as $keyword) {
+            $chatbotQuestion               = new ChatbotQuestion;
+            $chatbotQuestion->keyword_or_question = $request->type;
+            $chatbotQuestion->value      = trim($keyword);
+            $chatbotQuestion->suggested_reply = $request->reply;
+            $chatbotQuestion->sending_time = $request->sending_time;
+            $chatbotQuestion->repeat       = $request->repeat;
+            $chatbotQuestion->is_active    = $request->is_active;
+            $chatbotQuestion->save();
+        }
+
+        if ($request->type == 'priority-customer') {
+            if ($request->repeat == '') {
+                $customers = Customer::where('is_priority', 1)->get();
+
+                foreach ($customers as $customer) {
+                    ScheduledMessage::create([
+                        'user_id'      => Auth::id(),
+                        'customer_id'  => $customer->id,
+                        'message'      => $chatbotQuestion->suggested_reply,
+                        'sending_time' => $request->sending_time,
+                    ]);
+                }
+            }
+        }
+
+        return redirect()->back()->withSuccess('You have successfully created a new auto-reply!');
+    }
+
+
 
 }

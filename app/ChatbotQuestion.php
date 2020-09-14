@@ -7,7 +7,8 @@ use Illuminate\Database\Eloquent\Model;
 class ChatbotQuestion extends Model
 {
     protected $fillable = [
-        'value', 'workspace_id', 'created_at', 'updated_at','keyword_or_question','category_id'
+        'value', 'workspace_id', 'created_at', 'updated_at', 'keyword_or_question', 'category_id',
+        'sending_time','repeat','is_active','erp_or_watson','suggested_reply'
     ];
 
     public function chatbotQuestionExamples()

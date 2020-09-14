@@ -8,7 +8,7 @@ class ChatbotQuestionExample extends Model
 {
     public $timestamps  = false;
     protected $fillable = [
-        'question', 'chatbot_question_id',
+        'question', 'chatbot_question_id','types',
     ];
 
     public function questionModal()

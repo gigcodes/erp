@@ -18,6 +18,7 @@
 		border-color: coral
 	}
 </style>
+<link rel="stylesheet" href="/css/bootstrap-datetimepicker.min.css">
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 	    <h2 class="page-heading">Edit {{ $chatbotQuestion->value }} | Chatbot</h2>
@@ -66,6 +67,12 @@
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your question"]); ?>
 					    </div>
 					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Suggested Reply</label>
+					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
+					    </div>
+					  </div>
 					  @endif
 					  @if($chatbotQuestion->keyword_or_question == 'entity')
 					  <div class="form-row">
@@ -93,6 +100,12 @@
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
 					</div>
+					<div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Suggested Reply</label>
+					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
+					    </div>
+					  </div>
 					<div class="form-row align-items-end">
 					    <div class="form-group col-md-2">
 						    <label for="type">Type</label>
@@ -111,6 +124,67 @@
 			                </a>	
 			      	    </div>
 					</div>
+					  @endif
+					  @if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer')
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">ERP Entity</label>
+					      <small id="emailHelp" class="form-text text-muted">Name your erp entity to match the category of values that it will detect.</small>
+					      <?php echo Form::text("value", $chatbotQuestion->value, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="question">Category</label>
+						  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatbotQuestion->id}}">
+						  <option value="">Select</option>
+						  @foreach($allCategoryList as $cat)
+						  	<option {{$cat['id'] == $chatbotQuestion->category_id ? 'selected' : ''}} value="{{$cat['id']}}">{{$cat['text']}}</option>
+						  @endforeach
+						</select>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="question">Keyword</label>
+					      <?php echo Form::text("keyword", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your keyword"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Suggested Reply</label>
+					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+						<div class="form-group col-md-6">
+							<strong>Repeat:</strong>
+							<select class="form-control" name="repeat">
+								<option value="">Don't Repeat</option>
+								<option value="Every Day" {{$chatbotQuestion->repeat == 'Every Day' ? 'selected'  : ''}}>Every Day</option>
+								<option value="Every Week" {{$chatbotQuestion->repeat == 'Every Week' ? 'selected'  : ''}}>Every Week</option>
+								<option value="Every Month" {{$chatbotQuestion->repeat == 'Every Month' ? 'selected'  : ''}}>Every Month</option>
+								<option value="Every Year" {{$chatbotQuestion->repeat == 'Every Year' ? 'selected'  : ''}}>Every Year</option>
+							</select>
+						</div>
+					  </div>
+
+					  <div class="form-row">
+					  <div class="form-group col-md-6">
+                        <strong>Completion Date:</strong>
+                        <div class='input-group date' id='sending-datetime'>
+								<input type='text' class="form-control" name="sending_time" value="{{ $chatbotQuestion->sending_time }}"/>
+
+								<span class="input-group-addon">
+									<span class="glyphicon glyphicon-calendar"></span>
+								</span>
+							</div>
+
+							@if ($errors->has('sending_time'))
+								<div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
+							@endif
+						</div>
+					  </div>
 					  @endif
 					  <button type="submit" class="btn btn-primary">Add Intent</button>
 				</form>
@@ -209,14 +283,49 @@
 				  </tfoot>
 				</table>
 				@endif
+				@if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer')
+				<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+				  <thead>
+				    <tr>
+				      <th class="th-sm">Id</th>
+				      <th class="th-sm">Value</th>
+				      <th class="th-sm">Action</th>
+				    </tr>
+				  </thead>
+				  <tbody>
+				    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $value) {?>
+					    <tr>
+					      <td><?php echo $value->id; ?></td>
+					      <td><?php echo $value->question; ?></td>	
+					      <td>
+	                        <a class="btn btn-image delete-button" data-id="<?php echo $value->id; ?>" href="<?php echo route("chatbot.question-example.delete", [$chatbotQuestion->id, $value->id]); ?>">
+	                        	<img src="/images/delete.png">
+	                        </a>
+					      </td>
+					    </tr>
+					<?php }?>
+				  </tbody>
+				  <tfoot>
+				    <tr>
+				      <th>Id</th>
+				      <th>Value</th>
+				      <th>Action</th>
+				    </tr>
+				  </tfoot>
+				</table>
+
+				@endif
 		</div>
 	</div>
 </div>
 
 @include('chatbot::partial.create_question_annotation')
-
+<script src="/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 
+ $('#sending-datetime, #edit-sending-datetime').datetimepicker({
+            format: 'YYYY-MM-DD HH:mm'
+});
 	var searchForKeyword = function(ele) {
     	var keywordBox = ele.find(".search-keyword");
 	    if (keywordBox.length > 0) {

@@ -174,6 +174,7 @@ $(document).on("change", ".dynamic-row .search-alias", function() {
     var selectedIntentOrEntity = $(this).val();
     if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
         var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+        var keyword_or_question = isEntity ? 'entity' : 'intent';
         if (!(isEntity === undefined)) {
             allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
             selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
@@ -182,11 +183,9 @@ $(document).on("change", ".dynamic-row .search-alias", function() {
                 headers: {
                     'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                 },
-                url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
-                data: isEntity ? { 
-                    keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
-                } : { 
-                    value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                url: "/chatbot/question",
+                data: { 
+                    value: selectedIntentOrEntity , question : [$(".question-insert").val()], keyword_or_question : keyword_or_question
                 },
                 dataType: "json",
                 success: function(response) {
@@ -221,6 +220,7 @@ var searchForDialog = function(ele) {
         var selectedIntentOrEntity = e.target.value;
         if (selectedIntentOrEntity !== "" && !allSuggestedOptions.hasOwnProperty(selectedIntentOrEntity)) {
             var isEntity = selectedIntentOrEntity.match("^@") ? true : selectedIntentOrEntity.match("^#") ? false : undefined;
+            var keyword_or_question = isEntity ? 'entity' : 'intent';
             if (!(isEntity === undefined)) {
                 allSuggestedOptions[selectedIntentOrEntity] = selectedIntentOrEntity
                 selectedIntentOrEntity = selectedIntentOrEntity.slice(1, selectedIntentOrEntity.length);
@@ -229,11 +229,9 @@ var searchForDialog = function(ele) {
                     headers: {
                         'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
                     },
-                    url: isEntity ? "/chatbot/keyword" : "/chatbot/question",
-                    data: isEntity ? { 
-                        keyword: selectedIntentOrEntity , value : $(".question-insert").val() 
-                    } : { 
-                        value: selectedIntentOrEntity , question : $(".question-insert").val() 
+                    url: "/chatbot/question",
+                    data: { 
+                        value: selectedIntentOrEntity , question : [$(".question-insert").val()], keyword_or_question : keyword_or_question
                     },
                     dataType: "json",
                     success: function(response) {
@@ -319,6 +317,13 @@ var updateBoxEvent = function(parentId) {
     if (typeof parentId != "undefined") {
         parent_id = parentId;
     }
+    var child_nodes = '.parent_node_class_'+parent_id;
+    var child_node_cls = $(child_nodes).length;
+    console.log(child_node_cls);
+    if(child_node_cls > 0) {
+        $(child_nodes).remove();
+        return;
+    }
     $.ajax({
         type: "get",
         url: "/chatbot/rest/dialog/status",
@@ -338,11 +343,16 @@ var updateBoxEvent = function(parentId) {
                         html += (v.dialog_type == 'folder') ? folderTemplate.render({ "data": v}): myTmpl.render({"data": v});
                     });
                     if (parent_id > 0) {
-                        var dialogTree = $(".node_child_" + parent_id).find(".node-children");
+                        var dialogTree = $(".node_child_" + parent_id);
+                        html = "<tr class='parent_node_class_"+parent_id+"'><td style='padding:20px;' colspan='10'><table style='table-layout:fixed;' class='table table-striped table-bordered table-sm' cellspacing='0' width='100%'><tbody>" + html + '</tbody></table></td></tr>';
+                        // var dialogTree = $(".node_child_" + parent_id).find(".node-children");
+                        dialogTree.after(html);
+
                     } else {
                         var dialogTree = $("#dialog-tree");
+                        dialogTree.html(html);
+
                     }
-                    dialogTree.html(html);
                     $("#leaf-editor-model").modal("hide");
                 }
             }
@@ -370,68 +380,69 @@ $(document).on("click", "#create-dialog-btn-open", function() {
 });
 
 
-// $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
-//     e.preventDefault();
-//     var previous_node = 0;
-//     var previous = $("#dialog-tree").find("li").last();
-//     if (previous.length > 0) {
-//         previous_node = previous.data("id");
-//     }
-//     $.ajax({
-//         type: "get",
-//         url: "/chatbot/rest/dialog/create",
-//         data: {
-//             "previous_node": previous_node,
-//             "dialog_type": "folder"
-//         },
-//         dataType: "json",
-//         success: function(response) {
-//             if (response.code == 200) {
-//                 updateBoxEvent();
-//             }
-//         },
-//         error: function() {
-//             toastr['error']('Could not create dialog folder!');
-//         }
-//     });
-// });
+$(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
+    e.preventDefault();
+    var previous_node = 0;
+    var previous = $("#dialog-tree").find("tr").last();
+    if (previous.length > 0) {
+        previous_node = previous.data("id");
+    }
+    $.ajax({
+        type: "get",
+        url: "/chatbot/rest/dialog/create",
+        data: {
+            "previous_node": previous_node,
+            "dialog_type": "folder"
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response.code == 200) {
+                toastr['success']('Successfully created');
+                updateBoxEvent();
+            }
+        },
+        error: function() {
+            toastr['error']('Could not create dialog folder!');
+        }
+    });
+});
 
 
-// $(document).on("click", "#create-dialog-btn-rest", function(e) {
-//     e.preventDefault();
-//     var previous_node = 0;
-//     var previous = $("#dialog-tree").find("li").last();
-//     if (previous.length > 0) {
-//         previous_node = previous.data("id");
-//     }
-//     $.ajax({
-//         type: "get",
-//         url: "/chatbot/rest/dialog/create",
-//         data: {
-//             "previous_node": previous_node
-//         },
-//         dataType: "json",
-//         success: function(response) {
-//             if (response.code == 200) {
-//                 updateBoxEvent();
-//             }
-//         },
-//         error: function() {
-//             toastr['error']('Could not change module!');
-//         }
-//     });
-// });
+$(document).on("click", "#create-dialog-btn-rest", function(e) {
+    e.preventDefault();
+    var previous_node = 0;
+    var previous = $("#dialog-tree").find("tr").last();
+    if (previous.length > 0) {
+        previous_node = previous.data("id");
+    }
+    $.ajax({
+        type: "get",
+        url: "/chatbot/rest/dialog/create",
+        data: {
+            "previous_node": previous_node
+        },
+        dataType: "json",
+        success: function(response) {
+            if (response.code == 200) {
+                toastr['success']('Successfully created');
+                updateBoxEvent();
+            }
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+});
 
 
 $(document).on("click", ".node__contents", function(e) {
-    var node = $(this).closest(".node").data("id");
+    var node = $(this).data("id");
     $("#leaf-editor-model").modal("show");
     $.ajax({
         type: "get",
         url: "/chatbot/rest/dialog/" + node,
         dataType: "json",
         success: function(response) {
-            console.log(response);
             var myTmpl = $.templates("#add-dialog-form");
             var html = myTmpl.render({
                 "data": response.data
@@ -518,22 +529,123 @@ $(document).on("change", ".search-alias", function() {
         $(this).closest(".form-row").find(".extra_condtions").addClass("dis-none");
     }
 });
-$(document).on("click", ".bx--overflow-menu-options > li", function() {
-    var buttonRole = $(this).find("button").attr("role");
+// $(document).on("click", ".bx--overflow-menu-options > li", function() {
+//     var buttonRole = $(this).find("button").attr("role");
+//     if (buttonRole == "add_child") {
+//         var main = $(this).closest(".node-child");
+//         /* var space = main.find(".node-children");
+//          	  space.append(myTmpl.render({}));*/
+//         $.ajax({
+//             type: "get",
+//             url: "/chatbot/rest/dialog/create",
+//             dataType: "json",
+//             data: {
+//                 "parent_id": main.data("id")
+//             },
+//             success: function(response) {
+//                 if (response.code == 200) {
+//                     updateBoxEvent(main.data("id"));
+//                 }
+//             },
+//             error: function() {
+//                 toastr['error']('Could not change module!');
+//             }
+//         });
+//     } else if (buttonRole == "add_above") {
+//         var main = $(this).closest(".node-child");
+//         //main.before(myTmpl.render({}));
+//         var current_node = $(this).closest(".node-child").data("id");
+//         var previous_node = 0;
+//         var previousNodeChild = $(this).closest(".node-child").prev();
+//         if (previousNodeChild.length > 0) {
+//             previous_node = previousNodeChild.data("id");
+//         }
+//         var parent_id = main.data("parent-id");
+
+//         $.ajax({
+//             type: "get",
+//             url: "/chatbot/rest/dialog/create",
+//             dataType: "json",
+//             data: {
+//                 "current_node": current_node,
+//                 "previous_node": previous_node,
+//                 "parent_id": parent_id
+//             },
+//             success: function(response) {
+//                 if (response.code == 200) {
+//                     updateBoxEvent(parent_id);
+//                 }
+//             },
+//             error: function() {
+//                 toastr['error']('Could not change module!');
+//             }
+//         });
+//     } else if (buttonRole == "add_below") {
+//         var main = $(this).closest(".node-child");
+//         var previous_node = $(this).closest(".node-child").data("id");
+//         var current_node = 0;
+//         var nextNodeChild = $(this).closest(".node-child").next();
+//         if (nextNodeChild.length > 0) {
+//             current_node = nextNodeChild.data("id");
+//         }
+//         var parent_id = main.data("parent-id");
+
+//         $.ajax({
+//             type: "get",
+//             url: "/chatbot/rest/dialog/create",
+//             dataType: "json",
+//             data: {
+//                 "current_node": current_node,
+//                 "previous_node": previous_node,
+//                 "parent_id": parent_id
+//             },
+//             success: function(response) {
+//                 if (response.code == 200) {
+//                     updateBoxEvent(parent_id);
+//                 }
+//             },
+//             error: function() {
+//                 toastr['error']('Could not change module!');
+//             }
+//         });
+//     } else if (buttonRole == "delete") {
+//         var main = $(this).closest(".node-child");
+//         var node = $(this).closest(".node").data("id");
+//         $.ajax({
+//             type: "get",
+//             url: "/chatbot/rest/dialog/" + node + "/delete",
+//             dataType: "json",
+//             success: function(response) {
+//                 if (response.code == 200) {
+//                     toastr['success']('data deleted successfully!');
+//                     main.remove();
+//                 }
+//             },
+//             error: function() {
+//                 errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+//                 toastr['error'](errorMessage);
+//             }
+//         });
+//     }
+// });
+
+
+$(document).on("click", ".create-new-node", function() {
+    var buttonRole = $(this).data("role");
+    var id = $(this).data('id');
     if (buttonRole == "add_child") {
-        var main = $(this).closest(".node-child");
-        /* var space = main.find(".node-children");
-         	  space.append(myTmpl.render({}));*/
+        var main_cls = ".node_child_"+id;
+        var main = $(main_cls);
         $.ajax({
             type: "get",
             url: "/chatbot/rest/dialog/create",
             dataType: "json",
             data: {
-                "parent_id": main.data("id")
+                "parent_id": id
             },
             success: function(response) {
                 if (response.code == 200) {
-                    updateBoxEvent(main.data("id"));
+                    updateBoxEvent(id);
                 }
             },
             error: function() {
@@ -541,16 +653,16 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
             }
         });
     } else if (buttonRole == "add_above") {
-        var main = $(this).closest(".node-child");
-        //main.before(myTmpl.render({}));
-        var current_node = $(this).closest(".node-child").data("id");
+        var main_cls = ".node_child_"+id;
+        var main = $(main_cls);
+
+        var current_node = id;
         var previous_node = 0;
-        var previousNodeChild = $(this).closest(".node-child").prev();
+        var previousNodeChild = $(main_cls).prev();
         if (previousNodeChild.length > 0) {
             previous_node = previousNodeChild.data("id");
         }
-        var parent_id = main.data("parent-id");
-
+        var parent_id = $(this).data("parent_id");
         $.ajax({
             type: "get",
             url: "/chatbot/rest/dialog/create",
@@ -570,15 +682,16 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
             }
         });
     } else if (buttonRole == "add_below") {
-        var main = $(this).closest(".node-child");
-        var previous_node = $(this).closest(".node-child").data("id");
+        var main_cls = ".node_child_"+id;
+        var main = $(main_cls);
+
+        var previous_node = id;
         var current_node = 0;
-        var nextNodeChild = $(this).closest(".node-child").next();
+        var nextNodeChild = $(main_cls).next();
         if (nextNodeChild.length > 0) {
             current_node = nextNodeChild.data("id");
         }
-        var parent_id = main.data("parent-id");
-
+        var parent_id = $(this).data("parent_id");
         $.ajax({
             type: "get",
             url: "/chatbot/rest/dialog/create",
@@ -598,16 +711,20 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
             }
         });
     } else if (buttonRole == "delete") {
-        var main = $(this).closest(".node-child");
-        var node = $(this).closest(".node").data("id");
+        var main_cls = ".node_child_"+id;
+        var main = $(main_cls);
+        console.log(id);
         $.ajax({
             type: "get",
-            url: "/chatbot/rest/dialog/" + node + "/delete",
+            url: "/chatbot/rest/dialog/" + id + "/delete",
             dataType: "json",
             success: function(response) {
                 if (response.code == 200) {
                     toastr['success']('data deleted successfully!');
                     main.remove();
+                }
+                if (response.code == 500) {
+                    toastr['error'](response.error);
                 }
             },
             error: function() {
@@ -618,10 +735,13 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
     }
 });
 
+
 $(document).on("click", ".save-example", function(e) {
     e.preventDefault();
     var example = $(".example-insert").val();
-    var question = $(".question-insert").val();
+    var suggested_reply = $(".reply-insert").val();
+    var question = [$(".question-insert").val()];
+    
 
     $.ajax({
         headers: {
@@ -630,8 +750,10 @@ $(document).on("click", ".save-example", function(e) {
         type: 'post',
         url: '/chatbot/question',
         data: {
-            question: example,
-            value: question
+            question: question,
+            value: example,
+            suggested_reply: suggested_reply,
+            keyword_or_question: 'intent'
         },
         dataType: "json",
         success: function(response) {
@@ -732,4 +854,11 @@ $(document).on("change",".search-alias",function(){
             }
         });
     }
+});
+
+$(document).on("click",".call_child_node",function(e) {
+    e.preventDefault();
+    var parent_id = $(this).data('id');
+    console.log(parent_id);
+    updateBoxEvent(parent_id);
 });
