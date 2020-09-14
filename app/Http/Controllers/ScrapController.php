@@ -705,7 +705,7 @@ class ScrapController extends Controller
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
 
-        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id) {
 
             $query = \App\ScrapedProducts::query();
 
@@ -745,14 +745,31 @@ class ScrapController extends Controller
             if (request('price') != null) {
                 $query->where('price', 'LIKE', "%{$request->price}%");
             }
+            
+            if (request('color') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.color\') like "%'.$request->color.'%"');
+            }
 
+            if (request('category') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.category\') like "%'.$request->category.'%"');
+            }
+
+            if (request('psize') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.sizes\') like "%'.$request->psize.'%" OR JSON_EXTRACT(properties, \'$.size\') like "%'.$request->psize.'%"');
+            }
+
+            if (request('product_id') != null) {
+                $productIds = explode(",", $request->product_id);
+                $query->whereIn('product_id', $productIds);
+            }
+            
             if (request('created') != null) {
-                $query->whereDate('created_at', request('created'));
+                $query->whereDate('created_at', Carbon::parse($request->created)->format('Y-m-d'));
             }
 
             if (request('brand') != null) {
                 $suppliers = request('brand');
-                $query->whereIn('brand', $suppliers);
+                $query->whereIn('brand_id', $suppliers);
             }
 
             if (request('updated') != null) {
@@ -788,8 +805,7 @@ class ScrapController extends Controller
             }
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
-
+            $logs = $query->paginate($paginate)->appends(request()->except(['page']));            
             $search = [
                 \DB::raw("count(*) as total_record"),
                 \DB::raw("count(DISTINCT p.sku) as total_u_record")
@@ -798,7 +814,7 @@ class ScrapController extends Controller
 
 
             if(!empty($startDate) && !empty($endDate)) {
-                $search[] = \DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as date");
+                $search[] = \DB::raw("DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as date");
             }else{
                 $search[] = \DB::raw("'All' as date");
             }
@@ -808,12 +824,12 @@ class ScrapController extends Controller
             });
 
             if(!empty($startDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);
+                $totalUniqueSkuRecords->whereDate('scraped_products.created_at'," >= " , $startDate);
             }
 
             if(!empty($endDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);
-                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'));
+                $totalUniqueSkuRecords->whereDate('scraped_products.created_at'," <= " , $endDate);
+                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d")'));
             }
 
             $totalUniqueSkuRecords->select($search);
@@ -821,9 +837,8 @@ class ScrapController extends Controller
 
             $response = request()->except(['page']);
             if(empty($response['columns'])) {
-                $response['columns'] = [];
-            }
-
+                $response['columns'] = ['color','category','size'];
+            }            
         } else {
             $response = '';
             $paginate = (Setting::get('pagination') * 10);
