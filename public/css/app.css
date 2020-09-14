@@ -107,6 +107,10 @@ p {
     margin-top: 0;
     margin-bottom: 1rem;
 }
+::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #a3a3a3;
+  opacity: 1; /* Firefox */
+}
 
 abbr[title],
 abbr[data-original-title] {
@@ -361,6 +365,10 @@ progress {
 ::-webkit-file-upload-button {
     font: inherit;
     -webkit-appearance: button;
+}
+
+label.checkbox-inline.ew {
+    padding-left: 2px;
 }
 
 output {
@@ -1932,7 +1940,7 @@ pre code {
     background: #f9f9f9;
 }
 input.form-control-sm.cls_commu_his.form-control.input-size {
-    width: 161px;
+    width: 150px;
 }
 .table {
     width: 100%;

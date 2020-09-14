@@ -67,7 +67,7 @@
                             <option value="{{$status['id']}}">{{$status['name']}}</option>
                           @endforeach
                         </select> -->
-                        <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="" style="width: 161px; border-radius: 2px;">
+                        <select class="form-control lead_status multi_lead_status" name="status_id[]" multiple="" style="width: 150px; border-radius: 2px;">
                             <option value="">Select Category</option>
                             <option value="">Status</option>
                           @foreach($erpLeadStatus as $status)
@@ -92,8 +92,9 @@
                             <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
                           @endforeach
                         </select> -->
-                         <select class="form-control lead_brand multi_lead_status input-size" name="brand_id[]" multiple="" style="width: 161px; border-radius: 2px;">
-                            <option value="">Brand</option>
+                         <select placeholder="Brand" class="form-control lead_brand multi_lead_status input-size" name="brand_id[]" multiple="" style="width: 150px; border-radius: 2px;">
+                         Brand
+                            <option value="" default >Brand</option>
                           @foreach($brands as $brand_item)
                             <option value="{{$brand_item['id']}}">{{$brand_item['name']}}</option>
                           @endforeach
@@ -126,7 +127,7 @@
                 
             </div>
 
-            <div class="col-lg-12 margin-tb">
+            <div class="col-lg-12 margin-tb" style="    margin-left: 23px;">
             <div class="pull-right mt-3" style="margin-bottom: 12px ">
                 <!-- <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#emailToAllModal">Bulk Email</button>
                 <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#conferenceModal">Conference Call</button>
@@ -171,16 +172,18 @@
                     
                     <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}aa</label></div>
                   </td>
-                  <td class="tblcell">{{$source['status_name']}}</td>
-                  <td class="tblcell"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></td>
+                  <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['status_name']}}</label></div></td>
+                  <td class="tblcell">
+                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none"><a href="/customer/' + data.customer_id + '" target="_blank">{{$source['customer_name']}}</a></label></div></td>
 
-                  <td class="tblcell">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif
+                  <td class="tblcell">
+                  <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">@if($source['media_url']) <img class="lazy" alt="" src="' + data.media_url + '" style="width:50px;"> @else {{''}} @endif</label></div>
 </td>
-                  <td class="tblcell">{{$source['brand_name']}}</td>
-                  <td class="tblcell">{{$source['brand_segment']}}</td>
-                  <td class="tblcell">{{$source['cat_title']}}</td>
-                  <td class="tblcell">{{$source['color']}}</td>
-                  <td class="tblcell">{{$source['size']}}</td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_name']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['brand_segment']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['cat_title']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['color']}}</label></div></td>
+                  <td class="tblcell"><div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['size']}}</label></div></td>
                 </tr>
               @endforeach
 
@@ -269,7 +272,15 @@
     var allLeadCustomersId = [];
     $(document).ready(function() {
       $('.multi_brand').select2();
-      $('.multi_lead_status').select2();
+      $('.multi_lead_status').select2({
+        placeholder: "Brand",
+        // allowClear: true
+    });
+
+      $('.lead_status').select2({
+        placeholder: "Select Category",
+        // allowClear: true
+    });
       
       $(".all_customer_check").click(function(){
           $('.customer_message').prop('checked', this.checked);
