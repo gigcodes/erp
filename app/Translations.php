@@ -34,10 +34,10 @@ class Translations extends Model
     /**
      * This static method will create new translation
      *
-     * @param String $textOriginal Description
-     * @param String $text Description
-     * @param String $from Description
-     * @param String $to Description
+     * @param String $textOriginal
+     * @param String $text
+     * @param String $from
+     * @param String $to
      *
      * @return bool 
      */
