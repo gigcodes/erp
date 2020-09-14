@@ -65,6 +65,11 @@ class QuickCustomerController extends Controller
         foreach($customer->items() as $item) {
             $item->message = utf8_encode($item->message);
             $item->name = utf8_encode($item->name);
+            $item->address = utf8_encode($item->address);
+            $item->city = utf8_encode($item->city);
+            $item->country = utf8_encode($item->country);
+            $item->reminder_message = utf8_encode($item->reminder_message);
+            $item->message = utf8_encode($item->message);
             $item["short_message"] = strlen($item->message) > 20 ? substr($item->message, 0, 20) : $item->message;
             $item["short_name"] = strlen($item->name) > 10 ? substr($item->name, 0, 10) : $item->name;
             $items[] = $item;
