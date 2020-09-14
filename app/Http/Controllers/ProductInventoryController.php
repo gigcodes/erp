@@ -982,9 +982,11 @@ class ProductInventoryController extends Controller
 
 	}
 
-	public function inventoryList()
+	public function inventoryList(Request $request)
     {
-        $inventory_data = \App\Product::paginate(20);
+        $filter_data = $request->input();
+
+        $inventory_data = \App\Product::getProducts($filter_data);
 
         $status_list = \App\Helpers\StatusHelper::getStatus();
 
@@ -998,9 +1000,16 @@ class ProductInventoryController extends Controller
             $product['status_history'] = $product_history;
         }
 
+        //for filter
+        $brands_names        = \App\Brand::getAll();
+        $products_names      = \App\Product::getPruductsNames();
+        $products_categories = \App\Product::getPruductsCategories();
+        $products_sku        = \App\Product::getPruductsSku();
+
 
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
 
-        return view('product-inventory.inventory-list',compact('inventory_data'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku'));
     }
+
 }

@@ -1,10 +1,11 @@
-@foreach ($inventory_data as $row => $data)
-  <tr>
+@if(!empty($inventory_data->items()))
+  @foreach ($inventory_data as $row => $data)
+    <tr>
     <td>{{ $data['id'] }}</td>
     <td>{{ $data['sku'] }}</td>
-    <td>{{ $data['name'] }}</td>
+    <td>{{ $data['product_name'] }}</td>
     <td>{{ $data['category'] }}</td>
-    <td>{{ $data['brand'] }}</td>
+    <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
     <td>{{ $data['created_at'] }}</td>
     <td>
@@ -14,5 +15,7 @@
     <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>
     <td class="status-history" data='@if(isset($data['status_history']))@json($data['status_history'])@endif' style="display:none"></td>
   </tr>
-
-@endforeach
+  @endforeach
+@else
+  <tr><td colspan="8"><h2>No Records</h2></td></tr>
+@endif

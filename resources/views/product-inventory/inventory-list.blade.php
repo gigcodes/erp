@@ -31,7 +31,32 @@
             </ul>
         </div>
     @endif
+    <div class="col-lg-12 margin-tb">
+        <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
+            <div class="form-group mr-3 mb-3">
+                {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            </div>
+            <div class="form-group mr-3 mb-3">
+                {!! Form::select('product_names[]',$products_names, request("product_names",[]), ['data-placeholder' => 'Select a Name','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            </div>
+            <div class="form-group mr-3 mb-3">
+                {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            </div>
+            <div class="form-group mr-3 mb-3">
+                {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            </div>
+            <div class="form-group mr-3 mb-3">
+                <div class='input-group date' id='filter-date'>
+                    <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                      </span>
+                </div>
+            </div>
+            <button type="submit" class="btn btn-info"><i class="fa fa-filter"></i>Filter</button>
 
+        </form>
+    </div>
     <div class="table-responsive" id="inventory-data">
         <table class="table table-bordered infinite-scroll">
             <thead>
@@ -86,6 +111,8 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script>
+            $(".select-multiple").multiselect();
+            $(".select-multiple2").select2();
 
             $('body').delegate('.show-medias-modal','click',function() {
                 let data = $(this).parent().parent().find('.medias-data').attr('data')
@@ -150,11 +177,11 @@
 
         var isLoadingProducts = false;
         let page = 1;
+        let last_page = {{ $inventory_data->lastPage() }}
 
         $(function () {
             $(window).scroll(function() {
                 if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
-                    // iconActions();
                     loadMoreProducts();
                 }
             });
@@ -166,9 +193,20 @@
             isLoadingProducts = true;
 
             var loader = $('.infinite-scroll-products-loader');
+
+            let url = "";
             page++;
+
+            @if(!empty(request()->input()))
+                url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."&page=") }}'+page, "text/html");
+            @else
+                url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."?page=") }}'+page, "text/html");
+            @endif
+
+            let parsed_url = url.documentElement.textContent;
+
             $.ajax({
-                url: '{{ url('productinventory/inventory-list?page=') }}'+page,
+                url: parsed_url,
                 type: 'GET',
                 beforeSend: function() {
                     loader.show();
@@ -176,7 +214,7 @@
             })
                 .done(function(data) {
                     loader.hide();
-                    if('' === data.trim()) return;
+                    if(page > last_page) return;
                     $('#inventory-data tbody').append(data);
                     isLoadingProducts = false;
                 })
