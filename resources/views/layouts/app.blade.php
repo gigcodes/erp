@@ -436,7 +436,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                                
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="/drafted-products">Quick Sell List</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
