@@ -23,8 +23,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
     ?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @else
-        <link rel="shortcut icon" href="/generate-favicon?title={{$title}}" />
+    @elseif (!\Auth::guest())
+        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
 	<title>{{$title}}</title>
     <!-- CSRF Token -->
