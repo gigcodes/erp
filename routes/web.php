@@ -456,6 +456,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
     Route::resource('email', 'EmailController');
+	
+	Route::post('email/category', 'EmailController@category');
+	Route::post('email/status', 'EmailController@status');
+	Route::post('email/update_email', 'EmailController@updateEmail');
+    
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
