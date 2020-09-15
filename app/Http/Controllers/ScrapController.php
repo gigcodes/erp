@@ -705,7 +705,7 @@ class ScrapController extends Controller
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
 
-        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id) {
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension) {
 
             $query = \App\ScrapedProducts::query();
 
@@ -756,6 +756,10 @@ class ScrapController extends Controller
 
             if (request('psize') != null) {
                 $query->whereRaw('JSON_EXTRACT(properties, \'$.sizes\') like "%'.$request->psize.'%" OR JSON_EXTRACT(properties, \'$.size\') like "%'.$request->psize.'%"');
+            }
+
+            if (request('dimension') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.dimension\') like "%'.$request->dimension.'%"');
             }
 
             if (request('product_id') != null) {
@@ -837,7 +841,7 @@ class ScrapController extends Controller
 
             $response = request()->except(['page']);
             if(empty($response['columns'])) {
-                $response['columns'] = ['color','category','size'];
+                $response['columns'] = ['color','category','size','dimension'];
             }            
         } else {
             $response = '';

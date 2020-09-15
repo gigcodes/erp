@@ -8,13 +8,21 @@
                     @endif
                     <td>{{ $log->website }}</td>
                     <td class="expand-row table-hover-cell"><span class="td-mini-container">
-                        <a href="{{ $log->url }}" target="_blank">{{ strlen( $log->url ) > 30 ? substr( $log->url , 0, 30).'...' :  $log->url }}</a>
+                        <a href="{{ $log->url }}" target="_blank">{{ strlen( $log->url ) > 20 ? substr( $log->url , 0, 20).'...' :  $log->url }}</a>
                         </span>
                         <span class="td-full-container hidden">
                         <a href="{{ $log->url }}" target="_blank">{{ $log->url }}</a>
                         </span>
                     </td>
-                   <td>{{ $log->sku }}</td>
+                   <td class="expand-row table-hover-cell">
+                        <span class="td-mini-container">
+                            {{ strlen( $log->sku ) > 20 ? substr( $log->sku , 0, 20).'...' :  $log->sku }}
+                        </span>
+                        <span class="td-full-container hidden">
+                            {{ $log->sku }}
+                        </span>
+                       
+                    </td>
                     <td>{{ $log->brand->name }}</td>
                     <td>{{ $log->title }}</td>
                     <td>{{ $log->currency }}</td>
@@ -31,9 +39,14 @@
                     @if($response != null)
                     
                     @if(in_array('color',$response['columns']))
-                    <th>
+                    <th class="expand-row table-hover-cell">
                         @if(is_array($log->properties))
-                            {{ isset($log->properties['color'])?$log->properties['color']:'' }}
+                            <span class="td-mini-container">
+                                {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
+                            </span>
+                            <span class="td-full-container hidden">
+                                {{ isset($log->properties['color'])?$log->properties['color']:'' }}
+                            </span>                            
                         @else
                             {{ unserialize($log->properties)['color'] }}                         
                         @endif
@@ -90,32 +103,30 @@
 
                     @if(in_array('size',$response['columns']))
                     <th class="expand-row table-hover-cell">
-                        @if(is_array($log->properties))
-                            @if(is_array($log->properties))
-                                @if(isset($log->properties['sizes']))
-                                    @if(is_array($log->properties['sizes']))
+                        @if(is_array($log->properties))                            
+                            @if(isset($log->properties['sizes']))
+                                @if(is_array($log->properties['sizes']))
+                                <span class="td-mini-container">
+                                    {{ count($log->properties['sizes']) > 2 ? substr( implode(' , ',$log->properties['sizes']) , 0, 10).'...' : implode(' , ',$log->properties['sizes']) }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                    {{ implode(' , ',$log->properties['sizes']) }}
+                                </span>                                        
+                                @else
+                                    {{ $log->properties['sizes'] }}
+                                @endif
+                            @elseif(isset($log->properties['size']))
+                                @if(is_array($log->properties['size']))
                                     <span class="td-mini-container">
-                                        {{ count($log->properties['sizes']) > 2 ? substr( implode(' , ',$log->properties['sizes']) , 0, 10).'...' : implode(' , ',$log->properties['sizes']) }}
+                                        {{ count($log->properties['size']) > 2 ? substr( implode(' , ',$log->properties['size']) , 0, 10).'...' : implode(' , ',$log->properties['size']) }}
                                     </span>
                                     <span class="td-full-container hidden">
-                                        {{ implode(' , ',$log->properties['sizes']) }}
-                                    </span>                                        
-                                    @else
-                                        {{ $log->properties['sizes'] }}
-                                    @endif
-                                @elseif(isset($log->properties['size']))
-                                    @if(is_array($log->properties['size']))
-                                        <span class="td-mini-container">
-                                            {{ count($log->properties['size']) > 2 ? substr( implode(' , ',$log->properties['size']) , 0, 10).'...' : implode(' , ',$log->properties['size']) }}
-                                        </span>
-                                        <span class="td-full-container hidden">
-                                            {{ implode(' , ',$log->properties['size']) }}
-                                        </span>    
-                                    @else
-                                        {{ $log->properties['sizsizees'] }}
-                                    @endif
-                                @endif                            
-                            @endif    
+                                        {{ implode(' , ',$log->properties['size']) }}
+                                    </span>    
+                                @else
+                                    {{ $log->properties['size'] }}
+                                @endif
+                            @endif
                         @elseif(isset(unserialize($log->properties)['size']) )
                             @if(is_array(unserialize($log->properties)['size']))
                                 {{ implode(' , ',unserialize($log->properties)['size'] )}} 
@@ -131,7 +142,24 @@
                         @endif
                     </th>
                     @endif
-
+                    @if(in_array('dimension',$response['columns']))
+                    <th class="expand-row table-hover-cell">
+                        @if(is_array($log->properties))                            
+                            @if(isset($log->properties['dimension']))
+                                @if(is_array($log->properties['dimension']))
+                                <span class="td-mini-container">
+                                    {{ count($log->properties['dimension']) > 2 ? substr( implode(' , ',$log->properties['dimension']) , 0, 10).'...' : implode(' , ',$log->properties['dimension']) }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                    {{ implode(' , ',$log->properties['dimension']) }}
+                                </span>                                        
+                                @else
+                                    {{ $log->properties['dimension'] }}
+                                @endif
+                            @endif
+                        @endif
+                    </th>
+                    @endif
                     @if(in_array('lmeasurement',$response['columns']))
                     <th>@if(isset(unserialize($log->properties)['lmeasurement'])) {{ unserialize($log->properties)['lmeasurement']  }} @endif</th>
                     @endif
