@@ -74,10 +74,14 @@ class QuickCustomerController extends Controller
             $item["short_name"] = strlen($item->name) > 10 ? substr($item->name, 0, 10) : $item->name;
             $items[] = $item;
         }
-
+        
+        
+        $title         = "Quick Customer";
+        $nextActionArr = \DB::table('customer_next_actions')->get();
+        $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
         return response()->json([
             "code"       => 200,
-            "data"       => $items,
+            "data"       => view("quick-customer.quicklist-html", compact('items','title', 'nextActionArr','reply_categories'))->render(),
             "total"      => $customer->total(),
             "pagination" => (string) $customer->appends($request->input())->links(),
             "page"       => $customer->currentPage()
