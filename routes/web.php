@@ -1234,6 +1234,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
     Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
+	
+	Route::post('supplier/add/pricernage', 'SupplierController@addPriceRange')->name('supplier/add/pricernage');
+	Route::post('supplier/change/pricerange', 'SupplierController@changePriceRange')->name('supplier/change/pricerange');
+	
 
 
     Route::resource('assets-manager', 'AssetsManagerController');
