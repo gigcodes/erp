@@ -73,7 +73,6 @@ class QuestionController extends Controller
     {
         // dd(empty($params["question"]));
         $params          = $request->all();
-
         $params["value"] = str_replace(" ", "_", $params["value"]);
         $validator = Validator::make($params, [
             'value' => 'required|unique:chatbot_questions|max:255',
@@ -359,49 +358,112 @@ class QuestionController extends Controller
 
     public function saveAjax(Request $request)
     {
-        $groupId     = $request->get("group_id", 0);
+        $groupId     = $request->get("group_id");
         $name        = $request->get("name", "");
         $question    = $request->get("question");
         $category_id = $request->get("category_id");
+        $erp_or_watson = $request->get("erp_or_watson");
+        if(!$erp_or_watson) {
+            $erp_or_watson = 'erp';
+        }
+        // if (!empty($groupId) && $groupId > 0) {
+        //     $chQuestion = ChatbotQuestion::where("id", $groupId)->first();
+        //     $q = ChatbotQuestionExample::updateOrCreate(
+        //         ["chatbot_question_id" => $groupId, "question" => $question],
+        //         ["chatbot_question_id" => $groupId, "question" => $question]
+        //     );
+        //     WatsonManager::pushQuestion($groupId);
+        //     if($request->suggested_reply && $request->suggested_reply != '') {
+        //         $chQuestion->suggested_reply = $request->suggested_reply;
+        //         $chQuestion->save();
+        //     }
+        // } else if (!empty($name)) {
+        //     $chQuestion = null;
 
-        if (!empty($groupId) && $groupId > 0) {
-            $q = ChatbotQuestionExample::updateOrCreate(
-                ["chatbot_question_id" => $groupId, "question" => $question],
-                ["chatbot_question_id" => $groupId, "question" => $question]
-            );
-            WatsonManager::pushQuestion($groupId);
-        } else if (!empty($name)) {
+        //     if (is_numeric($name)) {
+        //         $chQuestion = ChatbotQuestion::where("id", $name)->first();
+        //     }
 
-            $chQuestion = null;
+        //     if (!$chQuestion) {
+        //         $chQuestion = ChatbotQuestion::create([
+        //             "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name)),
+        //         ]);
 
-            if (is_numeric($name)) {
-                $chQuestion = ChatbotQuestion::where("id", $name)->first();
-            }
+        //         if (!empty($category_id)) {
+        //             if (is_numeric($category_id)) {
+        //                 $chQuestion->category_id = $category_id;
+        //                 $chQuestion->save();
+        //             } else {
+        //                 $catModel = ChatbotCategory::create([
+        //                     "name" => $category_id,
+        //                 ]);
 
-            if (!$chQuestion) {
+        //                 if ($catModel) {
+        //                     $chQuestion->category_id = $catModel->id;
+        //                     $chQuestion->save();
+        //                 }
+        //             }
+        //         }
+        //     }
+
+        //     if($request->suggested_reply && $request->suggested_reply != '') {
+        //         $chQuestion->suggested_reply = $request->suggested_reply;
+        //         $chQuestion->save();
+        //     }
+
+        //     $groupId = $chQuestion->id;
+
+        //     if (is_string($question)) {
+        //         ChatbotQuestionExample::create(
+        //             ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $question)]
+        //         );
+        //     } elseif (is_array($question)) {
+        //         foreach ($question as $key => $qRaw) {
+        //             ChatbotQuestionExample::create(
+        //                 ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $qRaw)]
+        //             );
+        //         }
+        //     }
+        // }
+
+
+        $chQuestion = null;
+
+        if (is_numeric($groupId)) {
+            $chQuestion = ChatbotQuestion::where("id", $groupId)->first();
+        }
+        else {
+            if($groupId != '') {
                 $chQuestion = ChatbotQuestion::create([
-                    "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $name)),
+                    "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $groupId)),
                 ]);
+            }
+        }
+        if ($chQuestion) {
+            if (!empty($category_id)) {
+                if (is_numeric($category_id)) {
+                    $chQuestion->category_id = $category_id;
+                    $chQuestion->save();
+                } else {
+                    $catModel = ChatbotCategory::create([
+                        "name" => $category_id,
+                    ]);
 
-                if (!empty($category_id)) {
-                    if (is_numeric($category_id)) {
-                        $chQuestion->category_id = $category_id;
+                    if ($catModel) {
+                        $chQuestion->category_id = $catModel->id;
                         $chQuestion->save();
-                    } else {
-                        $catModel = ChatbotCategory::create([
-                            "name" => $category_id,
-                        ]);
-
-                        if ($catModel) {
-                            $chQuestion->category_id = $catModel->id;
-                            $chQuestion->save();
-                        }
                     }
                 }
             }
-
+            $chQuestion->erp_or_watson = $erp_or_watson;
+            $chQuestion->save();
+            if($request->suggested_reply && $request->suggested_reply != '') {
+                $chQuestion->suggested_reply = $request->suggested_reply;
+                $chQuestion->save();
+            }
+    
             $groupId = $chQuestion->id;
-
+    
             if (is_string($question)) {
                 ChatbotQuestionExample::create(
                     ["chatbot_question_id" => $chQuestion->id, "question" => preg_replace("/\s+/", " ", $question)]
@@ -413,13 +475,15 @@ class QuestionController extends Controller
                     );
                 }
             }
+    
+            if ($groupId > 0 && $erp_or_watson == 'watson') {
+                WatsonManager::pushQuestion($groupId);
+            }
+            return response()->json(["code" => 200]);
         }
-
-        if ($groupId > 0) {
-            WatsonManager::pushQuestion($groupId);
+        else {
+            return response()->json(["code" => 500, "message" => 'Please select an intent or write a new one.']);
         }
-
-        return response()->json(["code" => 200]);
 
     }
 
@@ -431,11 +495,26 @@ class QuestionController extends Controller
         $allquestionList = [];
         if (!$allquestion->isEmpty()) {
             foreach ($allquestion as $all) {
-                $allquestionList[] = ["id" => $all->id, "text" => $all->value];
+                $allquestionList[] = ["id" => $all->id, "text" => $all->value, "suggested_reply" => $all->suggested_reply];
             }
         }
 
         return response()->json(["incomplete_results" => false, "items" => $allquestionList, "total_count" => count($allquestionList)]);
+
+    }
+
+
+    public function getCategories()
+    {
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
+
+        return response()->json(["incomplete_results" => false, "items" => $allCategoryList, "total_count" => count($allCategoryList)]);
 
     }
 

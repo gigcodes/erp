@@ -75,7 +75,7 @@ use App\Account;
 use App\BrandFans;
 use App\ChatMessagesQuickData;
 use App\ColdLeads;
-
+use App\ChatbotQuestion;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1712,7 +1712,6 @@ class WhatsAppController extends FindByNumberController
                         ]);
                     }
                 }
-
                 //Create Task record
                 if(isset($customer->id) && $customer->id > 0) {
                     // start to check with watson api directly
@@ -1721,8 +1720,6 @@ class WhatsAppController extends FindByNumberController
                             WatsonManager::sendMessage($customer,$params['message']);
                         }
                     }
-
-
                     // Auto Replies
                     // $auto_replies = AutoReply::where('is_active', 1)->get();
                     $auto_replies = ChatbotQuestion::join('chatbot_question_examples','chatbot_questions.id','chatbot_question_examples.chatbot_question_id')->where('erp_or_watson','erp')->select('chatbot_questions.*','chatbot_question_examples.question')->get();

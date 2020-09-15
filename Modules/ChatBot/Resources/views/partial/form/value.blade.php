@@ -117,3 +117,11 @@
 		<option value="erp">ERP</option>
 	</select>
 </div>
+
+<div class="form-group">
+	<label for="value">Auto Approve</label>
+	<select name="auto_approve" id="" class="form-control">
+		<option value="0">No</option>
+		<option value="1">Yes</option>
+	</select>
+</div>

@@ -19,6 +19,7 @@ class AddColumnsToChatbotQuestionsTable extends Migration
             $table->string('repeat')->nullable();
             $table->integer('is_active')->default(0);
             $table->string('erp_or_watson')->nullable();
+            $table->boolean('auto_approve')->default(0);
         });
     }
 

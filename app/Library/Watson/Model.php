@@ -328,9 +328,9 @@ class Model
 
     public static function sendMessage(Customer $customer, $inputText, $contextReset = false)
     {
-        if (env("PUSH_WATSON", true) == false) {
-            return true;
-        }
+        // if (env("PUSH_WATSON", true) == false) {
+        //     return true;
+        // }
 
         $assistantID = self::getAssistantId();
         $assistant   = new AssistantService(
@@ -339,34 +339,41 @@ class Model
         );
 
         if (empty($customer->chat_session_id)) {
-
             $customer = self::createSession($customer, $assistant);
             if (!$customer) {
                 return false;
             }
         }
-
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
-
             if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
                 $customer = self::createSession($customer, $assistant);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
                 }
             }
+
             $chatResponse = new ResponsePurify($result, $customer);
+            //check for auto approve message
+            $auto_approve = $chatResponse->checkAutoApprove();
+            if($auto_approve) {
+                $status = \App\ChatMessage::CHAT_MESSAGE_APPROVED;
+            }
+            else {
+                $status = \App\ChatMessage::CHAT_AUTO_WATSON_REPLY;
+            }
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
+
                 \Log::info(print_r($result,true));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
                         $params = [
                             "is_queue"         => 0,
-                            "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
+                            "status"           => $status,
                             "customer_ids"     => [$customer->id],
                             "message"          => $result["reply_text"],
                             "is_chatbot"       => true,

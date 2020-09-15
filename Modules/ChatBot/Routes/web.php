@@ -35,6 +35,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
         Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
+        Route::get('/category', 'QuestionController@getCategories')->name("chatbot.question.category");
         Route::get('/search-category', 'QuestionController@searchCategory')->name("chatbot.question.search-category");
         Route::post('/change-category', 'QuestionController@changeCategory')->name("chatbot.question.change-category");
         Route::get('/keyword/search', 'QuestionController@searchKeyword')->name("chatbot.question.keyword.search");

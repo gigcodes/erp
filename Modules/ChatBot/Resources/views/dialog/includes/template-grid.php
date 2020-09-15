@@ -285,49 +285,45 @@
 		<?php echo csrf_field(); ?>
 
 		{{if data.create_type == "intents_create"}}
-			<hr>
 				<h4>Intent Section : <small>{{if data.intent.question}} {{:data.intent.question}} {{/if}}</small></h4>
-			<hr>
 			<div class="form-row">
-		    	<div class="form-group col-md-9">
-			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
-			    </div>
-			</div>
-			<div class="form-row">
-		    	<div class="form-group col-md-9">
-			      	<select class="form-control search-category" name="intent[category_id]" placeholder="Select Category"></select>
-			    </div>
-			</div>
-			<div class="form-row">
-		    	<div class="form-group col-md-9">
+		    	<div class="form-group col-md-6">
 			      	<select class="form-control search-intent" name="intent[name]" placeholder="Select Intent"></select>
 			    </div>
+				<div class="form-group col-md-6">
+			      	<select class="form-control search-category" name="intent[category_id]" placeholder="Select Category"></select>
+				</div>
+				</div>
+				<div class="form-row">
+		    	<div class="form-group col-md-6">
+			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
+			    </div>
+				<div class="form-group col-md-3">
+			      	<input class="form-control reply-insert" name="intent[suggested_reply]" value="{{if data.intent.suggested_reply}} {{:data.intent.suggested_reply}} {{/if}}" placeholder="Insert Suggested reply"/>
+			    </div>
+				<div class="form-group col-md-3">
+					<button class="btn btn-secondary save-intent">Save</button>
+				</div>
 			</div>
 		{{else}}
 			<div class="form-row">
-		    	<div class="form-group col-md-9">
+		    	<div class="form-group col-md-3">
 			      	<input class="form-control example-insert" name="" value="" placeholder="Intent Name"/>
 			    </div>
-			</div>
-			<div class="form-row">
-		    	<div class="form-group col-md-9">
+				<div class="form-group col-md-3">
 					<input class="form-control question-insert" name="" value="" Placeholder="User Intent"/>
 			    </div>
-            </div>
-            <div class="form-row">
-		    	<div class="form-group col-md-9">
+				<div class="form-group col-md-3">
 					<input class="form-control reply-insert" name="" value="" Placeholder="Suggested reply"/>
 			    </div>
-			</div>
-			<div class="form-row">
-		    	<button class="btn btn-secondary save-example">Save</button>
+		    	<div class="form-group col-md-3">
+					<button class="btn btn-secondary save-example">Save</button>
+				</div>
 			</div>
 		{{/if}}
-		<hr>
 			<h4>Dialog Section : </h4>
-		<hr>
 		<div class="form-row">
-		    <div class="form-group col-md-9">
+		    <div class="form-group col-md-12">
 		      <select class="form-control search-dialog" name="title" id="keyword_search" placeholder="Enter your keyword" name="keyword" value="{{:data.name}}">
 		      	{{props data.dialog}}
 		      		<option value="{{:prop.name}}" selected>{{:prop.name}}</option>
@@ -339,11 +335,9 @@
 		<div class="dialog-editor-section">
 			<input type="hidden" name="id" value="{{:data.id}}"/>
 			<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
-			<hr>
 				<h4>If assistant recognizes</h4>
-			<hr>
 			<div class="form-row">
-			    <div class="form-group col-md-3">
+			    <div class="form-group col-md-6">
 			      <select class="form-control search-alias" name="conditions[]">
 					{{props data.allSuggestedOptions ~first_condition = data.first_condition}}
 			      		<option {{if ~first_condition == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
@@ -359,7 +353,7 @@
 			<div class="show-more-conditions">
 				{{props data.extra_condition ~allSuggestedOptions=data.allSuggestedOptions}}
 					<div class="form-row">
-						<div class="form-group col-md-3">
+						<div class="form-group col-md-6">
 					      <select name="conditions[]" class="form-control">
 					      	<option {{if prop[0] == "&&"}} selected {{/if}} value="&&">AND</option>
 					      	<option {{if prop[0] == "||"}} selected {{/if}} value="||">OR</option>
@@ -384,9 +378,7 @@
 				{{/props}}
 			</div>
 			{{if data.dialog_type != "folder"}}	
-				<hr>
 					<h4>Assistant responds</h4>
-				<hr>
 				<div class="form-row">
 					<div class="col-md-9">
 						<input type="checkbox" name="response_type" value="response_condition" {{if data.response_condition}} checked {{/if}} class="multiple-conditioned-response" data-toggle="toggle">
@@ -438,18 +430,15 @@
 				</div>
 			{{/if}}
 			{{if data.create_type == "intents_create"}}
-				<hr>
 					<h4>Dialog Location</h4>
-				<hr>
 				<div class="form-row">
-				    <div class="form-group col-md-9">
+				    <div class="form-group col-md-6">
 				      <select class="form-control parent-dialog-node" id="parent_dialog" placeholder="Enter your Parent dialog" name="parent_id"> </select>					    
 				  	</div>
-				</div>
-				<div class="form-row">
-				    <div class="form-group col-md-9">
+					  <div class="form-group col-md-6">
 				      <select class="form-control previous-dialog-node" id="previous_sibling" placeholder="Enter your Previous node" name="previous_sibling"> </select>					    
 				  	</div>
+				    
 				</div>
 			{{/if}}
 		</div>		

@@ -19,29 +19,6 @@ var searchForIntent = function(ele) {
             }
         }).on("change.select2", function() {
             var $this = $(this);
-            $.ajax({
-                headers: {
-                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-                },
-                type: "post",
-                url: '/chatbot/question/submit',
-                data: {
-                    "name": $this.val(),
-                    "question": $("#dialog-save-response-form").find(".question-insert").val(),
-                    "category_id" : $("#dialog-save-response-form").find(".search-category").val()
-                },
-                dataType: "json",
-                success: function(response) {
-                    if (response.code != 200) {
-                        toastr['error']('Can not store intent please review or use diffrent name!');
-                    } else {
-                        toastr['success']('Success!');
-                    }
-                },
-                error: function() {
-                    toastr['error']('Can not store intent name please review!');
-                }
-            });
         });
     }
 };
@@ -735,6 +712,38 @@ $(document).on("click", ".create-new-node", function() {
     }
 });
 
+
+
+
+
+
+$(document).on("click", ".save-intent", function(e) {
+    e.preventDefault();
+    $.ajax({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    type: "post",
+    url: '/chatbot/question/submit',
+    data: {
+        "group_id": $('.search-intent').val(),
+        "question": $(".question-insert").val(),
+        "category_id" : $(".search-category").val(),
+        "suggested_reply" : $(".reply-insert").val(),
+    },
+    dataType: "json",
+    success: function(response) {
+        if (response.code != 200) {
+            toastr['error']('Can not store intent please review or use diffrent name!');
+        } else {
+            toastr['success']('Success!');
+        }
+    },
+    error: function() {
+        toastr['error']('Can not store intent name please review!');
+    }
+});
+});
 
 $(document).on("click", ".save-example", function(e) {
     e.preventDefault();

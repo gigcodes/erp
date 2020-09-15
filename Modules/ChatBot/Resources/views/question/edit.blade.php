@@ -38,6 +38,9 @@
 			@endif
 		</div>
 	    <div class="col-lg-12 margin-tb">
+		<button class="btn btn-xs btn-primary" style="float:right;margin-right:10px;margin-top:10px;">
+		<a href="/chatbot/question" style="color:white;">Back</a>
+	</button>
 	    	<div class="well">
 	    		<form action="{{ route('chatbot.question.update',[$chatbotQuestion->id]) }}" method="post">
     				  <?php echo csrf_field(); ?>
@@ -71,6 +74,15 @@
 					    <div class="form-group col-md-6">
 					      <label for="value">Suggested Reply</label>
 					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
+					    </div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Auto Approve</label>
+					      <select name="auto_approve" id="" class="form-control">
+							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
+							<option value="1" {{$chatbotQuestion->auto_approve == 1 ? 'selected' : ''}}>Yes</option>
+						</select>
 					    </div>
 					  </div>
 					  @endif
@@ -124,6 +136,15 @@
 			                </a>	
 			      	    </div>
 					</div>
+					<div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Auto Approve</label>
+					      <select name="auto_approve" id="" class="form-control">
+							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
+							<option value="1" {{$chatbotQuestion->auto_approve == 1 ? 'selected' : ''}}>Yes</option>
+						</select>
+					    </div>
+					  </div>
 					  @endif
 					  @if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer')
 					  <div class="form-row">
@@ -184,6 +205,15 @@
 								<div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
 							@endif
 						</div>
+					  </div>
+					  <div class="form-row">
+					    <div class="form-group col-md-6">
+					      <label for="value">Auto Approve</label>
+					      <select name="auto_approve" id="" class="form-control">
+							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
+							<option value="1" {{$chatbotQuestion->auto_approve == 1 ? 'selected' : ''}}>Yes</option>
+						</select>
+					    </div>
 					  </div>
 					  @endif
 					  <button type="submit" class="btn btn-primary">Add Intent</button>
