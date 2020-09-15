@@ -585,7 +585,6 @@ class LeadsController extends Controller
             'approved' => 0,
             'status' => 8,
         ];
-
         $customer = Customer::find($request->customer_id);
         //$lead = Customer::find($request->lead_id);
         $product_names = '';
@@ -941,6 +940,7 @@ class LeadsController extends Controller
                 }
             }
         }
+
         return response()->json([
             'draw' => $request->get('draw'),
             'recordsTotal' => $total,
@@ -949,7 +949,31 @@ class LeadsController extends Controller
             'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
+    public function blockcustomerlead(Request $request){
 
+
+
+        if($request->customer_id){
+            $customer = Customer::find($request->customer_id);
+            $is_blocked_lead = !$customer->is_blocked_lead;
+           
+            $lead_product_freq = (isset($request->lead_product_freq)) ? $request->lead_product_freq:'';
+            if($request->column == 'delete'){
+                $customer->is_blocked_lead = $is_blocked_lead;
+            }
+            if($request->column == 'update'){
+            
+              $customer->lead_product_freq =$lead_product_freq;
+            }
+          
+            $customer->save();
+            return response()->json([
+                'status' => 200,
+                'message' => 'Leads for Customer are blocked',
+            ]);
+        }
+
+    }
     public function erpLeadsCreate()
     {
         $customerList = [];//\App\Customer::pluck("name","id")->toArray();

@@ -93,6 +93,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\RunErpLeads;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
@@ -190,6 +191,7 @@ class Kernel extends ConsoleKernel
         IncrementFrequencyWhatsappConfig::class,
         UpdateCronSchedule::class,
         RunErpEvents::class,
+        RunErpLeads::class,
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
@@ -409,6 +411,7 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
         //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
+        $schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();

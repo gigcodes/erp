@@ -11,7 +11,8 @@
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
 
   </div>
-  <?php /*
+  <?php  /*
+
   <div class="col-lg-12 margin-tb">
     <form id="search" method="GET" class="form-inline">
         <input name="term" type="text" class="form-control"
@@ -63,6 +64,7 @@
                 <th>Category</th>
                 <th>Color</th>
                 <th>Size</th>
+                <th>Action</th>
             </tr>
             <tr>
                 <th></th>
@@ -88,6 +90,7 @@
                 <th><input type="text" class="field_search lead_category" name="lead_category" /></th>
                 <th><input type="text" class="field_search lead_color" name="lead_color" /></th>
                 <th><input type="text" class="field_search lead_shoe_size" name="lead_shoe_size"/></th>
+                <th> </th>
             </tr>
         </thead>
         <tbody>
@@ -231,6 +234,35 @@
           customers = tmpCustomers;
         } 
       });
+      $(document).on('click', '.block_customer', function () {
+           var customer_id = $(this).data('customer_id');
+           var column = $(this).data('column');
+           var lead_product_freq = $(this).closest('td').find("input[name='lead_product_freq']").val();
+           var data = {
+                lead_product_freq : lead_product_freq,
+                customer_id : customer_id,
+                column: column,
+       
+            };
+
+              $.ajax({
+                url: "{{ route('leads.block.customer') }}",
+                type: "POST",
+                 headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: data,
+                dataType :'json',
+              }).done(function() {
+                alert('Leads for Customer are blocked');
+                // window.location.reload();
+              }).fail(function(response) {
+             
+
+                alert('Could not say No!');
+                console.log(response);
+              });
+        });
 
       $(".images_attach").click(function(e){
           e.preventDefault();
@@ -363,7 +395,17 @@
               {data: 'brand_segment', name: 'brand_segment'},
               {data: 'cat_title', name: 'cat_title'},
               {data: 'color', name: 'color'},
-              {data: 'size', name: 'size'}
+              {data: 'size', name: 'size'},
+              {
+                  data: null,
+                  render : function ( data, type, row ) {
+                    return ' <a href="javascript:;" data-customer_id="'+row.customer_id+'" data-column="delete" class="btn btn-image px-1 block_customer"><img src="/images/delete.png"></a> <input type="text" class="lead_product_freq" name="lead_product_freq" placeholder="Enter product Freq"> <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image block_customer send_product_frequency" data-column="update" data-customer_id="'+row.customer_id+'"><img src="/images/filled-sent.png" style="cursor: default;"></button>';
+                     
+
+                  }
+              },
+            
+             
           ]
         });
 
