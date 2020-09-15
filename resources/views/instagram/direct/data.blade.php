@@ -27,7 +27,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="typing-indicator" id="typing-indicator" @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ $thread->lastMessage->message }}</div>
+                                        <div class="typing-indicator" id="typing-indicator"@if($thread->lastMessage) @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ $thread->lastMessage->message }}@endif</div>
                                         <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="https://erp.amourint.com/images/chat.png" alt=""></button>
                                         <div class="row">
                                             <div class="col-md-11 cls_remove_rightpadding">
