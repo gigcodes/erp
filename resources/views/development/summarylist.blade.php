@@ -113,22 +113,18 @@
      <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row">
+    <div class="row" style="margin-top: 20px;margin-bottom: -20px;"> 
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
-            <h2 class="page-heading">Quick Dev Task</h2>
+            
             <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
                     
-                   
-                    <div class="form-group" style="margin-left: 50px;">
-                    <label for="with_archived">Issue Id / Subject</label>
-                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control-mg" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
+                <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
+                    <div class="col-md-2 pd-sm" style="margin-left: 50px;">
+                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
-
-                    <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
-                        <label for="with_archived">Module</label>
-                        
+                    <div class="col-md-2 pd-sm" style="margin-left: -50px;">
                         <select class="form-control" name="module_id" id="module_id">
                              <option value>Select a Module</option>
                      @foreach($modules as $module)
@@ -136,17 +132,15 @@
                 @endforeach
                         </select>
                     </div>
-                    <div class="form-group" style="margin-left: 50px;">
-                    <label for="with_archived">DEVELOPER</label>
-                         <input type="text" name="developer" id="developer" placeholder="DEVELOPER" class="form-control-mg" value="">
+                    <div class="col-md-2 pd-sm" style="margin-left: -20px;">
+                         <input type="text" name="developer" id="developer" placeholder="DEVELOPER" class="form-control" value="">
                     </div>
-                    <div class="form-group" style="margin-left: 50px;">
-                        <label for="with_archived">Status</label>
-                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control multiselect","multiple" => true]); ?>
+                    <div class="col-md-2 pd-sm" style="margin-left: -50px;">
+                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control"]); ?>
                     </div>
                     
                     
-                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                    <button type="submit" style="padding: 5px;margin-top:-1px;margin-left: 10px;" class="btn btn-image" id="show"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
                 </form>
             </div>
         </div>
@@ -154,20 +148,21 @@
     </div>
 
     @include('partials.flash_messages')
-
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered" id="vendor-table">
+        <table class="table table-bordered table-striped" style="table-layout:fixed;">
             <thead>
             <tr>
-                <th width="5%">ID</a></th>
-                <th width="7%">MODULE</th>
-                <th width="7%">DEVELOPER</th>
-                <th width="25%">Communication</th>
+                <th width="2%">ID</th>
+                <th width="2%">MODULE</th>
+                <th width="2%">Assigned To</th>
+                <th width="2%">Lead To</th>
+                <th width="5%">Communication</th>
+                <th width="2%">Send To</th>
                 {{-- <th width="10%">Social handle</th>
                 <th width="10%">Website</th> --}}
                
-                <th width="7%">Status</th>
+                <th width="2%">Status</th>
             </tr>
             </thead>
 
@@ -314,6 +309,7 @@
             });
         }
     </script>
+    
 
     <script type="text/javascript">
 
@@ -520,7 +516,7 @@
                 },
                 url: '{{ route('task.gettaskremark') }}',
                 data: {
-                    id: id,
+                    id: id, 
                     module_type: "vendor"
                 },
             }).done(response => {
@@ -666,7 +662,7 @@
             data.append("status", 1);
 
             if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
+                if (!$(this).is(':disabled')) {
                     $.ajax({
                         url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
@@ -676,15 +672,15 @@
                         "processData": false,
                         "data": data,
                         beforeSend: function () {
-                            $(thiss).attr('disabled', true);
+                            $(this).attr('disabled', true);
                         }
                     }).done(function (response) {
-                        thiss.closest('tr').find('.chat_messages').html(thiss.siblings('input').val());
-                        $(thiss).siblings('input').val('');
+                        this.closest('tr').find('.chat_messages').html(this.siblings('input').val());
+                        $(this).siblings('input').val('');
 
-                        $(thiss).attr('disabled', false);
+                        $(this).attr('disabled', false);
                     }).fail(function (errObj) {
-                        $(thiss).attr('disabled', false);
+                        $(this).attr('disabled', false);
 
                         alert("Could not send message");
                         console.log(errObj);
@@ -704,7 +700,7 @@
             data.append("status", 1);
 
             if (message.length > 0) {
-                if (!$(thiss).is(':disabled')) {
+                if (!$(this).is(':disabled')) {
                     $.ajax({
                         url: BASE_URL+'/whatsapp/sendMessage/vendor',
                         type: 'POST',
@@ -721,9 +717,9 @@
                         $("#message-chat-txt-"+vendor_id).html(message);
                         $("#messageid_"+vendor_id).val('');
                         
-                        $(thiss).attr('disabled', false);
+                        $(this).attr('disabled', false);
                     }).fail(function (errObj) {
-                        $(thiss).attr('disabled', false);
+                        $(this).attr('disabled', false);
 
                         alert("Could not send message");
                         console.log(errObj);
@@ -1131,17 +1127,18 @@
             })
         });
 
-    $('ul.pagination').hide();
+    $('ul.pagination').show();
     $('.infinite-scroll').jscroll({
         autoTrigger: true,
         // debug: true,
         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
         padding: 20,
+        float: right,
         nextSelector: '.pagination li.active + li a',
         contentSelector: 'div.infinite-scroll',
         callback: function () {
             $('ul.pagination').first().remove();
-            $('ul.pagination').hide();
+            $('ul.pagination').show();
         }
     });
 

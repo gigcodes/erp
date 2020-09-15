@@ -68,7 +68,7 @@ class DevelopmentController extends Controller
         // Set required data
         $user = $request->user ?? Auth::id();
         $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
-        $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
+        $end = $request->range_end ? " $request->range_end 23:59" : Carbon::now()->endOfWeek();
         $id = null;
         // Set initial variables
         $progressTasks = new DeveloperTask();
