@@ -1,6 +1,15 @@
 @extends('layouts.app')
 
 @section('content')
+<style type="text/css">
+    #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+</style>
 
     <div class="row">
         <div class="col-lg-12 margin-tb">

@@ -5,12 +5,13 @@
 		      <tr>
 		      	<th width="2%"><?php echo '#'; ?></th>
 		      	<th width="2%">Id</th>
+		      	<th width="10%">Brand</th>
 		        <th width="10%">Product <I></I>d</th>
 		        <th width="10%">Name</th>
 		        <th width="10%">Description</th>
 		        <th width="10%">Price</th>
-		        <th width="10%">Date</th>
-		        <th width="10%">Status</th>
+		        <th width="10%">Go Live Date</th>
+		        <th width="10%">Landing page Status</th>
 		        <th width="20%">Image</th>
 		        <th width="10%">Product Status</th>
 		        <th width="8%">Created At</th>
@@ -22,6 +23,7 @@
 			      <tr>
 			      	<td><input type="checkbox" value="{{:prop.product_id}}" name="check-product" class="check-product"></td>
 			      	<td>{{:prop.id}}</td>
+			      	<td>{{:prop.brand_name}}</td>
 			        <td>
 			        	{{:prop.product_id}}
 			        	<br>
@@ -38,7 +40,15 @@
 			        <td>{{:prop.short_dec}}</td>
 			        <td>{{:prop.price}}</td>
 			        <td>Start: {{:prop.start_date}}<br>End:{{:prop.end_date}}</td>
-			        <td>{{:prop.status_name}}</td>
+			        <td><span>{{:prop.status_name}}</span>
+                       {{if "<?php echo Auth::user()->isAdmin(); ?>"}}
+                         {{if prop.status_name == "<?php echo App\LandingPageProduct::STATUS['USER_UPLOADED']; ?>"}}
+                            <div>
+                                <button class="approveLandingPageStatus" data-id="{{:prop.id}}">Approve</button>
+                            </div>
+                        {{/if}}
+                       {{/if}}
+			        </td>
 			        <td>
 			        {{props prop.images}}
 			        {{if prop.show == true}}
@@ -55,20 +65,22 @@
                                         </a>
 			        </td>
 			        <td>{{:prop.productStatus}}</td>
-			        <td>{{:prop.created_at}}</td>
+			        <td>{{:prop.created}}</td>
 			        <td>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
-			        	{{if prop.shopify_id != null}}
-			        		<button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Refresh product in shopify"><i class="fa fa-refresh" aria-hidden="true"></i></button>
-			        		{{if prop.stock_status == 1}}
-			        			<button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
-			        		{{else}}
-			        			<button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
-			        		{{/if}}
-			        	{{else}}
-			        		<button type="button" data-id="{{>prop.id}}" data-attr="" class="btn btn-push-icon" title="Push Product"><i class="fa fa-upload" aria-hidden="true"></i></button>
-			        	{{/if}}
+                        <div style="width:126px;">
+                            <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
+                            <button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+                            {{if prop.shopify_id != null}}
+                                <button type="button" data-id="{{>prop.id}}" class="btn btn-push-icon" title="Refresh product in shopify"><i class="fa fa-refresh" aria-hidden="true"></i></button>
+                                {{if prop.stock_status == 1}}
+                                    <button type="button" data-id="{{>prop.id}}" data-value="0" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-on" aria-hidden="true"></i></button>
+                                {{else}}
+                                    <button type="button" data-id="{{>prop.id}}" data-value="1" class="btn btn-stock-status" title="Stock Status"><i class="fa fa fa-toggle-off" aria-hidden="true"></i></button>
+                                {{/if}}
+                            {{else}}
+                                <button type="button" data-id="{{>prop.id}}" data-attr="" class="btn btn-push-icon" title="Push Product"><i class="fa fa-upload" aria-hidden="true"></i></button>
+                            {{/if}}
+                        </div>
 			        </td>
 			      </tr>
 			      <tr class="hideall" id="{{:prop.id}}" style="display:none;">
