@@ -16,9 +16,8 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 
-Route::get('/test/test', function(){
-    dd(Cache::get('fdfdas'));
-});
+Route::get('/test/test', 'TestController@index');
+
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 Route::get('generate-favicon', 'HomeController@generateFavicon');
