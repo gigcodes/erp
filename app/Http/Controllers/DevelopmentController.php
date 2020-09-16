@@ -359,6 +359,7 @@ class DevelopmentController extends Controller
     }
     public function issueTaskIndex(Request $request)
     {
+        
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
         $type = $request->tasktype ? $request->tasktype : 'all';
@@ -423,9 +424,9 @@ class DevelopmentController extends Controller
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-
+        
         $issues = $issues->select("developer_tasks.*","chat_messages.message","chat_messages.user_id AS message_user_id", "chat_messages.is_reminder AS message_is_reminder", "chat_messages.status as message_status","chat_messages.sent_to_user_id");
-
+        
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
@@ -496,9 +497,11 @@ class DevelopmentController extends Controller
         }
 
         $issues =  $issues->with('communications');
-
+        //DB::enableQueryLog();
         // return $issues = $issues->limit(20)->get();
         $issues = $issues->paginate(Setting::get('pagination'));
+        //dd(DB::getQueryLog());        
+
         $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
 
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
@@ -506,7 +509,7 @@ class DevelopmentController extends Controller
         if ( request()->ajax() ) {
 			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
-
+        
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -1078,24 +1081,24 @@ class DevelopmentController extends Controller
         }
         
 
-        $hubstaffTaskId = $this->createHubstaffTask(
-            $taskSummery,
-            $hubstaffUserId,
-            $hubstaff_project_id
-        );
+        // $hubstaffTaskId = $this->createHubstaffTask(
+        //     $taskSummery,
+        //     $hubstaffUserId,
+        //     $hubstaff_project_id
+        // );
 
-        if($hubstaffTaskId) {
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->save();
-        }
-        if ($hubstaffUserId) {
-            $task = new HubstaffTask();
-            $task->hubstaff_task_id = $hubstaffTaskId;
-            $task->project_id = $hubstaff_project_id;
-            $task->hubstaff_project_id = $hubstaff_project_id;
-            $task->summary = $request->input('task');
-            $task->save();
-        }
+        // if($hubstaffTaskId) {
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->save();
+        // }
+        // if ($hubstaffUserId) {
+        //     $task = new HubstaffTask();
+        //     $task->hubstaff_task_id = $hubstaffTaskId;
+        //     $task->project_id = $hubstaff_project_id;
+        //     $task->hubstaff_project_id = $hubstaff_project_id;
+        //     $task->summary = $request->input('task');
+        //     $task->save();
+        // }
 
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
@@ -1590,11 +1593,11 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
         }
         if($hubstaffUserId) {
-            $hubstaffTaskId = $this->createHubstaffTask(
-                $taskSummery,
-                $hubstaffUserId,
-                $hubstaff_project_id
-            );
+            // $hubstaffTaskId = $this->createHubstaffTask(
+            //     $taskSummery,
+            //     $hubstaffUserId,
+            //     $hubstaff_project_id
+            // );
             if($hubstaffTaskId) {
                 $issue->hubstaff_task_id = $hubstaffTaskId;
                 $issue->save();
@@ -1931,12 +1934,35 @@ class DevelopmentController extends Controller
     }
     public function saveEstimateTime(Request $request)
     {
-        $issue = DeveloperTask::find($request->get('issue_id'));
-        //$issue = Issue::find($request->get('issue_id'));
-        $issue->estimate_time = $request->get('estimate_time');
-        $issue->save();
+        // $issue = DeveloperTask::find($request->get('issue_id'));
+        // //$issue = Issue::find($request->get('issue_id'));
+        // $issue->estimate_time = $request->get('estimate_time');
+        // $issue->save();
+        $issue = DeveloperTaskHistory::where(['developer_task_id' => $request->get('issue_id'), 'attribute' => 'estimation_minute','user_id' => Auth::user()->id])->orderBy('id','DESC')->first();
+        if($issue->count() > 0){
+            $task_history = new DeveloperTaskHistory;
+            $task_history->developer_task_id = $request->get('issue_id');
+            $task_history->attribute = 'estimation_minute';
+            $task_history->old_value = $issue->new_value;
+            $task_history->new_value =  $request->get('estimate_time');
+            $task_history->user_id = Auth::user()->id();
+            $task_history->developer_task_id = $request->name;
+            $task_history->model = 'App\DeveloperTask';
+            $result = $task_history->save();
+        }else{
+            $task_history = new DeveloperTaskHistory;
+            $task_history->developer_task_id = $request->get('issue_id');
+            $task_history->attribute = 'estimation_minute';
+            $task_history->old_value = 0;
+            $task_history->new_value =  $request->get('estimate_time');
+            $task_history->user_id = Auth::user()->id();
+            $task_history->developer_task_id = $request->name;
+            $task_history->model = 'App\DeveloperTask';
+            $result = $task_history->save();
+        }
+
         return response()->json([
-            'status' => 'success'
+            'status' => 'success', 'result' => $result
         ]);
     }
 

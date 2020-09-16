@@ -18,7 +18,7 @@
     <td>{{ $issue->subject }}</td>
     
     <td>
-    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+    <!--span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
         @if ($issue->getMedia(config('constants.media_tags'))->first())
             <br>
             @foreach ($issue->getMedia(config('constants.media_tags')) as $image)
@@ -37,7 +37,28 @@
                     </div>
                 </div>
             </div>
-        </div>
+        </div-->
+    
+    <!-- class="expand-row" -->
+    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+    <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
+    <?php echo Form::select("send_message_".$issue->id,[
+                        "to_master" => "Send To Master Developer",
+                        "to_developer" => "Send To Developer",                       
+                        "to_team_lead" => "Send To Team Lead",
+                        "to_tester" => "Send To Tester"
+                    ],null,["class" => "form-control send-message-number", "style" => "width:85% !important;display: inline;"]); ?>
+    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
+
+  
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top: 2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+    <br>
+        <div class="td-full-container hidden">
+            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
+            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+            <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
+         </div>
+    
     </td>
     <td data-id="{{ $issue->id }}">
         <div class="form-group">
