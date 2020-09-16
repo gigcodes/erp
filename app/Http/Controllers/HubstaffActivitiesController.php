@@ -679,6 +679,7 @@ class HubstaffActivitiesController extends Controller
             $activity->overall = 0;
             $activity->status = 0;
             $activity->is_manual = 1;
+            $activity->user_notes = $request->user_notes;
             $activity->save();
             return response()->json(["message" => 'Successful'],200);
             }
