@@ -35,6 +35,7 @@
 			        	<button type="button" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" src="/images/edit.png"></button>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-history-template"><img width="15px" src="/images/list-128x128.png"></button>
+						<button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template"><img width="15px" src="/images/view.png"></button>
 			        </td>
 			      </tr>
 			    {{/props}}  
@@ -141,4 +142,34 @@
 		</form>
 	</div> 		
 </div>
+</script>
+<script type="text/x-jsrender" id="template-product-block">
+	<div class="modal-content">
+		<div class="modal-body">
+			<div class="col-md-12">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+						<th>Order number</th>
+						<th>Brand</th>
+						<th>Product Name</th>
+						<th>Image</th>
+						<th>Price</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    	{{props data}}
+					      <tr>
+							<td>{{:prop.order_number}}</td>
+							<td>{{:prop.product_brand}}</td>
+							<td>{{:prop.product_name}}</td>
+							<td><img width="30px" src="{{:prop.product_image}}"></td>
+							<td>{{:prop.product_price}}</td>
+					      </tr>
+					    {{/props}}  
+				    </tbody>
+				</table>
+			</div>
+		</div> 		
+	</div>
 </script>

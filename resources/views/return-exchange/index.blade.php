@@ -26,6 +26,10 @@
 							    <label for="from">Customer Name:</label>
 							    <?php echo Form::text("customer_name",request("customer_name"),["class"=> "form-control","placeholder" => "Enter Customer Name"]) ?>
 						  	</div>
+						    <div class="form-group">
+							    <label for="from">Order number:</label>
+							    <?php echo Form::text("order_number",request("order_number"),["class"=> "form-control","placeholder" => "Enter Order Number"]) ?>
+						  	</div>
 						  	<div class="form-group">
 							    <label for="from">Product:</label>
 							    <?php echo Form::text("product",request("product"),["class"=> "form-control","placeholder" => "Enter product sku/id/name"]) ?>

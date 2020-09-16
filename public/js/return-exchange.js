@@ -53,6 +53,11 @@ var msQueue = {
             msQueue.historyList($(this).data("id"));     
         });
 
+        $(document).on("click",".btn-product-info-template",function(e){
+            e.preventDefault();
+            msQueue.getProduct($(this).data("id"));     
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -193,6 +198,25 @@ var msQueue = {
            $("#loading-image").hide();
             var addProductTpl = $.templates("#template-history-block");
             var tplHtml       = addProductTpl.render(response);
+            $(".common-modal").find(".modal-dialog").html(tplHtml);
+            $(".common-modal").modal("show");
+        }
+    },
+    getProduct: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/"+id+"/product",
+            method: "get",
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        };
+        this.sendAjax(_z, "showProductInfo",{append : true});
+    },
+    showProductInfo: function(response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            var addProductInfoTpl = $.templates("#template-product-block");
+            var tplHtml           = addProductInfoTpl.render(response);
             $(".common-modal").find(".modal-dialog").html(tplHtml);
             $(".common-modal").modal("show");
         }

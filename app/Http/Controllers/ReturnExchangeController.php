@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Customer;
 use App\ReturnExchange;
+use App\Order;
+use App\Product;
 use Illuminate\Http\Request;
 
 class ReturnExchangeController extends Controller
@@ -92,12 +94,18 @@ class ReturnExchangeController extends Controller
         $params         = $request->all();
         $limit          = !empty($params["limit"]) ? $params["limit"] : 10;
         $returnExchange = ReturnExchange::leftJoin("return_exchange_products as rep", "rep.return_exchange_id", "return_exchanges.id")
-            ->leftJoin("customers as c", "c.id", "return_exchanges.customer_id")
-            ->leftJoin("products as p", "p.id", "rep.product_id")
-            ->latest('return_exchanges.created_at');
+                ->leftJoin("customers as c", "c.id", "return_exchanges.customer_id")
+                ->leftJoin("products as p", "p.id", "rep.product_id")
+                ->leftJoin("order_products as op", "op.id", "rep.order_product_id")
+                ->join("orders", "orders.id", "op.order_id")
+                ->latest('return_exchanges.created_at');
 
         if (!empty($params["customer_name"])) {
             $returnExchange = $returnExchange->where("c.name", "like", "%" . $params["customer_name"] . "%");
+        }
+
+        if (!empty($params["order_number"])) {
+            $returnExchange = $returnExchange->where("orders.order_id", $params["order_number"]);
         }
 
         if (!empty($params["status"])) {
@@ -220,5 +228,19 @@ class ReturnExchangeController extends Controller
         $id = $order->customer_id;
         $response = (string) view("partials.order-return-exchange", compact('id', 'orderData', 'status'));
         return response()->json(["code" => 200, "html" => $response]);
+    }
+
+    public function product(Request $request, $id) {
+        if (!empty($id)) {
+            $product = \App\Product::where("products.id", $id)
+            ->leftJoin("order_products as op", "op.product_id", "products.id")
+            ->leftJoin("orders", "orders.id", "op.order_id")
+            ->leftJoin("brands", "brands.id", "products.brand")
+            ->select(["orders.order_id as order_number", "brands.name as product_brand", "products.name as product_name",
+                    "products.image as product_image", "products.price as product_price",
+                    "products.supplier as product_supplier", "products.short_description as about_product"])
+            ->get();
+        }
+        return response()->json(["code" => 200, "data" => $product, "message" => ""]);
     }
 }
