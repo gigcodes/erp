@@ -13,12 +13,10 @@
       
         <a href="javascript:;" data-id="{{ $issue->id }}" class="upload-document-btn"><img width="15px" src="/images/attach.png" alt="" style="cursor: default;"><a>
         <a href="javascript:;" data-id="{{ $issue->id }}" class="list-document-btn"><img width="15px" src="/images/archive.png" alt="" style="cursor: default;"><a>
-        <br>
-        {{ \Carbon\Carbon::parse($issue->created_at)->format('H:i d-m') }}
-        @if($issue->task_type_id == 1) Devtask @elseif($issue->task_type_id == 3) Issue @endif
+        
     </td>
-    <td style="vertical-align: middle;">    
-        <select name="module" class="form-control task-module" data-id="{{$issue->id}}" style="margin-top:-5%;">
+    <td>    
+        <select name="module" class="form-control task-module" data-id="{{$issue->id}}">
             <option value=''>Select Module..</option>
             @foreach($modules as $module)
 
@@ -58,23 +56,32 @@
             @endforeach
         </select>
     </td>
-    <td class="expand-row">
+    <td class="communication-td">
     <!-- class="expand-row" -->
   
    
     <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px;width:40%;display:inline;"/>
    
-    <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
+    <button style="display: inline-block;padding:0px;" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
     <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="mmargin-top: -0%;margin-left: -2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
-    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
-    <br>
-        <div class="td-full-container hidden">
-            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
-            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}} )">Send Images</button>
+    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? '' : '' }} justify-content-between expand-row-msg" style="word-break: break-all;" data-id="{{$issue->id}}">
+    <span class="td-mini-container-{{$issue->id}}" style="margin:0px;">
+                    {{  \Illuminate\Support\Str::limit($issue->message, 25, $end='...') }}
+    </span>
+</span>
+  <div class="expand-row-msg" data-id="{{$issue->id}}">
+    <span class="td-full-container-{{$issue->id}} hidden">
+        {{ $issue->message }}
+        <br>
+        <div class="td-full-container">
+            <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }})">Send Attachment</button>
+            <button class="btn btn-secondary btn-xs" onclick="sendUploadImage({{$issue->id}})">Send Images</button>
             <input id="file-input{{ $issue->id }}" type="file" name="files" style="display: none;" multiple/>
          </div> 
+    </span>
+</div>
     </td>
-    <td>
+    <td class="send-to-str">
     <?php echo Form::select("send_message_".$issue->id,[
                         "to_developer" => "Send To Developer",
                         "to_master" => "Send To Master Developer",

@@ -7,6 +7,7 @@
 @section('styles')
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
     .numberSend {
           width: 160px;
@@ -105,7 +106,20 @@
         margin-top: -7px;
         font-size: 12px;
     }
+    .pd-rt {
+        padding-right:0px !important;
+    }
+    .table-bordered {
+        border: 1px solid #ddd !important;
+    }
 
+    .status-selection .btn-group {
+        padding: 0;
+        width: 100%;
+    }
+    .status-selection .multiselect {
+        width : 100%;
+    }
   </style>
 @endsection
 
@@ -113,7 +127,7 @@
      <div id="myDiv">
        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
    </div>
-    <div class="row" style="margin-top: 20px;margin-bottom: -20px;"> 
+    <div class="row" style="margin-top: 20px;margin-bottom: 5px;"> 
         <div class="col-lg-12 margin-tb">
             <?php $base_url = URL::to('/');?>
             
@@ -121,22 +135,29 @@
                 <form class="form-inline" action="{{ route('development.summarylist') }}" method="GET">
                     
                 <p style="font-size:16px;text-align:left;margin-top: 10px;font-weight:bold;">Quick Dev Task</p>
-                    <div class="col-md-2 pd-sm" style="margin-left: 50px;">
-                         <input type="text" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
+                    <div class="col-md-2 pd-sm pd-rt">
+                         <input type="text" style="width:100%;" name="subject" id="subject_query" placeholder="Issue Id / Subject" class="form-control" value="{{ (!empty(app('request')->input('subject'))  ? app('request')->input('subject') : '') }}">
                     </div>
-                    <div class="col-md-2 pd-sm" style="margin-left: -50px;">
+                    <div class="col-md-2 pd-sm pd-rt">
                         <select class="form-control" name="module_id" id="module_id">
                              <option value>Select a Module</option>
                      @foreach($modules as $module)
-                    <option {{ $request->get('module') == $module->id ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
-                @endforeach
+                        <option {{ $request->get('module') == $module->id ? 'selected' : '' }} value="{{ $module->id }}">{{ $module->name }}</option>
+                    @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2 pd-sm" style="margin-left: -20px;">
-                         <input type="text" name="developer" id="developer" placeholder="DEVELOPER" class="form-control" value="">
-                    </div>
-                    <div class="col-md-2 pd-sm" style="margin-left: -50px;">
-                        <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control"]); ?>
+                    @if(auth()->user()->isReviwerLikeAdmin())
+                        <div class="col-md-2 pd-sm pd-rt">
+                            <select class="form-control" name="assigned_to" id="assigned_to">
+                                <option value="">Assigned To</option>
+                                @foreach($users as $id=>$user)
+                                    <option {{$request->get('assigned_to')==$id ? 'selected' : ''}} value="{{$id}}">{{ $user }}</option>
+                                @endforeach
+                            </select>
+                        </div>
+                    @endif
+                    <div class="col-md-2 pd-sm pd-rt status-selection">
+                    <?php echo Form::select("task_status[]",$statusList,request()->get('task_status', ['In Progress']),["class" => "form-control multiselect","multiple" => true]); ?>
                     </div>
                     
                     
@@ -150,19 +171,16 @@
     @include('partials.flash_messages')
     <div class="infinite-scroll">
     <div class="table-responsive mt-3">
-        <table class="table table-bordered table-striped" style="table-layout:fixed;">
+        <table class="table table-bordered table-striped" style="table-layout:fixed;margin-bottom:0px;">
             <thead>
             <tr>
-                <th width="2%">ID</th>
-                <th width="2%">MODULE</th>
-                <th width="2%">Assigned To</th>
-                <th width="2%">Lead To</th>
-                <th width="5%">Communication</th>
-                <th width="2%">Send To</th>
-                {{-- <th width="10%">Social handle</th>
-                <th width="10%">Website</th> --}}
-               
-                <th width="2%">Status</th>
+                <th width="8%">ID</th>
+                <th width="12%">MODULE</th>
+                <th width="13%">Assigned To</th>
+                <th width="13%">Lead</th>
+                <th width="34%">Communication</th>
+                <th width="10%">Send To</th>
+                <th width="10%">Status</th>
             </tr>
             </thead>
 
@@ -181,11 +199,13 @@
 
 
                      </tbody>
- <?php echo $issues->appends(request()->except("page"))->links(); ?>
         </table>
     </div>
+    <?php echo $issues->appends(request()->except("page"))->links(); ?>
 
    </div>
+   @include("development.partials.upload-document-modal")
+   @include("partials.plain-modal")
 @endsection
 
 @section('scripts')
@@ -194,8 +214,23 @@
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script src="/js/bootstrap-multiselect.min.js"></script>
     <script type="text/javascript">
-        
+    $( document ).ready(function() {
+        $(".multiselect").multiselect({
+                nonSelectedText:'Please Select'
+            });
+});
+
+           
+        $(document).on('click', '.expand-row-msg', function () {
+            var id = $(this).data('id');
+            console.log(id);
+            var full = '.expand-row-msg .td-full-container-'+id;
+            var mini ='.expand-row-msg .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
         $(document).on('change', '.assign-master-user', function () {
             let id = $(this).attr('data-id');
             let userId = $(this).val();
@@ -1133,7 +1168,7 @@
         // debug: true,
         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
         padding: 20,
-        float: right,
+        float: 'right',
         nextSelector: '.pagination li.active + li a',
         contentSelector: 'div.infinite-scroll',
         callback: function () {
@@ -1191,5 +1226,162 @@
             console.log(response);
         });
     });
+
+    function sendImage(id) {
+        $.ajax({
+            url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+            type: 'POST',
+            data: {
+                issue_id: id,
+                type: 1,
+                message: '',
+                _token: "{{csrf_token()}}",
+                status: 2
+            },
+            success: function () {
+                toastr["success"]("Message sent successfully!", "Message");
+
+            },
+            beforeSend: function () {
+                $(self).attr('disabled', true);
+            },
+            error: function () {
+                alert('There was an error sending the message...');
+                $(self).removeAttr('disabled', true);
+            }
+        });
+
+        }
+
+function sendUploadImage(id) {
+
+    $('#file-input' + id).trigger('click');
+
+    $('#file-input' + id).change(function () {
+        event.preventDefault();
+        let image_upload = new FormData();
+        let TotalImages = $(this)[0].files.length;  //Total Images
+        let images = $(this)[0];
+
+        for (let i = 0; i < TotalImages; i++) {
+            image_upload.append('images[]', images.files[i]);
+        }
+        image_upload.append('TotalImages', TotalImages);
+        image_upload.append('status', 2);
+        image_upload.append('type', 2);
+        image_upload.append('issue_id', id);
+        if (TotalImages != 0) {
+
+            $.ajax({
+                method: 'POST',
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                data: image_upload,
+                async: true,
+                contentType: false,
+                processData: false,
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                success: function (images) {
+                    $("#loading-image").hide();
+                    alert('Images send successfully');
+                },
+                error: function () {
+                    console.log(`Failed`)
+                }
+            })
+        }
+    })
+    }
+
+    // $('#filecount').filestyle({htmlIcon: '<span class="oi oi-random"></span>',badge: true, badgeName: "badge-danger"});
+
+$(document).on("click",".upload-document-btn",function() {
+    var id = $(this).data("id");
+    $("#upload-document-modal").find("#hidden-identifier").val(id);    
+    $("#upload-document-modal").modal("show");
+});
+
+$(document).on("submit","#upload-task-documents",function(e) {
+            e.preventDefault();
+            var form = $(this);
+            var postData = new FormData(form[0]);
+            $.ajax({
+                method : "post",
+                url: "{{action('DevelopmentController@uploadDocument')}}",
+                data: postData,
+                processData: false,
+                contentType: false,
+                dataType: "json",
+                success: function (response) {
+                    if(response.code == 200) {
+                        toastr["success"]("Status updated!", "Message")
+                        $("#upload-document-modal").modal("hide");
+                    }else{
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+        $(document).on("click",".list-document-btn",function() {
+            var id = $(this).data("id");
+            $.ajax({
+                method : "GET",
+                url: "{{action('DevelopmentController@getDocument')}}",
+                data: {id : id},
+                dataType: "json",
+                success: function (response) {
+                    if(response.code == 200) {
+                        $("#blank-modal").find(".modal-title").html("Document List");
+                        $("#blank-modal").find(".modal-body").html(response.data);
+                        $("#blank-modal").modal("show");
+                    }else{
+                        toastr["error"](response.error, "Message");
+                    }
+                }
+            });
+        });
+
+
+
+    $(document).on('click', '.send-message-open', function (event) {
+            var textBox = $(this).closest(".communication-td").find(".send-message-textbox");
+            var sendToStr  = $(this).closest(".communication-td").next().find(".send-message-number").val();
+            let issueId = textBox.attr('data-id');
+            let message = textBox.val();
+            if (message == '') {
+                return;
+            }
+
+            let self = textBox;
+
+            $.ajax({
+                url: "{{action('WhatsAppController@sendMessage', 'issue')}}",
+                type: 'POST',
+                data: {
+                    "issue_id": issueId,
+                    "message": message,
+                    "sendTo" : sendToStr,
+                    "_token": "{{csrf_token()}}",
+                   "status": 2
+                },
+                dataType: "json",
+                success: function (response) {
+                    toastr["success"]("Message sent successfully!", "Message");
+                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    $(self).removeAttr('disabled');
+                    $(self).val('');
+                },
+                beforeSend: function () {
+                    $(self).attr('disabled', true);
+                },
+                error: function () {
+                    alert('There was an error sending the message...');
+                    $(self).removeAttr('disabled', true);
+                }
+            });
+        });
+
     </script>
 @endsection
