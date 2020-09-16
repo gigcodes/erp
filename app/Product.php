@@ -39,6 +39,13 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
+        'name',
+        'brand',
+        'category',
+        'short_description',
+        'price',
+        'status_id',
+        'id',
         'sku',
         'is_barcode_check',
         'has_mediables',
@@ -46,7 +53,8 @@ class Product extends Model
         'stock_status',
         'shopify_id',
         'scrap_priority',
-        'assigned_to'
+        'assigned_to',
+        'quick_product'
     ];
 
     protected $dates = ['deleted_at'];
@@ -977,5 +985,10 @@ class Product extends Model
         }
 
         return $platformId;
+    }
+
+    public function getStatusName()
+    {
+        return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];
     }
 }

@@ -1540,6 +1540,7 @@ class WhatsAppController extends FindByNumberController
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params[ 'message' ], $customer);
                 }
 
+                if (isset($media))
                 if ($contentType === 'image') {
                     $message->attachMedia($media, $contentType);
                     $message->save();
