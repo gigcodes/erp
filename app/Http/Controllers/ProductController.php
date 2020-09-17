@@ -113,7 +113,6 @@ class ProductController extends Controller
     public function approvedListing(Request $request)
     {
 
-        // dd($request->all());
 
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
@@ -184,14 +183,14 @@ class ProductController extends Controller
         $type = '';
         $assigned_to_users = '';
 
-        if ($request->brand[ 0 ] != null) {
+        if (is_array($request->brand)  &&  $request->brand[ 0 ] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
-        if ($request->color[ 0 ] != null) {
+        if (is_array($request->color)  && $request->color[ 0 ] != null) {
             $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+        if (is_array($request->category)  && $request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -690,7 +689,7 @@ class ProductController extends Controller
         // }
 
 
-        if ($request->brand[ 0 ] != null) {
+        if ( $request->brand[ 0 ] != null) {
             // $products = $products->whereIn('brand', $request->brand);
             $brands_list = implode(',', $request->brand);
 

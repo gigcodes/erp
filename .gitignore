@@ -71,3 +71,4 @@ app/Http/Composers/GlobalComposer.php
 #Instagram Library
 app/Library/mgp25/*
 resources/views/vendor/maileclipse/templates/*
+public/mailinglist/
