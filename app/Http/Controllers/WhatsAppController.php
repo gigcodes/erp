@@ -2062,6 +2062,9 @@ class WhatsAppController extends FindByNumberController
                     $data[ 'vendor_id' ] = $vendor->id;
                     $module_id = $vendor->id;
                 }
+                if($request->get('message')){
+                    $data['message'] = $request->get('message');
+                }
             } elseif ($context == 'task') {
                 $data[ 'task_id' ] = $request->task_id;
                 $task = Task::find($request->task_id);
