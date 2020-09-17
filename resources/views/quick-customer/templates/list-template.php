@@ -205,6 +205,9 @@
 			                            <a class="btn btn-image count-customer-tasks" title="Task Count" href="javascript:;" data-id="{{:prop.id}}" data-user-id="">
 			                            	<img src="/images/remark.png" />
 			                            </a>
+                                                    
+                                                   <button type="button" class="btn btn-xs btn-image create-customer-ticket-modal" title="Create Ticket" data-toggle="modal" data-customer_id="{{:prop.id}}" data-target="#create-customer-ticket-modal"><img src="/images/new.png" alt=""></button>
+                                                       <button type="button" class="btn btn-xs btn-image show-customer-tickets-modal" title="Show Tickets" data-toggle="modal" data-customer_id="{{:prop.id}}" data-target="#show-customer-tickets-modal"><img src="/images/show-ticket.png" alt=""></button>
 					            </div>
 					         </div>
 					      </div>
