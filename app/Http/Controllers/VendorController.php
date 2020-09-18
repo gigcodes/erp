@@ -441,8 +441,9 @@ class VendorController extends Controller
         if ($request->email == null) {
           $email = str_replace(' ', '_', $request->name) . '@solo.com';
         } else {
-          $email = explode('@', $request->email);
-          $email = $email[0] . '@solo.com';
+          // $email = explode('@', $request->email);
+          // $email = $email[0] . '@solo.com';
+          $email = $request->email;
         }
         $password = str_random(10);
         $user->email = $email;
@@ -1072,8 +1073,9 @@ class VendorController extends Controller
       if ($vendor->email == null) {
         $email = str_replace(' ', '_', $vendor->name) . '@solo.com';
       } else {
-        $email = explode('@', $vendor->email);
-        $email = $email[0] . '@solo.com';
+        // $email = explode('@', $vendor->email);
+        // $email = $email[0] . '@solo.com';
+        $email = $vendor->email;
       }
       $password = str_random(10);
       $user->email = $email;
