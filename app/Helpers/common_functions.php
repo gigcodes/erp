@@ -229,3 +229,8 @@ function get_field_by_number($no, $field = "name")
 
     return "";
 }
+
+function isJson($string) {
+     json_decode($string);
+     return (json_last_error() == JSON_ERROR_NONE);
+}

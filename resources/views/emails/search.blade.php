@@ -20,7 +20,11 @@
                 <a title="Bin" class="btn btn-image bin-email-btn" data-id="{{ $email->id }}" >
                     <i class="fa fa-trash"></i>
                 </a>
-                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $email->id }}"><img width="2px;" src="/images/remark.png"/></button>
+                <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline 123" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $email->id }}"><img width="2px;" src="/images/remark.png"/></button>
+                @if($email->email_excel_importer == 1)
+                  <a href="javascript:void(0);">  <i class="fa fa-check"></i></a>
+                @endif
+            
             </td>
         </tr>
     @endforeach
