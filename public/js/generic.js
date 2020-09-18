@@ -84,10 +84,10 @@ var getHtml = function(response) {
             var reviewed_msg = '';
         }
         if(message.inout == 'out') {
-            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'">';
+            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'" data-message="'+message.message+'">';
         }
         else {
-            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg">'; 
+            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">'; 
         }
         fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';

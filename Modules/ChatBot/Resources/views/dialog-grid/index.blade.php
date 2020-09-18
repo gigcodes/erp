@@ -57,7 +57,7 @@
 			      <th style="width:15%" class="th-sm">Name</th>
 			      <th style="width:15%" class="th-sm">Title</th>
                   <th style="width:21%" class="th-sm">Match Intent / Entity</th>
-			      <th style="width:15%" class="th-sm">Metadata</th>
+			      <th style="width:15%" class="th-sm">Dialog Response</th>
 			      <th style="width:5%" class="th-sm">Dialog type</th>
 			      <th style="width:5%" class="th-sm">Parent id</th>
 			      <th style="width:10%" class="th-sm">Action</th>
@@ -86,7 +86,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary save-dialog-btn">Save changes</button>
+        <button type="button" class="btn btn-secondary save-dialog-btn">Save changes</button>
       </div>
     </div>
   </div>

@@ -23,15 +23,15 @@
 <script id="dialog-leaf" type="text/x-jsrender">
     
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td class="word-wrap">{{:data.response_type}}</td>
-				      <td class="word-wrap">{{:data.total_response}}</td>
-				      <td class="word-wrap">{{:data.name}}</td>
-				      <td class="word-wrap">{{:data.title}}</td>
-				      <td class="word-wrap">{{:data.match_condition}}</td>
-				      <td class="word-wrap">{{:data.metadata}}</td>
-				      <td class="word-wrap">{{:data.dialog_type}}</td>
-				      <td class="word-wrap">{{:data.parent_id}}</td>
-				      <td>
+				      <td style="width:7%" class="word-wrap">{{:data.response_type}}</td>
+				      <td style="width:7%" class="word-wrap">{{:data.total_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
+				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
+				      <td style="width:10%">
                         <div class="d-flex">
                         <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">
@@ -58,15 +58,15 @@
 
 <script id="dialog-folder-leaf" type="text/x-jsrender">
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td class="word-wrap">{{:data.response_type}}</td>
-				      <td class="word-wrap">{{:data.total_response}}</td>
-				      <td class="word-wrap">{{:data.name}}</td>
-				      <td class="word-wrap">{{:data.title}}</td>
-				      <td class="word-wrap">{{:data.match_condition}}</td>
-				      <td class="word-wrap">{{:data.metadata}}</td>
-				      <td class="word-wrap">{{:data.dialog_type}}</td>
-				      <td class="word-wrap">{{:data.parent_id}}</td>
-				      <td>
+				      <td style="width:7%" class="word-wrap">{{:data.response_type}}</td>
+				      <td style="width:7%" class="word-wrap">{{:data.total_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
+				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
+				      <td style="width:10%">
                       <div class="d-flex">
                       <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">

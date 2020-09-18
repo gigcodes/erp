@@ -736,7 +736,14 @@ $(document).on("click", ".save-intent", function(e) {
         if (response.code != 200) {
             toastr['error']('Can not store intent please review or use diffrent name!');
         } else {
+            $(".question-insert").val('');
+            $(".reply-insert").val('');
             toastr['success']('Success!');
+            var aliasTemplate = $.templates("#search-alias-template");
+            var aliasTemplateHtml = aliasTemplate.render({
+                "allSuggestedOptions": response.allSuggestedOptions
+            });
+            $("#leaf-editor-model").find(".search-alias").html(aliasTemplateHtml);
         }
     },
     error: function() {

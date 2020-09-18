@@ -400,7 +400,6 @@ class AutoReplyController extends Controller
         });
 
         $mostUsedPhrases->groupBy("phrase");
-
         $mostUsedPhrases = $mostUsedPhrases->orderBy("total_count", "desc");
 
         $mostUsedPhrases = $mostUsedPhrases->paginate(10);
