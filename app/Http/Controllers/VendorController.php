@@ -65,7 +65,7 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
-
+   
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
@@ -113,13 +113,7 @@ class VendorController extends Controller
       }
 
       if (request('term') != null) {
-        $query->where('name', 'LIKE', "%{$request->term}%")
-          ->orWhere('address', 'LIKE', "%{$request->term}%")
-          ->orWhere('phone', 'LIKE', "%{$request->term}%")
-          ->orWhere('email', 'LIKE', "%{$request->term}%")
-          ->orWhereHas('category', function ($qu) use ($request) {
-            $qu->where('title', 'LIKE', "%{$request->term}%");
-          });
+        $query->where('name', 'LIKE', "%{$request->term}%");
       }
 
       //if Id is not null 
@@ -166,7 +160,7 @@ class VendorController extends Controller
       //if category is not nyll
       if (request('category') != null) {
         $query->whereHas('category', function ($qu) use ($request) {
-          $qu->where('category_id', 'LIKE', '%' . request('category') . '%');
+          $qu->where('category_id', '=', request('category'));
         });
       }
 
@@ -307,14 +301,23 @@ class VendorController extends Controller
   public function vendorSearch()
   {
     $term = request()->get("q", null);
-    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+    /*$search = Vendor::where('name', 'LIKE', "%" . $term . "%")
       ->orWhere('address', 'LIKE', "%" . $term . "%")
       ->orWhere('phone', 'LIKE', "%" . $term . "%")
       ->orWhere('email', 'LIKE', "%" . $term . "%")
       ->orWhereHas('category', function ($qu) use ($term) {
         $qu->where('title', 'LIKE', "%" . $term . "%");
-      })->get();
+      })->get();*/
+    $search = Vendor::where('name', 'LIKE', "%" . $term . "%")
+              ->get();
     return response()->json($search);
+  }
+  public function vendorSearchPhone()
+  {
+    $term = request()->get("q", null);
+    $search = Vendor::where('phone', 'LIKE', "%" . $term . "%")
+              ->get();
+    return response()->json($search);  
   }
 
   public function email(Request $request)
@@ -1188,7 +1191,7 @@ class VendorController extends Controller
                     'message' => $request->message,
                     'user_id' => Auth::id(),
                     'status' => 1,
-                    'is_queue' => 2,
+                    'is_queue' => 1,
                 ];
             }
         }
@@ -1196,5 +1199,16 @@ class VendorController extends Controller
         ChatMessage::insert($params);
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
-	}
+  }
+  
+  public function editVendor(Request $request) {
+    if(!$request->vendor_id || $request->vendor_id == "" || !$request->column || $request->column == "" || !$request->value || $request->value == "") {
+        return response()->json(['message' => 'Incomplete data'],500);
+    }
+    $vendor = Vendor::find($request->vendor_id);
+    $column = $request->column;
+    $vendor->$column = $request->value;
+    $vendor->save();
+    return response()->json(['message' => 'Successful'],200);
+  }
 }

@@ -98,6 +98,7 @@ use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\StoreLiveChats;
 use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
@@ -110,6 +111,9 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\getLiveChatIncTickets;
+use App\Console\Commands\RoutesSync;
+use App\Console\Commands\DeleteChatMessages;
 
 class Kernel extends ConsoleKernel
 {
@@ -201,6 +205,7 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
+        StoreLiveChats::class,
         RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
@@ -214,7 +219,10 @@ class Kernel extends ConsoleKernel
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
-        ScrapLogs::class
+        ScrapLogs::class,
+        getLiveChatIncTickets::class,
+		RoutesSync::class,
+        DeleteChatMessages::class
     ];
 
     /**
@@ -225,25 +233,25 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
-        $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
-        $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        // $schedule->command('reminder:send-to-dubbizle')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        // $schedule->command('reminder:send-to-vendor')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        // $schedule->command('reminder:send-to-customer')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        // $schedule->command('reminder:send-to-supplier')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
+        // $schedule->command('visitor:logs')->everyMinute()->withoutOverlapping()->timezone('Asia/Kolkata');
 
 
 
         // Store unknown categories on a daily basis
-        $schedule->command('category:missing-references')->daily();
+        //$schedule->command('category:missing-references')->daily();
 
         //This command will set the count of the words used...
-        $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
+        // $schedule->command('bulk-customer-message:get-most-used-keywords')->daily();
 
         //Get list of schedule and put list in cron jobs table
-        $schedule->command('schedule:list')->daily();
+        // $schedule->command('schedule:list')->daily();
 
         //This command will get the influencers details and get information from it
-        $schedule->command('influencer:description')->daily();
+        // $schedule->command('influencer:description')->daily();
 
         //Get Orders From Magento
         //2020-02-17 $schedule->command('getorders:magento')->everyFiveMinutes()->withoutOverlapping();
@@ -252,55 +260,55 @@ class Kernel extends ConsoleKernel
         //2020-02-17 s$schedule->command('index:bulk-messaging-keyword-customer')->everyFiveMinutes()->withoutOverlapping();
 
         //This will run every fifteen minutes checking if new mail is recieved for email importer...
-        $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
+        // $schedule->command('excelimporter:run')->everyFiveMinutes()->withoutOverlapping();
 
         //Flag customer if they have a complaint
-        $schedule->command('flag:customers-with-complaints')->daily();
+        // $schedule->command('flag:customers-with-complaints')->daily();
 
         //Imcrement Frequency Every Day Once Whats App Config
-        $schedule->command('whatsppconfig:frequency')->daily();
+        // $schedule->command('whatsppconfig:frequency')->daily();
 
         //This command sends the reply on products if they request...
-        $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
+        // $schedule->command('customers:send-auto-reply')->everyFifteenMinutes();
 
 
         //This command checks for the whatsapp number working properly...
-        $schedule->command('whatsapp:check')->everyFifteenMinutes();
+        // $schedule->command('whatsapp:check')->everyFifteenMinutes();
 
         //assign the category to products, runs twice daily...
         //$schedule->command('category:fix-by-supplier')->twiceDaily();
 
         //Get Posts , Userdata as well as comments based on hastag
-        $schedule->command('competitors:process-users')->daily();
+        // $schedule->command('competitors:process-users')->daily();
 
 
         //$schedule->command('message:send-to-users-who-exceeded-limit')->everyThirtyMinutes()->timezone('Asia/Kolkata');
 
 
-        $schedule->call(function () {
-            $report = CronJobReport::create([
-                'signature' => 'update:benchmark',
-                'start_time' => Carbon::now()
-            ]);
-
-            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
-            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
-
-            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
-                $benchmark[ 'for_date' ] = date('Y-m-d');
-                Benchmark::create($benchmark);
-            }
-
-            foreach ($tasks as $task) {
-                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
-
-                if ($time_diff >= 2) {
-                    $task->delete();
-                }
-            }
-
-            $report->update(['end_time' => Carbon::now()]);
-        })->dailyAt('00:00');
+//        $schedule->call(function () {
+//            $report = CronJobReport::create([
+//                'signature' => 'update:benchmark',
+//                'start_time' => Carbon::now()
+//            ]);
+//
+//            $benchmark = Benchmark::orderBy('for_date', 'DESC')->first()->toArray();
+//            $tasks = Task::where('is_statutory', 0)->whereNotNull('is_verified')->get();
+//
+//            if ($benchmark[ 'for_date' ] != date('Y-m-d')) {
+//                $benchmark[ 'for_date' ] = date('Y-m-d');
+//                Benchmark::create($benchmark);
+//            }
+//
+//            foreach ($tasks as $task) {
+//                $time_diff = Carbon::parse($task->is_completed)->diffInDays(Carbon::now());
+//
+//                if ($time_diff >= 2) {
+//                    $task->delete();
+//                }
+//            }
+//
+//            $report->update(['end_time' => Carbon::now()]);
+//        })->dailyAt('00:00');
 
 //2020-02-17        $schedule->call(function () {
 //            \Log::debug('deQueueNotficationNew Start');
@@ -328,7 +336,7 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('12:00')->timezone('Asia/Kolkata');
         //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('15:30')->timezone('Asia/Kolkata');
         //2020-02-17 $schedule->command('send:hourly-reports')->dailyAt('17:30')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-queues')->everyFiveMinutes()->between('07:30', '17:00')->withoutOverlapping(10);
+        // $schedule->command('run:message-queues')->everyFiveMinutes()->between('07:30', '17:00')->withoutOverlapping(10);
         //2020-02-17 $schedule->command('monitor:cron-jobs')->everyMinute();
         //        $schedule->command('cold-leads:send-broadcast-messages')->everyMinute()->withoutOverlapping();
         // $schedule->exec('/usr/local/php72/bin/php-cli artisan queue:work --once --timeout=120')->everyMinute()->withoutOverlapping(3);
@@ -347,38 +355,38 @@ class Kernel extends ConsoleKernel
         //Getting SKU ERROR LOG
         //2020-02-17 $schedule->command('sku-error:log')->hourly();
         // $schedule->command('check:user-logins')->everyFiveMinutes();
-        $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
+        // $schedule->command('send:image-interest')->cron('0 07 * * 1,4'); // runs at 7AM Monday and Thursday
 
         // Sends Auto messages
-        $schedule->command('send:auto-reminder')->hourly();
-        $schedule->command('send:auto-messenger')->hourly();
+        // $schedule->command('send:auto-reminder')->hourly();
+        // $schedule->command('send:auto-messenger')->hourly();
         // $schedule->command('check:messages-errors')->hourly();
-        $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
-        $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
+        // $schedule->command('send:product-suggestion')->dailyAt('07:00')->timezone('Asia/Kolkata');
+        // $schedule->command('send:activity-listings')->dailyAt('23:45')->timezone('Asia/Kolkata');
+        // $schedule->command('run:message-scheduler')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Tasks
         //2020-02-17 $schedule->command('send:recurring-tasks')->everyFifteenMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
-        $schedule->command('move:planned-tasks')->dailyAt('01:00')->timezone('Asia/Kolkata');
+        // $schedule->command('send:pending-tasks-reminders')->dailyAt('07:30')->timezone('Asia/Kolkata');
+        // $schedule->command('move:planned-tasks')->dailyAt('01:00')->timezone('Asia/Kolkata');
 
         // Fetches Emails
         //2020-02-17 Changed command below from fifteen minutes to hourly
-        $schedule->command('fetch:emails')->hourly();
-        $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
-        $schedule->command('parse:log')->dailyAt('03:00')->timezone('Asia/Kolkata');
+        // $schedule->command('fetch:emails')->hourly();
+        // $schedule->command('check:emails-errors')->dailyAt('03:00')->timezone('Asia/Kolkata');
+        // $schedule->command('parse:log')->dailyAt('03:00')->timezone('Asia/Kolkata');
         //2020-02-17 $schedule->command('document:email')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         //2020-02-17 $schedule->command('resource:image')->everyFifteenMinutes()->timezone('Asia/Kolkata');
-        $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
-        $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
-        $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
+        // $schedule->command('send:daily-planner-report')->dailyAt('08:00')->timezone('Asia/Kolkata');
+        // $schedule->command('send:daily-planner-report')->dailyAt('22:00')->timezone('Asia/Kolkata');
+        // $schedule->command('reset:daily-planner')->dailyAt('07:30')->timezone('Asia/Kolkata');
 
-        $schedule->command('template:product')->dailyAt('22:00')->timezone('Asia/Kolkata');
+        // $schedule->command('template:product')->dailyAt('22:00')->timezone('Asia/Kolkata');
 
         //2020-02-17 $schedule->command('save:products-images')->cron('0 */3 * * *')->withoutOverlapping()->emailOutputTo('lukas.markeviciuss@gmail.com'); // every 3 hours
 
         // Update the inventory (every fifteen minutes)
-        $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
+        // $schedule->command('inventory:update')->dailyAt('00:00')->timezone('Asia/Dubai');
 
         // Auto reject listings by empty name, short_description, composition, size and by min/max price (every fifteen minutes)
         //$schedule->command('product:reject-if-attribute-is-missing')->everyFifteenMinutes();
@@ -386,14 +394,14 @@ class Kernel extends ConsoleKernel
         //This command saves the twilio call logs in call_busy_messages table...
         //2020-02-17 $schedule->command('twilio:allcalls')->everyFifteenMinutes();
         // Saved zoom recordings corresponding to past meetings based on meeting id
-        $schedule->command('meeting:getrecordings')->hourly();
-        $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
+        // $schedule->command('meeting:getrecordings')->hourly();
+        // $schedule->command('meeting:deleterecordings')->dailyAt('07:00')->timezone('Asia/Kolkata');
 
         // Check scrapers
-        $schedule->command('scraper:not-running')->hourly()->between('7:00', '23:00');
+        // $schedule->command('scraper:not-running')->hourly()->between('7:00', '23:00');
 
         // Move cold leads to customers
-        $schedule->command('cold-leads:move-to-customers')->daily();
+        // $schedule->command('cold-leads:move-to-customers')->daily();
 
         // send only cron run time
         $queueStartTime = \App\ChatMessage::getStartTime();
@@ -413,51 +421,61 @@ class Kernel extends ConsoleKernel
 
 
         // HUBSTAFF
-        // update user list
-        $schedule->command('hubstaff:refresh_users')->hourly();
+        // $schedule->command('hubstaff:refresh_users')->hourly();
         // send hubstaff report
-        $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
-        $schedule->command('hubstaff:load_activities')->hourly();
-        $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
-        $schedule->command('scraplogs:activity')->dailyAt('01:00')->timezone('Asia/Dubai');
-        $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
+        // Sends hubstaff report to whatsapp
+        // $schedule->command('hubstaff:send_report')->hourly()->between('7:00', '23:00');
+        // $schedule->command('hubstaff:load_activities')->hourly();
+        
+        // $schedule->command('hubstaff:account')->dailyAt('20:00')->timezone('Asia/Dubai');
+        // $schedule->command('scraplogs:activity')->dailyAt('01:00')->timezone('Asia/Dubai');
+        
+        // $schedule->command('hubstaff:daily-activity-level-check')->dailyAt('21:00')->timezone('Asia/Dubai');
 
         //Sync customer from magento to ERP
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
-        $schedule->command('github:load_branch_state')->hourly();
-        $schedule->command('checkScrapersLog')->dailyAt('8:00');
-        $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
-        $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
+        $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        //$schedule->command('github:load_branch_state')->hourly();
+        // $schedule->command('checkScrapersLog')->dailyAt('8:00');
+        // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
+        // $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
 
         //Run google priority scraper
-        $schedule->command('run:priority-keyword-search')->daily();
+        // $schedule->command('run:priority-keyword-search')->daily();
         //2020-02-17 $schedule->command('MailingListSendMail')->everyFifteenMinutes()->timezone('Asia/Kolkata');
         //2020-02-17 Changed below to hourly
-        $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
-        $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
+        // $schedule->command('cache:master-control')->hourly()->withoutOverlapping();
+        // $schedule->command('database:historical-data')->hourly()->withoutOverlapping();
 
         //update currencies
-        $schedule->command('currencies:refresh')->hourly();
-        $schedule->command('send:event-notification2hr')->hourly();
-        $schedule->command('send:event-notification24hr')->hourly();
-        $schedule->command('currencies:update_name')->monthly();
-        $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
-        $schedule->command('send:event-notification30min')->everyFiveMinutes();
-        $schedule->command('generate:product-pricing-json')->daily();
+        // $schedule->command('currencies:refresh')->hourly();
+        // $schedule->command('send:event-notification2hr')->hourly();
+        // $schedule->command('send:event-notification24hr')->hourly();
+        // $schedule->command('currencies:update_name')->monthly();
+        // $schedule->command('send-report:failed-jobs')->everyFiveMinutes();
+        // $schedule->command('send:event-notification30min')->everyFiveMinutes();
+        // $schedule->command('generate:product-pricing-json')->daily();
 
         // Customer chat messages quick data
-        $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
-        $schedule->command('fetch-store-website:orders')->hourly();
+        // $schedule->command('customer:chat-message-quick-data')->dailyAt('13:00');;
+        // $schedule->command('fetch-store-website:orders')->hourly();
 
         // If scraper not completed, store alert
-        $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
-
+        // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
+		
+		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
+		
 
          // make payment receipt for hourly associates on daily basis.
-         $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
-        $schedule->command('check:landing-page')->everyMinute();
+        //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
+        // $schedule->command('check:landing-page')->everyMinute();
+
+        // Get tickets from Live Chat inc and put them as unread messages
+        // $schedule->command('livechat:tickets')->everyMinute();
+        // delate chat message 
+         //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
     }
 
     /**

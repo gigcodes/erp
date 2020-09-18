@@ -37,4 +37,10 @@ class StoreSocialContent extends Model
     {
         return $this->hasOne('App\User','id','creator_id');
     }
+
+    public function website()
+    {
+        return $this->hasOne("\App\StoreWebsite","id", "store_website_id");
+    }
+
 }

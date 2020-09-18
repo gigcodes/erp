@@ -26,34 +26,27 @@ class MediaController extends Controller
 
     public function files(Request $request)
     {
+        $item = [];
         $allMedia = $request->user()->getMedia('instagram');
         
-        return response()->json($allMedia->map(function ($value, $key) {
+        foreach ($allMedia as $media) {
+             
+             $item[] = array('id' => $media->id , 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size , 'thumb' => $media->getUrl() , 'original' => $media->getUrl() , 'sitename' => '');
+             
+         } 
 
-            $value->thumb = $value->getUrl();
+        $websites = \App\StoreSocialContent::all();
 
-            if (in_array($value->mime_type, [
-                'video/x-flv',
-                'video/mp4',
-                'video/3gpp',
-                'video/quicktime',
-                'video/x-msvideo',
-                'video/x-ms-wmv',
-            ])) {
-                $value->original = $value->getUrl();
-            } else {
-                $value->original = $value->getUrl();
+        foreach ($websites as $website) {
+            $webMedia = $website->getMedia(config('constants.media_tags'));
+            
+            foreach ($webMedia as $media) {
+                $item[] = array('id' => $media->id , 'file_name' => $media->filename, 'mime_type' => $media->mime_type, 'size' => $media->size , 'thumb' => $media->getUrl() , 'original' => $media->getUrl(), 'sitename' => $website->website->title);
             }
-
-            return $value->only([
-                'id',
-                'file_name',
-                'mime_type',
-                'size',
-                'thumb',
-                'original',
-            ]);
-        })->sortByDesc('id')->values());
+        }
+        
+        
+        return response()->json($item);
     }
 
     public function upload(Request $request)

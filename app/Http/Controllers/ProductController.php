@@ -1746,8 +1746,8 @@ class ProductController extends Controller
 
     public function attachImages($model_type, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
-
-
+        // ->where('composition', 'LIKE', '%' . request('keyword') . '%')
+        // dd($request->all());
         if($model_type == 'customer'){
             $customerId = $model_id;
         }else{
@@ -1757,7 +1757,13 @@ class ProductController extends Controller
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
-        $perPageLimit = $request->get("per_page");
+        if($request->total_images) {
+            $perPageLimit = $request->total_images;
+        }
+        else {
+            $perPageLimit = $request->get("per_page");
+        }
+        
 
         if (Order::find($model_id)) {
             $selected_products = self::getSelectedProducts($model_type, $model_id);
@@ -1791,46 +1797,52 @@ class ProductController extends Controller
         $products = (new Product())->newQuery()->latest();
         $products->where("has_mediables", 1);
 
-        if ($request->brand[ 0 ] != null) {
-            $products = $products->whereIn('brand', $request->brand);
-        }
-
-        if ($request->color[ 0 ] != null) {
-            $products = $products->whereIn('color', $request->color);
-        }
-
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
-
-            $category_children = [];
-
-            foreach ($request->category as $category) {
-
-                $is_parent = Category::isParent($category);
-
-                if ($is_parent) {
-                    $childs = Category::find($category)->childs()->get();
-
-                    foreach ($childs as $child) {
-                        $is_parent = Category::isParent($child->id);
-
-                        if ($is_parent) {
-                            $children = Category::find($child->id)->childs()->get();
-
-                            foreach ($children as $chili) {
-                                array_push($category_children, $chili->id);
-                            }
-                        } else {
-                            array_push($category_children, $child->id);
-                        }
-                    }
-                } else {
-                    array_push($category_children, $category);
-                }
+        if (isset($request->brand[ 0 ])) {
+            if($request->brand[ 0 ] != null) {
+                $products = $products->whereIn('brand', $request->brand);
             }
+        }
 
-            $products = $products->whereIn('category', $category_children);
+        if (isset($request->color[ 0 ])) {
+            if ($request->color[0] != null) {
+                $products = $products->whereIn('color', $request->color);
+            }
+        }
+
+        if (isset($request->category[ 0 ])) {
+            if ($request->category[0] != null && $request->category[0] != 1) {
+
+                $category_children = [];
+
+                foreach ($request->category as $category) {
+
+                    $is_parent = Category::isParent($category);
+
+                    if ($is_parent) {
+                        $childs = Category::find($category)->childs()->get();
+
+                        foreach ($childs as $child) {
+                            $is_parent = Category::isParent($child->id);
+
+                            if ($is_parent) {
+                                $children = Category::find($child->id)->childs()->get();
+
+                                foreach ($children as $chili) {
+                                    array_push($category_children, $chili->id);
+                                }
+                            } else {
+                                array_push($category_children, $child->id);
+                            }
+                        }
+                    } else {
+                        array_push($category_children, $category);
+                    }
+                }
+
+                $products = $products->whereIn('category', $category_children);
 
 
+            }
         }
 
         if ($request->price_min != null && $request->price_min != 0) {
@@ -1841,10 +1853,12 @@ class ProductController extends Controller
             $products = $products->where('price_inr_special', '<=', $request->price_max);
         }
 
-        if ($request->supplier[ 0 ] != null) {
-            $suppliers_list = implode(',', $request->supplier);
+        if (isset($request->supplier[ 0 ])) {
+            if ($request->supplier[ 0 ] != null) {
+                $suppliers_list = implode(',', $request->supplier);
 
-            $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+                $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            }
         }
 
         if (trim($request->size) != '') {
@@ -1853,22 +1867,26 @@ class ProductController extends Controller
             });
         }
 
-        if ($request->location[ 0 ] != null) {
-            $products = $products->whereIn('location', $request->location);
+        if (isset($request->location[ 0 ])) {
+            if ($request->location[ 0 ] != null) {
+                $products = $products->whereIn('location', $request->location);
+            }
         }
 
-        if ($request->type[ 0 ] != null && is_array($request->type)) {
-            if (count($request->type) > 1) {
-                $products = $products->where(function ($query) use ($request) {
-                    $query->where('is_scraped', 1)->orWhere('status', 2);
-                });
-            } else {
-                if ($request->type[ 0 ] == 'scraped') {
-                    $products = $products->where('is_scraped', 1);
-                } elseif ($request->type[ 0 ] == 'imported') {
-                    $products = $products->where('status', 2);
+        if (isset($request->type[ 0 ])) {
+            if ($request->type[ 0 ] != null && is_array($request->type)) {
+                if (count($request->type) > 1) {
+                    $products = $products->where(function ($query) use ($request) {
+                        $query->where('is_scraped', 1)->orWhere('status', 2);
+                    });
                 } else {
-                    $products = $products->where('isUploaded', 1);
+                    if ($request->type[ 0 ] == 'scraped') {
+                        $products = $products->where('is_scraped', 1);
+                    } elseif ($request->type[ 0 ] == 'imported') {
+                        $products = $products->where('status', 2);
+                    } else {
+                        $products = $products->where('isUploaded', 1);
+                    }
                 }
             }
         }
@@ -1889,7 +1907,6 @@ class ProductController extends Controller
                     ->orWhere('id', 'LIKE', "%$term%")
                     ->orWhere('name', 'LIKE', "%$term%")
                     ->orWhere('short_description', 'LIKE', "%$term%");
-
                 if ($term == -1) {
                     $query = $query->orWhere('isApproved', -1);
                 }
@@ -1905,15 +1922,17 @@ class ProductController extends Controller
                 }
 
             });
-
             if ($roletype != 'Selection' && $roletype != 'Searcher') {
 
                 $products = $products->whereNull('dnf');
             }
         }
 
-        if ($request->ids[ 0 ] != null) {
-            $products = $products->whereIn('id', $request->ids);
+
+        if (isset($request->ids[ 0 ])) {
+            if ($request->ids[ 0 ] != null) {
+                $products = $products->whereIn('id', $request->ids);
+            }
         }
 
 
@@ -1967,19 +1986,18 @@ class ProductController extends Controller
         }
         if($request->category){
             try {
-               $filtered_category = $request->category[0];
+               $filtered_category = $request->category;
             } catch (\Exception $e) {
-                $filtered_category = 1;
+                $filtered_category = [1];
             }
         }else{
-            $filtered_category = 1;
+            $filtered_category = [1];
         }
 
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg', 'data-placeholder' => 'Select Category..'])
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
             ->selected($filtered_category)
             ->renderAsDropdown();
 
-        //dd($category_selection);
 
 
         // category filter start count
@@ -1999,7 +2017,7 @@ class ProductController extends Controller
             }
         }
 
-        // suppliers filter start count
+        // suppliers filter start count/
         $suppliersGroups = clone($products);
         $all_product_ids = $suppliersGroups->pluck('id')->toArray();
         $countSuppliers = [];
@@ -2050,7 +2068,16 @@ class ProductController extends Controller
             }
         }
 
-        $products = $products->paginate($perPageLimit);
+        if($request->total_images) {
+            $products = $products->limit($request->total_images)->get();
+            $products = new LengthAwarePaginator($products, count($products), $request->total_images, 1, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+        }
+        else {
+            $products = $products->paginate($perPageLimit);
+        }
+        
         $products_count = $products->total();
         $all_product_ids = [];
         $from  = request("from","");
@@ -2452,6 +2479,7 @@ class ProductController extends Controller
             if($productMediacount <= $cropCount){
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
+                $product->scrap_priority = 0;
                 $product->save();
             }else{
                 $product->cropped_at = Carbon::now()->toDateTimeString();
@@ -3517,5 +3545,80 @@ class ProductController extends Controller
 
           $username = $user->name;
         return response()->json(['message' => 'Successful','user' => $username]);
+    }
+
+    public function draftedProducts(Request $request)
+    {
+        $products = Product::where('quick_product', 1)
+        ->leftJoin("brands as b","b.id","products.brand")
+        ->leftJoin("categories as c","c.id","products.category")
+        ->select([
+            "products.id",
+            "products.name as product_name",
+            "b.name as brand_name",
+            "c.title as category_name",
+            "products.supplier",
+            "products.status_id",
+        ]);
+
+        if($request->category != null && $request->category != 1) {
+            $products = $products->where("products.category",$request->category);
+        }
+
+        if($request->brand_id != null) {
+            $products = $products->where("products.brand",$request->brand_id);
+        }
+
+        if($request->supplier_id != null) {
+            $products = $products->where("products.supplier",$request->supplier_id);
+        }
+
+        if($request->status_id != null) {
+            $products = $products->where("products.status_id",$request->status_id);
+        }
+
+        $products = $products->orderby("products.created_at","desc")->paginate()->appends(request()->except(['page'])); 
+
+        return view('drafted-supplier-product.index', compact('products'));
+    }
+
+    public function editDraftedProduct(Request $request)
+    {
+        $product = Product::where("id", $request->id)->first();
+        return view('drafted-supplier-product.edit-modal',['product' => $product]);
+    }
+
+    public function deleteDraftedProducts(Request $request) 
+    {
+        $productIds = $request->products;
+        if(!empty($productIds)) {
+            $products = \App\Product::whereIn("id",$productIds)->get();
+            if(!$products->isEmpty()) {
+                foreach($products as $product) {
+                    $product->delete();
+                }
+            }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => 'Successfully deleted!']);
+    }
+
+    public function editDraftedProducts(Request $request)
+    {
+        $draftedProduct = Product::where("id", $request->id)->first();
+        if ($draftedProduct) {
+            $draftedProduct->update([
+                'name' => $request->name,
+                'brand' => $request->brand_id,
+                'category' => $request->category,
+                'short_description' => $request->short_description,
+                'price' => $request->price,
+                'status_id' => $request->status_id,
+                'quick_product' => $request->quick_product
+            ]);
+
+            return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong row id!"]);
     }
 }

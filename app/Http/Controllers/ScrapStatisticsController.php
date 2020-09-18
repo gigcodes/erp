@@ -17,6 +17,7 @@ use Auth;
 use Exception;
 use Illuminate\Support\Facades\File;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use Zend\Diactoros\Response\JsonResponse;
 
 class ScrapStatisticsController extends Controller
 {
@@ -122,7 +123,6 @@ class ScrapStatisticsController extends Controller
 
         $users = \App\User::all()->pluck("name", "id")->toArray();
         $allScrapper = Scraper::whereNull('parent_id')->pluck('scraper_name', 'id')->toArray();
-        
         // Return view
         return view('scrap.stats', compact('activeSuppliers','serverIds', 'scrapeData', 'users', 'allScrapperName', 'timeDropDown', 'lastRunAt', 'allScrapper'));
     }
@@ -489,4 +489,29 @@ class ScrapStatisticsController extends Controller
             return redirect()->back();
         }
     }
+
+    public function serverStatistics()
+    {
+        try {
+            $scrappers = Scraper::with('getScrapHistory')->paginate(50);
+            return view('scrap.scrap-server-status',compact('scrappers'));
+        } catch (\Exception $e) {
+            session()->flash('error', $e->getMessage());
+            return redirect()->back();
+        }
+    }
+
+    public function serverStatisticsHistory($scrap_name)
+    {
+        try {
+            $scrap_history = Scraper::where(['scraper_name' => $scrap_name])
+                                        ->where('created_at','>=',Carbon::now()->subDays(25)->toDateTimeString())
+                                        ->get();
+            return new JsonResponse(['status' => 1, 'message' => 'Scrapping history', 'data' => $scrap_history, 'name' => $scrap_name]);
+        } catch (\Exception $e) {
+            return new JsonResponse(['status' => 0, 'message' => $e->getMessage()]);
+        }
+    }
+
+
 }

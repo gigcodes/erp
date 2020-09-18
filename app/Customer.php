@@ -279,4 +279,9 @@ class Customer extends Model
     {
         return $this->belongsTo('App\StoreWebsite', 'store_website_id');
     }
+
+    public function return_exchanges()
+    {
+        return $this->hasMany(ReturnExchange::class, 'customer_id');
+    }
 }

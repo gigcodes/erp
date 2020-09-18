@@ -291,6 +291,14 @@ class CustomerController extends Controller
             $searchWhereClause .= " AND customers.clothing_size = '".$request->get('clothing_size_group')."'";
         }
 
+        if ($request->get('customer_id')) {
+            $searchWhereClause .= " AND customers.id LIKE '%".$request->get('customer_id')."%'";
+        }
+
+        if ($request->get('customer_name')) {
+            $searchWhereClause .= " AND customers.name LIKE '%".$request->get('customer_name')."%'";
+        }
+
         $orderby = 'DESC';
 
         if ($request->input('orderby')) {
@@ -404,6 +412,7 @@ class CustomerController extends Controller
                 customers.is_priority,
                 customers.instruction_completed_at,
                 customers.whatsapp_number,
+                customers.do_not_disturb,
                 chat_messages.*,
                 chat_messages.status AS message_status,
                 chat_messages.number,
@@ -1343,7 +1352,7 @@ class CustomerController extends Controller
             ->renderAsDropdown();
 
         $facebookMessages = null;
-        if ($customer->facebook_id) {
+        if (@$customer->facebook_id) {
             $facebookMessages = $customer->facebookMessages()->get();
         }
 
@@ -1950,25 +1959,29 @@ class CustomerController extends Controller
     public function sendScraped(Request $request)
     {
         $customer = Customer::find($request->customer_id);
-
+        $products = new Product;
         if ($request->brand[ 0 ] != null) {
-            $products = Product::whereIn('brand', $request->brand);
+            $products = $products->whereIn('brand', $request->brand);
         }
 
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
-            if ($request->brand[ 0 ] != null) {
-                $products = $products->whereIn('category', $request->category);
-            } else {
-                $products = Product::whereIn('category', $request->category);
-            }
+            // if ($request->brand[ 0 ] != null) {
+            //     $products = $products->whereIn('category', $request->category);
+            // } else {
+            //     $products = Product::whereIn('category', $request->category);
+            // }
+            $products = $products->whereIn('category', $request->category);
         }
 
-        if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
-            $products = (new Product)->newQuery();
+        // if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
+        //     $products = (new Product)->newQuery();
+        // }
+        $total_images = $request->total_images;
+        if(!$total_images) {
+            $total_images = 20;
         }
-
-        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
+        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take($total_images)->get();
         if (count($products) > 0) {
             $params = [
                 'number' => null,
@@ -2344,7 +2357,7 @@ class CustomerController extends Controller
     public function dispatchBroadSendPrice($customer, $product_ids)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
-
+            \Log::info("Customer with phone found for customer id : ". $customer->id." and product ids ".json_encode($product_ids));
             if (!empty(array_filter($product_ids))) {
 
                 foreach($product_ids as $pid) {
@@ -2613,5 +2626,12 @@ class CustomerController extends Controller
 
         return response()->json(["code" => 500 ,"message" => "Ooops, something went wrong"]);
     }
-
+    public function quickcustomer(Request $request)
+    {
+        $results = $this->getCustomersIndex($request);
+        $nextActionArr = DB::table('customer_next_actions')->get();
+        $type = @$request->type;
+        return view('customers.quickcustomer', ['customers'=>$results[0],'nextActionArr'=>$nextActionArr,'type'=>$type]);
+    }
+   
 }
