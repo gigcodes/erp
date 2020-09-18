@@ -24,6 +24,9 @@ class LandingPageController extends Controller
     {
         $title  = "Landing Page";
         $status = \App\LandingPageProduct::STATUS;
+
+        $landingPage = LandingPageProduct::first();
+
         return view("landing-page.index", compact(['title', 'status','store_websites']));
     }
 
@@ -54,6 +57,7 @@ class LandingPageController extends Controller
         }
 
         $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
+//        dd($records);
         $store_websites = StoreWebsite::where('website_source','=','shopify')->get();
 
         $items = [];
@@ -234,10 +238,12 @@ class LandingPageController extends Controller
             $landingPageProduct = $landingPage->product;
             $productData  = $landingPage->getShopifyPushData();
 
+
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
 
+//            $productData = json_decode('{"product":{"images":[],"product_type":"Dresses","published_scope":false,"title":"ALEXANDER MCQUEEN ABITI","body_html":"Abito in misto viscosa-seta nero caratterizzato da girocollo, design smanicato, stampa grafica a contrasto, chiusura posteriore con cerniera, vestibilit\u00e0 aderente e tasglio corto.","variants":[{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008","title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,"option1":"M","option2":"Asia Pasific","price":1890},{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008","title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,"option1":"M","option2":"Asia","price":1890}],"vendor":"ALEXANDER McQUEEN","tags":"Home Page","published":false,"options":[{"name":"sizes","values":["M"]},{"name":"country","values":["Asia Pasific","Asia"]}]}}',true);
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
                 $response = $client->updateProduct($landingPage->shopify_id, $productData,$landingPage->store_website_id);
@@ -258,6 +264,7 @@ class LandingPageController extends Controller
                 }
             }
 
+
             if (!empty($errors)) {
                 return response()->json(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]);
             }
@@ -265,12 +272,77 @@ class LandingPageController extends Controller
             if (!empty($response->product)) {
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
+
+//                dd($landingPage);
+
+                $this->sendTranslationByGrapql($landingPage->product_id);
+
                 return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
             }
 
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Records not found or not store website assigned"]);
+
+    }
+
+    private function sendTranslationByGrapql($productId)
+    {
+        $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
+        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
+//        $qry = '{"query":"query {products(where:{status:PUBLISHED}){title,img,description,costPrice,sellPrice,quantity,sku,categories {name},brand {name}}}"}';
+        $qry = '
+                mutation {
+                    translationsRegister(
+                        resourceId: "gid://shopify/Product/'."$productId".'"
+                        translations: [
+                            {
+                              locale: "fr"
+                              key: "title"
+                              value: "Chemise Hawaïenne Citron"
+                              translatableContentDigest: "6aa3b98c0c2b71d6f588616bd4314227d11b1d9e7e031f1c0b0a8785f09eaac0"
+                            }
+                        ]
+                    ) 
+                    {
+                      translations {
+                        key
+                        locale
+                        outdated
+                        value
+                      }
+                      userErrors {
+                        code
+                        field
+                        message
+                      }
+                    }
+                }
+            ';
+
+
+        $headers = array();
+        $headers[] = 'Content-Type: application/graphql';
+        $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
+
+        $ch = curl_init();
+
+
+        curl_setopt($ch, CURLOPT_URL, $endpoint);
+        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($ch, CURLOPT_POSTFIELDS, $qry);
+        curl_setopt($ch, CURLOPT_POST, 1);
+        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
+
+        $result = curl_exec($ch);
+        echo '<pre>';
+        print_r($result);
+        echo '</pre>';
+        die();
+
+        if (curl_errno($ch)) {
+            echo 'Error:' . curl_error($ch);
+        }
 
     }
 
@@ -296,7 +368,7 @@ class LandingPageController extends Controller
     public function changeStore(Request $request, $id)
     {
         $landing = \App\LandingPageProduct::find($id);
-        
+
         if($landing && $request->get("store_website_id") != null) {
             $landing->store_website_id = $request->get("store_website_id");
             $landing->shopify_id = null;
