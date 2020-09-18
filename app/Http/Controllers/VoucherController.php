@@ -22,7 +22,7 @@ use App\Payment;
 use App\Currency;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Http\Controllers\WhatsAppController;
-use App\Teams;
+use App\Team;
 
 class VoucherController extends Controller
 {
@@ -40,17 +40,20 @@ class VoucherController extends Controller
         $end = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
         $selectedUser = $request->user_id ? $request->user_id : null;
         $tasks = PaymentReceipt::where('status','Pending');
-        $teammembers = Teams::where(['user_id' => Auth::user()->id])->join('team_user','team_user.team_id','=','teams.id')->select(['team_user.user_id'])->get()->toArray();
+        $teammembers = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user','team_user.team_id','=','teams.id')->select(['team_user.user_id'])->get()->toArray();
         $teammembers[] = Auth::user()->id; 
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
+           
             if ($request->user_id != null && $request->user_id != "") {
                 $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=' , $start)->where('date', '<=' , $end);
             } else {
                 $tasks = $tasks->where('date', '>=' , $start)->where('date', '<=' , $end);
             }
-        }if($teammembers->count() > 0){
+        }elseif(count($teammembers) > 0){
+           
             $tasks = $tasks->whereIn('user_id', $teammembers)->where('date', '>=' , $start)->where('date', '<=' , $end);
         }else {
+            
             $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=' , $start)->where('date', '<=' , $end);
         }
 
