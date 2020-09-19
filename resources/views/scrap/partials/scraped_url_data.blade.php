@@ -16,7 +16,7 @@
                     </td>
                    <td class="expand-row table-hover-cell">
                         <span class="td-mini-container">
-                            {{ strlen( $log->sku ) > 20 ? substr( $log->sku , 0, 20).'...' :  $log->sku }}
+                            {{ strlen( $log->sku ) > 6 ? substr( $log->sku , 0, 6).'...' :  $log->sku }}
                         </span>
                         <span class="td-full-container hidden">
                             {{ $log->sku }}
@@ -24,7 +24,14 @@
                        
                     </td>
                     <td>{{ $log->brand->name }}</td>
-                    <td>{{ $log->title }}</td>
+                    <td class="expand-row table-hover-cell">                        
+                        <span class="td-mini-container">
+                            {{ strlen( $log->title ) > 6 ? substr( $log->title , 0, 6).'...' :  $log->title }}
+                        </span>
+                        <span class="td-full-container hidden">
+                            {{ $log->title }}
+                        </span>
+                    </td>
                     <td>{{ $log->currency }}</td>
                     <td>{{ $log->price }}</td>
                     <td>
@@ -39,7 +46,7 @@
                     @if($response != null)
                     
                     @if(in_array('color',$response['columns']))
-                    <th class="expand-row table-hover-cell">
+                    <td class="expand-row table-hover-cell">
                         @if(is_array($log->properties))
                             <span class="td-mini-container">
                                 {{ isset($log->properties['color'])?strlen($log->properties['color']) > 5 ? substr( $log->properties['color'] , 0, 5).'...' :  $log->properties['color']:'' }}
@@ -50,11 +57,11 @@
                         @else
                             {{ unserialize($log->properties)['color'] }}                         
                         @endif
-                    </th>
+                    </td>
                     @endif
                     
                     @if(in_array('category',$response['columns']))
-                    <th class="expand-row table-hover-cell">@if(($log->category != null && $log->category != '') || isset($log->properties['category']))
+                    <td class="expand-row table-hover-cell">@if(($log->category != null && $log->category != '') || isset($log->properties['category']))
                             @if(isset($log->properties['category']))
                                 @if(is_array($log->properties['category']))
                                     <span class="td-mini-container">
@@ -72,37 +79,37 @@
                                 {{ unserialize($log->category) }} 
                             @endif
                         @endif
-                    </th>
+                    </td>
                     @endif
 
                     @if(in_array('description',$response['columns']))
-                    <th>{{ $log->description }}</th>
+                    <td>{{ $log->description }}</td>
                     @endif
 
                     @if(in_array('size_system',$response['columns']))
-                    <th>{{ $log->size_system }}</th>
+                    <td>{{ $log->size_system }}</td>
                     @endif
 
                     @if(in_array('is_sale',$response['columns']))
-                    <th>{{ $log->is_sale }}</th>
+                    <td>{{ $log->is_sale }}</td>
                     @endif
 
                     @if(in_array('gender',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['gender'])) 
+                    <td>@if(isset(unserialize($log->properties)['gender'])) 
                         {{ unserialize($log->properties)['gender']  }} 
                         @endif
-                    </th>
+                    </td>
                     @endif
                     
                     @if(in_array('composition',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['composition'])) 
+                    <td>@if(isset(unserialize($log->properties)['composition'])) 
                         {{ unserialize($log->properties)['composition']  }} 
                         @endif
-                    </th>
+                    </td>
                     @endif
 
                     @if(in_array('size',$response['columns']))
-                    <th class="expand-row table-hover-cell">
+                    <td class="expand-row table-hover-cell">
                         @if(is_array($log->properties))                            
                             @if(isset($log->properties['sizes']))
                                 @if(is_array($log->properties['sizes']))
@@ -113,7 +120,12 @@
                                     {{ implode(' , ',$log->properties['sizes']) }}
                                 </span>                                        
                                 @else
+                                <span class="td-mini-container">                                    
+                                    {{ strlen( $log->properties['sizes'] ) > 10 ? substr( $log->properties['sizes'] , 0, 6).'...' :  $log->properties['sizes'] }}
+                                </span>
+                                <span class="td-full-container hidden">
                                     {{ $log->properties['sizes'] }}
+                                </span>
                                 @endif
                             @elseif(isset($log->properties['size']))
                                 @if(is_array($log->properties['size']))
@@ -123,8 +135,13 @@
                                     <span class="td-full-container hidden">
                                         {{ implode(' , ',$log->properties['size']) }}
                                     </span>    
-                                @else
-                                    {{ $log->properties['size'] }}
+                                @else                                    
+                                    <span class="td-mini-container">                                    
+                                        {{ strlen( $log->properties['sizes'] ) > 10 ? substr( $log->properties['sizes'] , 0, 6).'...' :  $log->properties['sizes'] }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ $log->properties['sizes'] }}
+                                    </span>
                                 @endif
                             @endif
                         @elseif(isset(unserialize($log->properties)['size']) )
@@ -140,10 +157,10 @@
                                 {{ unserialize($log->properties)['sizes'] }}
                             @endif     
                         @endif
-                    </th>
+                    </td>
                     @endif
                     @if(in_array('dimension',$response['columns']))
-                    <th class="expand-row table-hover-cell">
+                    <td class="expand-row table-hover-cell">
                         @if(is_array($log->properties))                            
                             @if(isset($log->properties['dimension']))
                                 @if(is_array($log->properties['dimension']))
@@ -153,27 +170,32 @@
                                 <span class="td-full-container hidden">
                                     {{ implode(' , ',$log->properties['dimension']) }}
                                 </span>                                        
-                                @else
-                                    {{ $log->properties['dimension'] }}
+                                @else                                    
+                                    <span class="td-mini-container">                                    
+                                        {{ strlen( $log->properties['dimension'] ) > 10 ? substr( $log->properties['dimension'] , 0, 6).'...' :  $log->properties['dimension'] }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ $log->properties['dimension'] }}
+                                    </span>
                                 @endif
                             @endif
                         @endif
-                    </th>
+                    </td>
                     @endif
                     @if(in_array('lmeasurement',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['lmeasurement'])) {{ unserialize($log->properties)['lmeasurement']  }} @endif</th>
+                    <td>@if(isset(unserialize($log->properties)['lmeasurement'])) {{ unserialize($log->properties)['lmeasurement']  }} @endif</td>
                     @endif
 
                     @if(in_array('hmeasurement',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['hmeasurement'])) {{ unserialize($log->properties)['hmeasurement']  }} @endif</th>
+                    <td>@if(isset(unserialize($log->properties)['hmeasurement'])) {{ unserialize($log->properties)['hmeasurement']  }} @endif</td>
                     @endif
 
                     @if(in_array('dmeasurement',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['dmeasurement'])) {{ unserialize($log->properties)['dmeasurement']  }} @endif</th>
+                    <td>@if(isset(unserialize($log->properties)['dmeasurement'])) {{ unserialize($log->properties)['dmeasurement']  }} @endif</td>
                     @endif
 
                     @if(in_array('measurement_size_type',$response['columns']))
-                    <th>@if(isset(unserialize($log->properties)['measurement_size_type'])) {{ unserialize($log->properties)['measurement_size_type']  }} @endif</th>
+                    <td>@if(isset(unserialize($log->properties)['measurement_size_type'])) {{ unserialize($log->properties)['measurement_size_type']  }} @endif</td>
                     @endif
 
                     @endif
