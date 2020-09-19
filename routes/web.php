@@ -462,6 +462,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
     Route::resource('email', 'EmailController');
+	
+	Route::post('email/category', 'EmailController@category');
+	Route::post('email/status', 'EmailController@status');
+	Route::post('email/update_email', 'EmailController@updateEmail');
+    
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
@@ -1942,6 +1947,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-templates', 'MailinglistTemplateController@index')->name('mailingList-template');
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
+    Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
