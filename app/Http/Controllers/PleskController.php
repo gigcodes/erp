@@ -42,11 +42,11 @@ class PleskController extends Controller
             $response = $pleskHelper->createMail($request->name,$id,$request->mailbox,$request->password);
             $address = new EmailAddress;
             $address->from_name = $request->name;
-            $address->from_address = $request->site_name;
-            $address->driver = 'smtp';
-            $address->host = '';
-            $address->port = '587';
-            $address->encryption = 'tls';
+            $address->from_address = $request->name.'@'.$request->site_name;
+            $address->driver = 'imap';
+            $address->host = $request->site_name;
+            $address->port = '993';
+            $address->encryption = 'ssl';
             $address->username = $request->name.'@'.$request->site_name;
             $address->password = $request->password;
             $address->save();

@@ -140,6 +140,21 @@
                             </div>
                         </div>
                     </div>
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group mb-2">
+                                <strong>Service Type</strong>
+                                <select name="service_type" style="text-transform: capitalize" class="form-control input_customer_country">
+                                    <option value="" selected>Select Service type</option>
+                                    <option value="P">International non-document shipments</option>
+                                    <option value="D">International document shipments</option>
+                                    <option value="N">Domestic shipments</option>
+                                    <option value="U">Intra-Europe shipments</option>
+                                </select>
+                                <span class="form-error"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <div class="row">

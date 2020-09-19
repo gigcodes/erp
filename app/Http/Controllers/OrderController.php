@@ -2132,8 +2132,6 @@ public function createProductOnMagento(Request $request, $id){
 				$order->save();
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
-			
-				
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2658,6 +2656,64 @@ public function createProductOnMagento(Request $request, $id){
 	public function fetchMasterStatus($id) {
 		$store_master_statuses = StoreMasterStatus::where('store_website_id',$id)->get();
 		return $store_master_statuses;
+	}
+
+	public function deleteBulkOrders(Request $request) {
+		foreach($request->ids as $id) {
+			Order::where('id',$id)->delete();
+		}
+		return response()->json(['message' => 'Order has been archived']);
+	}
+
+ 	// public function viewproducts($id) {
+	// 	dd($id);
+	// 	return response()->json(['message' => 'Order has been archived']);
+	// }
+
+ 	public function updateCustomer(Request $request) {
+		if($request->update_type == 1) {
+			// dd("only send message");
+			$ids = explode(",",$request->selected_orders);
+			foreach($ids as $id) {
+				$order = \App\Order::where("id", $id)->first();
+				if($order && $request->customer_message && $request->customer_message != "") {
+					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message);
+				}
+			}
+		}
+		else {
+			// dd("send message and update status");
+			$ids = explode(",",$request->selected_orders);
+			foreach($ids as $id) {
+				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->order_status) {
+					$order = \App\Order::where("id", $id)->first();
+					$statuss = OrderStatus::where("id",$request->order_status)->first();
+					if($order) {
+						$order->order_status 	= $statuss->status;
+						$order->order_status_id = $request->order_status;
+						$order->save();
+						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message);
+
+ 						$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
+						if($storeWebsiteOrder) {
+							$website = StoreWebsite::find($storeWebsiteOrder->website_id);
+							if($website) {
+								$store_order_status = Store_order_status::where('order_status_id',$request->order_status)->where('store_website_id',$storeWebsiteOrder->website_id)->first();
+								if($store_order_status) {
+									$magento_status = StoreMasterStatus::find($store_order_status->store_master_status_id);
+									if($magento_status) {
+										$magentoHelper = new MagentoHelperv2;
+										$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
+									}
+								}
+							}
+							$storeWebsiteOrder->update(['order_id',$request->order_status]);
+						}
+					}
+				}
+			}
+		}
+		return response()->json(['message' => 'Successful'],200);
 	}
 
 	public function searchOrderForInvoice(Request $request) {

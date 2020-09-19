@@ -31,6 +31,8 @@ use App\Hubstaff\HubstaffProject;
 use App\Hubstaff\HubstaffTask;
 use App\Issue;
 use App\Task;
+use App\TaskUserHistory;
+use App\Team;
 use App\TaskStatus;
 use Exception;
 use GuzzleHttp\Exception\ClientException;
@@ -38,6 +40,7 @@ use GuzzleHttp\Client;
 use GuzzleHttp\RequestOptions;
 use Response;
 use Storage;
+use App\MeetingAndOtherTime;
 use App\Helpers\HubstaffTrait;
 
 class DevelopmentController extends Controller
@@ -222,6 +225,7 @@ class DevelopmentController extends Controller
         //        return Redirect::to('/development/list/task');
 
         // Set required data
+       
         $user = $request->user ?? Auth::id();
         $start = $request->range_start ? "$request->range_start 00:00" : '2018-01-01 00:00';
         $end = $request->range_end ? "$request->range_end 23:59" : Carbon::now()->endOfWeek();
@@ -383,6 +387,170 @@ class DevelopmentController extends Controller
         if ((int) $request->get('assigned_to') > 0) {
             $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
         }
+        if ((int) $request->get('master_user_id') > 0) {
+            $issues = $issues->where('developer_tasks.master_user_id', $request->get('master_user_id'));
+        }
+        if ((int) $request->get('team_lead_id') > 0) {
+            $issues = $issues->where('developer_tasks.team_lead_id', $request->get('team_lead_id'));
+        }
+        if ((int) $request->get('tester_id') > 0) {
+            $issues = $issues->where('developer_tasks.tester_id', $request->get('tester_id'));
+        }
+        if ($request->get('module')) {
+            $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
+        }
+        if (!empty($request->get('task_status', []))) {
+            $issues = $issues->whereIn('developer_tasks.status', $request->get('task_status'));
+        }
+        else {
+            $issues = $issues->where('developer_tasks.status', 'In Progress');
+        }
+
+        $whereCondition = "";
+        if ($request->get('subject') != '') {
+            $whereCondition = ' and message like  "%' . $request->get('subject') . '%"';
+            $issues = $issues->where(function ($query) use ($request) {
+                $subject = $request->get('subject');
+                $query->where('developer_tasks.id', 'LIKE', "%$subject%")->orWhere('subject', 'LIKE', "%$subject%")->orWhere("task", "LIKE", "%$subject%")
+                    ->orwhere("chat_messages.message", 'LIKE', "%$subject%");
+            });
+        }
+        // if ($request->get('language') != '') {
+        //     $issues = $issues->where('language', 'LIKE', "%" . $request->get('language') . "%");
+        // }
+        $issues = $issues->leftJoin(DB::raw('(SELECT MAX(id) as  max_id, issue_id, message  FROM `chat_messages` where issue_id > 0 ' . $whereCondition . ' GROUP BY issue_id ) m_max'), 'm_max.issue_id', '=', 'developer_tasks.id');
+        $issues = $issues->leftJoin('chat_messages', 'chat_messages.id', '=', 'm_max.max_id');
+        if ($request->get('last_communicated', "off") == "on") {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
+        $issues = $issues->select("developer_tasks.*","chat_messages.message","chat_messages.user_id AS message_user_id", "chat_messages.is_reminder AS message_is_reminder", "chat_messages.status as message_status","chat_messages.sent_to_user_id");
+
+        // Set variables with modules and users
+        $modules = DeveloperModule::all();
+        $users = Helpers::getUserArray(User::all());
+        // $statusList = \DB::table("developer_tasks")->where("status", "!=", "")->groupBy("status")->select("status")->pluck("status", "status")->toArray();
+
+        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+
+        $statusList = array_merge([
+            "" => "Select Status",
+        ], $statusList);
+
+        // Hide resolved
+        /*if ((int)$request->show_resolved !== 1) {
+            $issues = $issues->where('is_resolved', 0);
+        }*/
+        if (!auth()->user()->isReviwerLikeAdmin()) {
+            // $issues = $issues->where(function ($q) {
+            //     $q->where("developer_tasks.assigned_to", auth()->user()->id)->where('is_resolved', 0);
+            // });
+            $issues = $issues->where(function ($query) use ($request) {
+                $query->where("developer_tasks.assigned_to", auth()->user()->id)
+                ->orWhere("developer_tasks.master_user_id", auth()->user()->id)
+                ->orWhere("developer_tasks.tester_id", auth()->user()->id)
+                ->orWhere("developer_tasks.team_lead_id", auth()->user()->id);
+            });
+        }
+        // category filter start count
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'Planned')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+
+        $countPlanned = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countPlanned[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+        // category filter start count
+        $issuesGroups = clone ($issues);
+        $issuesGroups = $issuesGroups->where('developer_tasks.status', 'In Progress')->groupBy("developer_tasks.assigned_to")->select([\DB::raw("count(developer_tasks.id) as total_product"), "developer_tasks.assigned_to"])->pluck("total_product", "assigned_to")->toArray();
+        $userIds = array_values(array_filter(array_keys($issuesGroups)));
+
+        $userModel = \App\User::whereIn("id", $userIds)->pluck("name", "id")->toArray();
+        $countInProgress = [];
+        if (!empty($issuesGroups) && !empty($userModel)) {
+            foreach ($issuesGroups as $key => $count) {
+                $countInProgress[] = [
+                    "id" => $key,
+                    "name" => !empty($userModel[$key]) ? $userModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
+        // Sort
+        if ($request->order == 'priority') {
+            $issues = $issues->orderBy('priority', 'ASC')->orderBy('created_at', 'DESC')->with('communications');
+        }
+        else if ($request->order == 'latest_task_first') {
+            $issues = $issues->orderBy('developer_tasks.id', 'DESC');
+        } else {
+            $issues = $issues->orderBy('chat_messages.id', "desc");
+        }
+
+        $issues =  $issues->with('communications');
+
+        // return $issues = $issues->limit(20)->get();
+        $issues = $issues->paginate(Setting::get('pagination'));
+        $priority = \App\ErpPriority::where('model_type', '=', DeveloperTask::class)->pluck('model_id')->toArray();
+
+        // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
+
+        if ( request()->ajax() ) {
+			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
+        }
+
+        return view('development.issue', [
+            'issues' => $issues,
+            'users' => $users,
+            'modules' => $modules,
+            'request' => $request,
+            'title' => $title,
+            'type' => $type,
+            'priority' => $priority,
+            'countPlanned' => $countPlanned,
+            'countInProgress' => $countInProgress,
+            'statusList' => $statusList
+            // 'languages' => $languages
+        ]);
+    }
+      public function summaryList(Request $request)
+    {
+        //$request->request->add(["order" => $request->get("order","communication_desc")]);
+        // Load issues
+        $type = $request->tasktype ? $request->tasktype : 'all';
+
+        $title = 'Task List';
+
+        $issues = DeveloperTask::with('timeSpent');
+        
+        if($type == 'issue') {
+            $issues = $issues->where('developer_tasks.task_type_id', '3');
+        }
+        if($type == 'devtask') {
+            $issues = $issues->where('developer_tasks.task_type_id', '1');
+        }
+        if ((int) $request->get('submitted_by') > 0) {
+            $issues = $issues->where('developer_tasks.created_by', $request->get('submitted_by'));
+        }
+        if ((int) $request->get('responsible_user') > 0) {
+            $issues = $issues->where('developer_tasks.responsible_user_id', $request->get('responsible_user'));
+        }
+
+        if ((int) $request->get('corrected_by') > 0) {
+            $issues = $issues->where('developer_tasks.user_id', $request->get('corrected_by'));
+        }
+
+        if ((int) $request->get('assigned_to') > 0) {
+            $issues = $issues->where('developer_tasks.assigned_to', $request->get('assigned_to'));
+        }
         if ($request->get('module')) {
             $issues = $issues->where('developer_tasks.module_id', $request->get('module'));
         }
@@ -492,10 +660,10 @@ class DevelopmentController extends Controller
         // $languages = \App\DeveloperLanguage::get()->pluck("name", "id")->toArray();
 
         if ( request()->ajax() ) {
-			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
+            return view("development.partials.summary-load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
 
-        return view('development.issue', [
+        return view('development.summarylist', [
             'issues' => $issues,
             'users' => $users,
             'modules' => $modules,
@@ -508,6 +676,22 @@ class DevelopmentController extends Controller
             'statusList' => $statusList
             // 'languages' => $languages
         ]);
+    }
+
+    public function summaryList1(Request $request)
+    {
+       
+        $modules = DeveloperModule::all();
+        print_r($modules);
+
+        $statusList = \DB::table("task_statuses")->select("name")->pluck("name", "name")->toArray();
+
+        $statusList = array_merge([
+            "" => "Select Status",
+        ], $statusList);
+
+        return view('development.summarylist',compact('modules','statusList'));
+     
     }
     public function issueIndex(Request $request)
     {
@@ -1430,9 +1614,22 @@ class DevelopmentController extends Controller
         //         $hubstaffUser->hubstaff_user_id
         //     );
         // }
-
+        $old_id = $issue->assigned_to;
+        if(!$old_id) {
+            $old_id = 0;
+        }
         $issue->assigned_to = $request->get('assigned_to');
         $issue->save();
+
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model_id = $issue->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $request->get('assigned_to');
+        $taskUser->user_type = 'developer';
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
+
         return response()->json([
             'status' => 'success'
         ]);
@@ -1451,7 +1648,10 @@ class DevelopmentController extends Controller
                 'status' => 'success', 'message' =>'user not found'
             ],500);
         }
-        
+        $old_id = $issue->master_user_id;
+        if(!$old_id) {
+            $old_id = 0;
+        }
         $issue->master_user_id = $masterUserId;
 
         $issue->save();
@@ -1491,6 +1691,124 @@ class DevelopmentController extends Controller
                 $task->save();
             }
         }
+
+       
+
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model_id = $issue->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $masterUserId;
+        $taskUser->user_type = 'leaddeveloper';
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
+
+        return response()->json([
+            'status' => 'success'
+        ]);
+    }
+
+
+    public function assignTeamlead(Request $request)
+    {
+        $team_lead_id = $request->get("team_lead_id");
+        $issue = DeveloperTask::find($request->get('issue_id'));
+
+        $user = User::find($team_lead_id);
+
+        if(!$user) {
+            return response()->json([
+                'status' => 'success', 'message' =>'user not found'
+            ],500);
+        }
+        
+        
+        $isMember = $user->teams()->first();
+        if($isMember) {
+            return response()->json([
+                "message"       => 'This user is already a team member'
+            ],500);
+        }
+        else {
+            $isLeader = Team::where('user_id',$team_lead_id)->first();
+            if(!$isLeader) {
+                $team = new Team;
+                $team->name = $request->name;
+                $team->user_id = $team_lead_id;
+                $team->save();
+            }
+            $issue->team_lead_id = $team_lead_id;
+            $issue->save();
+        }
+        return response()->json([
+            'status' => 'success'
+        ],200);
+    }
+
+
+    public function assignTester(Request $request)
+    {
+        $tester_id = $request->get("tester_id");
+        $issue = DeveloperTask::find($request->get('issue_id'));
+
+        $user = User::find($tester_id);
+
+        if(!$user) {
+            return response()->json([
+                'status' => 'success', 'message' =>'user not found'
+            ],500);
+        }
+        $old_id = $issue->tester_id;
+        if(!$old_id) {
+            $old_id = 0;
+        }
+        $issue->tester_id = $tester_id;
+        $issue->save();
+
+
+        $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $assignedUser = HubstaffMember::where('user_id', $tester_id)->first();
+
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+
+        $summary = substr($issue->task, 0, 200);
+        if($issue->task_type_id == 1) {
+            $taskSummery = '#DEVTASK-' . $issue->id . ' => ' . $summary;
+        }
+        else {
+            $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
+        }
+        if($hubstaffUserId) {
+            $hubstaffTaskId = $this->createHubstaffTask(
+                $taskSummery,
+                $hubstaffUserId,
+                $hubstaff_project_id
+            );
+            if($hubstaffTaskId) {
+                $issue->tester_hubstaff_task_id = $hubstaffTaskId;
+                $issue->save();
+
+                $task = new HubstaffTask();
+                $task->hubstaff_task_id = $hubstaffTaskId;
+                $task->project_id = $hubstaff_project_id;
+                $task->hubstaff_project_id = $hubstaff_project_id;
+                $task->summary = $taskSummery;
+                $task->save();
+            }
+        }
+
+        $taskUser = new TaskUserHistory;
+        $taskUser->model = 'App\DeveloperTask';
+        $taskUser->model_id = $issue->id;
+        $taskUser->old_id = $old_id;
+        $taskUser->new_id = $tester_id;
+        $taskUser->user_type = 'tester';
+        $taskUser->updated_by = Auth::user()->name;
+        $taskUser->save();
+
         return response()->json([
             'status' => 'success'
         ]);
@@ -2015,6 +2333,9 @@ class DevelopmentController extends Controller
         if($type == 'lead') {
             $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.master_user_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.lead_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.master_user_id where developer_tasks.id = ".$id." group by task_id,starts_at"));
         }
+        else if($type == 'tester') {
+            $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.tester_id,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.tester_hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.tester_id where developer_tasks.id = ".$id." group by task_id,starts_at"));
+        }
         else {
             $task_histories = DB::select( DB::raw("SELECT hubstaff_activities.task_id,cast(hubstaff_activities.starts_at as date) as starts_at,sum(hubstaff_activities.tracked) as total_tracked,developer_tasks.assigned_to,users.name FROM `hubstaff_activities`  join developer_tasks on developer_tasks.hubstaff_task_id = hubstaff_activities.task_id join users on users.id = developer_tasks.assigned_to where developer_tasks.id = ".$id." group by task_id,starts_at"));
         }
@@ -2028,6 +2349,9 @@ class DevelopmentController extends Controller
         if($task) {
             if($request->type == 'developer') {
                 $user_id = $task->assigned_to;
+            }
+            else  if($request->type == 'tester') {
+                $user_id = $task->tester_id;
             }
             else {
                 $user_id = $task->master_user_id; 
@@ -2057,6 +2381,9 @@ class DevelopmentController extends Controller
             if($hubstaffTaskId) {
                 if($request->type == 'developer') {
                     $task->hubstaff_task_id = $hubstaffTaskId;
+                }
+                else  if($request->type == 'tester') {
+                    $task->tester_hubstaff_task_id = $hubstaffTaskId;
                 }
                 else {
                     $task->lead_hubstaff_task_id = $hubstaffTaskId;
@@ -2094,5 +2421,120 @@ class DevelopmentController extends Controller
             }
         }
         return response()->json(['message' => 'Successful']);
+    }
+
+    public function getMeetingTimings(Request $request) {
+        $developerTime = 0;
+        $master_devTime = 0;
+        $testerTime = 0;
+        $query = MeetingAndOtherTime::join('users','users.id','meeting_and_other_times.user_id')->where('model','App\DeveloperTask')->where('model_id',$request->issue_id);
+        $issue = DeveloperTask::find($request->issue_id);
+        if($request->type == 'admin') {
+            $query = $query;
+        }
+        else if($request->type == 'developer') {
+            $query = $query->where('user_id',$issue->assigned_to);
+        }
+        else if($request->type == 'lead') {
+            $query = $query->where('user_id',$issue->master_user_id);
+        }
+        else if($request->type == 'tester') {
+            $query = $query->where('user_id',$issue->tester_id); 
+        }
+        else {
+            return response()->json(['message' => 'Unauthorized access'],500);
+        }
+        if($request->timing_type && $request->timing_type != '') {
+            $query = $query->where('type',$request->timing_type);
+        }
+
+
+        $timings = $query->select('meeting_and_other_times.*','users.name')->get();
+
+        $developerTime = MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$request->issue_id)->where('user_id',$issue->assigned_to)->where('approve',1)->sum('time');
+
+        $master_devTime = MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$request->issue_id)->where('user_id',$issue->master_user_id)->where('approve',1)->sum('time');
+
+        $testerTime = MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$request->issue_id)->where('user_id',$issue->tester_id)->where('approve',1)->sum('time');
+
+        return response()->json(['timings' => $timings,'issue_id' => $request->issue_id,'developerTime' => $developerTime, 'master_devTime' => $master_devTime, 'testerTime' => $testerTime],200);
+    }
+
+    public function storeMeetingTime(Request $request) {
+      if(!$request->task_id || $request->task_id == '' || !$request->time || $request->time == '' || !$request->user_type || $request->user_type == '' || !$request->timing_type || $request->timing_type == '') {
+        return response()->json(['message' => 'Incomplete data'],500);
+      }
+      $query = MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$request->task_id)->where('type',$request->timing_type);
+      $user_id = Auth::user()->id;
+      $issue = DeveloperTask::find($request->task_id);
+       if($request->user_type == 'developer') {
+            $query = $query->where('user_id',$issue->assigned_to);
+            $user_id = $issue->assigned_to;
+        }
+        else if($request->user_type == 'lead') {
+            $query = $query->where('user_id',$issue->master_user_id);
+            $user_id = $issue->master_user_id;
+        }
+        else if($request->user_type == 'tester') {
+            $query = $query->where('user_id',$issue->tester_id);
+            $user_id = $issue->tester_id;
+        }
+        else {
+            return response()->json(['message' => 'Unauthorized access'],500);
+        }
+      $time = $query->orderBy('id','desc')->first();
+      $oldValue = 0;
+      if($time) {
+        $oldValue = $time->time;
+      }
+      $time = new MeetingAndOtherTime;
+      $time->model = 'App\DeveloperTask';
+      $time->model_id = $request->task_id;
+      $time->user_id = $user_id;
+      $time->time = $request->time;
+      $time->old_time = $oldValue;
+      $time->type = $request->timing_type;
+      $time->note = $request->note;
+      $time->updated_by = Auth::user()->name;
+      $time->save();
+      return response()->json(['message' => 'Successful'],200);
+    }
+
+    public function approveMeetingHistory($task_id,Request $request) {
+        if(Auth::user()->isAdmin) {
+            if(!$request->approve_time || $request->approve_time == "") {
+                return response()->json([
+                    'message' => 'Select one time first'
+                ],500);
+            }
+            $time = MeetingAndOtherTime::find($request->approve_time);
+
+            MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$time->model_id)->where('type',$time->type)->where('user_id',$time->user_id)->update(['approve' => 0]);
+            $time->approve = 1;
+            $time->save();
+            return response()->json([
+                'message' => 'Success'
+            ],200);
+        }
+    }
+
+    public function getUserHistory(Request $request) {
+        $users = TaskUserHistory::where('model','App\DeveloperTask')->where('model_id',$request->id)->get();
+        foreach($users as $u) {
+            $old_name = null;
+            $new_name = null;
+            if($u->old_id) {
+                $old_name = User::find($u->old_id)->name;
+            }
+            if($u->new_id) {
+                $new_name = User::find($u->new_id)->name;
+            }
+            $u->new_name = $new_name;
+            $u->old_name = $old_name;
+        }
+        return response()->json([
+            'users' => $users
+        ],200);
+
     }
 }
