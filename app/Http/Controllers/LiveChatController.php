@@ -1035,7 +1035,6 @@ class LiveChatController extends Controller {
         $pageSize = 10;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-        dd($data);
         if ($request->ajax()) {
             return response()->json([
                         'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
