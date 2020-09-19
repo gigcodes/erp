@@ -289,7 +289,7 @@ class LandingPageController extends Controller
     private function sendTranslationByGrapql($productId)
     {
         $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
-        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
+        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
 //        $qry = '{"query":"query {products(where:{status:PUBLISHED}){title,img,description,costPrice,sellPrice,quantity,sku,categories {name},brand {name}}}"}';
         $qry = '
                 mutation {
