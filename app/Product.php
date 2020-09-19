@@ -39,6 +39,13 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
+        'name',
+        'brand',
+        'category',
+        'short_description',
+        'price',
+        'status_id',
+        'id',
         'sku',
         'is_barcode_check',
         'has_mediables',
@@ -46,7 +53,8 @@ class Product extends Model
         'stock_status',
         'shopify_id',
         'scrap_priority',
-        'assigned_to'
+        'assigned_to',
+        'quick_product'
     ];
 
     protected $dates = ['deleted_at'];
@@ -945,7 +953,7 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
-        if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
+        if(empty($this->name) || $this->name == ".." || empty($this->short_description) || empty($this->price)) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
         }else{
@@ -1057,5 +1065,9 @@ class Product extends Model
 
         asort( $result );
         return $result;
+    } 
+    public function getStatusName()
+    {
+        return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];
     }
 }
