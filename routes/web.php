@@ -196,6 +196,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productapprover', 'ProductApproverController');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
+    Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
     Route::resource('productinventory', 'ProductInventoryController');
 
     Route::prefix('product-inventory')->group(function () {
@@ -290,7 +291,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
-    Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::get('erp-leads', 'LeadsController@erpLeads')->name('erp-leads.erpLeads');
+    // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
@@ -460,6 +462,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('email/resendMail/{id}', 'EmailController@resendMail');
     Route::put('email/{id}/mark-as-read', 'EmailController@markAsRead');
     Route::resource('email', 'EmailController');
+	
+	Route::post('email/category', 'EmailController@category');
+	Route::post('email/status', 'EmailController@status');
+	Route::post('email/update_email', 'EmailController@updateEmail');
+    
 
     Route::get('email-remark', 'EmailController@getRemark')->name('email.getremark');
     Route::post('email-remark', 'EmailController@addRemark')->name('email.addRemark');
@@ -876,7 +883,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/upload-attachments', 'DevelopmentController@uploadAttachDocuments')->name('development.upload.files');
     Route::get('download-file', 'DevelopmentController@downloadFile')->name('download.file');
 
-    //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
+    //Route::get('deve lopment/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
     Route::get('development/list', 'DevelopmentController@issueTaskIndex')->name('development.issue.index');
     Route::get('development/summarylist', 'DevelopmentController@summaryList')->name('development.summarylist');
     //Route::get('development/issue/list', 'DevelopmentController@issueIndex')->name('development.issue.index');
@@ -1088,7 +1095,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('vendors', 'VendorController');
     Route::get('vendor-search', 'VendorController@vendorSearch')->name('vendor-search');
     Route::get('vendor-search-phone', 'VendorController@vendorSearchPhone')->name('vendor-search-phone');
-    
+    Route::get('vendor-search-email', 'VendorController@vendorSearchEmail')->name('vendor-search-email');
+
     Route::post('vendors/email', 'VendorController@email')->name('vendors.email');
     Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
@@ -1233,6 +1241,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Supplier Category Permission
     Route::get('supplier/category/permission', 'SupplierCategoryController@usersPermission')->name('supplier/category/permission');
     Route::post('supplier/category/update/permission', 'SupplierCategoryController@updatePermission')->name('supplier/category/update/permission');
+	
+	Route::post('supplier/add/pricernage', 'SupplierController@addPriceRange')->name('supplier/add/pricernage');
+	Route::post('supplier/change/pricerange', 'SupplierController@changePriceRange')->name('supplier/change/pricerange');
+	
 
 
     Route::resource('assets-manager', 'AssetsManagerController');
@@ -1437,6 +1449,10 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('notification', 'HashtagController@showNotification');
     Route::get('hashtag/markPriority', 'HashtagController@markPriority')->name('hashtag.priority');
     Route::resource('influencer', 'InfluencersController');
+    Route::post('influencer-keyword', 'InfluencersController@saveKeyword')->name('influencers.keyword.save');
+    Route::post('influencer-keyword-image', 'InfluencersController@getScraperImage')->name('influencers.image');
+    Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
+    Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -1942,6 +1958,7 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist-templates', 'MailinglistTemplateController@index')->name('mailingList-template');
     Route::get('mailinglist-ajax', 'MailinglistTemplateController@ajax');
     Route::post('mailinglist-templates/store', 'MailinglistTemplateController@store')->name('mailingList-template.store');
+    Route::post('mailinglist-templates/category/store', 'MailinglistTemplateCategoryController@store')->name('mailingList.category.store');
 
     Route::group(['prefix' => 'mailinglist-templates/{id}'], function () {
         Route::get('delete', 'MailinglistTemplateController@delete')->name('mailingList-template.delete');
@@ -2145,11 +2162,14 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::get('/getProducts/{id}', 'ReturnExchangeController@getProducts');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
+	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
+	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
         Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
+        Route::get('/product', 'ReturnExchangeController@product')->name('return-exchange.product');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
 });

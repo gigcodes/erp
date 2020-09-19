@@ -425,6 +425,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
@@ -650,6 +651,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1108,14 +1110,17 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
+                                    <!-- <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents / Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.dialog-grid.list')}}">Dialog Grid</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedWords')}}">Most used words</a>
