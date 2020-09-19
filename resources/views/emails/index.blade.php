@@ -12,10 +12,28 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
+	.nav-item a{
+		color:#555;
+	}
+			
+	a.btn-image{
+		padding:2px 2px;
+	}
+	.text-nowrap{
+		white-space:nowrap;
+	}
+	.search-rows .btn-image img{
+		width: 12px!important;
+	}
+	.search-rows .make-remark
+	{
+		border: none;
+		background: none
+	}
 </style>
 @endsection
 <div id="myDiv">
-        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="images/pre-loader.gif" style="display:none;"/>
     </div>
 <div class="row">
         <div class="col-12">
@@ -24,10 +42,21 @@
 
 
 </div>
+@if ($message = Session::get('success'))
+<div class="alert alert-success">
+	<p>{{ $message }}</p>
+</div>
+@endif
 <div class="row">
+	<div class="col-lg-12 margin-tb">
+		<div class="pull-right mt-3">
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#statusModel">Create Status</button>
+			<button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#createEmailCategorytModal">Create Category</button>
+		</div>
+	</div>   
   <div class="col-md-12">
       <ul class="nav nav-tabs" id="myTab" role="tablist">
-          <li class="nav-item">
+          <li class="nav-item active">
               <a class="nav-link" id="read-tab" data-toggle="tab" href="#read" role="tab" aria-controls="read" aria-selected="true" onclick="load_data('incoming',1)">Read</a>
           </li>
           <li class="nav-item">
@@ -58,19 +87,50 @@
       <form class="form-inline" >
         <div class="form-group">
           <input id="term" name="term" type="text" class="form-control"
-                 value="{{ isset($term) ? $term : '' }}"
-                 placeholder="Search">
+                 value="<?php if(Request::get('term')) echo Request::get('term'); ?>"
+                 placeholder="Search by Keyword">
         </div>
-        <div class="form-group ml-3">
+        <!--div class="form-group ml-3">
           <div class='input-group date' id='email-datetime'>
             <input type='text' class="form-control" id="date" name="date" value="{{ isset($date) ? $date : '' }}" />
             <span class="input-group-addon">
             <i class="fa fa-calendar" aria-hidden="true"></i>
             </span>
           </div>
+        </div-->
+		
+		<div class="form-group">
+          <input id="sender" name="sender" type="text" class="form-control"
+                 value="<?php if(Request::get('sender')) echo Request::get('sender'); ?>"
+                 placeholder="Search by Sender">
+        </div>
+		<div class="form-group">
+          <input id="receiver" name="receiver" type="text" class="form-control"
+                 value="<?php if(Request::get('receiver')) echo Request::get('receiver'); ?>"
+                 placeholder="Search by Receiver">
+        </div>
+		<div class="form-group">
+          <select class="form-control" name="status" id="email_status">
+				<option value="">Select Status</option>
+				<?php
+				foreach ($email_status as $status) { ?>
+					<option value="<?php echo $status->id;?>" <?php if($status->id == Request::get('status')) echo "selected"; ?>><?php echo $status->email_status;?></option>
+				<?php } 
+				?>
+			</select>
+        </div>
+		<div class="form-group">
+			<select class="form-control" name="category" id="category">
+				<option value="">Select Category</option>
+				<?php
+				foreach ($email_categories as $category) { ?>
+					<option value="<?php echo $category->id;?>" <?php if($category->id == Request::get('category')) echo "selected"; ?>><?php echo $category->category_name;?></option>
+				<?php } 
+				?>
+			</select>
         </div>
         <input type='hidden' class="form-control" id="type" name="type" value="" />
-        <input type='hidden' class="form-control" id="seen" name="seen" value="" />
+        <input type='hidden' class="form-control" id="seen" name="seen" value="1" />
 
         <button type="submit" class="btn btn-image ml-3 search-btn"><i class="fa fa-filter" aria-hidden="true"></i></button>
       </form>
@@ -78,7 +138,7 @@
 </div>
 </div>
 <div class="table-responsive" style="margin-top:20px;">
-      <table class="table table-bordered" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered table-responsive text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -154,6 +214,99 @@
         </div>
     </div>
 </div>
+
+
+<div id="createEmailCategorytModal" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Create Email Category</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form action="{{ url('email/category') }}" method="POST">
+				@csrf
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="text" name="category_name" value="{{ old('category_name') }}" class="form-control" placeholder="Category Name">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="statusModel" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Update Email Status/Category</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form action="{{ url('email/update_email') }}" method="POST">
+				@csrf
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="text" name="email_status" value="{{ old('email_status') }}" class="form-control" placeholder="Status">
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+
+<div id="UpdateMail" class="modal fade" role="dialog">
+	<div class="modal-dialog">
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<h4 class="modal-title">Create Email Status</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<form action="{{ url('email/update_email') }}" method="POST">
+				@csrf
+				<div class="modal-body">
+					<div class="form-group">
+						<input type="hidden" name="email_id" id = "email_id">
+						<select class="form-control" name="status" id="email_status">
+                            <option value="">Select Status</option>
+                            <?php
+                            foreach ($email_status as $status) { ?>
+                                <option value="<?php echo $status->id;?>"><?php echo $status->email_status;?></option>
+                            <?php } 
+                            ?>
+                        </select>
+					</div>
+					<div class="form-group">
+						<select class="form-control" name="category" id="email_category">
+                            <option value="">Select Category</option>
+                            <?php
+                            foreach ($email_categories as $category) { ?>
+                                <option value="<?php echo $category->id;?>"><?php echo $category->category_name;?></option>
+                            <?php } 
+                            ?>
+                        </select>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+						<button type="submit" class="btn btn-secondary">Create</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
 @include('partials.modals.remarks')
 
 @endsection
@@ -198,15 +351,23 @@
       var date = $("#date").val();
       var type = $("#type").val();
       var seen = $("#seen").val();
-      console.log(window.url);
+      var sender = $("#sender").val();
+      var receiver = $("#receiver").val();
+      var status = $("#email_status").val();
+      var category = $("#category").val();
+     console.log(window.url);
         $.ajax({
-          url: '/email',
+          url: 'email',
           type: 'get',
           data:{
                 term:term,
                 date:date,
                 type:type,
-                seen:seen
+                seen:seen,
+				sender:sender,
+				receiver:receiver,
+				status:status,
+				category:category
             },
             beforeSend: function () {
                 $("#loading-image").show();
@@ -345,6 +506,19 @@
         });
     });
 
+	$(document).on('click', '.mailupdate', function (e) {
+		var email_id = $(this).data('id');
+		var status = $(this).data('status');
+		var category = $(this).data('category');
+		
+		$("#email_category").val(category).trigger('change');
+		$("#email_status").val(status).trigger('change');
+
+		
+		$('#email_id').val(email_id);
+	
+	});
+
 
     $(document).on('click', '.make-remark', function (e) {
             e.preventDefault();
@@ -354,6 +528,7 @@
             console.log(email_id)
 
             $('#add-remark input[name="id"]').val(email_id);
+           
 
             $.ajax({
                 type: 'GET',
