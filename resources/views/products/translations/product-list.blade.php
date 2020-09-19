@@ -97,7 +97,7 @@
                 }).fail(function (jqXHR, ajaxOptions, thrownError) {
                     alert('No response from server');
                 });
-                
+
             }
         $(document).ready(function() {
             $(document).on('click', '.view-btn', function (e) {
@@ -112,7 +112,7 @@
             });
 
             $(document).on('click', '.edit-translation', function (e) {
-                
+
                 var locale = $('#select-locale').val();
                 var product_id = $('#product_id').val();
                 var product_translation_id = $('#product_translation_id').val();
