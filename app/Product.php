@@ -1004,6 +1004,7 @@ class Product extends Model
             'products.id',
             'products.name as product_name',
             'b.name as brand_name',
+            'c.title as category_name',
             'category',
             'supplier',
             'sku',
@@ -1013,16 +1014,27 @@ class Product extends Model
 
         $query =  \App\Product::leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
+            })
+            ->leftJoin("categories as c",function($q){
+                $q->on("c.id","products.category");
             });
 
         //  check filtering
-        if(isset($filter_data['product_names']))      $query = $query->whereIn('products.name',$filter_data['product_names']);
+        // if(isset($filter_data['product_names']))      $query = $query->whereIn('products.name',$filter_data['product_names']);
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
-        if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
+        // if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
         if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
-
-        return $query->orderBy('products.created_at','DESC')->paginate(8,$columns);
+        if(isset($filter_data['term'])) {
+            $term = $filter_data['term'];
+            $query = $query->where(function($q) use ($term) {
+                $q->where('products.name', 'LIKE', "%$term%")
+                ->orWhere('products.sku', 'LIKE', "%$term%")
+                ->orWhere('c.title', 'LIKE', "%$term%")
+                ->orWhere('b.name', 'LIKE', "%$term%");
+            });
+        }
+        return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
 
     public static function getPruductsNames()

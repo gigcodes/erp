@@ -4,7 +4,7 @@
     <td>{{ $data['id'] }}</td>
     <td>{{ $data['sku'] }}</td>
     <td>{{ $data['product_name'] }}</td>
-    <td>{{ $data['category'] }}</td>
+    <td>{{ $data['category_name'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
     <td>{{ $data['created_at'] }}</td>

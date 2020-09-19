@@ -985,9 +985,7 @@ class ProductInventoryController extends Controller
 	public function inventoryList(Request $request)
     {
         $filter_data = $request->input();
-
         $inventory_data = \App\Product::getProducts($filter_data);
-
         $status_list = \App\Helpers\StatusHelper::getStatus();
 
         foreach ($inventory_data as $product) {

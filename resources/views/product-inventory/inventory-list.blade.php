@@ -34,17 +34,17 @@
     <div class="col-lg-12 margin-tb">
         <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
             <div class="form-group mr-3 mb-3">
-                {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control']) !!}
             </div>
             <div class="form-group mr-3 mb-3">
-                {!! Form::select('product_names[]',$products_names, request("product_names",[]), ['data-placeholder' => 'Select a Name','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
             <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
-            <div class="form-group mr-3 mb-3">
+            <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-            </div>
+            </div> -->
             <div class="form-group mr-3 mb-3">
                 <div class='input-group date' id='filter-date'>
                     <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
