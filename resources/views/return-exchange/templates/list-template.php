@@ -7,6 +7,7 @@
 		      	<th>Id</th>
 		        <th>Customer Name</th>
 		        <th>Product Name</th>
+				<th>Website</th>
 		        <th>Type</th>
 		        <th>Refund amount</th>
 		        <th>Reason for refund</th>
@@ -14,7 +15,7 @@
 		        <th>Pickup Address</th>
 		        <th>Remarks</th>
 		        <th>Created At</th>
-		        <th>Action</th>
+		        <th width="5%" align="center">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -24,18 +25,23 @@
 			      	<td>{{:prop.id}}</td>
 			      	<td>{{:prop.customer_name}}</td>
 			      	<td>{{:prop.name}}</td>
+					<td>{{:prop.website}}</td>
 			        <td>{{:prop.type}}</td>
 			        <td>{{:prop.refund_amount}}</td>
 			        <td>{{:prop.reason_for_refund}}</td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.pickup_address}}</td>
 			        <td>{{:prop.remarks}}</td>
-			        <td>{{:prop.created_at}}</td>
-			        <td>
-			        	<button type="button" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" src="/images/edit.png"></button>
-			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-history-template"><img width="15px" src="/images/list-128x128.png"></button>
-						<button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template"><img width="15px" src="/images/view.png"></button>
+              <td>{{:prop.created_at_formated}}</td>
+			        <td class="action" align="center">
+						<div class="cls_action_btn" style="width:100px;">
+			        	<button type="button" class="btn btn-delete-template" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
+			        	<button type="button" class="btn btn-edit-template" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
+			        	<button type="button" class="btn btn-history-template" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
+						<button type="button" class="btn send-email-to-customer" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
+						<button type="button" class="btn show-product" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
+            <button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template"><img width="15px" src="/images/view.png"></button>
+						</div>
 			        </td>
 			      </tr>
 			    {{/props}}  

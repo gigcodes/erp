@@ -830,7 +830,7 @@ class LeadsController extends Controller
         return url('/') . "/" . $path;
     }
 
-    public function erpLeads()
+    public function erpLeads(Request $request)
     {
         /*$shoe_size_group = Customer::selectRaw('shoe_size, count(id) as counts')
                                     ->whereNotNull('shoe_size')
@@ -842,15 +842,139 @@ class LeadsController extends Controller
                                         ->groupBy('clothing_size')
                                         ->pluck('counts', 'clothing_size');*/
         $brands = Brand::all()->toArray();
+        $sourcePaginateArr= array();
+        // print_r($brands);
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
+        $source = \App\ErpLeads::leftJoin('products', 'products.id', '=', 'erp_leads.product_id')
+                                ->leftJoin("customers as c","c.id","erp_leads.customer_id")
+                                ->leftJoin("erp_lead_status as els","els.id","erp_leads.lead_status_id")
+                                ->leftJoin("categories as cat","cat.id","erp_leads.category_id")
+                                ->leftJoin("brands as br","br.id","erp_leads.brand_id")
+                                ->orderBy("erp_leads.id","desc")
+                                ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
+
+        /*$term = $request->get('term');
+        if (!empty($term)) {
+            $source = $source->where(function($q) use($term){
+                $q->where("c.name","like","%{$term}%")
+                  ->orWhere("c.phone","like","%{$term}%")
+                  ->orWhere("c.instahandler","like","%{$term}%")
+                  ->orWhere("products.name","like","%{$term}%")
+                  ->orWhere("products.name","like","%{$term}%")
+                  ->orWhere("erp_leads.id","like","%{$term}%");
+            });
+        }
+
+        if ($request->get('shoe_size')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size'));
+        }
+
+        if ($request->get('clothing_size')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size'));
+        }
+
+        if ($request->get('shoe_size_group')) {
+            $source = $source->where('c.shoe_size', '=', $request->get('shoe_size_group'));
+        }
+
+        if ($request->get('clothing_size_group')) {
+            $source = $source->where('c.clothing_size', '=', $request->get('clothing_size_group'));
+        }*/
+
+        if ($request->get('lead_customer')) {
+            $source = $source->where('c.name', 'like', "%".$request->get('lead_customer')."%");
+        }
+
+        if ($request->get('lead_brand')) {
+            $source = $source->whereIn('erp_leads.brand_id', $request->get('lead_brand'));
+        }
+
+        if ($request->get('lead_status')) {
+            $source = $source->whereIn('erp_leads.lead_status_id', $request->get('lead_status'));
+        }
+
+        if ($request->get('lead_category')) {
+            $source = $source->where('cat.title', 'like', "%".$request->get('lead_category')."%");
+        }
+
+        if ($request->get('lead_color')) {
+            $source = $source->where('erp_leads.color', '=', $request->get('lead_color'));
+        }
+
+        if ($request->get('lead_shoe_size')) {
+            $source = $source->where('erp_leads.size', '=', $request->get('lead_shoe_size'));
+        }
+
+        if ($request->get('brand_segment')) {
+            $source = $source->where('erp_leads.brand_segment', '=', $request->get('brand_segment'));
+        }
+
+        $total = $source->count();
+        $source2 = clone $source;
+        $allLeadCustomersId = $source2->select('erp_leads.customer_id')->pluck('customer_id', 'customer_id')->toArray();
+
+    
+        
+        $source = $source->get();
+
+        foreach ($source as $key => $value) {
+            $source[$key]->media_url = null;
+            $media = $value->getMedia(config('constants.media_tags'))->first();
+            if ($media) {
+                $source[$key]->media_url = $media->getUrl();
+            }
+
+            if (empty($source[$key]->media_url) && $value->product_id) {
+                $product = Product::find($value->product_id);
+                // $media = $product->getMedia(config('constants.media_tags'))->first();
+                // if ($media) {
+                //     $source[$key]->media_url = $media->getUrl();
+                // }
+            }
+        }
+
+        
+
+        foreach ($source as $value) {
+            $srcArr = json_decode(json_encode($value), true);
+            array_push($sourcePaginateArr,$srcArr);
+        }
+        // echo "<pre>";print_r($sourcePaginateArr);die('ss');
+
+          $currentPage = LengthAwarePaginator::resolveCurrentPage();
+          $perPage = Setting::get('pagination');
+          if (request()->get('select_all') == 'true') {
+            $perPage = count($sourcePaginateArr);
+            $currentPage = 1;
+          }
+
+          if (!is_numeric($perPage)) {
+            $perPage = 2;
+          }
+
+
+          $currentItems = array_slice($sourcePaginateArr, $perPage * ($currentPage - 1), $perPage);
+
+          $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
+            'path'  => LengthAwarePaginator::resolveCurrentPath()
+          ]);
+        // echo "<pre>";print_r($sourcePaginateArr);die;
         return view("leads.erp.index", [
             //'shoe_size_group' => $shoe_size_group,
             //'clothing_size_group' => $clothing_size_group,
             'brands'   => $brands,
             'erpLeadStatus'   => $erpLeadStatus,
+            'recordsTotal' => $total,
+            'sourceData' => $sourcePaginateArr,
+            'allLeadCustomersId' => $allLeadCustomersId,
         ]);
     }
 
+    public function filterErpLeads(){
+        echo "filter";
+        print_r($_POST);
+    }
     public function erpLeadsResponse(Request $request)
     {
 
@@ -861,6 +985,7 @@ class LeadsController extends Controller
                                 ->leftJoin("brands as br","br.id","erp_leads.brand_id")
                                 ->orderBy("erp_leads.id","desc")
                                 ->select(["erp_leads.*","products.name as product_name","cat.title as cat_title","br.name as brand_name","els.name as status_name","c.name as customer_name","c.id as customer_id"]);
+
 
         /*$term = $request->get('term');
         if (!empty($term)) {
@@ -935,10 +1060,10 @@ class LeadsController extends Controller
 
             if (empty($source[$key]->media_url) && $value->product_id) {
                 $product = Product::find($value->product_id);
-                $media = $product->getMedia(config('constants.media_tags'))->first();
-                if ($media) {
-                    $source[$key]->media_url = $media->getUrl();
-                }
+                // $media = $product->getMedia(config('constants.media_tags'))->first();
+                // if ($media) {
+                //     $source[$key]->media_url = $media->getUrl();
+                // }
             }
         }
         return response()->json([
