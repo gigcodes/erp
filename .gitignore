@@ -68,11 +68,8 @@ app/Console/Commands/DispatchJob.php
 .env.example
 .htaccess
 app/Http/Composers/GlobalComposer.php
-<<<<<<< HEAD
 
 #Instagram Library
 app/Library/mgp25/*
 
 /.credentials
-#Instagram Library  
-app/Library/mgp25/*
