@@ -68,6 +68,7 @@ app/Console/Commands/DispatchJob.php
 .env.example
 .htaccess
 app/Http/Composers/GlobalComposer.php
+/.credentials
 #Instagram Library
 app/Library/mgp25/*
 resources/views/vendor/maileclipse/templates/*
