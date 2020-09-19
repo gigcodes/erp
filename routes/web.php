@@ -782,6 +782,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/voucher/manual-payment', 'VoucherController@manualPaymentSubmit')->name("voucher.payment.manual-payment-submit");
 
     Route::resource('voucher', 'VoucherController');
+    Route::post('/upload-documents', 'VoucherController@uploadDocuments')->name("voucher.upload-documents");
+    Route::post('/voucher/save-documents', 'VoucherController@saveDocuments')->name("voucher.save-documents");
+    Route::get('/voucher/{id}/list-documents', 'VoucherController@listDocuments')->name("voucher.list-documents");
+    Route::post('/voucher/delete-document', 'VoucherController@deleteDocument')->name("voucher.delete-documents");
 
     // Budget
     Route::resource('budget', 'BudgetController');
