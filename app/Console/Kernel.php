@@ -111,6 +111,7 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
 
@@ -219,6 +220,7 @@ class Kernel extends ConsoleKernel
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
         ScrapLogs::class,
+        getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class
     ];
@@ -470,6 +472,8 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+        // Get tickets from Live Chat inc and put them as unread messages
+        // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message 
          //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
     }

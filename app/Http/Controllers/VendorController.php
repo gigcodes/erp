@@ -1191,7 +1191,7 @@ class VendorController extends Controller
                     'message' => $request->message,
                     'user_id' => Auth::id(),
                     'status' => 1,
-                    'is_queue' => 2,
+                    'is_queue' => 1,
                 ];
             }
         }

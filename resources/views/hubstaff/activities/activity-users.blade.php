@@ -121,11 +121,35 @@
             <div class="modal-body">
             <div class="form-group">
                 <label for="">Date</label>
-                <input type="text" name="starts_at" value="" class="form-control" id="starts_at" required placeholder="Enter Date">
+                <input type="text" name="starts_at" value="" class="form-control" id="custom_hour" required placeholder="Enter Date">
             </div>
             <div class="form-group">
                 <label for="">Total time (In minutes)</label>
                 <input type="number" name="total_time" class="form-control" required>
+            </div>
+            <!-- <div class="form-group">
+                <label for=""> Task type</label>
+                <select name="task_type" id="" class="form-control">
+                    <option value="devtask">Devtask</option>
+                    <option value="task">Task</option>
+                </select>
+            </div> -->
+            <div class="form-group">
+                <label for=""> Task id (Eg. 2928)</label>
+                <input type="number" name="task_id" class="form-control" required>
+                <!-- <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea> -->
+            </div>
+            <!-- <div class="form-group">
+                <label for=""> Your role on this task</label>
+                <select name="role" id="" class="form-control">
+                    <option value="developer">Developer</option>
+                    <option value="lead">Lead</option>
+                    <option value="tester">Tester</option>
+                </select>
+            </div> -->
+            <div class="form-group">
+                <label for=""> Note </label>
+                <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea>
             </div>
             </div>
             <div class="modal-footer">
@@ -207,6 +231,9 @@ $(".select2").select2({tags:true});
 
 $('#starts_at').datetimepicker({
     format: 'YYYY-MM-DD'
+});
+$('#custom_hour').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm:ss'
 });
 $('#time_from').datetimepicker({
     format: 'YYYY-MM-DD HH:mm:ss'

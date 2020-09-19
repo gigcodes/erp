@@ -3546,4 +3546,79 @@ class ProductController extends Controller
           $username = $user->name;
         return response()->json(['message' => 'Successful','user' => $username]);
     }
+
+    public function draftedProducts(Request $request)
+    {
+        $products = Product::where('quick_product', 1)
+        ->leftJoin("brands as b","b.id","products.brand")
+        ->leftJoin("categories as c","c.id","products.category")
+        ->select([
+            "products.id",
+            "products.name as product_name",
+            "b.name as brand_name",
+            "c.title as category_name",
+            "products.supplier",
+            "products.status_id",
+        ]);
+
+        if($request->category != null && $request->category != 1) {
+            $products = $products->where("products.category",$request->category);
+        }
+
+        if($request->brand_id != null) {
+            $products = $products->where("products.brand",$request->brand_id);
+        }
+
+        if($request->supplier_id != null) {
+            $products = $products->where("products.supplier",$request->supplier_id);
+        }
+
+        if($request->status_id != null) {
+            $products = $products->where("products.status_id",$request->status_id);
+        }
+
+        $products = $products->orderby("products.created_at","desc")->paginate()->appends(request()->except(['page'])); 
+
+        return view('drafted-supplier-product.index', compact('products'));
+    }
+
+    public function editDraftedProduct(Request $request)
+    {
+        $product = Product::where("id", $request->id)->first();
+        return view('drafted-supplier-product.edit-modal',['product' => $product]);
+    }
+
+    public function deleteDraftedProducts(Request $request) 
+    {
+        $productIds = $request->products;
+        if(!empty($productIds)) {
+            $products = \App\Product::whereIn("id",$productIds)->get();
+            if(!$products->isEmpty()) {
+                foreach($products as $product) {
+                    $product->delete();
+                }
+            }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => 'Successfully deleted!']);
+    }
+
+    public function editDraftedProducts(Request $request)
+    {
+        $draftedProduct = Product::where("id", $request->id)->first();
+        if ($draftedProduct) {
+            $draftedProduct->update([
+                'name' => $request->name,
+                'brand' => $request->brand_id,
+                'category' => $request->category,
+                'short_description' => $request->short_description,
+                'price' => $request->price,
+                'status_id' => $request->status_id,
+                'quick_product' => $request->quick_product
+            ]);
+
+            return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong row id!"]);
+    }
 }
