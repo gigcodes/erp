@@ -291,10 +291,9 @@ var msQueue = {
     showProductDetails: function(response) {
         if(response.code == 200) {
           $("#loading-image").hide();
-              $("#productModal").find(".modal-body").html(response.html);
-              $("#productModal").modal("show");
-          }
-      }
+          $("#productModal").find(".modal-body").html(response.html);
+          $("#productModal").modal("show");
+        }
     }
 }
 

@@ -46,11 +46,7 @@
 							    <!--<label for="from">Customer Name:</label>-->
 							    <?php echo Form::text("customer_name",request("customer_name"),["class"=> "form-control","placeholder" => "Enter Customer Name"]) ?>
 						  	</div>
-						    <div class="form-group">
-							    <label for="from">Order number:</label>
-							    <?php echo Form::text("order_number",request("order_number"),["class"=> "form-control","placeholder" => "Enter Order Number"]) ?>
-						  	</div>
-                <div class="form-group form-group-extended">
+						    <div class="form-group form-group-extended">
 							    <!--<label for="from">Customer Email:</label>-->
 							    <?php echo Form::text("customer_email",request("customer_email"),["class"=> "form-control","placeholder" => "Enter Customer Email"]) ?>
 						  	</div>

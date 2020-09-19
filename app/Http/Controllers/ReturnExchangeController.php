@@ -120,7 +120,7 @@ class ReturnExchangeController extends Controller
         }
 
         if (!empty($params["order_number"])) {
-            $returnExchange = $returnExchange->where("orders.order_id", $params["order_number"]);
+            $returnExchange = $returnExchange->where("o.order_id", $params["order_number"]);
         }
 
         if (!empty($params["status"])) {
