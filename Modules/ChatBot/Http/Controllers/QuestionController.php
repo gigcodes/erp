@@ -14,7 +14,6 @@ use \App\ChatbotKeywordValueTypes;
 use App\Customer;
 use App\ScheduledMessage;
 use Auth;
-use Artisan;
 class QuestionController extends Controller
 {
     /**
@@ -23,8 +22,6 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        // $call = Artisan::call('keyword:merge');
-        // dd($called);
         $q           = request("q", "");
         $category_id = request("category_id", 0);
         $keyword_or_question = request("keyword_or_question", 'intent');
