@@ -1362,6 +1362,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
                                 </li>
+
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                </li>
 								
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>

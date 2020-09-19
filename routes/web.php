@@ -2199,6 +2199,17 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/manage-numbers/{id}', 'TwilioController@manageNumbers')->name('twilio-manage-numbers');
 
 
+     /**
+     * Watson account management
+     */
+
+    Route::get('watson/accounts', 'WatsonController@index')->name('watson-accounts');
+    Route::post('watson/account', 'WatsonController@store')->name('watson-accounts.add');
+    Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
+    Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
+    Route::get('watson/account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
+
+
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
