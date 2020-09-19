@@ -425,6 +425,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
@@ -650,6 +651,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">

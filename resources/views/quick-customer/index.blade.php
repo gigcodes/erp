@@ -138,6 +138,7 @@
     </div>
 </div>
 @include("quick-customer.templates.list-template")
+@include("partials.customer-new-ticket")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
