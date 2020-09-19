@@ -44,10 +44,10 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              @if (Auth::user()->hasRole('Admin'))
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
               @endif
-              <a class="btn btn-secondary manual-request-btn" href="#">Manual request</a>
+              <a class="btn btn-secondary manual-request-bt" href="{{ route('voucher.payment.request') }}">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
         </div>
@@ -113,7 +113,7 @@
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               <td>
-                @if (Auth::user()->hasRole('Admin'))
+                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                   <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
                 @endif
                 <button type="button" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
@@ -127,6 +127,9 @@
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button-->
                 <?php */ ?>
+                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                @endif
               </td>
             </tr>
           @endforeach
