@@ -16,7 +16,7 @@
 	      		<input type="hidden" id="start-char-range" name="start_char_range" value="">
 	      		<input type="hidden" id="end-char-range" name="end_char_range" value="">
 
-	      		@include('chatbot::partial.form.select',["params" => ["title" => "keyword", "name" => "chatbot_keyword_id" , "options" => [] , "class" => "search-keyword" , "placeholder" => "Select keyword for annotation"]] )
+	      		@include('chatbot::partial.form.select',["params" => ["title" => "keyword", "name" => "chatbot_question_id" , "options" => [] , "class" => "search-keyword" , "placeholder" => "Select keyword for annotation"]] )
 	      </div>
 	      <div class="modal-footer">
 	        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

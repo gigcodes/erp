@@ -57,6 +57,27 @@ class ResponsePurify
 
     }
 
+
+    public function checkAutoApprove() {
+         if (isset($this->intents)) {
+            foreach ($this->intents as $intents) {
+                $question = \App\ChatbotQuestion::where('value',$intents->intent)->first();
+                if($question && $question->auto_approve) {
+                    return true;
+                }
+            }
+        }
+        if (isset($this->entities)) {
+            foreach ($this->entities as $entities) {
+                $question = \App\ChatbotQuestion::where('value',$entities->entity)->first();
+                if($question && $question->auto_approve) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     /**
      * Match action and assign to the method so it can be go ahead
      *
@@ -99,7 +120,6 @@ class ResponsePurify
     public function getReplyText()
     {
         $textMessage = reset($this->response->generic);
-
         if (isset($textMessage->text)) {
             if (!in_array($textMessage->text, self::EXCLUDED_REPLY)) {
                 return $textMessage->text;

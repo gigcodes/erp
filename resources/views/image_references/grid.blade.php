@@ -2,6 +2,9 @@
 
 @section('styles')
 <style type="text/css">
+    .select2-search__field{
+        padding-left: 5px;
+    }
         #loading-image {
             position: fixed;
             top: 50%;
@@ -44,41 +47,32 @@
                 <form method="GET" action="crop-references-grid" class="form-inline align-items-start">
                    
                    <div class="form-group mr-3">
+                       <select data-placeholder="Product id" style="width: 200px" class="ajax-get-product-ids form-control " id="filter-id" name="id">
+                       </select>
+                    </div>
+                   <div class="form-group mr-3">
                         <select data-placeholder="Status Type" class="form-control select-multiple2" name="status" id="status">
                             <optgroup label="Status Type">
-                               <option value="0">Select Status</option> 
+                               <option value="0">Select Status</option>
                                <option value="4">AutoCrop</option>
-                               <option value="18">Crop Rejected</option> 
-                               <option value="12">Manual Image Upload</option> 
+                               <option value="18">Crop Rejected</option>
+                               <option value="12">Manual Image Upload</option>
                             </optgroup>
                         </select>
                     </div>
 
                    <div class="form-group mr-3 mb-3">
-                        {!! $category_selection !!}
-                    </div>
+                       <select data-placeholder="Select Category" style="width: 300px" class="ajax-get-categories form-control " id="category" name="category[]">
+                       </select>
+                   </div>
     
                     <div class="form-group mr-3">
-                        @php $brands = \App\Brand::getAll();
-                        @endphp
-                        <select data-placeholder="Select brands" class="form-control select-multiple2" name="brand[]" multiple id="brand">
-                            <optgroup label="Brands">
-                                @foreach ($brands as $id => $name)
-                                    <option value="{{ $id }}" {{ isset($brand) && $brand == $id ? 'selected' : '' }}>{{ $name }}</option>
-                                @endforeach
-                            </optgroup>
+                        <select data-placeholder="Select Brands" style="width: 300px" class="ajax-get-brands form-control " id="brand" name="brand[]">
                         </select>
                     </div>
 
                     <div class="form-group mr-3">
-                        @php $suppliers = new \App\Supplier();
-                        @endphp
-                        <select data-placeholder="Select Supplier" class="form-control select-multiple2" name="supplier[]" multiple id="supplier">
-                            <optgroup label="Suppliers">
-                                @foreach ($suppliers->select('id','supplier')->where('supplier_status_id',1)->get() as $id => $suppliers)
-                                    <option>{{ $suppliers->supplier }}</option>
-                                @endforeach
-                            </optgroup>
+                        <select data-placeholder="Select Supplier" style="width: 300px" class="ajax-get-supplier form-control " id="supplier" name="supplier[]">
                         </select>
                     </div>
 
@@ -291,7 +285,7 @@
 
  <script type="text/javascript">
         $(document).ready(function () {
-            $('#brand,#category,#crop,#supplier,#status').on('change', function () {
+            $('#brand,#category,#crop,#supplier,#status,#filter-id').on('change', function () {
                 $.ajax({
                     url: '/crop-references-grid',
                     dataType: "json",
@@ -301,6 +295,7 @@
                         crop : $('#crop').val(),
                         supplier : $('#supplier').val(),
                         status : $('#status').val(),
+                        filter_id : $('#filter-id').val(),
                     },
                     beforeSend: function () {
                         $("#loading-image").show();
@@ -424,6 +419,107 @@
 
         });
 
+        $('.ajax-get-product-ids').select2({
+            tags: true,
+            multiple: true,
+            language: {
+                "noResults": function(){
+                    return "Please enter Product id";
+                }
+            }
+        });
+
+        const $brandsSelect = $('.ajax-get-brands'),
+            $supplierSelect = $('.ajax-get-supplier'),
+            $categoriesSelect = $('.ajax-get-categories');
+
+        $brandsSelect.select2();
+        $supplierSelect.select2();
+        $categoriesSelect.select2();
+
+        const ajaxGetSupplier = () => {
+            return $.ajax({
+                url: '/crop-references-grid/getSupplier',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    $supplierSelect.addClass('select-multiple2');
+                    $supplierSelect.attr('multiple','multiple');
+                    return {
+                        results: data.result
+                    };
+                }
+            })
+        }
+
+        const ajaxGetCategories = () => {
+            return $.ajax({
+                url: '/crop-references-grid/getCategories',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    return {
+                        results: data.result
+                    };
+                },
+            })
+        }
+
+        const ajaxGetBrands = () => {
+            return $.ajax({
+                url: '/crop-references-grid/getBrands',
+                dataType: 'json',
+                data: function (params) {
+                    return {
+                        q: params.term,
+                    };
+                },
+                processResults: function (data) {
+                    $brandsSelect.addClass('select-multiple2');
+                    $brandsSelect.attr('multiple','multiple');
+                    return {
+                        results: data.result
+                    };
+                },
+            })
+        }
+
+        ajaxGetBrands().done((result)=>{
+            $brandsSelect.select2({
+                multiple:true,
+                data:result.result
+            })
+        })
+
+        ajaxGetSupplier().done((result)=>{
+            $supplierSelect.select2({
+                multiple:true,
+                data:result.result
+            })
+        })
+
+        ajaxGetCategories().done((result)=>{
+            $categoriesSelect.select2({
+                data:result.result,
+                escapeMarkup: function(markup) {
+                    return markup;
+                },
+                templateResult: function(data) {
+                    return data.text;
+                },
+                templateSelection: function(data) {
+                    return data.text;
+                }
+            })
+        })
     </script>
 
 @endsection
