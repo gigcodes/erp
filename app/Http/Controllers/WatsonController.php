@@ -97,6 +97,8 @@ class WatsonController extends Controller
      */
     public function destroy($id)
     {
-        //
+        $account = WatsonAccount::find($id);
+        $account->delete();
+        return redirect()->back();
     }
 }

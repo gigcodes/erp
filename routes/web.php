@@ -2181,6 +2181,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('watson/account', 'WatsonController@store')->name('watson-accounts.add');
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
+    Route::get('watson/account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
 
 
 
