@@ -436,7 +436,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                                
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="/drafted-products">Quick Sell List</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
@@ -666,6 +670,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.tickets') }}">Live Chat Tickets</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -1101,14 +1108,17 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
+                                    <!-- <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents / Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.dialog-grid.list')}}">Dialog Grid</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedWords')}}">Most used words</a>
