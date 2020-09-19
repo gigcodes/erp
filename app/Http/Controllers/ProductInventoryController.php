@@ -1009,5 +1009,16 @@ class ProductInventoryController extends Controller
 
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku'));
     }
-
+	public function getProductImages($id) {
+	  $product = Product::find($id);
+	  $urls = [];
+      if($product) {
+        $medias =  \App\Mediables::getMediasFromProductId($id);
+		 $medias = $product->getMedia(config('constants.media_tags'));
+		 foreach($medias as $media) {
+			$urls[] = $media->getUrl();
+		 }
+	  }
+	  return response()->json(['urls' => $urls]);
+	}
 }

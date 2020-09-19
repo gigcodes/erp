@@ -115,32 +115,61 @@
             $(".select-multiple2").select2();
 
             $('body').delegate('.show-medias-modal','click',function() {
-                let data = $(this).parent().parent().find('.medias-data').attr('data')
-
-                let result = '';
-
-                if(data != '[]') {
-                    data = JSON.parse(data)
-
+                id = $(this).data('id');
+                $.ajax({
+                url: '/productinventory/product-images/'+id,
+                type: 'GET'
+                })
+                .done(function(data) {
+                    $('#medias-modal .modal-body').html('');
+                    let result = '';
+                    if(data.urls.length > 0) {
                     result += '<table class="table table-bordered">';
-                    result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
+                    result += '<thead><th>Image</th></thead>';
                     result += '<tbody>';
-                    for(let value in data) {
+                    for(var i=0;i<data.urls.length;i++) {
                         result += '<tr>';
-                        result += "<td>"+data[value].directory+"</td>"
-                        result += "<td>"+data[value].filename+"</td>"
-                        result += "<td>"+data[value].extension+"</td>"
-                        result += "<td>"+data[value].disk+"</td>"
+                        result += '<td><img style="height:100px" src="'+data.urls[i]+'" /></td>'
                         result += '</tr>';
                     }
                     result += '</tbody>';
                     result += '</table>';
-
-                } else {
+                    } else {
                     result = '<h3>this product dont have any media</h3>';
                 }
+                $('#medias-modal .modal-body').html(result);
 
-                $('#medias-modal .modal-body').html(result)
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                });
+
+
+                // let data = $(this).parent().parent().find('.medias-data').attr('data')
+
+                // let result = '';
+
+                // if(data != '[]') {
+                //     data = JSON.parse(data)
+
+                //     result += '<table class="table table-bordered">';
+                //     result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
+                //     result += '<tbody>';
+                //     for(let value in data) {
+                //         console.log(data[value]);
+                //         result += '<tr>';
+                //         result += "<td>"+data[value].directory+"</td>"
+                //         result += "<td>"+data[value].filename+"</td>"
+                //         result += "<td>"+data[value].extension+"</td>"
+                //         result += "<td>"+data[value].disk+"</td>"
+                //         result += '</tr>';
+                //     }
+                //     result += '</tbody>';
+                //     result += '</table>';
+
+                // } else {
+                //     result = '<h3>this product dont have any media</h3>';
+                // }
+
 
                 $('#medias-modal').modal('show')
             })
