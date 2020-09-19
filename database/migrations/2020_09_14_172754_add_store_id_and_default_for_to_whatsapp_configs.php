@@ -14,8 +14,8 @@ class AddStoreIdAndDefaultForToWhatsappConfigs extends Migration
     public function up()
     {
         Schema::table('whatsapp_configs', function (Blueprint $table) {
-            $table->int('store_website_id')->nullable();
-			$table->int('default_for')->nullable();
+            $table->integer('store_website_id')->nullable();
+			$table->integer('default_for')->nullable();
         });
     }
 
