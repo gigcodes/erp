@@ -146,15 +146,35 @@
                             @endif
                         @elseif(isset(unserialize($log->properties)['size']) )
                             @if(is_array(unserialize($log->properties)['size']))
-                                {{ implode(' , ',unserialize($log->properties)['size'] )}} 
+                                    <span class="td-mini-container">
+                                        {{ strlen( implode(' , ',unserialize($log->properties)['size'] ) ) > 10 ? substr( implode(' , ',unserialize($log->properties)['size'] ) , 0, 6).'...' :  implode(' , ',unserialize($log->properties)['size'] ) }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ implode(' , ',unserialize($log->properties)['size'] )}} 
+                                    </span>                                  
                             @else
-                                {{ unserialize($log->properties)['size'] }}
+                                    <span class="td-mini-container">
+                                        {{ strlen( unserialize($log->properties)['size'] ) > 10 ? substr( unserialize($log->properties)['size'] , 0, 6).'...' : unserialize($log->properties)['size'] }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ unserialize($log->properties)['size'] }}
+                                    </span>                                  
                             @endif    
                         @elseif(isset(unserialize($log->properties)['sizes']))
-                            @if(is_array(unserialize($log->properties)['sizes']))
-                                {{ implode(' , ',unserialize($log->properties)['sizes'] )}} 
+                            @if(is_array(unserialize($log->properties)['sizes']))                                
+                                <span class="td-mini-container">
+                                    {{ strlen( implode(' , ',unserialize($log->properties)['sizes'] ) ) > 10 ? substr( implode(' , ',unserialize($log->properties)['sizes'] ) , 0, 6).'...' :  implode(' , ',unserialize($log->properties)['sizes'] ) }}
+                                </span>
+                                <span class="td-full-container hidden">
+                                    {{ implode(' , ',unserialize($log->properties)['sizes'] )}} 
+                                </span>      
                             @else
-                                {{ unserialize($log->properties)['sizes'] }}
+                                    <span class="td-mini-container">
+                                        {{ strlen( unserialize($log->properties)['sizes'] ) > 10 ? substr( unserialize($log->properties)['sizes'] , 0, 6).'...' : unserialize($log->properties)['sizes'] }}
+                                    </span>
+                                    <span class="td-full-container hidden">
+                                        {{ unserialize($log->properties)['sizes'] }}
+                                    </span>                                       
                             @endif     
                         @endif
                     </td>
