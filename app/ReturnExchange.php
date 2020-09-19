@@ -10,7 +10,7 @@ class ReturnExchange extends Model
 {
 
     use Mediable;
-
+    use SoftDeletes;
     protected $fillable = [
         'customer_id',
         'type',
