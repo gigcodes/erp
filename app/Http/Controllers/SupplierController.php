@@ -16,8 +16,10 @@ use App\ReplyCategory;
 use App\User;
 use App\Helpers;
 use App\Email;
+use App\ProductSupplier;
 use App\SupplierCategory;
 use App\SupplierStatus;
+use App\SupplierPriceRange;
 use App\Mail\PurchaseEmail;
 use App\ReadOnly\SoloNumbers;
 use Illuminate\Http\Request;
@@ -67,6 +69,7 @@ class SupplierController extends Controller
         //$status = $request->status ?? '';
         $supplier_category_id = $request->supplier_category_id ?? '';
         $supplier_status_id = $request->supplier_status_id ?? '';
+        $supplier_price_range_id = $request->supplier_price_range_id ?? '';
         $updated_by = $request->updated_by ?? '';
         $source = $request->get('source') ?? '';
         $typeWhereClause = '';
@@ -84,6 +87,11 @@ class SupplierController extends Controller
         /*if ( $status != '' ) {
           $typeWhereClause .= ' AND status=1';
         }*/
+		
+		if($supplier_price_range_id != '')
+		{
+			$typeWhereClause .= ' AND supplier_price_range_id=' . $supplier_price_range_id;
+		}
 
         if ($supplier_category_id != '') {
             $typeWhereClause .= ' AND supplier_category_id=' . $supplier_category_id;
@@ -164,7 +172,7 @@ class SupplierController extends Controller
 
         if($runQuery) {
         $suppliers = DB::select('
-									SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
+									SELECT suppliers.frequency,suppliers.supplier_sub_category_id,suppliers.supplier_status_id,suppliers.supplier_size_id,suppliers.scrapper, suppliers.reminder_message, suppliers.id, suppliers.is_blocked , suppliers.supplier, suppliers.phone, suppliers.source,suppliers.supplier_price_range_id, suppliers.brands, suppliers.email, suppliers.default_email, suppliers.address, suppliers.social_handle, suppliers.gst, suppliers.is_flagged, suppliers.has_error, suppliers.whatsapp_number, suppliers.status, sc.scraper_name, suppliers.supplier_category_id, suppliers.supplier_status_id, sc.inventory_lifetime,suppliers.created_at,suppliers.updated_at,suppliers.updated_by,u.name as updated_by_name, suppliers.scraped_brands_raw,suppliers.language,
                   (SELECT mm1.message FROM chat_messages mm1 WHERE mm1.id = message_id) as message,
                   (SELECT mm2.created_at FROM chat_messages mm2 WHERE mm2.id = message_id) as message_created_at,
                   (SELECT mm3.id FROM purchases mm3 WHERE mm3.id = purchase_id) as purchase_id,
@@ -244,8 +252,15 @@ class SupplierController extends Controller
 
         $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
 
-
-        return view('suppliers.index', [
+		//Get All Product Supplier
+		$allSupplierProduct = DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+		
+		//Get All supplier price range
+		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_ranges.*",DB::raw("CONCAT(supplier_price_ranges.price_from,'-',supplier_price_ranges.price_to) as full_range"))->get()->toArray();
+		/* echo "<pre>";
+		print_r($allSupplierPriceRanges);
+		exit; */
+		return view('suppliers.index', [
             'suppliers' => $suppliers,
             'suppliers_all' => $suppliers_all,
             'solo_numbers' => $solo_numbers,
@@ -267,6 +282,8 @@ class SupplierController extends Controller
             'scrapedBrands' => $scrapedBrands,
             'selectedBrands' => $selectedBrands,
             'whatsappConfigs' => $whatsappConfigs,
+            'allSupplierProduct' => $allSupplierProduct,
+            'allSupplierPriceRanges' => $allSupplierPriceRanges,
         ]);
     }
 
@@ -1663,5 +1680,25 @@ public function changeWhatsapp(Request $request)
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
 	}
+	
+	
+	public function addPriceRange(Request $request)
+    {
+        SupplierPriceRange::create($request->all());
+        return redirect()->route('supplier.index')->withSuccess('You have successfully saved a price range!');
+    }
+	
+	public function changePriceRange(Request $request)
+	{
+		$supplierId = $request->get("supplier_id");
+        $priceRangeId = $request->get("price_range_id");
 
+        if(!empty($supplierId)) {
+           $supplier = \App\Supplier::find($supplierId);
+           if(!empty($supplier)) {
+              $supplier->fill(['supplier_price_range_id' => $priceRangeId])->save();
+           }
+        }
+        return response()->json(["code" => 200, "data" => [], "message" => "Price Range updated successfully"]);
+	}
 }
