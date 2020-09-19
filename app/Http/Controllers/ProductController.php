@@ -144,15 +144,15 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        // if ((int)$request->get('status_id') > 0) {
-        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
-        // } else {
-        //     if ($request->get('submit_for_approval') == "on") {
-        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
-        //     }else{
-        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-        //     }
-        // }
+         if ((int)$request->get('status_id') > 0) {
+             $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+         } else {
+             if ($request->get('submit_for_approval') == "on") {
+                 $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+             }else{
+                 $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+             }
+         }
         if (auth()->user()->isReviwerLikeAdmin()) {
             $newProducts = Product::query();
         } else {
@@ -179,6 +179,7 @@ class ProductController extends Controller
         $supplier = [];
         $type = '';
         $assigned_to_users = '';
+
 
         if (is_array($request->brand) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
@@ -236,12 +237,32 @@ class ProductController extends Controller
 
             $type = $request->get('type');
         }
-        //
+
         if (trim($term) != '') {
             $newProducts = $newProducts->where(function ($query) use ($term) {
-                $query->where('id', 'LIKE', "%$term%")->orWhere('sku', 'LIKE', "%$term%");
+                $query->where('short_description', 'LIKE', "%" . $term . "%")->orWhere('color', 'LIKE', "%" . $term . "%");
             });
         }
+
+//        if(!empty($request->term)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->where('color', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('short_description', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('category', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('brand', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('sku', 'LIKE', '%' . $request->term . '%') ;
+//            });
+//        }
+//        if(!empty($request->color)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('color', $request->color);
+//            });
+//        }
+//        if(!empty($request->category)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('category', $request->category);
+//            });
+//        }
 
 
         if ($request->get('user_id') > 0) {
@@ -2223,7 +2244,8 @@ class ProductController extends Controller
 
         $product->name = $request->name;
         $product->sku = $request->sku;
-        $product->size = is_array($request->size) ? implode(',', $request->size) : ($request->size ?? $request->other_size);
+        $size_array = implode(',', $request->size) ;
+        $product->size = is_array($request->size) ? $size_array[0].','.$size_array[1]  : ($request->size ?? $request->other_size);
         $product->brand = $request->brand;
         $product->color = $request->color;
         $product->supplier = $request->supplier;

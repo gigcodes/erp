@@ -19,7 +19,7 @@
     <link rel="stylesheet" type="text/css"
           href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet" />
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.min.css" rel="stylesheet"/>
     <style>
         .quick-edit-color {
             transition: 1s ease-in-out;
@@ -128,11 +128,11 @@
             padding: 0 5px;
         }
 
-        td.action > div, td.action > button{
+        td.action > div, td.action > button {
             margin-top: 8px;
         }
 
-        .lmeasurement-container, .dmeasurement-container, .hmeasurement-container{
+        .lmeasurement-container, .dmeasurement-container, .hmeasurement-container {
             display: block;
             margin-bottom: 10px;
         }
@@ -148,7 +148,8 @@
             </h2>
 
 
-            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}" method="GET">
+                <form class="product_filter" action="{{ action('ProductController@approvedListing') }}" method="GET">
+{{--            <form class="product_filter" action="{{ route('products.listing.approved') }}" method="GET">--}}
                 <div class="row">
                     <div class="col-sm-1">
                         <div class="form-group">
@@ -256,9 +257,14 @@
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
                             @endif
 
-                            <button type="submit" class="btn  btn-secondary">Apply Filter</button>
+                            <button type="submit" class="btn btn-secondary"><i type="submit" class="fa fa-filter"
+                                                                               aria-hidden="true"></i></button>
+
+                            {{--                                <i type="submit" class="fa fa-filter" aria-hidden="true"></i>--}}
+
                             <a href="{{url()->current()}}" class="btn  btn-secondary">Clear</a>
-                                <input type="button" onclick="pushProduct()" class="btn btn-secondary" value="Push product"/>
+                            <input type="button" onclick="pushProduct()" class="btn btn-secondary"
+                                   value="Push product"/>
                         </div>
                     </div>
                 </div>
@@ -284,19 +290,19 @@
                     <thead>
                     <tr>
                         <th width="2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
-                        <th width="8%">Product ID</th>
+                        <th width="7%">Product ID</th>
                         <th width="5%">Image</th>
                         <th width="6%">Brand Name</th>
                         <th width="8%">Category</th>
                         <th width="7%">Title</th>
-                        <th width="13%">Description</th>
-                        <th width="7%">Composition</th>
-                        <th width="7%">Color</th>
+                        <th width="10%">Description</th>
+                        <th width="8%">Composition</th>
+                        <th width="5%">Color</th>
                         <th width="5%">Dimension</th>
                         <th width="8%">Sizes</th>
                         <th width="4%">Price</th>
-                        <th width="4%">Action</th>
-                        <th width="8%">Status</th>
+                        <th width="6%">Action</th>
+                        <th width="11%">Status</th>
                         <th width="18%">User</th>
                     </tr>
                     </thead>
@@ -589,72 +595,74 @@
                         </tr>
                         <tr id="product_{{ $product->id }}" class="">
                             <td>
-                                <input type="checkbox" class="affected_checkbox" name="products_to_update[]" data-id="{{$product->id}}">
+                                <input type="checkbox" class="affected_checkbox" name="products_to_update[]"
+                                       data-id="{{$product->id}}">
                             </td>
                             <td class="table-hover-cell">
                                 {{ $product->id }}
                                 <div>
                                     {{ $product->sku }}
                                 </div>
-{{--                                <div>--}}
-{{--                                    @php--}}
-{{--                                        //getting proper composition and hscode--}}
-{{--                                        $composition = $product->commonComposition($product->category , $product->composition);--}}
+                                {{--                                <div>--}}
+                                {{--                                    @php--}}
+                                {{--                                        //getting proper composition and hscode--}}
+                                {{--                                        $composition = $product->commonComposition($product->category , $product->composition);--}}
 
-{{--                                        $hscode =  $product->hsCode($product->category , $product->composition);--}}
+                                {{--                                        $hscode =  $product->hsCode($product->category , $product->composition);--}}
 
-{{--                                    @endphp--}}
+                                {{--                                    @endphp--}}
 
 
-{{--                                    <strong>HsCode: </strong> {{ strtoupper($hscode) }}--}}
+                                {{--                                    <strong>HsCode: </strong> {{ strtoupper($hscode) }}--}}
 
-{{--                                </div>--}}
+                                {{--                                </div>--}}
                             </td>
 
                             <td style="word-break: break-all; word-wrap: break-word">
-{{--                                @if (!$imageCropperRole)--}}
-{{--                                    @if ($product->is_approved == 1)--}}
-{{--                                        <img src="/images/1.png" alt="">--}}
-{{--                                    @endif--}}
+                                {{--                                @if (!$imageCropperRole)--}}
+                                {{--                                    @if ($product->is_approved == 1)--}}
+                                {{--                                        <img src="/images/1.png" alt="">--}}
+                                {{--                                    @endif--}}
 
-{{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
-{{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
-{{--                                        <a href="{{ route('products.show', $product->id) }}" target="_blank">--}}
-{{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
-{{--                                                 class="quick-image-container img-responive" style="width: 70px;" alt=""--}}
-{{--                                                 data-toggle="tooltip" data-placement="top"--}}
-{{--                                                 title="ID: {{ $product->id }}">--}}
-{{--                                        </a>--}}
-{{--                                    @else--}}
-{{--                                        <img src="" class="quick-image-container img-responive" style="width: 70px;"--}}
-{{--                                             alt="">--}}
-{{--                                    @endif--}}
+                                {{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
+                                {{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
+                                {{--                                        <a href="{{ route('products.show', $product->id) }}" target="_blank">--}}
+                                {{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
+                                {{--                                                 class="quick-image-container img-responive" style="width: 70px;" alt=""--}}
+                                {{--                                                 data-toggle="tooltip" data-placement="top"--}}
+                                {{--                                                 title="ID: {{ $product->id }}">--}}
+                                {{--                                        </a>--}}
+                                {{--                                    @else--}}
+                                {{--                                        <img src="" class="quick-image-container img-responive" style="width: 70px;"--}}
+                                {{--                                             alt="">--}}
+                                {{--                                    @endif--}}
 
-{{--                                @else--}}
+                                {{--                                @else--}}
 
-{{--                                    @if ($product->is_approved == 1)--}}
-{{--                                        <img src="/images/1.png" alt="">--}}
-{{--                                    @endif--}}
+                                {{--                                    @if ($product->is_approved == 1)--}}
+                                {{--                                        <img src="/images/1.png" alt="">--}}
+                                {{--                                    @endif--}}
 
-{{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
-{{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
-{{--                                        <a href="{{ route('products.show', $product['id']) }}" target="_blank">--}}
-{{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
-{{--                                                 class="quick-image-container img-responive" style="width: 100px;"--}}
-{{--                                                 alt="" data-toggle="tooltip" data-placement="top"--}}
-{{--                                                 title="ID: {{ $product['id'] }}">--}}
-{{--                                        </a>--}}
-{{--                                    @else--}}
-{{--                                        <img src="" class="quick-image-container img-responive" style="width: 100px;"--}}
-{{--                                             alt="">--}}
-{{--                                    @endif--}}
+                                {{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
+                                {{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
+                                {{--                                        <a href="{{ route('products.show', $product['id']) }}" target="_blank">--}}
+                                {{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
+                                {{--                                                 class="quick-image-container img-responive" style="width: 100px;"--}}
+                                {{--                                                 alt="" data-toggle="tooltip" data-placement="top"--}}
+                                {{--                                                 title="ID: {{ $product['id'] }}">--}}
+                                {{--                                        </a>--}}
+                                {{--                                    @else--}}
+                                {{--                                        <img src="" class="quick-image-container img-responive" style="width: 100px;"--}}
+                                {{--                                             alt="">--}}
+                                {{--                                    @endif--}}
 
-{{--                                @endif--}}
-{{--                                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
-{{--                                <br>--}}
-                                    <button type="button" class="btn-link quick-view_image__"
-                                            data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}" data-toggle="modal">View
-                                    </button>
+                                {{--                                @endif--}}
+                                {{--                                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
+                                {{--                                <br>--}}
+                                <button type="button" class="btn-link quick-view_image__"
+                                        data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
+                                        data-toggle="modal">View
+                                </button>
 
                             </td>
 
@@ -668,7 +676,8 @@
                                     {{--                  {{ $product->pr->title }}--}}
                                     <div class="mt-1">
                                         <select class="form-control quick-edit-category select-multiple"
-                                                name="Category" data-placeholder="Category" data-id="{{ $product->id }}">
+                                                name="Category" data-placeholder="Category"
+                                                data-id="{{ $product->id }}">
                                             <option></option>
 
                                             @foreach ($category_array as $data)
@@ -676,13 +685,13 @@
                                             @endforeach
                                         </select>
                                     </div>
-{{--                                    <div class="mt-3">--}}
-{{--                                        <select class="form-control quick-edit-size select-multiple mt-3" name="size[]"--}}
-{{--                                                multiple--}}
-{{--                                                data-placeholder="Sizes" style="width: 80px;">--}}
-{{--                                            <option value="">Size</option>--}}
-{{--                                        </select>--}}
-{{--                                    </div>--}}
+                                    {{--                                    <div class="mt-3">--}}
+                                    {{--                                        <select class="form-control quick-edit-size select-multiple mt-3" name="size[]"--}}
+                                    {{--                                                multiple--}}
+                                    {{--                                                data-placeholder="Sizes" style="width: 80px;">--}}
+                                    {{--                                            <option value="{{$product->size}}">Size</option>--}}
+                                    {{--                                        </select>--}}
+                                    {{--                                    </div>--}}
 
                                     {{--                                    <select class="form-control category_level_2 mt-1" name="category_level_2">--}}
                                     {{--                                    </select>--}}
@@ -717,11 +726,11 @@
                                     <span class="quick-name">{{ $product->name }}</span>
                                     {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
                                     <input name="text" class="form-control quick-edit-name-input hidden"
-                                              placeholder="Product Name" value="{{ $product->name }}">
+                                           placeholder="Product Name" value="{{ $product->name }}">
 
-{{--                                    <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">--}}
-{{--                                        Edit--}}
-{{--                                    </button>--}}
+                                    {{--                                    <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">--}}
+                                    {{--                                        Edit--}}
+                                    {{--                                    </button>--}}
                                 @else
 
                                     <span>{{ $product->name }}</span>
@@ -736,22 +745,22 @@
 
                                     <span class="quick-description">{{ substr($product->short_description, 0, 20) . (strlen($product->short_description) > 20 ? '...' : '') }}</span>
 
-{{--                                    <span class="long-description-container hidden">--}}
-{{--                  <span id="span_description_{{ $product->id }}"--}}
-{{--                        class="description-container">{{ $product->short_description }}</span>--}}
+                                    {{--                                    <span class="long-description-container hidden">--}}
+                                    {{--                  <span id="span_description_{{ $product->id }}"--}}
+                                    {{--                        class="description-container">{{ $product->short_description }}</span>--}}
 
-                  <textarea name="description" id="textarea_description_{{ $product->id }}"
-                            class="form-control quick-edit-description-textarea hidden" rows="8"
-                            cols="80">{{ $product->short_description }}</textarea>
-{{--                </span>--}}
+                                    <textarea name="description" id="textarea_description_{{ $product->id }}"
+                                              class="form-control quick-edit-description-textarea hidden" rows="8"
+                                              cols="80">{{ $product->short_description }}</textarea>
+                                    {{--                </span>--}}
 
-{{--                                    <button type="button" class="btn-link quick-edit-description"--}}
-{{--                                            data-id="{{ $product->id }}">Edit--}}
-{{--                                    </button>--}}
+                                    {{--                                    <button type="button" class="btn-link quick-edit-description"--}}
+                                    {{--                                            data-id="{{ $product->id }}">Edit--}}
+                                    {{--                                    </button>--}}
 
-                                                                        <button type="button" class="btn-link quick-edit-description__"
-                                                                                data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}" data-toggle="modal">more
-                                                                        </button>
+                                    {{--                                                                        <button type="button" class="btn-link quick-edit-description__"--}}
+                                    {{--                                                                                data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}" data-toggle="modal">more--}}
+                                    {{--                                                                        </button>--}}
 
                                 @else
 
@@ -795,14 +804,14 @@
                                     {{--                                    </button>--}}
 
                                     {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
-{{--                                    <textarea name="composition"--}}
-{{--                                              class="form-control  mt-3 quick-edit-composition-input hidden"--}}
-{{--                                              placeholder="Composition" rows="8"--}}
-{{--                                              cols="80">{{ $product->composition }}</textarea>--}}
+                                    {{--                                    <textarea name="composition"--}}
+                                    {{--                                              class="form-control  mt-3 quick-edit-composition-input hidden"--}}
+                                    {{--                                              placeholder="Composition" rows="8"--}}
+                                    {{--                                              cols="80">{{ $product->composition }}</textarea>--}}
 
-{{--                                    <button type="button" class="btn-link quick-edit-composition"--}}
-{{--                                            data-id="{{ $product->id }}">Edit--}}
-{{--                                    </button>--}}
+                                    {{--                                    <button type="button" class="btn-link quick-edit-composition"--}}
+                                    {{--                                            data-id="{{ $product->id }}">Edit--}}
+                                    {{--                                    </button>--}}
 
                                 @else
 
@@ -822,20 +831,20 @@
                                         @endforeach
                                     </select>
 
-{{--                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
-{{--                                            data-id="{{ $product->id }}" data-value="Multi">Multi--}}
-{{--                                    </button>--}}
+                                    {{--                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
+                                    {{--                                            data-id="{{ $product->id }}" data-value="Multi">Multi--}}
+                                    {{--                                    </button>--}}
 
-{{--                                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )--}}
-{{--                                        @foreach ( $product->log_scraper_vs_ai as $resultAi )--}}
-{{--                                            @php $resultAi = json_decode($resultAi->result_ai); @endphp--}}
-{{--                                            @if ( !empty($resultAi->color) )--}}
-{{--                                                <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
-{{--                                                        data-id="{{ $product->id }}"--}}
-{{--                                                        data-value="{{ ucwords($resultAi->color) }}">{{ ucwords($resultAi->color) }}</button>--}}
-{{--                                            @endif--}}
-{{--                                        @endforeach--}}
-{{--                                    @endif--}}
+                                    {{--                                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )--}}
+                                    {{--                                        @foreach ( $product->log_scraper_vs_ai as $resultAi )--}}
+                                    {{--                                            @php $resultAi = json_decode($resultAi->result_ai); @endphp--}}
+                                    {{--                                            @if ( !empty($resultAi->color) )--}}
+                                    {{--                                                <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
+                                    {{--                                                        data-id="{{ $product->id }}"--}}
+                                    {{--                                                        data-value="{{ ucwords($resultAi->color) }}">{{ ucwords($resultAi->color) }}</button>--}}
+                                    {{--                                            @endif--}}
+                                    {{--                                        @endforeach--}}
+                                    {{--                                    @endif--}}
 
                                 @else
 
@@ -848,39 +857,34 @@
 
                             <td class="table-hover-cell">
 
-{{--                                <div>--}}
-{{--                                    @if ($product->price != '')--}}
-{{--                                        {{ $product->size }}--}}
-{{--                                    @else--}}
-{{--                                        L-{{ $product->lmeasurement }},--}}
-{{--                                        H-{{ $product->hmeasurement }},--}}
-{{--                                        D-{{ $product->dmeasurement }}--}}
-{{--                                    @endif--}}
-{{--                                </div>--}}
+                                {{--                                <div>--}}
+                                {{--                                    @if ($product->price != '')--}}
+                                {{--                                        {{ $product->size }}--}}
+                                {{--                                    @else--}}
+                                {{--                                        L-{{ $product->lmeasurement }},--}}
+                                {{--                                        H-{{ $product->hmeasurement }},--}}
+                                {{--                                        D-{{ $product->dmeasurement }}--}}
+                                {{--                                    @endif--}}
+                                {{--                                </div>--}}
 
                                 @if (!$imageCropperRole)
                                     {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
                                     <span class="lmeasurement-container">
-                  <input type="text" name="measurement" class="form-control mt-1" value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
+                  <input type="text" name="measurement" class="form-control mt-1"
+                         value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
                 </span>
 
-{{--                                    <span class="hmeasurement-container">--}}
-{{--                  <strong>Height(cm):</strong>--}}
-{{--                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="Height" min="0"--}}
-{{--                         max="999" value="{{ $product->hmeasurement }}">--}}
-{{--                </span>--}}
+                                    {{--                                    <span class="hmeasurement-container">--}}
+                                    {{--                  <strong>Height(cm):</strong>--}}
+                                    {{--                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="Height" min="0"--}}
+                                    {{--                         max="999" value="{{ $product->hmeasurement }}">--}}
+                                    {{--                </span>--}}
 
-{{--                                    <span class="dmeasurement-container">--}}
-{{--                  <strong>Depth(cm):</strong>--}}
-{{--                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="Depth" min="0"--}}
-{{--                         max="999" value="{{ $product->dmeasurement }}">--}}
-{{--                </span>--}}
-
-{{--                                    <button type="button" class="btn-link quick-edit-size-button"--}}
-{{--                                            data-id="{{ $product->id }}">Save--}}
-{{--                                    </button>--}}
-
-
+                                    {{--                                    <span class="dmeasurement-container">--}}
+                                    {{--                  <strong>Depth(cm):</strong>--}}
+                                    {{--                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="Depth" min="0"--}}
+                                    {{--                         max="999" value="{{ $product->dmeasurement }}">--}}
+                                    {{--                </span>--}}
 
                                 @endif
 
@@ -891,20 +895,20 @@
 
                             <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
                                 @if (!$imageCropperRole)
-                                <span class="quick-price">{{ $product->price }}</span>
-                                <input type="number" name="price" class="form-control quick-edit-price-input hidden"
-                                       placeholder="100" value="{{ $product->price }}">
+                                    <span class="quick-price">{{ $product->price }}</span>
+                                    <input type="number" name="price" class="form-control quick-edit-price-input hidden"
+                                           placeholder="100" value="{{ $product->price }}">
 
-{{--                                <span class="quick-price-inr">{{ $product->price }}</span>--}}
-{{--                                <span class="quick-price-special">{{ $product->price_eur_special }}</span>--}}
+                                    {{--                                <span class="quick-price-inr">{{ $product->price }}</span>--}}
+                                    {{--                                <span class="quick-price-special">{{ $product->price_eur_special }}</span>--}}
 
                                 @else
 
-                                <span>EUR {{ $product->price }}</span>
-{{--                                <span>EUR {{ $product->price_eur_special }}</span>--}}
-{{--                                <span>INR {{ $product->price_inr }}</span>--}}
-{{--                                <span>INR {{ $product->price_special }}</span>--}}
-                                    @endif
+                                    <span>EUR {{ $product->price }}</span>
+                                    {{--                                <span>EUR {{ $product->price_eur_special }}</span>--}}
+                                    {{--                                <span>INR {{ $product->price_inr }}</span>--}}
+                                    {{--                                <span>INR {{ $product->price_special }}</span>--}}
+                                @endif
 
                             </td>
 
@@ -926,84 +930,109 @@
 
                             <td class="action">
                                 <div class="text-center">
-{{--                                {{ $product->isUploaded }} {{ $product->isFinal }}--}}
+                                    {{--                                {{ $product->isUploaded }} {{ $product->isFinal }}--}}
                                 </div>
                                 @if(auth()->user()->isAdmin())
                                     @if ($product->is_approved == 0)
-{{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
-{{--                                                data-id="{{ $product->id }}" data-type="approve">Approve--}}
-{{--                                        </button>--}}
-                                        <i class="fa fa-check upload-magento" title="Approve" data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
+                                        {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
+                                        {{--                                                data-id="{{ $product->id }}" data-type="approve">Approve--}}
+                                        {{--                                        </button>--}}
+                                        <i class="fa fa-check upload-magento" title="Approve"
+                                           data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
                                     @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
-{{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
-{{--                                                data-id="{{ $product->id }}" data-type="list">List--}}
-{{--                                        </button>--}}
-                                        <i class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}" data-type="list" aria-hidden="true"></i>
+                                        {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
+                                        {{--                                                data-id="{{ $product->id }}" data-type="list">List--}}
+                                        {{--                                        </button>--}}
+                                        <i class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}"
+                                           data-type="list" aria-hidden="true"></i>
                                     @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
-{{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
-{{--                                                data-id="{{ $product->id }}" data-type="enable">Enable --}}{{--catch--}}
-{{--                                        </button>--}}
-                                        <i class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
+                                        {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
+                                        {{--                                                data-id="{{ $product->id }}" data-type="enable">Enable --}}{{--catch--}}
+                                        {{--                                        </button>--}}
+                                        <i class="fa fa-toggle-off upload-magento" title="Enable"
+                                           data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
                                     @else
-{{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
-{{--                                                data-id="{{ $product->id }}" data-type="update">Update--}}
-{{--                                        </button>--}}
-                                        <i class="fa fa-pencil upload-magento" title="Update" data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
+                                        {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
+                                        {{--                                                data-id="{{ $product->id }}" data-type="update">Update--}}
+                                        {{--                                        </button>--}}
+                                        <i class="fa fa-pencil upload-magento" title="Update"
+                                           data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
                                     @endif
                                     @if ($product->product_user_id != null)
                                         {{ \App\User::find($product->product_user_id)->name }}
                                     @endif
                                 @else
-{{--                                    <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
-{{--                                            data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For--}}
-{{--                                        Approval--}}
-{{--                                    </button>--}}
-                                    <i class="fa fa-toggle-off upload-magento" title="Enable" data-id="{{ $product->id }}" data-type="submit_for_approval" aria-hidden="true"></i>
+                                    {{--                                    <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
+                                    {{--                                            data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For--}}
+                                    {{--                                        Approval--}}
+                                    {{--                                    </button>--}}
+                                    <i class="fa fa-toggle-off upload-magento" title="Enable"
+                                       data-id="{{ $product->id }}" data-type="submit_for_approval"
+                                       aria-hidden="true"></i>
                                 @endif
 
-{{--                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal"--}}
-{{--                                        data-target="#product_activity_{{ $product->id }}">Activity--}}
-{{--                                </button>--}}
+                                {{--                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal"--}}
+                                {{--                                        data-target="#product_activity_{{ $product->id }}">Activity--}}
+                                {{--                                </button>--}}
 
-                                <i class="fa fa-tasks" data-toggle="modal" title="Activity" data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
-{{--                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal"--}}
-{{--                                        data-target="#product_scrape_{{ $product->id }}">Scrape--}}
-{{--                                </button>--}}
+                                <i class="fa fa-tasks" data-toggle="modal" title="Activity"
+                                   data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
+                                {{--                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal"--}}
+                                {{--                                        data-target="#product_scrape_{{ $product->id }}">Scrape--}}
+                                {{--                                </button>--}}
 
-                                <i class="fa fa-trash" data-toggle="modal" title="Scrape" data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
+                                <i class="fa fa-trash" data-toggle="modal" title="Scrape"
+                                   data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
 
                             </td>
                             <td style="min-width: 80px;">
-{{--                                <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">--}}
-{{--                                Reject<br/>--}}
+                                {{--                                <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">--}}
+                                {{--                                Reject<br/>--}}
                                 <select class="form-control post-remark" id="post_remark_{{$product->id}}"
                                         data-id="{{$product->id}}" data-placeholder="Select Remark">
                                     <option></option>
-                                    <option value="Category Incorrect" {{ $product->listing_remark == 'Category Incorrect' ? 'selected' : '' }} >Category Incorrect</option>
-                                    <option value="Price Not Incorrect" {{ $product->listing_remark == 'Price Not Incorrect' ? 'selected' : '' }} >Price Not Correct</option>
-                                    <option value="Price Not Found" {{ $product->listing_remark == 'Price Not Found' ? 'selected' : '' }} >Price Not Found</option>
-                                    <option value="Color Not Found" {{ $product->listing_remark == 'Color Not Found' ? 'selected' : '' }} >Color Not Found</option>
-                                    <option value="Category Not Found" {{ $product->listing_remark == 'Category Not Found' ? 'selected' : '' }} >Category Not Found</option>
-                                    <option value="Description Not Found" {{ $product->listing_remark == 'Description Not Found' ? 'selected' : '' }} >Description Not Found</option>
-                                    <option value="Details Not Found" {{ $product->listing_remark == 'Details Not Found' ? 'selected' : '' }} >Details Not Found</option>
-                                    <option value="Composition Not Found" {{ $product->listing_remark == 'Composition Not Found' ? 'selected' : '' }} >Composition Not Found</option>
+                                    <option value="Category Incorrect" {{ $product->listing_remark == 'Category Incorrect' ? 'selected' : '' }} >
+                                        Category Incorrect
+                                    </option>
+                                    <option value="Price Not Incorrect" {{ $product->listing_remark == 'Price Not Incorrect' ? 'selected' : '' }} >
+                                        Price Not Correct
+                                    </option>
+                                    <option value="Price Not Found" {{ $product->listing_remark == 'Price Not Found' ? 'selected' : '' }} >
+                                        Price Not Found
+                                    </option>
+                                    <option value="Color Not Found" {{ $product->listing_remark == 'Color Not Found' ? 'selected' : '' }} >
+                                        Color Not Found
+                                    </option>
+                                    <option value="Category Not Found" {{ $product->listing_remark == 'Category Not Found' ? 'selected' : '' }} >
+                                        Category Not Found
+                                    </option>
+                                    <option value="Description Not Found" {{ $product->listing_remark == 'Description Not Found' ? 'selected' : '' }} >
+                                        Description Not Found
+                                    </option>
+                                    <option value="Details Not Found" {{ $product->listing_remark == 'Details Not Found' ? 'selected' : '' }} >
+                                        Details Not Found
+                                    </option>
+                                    <option value="Composition Not Found" {{ $product->listing_remark == 'Composition Not Found' ? 'selected' : '' }} >
+                                        Composition Not Found
+                                    </option>
                                     <option value="Other">Other</option>
                                 </select>
-{{--                                <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}"--}}
-{{--                                          class="form-control remark-input-post" data-id="{{$product->id}}"--}}
-{{--                                          style="display: none;"></textarea>--}}
+                                {{--                                <textarea name="remark-input-{{$product->id}}" id="remark-input-{{$product->id}}"--}}
+                                {{--                                          class="form-control remark-input-post" data-id="{{$product->id}}"--}}
+                                {{--                                          style="display: none;"></textarea>--}}
 
-{{--                                <div class="mt-3">--}}
-{{--                                    <input class="form-control send-message" data-sku="{{$product->sku}}"--}}
-{{--                                           type="text" placeholder="Message..."--}}
-{{--                                           id="message_{{$product->approved_by}}"--}}
-{{--                                           data-id="{{$product->approved_by}}">--}}
-{{--                                </div>--}}
+                                {{--                                <div class="mt-3">--}}
+                                {{--                                    <input class="form-control send-message" data-sku="{{$product->sku}}"--}}
+                                {{--                                           type="text" placeholder="Message..."--}}
+                                {{--                                           id="message_{{$product->approved_by}}"--}}
+                                {{--                                           data-id="{{$product->approved_by}}">--}}
+                                {{--                                </div>--}}
 
                                 {{--                <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $product->id }}"><img src="/images/remark.png" /></button>--}}
                             </td>
                             <td>
-                                <select class="form-control select-multiple approved_by" name="approved_by" id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
+                                <select class="form-control select-multiple approved_by" name="approved_by"
+                                        id="approved_by" data-id="{{ $product->id }}" data-placeholder="Select user">
                                     <option></option>
                                     @foreach($users as $user)
                                         <option value="{{$user->id}}" {{ $product->approved_by == $user->id ? 'selected' : '' }} >{{ $user->name }}</option>
@@ -1015,7 +1044,7 @@
                 </table>
                 <div class="mb-5">
                     <button class="btn btn-secondary text-left mass_action delete_checked_products">DELETE</button>
-                    <button class="btn btn-secondary text-left mass_action approve_checked_products">APPROVE </button>
+                    <button class="btn btn-secondary text-left mass_action approve_checked_products">APPROVE</button>
                     <button style="float: right" class="btn btn-secondary text-right">UPLOAD ALL</button>
                 </div>
 
@@ -1285,9 +1314,9 @@
                     </div>
                     <div class="modal-body">
                         <p>
-{{--                            <strong class="same-color"--}}
-{{--                                    style="text-decoration: underline">Description</strong>--}}
-{{--                            <br/>--}}
+                            {{--                            <strong class="same-color"--}}
+                            {{--                                    style="text-decoration: underline">Description</strong>--}}
+                            {{--                            <br/>--}}
                             <span id="description{{ $product->id }}" class="same-color">
                                                 {{ ucwords(strtolower(html_entity_decode($product->short_description))) }}
                                             </span>
@@ -2525,54 +2554,50 @@
         {{--});--}}
 
 
-        $('#main_checkbox').on('click', function(e) {
-            if($(this).is(':checked',true))
-            {
+        $('#main_checkbox').on('click', function (e) {
+            if ($(this).is(':checked', true)) {
                 $(".affected_checkbox").prop('checked', true);
             } else {
-                $(".affected_checkbox").prop('checked',false);
+                $(".affected_checkbox").prop('checked', false);
             }
         });
 
 
-        $('.mass_action').on('click', function(e) {
+        $('.mass_action').on('click', function (e) {
 
             var allVals = [];
-            $(".affected_checkbox:checked").each(function() {
+            $(".affected_checkbox:checked").each(function () {
                 allVals.push($(this).attr('data-id'));
             });
 
-            if(allVals.length <=0)
-            {
+            if (allVals.length <= 0) {
                 alert("Please select row.");
-            }  else {
+            } else {
 
-                if(this.className == 'btn btn-secondary text-left mass_action delete_checked_products'){
+                if (this.className == 'btn btn-secondary text-left mass_action delete_checked_products') {
                     var check = confirm("Are you sure you want to delete this row?");
                     var final_url = '{{route('products.mass.delete')}}';
-                }
-                else{
+                } else {
                     var check = confirm("Are you sure you want to approve this row?");
                     var final_url = '{{route('products.mass.approve')}}';
                 }
 
-                if(check == true){
+                if (check == true) {
                     var join_selected_values = allVals.join(",");
                     $.ajax({
                         url: final_url,
                         type: 'get',
                         headers: {'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')},
-                        data: 'ids='+join_selected_values,
+                        data: 'ids=' + join_selected_values,
                         success: function (data) {
                             console.log(data);
                             if (data['status']) {
                                 alert(data['success']);
-                                $(".affected_checkbox:checked").each(function() {
-                                    if(data['result']){
+                                $(".affected_checkbox:checked").each(function () {
+                                    if (data['result']) {
                                         console.log((data['status']));
                                         $(".affected_checkbox:checked").prop('checked', false);
-                                    }
-                                    else{
+                                    } else {
                                         $(this).parents("tr").remove();
                                     }
                                 });
@@ -2587,7 +2612,7 @@
                             console.log(data);
                         }
                     });
-                }else{
+                } else {
                     $(".affected_checkbox:checked").prop('checked', false);
                     $("#main_checkbox:checked").prop('checked', false);
                 }
@@ -2603,7 +2628,7 @@
 
         });
 
-        $(document).on('keypress','.quick-edit-description-textarea', function (e) {
+        $(document).on('keypress', '.quick-edit-description-textarea', function (e) {
             var id = $(this).parents('.quick-edit-description').data('id');
             var key = e.which;
             var thiss = $(this);
@@ -2614,7 +2639,7 @@
                 var description = $(thiss).val();
 
                 $(thiss).addClass('hidden');
-                $(thiss).siblings('.quick-description').text(description.substring(0,20) + ( description.length > 20 ? '...' : '' ));
+                $(thiss).siblings('.quick-description').text(description.substring(0, 20) + (description.length > 20 ? '...' : ''));
                 $(thiss).siblings('.quick-description').removeClass('hidden');
 
                 $.ajax({
@@ -2632,13 +2657,13 @@
             }
         });
 
-        $(document).on('change', '.post-remark', function(){
+        $(document).on('change', '.post-remark', function () {
 
             const data = {
                 _token: "{{ csrf_token() }}",
-                rejected : 1,
-                product_id : $(this).data('id'),
-                remark : $(this).val(),
+                rejected: 1,
+                product_id: $(this).data('id'),
+                remark: $(this).val(),
                 senior: 1
             };
 
@@ -2649,7 +2674,6 @@
             }).done(function () {
 
 
-
             }).fail(function (response) {
                 alert('Could not update status');
             });
@@ -2657,12 +2681,12 @@
         });
 
 
-        $(document).on('change', '.approved_by', function(){
+        $(document).on('change', '.approved_by', function () {
 
             const data = {
                 _token: "{{ csrf_token() }}",
-                product_id : $(this).data('id'),
-                user_id : $(this).val(),
+                product_id: $(this).data('id'),
+                user_id: $(this).val(),
             };
 
             $.ajax({
@@ -2670,7 +2694,6 @@
                 url: "{{ url('products') }}/" + $(this).data('id') + '/updateApprovedBy',
                 data: data
             }).done(function () {
-
 
 
             }).fail(function (response) {
