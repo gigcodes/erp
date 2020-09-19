@@ -651,6 +651,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
