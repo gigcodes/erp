@@ -256,7 +256,7 @@ class SupplierController extends Controller
 		$allSupplierProduct = DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
 		
 		//Get All supplier price range
-		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_ranges.*",DB::raw("CONCAT(supplier_price_ranges.price_from,'-',supplier_price_ranges.price_to) as full_range"))->get()->toArray();
+		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
 		/* echo "<pre>";
 		print_r($allSupplierPriceRanges);
 		exit; */

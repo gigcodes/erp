@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class SupplierPriceRange extends Model
 {
-    protected $table = 'supplier_price_ranges';
+    protected $table = 'supplier_price_range';
     public $timestamps = false;
     protected $fillable = [
         'price_from',
