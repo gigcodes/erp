@@ -211,6 +211,7 @@
            .done(function(response) {
                $('#keywordname').val('')
                alert(response.message);
+               location.reload();
            })
            .fail(function() {
                console.log("error");
