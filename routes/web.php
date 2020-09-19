@@ -1446,6 +1446,10 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('notification', 'HashtagController@showNotification');
     Route::get('hashtag/markPriority', 'HashtagController@markPriority')->name('hashtag.priority');
     Route::resource('influencer', 'InfluencersController');
+    Route::post('influencer-keyword', 'InfluencersController@saveKeyword')->name('influencers.keyword.save');
+    Route::post('influencer-keyword-image', 'InfluencersController@getScraperImage')->name('influencers.image');
+    Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
+    Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
