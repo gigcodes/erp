@@ -19,9 +19,27 @@ var searchForIntent = function(ele) {
             }
         }).on("change.select2", function() {
             var $this = $(this);
+        }).on('select2:select', function (e) {
+            var data = e.params.data;
+            var replyBox = ele.find(".reply-insert");
+            if(data.suggested_reply) {
+                replyBox.val(data.suggested_reply);
+            }
+            else {
+                replyBox.val('');
+            }
         });
     }
 };
+
+
+$('.select-phrase-group').on('select2:select', function (e) {
+    console.log("selected");
+    var data = e.params.data;
+    if(data.suggested_reply) {
+        $("#addPhrases").find(".suggested_reply").val(data.suggested_reply);
+    }
+});
 
 var searchForCategory = function(ele) {
     var categoryBox = ele.find(".search-category");
@@ -429,6 +447,11 @@ $(document).on("click", ".node__contents", function(e) {
             $("[data-toggle='toggle']").bootstrapToggle();
             $(".search-alias").select2();
             searchForDialog($("#leaf-editor-model"));
+            var eleLeaf = $("#leaf-editor-model");
+            searchForIntent(eleLeaf);
+            searchForCategory(eleLeaf);
+            previousDialog(eleLeaf);
+            parentDialog(eleLeaf);
         },
         error: function() {
             toastr['error']('Could not change module!');

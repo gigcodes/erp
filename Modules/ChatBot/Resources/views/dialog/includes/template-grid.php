@@ -293,8 +293,8 @@
 				<div class="form-group col-md-6">
 			      	<select class="form-control search-category" name="intent[category_id]" placeholder="Select Category"></select>
 				</div>
-				</div>
-				<div class="form-row">
+			</div>
+			<div class="form-row">
 		    	<div class="form-group col-md-6">
 			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
 			    </div>
@@ -307,17 +307,22 @@
 			</div>
 		{{else}}
 			<div class="form-row">
-		    	<div class="form-group col-md-3">
-			      	<input class="form-control example-insert" name="" value="" placeholder="Intent Name"/>
+		    	<div class="form-group col-md-6">
+			      	<select class="form-control search-intent" name="" placeholder="Select Intent"></select>
+			    </div>
+				<div class="form-group col-md-6">
+			      	<select class="form-control search-category" name="" placeholder="Select Category"></select>
+				</div>
+			</div>
+			<div class="form-row">
+		    	<div class="form-group col-md-6">
+			      	<input class="form-control question-insert" name="" value="" placeholder="Insert your question"></select>
 			    </div>
 				<div class="form-group col-md-3">
-					<input class="form-control question-insert" name="" value="" Placeholder="User Intent"/>
+			      	<input class="form-control reply-insert" name="intent" value="" placeholder="Insert Suggested reply"/>
 			    </div>
 				<div class="form-group col-md-3">
-					<input class="form-control reply-insert" name="" value="" Placeholder="Suggested reply"/>
-			    </div>
-		    	<div class="form-group col-md-3">
-					<button class="btn btn-secondary save-example">Save</button>
+					<button class="btn btn-secondary save-intent">Save</button>
 				</div>
 			</div>
 		{{/if}}
