@@ -32,7 +32,7 @@
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.pickup_address}}</td>
 			        <td>{{:prop.remarks}}</td>
-			        <td>{{:prop.created_at_formated}}</td>
+              <td>{{:prop.created_at_formated}}</td>
 			        <td class="action" align="center">
 						<div class="cls_action_btn" style="width:100px;">
 			        	<button type="button" class="btn btn-delete-template" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
@@ -40,6 +40,7 @@
 			        	<button type="button" class="btn btn-history-template" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
 						<button type="button" class="btn send-email-to-customer" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
 						<button type="button" class="btn show-product" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
+            <button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template"><img width="15px" src="/images/view.png"></button>
 						</div>
 			        </td>
 			      </tr>
@@ -148,4 +149,33 @@
 	</div> 		
 </div>
 </script>
-
+<script type="text/x-jsrender" id="template-product-block">
+	<div class="modal-content">
+		<div class="modal-body">
+			<div class="col-md-12">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+						<th>Order number</th>
+						<th>Brand</th>
+						<th>Product Name</th>
+						<th>Image</th>
+						<th>Price</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    	{{props data}}
+					      <tr>
+							<td>{{:prop.order_number}}</td>
+							<td>{{:prop.product_brand}}</td>
+							<td>{{:prop.product_name}}</td>
+							<td><img width="30px" src="{{:prop.product_image}}"></td>
+							<td>{{:prop.product_price}}</td>
+					      </tr>
+					    {{/props}}  
+				    </tbody>
+				</table>
+			</div>
+		</div> 		
+	</div>
+</script>
