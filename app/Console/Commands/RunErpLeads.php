@@ -1,6 +1,7 @@
 <?php
 
 namespace App\Console\Commands;
+
 use App\Customer;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Console\Command;
@@ -40,42 +41,47 @@ class RunErpLeads extends Command
     public function handle()
     {
         try {
-   
-            $Customers = Customer::all();
-            if (!$Customers->isEmpty()) {
-                foreach ($Customers as $Customer) {
-                 
-                
-                    $is_blocked_lead    = $Customer->is_blocked_lead;
-                    $freq = $Customer->lead_product_freq;
-                 
-                    if (isset($is_blocked_lead) && $is_blocked_lead != 1){
-                        if(isset($freq) && $freq != 0){
-                            $lead_product_limit = $freq;
-                        }else{
-                            $lead_product_limit  = \App\Setting::where("name","send_leads_product")->value('val');
-                        }
 
+            $lead_product_limit = \App\Setting::where("name", "send_leads_product")->value('val');
 
-                        $products = \App\Product::where(function ($q) {
-                            $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
-                        });
+            $leads = \App\ErpLeads::join("customers as c", "c.id", "erp_leads.customer_id")
+                ->where("is_blocked_lead", 0)
+                ->where("c.do_not_disturb", 0)
+                ->select(["erp_leads.*", "c.lead_product_freq"])->get();
 
-
-                        $allProduts = $products->limit($lead_product_limit)->get();
-                      
-
-                        if (!empty($allProduts)) {                        
-                           
-                            $requestData = new Request();
-                            $requestData->setMethod('POST');
-                            $requestData->request->add(['customer_id' => $Customer->id,'selected_product' => $allProduts]);
-
-                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-                                
-                          
-                        }
+            if (!$leads->isEmpty()) {
+                foreach ($leads as $lead) {
+                    $limitLead = $lead_product_limit;
+                    if ($lead->lead_product_freq > 0) {
+                        $limitLead = $lead->lead_product_freq;
                     }
+
+                    $products = \App\Product::where(function ($q) {
+                        $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
+                    });
+
+                    $products = $products->join("brands as b", "b.id", "products.brand_id");
+                    $products = $products->join("categories as c", "c.id", "products.category");
+                    $products = $products->join('product_status_histories as psh', function ($join) {
+                        $join->on('psh.product_id', '=', 'products.id');
+                        $join->where('psh.created_at', '>=', date("Y-m-d"));
+                        $join->where('psh.new_status', '=', 9);
+                    });
+
+                    $products = $products->where(function ($q) use ($lead) {
+                        $q->orWhere("brands.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
+                    });
+
+                    $allProduts = $products->limit($lead_product_limit)->get()->pluck("id")->toArray();
+
+                    if (!empty($products)) {
+                        $requestData = new Request();
+                        $requestData->setMethod('POST');
+                        $requestData->request->add(['customer_id' => $lead->customer_id, 'selected_product' => $allProduts]);
+
+                        $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
+                    }
+
                 }
             }
         } catch (\Exception $e) {
