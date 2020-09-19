@@ -25,10 +25,10 @@ class AppServiceProvider extends ServiceProvider
             return "<?php echo icon($expression); ?>";
         });
 
-        Totem::auth(function($request) {
-            // return true / false . For e.g.
-            return \Auth::check();
-        });
+        // Totem::auth(function($request) {
+        //     // return true / false . For e.g.
+        //     return \Auth::check();
+        // });
 
     }
 
