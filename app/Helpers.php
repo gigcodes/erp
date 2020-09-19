@@ -293,4 +293,41 @@ class Helpers
         return null;
     }
 
+    public static function selectSupplierList($none = true)
+    {
+        $list = \App\Supplier::pluck("supplier","id")->toArray();
+
+        if($none) {
+            return ["" => "None"] + $list;
+        }
+
+        return $list;
+    }
+
+    public static function selectCategoryList($defaultVal = false)
+    {
+        return \App\Category::attr([ 
+            'name' => 'category',
+            'class' => 'form-control-sm form-control select2',
+            'style' => 'width:200px '
+        ])->selected($defaultVal)->renderAsDropdown();
+    }
+
+    public static function selectBrandList($none = true) 
+    {
+        $list = \App\Brand::pluck("name","id")->toArray();
+
+        if($none) {
+            return ["" => "None"] + $list;
+        }
+
+        return $list;
+    }
+
+    public static function selectStatusList()
+    {
+        return ["" => "None"] + \App\Helpers\StatusHelper::getStatus();
+    }
+
+
 }
