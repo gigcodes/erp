@@ -14,7 +14,9 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+              @endif
               <a class="btn btn-secondary" href="{{ route('voucher.payment.request') }}">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
@@ -80,7 +82,11 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
-              <td><a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a></td>
+              <td>
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+              <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+              @endif
+            </td>
             </tr>
           @endforeach
       </table>
