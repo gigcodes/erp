@@ -23,6 +23,12 @@ class DialogController extends Controller
         $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
         return view('chatbot::dialog.index', compact('allSuggestedOptions'));
     }
+    public function dialogGrid()
+    {
+        $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
+        return view('chatbot::dialog-grid.index', compact('allSuggestedOptions'));
+    }
+    
 
     public function create()
     {
@@ -89,8 +95,11 @@ class DialogController extends Controller
     public function edit(Request $request, $id)
     {
         $chatbotDialog       = ChatbotDialog::where("id", $id)->first();
-        $question            = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords            = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        // $question            = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        // $keywords            = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
         $allSuggestedOptions = $keywords + $question;
 
         return view("chatbot::dialog.edit", compact('chatbotDialog', 'allSuggestedOptions'));
@@ -146,14 +155,13 @@ class DialogController extends Controller
         $responseType    = $request->get("response_type", false);
         $previousSibling = $request->get("previous_sibling",false);
         $parentId = $request->get("parent_id",0);
-        
+        // dd($request->all());
 
         $matchCondition = implode(" ", $request->get("conditions"));
 
         $id               = $request->get("id", 0);
         $multipleResponse = $request->get("response_condition", []);
         $notToDelete      = [];
-
         if (!empty($multipleResponse)) {
             foreach ($multipleResponse as $k => $idStore) {
                 $notToDelete[] = $k;
@@ -200,7 +208,6 @@ class DialogController extends Controller
             $chatbotDialog->save();
 
             foreach ($multipleResponse as $k => $mResponse) {
-
                 $chatbotDialogE = ChatbotDialog::where("id", $k)->first();
                 if (!$chatbotDialogE) {
                     $chatbotDialogE       = new ChatbotDialog;
@@ -280,8 +287,8 @@ class DialogController extends Controller
     {
         $details                        = [];
         $dialog                         = ChatbotDialog::find($id);
-        $question                       = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords                       = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
         $details["allSuggestedOptions"] = $keywords + $question;
 
         if (!empty($dialog)) {
@@ -377,7 +384,6 @@ class DialogController extends Controller
             "parent_id" => $request->get("parent_id", 0),
             "dialog_type" => $request->get("dialog_type", 'node')
         ];
-
         $previousNode = $request->get("previous_node", 0);
         if ($previousNode > 0) {
             $params["previous_sibling"] = $previousNode;
@@ -413,33 +419,38 @@ class DialogController extends Controller
     public function restStatus(Request $request)
     {
         $parentId = $request->get("parent_id", 0);
-
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
             ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
-            ->where("chatbot_dialogs.response_type", "standard")
+            // ->where("chatbot_dialogs.response_type", "standard")
             ->groupBy("chatbot_dialogs.id")
+            ->orderBy("chatbot_dialogs.dialog_type", "folder")
             ->orderBy("chatbot_dialogs.previous_sibling", "asc");
 
         $chatDialog = $chatDialog->where("parent_id", $parentId);
 
         $chatDialog      = $chatDialog->get();
-        $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
-
+        // $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
+        $chatDialogArray = $chatDialog->toArray();
         $chatDialog = [];
         if (!empty($chatDialogArray)) {
             foreach ($chatDialogArray as $k => $chatDlg) {
-                if ($k == 0) {
+                // if ($k == 0) {
                     $chatDialog[] = $chatDlg;
-                    $branch = [];
-                    $more = previous_sibling($chatDialogArray,$chatDlg["id"],$branch);
-                    $chatDialog = array_merge($chatDialog,$more);
-                    break;
-                }
+                    // $branch = [];
+                    // $more = previous_sibling($chatDialogArray,$chatDlg["id"],$branch);
+                    // $chatDialog = array_merge($chatDialog,$more);
+                    // break;
+                // }
             }
         }
 
-        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        // $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        // $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
+
+
 
         $allSuggestedOptions = $keywords + $question;
 

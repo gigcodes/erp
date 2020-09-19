@@ -16,9 +16,8 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 
-Route::get('/test/test', function(){
-    dd(Cache::get('fdfdas'));
-});
+Route::get('/test/test', 'TestController@index');
+
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');
 Route::get('generate-favicon', 'HomeController@generateFavicon');
@@ -197,6 +196,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productapprover', 'ProductApproverController');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
+    Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
     Route::resource('productinventory', 'ProductInventoryController');
 
     Route::prefix('product-inventory')->group(function () {
@@ -291,7 +291,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('leads/{id}/changestatus', 'LeadsController@updateStatus');
     Route::delete('leads/permanentDelete/{leads}', 'LeadsController@permanentDelete')->name('leads.permanentDelete');
     Route::resource('chat', 'ChatController');
-    Route::get('erp-leads', 'LeadsController@erpLeads');
+    Route::get('erp-leads', 'LeadsController@erpLeads')->name('erp-leads.erpLeads');
+    // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
@@ -2145,6 +2146,8 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::get('/getProducts/{id}', 'ReturnExchangeController@getProducts');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
+	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
+	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
