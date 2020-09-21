@@ -89,6 +89,56 @@
         Others : {{$testerTime}}
         @endif
     </td>
+    <td data-id="{{ $issue->id }}">
+        <div class="form-group">
+            <div class='input-group estimate_dates'>
+            @if((auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to || auth()->user()->id == $issue->master_user_id))
+                <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
+            @endif
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_date = $time_history->new_value;
+                    }
+                    else {
+                        $est_date = '--';
+                    }
+                @endphp
+                @if($est_date)
+                    <span>Approved : {{$est_date}}</span>
+                @else 
+                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
+                @endif
+            </div>
+        </div>
+        @if(auth()->user()->id == $issue->assigned_to)
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="developer">Meeting time</button>
+        @elseif(auth()->user()->id == $issue->master_user_id)
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="lead">Meeting time</button>
+        @elseif(auth()->user()->id == $issue->tester_id) 
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="tester">Meeting time</button>
+        @elseif(auth()->user()->isAdmin())
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="admin">Meeting time</button>
+        @endif
+
+        @if(auth()->user()->id == $issue->assigned_to)
+        <?php 
+            $developerTime = \App\MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$issue->id)->where('user_id',$issue->assigned_to)->where('approve',1)->sum('time');
+        ?>
+        Others : {{$developerTime}}
+        @elseif(auth()->user()->id == $issue->master_user_id)
+        <?php 
+            $leadTime = \App\MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$issue->id)->where('user_id',$issue->master_user_id)->where('approve',1)->sum('time');
+        ?>
+        Others : {{$leadTime}}
+        @elseif(auth()->user()->id == $issue->tester_id) 
+        <?php 
+            $testerTime = \App\MeetingAndOtherTime::where('model','App\DeveloperTask')->where('model_id',$issue->id)->where('user_id',$issue->tester_id)->where('approve',1)->sum('time');
+        ?>
+        Others : {{$testerTime}}
+        @endif
+    </td>
     <td>
     @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)
     Developer : {{ formatDuration($issue->timeSpent->tracked) }}
