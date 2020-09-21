@@ -81,6 +81,7 @@
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
               <td>{{$user['note']}}</td>
+              
               <td>
                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                 <form action="">
@@ -120,11 +121,35 @@
             <div class="modal-body">
             <div class="form-group">
                 <label for="">Date</label>
-                <input type="text" name="starts_at" value="" class="form-control" id="starts_at" required placeholder="Enter Date">
+                <input type="text" name="starts_at" value="" class="form-control" id="custom_hour" required placeholder="Enter Date">
             </div>
             <div class="form-group">
                 <label for="">Total time (In minutes)</label>
                 <input type="number" name="total_time" class="form-control" required>
+            </div>
+            <!-- <div class="form-group">
+                <label for=""> Task type</label>
+                <select name="task_type" id="" class="form-control">
+                    <option value="devtask">Devtask</option>
+                    <option value="task">Task</option>
+                </select>
+            </div> -->
+            <div class="form-group">
+                <label for=""> Task id (Eg. 2928)</label>
+                <input type="number" name="task_id" class="form-control" required>
+                <!-- <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea> -->
+            </div>
+            <!-- <div class="form-group">
+                <label for=""> Your role on this task</label>
+                <select name="role" id="" class="form-control">
+                    <option value="developer">Developer</option>
+                    <option value="lead">Lead</option>
+                    <option value="tester">Tester</option>
+                </select>
+            </div> -->
+            <div class="form-group">
+                <label for=""> Note </label>
+                <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea>
             </div>
             </div>
             <div class="modal-footer">
@@ -169,12 +194,46 @@
 
 <script type="text/javascript">
 
+$(document).on('change', '.task_efficiency', function(e) 
+{
+    var user_id = $(this).data('user_id');
+    var efficiency = $(this).val();
+    var type = $(this).data('type');
+    var date = $(this).data('date');
+    var hour = $(this).data('hour');
+
+    var $action_url = '{{ route("hubstaff-acitivties.efficiency.save") }}';					
+		jQuery.ajax({
+				
+			type: "POST",
+			url: $action_url,
+			data: { user_id: user_id,efficiency: efficiency,type: type, date: date, hour: hour  },
+			headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+			//cache: false,
+			//dataType: 'json',
+            success: function(data)
+            {
+                toastr['success'](data.message);
+				
+			},
+            error: function(error)
+            {
+                toastr['error'](data.message);
+            },
+            	
+		});
+		return false;
+
+});
 
 $("#activity-available").val(new Date().toUTCString());
 $(".select2").select2({tags:true});
 
 $('#starts_at').datetimepicker({
     format: 'YYYY-MM-DD'
+});
+$('#custom_hour').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm:ss'
 });
 $('#time_from').datetimepicker({
     format: 'YYYY-MM-DD HH:mm:ss'
@@ -373,11 +432,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            window.location.reload();
+                $("#loading-image").hide();
+                window.location.reload();
             }).fail(function(errObj) {
-                toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+                window.location.reload();
             });
         });
 

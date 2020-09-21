@@ -591,8 +591,10 @@ function getChats(id){
     	data: { id : id ,   _token: "{{ csrf_token() }}" },
     })
     .done(function(data) {
+    	console.log('data');
     	//if(typeof data.data.message != "undefined" && data.length > 0 && data.data.length > 0) {
-	        $('#message-recieve').empty().html(data.data.message);
+
+	       // $('#message-recieve').empty().html(data.data.message);
 	        $('#message-id').val(data.data.id);
 			$('#new_message_count').text(data.data.count);
 			$('#user_name').text(data.data.name);

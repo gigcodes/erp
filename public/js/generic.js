@@ -23,7 +23,6 @@ var getMoreChatConvo = function(params) {
         if(response.messages.length > 0) {
             AllMessages = AllMessages.concat(response.messages);
             var li = getHtml(response);
-
             if ($('#chat-list-history').length > 0) {
                 $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
                 $("#chat-list-history").find(".modal-body").append(li);
@@ -31,6 +30,17 @@ var getMoreChatConvo = function(params) {
             } else {
                 $("#chat-history").find("#loading-image").remove();
                 $("#chat-history").append(li);
+            }
+            var searchterm = $('.search_chat_pop').val();
+            if(searchterm && searchterm != '') {
+                var value = searchterm.toLowerCase();
+                $(".filter-message").each(function () {
+                    if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                        $(this).hide();
+                    } else {
+                        $(this).show()
+                    }
+                });
             }
         }else{
             $("#chat-list-history").find(".modal-body").find("#loading-image").remove();
@@ -213,6 +223,12 @@ var getHtml = function(response) {
                 }
             }
         }
+        if(message.type == "developer_task" ) {
+            if (message.status == 0) {
+                button += "<a title='Mark as Read' href='javascript:;' data-url='/whatsapp/updatestatus?status=5&id=" + message.id + "' class='btn btn-xs btn-secondary ml-1 change_message_status'><i class='fa fa-check' aria-hidden='true'></i></a>";
+            }
+            button += "<a href='#' title='Resend' class='btn btn-xs btn-secondary ml-1 resend-message' data-id='" + message.id + "'><i class='fa fa-repeat' aria-hidden='true'></i> (" + message.resent + ")</a>";
+        }
         button += '<a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="' + message.id + '"><i class="fa fa-trash" aria-hidden="true"></i></a>';
         if(message.is_queue == 1) {
            button += '<a href="javascript:;" class="btn btn-xs btn-default ml-1">In Queue</a>';
@@ -289,7 +305,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.substr(0, 19) + '</span>';
 
 
         } else if (message.inout == 'out') {
@@ -301,7 +317,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.substr(0, 19) + '</span>';
         } else {
             li += '<div>' + index + '</div>';
         }
@@ -327,7 +343,7 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-    
+    thiss.parent().find('.td-full-container').toggleClass('hidden');
 	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,
@@ -362,6 +378,18 @@ $(document).on('click', '.load-communication-modal', function () {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-history").html(li);
+        }
+
+        var searchterm = $('.search_chat_pop').val();
+        if(searchterm && searchterm != '') {
+            var value = searchterm.toLowerCase();
+            $(".filter-message").each(function () {
+                if ($(this).text().search(new RegExp(value, "i")) < 0) {
+                    $(this).hide();
+                } else {
+                    $(this).show()
+                }
+            });
         }
 
     }).fail(function (response) {

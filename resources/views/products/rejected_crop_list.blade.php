@@ -3,7 +3,69 @@
 @section('favicon' , 'cropapprovalgrid.png')
 @section('title', 'Crop Rejected Grid - ERP Sololuxury')
 
+@section("styles")
+    <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+    <link rel="stylesheet" type="text/css" href="{{asset('css/rcrop.min.css')}}">
+    <style type="text/css">
+        .dis-none {
+            display: none;
+        }
+
+        #loading-image {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            margin: -50px 0px 0px -50px;
+        }
+        .clayfy-box{
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #crop-image{
+            display: none;
+            position: fixed;
+            top: 25%;
+            left: 38%;
+            right: 35%;
+            margin: -50px 0px 0px -50px;
+            z-index: 60;
+        }
+        .cropper{
+            padding: 30px;
+            border: 1px solid;
+            margin: 10px;
+            background: #f1f1f1;
+        }
+    </style>
+@endsection
+
 @section('content')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
+    <div id="crop-image">
+        <div class="cropper">
+            <form  method="POST" action="{{route('google.search.crop.post')}}" id="cropImageSend">
+                <img id="image_crop" width="100%">
+                {{ csrf_field() }}
+                <div class="col text-center">
+                    <select name="type" id="crop-type" class="form-control">
+                        <option value="0">Select Crop Type</option>
+                        <option value="8">8</option>
+                    </select>
+                    <input type="hidden" name="product_id" id="product-id">
+                    <input type="hidden" name="media_id" id="media_id">
+                    <button type="button" class="btn btn-default" onclick="sendImageMessageCrop()">Crop Image</button>
+                    <button type="button" class="btn btn-default" onclick="hideCrop()">Close</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">
@@ -36,7 +98,7 @@
                             </div>
                             <div class="form-group col-md-2">
                                 <select class="form-control select2" name="supplier[]" multiple placeholder="Suppliers">
-                                     @foreach ($suppliers as $key => $item)
+                                    @foreach ($suppliers as $key => $item)
                                         <option value="{{ $item->id }}" {{ in_array($item->id, request()->get('supplier', [])) ? 'selected' : '' }}>{{ $item->supplier }}</option>
                                     @endforeach
                                 </select>
@@ -97,7 +159,8 @@
                         @foreach($products as $product)
                             <tr class="rec_{{$product->id}}">
                                 <td>
-                                    <img style="width: 120px;" src="{{ $product->imageurl }}" alt="Image">
+                                    <img id="img-{{$product->id}}" style="width: 120px;" src="{{ $product->imageurl }}" alt="Image" data-media="{{ $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->id : ''}}">
+                                    <button type="button" class="btn btn-image my-3" onclick="sendImage({{$product->id}})"><img src="/images/filled-sent.png"/></button>
                                 </td>
                                 <td>
                                     {{ $product->name }}
@@ -126,7 +189,7 @@
                                 </td>
                                 <td colspan="3">
                                     <strong>Actions</strong><br>
-{{--                                    <a target="_new" href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-sm btn-secondary">Show Grid</a>--}}
+                                    {{--                                    <a target="_new" href="{{ action('ProductCropperController@showImageToBeVerified', $product->id) }}" class="btn btn-sm btn-secondary">Show Grid</a>--}}
                                     <a target="_new" href="{{ action('ProductCropperController@showRejectedImageToBeverified', $product->id) }}" class="btn btn-sm btn-secondary">Check Cropping</a>
                                     <a target="_new" href="{{ action('ProductController@show', $product->id) }}" class="btn btn-default btn-sm">Show Product</a>
                                     <a data-id="{{$product->id}}" class="btn btn-danger btn-sm text-light delete-product btn-sm">Delete</a>&nbsp;
@@ -146,8 +209,11 @@
 @endsection
 
 @section('scripts')
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+    <script src="{{asset('js/rcrop.min.js')}}"></script>
     <script>
-        
+
         $(".select2").each(function(){
             $(this).select2({
                 placeholder : $(this).attr('placeholder'),
@@ -167,5 +233,45 @@
                 }
             });
         });
+
+        function sendImage(product_id) {
+            var url = $("#img-"+product_id).attr('src');
+            var media_id = $("#img-"+product_id).attr('data-media');
+            $("#image_crop").attr("src", url);
+            $('#product-id').val(product_id);
+            $('#media_id').val(media_id);
+            $('#image_crop').rcrop({full : true});
+            $('#crop-image').show();
+        }
+
+        function hideCrop(){
+            $('#crop-image').hide();
+        }
+
+        function sendImageMessageCrop(){
+            var crop = $('#crop-type').val();
+            if(crop == 0){
+                document.getElementById("cropImageSend").submit();
+            } else {
+                var id = $('#product-id').val();
+                var sequence = crop;
+                $.ajax({
+                    url: "{{ route('google.crop.sequence') }}",
+                    type: 'POST',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        history.back();
+                    },
+                    data: {
+                        id: id,
+                        sequence : sequence,
+                        _token: "{{ csrf_token() }}",
+                    }
+                });
+            }
+        }
     </script>
 @endsection

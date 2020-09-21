@@ -1537,7 +1537,7 @@ class TaskModuleController extends Controller {
 		$pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
 		$completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
 
-		if ($request->user[0] != null) {
+		if (is_array($request->user) && $request->user[0] != null) {
 			$pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
 			$completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
 		}

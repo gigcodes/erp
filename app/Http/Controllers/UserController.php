@@ -261,7 +261,7 @@ class UserController extends Controller
 		$user = User::find($id);
 		$user->update($input);
 
-		if ($request->customer[0] != '') {
+		if ($request->customer != NULL && $request->customer[0] != '') {
 			$user->customers()->sync($request->customer);
 		}
 
