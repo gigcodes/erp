@@ -1615,6 +1615,9 @@ class ProductController extends Controller
             if ($productVUser) {
                 $productVUser->delete();
             }
+
+            ActivityConroller::create($product->id, 'productlister', 'create');
+
         } else {
             $ids = $request->ids;
             $products = Product::whereIn('id', explode(",", $ids))->get();
@@ -1638,27 +1641,28 @@ class ProductController extends Controller
                 }
             }
 
-        // once product approved the remove from the edititing list
-        $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
-        if ($productVUser) {
-            $productVUser->delete();
+            // once product approved the remove from the edititing list
+            $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
+            if ($productVUser) {
+                $productVUser->delete();
+            }
+
+
+            ActivityConroller::create($product->id, 'productlister', 'create');
+
+    //		if (Auth::user()->hasRole('Products Lister')) {
+    //			$products_count = Auth::user()->products()->count();
+    //			$approved_products_count = Auth::user()->approved_products()->count();
+    //			if (($products_count - $approved_products_count) < 100) {
+    //				$requestData = new Request();
+    //				$requestData->setMethod('POST');
+    //				$requestData->request->add(['amount_assigned' => 100]);
+    //
+    //				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+    //			}
+    //		}
+
         }
-
-
-        ActivityConroller::create($product->id, 'productlister', 'create');
-
-//		if (Auth::user()->hasRole('Products Lister')) {
-//			$products_count = Auth::user()->products()->count();
-//			$approved_products_count = Auth::user()->approved_products()->count();
-//			if (($products_count - $approved_products_count) < 100) {
-//				$requestData = new Request();
-//				$requestData->setMethod('POST');
-//				$requestData->request->add(['amount_assigned' => 100]);
-//
-//				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
-//			}
-//		}
-
         return response()->json([
             'result' => true,
             'status' => 'is_approved',

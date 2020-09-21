@@ -896,7 +896,7 @@
 
                                 @endphp
 
-                                {{ $size_array[0] ? $size_array[0] : '' }} {{ $size_array[1] ? ', '.$size_array[1] :  '' }}
+                                {{ isset($size_array[0]) ? $size_array[0] : '' }} {{ isset($size_array[1]) ? ', '.$size_array[1] :  '' }}
                             </td>
 
                             <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
