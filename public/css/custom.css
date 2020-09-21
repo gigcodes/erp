@@ -93,6 +93,25 @@
     width: 100% !important;
 }
 
+/*.quick-customer .next_action{
+  height: 27px;
+  padding: 4px 12px;
+}*/
+.quick-customer #sno{
+  width: 0.1%;
+}
+
+.quick-customer #new_action_td{
+  height: 100px;
+  min-width: 241px;
+}
+.quick-customer .next_action_div{
+  margin-top: 8px;
+}
+.quick-customer .add_next_action_btn{
+    margin-left: 8px;
+    float: left;
+}
 
 @media (max-width: 480px) {
     .notification-dropdown ul:first-of-type{
@@ -1608,4 +1627,18 @@ p {
     padding: 3px 8px;
     margin: 0 auto;
     cursor: pointer;
+}
+
+.form-error {
+    display: inline-block;
+    line-height: 1;
+    font-size: 12px;
+    height: 12px;
+    color: #cc0000;
+    font-weight: bold;
+}
+.btn-create-shipment-request .fa{
+    margin-left: -5px;
+    margin-right: 8px;
+    display: none;
 }

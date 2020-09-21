@@ -1,3 +1,8 @@
+@php
+$currentRoutes = \Route::current();
+$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+@endphp
+
 <!DOCTYPE html>
 
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -9,19 +14,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <?php 
+        if(isset($metaData->page_title) && $metaData->page_title!='') {
+            $title = $metaData->page_title;
+        }else{
+            $title = trim($__env->yieldContent('title'));
+        }
+    ?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @else
-        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @elseif (!\Auth::guest())
+        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-
-
-    <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
-
+	<title>{{$title}}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+	
+	@if(isset($metaData->page_description) && $metaData->page_description!='')
+		<meta name="description" content="{{ $metaData->page_description }}">
+	@else
+		<meta name="description" content="{{ config('app.name') }}">
+	@endif
+	
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -92,14 +107,14 @@
 
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
 
-    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.6/twilio.min.js"></script>
+    <script type="text/javascript" src="//media.twiliocdn.com/sdk/js/client/v1.9/twilio.min.js"></script>
 
     <script type="text/javascript" src="https://unpkg.com/tabulator-tables@4.0.5/dist/js/tabulator.min.js"></script>
 
     <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+    <script src="{{ asset('js/calls.js') }}"></script>
 
     @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-    <script src="{{ asset('js/calls.js') }}"></script>
     @endif
 
     <script src="{{ asset('js/custom.js') }}"></script>
@@ -177,11 +192,11 @@
       });
     </script> --}}
 
-    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
-
     <script>
         initializeTwilio();
     </script>
+    @if (Auth::id() == 3 || Auth::id() == 6 || Auth::id() == 23 || Auth::id() == 56)
+
 
     @endif
 
@@ -421,7 +436,11 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                                
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="/drafted-products">Quick Sell List</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
@@ -495,6 +514,7 @@
                                             <a class="dropdown-item" href="{{ action('ScrapStatisticsController@index') }}">Scrap Statistics</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@scrapedUrls') }}">Scrap Urls</a>
                                             <a class="dropdown-item" href="{{ route('scrap.activity') }}">Scrap activity</a>
+                                            <a class="dropdown-item" href="{{ route('scrap.scrap_server_status') }}">Scrapper Server Status</a>
                                             <a class="dropdown-item" href="{{ action('ScrapController@showProductStat') }}">Products Scrapped</a>
                                             <a class="dropdown-item" href="{{ action('SalesItemController@index') }}">Sale Items</a>
                                             <a class="dropdown-item" href="{{ action('DesignerController@index') }}">Designer List</a>
@@ -617,6 +637,9 @@
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('quick-replies') }}">Quick Replies</a>
                                 </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('quick.customer.index') }}">Quick Customer</a>
+                                </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Orders<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -647,6 +670,9 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.tickets') }}">Live Chat Tickets</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -1150,6 +1176,25 @@
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
+                            <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Social <span class="caret"></span></a>
+                            <ul class="dropdown-menu multi-level">
+                                {{-- Sub Menu Product --}}
+                                @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Instagram<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/instagram/post">Posts</a>
+                                            <a class="dropdown-item" href="/instagram/post/create">Create Post</a>
+                                            <a class="dropdown-item" href="/instagram/direct-message">Media</a>
+                                            <a class="dropdown-item" href="/instagram/direct">Direct</a>
+                                        </li>
+                                    </ul>
+                                </li>
+                                @endif
+                            </ul>
+                        </li>
+                        <li class="nav-item dropdown">
                             <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Development <span class="caret"></span></a>
                             <ul class="dropdown-menu multi-level">
                                 {{-- Sub Menu Development --}}
@@ -1161,6 +1206,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
+                                </li>
+                                  <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Quick Dev Task</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
@@ -1300,9 +1348,19 @@
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
 
-                                    </ul>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+									</ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+								
+                                    <li class="nav-item dropdown">
+                                        <a href="{{ route('twilio-call-management') }}">Call Management</a>
+                                    </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Legal<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
@@ -1470,6 +1528,12 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
                                 </li>
                             </ul>
                         </li>
@@ -1751,7 +1815,7 @@
         @elseif (trim($__env->yieldContent('core_content')))
             @yield('core_content')
         @else
-            <main class="container" style="display: inline-block;">
+            <main class="container container-grow" style="display: inline-block;">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
                 <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
@@ -2382,6 +2446,38 @@
             }).fail(function (response) {
                 toastr['error'](response.responseJSON.message);
             });
+        });
+        $('select.select2-discussion').select2({tags: true});
+        $(document).on("change",".type-on-change",function(e) {
+            e.preventDefault();
+            var task_type = $(this).val();
+            console.log(task_type);
+            if(task_type == 3) {
+                // $('.normal-subject').hide();
+                    // $('.discussion-task-subject').show();
+                $.ajax({
+                url: '/task/get-discussion-subjects',
+                type: 'GET',
+                success: function (response) {
+                    $('select.select2-discussion').select2({tags: true});
+                    var option = '<option value="" >Select</option>';
+                    $.each(response.discussion_subjects, function(i, item) {
+                    console.log(item);
+
+                            option = option + '<option value="'+i+'">'+item+'</option>';
+                        });
+                        $('.add-discussion-subjects').html(option);
+                    }
+                }).fail(function (response) {
+                    toastr['error'](response.responseJSON.message);
+                });
+            }
+            else {
+                // $('select.select2-discussion').select2({tags: true});
+                $("select.select2-discussion").empty().trigger('change'); 
+            }
+            
+            
         });
 
         $(document).on('change', '#keyword_category', function () {

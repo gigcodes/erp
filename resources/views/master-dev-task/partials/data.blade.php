@@ -54,14 +54,16 @@
             </td>
           </tr>
           <tr>
-            <td>Scraper Reports</td>
+            <td>Crop Reports</td>
             <td colspan="6">
               <table style="width: 100%;">
                   <tr>
+                    <th>Last 1 hours</th>
                     <th>Last 24 hours</th>
                   </tr>
                   <tr>
-                      <td>{{ !empty($scraperReports) ? $scraperReports->cnt : 0 }}</td>
+                      <td>{{ !empty($scraper1hrsReports) ? $scraper1hrsReports->cnt : 0 }}</td>
+                      <td>{{ !empty($scraper24hrsReports) ? $scraper24hrsReports->cnt : 0 }}</td>
                   </tr>
               </table>
             </td>
@@ -75,8 +77,8 @@
                     <th>Start time</th>
                     <th>Last error</th>
                   </tr>
-                  <?php if(!empty($cronLastErrors)){ ?>
-                      <?php foreach($cronLastErrors as $cronLastError) { ?>
+                  <?php if(!empty($cronjobReports)){ ?>
+                      <?php foreach($cronjobReports as $cronLastError) { ?>
                         <tr>
                           <td>{{ $cronLastError->signature }}</td>
                           <td>{{ $cronLastError->start_time }}</td>

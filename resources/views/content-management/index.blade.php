@@ -8,6 +8,12 @@
 	.preview-category input.form-control {
 	  width: auto;
 	}
+	.no-mr {
+		margin:0px;
+	}
+	.pd-3 {
+		padding:0px;
+	}
 </style>
 
 <div class="row">
@@ -49,11 +55,11 @@
 		<div>
         <table class="table table-bordered table-striped" style="table-layout:fixed;">
             <tr>
-                <th style="width:18%;">Sl no</th>
-                <th style="width:18%;">Site name</th>
-                <th style="width:18%;">Facebook</th>
-                <th style="width:18%;">Instagram</th>
-                <th style="width:18%;">Action</th>
+                <th style="width:5%;">Sl no</th>
+                <th style="width:20%;">Site name</th>
+                <th style="width:35%;">Facebook</th>
+                <th style="width:35%;">Instagram</th>
+                <th style="width:5%;">Action</th>
             </tr>
             @foreach($websites as $key => $website)
             <tr>
@@ -61,23 +67,21 @@
                 <td>{{$website->title}} </td>
                 <td>
 				@if($website->facebookAccount)
-					<p>Username : {{$website->facebookAccount->username}}</p>
-					<p style="word-break: break-all;">Password : {{$website->facebookAccount->password}}</p>
+					<p class="no-mr" style="word-break: break-all;">User : {{$website->facebookAccount->username}} | Pass : {{ str_limit($website->facebookAccount->password, $limit = 10, $end = '...') }}</p>
 				@endif
 				</td>
                 <td>
 				@if($website->instagramAccount)
-					<p>Username : {{$website->instagramAccount->username}}</p>
-					<p style="word-break: break-all;">Password : {{$website->instagramAccount->password}}</p>
+					<p class="no-mr" style="word-break: break-all;">User : {{$website->instagramAccount->username}} | Pass : {{ str_limit($website->instagramAccount->password, $limit = 10, $end = '...') }}</p>
 				@endif
 				</td>
                 <td>
-				<button type="button" class="btn">
+				<button type="button" class="btn pd-3">
 			        <a href="/content-management/manage/{{$website->id}}">
 			        	<img width="15px" title="Manage Contents" src="/images/project.png">
 			        </a>
 				</button> 
-				<button type="button" class="btn preview-img-btn" data-id="{{$website->id}}">
+				<button type="button" class="btn preview-img-btn pd-3" data-id="{{$website->id}}">
 					<i class="fa fa-eye" aria-hidden="true"></i>
 				</button>
 				</td>

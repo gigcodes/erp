@@ -241,6 +241,9 @@
                 <th style="">Mailinglist</th>
                 <th style="">Actions</th>--}}
                 <td>Subject</td>
+                <td>Total Subscribers</td>
+                <td>Send Mail</td>
+                <td>Pending Mail</td>
                 <td>Audience</td>
                 <td>Template</td>
 {{--                <td>Subject</td>--}}
@@ -255,6 +258,9 @@
                     <tr>
                         <td>{{$value->id}}</td>
                         <td>{{$value->subject}}</td>
+                        <td>{{$value->total_emails_scheduled}}</td>
+                        <td>{{$value->total_emails_sent}}</td>
+                        <td>{{$value->total_emails_undelivered}}</td>
                         <td>{{$value->audience->name}}</td>
                         <td>{{$value->template->name}}</td>
               {{--          <td>{{$value["subject"]}}</td>--}}
@@ -440,9 +446,21 @@
             });
         });
 
-        /*
-        $("#template").on('change', function() {
-            alert(this.dataset.textcount);
-        });*/
+        
+        function getStats(id){
+
+            $.ajax({
+                type: "POST",
+                url: "/marketing/mailinglist-stats",
+                data: { 'id' : id},
+
+                beforeSend: function (request) {
+                    return request.setRequestHeader('X-CSRF-Token', $("meta[name='csrf-token']").attr('content'));
+                },
+            }).done(function(data) {
+                console.log(data)
+            }).fail(function(data) {
+            });
+        }
     </script>
 @endsection

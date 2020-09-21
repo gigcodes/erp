@@ -11,23 +11,45 @@
            <table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th>Name</th> 
-		      	<th>Pending</th>
+		      	<th>Task</th>
+		      	<th>Approximate time</th>
 				<th>Action</th> 
 			</tr>
 		    </thead>
 		    <tbody>
 				{{props taskList}}
 			      <tr>
-			      	<td>{{:prop.name}}</td>
-			      	<td>{{:prop.total}}</td>
 			      	<td>
-						  {{if prop.name == 'TASK'}}
-						  <a href="/task">Task</a>
-						  {{else}} 
-						  <a href="/development/list/devtask">Devtask</a>
-						  {{/if}}
+					  {{if prop.type == 'TASK'}}
+					  #TASK-{{:prop.task_id}} => {{:prop.subject}} : {{:prop.subject}}. {{:prop.details}}
+					  {{else}}
+					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}} : {{:prop.subject}}. {{:prop.details}}
+					  {{/if}}
+
+					 
 					  </td>
+			      	<td>
+					  <div class="form-group">
+							<div class='input-group estimate_minutes'>
+								<input style="min-width: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
+
+								<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
+							</div>
+						</div>
+						<label for="" style="font-size: 12px;margin-top:10px;">Due date :</label>
+                        <div class="d-flex">
+                            <div class="form-group" style="padding-top:5px;">
+                                <div class='input-group date due-datetime'>
+									<input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{:prop.due_date}}"/>
+									<span class="input-group-addon">
+                            		<span class="glyphicon glyphicon-calendar"></span>
+                        			</span>
+								</div>
+							</div>
+                            <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{:prop.task_id}}"><img style="padding: 0;margin-top: -14px;" src="/images/filled-sent.png"/></button>
+                        </div>
+					  </td>
+					  <td></td>
 				  </tr>
 				  {{/props}}
 		    </tbody>
@@ -37,5 +59,8 @@
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
 		   </div>
 		</div>
-	</form> 
+	</form>
+	$('.due-datetime').datetimepicker({
+        format: 'YYYY-MM-DD HH:mm'
+    }); 
 </script>
