@@ -2,7 +2,6 @@
 
 namespace App\Console\Commands;
 
-use App\Customer;
 use GuzzleHttp\Client as GuzzleClient;
 use Illuminate\Console\Command;
 use Illuminate\Http\Request;
@@ -44,6 +43,10 @@ class RunErpLeads extends Command
 
             $lead_product_limit = \App\Setting::where("name", "send_leads_product")->value('val');
 
+            if ($lead_product_limit == 0) {
+                return false;
+            }
+
             $leads = \App\ErpLeads::join("customers as c", "c.id", "erp_leads.customer_id")
                 ->where("is_blocked_lead", 0)
                 ->where("c.do_not_disturb", 0)
@@ -60,7 +63,7 @@ class RunErpLeads extends Command
                         $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
                     });
 
-                    $products = $products->join("brands as b", "b.id", "products.brand_id");
+                    $products = $products->join("brands as b", "b.id", "products.brand");
                     $products = $products->join("categories as c", "c.id", "products.category");
                     $products = $products->join('product_status_histories as psh', function ($join) {
                         $join->on('psh.product_id', '=', 'products.id');
@@ -69,10 +72,10 @@ class RunErpLeads extends Command
                     });
 
                     $products = $products->where(function ($q) use ($lead) {
-                        $q->orWhere("brands.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
+                        $q->orWhere("b.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
                     });
 
-                    $allProduts = $products->limit($lead_product_limit)->get()->pluck("id")->toArray();
+                    $allProduts = $products->select(["products.*"])->limit($lead_product_limit)->get()->pluck("id")->toArray();
 
                     if (!empty($products)) {
                         $requestData = new Request();
@@ -81,7 +84,6 @@ class RunErpLeads extends Command
 
                         $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                     }
-
                 }
             }
         } catch (\Exception $e) {
