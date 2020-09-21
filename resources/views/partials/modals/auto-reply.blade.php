@@ -10,7 +10,7 @@
                 <form action="<?php echo route('reply.create.chatbot_questions'); ?>" method="post">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="intent_reply_id" id="reply_id_edit">
-                    <div class="form-row">
+                    <div class="form-row"> 
                         <div class="form-group col-md-12">
                             <strong>Intent/Entity</strong>
                             <select class="form-control search-intent" name="intent_name" placeholder="Select Intent"></select>
