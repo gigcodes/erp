@@ -138,6 +138,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
     Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+    // Translation Language
+    Route::post('translationLanguage/add', 'ProductController@translationLanguage')->name('translation.language.add');
+    // Product Translation Rejection
+    Route::post('productTranslation/reject', 'ProductController@productTranslationRejection')->name('product.translation.rejection');
 
 
     Route::get('products/product-translation', 'ProductController@productTranslation')->name('products.product-translation');
@@ -154,7 +158,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
-    Route::get('product/delete-product', 'ProductController@deleteProduct');
+
+    // Added Mass Action
+    Route::get('product/delete-product', 'ProductController@deleteProduct')->name('products.mass.delete');
+    Route::get('products/approveProduct', 'ProductController@approveProduct')->name('products.mass.approve');;
+
     Route::get('product/relist-product', 'ProductController@relistProduct');
     Route::get('products/stats', 'ProductController@productStats');
     Route::post('products/{id}/updateName', 'ProductController@updateName');
@@ -176,7 +184,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/{id}/originalColor', 'ProductController@originalColor');
     Route::post('products/{id}/submitForApproval', 'ProductController@submitForApproval');
     Route::get('products/{id}/category-history', 'ProductCategoryController@history');
-    Route::get('products/{id}/color-history', 'ProductColorController@history');
+    Route::post('products/{id}/addListingRemarkToProduct', 'ProductController@addListingRemarkToProduct');
+    Route::post('products/{id}/
+    ', 'ProductController@updateApprovedBy');
+//    Route::get('products/{id}/color-historyproducts/{id}/color-history', 'ProductColorController@history');
 
     Route::post('products/{id}/changeCategorySupplier', 'ProductController@changeAllCategoryForAllSupplierProducts');
     Route::post('products/{id}/changeColorSupplier', 'ProductController@changeAllColorForAllSupplierProducts');
