@@ -22,7 +22,7 @@ function initializeAnalytics()
   // change the key file location if necessary.
   $KEY_FILE_LOCATION = storage_path('app/analytics/sololuxu-7674c35e7be5.json');
   $analytics = '';
-  if(Storage::exists($KEY_FILE_LOCATION)) {
+  if(file_exists($KEY_FILE_LOCATION)) {
   // Create and configure a new client object.
   $client = new Google_Client();
   // $client->setApplicationName("Hello Analytics Reporting");

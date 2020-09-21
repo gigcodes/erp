@@ -320,9 +320,9 @@ class Model
 
     }
 
-    public static function sendMessage(Customer $customer, $inputText, $contextReset = false)
+    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id=null)
     {
-        if (env("PUSH_WATSON", true) == false) {
+         if (env("PUSH_WATSON", true) == false) {
             return true;
         }
 
@@ -333,7 +333,6 @@ class Model
         );
 
         if (empty($customer->chat_session_id)) {
-
             $customer = self::createSession($customer, $assistant);
             if (!$customer) {
                 return false;
@@ -354,10 +353,12 @@ class Model
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
+                
                 \Log::info(print_r($result,true));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
                         // assign params
+
                         $params = [
                             "is_queue"         => 0,
                             "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
@@ -365,6 +366,7 @@ class Model
                             "message"          => $result["reply_text"],
                             "is_chatbot"       => true,
                             "chatbot_response" => $result,
+                            "message_application_id"     => $message_application_id,
                             "chatbot_question" => $inputText,
                             "chatbot_params"   => isset($result["medias"]) ? $result["medias"] : [],
                         ];
@@ -403,9 +405,10 @@ class Model
                                         "group_id"    => isset($params["group_id"]) ? $params["group_id"] : null,
                                         "user_id"     => isset($params["user_id"]) ? $params["user_id"] : null,
                                         "number"      => null,
+                                        "message_application_id"     => $message_application_id,
                                         "is_chatbot"  => isset($params["is_chatbot"]) ? $params["is_chatbot"] : 0,
                                     ];
-
+                                   
                                     $chatMessage = ChatMessage::create($insertParams);
                                     if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
                                         \App\ChatbotReply::create([
