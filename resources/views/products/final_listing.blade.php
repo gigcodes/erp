@@ -137,6 +137,25 @@
             margin-bottom: 10px;
         }
 
+
+        .quick-name{
+            display: block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 90px;
+            height: 1.2em;
+            white-space: nowrap;
+        }
+
+        .quick-description{
+            display: block;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            width: 100%;
+            max-width:140px;
+            height: 1.2em;
+            white-space: nowrap;
+        }
     </style>
 @endsection
 
@@ -279,28 +298,28 @@
 
     <div class="row">
         <div class="col-md-12">
-            <div class="infinite-scroll mt-5">
+            <div class="infinite-scroll table-responsive mt-5">
 
                 @php
                     $imageCropperRole = Auth::user()->hasRole('ImageCropers');
                 @endphp
 
-                <table class="table table-bordered table-striped" style="max-width: 100% !important;">
+                <table class="table table-bordered table-striped" style="min-width:1500px;width: 100%">
                     <thead>
                     <tr>
                         <th style="width:30px"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
                         <th style="width:120px">Product ID</th>
                         <th style="width:70px">Image</th>
-                        <th style="width:110px" >Brand Name</th>
+                        <th style="width:110px" >Brand</th>
                         <th style="width:120px">Category</th>
-                        <th >Title</th>
-                        <th>Description</th>
+                        <th style="width: 90px">Title</th>
+                        <th style="max-width: 200px;"> Description</th>
                         <th style="width:120px">Composition</th>
                         <th style="width:120px">Color</th>
                         <th style="width:120px">Dimension</th>
                         <th style="width:100px">Sizes</th>
                         <th style="width:70px">Price</th>
-                        <th style="width: 100px">Action</th>
+                        <th style="min-width: 100px">Action</th>
                         <th style="width:120px">Status</th>
                         <th style="width:120px">User</th>
                     </tr>
@@ -742,7 +761,7 @@
 
                                 @if (!$imageCropperRole)
 
-                                    <span class="quick-description">{{ substr($product->short_description, 0, 20) . (strlen($product->short_description) > 20 ? '...' : '') }}</span>
+                                    <span class="quick-description">{{ $product->short_description}}</span>
 
                                     {{--                                    <span class="long-description-container hidden">--}}
                                     {{--                  <span id="span_description_{{ $product->id }}"--}}
