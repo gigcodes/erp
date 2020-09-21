@@ -104,7 +104,7 @@
                         $est_date = '--';
                     }
                 @endphp
-                @if($est_date)
+                @if($est_date) 
                     <span>Approved : {{$est_date}}</span>
                 @else 
                     <p style="color:#337ab7"><strong>Unapproved</strong> </p>
