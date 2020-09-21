@@ -118,36 +118,6 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
-
-        $json_decode = [
-	"title" => "Tartan wool poncho",
-	"website" => "google.com",
-        "sku" => "W282011",
-	"url" =>"https://www.julian-fashion.com/en-IT/product/121656/comme_des_garcons_shirt/capes/tartan_wool_poncho",
-        "images" => [
-        "https://julian.azureedge.net/product/121656/original/71eb14d5-0682-498b-bcc9-0e9b2b17da7c.jpg",
-		"https://julian.azureedge.net/product/121656/original/6027e56e-c03f-4c6a-a755-ad03a78e8c85.jpg"
-		],
-	"description" =>"W282011 Multicolor Wool Tartan Fringes Composition: 100%WOOL Material: 100%wool Made in: FrancE Size&Fit: fit true to size",
-	"properties" => [
-		"dimension" => "fit true to size",
-		"sizes" => ["U"],
-        "material_used" =>"100%wool",
-		"category" => ["capes"],
-		"color" => "Multicolor",
-		"country" => "FrancE"
-
-	],
-	"currency" => "EUR",
-	"size_system" =>"IT",
-	"price" => "330.00",
-	"discounted_price" =>null,
-	"brand"=> "comme des gar",
-	"is_sale" => 0
-];
-
-        $request->merge($json_decode);
-
         \Log::channel('scraper')->debug("##!!##".json_encode($request->all())."##!!##");
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
