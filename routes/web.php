@@ -138,6 +138,10 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('products/assign-product', 'ProductController@getPreListProducts')->name('products.product-assign');
     Route::post('products/assign-product', 'ProductController@assignProduct')->name('products.product-assign-submit');
+    // Translation Language
+    Route::post('translationLanguage/add', 'ProductController@translationLanguage')->name('translation.language.add');
+    // Product Translation Rejection
+    Route::post('productTranslation/reject', 'ProductController@productTranslationRejection')->name('product.translation.rejection');
 
 
     Route::get('products/product-translation', 'ProductController@productTranslation')->name('products.product-translation');

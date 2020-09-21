@@ -7,6 +7,7 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\ColorReference;
 use App\CroppedImageReference;
+use App\Http\Requests\Products\ProductTranslationRequest;
 use App\Jobs\PushToMagento;
 use App\ListingHistory;
 use App\Order;
@@ -19,7 +20,9 @@ use App\Sizes;
 use App\Sop;
 use App\Stage;
 use App\Brand;
+use App\TranslationLanguage;
 use App\User;
+use App\Language;
 use App\ChatMessage;
 use App\Supplier;
 use App\Stock;
@@ -57,7 +60,7 @@ use App\Loggers\LogListMagento;
 use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
-
+use App\ProductTranslationHistory;
 
 class ProductController extends Controller
 {
@@ -146,16 +149,15 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-         if ((int)$request->get('status_id') > 0) {
-             $newProducts = Product::where('status_id', (int)$request->get('status_id'));
-         } else {
-             if ($request->get('submit_for_approval') == "on") {
-                 $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
-             }else{
-                 $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-             }
-         }
-
+        // if ((int)$request->get('status_id') > 0) {
+        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        // } else {
+        //     if ($request->get('submit_for_approval') == "on") {
+        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+        //     }else{
+        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        //     }
+        // }
         if (auth()->user()->isReviwerLikeAdmin()) {
             $newProducts = Product::query();
         } else {
@@ -1192,8 +1194,6 @@ class ProductController extends Controller
 
         $product = Product::find($id);
 
-//        dd($request->category);
-
         if ($product) {
             $productCatHis = new \App\ProductCategoryHistory;
 //            dd($productCatHis);
@@ -1348,8 +1348,9 @@ class ProductController extends Controller
                 $product->save();
 
                 //translate product title and description
-                $languages = ['hi', 'ar'];
-                $isDefaultAvailable = Product_translation::where('locale', 'en')->where('product_id', $product->id)->first();
+//                $languages = ['hi','ar'];
+                $languages = TranslationLanguage::get()->pluck('locale')->toArray();
+                $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
                     $product_translation->title = $product->name;
@@ -1637,6 +1638,10 @@ class ProductController extends Controller
                 }
             }
 
+        // once product approved the remove from the edititing list
+        $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
+        if ($productVUser) {
+            $productVUser->delete();
         }
 
 
@@ -3330,32 +3335,87 @@ class ProductController extends Controller
     public function productTranslation(Request $request)
     {
         $term = $request->term;
-        $query = Product_translation::where('locale', 'en');
-        if ($term) {
+        $language = $request->language;
+        $is_rejected = $request->input('is_rejected', '0');
+        //$query = Product_translation::where('locale','en'); //OLD
+        $query = new Product_translation();
+        if(!empty($term)){
             $query = $query->where(function ($q) use ($request) {
                 $q->where('title', 'LIKE', '%' . $request->term . '%')
-                    ->orWhere('description', 'LIKE', '%' . $request->term . '%');
+                    ->orWhere('description', 'LIKE', '%' . $request->term . '%') ;
             });
         }
-        $product_translations = $query->orderBy('product_id', 'desc')->paginate(2)->appends(request()->except(['page']));
+        if(!empty($language)){
+            $query = $query->where(function ($q) use ($request) {
+                $q->Where('locale', 'LIKE', '%' . $request->language . '%');
+            });
+        }
+
+//        if ($is_rejected !== null) {
+        if ($request->has('is_rejected')) {
+            $query = $query->where(function ($q) use ($is_rejected) {
+                $q->Where('is_rejected',$is_rejected);
+            });
+        }
+
+        $product_translations = $query->orderBy('product_id', 'desc')->paginate(10)->appends(request()->except(['page']));//catch 2
+
+        $product_translation_history = ProductTranslationHistory::get();
+
+        $languages = TranslationLanguage::get();
+
+        $all_languages = Language::get();
 
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('products.translations.product-search', compact('product_translations', 'term'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('products.translations.product-search', compact('product_translations', 'term', 'language', 'is_rejected'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string)$product_translations->render()
             ], 200);
         }
-        return view('products.translations.product-list', compact('product_translations', 'term'))
+        return view('products.translations.product-list', compact('product_translations', 'term', 'language', 'languages', 'all_languages', 'product_translation_history'))
             ->with('i', ($request->input('page', 1) - 1) * 5);
+    }
+
+    public function translationLanguage(ProductTranslationRequest $request)
+    {
+
+        TranslationLanguage::create([
+            'locale' => $request->input('locale')
+        ]);
+
+        return response()->json([
+            'message' => 'Successfully updated the data'
+        ]);
+    }
+
+    public function productTranslationRejection(Request $request){
+
+        $product_translation = Product_translation::find($request->product_translation_id);
+        $product_translation->is_rejected = $request->value;
+        $product_translation->save();
+        $product_translation_history = new ProductTranslationHistory;
+        $product_translation_history->is_rejected = $request->value;
+        $product_translation_history->user_id = Auth::user()->id;
+        $product_translation_history->product_translation_id = $request->product_translation_id;
+        $product_translation_history->save();
+
+        return response()->json([
+            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
+            'value' => !$request->value,
+        ]);
     }
 
     public function viewProductTranslation($id)
     {
         $locales = Product_translation::groupBy('locale')->pluck('locale');
+        $languages = Language::get();
+        $sites = StoreWebsite::get();
         $product_translation = Product_translation::find($id);
         return view('products.translations.view-or-edit', [
             'product_translation' => $product_translation,
             'locales' => $locales,
+            'sites' => $sites,
+            'languages' => $languages
         ]);
     }
 
@@ -3370,7 +3430,14 @@ class ProductController extends Controller
 
     public function editProductTranslation($id, Request $request)
     {
-        Product_translation::where('id', $id)->update(['title' => $request->title, 'description' => $request->description]);
+        Product_translation::where('id', $id)->update(['locale' => $request->language, 'title' => $request->title, 'description' => $request->description, 'site_id' => $request->site_id]);
+        ProductTranslationHistory::insert([
+            'user_id' => Auth::user()->id,
+            'product_translation_id' => $id,
+            'locale' => $request->language,
+            'title' => $request->title,
+            'description' => $request->description
+        ]);
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
