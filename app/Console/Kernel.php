@@ -411,7 +411,7 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
         //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
-        $schedule->command('erpleads:run')->everyMinute();
+        // /$schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
