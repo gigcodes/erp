@@ -267,6 +267,19 @@
             $('.estimate-time').datetimepicker({
                 format: 'HH:mm'
             });
+
+            $(".estimate-date").each(function() {
+                // ...
+                $(this).datepicker({
+                    dateformat: 'yyyy-mm-dd'
+                });
+            });
+      
+            $('#estimate_date_picker').datepicker({
+                dateformat: 'yyyy-mm-dd'
+            });
+            
+           
         });
 
         function getPriorityTaskList(id) {
@@ -611,6 +624,26 @@
 
         });
 
+        $(document).on('keyup', '.estimate-date-update', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            alert(issueId);
+            let estimate_date_ = $("#estimate_date_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                data: {
+                    estimate_date : estimate_date_,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Estimate Date updated successfully!", "Message");
+                }
+            });
+
+        });
+
         $(document).on('click', '.show-time-history', function() {
             var data = $(this).data('history');
             var issueId = $(this).data('id');
@@ -643,12 +676,63 @@
             $('#time_history_modal').modal('show');
         });
 
+        $(document).on('click', '.show-date-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#date_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/date/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    console.log(data);
+                    if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#date_history_modal table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_date" value="'+item['id']+'" '+checked+' class="approve_date"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#date_history_modal').modal('show');
+        });
+
 
         $(document).on('submit', '#approve-time-btn', function(event) {
             event.preventDefault();
             <?php if (auth()->user()->isAdmin()) { ?>
             $.ajax({
                 url: "{{route('development/time/history/approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+       
+        });
+
+        $(document).on('submit', '#approve-date-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('development/date/history/approve')}}",
                 type: 'POST',
                 data: $(this).serialize(),
                 success: function (response) {

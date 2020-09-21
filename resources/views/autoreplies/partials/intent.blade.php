@@ -1,4 +1,4 @@
-<div id="auto-reply-popup" class="modal fade" role="dialog">
+<div id="intent-reply-popup" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
         <div class="modal-content">
@@ -53,4 +53,3 @@
         </div>
     </div>
 </div>
-@include('autoreplies.partials.modals.intent')

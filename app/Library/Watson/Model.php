@@ -41,23 +41,23 @@ class Model
             return true;
         }
 
-        $keyword     = ChatbotQuestion::where("id", $id)->first();
+        $keyword     = ChatbotKeyword::where("id", $id)->first();
         $workSpaceId = self::getWorkspaceId();
 
         if ($keyword) {
 
             $storeParams                = [];
-            $storeParams["entity"]      = $keyword->value;
+            $storeParams["entity"]      = $keyword->keyword;
             $storeParams["fuzzy_match"] = true;
-            $values                     = $keyword->chatbotQuestionExamples()->get();
+            $values                     = $keyword->chatbotKeywordValues()->get();
             $storeParams["values"]      = [];
             $typeValue                  = [];
             foreach ($values as $value) {
-                $typeValue = ChatbotQuestionExample::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
+                $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
                 if ($value["types"] == "synonyms") {
-                    $storeParams["values"][] = ["value" => $value["question"], "synonyms" => $typeValue];
+                    $storeParams["values"][] = ["value" => $value["value"], "synonyms" => $typeValue];
                 } else {
-                    $storeParams["values"][] = ["value" => $value["question"], "type" => "patterns", "patterns" => $typeValue];
+                    $storeParams["values"][] = ["value" => $value["value"], "type" => "patterns", "patterns" => $typeValue];
                 }
             }
 
@@ -67,7 +67,7 @@ class Model
             );
 
             if (!empty($keyword->workspace_id)) {
-                $result = $watson->update($keyword->workspace_id, $keyword->value, $storeParams);
+                $result = $watson->update($keyword->workspace_id, $keyword->keyword, $storeParams);
             } else {
                 $result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
@@ -187,15 +187,9 @@ class Model
             $sendMentions = [];
             if (!$mentions->isEmpty()) {
                 foreach ($mentions as $key => $mRaw) {
-                    // if ($mRaw->chatbotKeyword) {
-                    //     $sendMentions[] = [
-                    //         "entity"   => $mRaw->chatbotKeyword->keyword,
-                    //         "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
-                    //     ];
-                    // }
-                    if ($mRaw->chatbotQuestion) {
+                    if ($mRaw->chatbotKeyword) {
                         $sendMentions[] = [
-                            "entity"   => $mRaw->chatbotQuestion->value,
+                            "entity"   => $mRaw->chatbotKeyword->keyword,
                             "location" => [$mRaw->start_char_range, $mRaw->end_char_range],
                         ];
                     }
@@ -344,25 +338,18 @@ class Model
                 return false;
             }
         }
+
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
             $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
+
             if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
                 $customer = self::createSession($customer, $assistant);
                 if ($customer) {
                     $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
                 }
             }
-
             $chatResponse = new ResponsePurify($result, $customer);
-            //check for auto approve message
-            $auto_approve = $chatResponse->checkAutoApprove();
-            if($auto_approve) {
-                $status = \App\ChatMessage::CHAT_MESSAGE_APPROVED;
-            }
-            else {
-                $status = \App\ChatMessage::CHAT_AUTO_WATSON_REPLY;
-            }
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
@@ -374,7 +361,7 @@ class Model
 
                         $params = [
                             "is_queue"         => 0,
-                            "status"           => $status,
+                            "status"           => \App\ChatMessage::CHAT_AUTO_WATSON_REPLY,
                             "customer_ids"     => [$customer->id],
                             "message"          => $result["reply_text"],
                             "is_chatbot"       => true,

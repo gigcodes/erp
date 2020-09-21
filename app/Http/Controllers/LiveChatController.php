@@ -13,108 +13,6 @@ use App\User;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
-<<<<<<< HEAD
-use Mail;
-use App\Mails\Manual\PurchaseEmail;
-use App\Tickets;
-use App\TicketStatuses;
-use App\Email;
-use Carbon\Carbon;
-
-class LiveChatController extends Controller {
-
-    //Webhook
-    public function incoming(Request $request) {
-        \Log::info($request->getContent());
-        $receivedJson = json_decode($request->getContent());
-
-        if (isset($receivedJson->event_type)) {
-            //When customer Starts chat
-            if ($receivedJson->event_type == 'chat_started') {
-                ///Getting the chat
-                $chat = $receivedJson->chat;
-
-                //Getting Agent
-                $agent = $chat->agents;
-                // name": "SoloLuxury"
-                // +"login": "yogeshmordani@icloud.com"
-                $chat_survey = $receivedJson->pre_chat_survey;
-                $detials = array();
-                foreach ($chat_survey as $survey) {
-                    $label = strtolower($survey->label);
-
-                    if (strpos($label, 'name') !== false) {
-                        array_push($detials, $survey->answer);
-                    }
-                    if (strpos($label, 'e-mail') !== false) {
-                        array_push($detials, $survey->answer);
-                    }
-                    if (strpos($label, 'phone') !== false) {
-                        array_push($detials, $survey->answer);
-                    }
-                }
-
-                $name = $detials[0];
-                $email = $detials[1];
-                $phone = $detials[2];
-                //Check if customer exist
-
-                $customer = Customer::where('email', $email)->first();
-
-                // if($customer == '' && $customer == null && $phone != ''){
-                //     //$customer = Customer::where('phone',$phone)->first();
-                // }
-                //Save Customer
-                if ($customer == null && $customer == '') {
-                    $customer = new Customer;
-                    $customer->name = $name;
-                    $customer->email = $email;
-                    $customer->phone = null;
-                    $customer->save();
-                }
-            }
-        }
-
-        if (isset($receivedJson->action)) {
-            //Incomg Event
-            if ($receivedJson->action == 'incoming_event') {
-
-                //Chat Details
-                $chatDetails = $receivedJson->payload;
-                //Chat Details
-                $chatId = $chatDetails->chat_id;
-
-                //Check if customer which has this id
-                $customerLiveChat = CustomerLiveChat::where('thread', $chatId)->first();
-
-                //update to not seen
-                if ($customerLiveChat != null) {
-                    $customerLiveChat->seen = 0;
-                    $customerLiveChat->status = 1;
-                    $customerLiveChat->update();
-                }
-                if ($chatDetails->event->type == 'message') {
-
-                    $message = $chatDetails->event->text;
-                    $author_id = $chatDetails->event->author_id;
-
-                    // Finding Agent
-                    $agent = User::where('email', $author_id)->first();
-
-                    if ($agent != '' && $agent != null) {
-                        $userID = $agent->id;
-                    } else {
-                        $userID = null;
-                    }
-
-                    $customerDetails = Customer::find($customerLiveChat->customer_id);
-                    $language = $customerDetails->language;
-                    if ($language != null) {
-                        $result = TranslationHelper::translate($language, 'en', $message);
-                        $message = $result . ' -- ' . $message;
-                    }
-
-=======
 
 use Mail;
 use DB;
@@ -227,23 +125,11 @@ class LiveChatController extends Controller
                     $result  = TranslationHelper::translate($language, 'en', $message);
                     $message = $result . ' -- ' . $message;
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     if ($author_id == 'buying@amourint.com') {
                         $messageStatus = 2;
                     } else {
                         $messageStatus = 9;
                     }
-<<<<<<< HEAD
-                    $params = [
-                        'unique_id' => $chatDetails->chat_id,
-                        'message' => $message,
-                        'customer_id' => $customerLiveChat->customer_id,
-                        'approved' => 1,
-                        'status' => $messageStatus,
-                        'is_delivered' => 1,
-                        'user_id' => $userID,
-                        'message_application_id' => 2,
-=======
 
                     $message_application_id = 2;
 
@@ -256,46 +142,12 @@ class LiveChatController extends Controller
                         'is_delivered'           => 1,
                         'user_id'                => $userID,
                         'message_application_id' => $message_application_id,
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     ];
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-<<<<<<< HEAD
-                        WatsonManager::sendMessage($customerDetails, $message);
-                    }
-                }
-
-                if ($chatDetails->event->type == 'file') {
-
-                    $author_id = $chatDetails->event->author_id;
-
-                    // Finding Agent
-                    $agent = User::where('email', $author_id)->first();
-
-                    if ($agent != null) {
-                        $userID = $agent->id;
-                    } else {
-                        $userID = null;
-                    }
-
-                    if ($author_id == 'buying@amourint.com') {
-                        $messageStatus = 2;
-                    } else {
-                        $messageStatus = 9;
-                    }
-
-                    //creating message
-                    $params = [
-                        'unique_id' => $chatDetails->chat_id,
-                        'customer_id' => $customerLiveChat->customer_id,
-                        'approved' => 1,
-                        'status' => $messageStatus,
-                        'is_delivered' => 1,
-                        'user_id' => $userID,
-=======
                         WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
@@ -328,7 +180,6 @@ class LiveChatController extends Controller
                         'status'                 => $messageStatus,
                         'is_delivered'           => 1,
                         'user_id'                => $userID,
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                         'message_application_id' => 2,
                     ];
 
@@ -337,36 +188,21 @@ class LiveChatController extends Controller
                     $chatMessage = ChatMessage::create($params);
 
                     $numberPath = date('d');
-<<<<<<< HEAD
-                    $url = $chatDetails->event->url;
-                    try {
-                        $jpg = \Image::make($url)->encode('jpg');
-                        $filename = $chatDetails->event->name;
-                        $media = MediaUploader::fromString($jpg)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
-=======
                     $url        = $chatDetails->event->url;
                     try {
                         $jpg      = \Image::make($url)->encode('jpg');
                         $filename = $chatDetails->event->name;
                         $media    = MediaUploader::fromString($jpg)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                         $chatMessage->attachMedia($media, config('constants.media_tags'));
                     } catch (\Exception $e) {
                         $file = @file_get_contents($url);
                         if (!empty($file)) {
                             $filename = $chatDetails->event->name;
-<<<<<<< HEAD
-                            $media = MediaUploader::fromString($file)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
-                            $chatMessage->attachMedia($media, config('constants.media_tags'));
-                        }
-                    }
-=======
                             $media    = MediaUploader::fromString($file)->toDirectory('/chat-messages/' . $numberPath)->useFilename($filename)->upload();
                             $chatMessage->attachMedia($media, config('constants.media_tags'));
                         }
                     }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 }
 
                 if ($chatDetails->event->type == 'system_message') {
@@ -374,11 +210,7 @@ class LiveChatController extends Controller
                     $customerLiveChat = CustomerLiveChat::where('thread', $chatId)->first();
                     if ($customerLiveChat != null) {
                         $customerLiveChat->status = 0;
-<<<<<<< HEAD
-                        $customerLiveChat->seen = 1;
-=======
                         $customerLiveChat->seen   = 1;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                         $customerLiveChat->update();
                     }
                 }
@@ -387,25 +219,12 @@ class LiveChatController extends Controller
             }
 
             if ($receivedJson->action == 'incoming_chat_thread') {
-<<<<<<< HEAD
-                $chat = $receivedJson->payload->chat;
-=======
 
                 $chat   = $receivedJson->payload->chat;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 $chatId = $chat->id;
 
                 //Getting user
                 $userEmail = $chat->users[0]->email;
-<<<<<<< HEAD
-                $userName = $chat->users[0]->name;
-                $websiteId = null;
-                try {
-                    $websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
-                    $website = \App\StoreWebsite::where("website", "like", "%" . $websiteURL . "%")->first();
-                    if ($website) {
-                        $websiteId = $website->id;
-=======
                 $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
                 /*$translate = new TranslateClient([
@@ -419,20 +238,14 @@ class LiveChatController extends Controller
                     $website    = \App\StoreWebsite::where("website","like","%".$websiteURL."%")->first();
                     if($website) {
                        $websiteId = $website->id;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     }
                 } catch (\Exception $e) {
                     $websiteURL = '';
                 }
                 //dd($websiteURL);
                 $customer = Customer::where('email', $userEmail);
-<<<<<<< HEAD
-                if ($websiteId > 0) {
-                    $customer = $customer->where("store_website_id", $websiteId);
-=======
                 if($websiteId > 0) {
                     $customer = $customer->where("store_website_id",$websiteId);
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 }
                 $customer = $customer->first();
 
@@ -445,25 +258,6 @@ class LiveChatController extends Controller
                         $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
                         if ($onlyThreadCheck) {
                             $onlyThreadCheck->thread = null;
-<<<<<<< HEAD
-                            $chatID->seen = 1;
-                            $onlyThreadCheck->save();
-                        }
-
-                        $customerChatId = new CustomerLiveChat;
-                        $customerChatId->customer_id = $customer->id;
-                        $customerChatId->thread = $chatId;
-                        $customerChatId->status = 1;
-                        $customerChatId->seen = 0;
-                        $customerChatId->website = $websiteURL;
-                        $customerChatId->save();
-                    } else {
-                        $chatID->customer_id = $customer->id;
-                        $chatID->thread = $chatId;
-                        $chatID->status = 1;
-                        $chatID->website = $websiteURL;
-                        $chatID->seen = 0;
-=======
                             $chatID->seen            = 1;
                             $onlyThreadCheck->save();
                         }
@@ -481,7 +275,6 @@ class LiveChatController extends Controller
                         $chatID->status      = 1;
                         $chatID->website     = $websiteURL;
                         $chatID->seen        = 0;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                         $chatID->update();
                     }
                 } else {
@@ -490,15 +283,6 @@ class LiveChatController extends Controller
                     $onlyThreadCheck = CustomerLiveChat::where('thread', $chatId)->first();
                     if ($onlyThreadCheck) {
                         $onlyThreadCheck->thread = null;
-<<<<<<< HEAD
-                        $chatID->seen = 1;
-                        $onlyThreadCheck->save();
-                    }
-
-                    $customer = new Customer;
-                    $customer->name = $userName;
-                    $customer->email = $userEmail;
-=======
                         $chatID->seen            = 1;
                         $onlyThreadCheck->save();
                     }
@@ -507,21 +291,11 @@ class LiveChatController extends Controller
                     $customer->name  = $userName;
                     $customer->email = $userEmail;
                     $customer->language = $customer_language;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     $customer->phone = null;
                     $customer->store_website_id = $websiteId;
                     $customer->save();
 
                     //Save Customer with Chat ID
-<<<<<<< HEAD
-                    $customerChatId = new CustomerLiveChat;
-                    $customerChatId->customer_id = $customer->id;
-                    $customerChatId->thread = $chatId;
-                    $customerChatId->status = 1;
-                    $customerChatId->seen = 0;
-                    $customerChatId->website = $websiteURL;
-                    $customerChatId->save();
-=======
                     $customerChatId              = new CustomerLiveChat;
                     $customerChatId->customer_id = $customer->id;
                     $customerChatId->thread      = $chatId;
@@ -530,7 +304,6 @@ class LiveChatController extends Controller
                     $customerChatId->website     = $websiteURL;
                     $customerChatId->save();
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 }
             }
 
@@ -542,25 +315,11 @@ class LiveChatController extends Controller
                 if ($customerLiveChat != null) {
                     $customerLiveChat->thread = null;
                     $customerLiveChat->status = 0;
-<<<<<<< HEAD
-                    $customerLiveChat->seen = 1;
-=======
                     $customerLiveChat->seen   = 1;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     $customerLiveChat->update();
                 }
             }
         }
-<<<<<<< HEAD
-    }
-
-    public function sendMessage(Request $request) {
-
-        $chatId = $request->id;
-        $message = $request->message;
-        $customerDetails = Customer::find($chatId);
-        $language = $customerDetails->language;
-=======
 
     }
 
@@ -571,13 +330,10 @@ class LiveChatController extends Controller
         $message         = $request->message;
         $customerDetails = Customer::find($chatId);
         $language        = $customerDetails->language;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if ($language != null) {
             $message = TranslationHelper::translate('en', $language, $message);
         }
 
-<<<<<<< HEAD
-=======
 if(isset($request->messageId)){
                 $chatMessages = ChatMessage::where('id', $request->messageId)->first();
                 if ($chatMessages != null) {
@@ -586,7 +342,6 @@ if(isset($request->messageId)){
                 }
             }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         //Get Thread ID From Customer Live Chat
         $customer = CustomerLiveChat::where('customer_id', $chatId)->where("thread", "!=", "")->latest()->first();
 
@@ -594,34 +349,16 @@ if(isset($request->messageId)){
             $thread = $customer->thread;
         } else {
             return response()->json([
-<<<<<<< HEAD
-                        'status' => 'errors',
-            ]);
-        }
-        //dd($thread);
-=======
                 'status' => 'errors',
             ]);
         }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         $post = array('chat_id' => $thread, 'event' => array('type' => 'message', 'text' => $message, 'recipients' => 'all'));
         $post = json_encode($post);
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-<<<<<<< HEAD
-            CURLOPT_URL => "https://api.livechatinc.com/v3.1/agent/action/send_event",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => "$post",
-            CURLOPT_HTTPHEADER => array(
-=======
             CURLOPT_URL            => "https://api.livechatinc.com/v3.1/agent/action/send_event",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING       => "",
@@ -631,32 +368,12 @@ if(isset($request->messageId)){
             CURLOPT_CUSTOMREQUEST  => "POST",
             CURLOPT_POSTFIELDS     => "$post",
             CURLOPT_HTTPHEADER     => array(
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 "Authorization: Bearer " . \Cache::get('key') . "",
                 "Content-Type: application/json",
             ),
         ));
 
         $response = curl_exec($curl);
-<<<<<<< HEAD
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            return response()->json([
-                        'status' => 'errors',
-            ]);
-        } else {
-            $response = json_decode($response);
-            if (isset($response->error)) {
-                return response()->json([
-                            'status' => 'errors ' . @$response->error->message,
-                ]);
-            } else {
-                return response()->json([
-                            'status' => 'success',
-=======
         $err      = curl_error($curl);
 
         curl_close($curl);
@@ -676,22 +393,11 @@ if(isset($request->messageId)){
             } else {
                 return response()->json([
                     'status' => 'success',
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 ]);
             }
         }
     }
 
-<<<<<<< HEAD
-    public function setting() {
-        $liveChatUsers = LiveChatUser::all();
-        $setting = LivechatincSetting::first();
-        $users = User::where('is_active', 1)->get();
-        return view('livechat.setting', compact('users', 'liveChatUsers', 'setting'));
-    }
-
-    public function remove(Request $request) {
-=======
     public function setting()
     {
         $liveChatUsers = LiveChatUser::all();
@@ -702,7 +408,6 @@ if(isset($request->messageId)){
 
     public function remove(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
 
         $users = LiveChatUser::findorfail($request->id);
         $users->delete();
@@ -710,28 +415,12 @@ if(isset($request->messageId)){
         return response()->json(['success' => 'success'], 200);
     }
 
-<<<<<<< HEAD
-    public function save(Request $request) {
-=======
     public function save(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
 
         if ($request->username != '' || $request->key != '') {
             $checkIfExist = LivechatincSetting::all();
             if (count($checkIfExist) == 0) {
-<<<<<<< HEAD
-                $setting = new LivechatincSetting;
-                $setting->username = $request->username;
-                $setting->key = $request->key;
-                $setting->save();
-            } else {
-                $setting = LivechatincSetting::first();
-                $setting->username = $request->username;
-                $setting->key = $request->key;
-                $setting->update();
-            }
-=======
                 $setting           = new LivechatincSetting;
                 $setting->username = $request->username;
                 $setting->key      = $request->key;
@@ -743,7 +432,6 @@ if(isset($request->messageId)){
                 $setting->update();
             }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         if ($request->users != null && $request->users != '') {
@@ -754,46 +442,23 @@ if(isset($request->messageId)){
                 if ($userCheck != '' && $userCheck != null) {
                     continue;
                 }
-<<<<<<< HEAD
-                $userss = new LiveChatUser();
-                $userss->user_id = $user;
-                $userss->save();
-            }
-=======
                 $userss          = new LiveChatUser();
                 $userss->user_id = $user;
                 $userss->save();
 
             }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         return redirect()->back()->withSuccess(['msg', 'Saved']);
     }
 
-<<<<<<< HEAD
-    public function uploadFileToLiveChat($image) {
-=======
     public function uploadFileToLiveChat($image)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         //Save file to path
         //send path to Live chat
         $curl = curl_init();
         curl_setopt_array($curl, array(
-<<<<<<< HEAD
-            CURLOPT_URL => "https://api.livechatinc.com/v3.2/agent/action/upload_file",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "POST",
-            CURLOPT_POSTFIELDS => array('file' => new CURLFILE('/Users/satyamtripathi/PhpstormProjects/untitled/images/1592232591.png')),
-            CURLOPT_HTTPHEADER => array(
-=======
             CURLOPT_URL            => "https://api.livechatinc.com/v3.2/agent/action/upload_file",
             CURLOPT_RETURNTRANSFER => true,
             CURLOPT_ENCODING       => "",
@@ -804,7 +469,6 @@ if(isset($request->messageId)){
             CURLOPT_CUSTOMREQUEST  => "POST",
             CURLOPT_POSTFIELDS     => array('file' => new CURLFILE('/Users/satyamtripathi/PhpstormProjects/untitled/images/1592232591.png')),
             CURLOPT_HTTPHEADER     => array(
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 "Authorization: Bearer " . \Cache::get('key') . "",
                 "Content-Type: application/json",
             ),
@@ -816,12 +480,8 @@ if(isset($request->messageId)){
         echo $response;
     }
 
-<<<<<<< HEAD
-    public function getChats(Request $request) {
-=======
     public function getChats(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         $chatId = $request->id;
         $messagess = [];
 
@@ -840,17 +500,10 @@ if(isset($request->messageId)){
 
         $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->get();
         //getting customer name from chat
-<<<<<<< HEAD
-        $customer = Customer::findorfail($chatId);
-        $name = $customer->name;
-        $store_website_id = $customer->store_website_id;
-        $customerInfo = $this->getLiveChatIncCustomer($customer->email, 'raw');
-=======
         $customer         = Customer::findorfail($chatId);
         $name             = $customer->name;
         $store_website_id = $customer->store_website_id;
         $customerInfo     = $this->getLiveChatIncCustomer($customer->email, 'raw');
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if (!$customerInfo) {
             $customerInfo = '';
         }
@@ -860,16 +513,6 @@ if(isset($request->messageId)){
             foreach ($messages as $message) {
                 if ($message->user_id != 0) {
                     // Finding Agent
-<<<<<<< HEAD
-                    $agent = User::where('email', $message->user_id)->first();
-                    $agentInital = substr($agent->name, 0, 1);
-
-                    $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                } else {
-                    $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                }
-            }
-=======
                     $agent       = User::where('email', $message->user_id)->first();
                     $agentInital = substr($agent->name, 0, 1);
                     if(!$message->approved){
@@ -890,7 +533,6 @@ if(isset($request->messageId)){
                 }
             }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         if (!isset($messagess)) {
@@ -900,29 +542,6 @@ if(isset($request->messageId)){
         $count = CustomerLiveChat::where('seen', 0)->count();
 
         return response()->json([
-<<<<<<< HEAD
-                    'status' => 'success',
-                    'data' => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId, 'customerInital' => $customerInital, 'store_website_id' => $store_website_id),
-        ]);
-    }
-
-    public function getChatMessagesWithoutRefresh() {
-        $messagess = [];
-        if (session()->has('chat_customer_id')) {
-            $lastMessageId = request("last_msg_id");
-            $chatId = session()->get('chat_customer_id');
-            $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2);
-            if ($lastMessageId != null) {
-                $messages = $messages->where('id', ">", $lastMessageId);
-            }
-            $messages = $messages->get();
-            //getting customer name from chat
-            $customer = Customer::findorfail($chatId);
-            $name = $customer->name;
-            $customerInital = substr($name, 0, 1);
-            if (count($messages) == 0) {
-                if ($lastMessageId == null) {
-=======
             'status' => 'success',
             'data'   => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInfo' => $customerInfo, 'threadId' => $threadId, 'customerInital' => $customerInital, 'store_website_id' => $store_website_id),
         ]);
@@ -945,7 +564,6 @@ if(isset($request->messageId)){
             $customerInital = substr($name, 0, 1);
             if (count($messages) == 0) {
                 if($lastMessageId == null) {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     ////$messagess[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>';
                 }
             } else {
@@ -953,11 +571,7 @@ if(isset($request->messageId)){
 
                     if ($message->user_id != 0) {
                         // Finding Agent
-<<<<<<< HEAD
-                        $agent = User::where('email', $message->user_id)->first();
-=======
                         $agent       = User::where('email', $message->user_id)->first();
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                         $agentInital = substr($agent->name, 0, 1);
 
                         if ($message->hasMedia(config('constants.media_tags'))) {
@@ -968,9 +582,6 @@ if(isset($request->messageId)){
                                     $type = 'start';
                                 }
 
-<<<<<<< HEAD
-                                $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
-=======
                                 if(!$message->approved){
                                     $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
                                 }else{
@@ -978,7 +589,6 @@ if(isset($request->messageId)){
                                 }
                                 $messagess[] = $vals;
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                             }
                         } else {
                             if ($message->status == 2) {
@@ -986,10 +596,6 @@ if(isset($request->messageId)){
                             } else {
                                 $type = 'start';
                             }
-<<<<<<< HEAD
-                            $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                        }
-=======
                             if(!$message->approved){
                                 $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
                             }else{
@@ -1001,7 +607,6 @@ if(isset($request->messageId)){
 
                         }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     } else {
 
                         if ($message->hasMedia(config('constants.media_tags'))) {
@@ -1016,17 +621,12 @@ if(isset($request->messageId)){
                                 } else {
                                     $type = 'start';
                                 }
-<<<<<<< HEAD
-
-                                $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';
-=======
                                 if(!$message->approved){
 
                                     $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';                                    
                                 }else{
                                     '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';
                                 }
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                             }
                         } else {
                             if ($message->status == 2) {
@@ -1034,12 +634,6 @@ if(isset($request->messageId)){
                             } else {
                                 $type = 'start';
                             }
-<<<<<<< HEAD
-                            $messagess[] = '<div data-chat-id="' . $message->id . '" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                        }
-                    }
-                }
-=======
                             if(!$message->approved){
                                 $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><div class="d-flex  mb-4"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
                             }else{
@@ -1051,39 +645,20 @@ if(isset($request->messageId)){
                     }
                 }
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             }
 
             $count = CustomerLiveChat::where('seen', 0)->count();
             return response()->json([
-<<<<<<< HEAD
-                        'status' => 'success',
-                        'data' => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInital' => $customerInital),
-            ]);
-        } else {
-            return response()->json([
-                        'data' => array('id' => '', 'count' => 0, 'message' => '', 'name' => '', 'customerInital' => ''),
-=======
                 'status' => 'success',
                 'data'   => array('id' => $chatId, 'count' => $count, 'message' => $messagess, 'name' => $name, 'customerInital' => $customerInital),
             ]);
         } else {
             return response()->json([
                 'data' => array('id' => '', 'count' => 0, 'message' => '', 'name' => '', 'customerInital' => ''),
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             ]);
         }
     }
 
-<<<<<<< HEAD
-    public function getLiveChats() {
-        if (session()->has('chat_customer_id')) {
-            $chatId = session()->get('chat_customer_id');
-            $chat_message = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->orderBy("id", "desc")->get();
-            //getting customer name from chat
-            $customer = Customer::findorfail($chatId);
-            $name = $customer->name;
-=======
     public function getLiveChats()
     {
         if (session()->has('chat_customer_id')) {
@@ -1092,7 +667,6 @@ if(isset($request->messageId)){
             //getting customer name from chat
             $customer       = Customer::findorfail($chatId);
             $name           = $customer->name;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             $customerInital = substr($name, 0, 1);
             if (count($chat_message) == 0) {
                 //$message[] = '<div class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">New Chat From Customer<span class="msg_time"></span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
@@ -1100,14 +674,6 @@ if(isset($request->messageId)){
                 foreach ($chat_message as $chat) {
                     if ($chat->user_id != 0) {
                         // Finding Agent
-<<<<<<< HEAD
-                        $agent = User::where('email', $chat->user_id)->first();
-                        $agentInital = substr($agent->name, 0, 1);
-
-                        $message[] = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-                    } else {
-                        $message[] = '<div data-chat-id="' . $chat->id . '" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
-=======
                         $agent       = User::where('email', $chat->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
                         
@@ -1120,42 +686,26 @@ if(isset($request->messageId)){
                           //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                     }
                 }
             }
             $count = CustomerLiveChat::where('seen', 0)->count();
             return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
         } else {
-<<<<<<< HEAD
-            $count = 0;
-            $message = '';
-            $customerInital = '';
-            $name = '';
-=======
             $count          = 0;
             $message        = '';
             $customerInital = '';
             $name           = '';
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             return view('livechat.chatMessages', compact('message', 'name', 'customerInital'));
         }
     }
 
-<<<<<<< HEAD
-    public function getUserList() {
-        $liveChatCustomers = CustomerLiveChat::orderBy('seen', 'asc')->where("thread", "!=", "")->where("status", 1)->orderBy('status', 'desc')->get();
-
-        foreach ($liveChatCustomers as $liveChatCustomer) {
-            $customer = Customer::where('id', $liveChatCustomer->customer_id)->first();
-=======
     public function getUserList()
     {
         $liveChatCustomers = CustomerLiveChat::orderBy('seen', 'asc')->where("thread", "!=", "")->where("status", 1)->orderBy('status', 'desc')->get();
 
         foreach ($liveChatCustomers as $liveChatCustomer) {
             $customer       = Customer::where('id', $liveChatCustomer->customer_id)->first();
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             $customerInital = substr($customer->name, 0, 1);
             if ($liveChatCustomer->status == 0) {
                 $customers[] = '<li onclick="getChats(' . $customer->id . ')" id="user' . $customer->id . '" style="cursor: pointer;">
@@ -1182,18 +732,6 @@ if(isset($request->messageId)){
         $count = CustomerLiveChat::where('seen', 0)->count();
 
         return response()->json([
-<<<<<<< HEAD
-                    'status' => 'success',
-                    'data' => array('count' => $count, 'message' => $customers),
-        ]);
-    }
-
-    public function checkNewChat() {
-        $count = CustomerLiveChat::where('seen', 0)->count();
-        return response()->json([
-                    'status' => 'success',
-                    'data' => array('count' => $count),
-=======
             'status' => 'success',
             'data'   => array('count' => $count, 'message' => $customers),
         ]);
@@ -1206,7 +744,6 @@ if(isset($request->messageId)){
         return response()->json([
             'status' => 'success',
             'data'   => array('count' => $count),
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         ]);
     }
 
@@ -1218,19 +755,6 @@ if(isset($request->messageId)){
      *
      * @return - response livechatinc object of customer information. If error return false
      */
-<<<<<<< HEAD
-    public function getLiveChatIncCustomer($email = '', $out = 'JSON') {
-        $threadId = '';
-        if ($email == '' && session()->has('chat_customer_id')) {
-            $chatId = session()->get('chat_customer_id');
-            $messages = ChatMessage::where('customer_id', $chatId)->where('message_application_id', 2)->get();
-            //getting customer name from chat
-            $customer = Customer::findorfail($chatId);
-            $email = $customer->email;
-
-            $liveChatCustomer = CustomerLiveChat::where('customer_id', $chatId)->first();
-            $threadId = $liveChatCustomer->thread;
-=======
     public function getLiveChatIncCustomer($email = '', $out = 'JSON')
     {
         $threadId = '';
@@ -1243,7 +767,6 @@ if(isset($request->messageId)){
 
             $liveChatCustomer = CustomerLiveChat::where('customer_id', $chatId)->first();
             $threadId         = $liveChatCustomer->thread;
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         $returnVal = '';
@@ -1254,11 +777,7 @@ if(isset($request->messageId)){
             $postData = json_encode($postData);
 
             $returnVal = '';
-<<<<<<< HEAD
-            $result = self::curlCall($postURL, $postData, 'application/json');
-=======
             $result    = self::curlCall($postURL, $postData, 'application/json');
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             if ($result['err']) {
                 // echo "ERROR 1:<br>";
                 // print_r($result['err']);
@@ -1293,23 +812,14 @@ if(isset($request->messageId)){
      *
      * @return - response livechatinc CDN url for the file. If error return false
      */
-<<<<<<< HEAD
-    public function uploadFileToLiveChatInc(Request $request) {
-=======
     public function uploadFileToLiveChatInc(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         //To try with static file from local file, uncomment below
         //$filename = 'delete-red-cross.png';
         //$fileURL = public_path() . '/images/' . $filename;
         $uploadedFile = $request->file('file');
-<<<<<<< HEAD
-        $mimeType = $uploadedFile->getMimeType();
-        $filename = $uploadedFile->getClientOriginalName();
-=======
         $mimeType     = $uploadedFile->getMimeType();
         $filename     = $uploadedFile->getClientOriginalName();
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
 
         $postURL = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
 
@@ -1338,20 +848,12 @@ if(isset($request->messageId)){
         }
     }
 
-<<<<<<< HEAD
-    public static function useAbsPathUpload($fileURL) {
-        $filename = basename($fileURL);
-        $postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
-        $postURL = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
-        $result = self::curlCall($postURL, $postData, 'multipart/form-data');
-=======
     public static function useAbsPathUpload($fileURL)
     {
         $filename = basename($fileURL);
         $postData = array('file' => curl_file_create($fileURL, mime_content_type($fileURL), basename($fileURL)));
         $postURL  = 'https://api.livechatinc.com/v3.1/agent/action/upload_file';
         $result   = self::curlCall($postURL, $postData, 'multipart/form-data');
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if ($result['err']) {
             return false;
         } else {
@@ -1374,18 +876,6 @@ if(isset($request->messageId)){
      *   data - data that has to be sent in curl call. This can be optional if GET
      * @return - response from curl call, array(response, err)
      */
-<<<<<<< HEAD
-    public static function curlCall($URL, $data = false, $contentType = false, $defaultAuthorization = true, $method = 'POST') {
-        $curl = curl_init();
-
-        $curlData = array(
-            CURLOPT_URL => $URL,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 30,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-=======
     public static function curlCall($URL, $data = false, $contentType = false, $defaultAuthorization = true, $method = 'POST')
     {
         $curl = curl_init();
@@ -1397,7 +887,6 @@ if(isset($request->messageId)){
             CURLOPT_MAXREDIRS      => 10,
             CURLOPT_TIMEOUT        => 30,
             CURLOPT_HTTP_VERSION   => CURL_HTTP_VERSION_1_1,
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         );
 
         if ($method == 'POST') {
@@ -1422,11 +911,7 @@ if(isset($request->messageId)){
 
         curl_setopt_array($curl, $curlData);
         $response = curl_exec($curl);
-<<<<<<< HEAD
-        $err = curl_error($curl);
-=======
         $err      = curl_error($curl);
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         curl_close($curl);
 
         return array('response' => $response, 'err' => $err);
@@ -1438,12 +923,8 @@ if(isset($request->messageId)){
      * https://developers.livechatinc.com/docs/messaging/agent-chat-api/#file
      * https://developers.livechatinc.com/docs/messaging/agent-chat-api/#send-event
      */
-<<<<<<< HEAD
-    public function sendFileToLiveChatInc(Request $request) {
-=======
     public function sendFileToLiveChatInc(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         $chatId = $request->id;
         //Get Thread ID From Customer Live Chat
         $customer = CustomerLiveChat::where('customer_id', $chatId)->first();
@@ -1461,11 +942,7 @@ if(isset($request->messageId)){
             return response()->json(['status' => 'errors', 'errorMsg' => 'Error uploading file'], 200);
         } else {
             $fileCDNPath = $fileUploadResult['CDNPath'];
-<<<<<<< HEAD
-            $filename = $fileUploadResult['filename'];
-=======
             $filename    = $fileUploadResult['filename'];
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         $postData = array('chat_id' => $thread, 'event' => array('type' => 'file', 'url' => $fileCDNPath, 'recipients' => 'all'));
@@ -1494,20 +971,12 @@ if(isset($request->messageId)){
         }
     }
 
-<<<<<<< HEAD
-    public static function sendFileMessageEvent($postData) {
-        $cdnPath = $postData['event']['url'];
-        $postData = json_encode($postData, true);
-        $postURL = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
-        $result = self::curlCall($postURL, $postData, 'application/json');
-=======
     public static function sendFileMessageEvent($postData)
     {
         $cdnPath  = $postData['event']['url'];
         $postData = json_encode($postData, true);
         $postURL  = 'https://api.livechatinc.com/v3.1/agent/action/send_event';
         $result   = self::curlCall($postURL, $postData, 'application/json');
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if ($result['err']) {
             return response()->json(['status' => 'errors', 'errorMsg' => $result['err']], 403);
         } else {
@@ -1520,12 +989,8 @@ if(isset($request->messageId)){
         }
     }
 
-<<<<<<< HEAD
-    public static function getDomain($url) {
-=======
     public static function getDomain($url)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         $pieces = parse_url($url);
         $domain = isset($pieces['host']) ? $pieces['host'] : $pieces['path'];
         if (preg_match('/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,6})$/i', $domain, $regs)) {
@@ -1534,12 +999,8 @@ if(isset($request->messageId)){
         return false;
     }
 
-<<<<<<< HEAD
-    public function saveToken(Request $request) {
-=======
     public function saveToken(Request $request)
     {
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if ($request->accessToken) {
             //dd($request->accessToken);
             $storedCache = \Cache::get('key');
@@ -1566,18 +1027,11 @@ if(isset($request->messageId)){
         return response()->json(['status' => 'error', 'message' => 'AccessToken cannot be saved'], 500);
     }
 
-<<<<<<< HEAD
-    public function attachImage(Request $request) {
-        $customerid = $request->get("customer_id", 0);
-        $livechat = CustomerLiveChat::where("customer_id", $customerid)->where("thread", "!=", "")->first();
-
-=======
     public function attachImage(Request $request)
     {
         $customerid = $request->get("customer_id", 0);
         $livechat   = CustomerLiveChat::where("customer_id", $customerid)->where("thread", "!=", "")->first();
         
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         if ($livechat) {
 
             if ($request->images != null) {
@@ -1591,15 +1045,9 @@ if(isset($request->messageId)){
                             if (!$cdn == false) {
                                 $postData = array(
                                     'chat_id' => $livechat->thread,
-<<<<<<< HEAD
-                                    'event' => array(
-                                        'type' => 'file',
-                                        'url' => $cdn['CDNPath'],
-=======
                                     'event'   => array(
                                         'type'       => 'file',
                                         'url'        => $cdn['CDNPath'],
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                                         'recipients' => 'all',
                                     ),
                                 );
@@ -1611,19 +1059,6 @@ if(isset($request->messageId)){
             }
         }
 
-<<<<<<< HEAD
-        return redirect(route('livechat.get.chats') . "?open_chat=true");
-    }
-
-    /**
-     * Get tickets from livechat inc and put them as unread messages
-     * 
-     * https://developers.livechatinc.com/docs/management/configuration-api/v2.0/#tickets
-     * https://api.livechatinc.com/tickets?assigned=0
-      dal:ZP6x3Uc3QMa9W-Ve4sp86A
-     */
-    public function getLiveChatIncTickets() {
-=======
         return redirect(route('livechat.get.chats')."?open_chat=true");
     }
 
@@ -1635,24 +1070,10 @@ if(isset($request->messageId)){
     dal:ZP6x3Uc3QMa9W-Ve4sp86A
     */
     public function getLiveChatIncTickets(){
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
 
         $curl = curl_init();
 
         curl_setopt_array($curl, array(
-<<<<<<< HEAD
-            CURLOPT_URL => "https://api.livechatinc.com/v2/tickets",
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 0,
-            CURLOPT_FOLLOWLOCATION => true,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => "GET",
-            CURLOPT_HTTPHEADER => array(
-                "Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn"
-            ),
-=======
           CURLOPT_URL => "https://api.livechatinc.com/v2/tickets",
           CURLOPT_RETURNTRANSFER => true,
           CURLOPT_ENCODING => "",
@@ -1664,30 +1085,19 @@ if(isset($request->messageId)){
           CURLOPT_HTTPHEADER => array(
             "Authorization: Basic NmY0M2ZkZDUtOTkwMC00OWY4LWI4M2ItZThkYzg2ZmU3ODcyOmRhbDp0UkFQdWZUclFlLVRkQUI4Y2pFajNn"
           ),
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         ));
 
         $response = curl_exec($curl);
 
-<<<<<<< HEAD
-        $result = json_decode($response, true);
-        if (!empty($result['tickets'])) {
-            return $result['tickets'];
-        } else {
-=======
         $result = json_decode($response,true);
         if(!empty($result['tickets'])) {
             return $result['tickets'];
         }else{
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             return false;
         }
     }
 
-<<<<<<< HEAD
-=======
 
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
     /**  Created By Maulik Jadvani
      * function to Get tickets list.
      *
@@ -1695,38 +1105,6 @@ if(isset($request->messageId)){
      *
      * @return -all tickets list 
      */
-<<<<<<< HEAD
-    public function tickets(Request $request) {
-        $title = 'tickets';
-
-
-        $selectArray[] = 'tickets.*';
-        $selectArray[] = 'users.name AS assigned_to_name';
-        $query = Tickets::query();
-        $query = $query->leftjoin('users', 'users.id', '=', 'tickets.assigned_to');
-
-        $query = $query->select($selectArray);
-
-        if ($request->ticket_id) {
-            $query = $query->where('ticket_id', $request->ticket_id);
-        }
-
-        if ($request->users_id != '') {
-            $query = $query->where('assigned_to', $request->users_id);
-        }
-
-        if ($request->term != "") {
-
-            $query = $query->where('tickets.name', 'LIKE', '%' . $request->term . '%')->orWhere('tickets.email', 'LIKE', '%' . $request->term . '%');
-        }
-
-        if ($request->status_id != '') {
-            $query = $query->where('status_id', $request->status_id);
-        }
-
-        if ($request->date != '') {
-            $query = $query->whereDate('date', $request->date);
-=======
     public function tickets(Request $request)
     {
         $title = 'tickets';
@@ -1762,29 +1140,11 @@ if(isset($request->messageId)){
         if($request->date !='')
         {
 			$query = $query->whereDate('date', $request->date);
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
         }
 
         $pageSize = 10;
 
         $data = $query->orderBy('date', 'DESC')->paginate($pageSize)->appends(request()->except(['page']));
-<<<<<<< HEAD
-        if ($request->ajax()) {
-            return response()->json([
-                        'tbody' => view('livechat.partials.ticket-list', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize)->render(),
-                        'links' => (string) $data->render(),
-                        'count' => $data->total(),
-                            ], 200);
-        }
-
-        return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
-    }
-
-    public function sendEmail(Request $request) {
-        $this->validate($request, [
-            'subject' => 'required|min:3|max:255',
-            'message' => 'required',
-=======
         
 		if ($request->ajax()) {
             return response()->json([
@@ -1805,39 +1165,11 @@ if(isset($request->messageId)){
             'subject' => 'required|min:3|max:255',
             'message' => 'required',
            
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
             'cc.*' => 'nullable|email',
             'bcc.*' => 'nullable|email'
         ]);
 
         $tickets = Tickets::find($request->ticket_id);
-<<<<<<< HEAD
-        if (!isset($tickets->id)) {
-            // return false;
-        }
-
-        $fromEmail = 'buying@amourint.com';
-        $fromName = "buying";
-
-        if ($request->from_mail) {
-            $mail = \App\EmailAddress::where('id', $request->from_mail)->first();
-            if ($mail) {
-                $fromEmail = $mail->from_address;
-                $fromName = $mail->from_name;
-                $config = config("mail");
-                unset($config['sendmail']);
-                $configExtra = array(
-                    'driver' => $mail->driver,
-                    'host' => $mail->host,
-                    'port' => $mail->port,
-                    'from' => [
-                        'address' => $mail->from_address,
-                        'name' => $mail->from_name,
-                    ],
-                    'encryption' => $mail->encryption,
-                    'username' => $mail->username,
-                    'password' => $mail->password
-=======
         if(!isset($tickets->id))
         {
            // return false;
@@ -1866,25 +1198,12 @@ if(isset($request->messageId)){
                 'encryption'  => $mail->encryption,
                 'username'    => $mail->username,
                 'password'    => $mail->password
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 );
                 \Config::set('mail', array_merge($config, $configExtra));
                 (new \Illuminate\Mail\MailServiceProvider(app()))->register();
             }
         }
 
-<<<<<<< HEAD
-        if ($tickets->email != '') {
-            $file_paths = [];
-
-            if ($request->hasFile('file')) {
-                foreach ($request->file('file') as $file) {
-                    $filename = $file->getClientOriginalName();
-
-                    $file->storeAs("documents", $filename, 'files');
-
-                    $file_paths[] = "documents/$filename";
-=======
         if ($tickets->email != '') 
         {
             $file_paths = [];
@@ -1897,7 +1216,6 @@ if(isset($request->messageId)){
                 $file->storeAs("documents", $filename, 'files');
 
                 $file_paths[] = "documents/$filename";
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
                 }
             }
 
@@ -1909,130 +1227,6 @@ if(isset($request->messageId)){
             }
             if ($request->has('bcc')) {
                 $bcc = array_values(array_filter($request->bcc));
-<<<<<<< HEAD
-            }
-
-            if (is_array($emails) && !empty($emails)) {
-                $to = array_shift($emails);
-                $cc = array_merge($emails, $cc);
-
-                $mail = Mail::to($to);
-
-                if ($cc) {
-                    $mail->cc($cc);
-                }
-                if ($bcc) {
-                    $mail->bcc($bcc);
-                }
-
-                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]));
-            } else {
-                return redirect()->back()->withErrors('Please select an email');
-            }
-
-            $params = [
-                'model_id' => $tickets->id,
-                'model_type' => Tickets::class,
-                'from' => $fromEmail,
-                'to' => $tickets->email,
-                'seen' => 1,
-                'subject' => $request->subject,
-                'message' => $request->message,
-                'template' => 'customer-simple',
-                'additional_data' => json_encode(['attachment' => $file_paths]),
-                'cc' => $cc ?: null,
-                'bcc' => $bcc ?: null
-            ];
-
-            Email::create($params);
-
-            return redirect()->back()->withSuccess('You have successfully sent an email!');
-        }
-    }
-
-    public function AssignTicket(Request $request) {
-        $this->validate($request, [
-            'id' => 'required|numeric',
-            'users_id' => 'required|numeric',
-        ]);
-
-        $id = $request->id;
-        $users_id = $request->users_id;
-
-        $tickets = Tickets::find($request->id);
-        if (isset($tickets->id) && $tickets->id > 0) {
-            $tickets->assigned_to = $users_id;
-            $tickets->save();
-
-            return redirect()->back()->withSuccess('Tickets has been successfully Assigned.');
-        } else {
-            return redirect()->back()->withErrors('something wrong please try to again Assigned Tickets.');
-        }
-    }
-
-    public function TicketStatus(Request $request) {
-        $this->validate($request, [
-            'name' => 'required',
-        ]);
-
-
-        $name = $request->name;
-        $TicketStatusObj = TicketStatuses::where(['name' => $name])->first();
-        if (isset($TicketStatusObj->id) && $TicketStatusObj->id > 0) {
-            
-        } else {
-            TicketStatuses::create(['name' => $name]);
-        }
-
-        return redirect()->back()->withSuccess('Ticket Status has been successfully Added.');
-    }
-
-    public function ChangeStatus(Request $request) {
-        if ($request->status != '' && $request->id != '') {
-            $tickets = Tickets::find($request->id);
-            if (isset($tickets->id) && $tickets->id > 0) {
-                $tickets->status_id = $request->status;
-                $tickets->save();
-            }
-        } else {
-            
-        }
-
-        return response()->json([
-                    'status' => 'success'
-        ]);
-    }
-
-    public function createTickets(Request $request) {
-        $customer = Customer::where('id', $request->ticket_customer_id)->first();
-        $data = [
-            'customer_id' => $request->ticket_customer_id,
-            'name' => $customer->name,
-            'email' => $customer->email,
-            'subject' => $request->ticket_subject,
-            'message' => $request->ticket_message,
-            'assigned_to' => $request->ticket_assigned_to,
-            'source_of_ticket' => $request->source_of_ticket,
-            'status_id' => $request->ticket_status_id,
-            'created_at' => Carbon::now()->format('H:i:s Y-m-d'),
-            'updated_at' => Carbon::now()->format('H:i:s Y-m-d'),
-        ];
-        Tickets::create($data);
-        return response()->json([
-                    'status' => 'success'
-        ]);
-    }
-
-    public function getTicketsData(Request $request) {
-        $data = Tickets::with('ticketStatus')->where('customer_id', $request->customer_id)->get(['subject', 'message', 'status_id', 'created_at']);
-        return response()->json([
-                    'status' => 'success',
-                    'data' => $data
-        ]);
-    }
-
-}
-=======
             }
 
             if (is_array($emails) && !empty($emails)) {
@@ -2148,4 +1342,3 @@ if(isset($request->messageId)){
 
     
 }
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
