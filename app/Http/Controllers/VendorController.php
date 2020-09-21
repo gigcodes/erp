@@ -323,13 +323,6 @@ class VendorController extends Controller
               ->get();
     return response()->json($search);  
   }
-  public function vendorSearchEmail()
-  {
-    $term = request()->get("q", null);
-    $search = Vendor::where('email', 'LIKE', "%" . $term . "%")
-              ->get();
-    return response()->json($search);
-  }
 
   public function email(Request $request)
   {
@@ -1152,26 +1145,45 @@ class VendorController extends Controller
 
   private function sendHubstaffInvitation(string $email)
   {
+    // try {
+    //   $this->doHubstaffOperationWithAccessToken(
+    //     function ($accessToken) use ($email) {
+    //       $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+    //       $client = new GuzzleHttpClient;
+    //       return $client->post(
+    //         $url,
+    //         [
+    //           RequestOptions::HEADERS => [
+    //             'Authorization' => 'Bearer ' . $accessToken,
+    //           ],
+    //           RequestOptions::JSON => [
+    //             'email' => $email
+    //           ]
+    //         ]
+    //       );
+    //     }
+    //   );
+    //   return true;
+    // }
     try {
-      $this->doHubstaffOperationWithAccessToken(
-        function ($accessToken) use ($email) {
-          $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-          $client = new GuzzleHttpClient;
-          return $client->post(
-            $url,
-            [
-              RequestOptions::HEADERS => [
-                'Authorization' => 'Bearer ' . $accessToken,
-              ],
-              RequestOptions::JSON => [
-                'email' => $email
-              ]
-            ]
-          );
-        }
+      $tokens = $this->getTokens();
+      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      $client = new GuzzleHttpClient;
+      $response = $client->post(
+        $url,
+        [
+          RequestOptions::HEADERS => [
+            'Authorization' => 'Bearer ' . $tokens->access_token,
+            'Content-Type' => 'application/json'
+          ],
+          RequestOptions::JSON => [
+            'email' => $email
+          ]
+        ]
       );
-      return true;
-    } catch (Exception $e) {
+  } catch (ClientException $e) {
+      dd($e->getMessage());
+      dd($e->getResponse()->getBody());
       return false;
     }
   }

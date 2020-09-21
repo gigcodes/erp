@@ -998,6 +998,7 @@ class Product extends Model
         return $platformId;
     }
 
+<<<<<<< HEAD
     public static function getProducts($filter_data = array())
     {
         $columns = array(
@@ -1066,6 +1067,8 @@ class Product extends Model
         asort( $result );
         return $result;
     } 
+=======
+>>>>>>> d02338110ec5250c590dfe020404630485177dcd
     public function getStatusName()
     {
         return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];

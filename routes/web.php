@@ -238,6 +238,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
+    Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestion')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
     // Auto Replies
