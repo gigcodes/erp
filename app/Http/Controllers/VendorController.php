@@ -65,7 +65,6 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
-   
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
@@ -93,7 +92,7 @@ class VendorController extends Controller
       $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
     }
     //getting request 
-    if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
+    if ($request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
         $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
     ) {
       //Query Initiate
@@ -162,6 +161,11 @@ class VendorController extends Controller
         $query->whereHas('category', function ($qu) use ($request) {
           $qu->where('category_id', '=', request('category'));
         });
+      }
+  //if email is not nyll
+      if (request('email') != null) {
+        $query->where('email', 'like', '%'.request('email').'%');
+
       }
 
 
@@ -285,7 +289,7 @@ class VendorController extends Controller
     ->groupBy("vendors.updated_by")
     ->select([\DB::raw("count(u.id) as total_records"),"u.name"])
     ->get();
-    
+
     return view('vendors.index', [
       'vendors' => $vendors,
       'vendor_categories' => $vendor_categories,
@@ -318,6 +322,13 @@ class VendorController extends Controller
     $search = Vendor::where('phone', 'LIKE', "%" . $term . "%")
               ->get();
     return response()->json($search);  
+  }
+  public function vendorSearchEmail()
+  {
+    $term = request()->get("q", null);
+    $search = Vendor::where('email', 'LIKE', "%" . $term . "%")
+              ->get();
+    return response()->json($search);
   }
 
   public function email(Request $request)
@@ -441,8 +452,9 @@ class VendorController extends Controller
         if ($request->email == null) {
           $email = str_replace(' ', '_', $request->name) . '@solo.com';
         } else {
-          $email = explode('@', $request->email);
-          $email = $email[0] . '@solo.com';
+          // $email = explode('@', $request->email);
+          // $email = $email[0] . '@solo.com';
+          $email = $request->email;
         }
         $password = str_random(10);
         $user->email = $email;
@@ -1036,6 +1048,8 @@ class VendorController extends Controller
         ['reply' => $reply, 'model' => 'Vendor', "category_id" => 1],
         ['reply' => $reply]
       );
+
+
     }
 
     return response()->json(["code" => 200, 'data' => $autoReply]);
@@ -1072,8 +1086,9 @@ class VendorController extends Controller
       if ($vendor->email == null) {
         $email = str_replace(' ', '_', $vendor->name) . '@solo.com';
       } else {
-        $email = explode('@', $vendor->email);
-        $email = $email[0] . '@solo.com';
+        // $email = explode('@', $vendor->email);
+        // $email = $email[0] . '@solo.com';
+        $email = $vendor->email;
       }
       $password = str_random(10);
       $user->email = $email;

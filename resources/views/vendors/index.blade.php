@@ -32,7 +32,7 @@
             z-index: 60;
         }
     .cls_filter_inputbox{
-        width: 14%;
+        width: 12%;
         text-align: center;
     }
     .message-chat-txt {
@@ -128,6 +128,16 @@
                             <?php
                                 if (request()->get('term')) {
                                     echo '<option value="'.request()->get('term').'" selected>'.request()->get('term').'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+                    <div class="form-group ml-3 cls_filter_inputbox">
+                        <label for="with_archived">Search Email</label>
+                        <select name="email" type="text" class="form-control" placeholder="Search" id="vendor-email" data-allow-clear="true">
+                            <?php
+                                if (request()->get('email')) {
+                                    echo '<option value="'.request()->get('email').'" selected>'.request()->get('email').'</option>';
                                 }
                             ?>
                         </select>
@@ -437,7 +447,8 @@
     <script type="text/javascript">
 
         <?php if(!empty($updatedProducts)) {
-            foreach($updatedProducts as $updatedProduct) {
+
+        foreach($updatedProducts as $updatedProduct) {
                 echo "toastr['success']('".$updatedProduct['name']." has submitted ".$updatedProduct['total_records']." updated');";
             }
         } ?>
@@ -565,6 +576,46 @@
                 }
             },
             templateSelection: (customer) => customer.text || customer.phone,
+
+        });
+        $('#vendor-email').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: BASE_URL+'/vendor-search-email',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        data[i].id = data[i].email ? data[i].email : data[i].text;
+                    }
+                    params.page = params.page || 1;
+
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search by Email number',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+
+                if (customer.name) {
+                    return "<p style='color:#333;'>"+ customer.email+ "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.email,
 
         });
 
@@ -1119,6 +1170,7 @@
               $(document).on("change", ".quickComment", function (e) {
 
                   var message = $(this).val();
+                  var select = $(this);
 
                   if ($.isNumeric(message) == false) {
                       $.ajax({
@@ -1130,15 +1182,19 @@
                           method: "POST",
                           data: {reply: message}
                       }).done(function (data) {
+                          var vendors_id =$(select).find("option[value='']").data("vendorid");
+                          var message_re = data.data.reply;
+                          $("textarea#messageid_"+vendors_id).val(message_re);
 
+                          console.log(data)
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {
                           alert('No response from server');
                       });
                   }
                   //$(this).closest("td").find(".quick-message-field").val($(this).find("option:selected").text());
-                  var vendors_id = $(this).find("option:selected").attr("data-vendorid");
-                  //alert(vendors_id);
-                  var message_re = $(this).find("option:selected").attr("title");
+                  var vendors_id =$(select).find("option[value='']").data("vendorid");
+                  var message_re = $(this).find("option:selected").html();
+
                   $("textarea#messageid_"+vendors_id).val($.trim(message_re));
 
               });
@@ -1158,11 +1214,23 @@
                           data: {id: deleteAuto}
                       }).done(function (data) {
                           if (data.code == 200) {
-                              $(".quickComment").empty();
-                              $.each(data.data, function (k, v) {
-                                  $(".quickComment").append("<option value='" + k + "'>" + v + "</option>");
+                              // $(".quickComment ")
+                              //     .find('option').not(':first').remove();
+
+                              $(".quickComment").each(function(){
+                              var selecto=  $(this)
+                                  $(this).children("option").not(':first').each(function(){
+                                    $(this).remove();
+
+
+                                  });
+                                  $.each(data.data, function (k, v) {
+                                      $(selecto).append("<option  value='" + k + "'>" + v + "</option>");
+                                  });
+                                  $(selecto).select2({tags: true});
                               });
-                              $(".quickComment").select2({tags: true});
+
+
                           }
 
                       }).fail(function (jqXHR, ajaxOptions, thrownError) {

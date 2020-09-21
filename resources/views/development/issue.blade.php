@@ -34,6 +34,7 @@
     .mr-t-5 {
         margin-top:5px !important;
     }
+ 
 </style>
 
 
@@ -394,7 +395,6 @@
         $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
-
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
