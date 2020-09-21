@@ -1117,6 +1117,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('vendot/block', 'VendorController@block')->name('vendors.block');
     Route::post('vendors/inviteGithub', 'VendorController@inviteGithub');
     Route::post('vendors/inviteHubstaff', 'VendorController@inviteHubstaff');
+    Route::post('vendors/changeHubstaffUserRole', 'VendorController@changeHubstaffUserRole');
     Route::post('vendors/change-status', 'VendorController@changeStatus');
     Route::get('vendor_category/assign-user', 'VendorController@assignUserToCategory');
 
