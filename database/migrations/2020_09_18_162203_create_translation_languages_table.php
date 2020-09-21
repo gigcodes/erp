@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateRoutesTable extends Migration
+class CreateTranslationLanguagesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,12 +13,9 @@ class CreateRoutesTable extends Migration
      */
     public function up()
     {
-        Schema::create('product_translation_histories', function (Blueprint $table) {
+        Schema::create('translation_languages', function (Blueprint $table) {
             $table->increments('id');
-            $table->bigInteger('product_id');
-			$table->String('url',255)->nullable();
-			$table->String('page_title',255)->nullable();
-			$table->String('page_description',255)->nullable();
+            $table->string('locale')->unique();
             $table->timestamps();
         });
     }
@@ -30,6 +27,6 @@ class CreateRoutesTable extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('routes');
+        Schema::dropIfExists('translation_languages');
     }
 }

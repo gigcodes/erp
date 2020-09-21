@@ -10,11 +10,17 @@ class Product_translation extends Model
                         'product_id',
                         'locale',
                         'title',
-                        'description'
+                        'description',
+                        'site_id',
+                        'is_rejected'
     ];
 
     public function product() {
         return $this->belongsTo('App\Product');
+    }
+
+    public function site(){
+        return $this->hasOne(StoreWebsite::class, 'id', 'site_id');
     }
 
 
