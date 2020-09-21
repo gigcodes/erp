@@ -2050,7 +2050,6 @@ class WhatsAppController extends FindByNumberController
             'social_strategy_id' => 'sometimes|nullable|numeric',
             'store_social_content_id' => 'sometimes|nullable|numeric',
         ]);
-
         $data = $request->except('_token');
         // set if there is no queue defaut for all pages
         if (!isset($data[ "is_queue" ])) {
@@ -2080,6 +2079,9 @@ class WhatsAppController extends FindByNumberController
                     $vendor = Vendor::where('phone', $user->phone)->first();
                     $data[ 'vendor_id' ] = $vendor->id;
                     $module_id = $vendor->id;
+                }
+                if($request->get('message')){
+                    $data['message'] = $request->get('message');
                 }
             } elseif ($context == 'task') {
                 $data[ 'task_id' ] = $request->task_id;
@@ -2241,7 +2243,6 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $number = $number->phone;
-
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $this->sendWithThirdApi($number, null, '', $image->getUrl());
