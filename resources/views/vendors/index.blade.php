@@ -279,6 +279,7 @@
     {{-- @include('vendors.partials.agent-modals') --}}
     @include('vendors.partials.vendor-category-modals')
     @include('vendors.partials.modal-conference')
+    @include('vendors.partials.change-hubstaff-role')
 
     <div id="reminderModal" class="modal fade" role="dialog">
         <div class="modal-dialog">
@@ -637,6 +638,31 @@
             $('#emailToAllModal').modal("show");
 
         });
+
+
+        $(document).on('click', '.change-hubstaff-role', function () {
+            var id = $(this).data('id');
+            $("#hidden-vendor-id").val(id);
+            $("#userHubstaffRoleModal").modal('show');
+        });
+
+
+        $(document).on('submit', '#user-hubstaff-role-form', function (e) {
+            e.preventDefault();
+            $.ajax({
+                type: "POST",
+                url: BASE_URL+"/vendors/changeHubstaffUserRole",
+                data: $('#user-hubstaff-role-form').serialize()
+            })
+            .done(function(data){
+                toastr["success"](data.message);
+                $("#userHubstaffRoleModal").modal('hide');
+            })
+            .fail(function(error) {
+                toastr["error"](error.responseJSON.message);
+            })
+        });
+        
 
         $(document).on('click', '.send-email-to-vender', function () {
             $('#emailToAllModal').find('form').find('input[name="vendor_ids"]').val($(this).data('id'));
@@ -1314,10 +1340,10 @@
                 }
             })
             .done(function(data){
-                alert(data.message);
+                toastr["success"](data.message);
             })
             .fail(function(error) {
-                alert(error.responseJSON.message);
+                toastr["error"](error.responseJSON.message);
             })
         }
 

@@ -1122,13 +1122,14 @@ class VendorController extends Controller
   {
     $email = $request->get('email');
     if ($email) {
-      if ($this->sendHubstaffInvitation($email)) {
+      $response = $this->sendHubstaffInvitation($email);
+      if ($response['code'] == 200) {
         return response()->json(
           ['message' => 'Invitation sent to ' . $email]
         );
       }
       return response()->json(
-        ['message' => 'Unable to send invitation to ' . $email],
+        ['message' => $response['message']],
         500
       );
     }
@@ -1142,7 +1143,79 @@ class VendorController extends Controller
   {
     return $this->inviteUser($email);
   }
+  public function changeHubstaffUserRole(Request $request) {
+    $id = $request->vendor_id;
+    $role = $request->role;
+    if($id && $role && $role != '') {
+      $vendor = Vendor::find($id);
+      $user = User::where('phone', $vendor->phone)->first();
+      if($user) {
+        $member = \App\Hubstaff\HubstaffMember::where('user_id',$user->id)->first();
+        if($member) {
+          $hubstaff_member_id = $member->hubstaff_user_id;
+          // $hubstaff_member_id = 901839;
+          $response = $this->changeHubstaffUserRoleApi($hubstaff_member_id);
+          if($response['code'] == 200) {
+            return response()->json(['message' => 'Role successfully changed in the hubstaff'],200);
+          }
+          else {
+            return response()->json(['message' => $response['message']],500);
+          }
+        }
 
+      }
+    }
+    return response()->json(['message' => 'User or hubstaff member not found'],500);
+  }
+
+  private function changeHubstaffUserRoleApi($hubstaff_member_id) {
+    try {
+      $tokens = $this->getTokens();
+      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      $client = new GuzzleHttpClient();
+      $body = array(
+        'members' => array(
+          array(
+            "user_id" => $hubstaff_member_id,
+            "role" => "user"
+          )
+        )
+      );
+      
+      $response = $client->put(
+        $url,
+        [
+          RequestOptions::HEADERS => [
+            'Authorization' => 'Bearer ' . $tokens->access_token,
+            'Content-Type' => 'application/json'
+          ],
+          RequestOptions::BODY => json_encode($body)
+        ]
+      );
+      $message = [
+        'code' => 200,
+        'message' => 'Successful'
+      ];
+      return $message;
+  } catch (\Exception $e) {
+    $exception = (string) $e->getResponse()->getBody();
+    $exception = json_decode($exception);
+      if($e->getCode() != 200) {
+        $message = [
+          'code' => 500,
+          'message' => $exception->error
+        ];
+        return $message;
+      }
+      else {
+        $message = [
+          'code' => 200,
+          'message' => 'Successful'
+        ];
+        return $message;
+      }
+    }
+  }
   private function sendHubstaffInvitation(string $email)
   {
     // try {
@@ -1168,7 +1241,7 @@ class VendorController extends Controller
     try {
       $tokens = $this->getTokens();
       $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-      $client = new GuzzleHttpClient;
+      $client = new GuzzleHttpClient();
       $response = $client->post(
         $url,
         [
@@ -1181,10 +1254,28 @@ class VendorController extends Controller
           ]
         ]
       );
-  } catch (ClientException $e) {
-      dd($e->getMessage());
-      dd($e->getResponse()->getBody());
-      return false;
+      $message = [
+        'code' => 200,
+        'message' => 'Successful'
+      ];
+      return $message;
+  } catch (\Exception $e) {
+    $exception = (string) $e->getResponse()->getBody();
+    $exception = json_decode($exception);
+      if($e->getCode() != 200) {
+        $message = [
+          'code' => 500,
+          'message' => $exception->error
+        ];
+        return $message;
+      }
+      else {
+        $message = [
+          'code' => 200,
+          'message' => 'Successful'
+        ];
+        return $message;
+      }
     }
   }
 
