@@ -162,6 +162,7 @@
                             {{-- {!! $category_search !!} --}}
                             <select class="form-control select-multiple" name="category[]"
                                     data-placeholder="Category..">
+                                <option></option>
                                 @foreach ($category_array as $data)
                                     <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
                                     @if ($data['title'] == 'Men')
@@ -257,12 +258,10 @@
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
                             @endif
 
-                            <button type="submit" class="btn btn-secondary"><i type="submit" class="fa fa-filter"
-                                                                               aria-hidden="true"></i></button>
+                            <button type="submit" class="btn btn-secondary" title="Filter"><i type="submit" class="fa fa-filter"
+                                                                               aria-hidden="true" ></i></button>
 
-                            {{--                                <i type="submit" class="fa fa-filter" aria-hidden="true"></i>--}}
-
-                            <a href="{{url()->current()}}" class="btn  btn-secondary">Clear</a>
+                            <a href="{{url()->current()}}" class="btn  btn-secondary" title="Clear"><i type="submit" class="fa fa-times" aria-hidden="true"></i></a>
                             <input type="button" onclick="pushProduct()" class="btn btn-secondary"
                                    value="Push product"/>
                         </div>
@@ -289,21 +288,21 @@
                 <table class="table table-bordered table-striped" style="max-width: 100% !important;">
                     <thead>
                     <tr>
-                        <th width="2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
-                        <th width="7%">Product ID</th>
-                        <th width="5%">Image</th>
-                        <th width="6%">Brand Name</th>
-                        <th width="8%">Category</th>
-                        <th width="7%">Title</th>
-                        <th width="10%">Description</th>
-                        <th width="8%">Composition</th>
-                        <th width="5%">Color</th>
-                        <th width="5%">Dimension</th>
-                        <th width="8%">Sizes</th>
-                        <th width="4%">Price</th>
-                        <th width="6%">Action</th>
-                        <th width="11%">Status</th>
-                        <th width="18%">User</th>
+                        <th style="width:30px"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
+                        <th style="width:120px">Product ID</th>
+                        <th style="width:70px">Image</th>
+                        <th style="width:110px" >Brand Name</th>
+                        <th style="width:120px">Category</th>
+                        <th >Title</th>
+                        <th>Description</th>
+                        <th style="width:120px">Composition</th>
+                        <th style="width:120px">Color</th>
+                        <th style="width:120px">Dimension</th>
+                        <th style="width:100px">Sizes</th>
+                        <th style="width:70px">Price</th>
+                        <th style="width: 100px">Action</th>
+                        <th style="width:120px">Status</th>
+                        <th style="width:120px">User</th>
                     </tr>
                     </thead>
                     @foreach ($products as $key => $product)
@@ -890,7 +889,14 @@
 
                             </td>
                             <td>
-                                {{ $product->size }}
+
+                                @php
+
+                                $size_array = explode(',', $product->size);
+
+                                @endphp
+
+                                {{ $size_array[0] ? $size_array[0] : '' }} {{ $size_array[1] ? ', '.$size_array[1] :  '' }}
                             </td>
 
                             <td class="table-hover-cell quick-edit-price" data-id="{{ $product->id }}">
@@ -937,25 +943,25 @@
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="approve">Approve--}}
                                         {{--                                        </button>--}}
-                                        <i class="fa fa-check upload-magento" title="Approve"
+                                        <i style="cursor: pointer;" class="fa fa-check upload-magento" title="Approve"
                                            data-id="{{ $product->id }}" data-type="approve" aria-hidden="true"></i>
                                     @elseif ($product->is_approved == 1 && $product->isUploaded == 0)
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="list">List--}}
                                         {{--                                        </button>--}}
-                                        <i class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}"
+                                        <i style="cursor: pointer;" class="fa fa-list upload-magento" title="List" data-id="{{ $product->id }}"
                                            data-type="list" aria-hidden="true"></i>
                                     @elseif ($product->is_approved == 1 && $product->isUploaded == 1 && $product->isFinal == 0)
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="enable">Enable --}}{{--catch--}}
                                         {{--                                        </button>--}}
-                                        <i class="fa fa-toggle-off upload-magento" title="Enable"
+                                        <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable"
                                            data-id="{{ $product->id }}" data-type="enable" aria-hidden="true"></i>
                                     @else
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="update">Update--}}
                                         {{--                                        </button>--}}
-                                        <i class="fa fa-pencil upload-magento" title="Update"
+                                        <i style="cursor: pointer;" class="fa fa-pencil upload-magento" title="Update"
                                            data-id="{{ $product->id }}" data-type="update" aria-hidden="true"></i>
                                     @endif
                                     @if ($product->product_user_id != null)
@@ -966,7 +972,7 @@
                                     {{--                                            data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For--}}
                                     {{--                                        Approval--}}
                                     {{--                                    </button>--}}
-                                    <i class="fa fa-toggle-off upload-magento" title="Enable"
+                                    <i style="cursor: pointer;" class="fa fa-toggle-off upload-magento" title="Enable"
                                        data-id="{{ $product->id }}" data-type="submit_for_approval"
                                        aria-hidden="true"></i>
                                 @endif
@@ -975,17 +981,17 @@
                                 {{--                                        data-target="#product_activity_{{ $product->id }}">Activity--}}
                                 {{--                                </button>--}}
 
-                                <i class="fa fa-tasks" data-toggle="modal" title="Activity"
+                                <i style="cursor: pointer;" class="fa fa-tasks" data-toggle="modal" title="Activity"
                                    data-target="#product_activity_{{ $product->id }}" aria-hidden="true"></i>
                                 {{--                                <button type="button" class="btn btn-xs btn-secondary" data-toggle="modal"--}}
                                 {{--                                        data-target="#product_scrape_{{ $product->id }}">Scrape--}}
                                 {{--                                </button>--}}
 
-                                <i class="fa fa-trash" data-toggle="modal" title="Scrape"
+                                <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
                                    data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
 
                             </td>
-                            <td style="min-width: 80px;">
+                            <td>
                                 {{--                                <input type="checkbox" name="reject_{{$product->id}}" id="reject_{{$product->id}}">--}}
                                 {{--                                Reject<br/>--}}
                                 <select class="form-control post-remark" id="post_remark_{{$product->id}}"

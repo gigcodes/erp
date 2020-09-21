@@ -111,6 +111,8 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
+
+
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -153,6 +155,7 @@ class ProductController extends Controller
                  $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
              }
          }
+
         if (auth()->user()->isReviwerLikeAdmin()) {
             $newProducts = Product::query();
         } else {
@@ -179,7 +182,6 @@ class ProductController extends Controller
         $supplier = [];
         $type = '';
         $assigned_to_users = '';
-
 
         if (is_array($request->brand) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
@@ -239,8 +241,17 @@ class ProductController extends Controller
         }
 
         if (trim($term) != '') {
-            $newProducts = $newProducts->where(function ($query) use ($term) {
-                $query->where('short_description', 'LIKE', "%" . $term . "%")->orWhere('color', 'LIKE', "%" . $term . "%");
+
+            $newProducts->where(function ($query) use ($term) {
+                $query->where('short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhereHas('brands', function($q) use($term){
+                        $q->where('name', 'LIKE', "%" . $term . "%");
+                })
+                ->orWhereHas('product_category', function($q) use($term){
+                    $q->where('title', 'LIKE', "%" . $term . "%");
+                });
             });
         }
 
@@ -2244,8 +2255,8 @@ class ProductController extends Controller
 
         $product->name = $request->name;
         $product->sku = $request->sku;
-        $size_array = implode(',', $request->size) ;
-        $product->size = is_array($request->size) ? $size_array[0].','.$size_array[1]  : ($request->size ?? $request->other_size);
+       // $size_array = implode(',', $request->size) ;
+        $product->size = implode(',', $request->size);
         $product->brand = $request->brand;
         $product->color = $request->color;
         $product->supplier = $request->supplier;
