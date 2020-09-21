@@ -40,8 +40,8 @@
 
 @section('large_content')
     <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ ucfirst($title) }}</h2>
+        <div class="col-lg-12 margin-tb">            
+            <h2 class="page-heading">{{ ucfirst($title) }} ({{$issues->total()}})</h2>
         </div>
     </div>
 
