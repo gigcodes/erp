@@ -138,3 +138,36 @@
 
 	</div>
 </div>
+
+
+<div id="addPriceRange" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+
+      <!-- Modal content-->
+      <div class="modal-content">
+        <form action="{{ route('supplier/add/pricernage') }}" method="POST">
+			@csrf
+
+			<div class="modal-header">
+				<h4 class="modal-title">Add Supplier Price Range</h4>
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			<div class="modal-body">
+				<div class="form-group">
+					<label>Price From:</label>
+					<input type="number" name="price_from" class="form-control" value="" required>
+				</div>
+				<div class="form-group">
+					<label>Price To:</label>
+					<input type="number" name="price_to" class="form-control" value="" required>
+				</div>
+			</div>
+			<div class="modal-footer">
+				<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+				<button type="submit" class="btn btn-secondary">Add</button>
+			</div>
+        </form>
+      </div>
+
+    </div>
+  </div>	
