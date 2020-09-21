@@ -145,6 +145,7 @@
 
                         <div class="col-md-5">
 
+                        <!-- {{ $product = $product->product }} -->
                         <?php $gridImage = ''; ?>
                         @if ($product->hasMedia(config('constants.media_gallery_tag')))
                             @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
@@ -162,25 +163,27 @@
                                         $badge = "notify-red-badge";
                                     }
                                     ?>
-                                    <?php
-                                    if ($width == 1000 && $height == 1000) {
-                                    ?>
-                                    <div class="thumbnail-pic">
-                                        <div class="thumbnail-edit"><a class="delete-thumbail-img"
-                                                                       data-product-id="{{ $product->id }}"
-                                                                       data-media-id="{{ $media->id }}"
-                                                                       data-media-type="gallery"
-                                                                       href="javascript:;"><i
-                                                        class="fa fa-trash fa-lg"></i></a></div>
-                                        <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
-                                        <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
-                                             src="{{ $media->getUrl() }}"
-                                             class="quick-image-container img-responive" alt=""
-                                             data-toggle="tooltip" data-placement="top"
-                                             title="ID: {{ $product->id }}"
-                                             onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}')">
-                                    </div>
-                                    <?php } ?>
+                                    {{--Get cropping grid image--}}
+                                    <!-- {{$gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category)}} -->
+                                        <?php
+                                        if ($width == 1000 && $height == 1000) {
+                                        ?>
+                                        <div class="thumbnail-pic">
+                                            <div class="thumbnail-edit"><a class="delete-thumbail-img"
+                                                                           data-product-id="{{ $product->id }}"
+                                                                           data-media-id="{{ $media->id }}"
+                                                                           data-media-type="gallery"
+                                                                           href="javascript:;"><i
+                                                            class="fa fa-trash fa-lg"></i></a></div>
+                                            <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
+                                            <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
+                                                 src="{{ $media->getUrl() }}"
+                                                 class="quick-image-container img-responive" alt=""
+                                                 data-toggle="tooltip" data-placement="top"
+                                                 title="ID: {{ $product->id }}"
+                                                 onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}')">
+                                        </div>
+                                        <?php } ?>
                                     @endif
                                 @endforeach
                             @endif
@@ -280,6 +283,7 @@
                                     </tr>
                                     </thead>
                                     <tbody>
+                                    <!-- {{ $product_translation_history2 = \App\ProductTranslationHistory::where('product_translation_id',$product->product_translation_id)->get() }}-->
                                     @foreach($product_translation_history2 as $key => $product)
                                         @if($product->is_rejected == 1)
                                             <tr>
