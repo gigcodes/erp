@@ -172,7 +172,7 @@
                   <!-- <td>{{$source['id']}}</td> -->
                   <td class="tblcell">
                     
-                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}aa</label></div>
+                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}</label></div>
                   </td>
                   <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['status_name']}}</label></div></td>
                   <td class="tblcell">
