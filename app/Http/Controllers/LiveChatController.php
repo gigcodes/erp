@@ -13,7 +13,6 @@ use App\User;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
-
 use Mail;
 use DB;
 use App\Mails\Manual\PurchaseEmail;
