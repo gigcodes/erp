@@ -58,8 +58,10 @@ var page = {
     },
     showResults: function(response,params) {
         $("#loading-image").hide();
+        //$("#page-view-result").append(response.data);
         var addProductTpl = $.templates("#template-result-block");
         var tplHtml = addProductTpl.render(response);
+        //var tplHtml = response.data;
         $(".count-text").html("(" + response.total + ")");
 
         if(params && typeof params.append != "undefined" && params.append == true) {

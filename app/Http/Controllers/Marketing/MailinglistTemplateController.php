@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Marketing;
 
 use App\Http\Controllers\Controller;
 use App\MailinglistTemplate;
+use App\MailinglistTemplateCategory;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use qoraiche\mailEclipse\mailEclipse;
@@ -14,7 +16,7 @@ class MailinglistTemplateController extends Controller
     public function index()
     {
 
-        $mailings = MailinglistTemplate::paginate(20);
+        $mailings = MailinglistTemplate::with('category', 'storeWebsite')->paginate(20);
 
         // get first all mail class
        /* $mailEclipse = mailEclipse::getMailables();
@@ -35,7 +37,17 @@ class MailinglistTemplateController extends Controller
             }
         }
 
-        return view("marketing.mailinglist.templates.index", compact('mailings', 'rLstMails', 'rViewMail'));
+        $MailingListCategory = MailinglistTemplateCategory::select('id', 'title as name')
+            ->get()
+            ->pluck('name','id')
+            ->toArray();
+
+        $storeWebSites = StoreWebsite::select('id', 'title')
+            ->get()
+            ->pluck('title','id')
+            ->toArray();
+
+        return view("marketing.mailinglist.templates.index", compact('mailings', 'rViewMail', 'MailingListCategory', 'storeWebSites'));
 
     }
     public function ajax(Request $request)
@@ -72,6 +84,8 @@ class MailinglistTemplateController extends Controller
             //'text_count' => 'required|numeric',
             //'image' => 'required|image',
             /*       'file' => 'required|image',*/
+            'category' => 'nullable|numeric',
+            'store_website' => 'nullable|numeric'
         ]);
 
         if ($validator->fails()) {
@@ -114,6 +128,10 @@ class MailinglistTemplateController extends Controller
         $mailing_item->mail_tpl    = isset($data['mail_tpl']) ? $data['mail_tpl'] : null;
         $mailing_item->image_count = isset($data['image_count']) ? $data['image_count'] : 0;
         $mailing_item->text_count  = isset($data['text_count']) ? $data['text_count'] : 0;
+
+        $mailing_item->category_id  = $request->category;
+        $mailing_item->store_website_id  = $request->store_website;
+
         $mailing_item->save();
 
         // this is related to image upload

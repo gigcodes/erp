@@ -33,7 +33,19 @@
                 </div>
                 </div>
             </div>
+            <div class="pull-right">
+                <div class="row">
+                <div class="form-group mr-3 mb-3">
+                        <input name="name" type="text" class="form-control" id="keywordname"
+                               placeholder="New Keyword">
+                </div>
+                <div class="form-group mr-3 mb-3">
+                    <button type="button" class="btn btn-image" onclick="submitKeywork()"><img src="/images/add.png"/></button> 
+                </div>
+                </div>
+            </div>
         </div>
+
         <div class="col-md-12">
             @if(Session::has('message'))
                 <div class="alert alert-success">
@@ -42,6 +54,44 @@
             @endif
         </div>
         <div class="col-md-12">
+             <div class="row">
+        <div class="col-md-12">
+            <div class="panel-group">
+                <div class="panel mt-5 panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" href="#collapse1">Keywords</a>
+                        </h4>
+                    </div>
+                    <div id="collapse1" class="panel-collapse collapse">
+                        <div class="panel-body">
+                           
+                            <table class="table table-bordered table-striped" id="phone-table">
+                                <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Action</th>
+                                </tr>
+                                </thead>
+                                <tbody>
+                               @foreach($keywords as $keyword)     
+                                <tr>
+                                   <td>{{ $keyword->name }}</td>
+                                   <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
+                                   <button  class="btn btn-link" title="History" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-refresh"></i></button> 
+                                   </td>
+                                </tr>
+                                @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
             <div class="table-responsive">
                 <table class="table-striped table table-bordered" id="data-table">
                     <thead >
@@ -70,7 +120,7 @@
         
     </div>
 @endsection
-
+@include("marketing.whatsapp-configs.partials.image")
 @section('scripts')
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script type="text/javascript">
@@ -145,7 +195,91 @@
             }).fail(function (jqXHR, ajaxOptions, thrownError) {
                 alert('No response from server');
             });
-     }    
+     } 
+
+     function submitKeywork() {
+           name = $('#keywordname').val();
+           $.ajax({
+               url: '{{ route('influencers.keyword.save') }}',
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                    name: name,
+                    "_token": "{{ csrf_token() }}",
+                },
+           })
+           .done(function(response) {
+               $('#keywordname').val('')
+               alert(response.message);
+               location.reload();
+           })
+           .fail(function() {
+               console.log("error");
+           });
+           
+        } 
+
+     function getImage(name) {
+              $.ajax({
+               url: '{{ route('influencers.image') }}',
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                    name: name,
+                    "_token": "{{ csrf_token() }}",
+                },
+               })
+               .done(function(response) {
+                    if(response.success == true){
+                        $('#image_crop').attr('src',response.message);
+                        $('#largeImageModal').modal('show');
+                    }else{
+                        alert(response.message)
+                    }
+                    
+               })
+               .fail(function() {
+                   console.log("error");
+               });
+          }
+        function getStatus(name) {
+              $.ajax({
+               url: '{{ route('influencers.status') }}',
+               type: 'POST',
+               dataType: 'json',
+               data: {
+                    name: name,
+                    "_token": "{{ csrf_token() }}",
+                },
+               })
+               .done(function(response) {
+                   alert(response.message);
+               })
+               .fail(function() {
+                   console.log("error");
+               });
+          }
+          function startScript(name) {
+            var result = confirm("You Want to start this script "+name+"?");
+            if(result){
+                $.ajax({
+                   url: '{{ route('influencers.start') }}',
+                   type: 'POST',
+                   dataType: 'json',
+                   data: {
+                        name: name,
+                        "_token": "{{ csrf_token() }}",
+                    },
+                   })
+                   .done(function(response) {
+                       alert(response.message);
+                   })
+                   .fail(function() {
+                       console.log("error");
+                }); 
+            }
+             
+          }       
     </script>
 
 @endsection

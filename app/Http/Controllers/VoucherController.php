@@ -19,6 +19,10 @@ use App\Task;
 use App\PaymentReceipt;
 use App\PaymentMethod;
 use App\Payment;
+use App\Currency;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
+use App\Http\Controllers\WhatsAppController;
+use App\Team;
 
 class VoucherController extends Controller
 {
@@ -36,13 +40,20 @@ class VoucherController extends Controller
         $end = $request->range_end ? $request->range_end : date("Y-m-d", strtotime('saturday this week'));
         $selectedUser = $request->user_id ? $request->user_id : null;
         $tasks = PaymentReceipt::where('status','Pending');
+        $teammembers = Team::where(['teams.user_id' => Auth::user()->id])->join('team_user','team_user.team_id','=','teams.id')->select(['team_user.user_id'])->get()->toArray();
+        $teammembers[] = Auth::user()->id; 
         if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM')) {
+           
             if ($request->user_id != null && $request->user_id != "") {
                 $tasks = $tasks->where('user_id', $request->user_id)->where('date', '>=' , $start)->where('date', '<=' , $end);
             } else {
                 $tasks = $tasks->where('date', '>=' , $start)->where('date', '<=' , $end);
             }
-        } else {
+        }elseif(count($teammembers) > 0){
+           
+            $tasks = $tasks->whereIn('user_id', $teammembers)->where('date', '>=' , $start)->where('date', '<=' , $end);
+        }else {
+            
             $tasks = $tasks->where('user_id', Auth::id())->where('date', '>=' , $start)->where('date', '<=' , $end);
         }
 
@@ -343,7 +354,8 @@ class VoucherController extends Controller
             $task->userName = User::find($task->user_id)->name;
         }
         $paymentMethods = PaymentMethod::all();
-        return view("vouchers.payment-modal",compact('task','paymentMethods'));
+        $currencies = Currency::get();
+        return view("vouchers.payment-modal",compact('task','paymentMethods','currencies'));
     }
 
     public function submitPayment($id, Request $request) {
@@ -363,22 +375,112 @@ class VoucherController extends Controller
             return redirect()->back()->with('warning','Amount can not be greater than receipt amount');
         }
         $input = $request->except('_token');
+        $payment_method = PaymentMethod::find($request->payment_method_id);
         $input['payment_receipt_id'] = $preceipt->id;
-       
+        $message['message'] = "Admin has given the payment of amount ".$request->amount." ".$request->currency. " through ".$payment_method->name." \n Note: ".$request->note;
+        $message['vendor_id'] = $request->user_id;
         Payment::create($input);
-        
-      
+        $request1 = new \Illuminate\Http\Request();
+        $request1->replace($message);        
+        $sendMessage = WhatsAppController::sendMessage($request1,'vendor');     
         if($newTotal >= $preceipt->rate_estimated) {
             $preceipt->update(['status' => 'Done']);
         }
         return redirect()->back()->with('success','Successfully submitted');
     }
 
+    public function uploadDocuments(Request $request)
+    {
+        $path = storage_path('tmp/uploads');
+
+        if (!file_exists($path)) {
+            mkdir($path, 0777, true);
+        }
+
+        $file = $request->file('file');
+
+        $name = uniqid() . '_' . trim($file->getClientOriginalName());
+
+        $file->move($path, $name);
+
+        return response()->json([
+            'name'          => $name,
+            'original_name' => $file->getClientOriginalName(),
+        ]);
+    }
+
+    public function saveDocuments(Request $request)
+    {
+       
+        $documents = $request->input('document', []);
+        if (!empty($documents)) {
+            $receipt = PaymentReceipt::find($request->id);
+
+            foreach ($request->input('document', []) as $file) {
+                $path  = storage_path('tmp/uploads/' . $file);
+                $media = MediaUploader::fromSource($path)
+                    ->toDirectory('voucher/' . floor($request->id / config('constants.image_per_folder')))
+                    ->upload();
+                $receipt->attachMedia($media, config('constants.media_tags'));
+            }
+
+            return response()->json(["code" => 200, "data" => [], "message" => "Done!"]);
+        } else {
+            return response()->json(["code" => 500, "data" => [], "message" => "No documents for upload"]);
+        }
+
+    }
+
+    public function listDocuments(Request $request, $id)
+    {
+        $receipt = PaymentReceipt::find($request->id);
+
+        $userList = [];
+
+      
+
+        // $userList = array_filter($userList);
+        // // create the select box design html here
+        // $usrSelectBox = "";
+        // if (!empty($userList)) {
+        //     $usrSelectBox = (string) \Form::select("send_message_to", $userList, null, ["class" => "form-control send-message-to-id"]);
+        // }
+
+        $records = [];
+        if ($receipt) {
+            if ($receipt->hasMedia(config('constants.media_tags'))) {
+                foreach ($receipt->getMedia(config('constants.media_tags')) as $media) {
+                    $records[] = [
+                        "id"        => $media->id,
+                        'url'       => $media->getUrl(),
+                        'payment_receipt_id'   => $request->id,
+                    ];
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $records]);
+    }
+
+    public function deleteDocument(Request $request)
+    {
+        if ($request->id != null) {
+            $media = \Plank\Mediable\Media::find($request->id);
+            if ($media) {
+                $media->delete();
+                return response()->json(["code" => 200, "message" => "Document delete succesfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500, "message" => "No document found"]);
+    }
+
 
     public function viewManualPaymentModal() {
         $users = User::all(); 
         $paymentMethods = PaymentMethod::all();
-        return view("vouchers.manual-payment-modal",compact('users','paymentMethods'));
+        $currencies = Currency::get();
+        return view("vouchers.manual-payment-modal",compact('users','paymentMethods','currencies'));
     }
 
 
