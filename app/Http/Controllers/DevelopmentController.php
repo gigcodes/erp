@@ -1081,24 +1081,24 @@ class DevelopmentController extends Controller
         }
         
 
-        // $hubstaffTaskId = $this->createHubstaffTask(
-        //     $taskSummery,
-        //     $hubstaffUserId,
-        //     $hubstaff_project_id
-        // );
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
 
-        // if($hubstaffTaskId) {
-        //     $task->hubstaff_task_id = $hubstaffTaskId;
-        //     $task->save();
-        // }
-        // if ($hubstaffUserId) {
-        //     $task = new HubstaffTask();
-        //     $task->hubstaff_task_id = $hubstaffTaskId;
-        //     $task->project_id = $hubstaff_project_id;
-        //     $task->hubstaff_project_id = $hubstaff_project_id;
-        //     $task->summary = $request->input('task');
-        //     $task->save();
-        // }
+        if($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $request->input('task');
+            $task->save();
+        }
 
         if ($request->ajax()) {
             return response()->json(['task' => $task]);
@@ -1593,11 +1593,11 @@ class DevelopmentController extends Controller
             $taskSummery = '#TASK-' . $issue->id . ' => ' . $summary;
         }
         if($hubstaffUserId) {
-            // $hubstaffTaskId = $this->createHubstaffTask(
-            //     $taskSummery,
-            //     $hubstaffUserId,
-            //     $hubstaff_project_id
-            // );
+            $hubstaffTaskId = $this->createHubstaffTask(
+                $taskSummery,
+                $hubstaffUserId,
+                $hubstaff_project_id
+            );
             if($hubstaffTaskId) {
                 $issue->hubstaff_task_id = $hubstaffTaskId;
                 $issue->save();
