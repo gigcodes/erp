@@ -164,7 +164,7 @@
                                     }
                                     ?>
                                     {{--Get cropping grid image--}}
-                                    <!-- {{$gridImage = ry::getCroppingGridImageByCategoryId($product->category)}} -->
+                                    <!-- {{$gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category)}} -->
                                         <?php
                                         if ($width == 1000 && $height == 1000) {
                                         ?>
