@@ -19,9 +19,10 @@
         <td>{{$product->created_at->format('d M Y')}}</td>
 
         <td>
-            <a class="btn btn-image view-btn" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}"><img src="/images/view.png"/></a>
-            <i class="fa fa-history" data-toggle="modal" data-target="#showHistory{{ $product->id }}" data-id="{{$product->id}}" aria-hidden="true"></i>
-            <i class="fa fa-close rejectProduct" data-toggle="modal" data-action="{{ route('product.translation.rejection') }}" data-id="{{$product->id}}" aria-hidden="true"></i>
+{{--            <a class="btn btn-image view-btn" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}"><img src="/images/view.png"/></a>--}}
+            <i style="cursor: pointer; " class="fa fa-eye" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}" aria-hidden="true"></i>
+            <i style="cursor: pointer; " class="fa fa-history" data-toggle="modal" data-target="#showHistory_{{ $product->id }}" data-id="{{$product->id}}" aria-hidden="true"></i>
+            <i style="cursor: pointer; " class="fa fa-{{ $product->is_rejected == 1 ? '' : 'close' }} rejectProduct" data-toggle="modal" data-action="{{ route('product.translation.rejection') }}" data-value="{{$product->is_rejected}}" data-id="{{$product->id}}" aria-hidden="true"></i>
         </td>
     </tr>
 @endforeach

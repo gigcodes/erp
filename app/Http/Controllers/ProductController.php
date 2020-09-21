@@ -3106,6 +3106,7 @@ class ProductController extends Controller
                                 $compositions[] = str_replace(['&nbsp;', '/span>'], ' ', $composition);
 
                             }
+
                         }
 
                     }
@@ -3254,7 +3255,7 @@ class ProductController extends Controller
     {
         $term = $request->term;
         $language = $request->language;
-        $is_rejected = $request->is_rejected;
+        $is_rejected = $request->input('is_rejected', '0');
         //$query = Product_translation::where('locale','en'); //OLD
         $query = new Product_translation();
         if(!empty($term)){
@@ -3268,9 +3269,11 @@ class ProductController extends Controller
                 $q->Where('locale', 'LIKE', '%' . $request->language . '%');
             });
         }
-        if (!empty($is_rejected)) {
-            $query = $query->where(function ($q) use ($request) {
-                $q->Where('is_rejected', $request->is_rejected);
+
+//        if ($is_rejected !== null) {
+        if ($request->has('is_rejected')) {
+            $query = $query->where(function ($q) use ($is_rejected) {
+                $q->Where('is_rejected',$is_rejected);
             });
         }
 
@@ -3306,11 +3309,18 @@ class ProductController extends Controller
 
     public function productTranslationRejection(Request $request){
 
-        $product_translation = Product_translation::find($request->product_id);
-        $product_translation->is_rejected = 1;
+        $product_translation = Product_translation::find($request->product_translation_id);
+        $product_translation->is_rejected = $request->value;
         $product_translation->save();
+        $product_translation_history = new ProductTranslationHistory;
+        $product_translation_history->is_rejected = $request->value;
+        $product_translation_history->user_id = Auth::user()->id;
+        $product_translation_history->product_translation_id = $request->product_translation_id;
+        $product_translation_history->save();
+
         return response()->json([
-            'message' => 'Rejected Successfully'
+            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
+            'value' => !$request->value,
         ]);
     }
 
