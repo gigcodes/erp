@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
+use App\Product;
 use App\StoreWebsite;
 use App\StoreWiseLandingPageProducts;
 use Illuminate\Http\Request;
@@ -264,7 +265,6 @@ class LandingPageController extends Controller
                 }
             }
 
-
             if (!empty($errors)) {
                 return response()->json(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]);
             }
@@ -273,11 +273,19 @@ class LandingPageController extends Controller
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
 
-//                dd($landingPage);
+                $selfProduct = Product::find($landingPage->product_id);
 
-                $this->sendTranslationByGrapql($landingPage->product_id);
+                if ($selfProduct) {
 
-                return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+                    GoogleTranslateController::translateProductDetails($selfProduct);
+                    $this->sendTranslationByGrapql($landingPage->shopify_id);
+
+                    return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+                } else {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Product not found."]);
+                }
+
+
             }
 
         }
@@ -288,45 +296,54 @@ class LandingPageController extends Controller
 
     private function sendTranslationByGrapql($productId)
     {
+        $languages = GoogleTranslateController::LANGUAGES;
         $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
-        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
-//        $qry = '{"query":"query {products(where:{status:PUBLISHED}){title,img,description,costPrice,sellPrice,quantity,sku,categories {name},brand {name}}}"}';
-        $qry = '
-                mutation {
-                    translationsRegister(
-                        resourceId: "gid://shopify/Product/'."$productId".'"
-                        translations: [
-                            {
-                              locale: "fr"
-                              key: "title"
-                              value: "Chemise Hawaïenne Citron"
-                              translatableContentDigest: "6aa3b98c0c2b71d6f588616bd4314227d11b1d9e7e031f1c0b0a8785f09eaac0"
-                            }
-                        ]
-                    ) 
-                    {
-                      translations {
-                        key
-                        locale
-                        outdated
-                        value
-                      }
-                      userErrors {
-                        code
-                        field
-                        message
-                      }
+
+        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
+
+        /*$qryZZ = '
+                {
+                  translatableResource(resourceId: "gid://shopify/Product/'."$productId".'") {
+                    resourceId
+                    translatableContent {
+                      key
+                      value
+                      digest
+                      locale
                     }
+                    translations(locale: "en") {
+                      key
+                      value
+                      locale
+                    }
+                  }
+                }
+            ';*/
+
+        //json
+        //change 'Content-Type: application/json'
+        //response-> [query] => Required parameter missing or invalid
+        $qry = '
+                {
+                  "id": "gid://shopify/Product/'."$productId".'",
+                  "translations": [
+                    {
+                      "key": "title",
+                      "value": "Camiseta buena",
+                      "locale": "es",
+                      "translatableContentDigest": "dcf8d211f6633dac78dbd15c219a81b8931e4141204d18fba8c477afd19b75f9"
+                    }
+                  ]
                 }
             ';
 
-
+//        dd($qry);
         $headers = array();
-        $headers[] = 'Content-Type: application/graphql';
+        $headers[] = 'Content-Type: application/json';
+//        $headers[] = 'Content-Type: application/graphql';
         $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
 
         $ch = curl_init();
-
 
         curl_setopt($ch, CURLOPT_URL, $endpoint);
         curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
@@ -335,10 +352,12 @@ class LandingPageController extends Controller
         curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
 
         $result = curl_exec($ch);
-        echo '<pre>';
-        print_r($result);
-        echo '</pre>';
-        die();
+        $result = json_decode($result, true);
+
+//        echo '<pre>';
+//        print_r($result);
+//        echo '</pre>';
+//        die();
 
         if (curl_errno($ch)) {
             echo 'Error:' . curl_error($ch);
