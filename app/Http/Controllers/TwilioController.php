@@ -38,9 +38,6 @@ use App\Message;
 use App\CallRecording;
 use App\CallBusyMessage;
 use App\CallHistory;
-use App\TwilioCategory;
-use App\TwilioActiveNumbersTimings;
-use App\TwilioActiveNumbersIVR;
 use App\ChatMessage;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -51,7 +48,6 @@ use Carbon\Carbon;
 use Response;
 use App\Helpers\TwilioHelper;
 use Twilio\TwiML\VoiceResponse;
-use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 /**
  * Class TwilioController - active record
@@ -132,11 +128,8 @@ class TwilioController extends FindByNumberController
      * @uses Log
      * @uses Twiml
      */
-
     public function incomingCall(Request $request)
     {
-
-
         $number = $request->get("From");
         //$number = '919748940238';
 
@@ -182,74 +175,67 @@ class TwilioController extends FindByNumberController
      *
      * @todo Can move $response code to model for Twiml object
      */
-
     public function ivr(Request $request)
     {
-        Log::info('Showing user profile for IVR: '.json_encode($request->get('To')));
+        Log::info('Showing user profile for IVR: ');
 
-        $call_to = $request->get('To');
+        $number = $request->get("From");
+        list($context, $object) = $this->findCustomerOrLeadOrOrderByNumber(str_replace("+", "", $number));
+        $url = \Config::get("app.url") . "/twilio/recordingStatusCallback";
+        $actionurl = \Config::get("app.url") . "/twilio/handleDialCallStatus";
 
-        $myrecentNumber = TwilioActiveNumber::where(['phone_number' => $call_to])->firstOrFail();
-        $day_of_week = date('N', strtotime(date("l")));
-        if(date("l") == "Sunday"){
-            $day_of_week = 0;
+        if ($context) {
+            $url = \Config::get("app.url") . "/twilio/recordingStatusCallback?context=" . $context . "&internalId=" . $object->id . "&Mobile=" . $number;
         }
 
+        $response = new Twiml();
 
-        if(isset($myrecentNumber->id)){
-            $allTimings = TwilioActiveNumbersTimings::where(['twilio_active_number_id' => $myrecentNumber->id,'day'=>$day_of_week])->first();
-            if(!isset($allTimings->id) ){
-                $response = new VoiceResponse();
-                $response->play(\Config::get("app.url") . "/holiday_ring.mp3", ['loop' => 1]);
-                echo $response;
-            }else{
-                $time = Carbon::now();
+        $time = Carbon::now();
+        $saturday = Carbon::now()->endOfWeek()->subDay();
+        $sunday = Carbon::now()->endOfWeek();
+        $morning = Carbon::create($time->year, $time->month, $time->day, 10, 0, 0);
+        $evening = Carbon::create($time->year, $time->month, $time->day, 17, 30, 0);
 
-                $mrngstarttime = explode(":",$allTimings->morning_start);
-                $mrngendtime = explode(":",$allTimings->morning_end);
-                $evngstarttime = explode(":",$allTimings->evening_start);
-                $evngendtime = explode(":",$allTimings->evening_end);
+        if (($context == "customers" && $object->is_blocked == 1) || Setting::get('disable_twilio') == 1) {
+            $response = $response->reject();
+        } else {
+            if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
+                $response->play(\Config::get("app.url") . "/holiday_ring.mp3");
+            } elseif (!$time->between($morning, $evening, true)) {
+                $response->play(\Config::get("app.url") . "/end_work_ring.mp3");
+            } else {
+                $response->play(\Config::get("app.url") . "/intro_ring.mp3");
 
-                $time = Carbon::now();
-                $saturday = Carbon::now()->endOfWeek()->subDay();
-                $sunday = Carbon::now()->endOfWeek();
+                $dial = $response->dial([
+                    'record' => 'true',
+                    'recordingStatusCallback' => $url,
+                    'action' => $actionurl,
+                    'timeout' => '60'
+                ]);
 
-                $store_open = Carbon::create($time->year, $time->month, $time->day, $mrngstarttime[0], $mrngstarttime[1], $mrngstarttime[2]);
+                $clients = $this->getConnectedClients();
 
-                $checkBreak_1 = Carbon::create($time->year, $time->month, $time->day, $mrngendtime[0], $mrngendtime[1], $mrngendtime[2]);
-                $checkBreak_2 = Carbon::create($time->year, $time->month, $time->day, $evngstarttime[0], $evngstarttime[1], $evngstarttime[2]);
-
-                $store_close = Carbon::create($time->year, $time->month, $time->day, $evngendtime[0], $evngendtime[1], $evngendtime[2]);
-
-                $ringPlay = 'NA';
-                if ($time == $sunday || $time == $saturday) { // If Sunday or Holiday
-                    $ringPlay = '3';
-                }elseif ($time->between($store_open, $checkBreak_1, true)) {
-                    $ringPlay = '2';
-                }elseif ($time->between($checkBreak_1, $checkBreak_2, true)) {
-                    $ringPlay = '4';
-                }elseif ($time->between($checkBreak_2, $store_close, true)) {
-                    $ringPlay = '2';
-                }elseif ($time->gt($store_close, true)) {
-                    $ringPlay = '6';
-                }
-
-                if($ringPlay != "NA"){
-                    $vals = TwilioActiveNumbersIVR::where('category_id',$ringPlay)->where('twilio_active_number_id',$allTimings->twilio_active_number_id)->first();
-                    $response = new VoiceResponse();
-                    $response->play($vals->response, ['loop' => 1]);
-                    echo $response;
-                }else{
-                    $response = new VoiceResponse();
-                    $response->play(\Config::get("app.url") . "/holiday_ring.mp3", ['loop' => 1]);
-                    echo $response;
+                Log::info('Client for callings: ' . implode(',', $clients));
+                /** @var Helpers $client */
+                foreach ($clients as $client) {
+                    $dial->client($client);
                 }
             }
-        }else{
-            $response = new VoiceResponse();
-            $response->play(\Config::get("app.url") . "/holiday_ring.mp3", ['loop' => 1]);
-            echo $response;
         }
+
+
+// $response->say("Greetings & compliments of the day from solo luxury. the largest online shopping destination where your class meets authentic luxury for your essential pleasures. Your call will be answered shortly.");
+
+
+        /* -------------------------------------------------------- */
+
+
+        // $response = new Twiml();
+        // $this->createIncomingGather($response, "thank you for calling solo luxury. Please dial 1 for sales 2 for support 3 for other queries");
+        // $response = new Twiml();
+        // $this->createIncomingGather($response, "Thank you for calling solo luxury. Please dial 1 for sales, 2 for support or 3 for other queries");
+
+        return \Response::make((string)$response, '200')->header('Content-Type', 'text/xml');
     }
 
     /**
@@ -332,7 +318,7 @@ class TwilioController extends FindByNumberController
 
         $actionurl = \Config::get("app.url") . "/twilio/handleOutgoingDialCallStatus" . "?phone_number=$number";
         Log::info('Outgoing call function Enter ' . $id);
-        $response = new VoiceResponse();
+        $response = new Twiml();
         $response->dial($number, [
             'callerId' => $callFrom,
             'record' => 'true',
@@ -842,8 +828,7 @@ class TwilioController extends FindByNumberController
             $numbers = TwilioActiveNumber::where('twilio_credential_id', '=', $id)->with('assigned_stores.store_website')->get();
             $store_websites = StoreWebsite::all();
             $customer_role_users = RoleUser::where(['role_id' => 27])->with('user')->get();
-            $all_category = TwilioCategory::get();
-            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'twilio_accounts', 'sid', 'customer_role_users','account_id','all_category'));
+            return view('twilio.manage-numbers', compact('numbers', 'store_websites', 'twilio_accounts', 'sid', 'customer_role_users','account_id'));
         }catch(\Exception $e) {
             return redirect()->back()->with('error',$e->getMessage());
         }
@@ -1172,222 +1157,6 @@ class TwilioController extends FindByNumberController
             }
         }
         return null;
-    }
-
-    public function create_category(Request $request){
-        $Category = new TwilioCategory();
-        $Category->category_name = $request->categoryfield;
-        $Category->save();
-        return redirect()->back()->with('success','Category Created!');
-    }
-
-    public function all_category(){
-        $all_category = TwilioCategory::get();
-        return view('twilio.all-category', compact('all_category'));
-    }
-
-    public function delete_category($id){
-        $find_cat = TwilioCategory::where('id', $id)->firstorfail()->delete(); 
-        return redirect()->back()->with('success','Category Deleted!');
-    }
-
-    public function create_ivr(Request $request){
-        $this->validate($request, [
-            'category_id' => 'required',
-            'twilioSid' => 'required',
-            'upload_mp3' => 'required',
-        ]);
-
-        $media = MediaUploader::fromSource($request->file('upload_mp3'))
-            ->toDestination('uploads','twilio_ivr')
-            ->useHashForFilename()
-            ->upload();
-        $fileUrl = $media->getUrl();
-        $checkOld = TwilioActiveNumbersIVR::where('category_id',$request->category_id)->where('twilio_active_number_id',$request->twilioSid)->first();
-        if(!isset($checkOld->id)){
-            $TwilioActiveNumbersIVR = new TwilioActiveNumbersIVR();
-            $TwilioActiveNumbersIVR->twilio_active_number_id = $request->twilioSid;
-            $TwilioActiveNumbersIVR->category_id = $request->category_id;
-            $TwilioActiveNumbersIVR->active = "1";
-            $TwilioActiveNumbersIVR->response = $fileUrl;
-            $TwilioActiveNumbersIVR->save();
-            return redirect()->back()->with('success','File Uploaded to Category!');
-        }else{
-            $twilio = TwilioActiveNumbersIVR::findOrFail($checkOld->id);
-            $twilio->response = $fileUrl;
-            $twilio->save();
-            return redirect()->back()->with('success','File Updated to Category!');
-        }
-    }
-
-    public function create_timings(Request $request){
-        
-        $this->validate($request, [
-            'twilioSid' => 'required',
-        ]);
-
-        $countval = TwilioActiveNumbersTimings::where('twilio_active_number_id', $request->twilioSid)->count();
-        if($countval > 0){
-            TwilioActiveNumbersTimings::where('twilio_active_number_id', $request->twilioSid)->firstorfail()->delete();
-        }        
-        if(!empty($request->monday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','1')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "1";
-                $TwilioActiveNumbersTimings->morning_start = $request->monday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->monday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->monday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->monday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->monday_morning_start;
-                $twilioIvr->morning_end = $request->monday_morning_end;
-                $twilioIvr->evening_start = $request->monday_evening_start;
-                $twilioIvr->evening_end = $request->monday_evening_end;
-                $twilioIvr->status = "1";
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->tuesday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','2')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "2";
-                $TwilioActiveNumbersTimings->morning_start = $request->tuesday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->tuesday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->tuesday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->tuesday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->tuesday_morning_start;
-                $twilioIvr->morning_end = $request->tuesday_morning_end;
-                $twilioIvr->evening_start = $request->tuesday_evening_start;
-                $twilioIvr->evening_end = $request->tuesday_evening_end;
-                $twilioIvr->status = "1";
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->wednesday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','3')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "3";
-                $TwilioActiveNumbersTimings->morning_start = $request->wednesday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->wednesday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->wednesday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->wednesday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->wednesday_morning_start;
-                $twilioIvr->morning_end = $request->wednesday_morning_end;
-                $twilioIvr->evening_start = $request->wednesday_evening_start;
-                $twilioIvr->evening_end = $request->wednesday_evening_end;
-                $twilioIvr->status = "1";
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->thursday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','4')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "4";
-                $TwilioActiveNumbersTimings->morning_start = $request->thursday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->thursday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->thursday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->thursday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->thursday_morning_start;
-                $twilioIvr->morning_end = $request->thursday_morning_end;
-                $twilioIvr->evening_start = $request->thursday_evening_start;
-                $twilioIvr->evening_end = $request->thursday_evening_end;
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->friday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','5')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "5";
-                $TwilioActiveNumbersTimings->morning_start = $request->friday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->friday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->friday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->friday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->friday_morning_start;
-                $twilioIvr->morning_end = $request->friday_morning_end;
-                $twilioIvr->evening_start = $request->friday_evening_start;
-                $twilioIvr->evening_end = $request->friday_evening_end;
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->saturday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','6')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "6";
-                $TwilioActiveNumbersTimings->morning_start = $request->saturday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->saturday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->saturday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->saturday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->saturday_morning_start;
-                $twilioIvr->morning_end = $request->saturday_morning_end;
-                $twilioIvr->evening_start = $request->saturday_evening_start;
-                $twilioIvr->evening_end = $request->saturday_evening_end;
-                $twilioIvr->save();
-            }
-        }
-
-        if(!empty($request->sunday_check)){
-            $checkOld = TwilioActiveNumbersTimings::where('day','0')->where('twilio_active_number_id',$request->twilioSid)->first();
-            if(!isset($checkOld->id)){
-                $TwilioActiveNumbersTimings = new TwilioActiveNumbersTimings();
-                $TwilioActiveNumbersTimings->day = "0";
-                $TwilioActiveNumbersTimings->morning_start = $request->sunday_morning_start;
-                $TwilioActiveNumbersTimings->morning_end = $request->sunday_morning_end;
-                $TwilioActiveNumbersTimings->evening_start = $request->sunday_evening_start;
-                $TwilioActiveNumbersTimings->evening_end = $request->sunday_evening_end;
-                $TwilioActiveNumbersTimings->status = "1";
-                $TwilioActiveNumbersTimings->twilio_active_number_id = $request->twilioSid;
-                $TwilioActiveNumbersTimings->save();
-            }else{
-                $twilioIvr = TwilioActiveNumbersTimings::findOrFail($checkOld->id);
-                $twilioIvr->morning_start = $request->sunday_morning_start;
-                $twilioIvr->morning_end = $request->sunday_morning_end;
-                $twilioIvr->evening_start = $request->sunday_evening_start;
-                $twilioIvr->evening_end = $request->sunday_evening_end;
-                $twilioIvr->save();
-            }
-        }
-
-        return redirect()->back()->with('success','IVR Timings Updated Successfully!');
     }
 
 }

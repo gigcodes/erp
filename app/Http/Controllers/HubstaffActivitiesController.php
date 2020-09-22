@@ -778,7 +778,7 @@ class HubstaffActivitiesController extends Controller
         if ($validator->fails()) 
         {
             return response()->json(['message' => $validator->messages()->first()],500);
-							
+                            
         } else 
         {
             // $requestArr = $request->all();
