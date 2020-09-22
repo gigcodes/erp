@@ -1,8 +1,8 @@
 <?php
 
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
 
 class AddStatusIdToLandingPageProductsTable extends Migration
 {
@@ -14,7 +14,9 @@ class AddStatusIdToLandingPageProductsTable extends Migration
     public function up()
     {
         Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->integer('landing_page_status_id')->unsigned()->after('status');
+            if (!Schema::hasColumn('landing_page_products', 'landing_page_status_id')) {
+                $table->integer('landing_page_status_id')->unsigned()->after('status');
+            }
         });
     }
 
