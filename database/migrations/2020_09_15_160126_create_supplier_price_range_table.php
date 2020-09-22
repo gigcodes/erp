@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddStatusIdToLandingPageProductsTable extends Migration
+class CreateSupplierPriceRangeTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,11 @@ class AddStatusIdToLandingPageProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->integer('landing_page_status_id')->unsigned()->after('status');
+        Schema::create('supplier_price_range', function (Blueprint $table) {
+            $table->increments('id');
+            $table->integer('price_from');
+            $table->integer('price_to');
+            $table->timestamps();
         });
     }
 
@@ -25,8 +28,6 @@ class AddStatusIdToLandingPageProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->dropColumn('landing_page_status_id');
-        });
+        Schema::dropIfExists('supplier_price_range');
     }
 }

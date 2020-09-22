@@ -293,6 +293,12 @@ var getHtml = function(response) {
             // }
         }
 
+        if(message.datetime) {
+            var datetime = message.datetime.substr(0, 19);
+        }
+        else {
+            var datetime = message.datetime;
+        }
        
 
         if (message.inout == 'in') {
@@ -305,7 +311,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.date.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + datetime + '</span>';
 
 
         } else if (message.inout == 'out') {
@@ -317,7 +323,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.date.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + datetime + '</span>';
         } else {
             li += '<div>' + index + '</div>';
         }
@@ -343,7 +349,7 @@ $(document).on('click', '.load-communication-modal', function () {
     if(typeof $(this).data('limit') != "undefined") {
         limit = $(this).data('limit');
     }
-    
+    thiss.parent().find('.td-full-container').toggleClass('hidden');
 	currentChatParams.url = "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages";
     currentChatParams.data = {
         limit: limit,

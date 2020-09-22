@@ -664,7 +664,7 @@ class HubstaffActivitiesController extends Controller
 
 
     public function submitManualRecords(Request $request) {
-        if($request->starts_at && $request->starts_at != '' && $request->total_time > 0) {
+        if($request->starts_at && $request->starts_at != '' && $request->total_time > 0 && $request->task_id > 0) {
             $member = HubstaffMember::where('user_id',Auth::user()->id)->first();
             if($member) {
                 $firstId = HubstaffActivity::orderBy('id','asc')->first();
@@ -673,9 +673,52 @@ class HubstaffActivitiesController extends Controller
                 }
                 else {
                     $previd = 1;  
-                }
+            }
+            // if($request->task_type == 'devtask') {
+            //     $devtask = DeveloperTask::find($request->task_id);
+            //     if($devtask) {
+            //         if($request->role == 'developer') {
+            //             $devtask->hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'lead') {
+            //             $devtask->lead_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'tester') {
+            //             $devtask->tester_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else {
+            //             $devtask->hubstaff_task_id = $request->task_id;  
+            //         }
+            //         $devtask->save();
+            //     }
+            // }
+           
+
+            // if($request->task_type == 'devtask') {
+            //     $task = Task::find($request->task_id);
+            //     if($task) {
+            //         if($request->role == 'developer') {
+            //             $task->hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'lead') {
+            //             $task->lead_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'tester') {
+            //             $task->tester_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else {
+            //             $task->hubstaff_task_id = $request->task_id;  
+            //         }
+            //         $task->save();
+            //     }
+            // }
+
+            if(!$request->user_notes) {
+                $request->user_notes = '';
+            }
             $activity = new HubstaffActivity;
             $activity->id = $previd;
+            $activity->task_id = $request->task_id;
             $activity->user_id = $member->hubstaff_user_id;
             $activity->starts_at = $request->starts_at;
             $activity->tracked = $request->total_time * 60;
