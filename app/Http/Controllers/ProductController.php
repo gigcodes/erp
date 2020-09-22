@@ -2695,14 +2695,14 @@ class ProductController extends Controller
 				ON suppliers.id = product_suppliers.supplier_id
 		');
 
-        if ($request->supplier[ 0 ] != null) {
+        /*if ($request->supplier[ 0 ] != null) {
 
             $supplier = $request->get('supplier');
             $products = $products->whereIn('id', DB::table('product_suppliers')->whereIn('supplier_id', $supplier)->pluck('product_id'));
         }
 
 
-        if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
+       if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
             $category_children = [];
             foreach ($request->category as $category) {
                 $is_parent = Category::isParent($category);
@@ -2731,7 +2731,7 @@ class ProductController extends Controller
             }
             $products = $products->whereIn('category', $category_children);
             $selected_categories = [$request->get('category')[ 0 ]];
-        }
+        }*/
         $users = User::all();
 
         $category_array = Category::renderAsArray();

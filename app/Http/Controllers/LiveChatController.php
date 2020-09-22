@@ -15,6 +15,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
 
 use Mail;
+use DB;
 use App\Mails\Manual\PurchaseEmail;
 use App\Tickets;
 use App\TicketStatuses;
@@ -121,6 +122,9 @@ class LiveChatController extends Controller
                     } else {
                         $messageStatus = 9;
                     }
+
+                    $message_application_id = 2;
+
                     $params = [
                         'unique_id'              => $chatDetails->chat_id,
                         'message'                => $message,
@@ -129,14 +133,14 @@ class LiveChatController extends Controller
                         'status'                 => $messageStatus,
                         'is_delivered'           => 1,
                         'user_id'                => $userID,
-                        'message_application_id' => 2,
+                        'message_application_id' => $message_application_id,
                     ];
 
                     // Create chat message
                     $chatMessage = ChatMessage::create($params);
                     // if customer found then send reply for it
                     if (!empty($customerDetails) && $message != '') {
-                        WatsonManager::sendMessage($customerDetails, $message);
+                        WatsonManager::sendMessage($customerDetails, $message, '', $message_application_id);
                     }
 
                 }
@@ -314,6 +318,14 @@ class LiveChatController extends Controller
             $message = TranslationHelper::translate('en', $language, $message);
         }
 
+if(isset($request->messageId)){
+                $chatMessages = ChatMessage::where('id', $request->messageId)->first();
+                if ($chatMessages != null) {
+                    $chatMessages->approved = 1;
+                    $chatMessages->save();
+                }
+            }
+
         //Get Thread ID From Customer Live Chat
         $customer = CustomerLiveChat::where('customer_id', $chatId)->where("thread", "!=", "")->latest()->first();
 
@@ -324,7 +336,7 @@ class LiveChatController extends Controller
                 'status' => 'errors',
             ]);
         }
-        //dd($thread);
+
         $post = array('chat_id' => $thread, 'event' => array('type' => 'message', 'text' => $message, 'recipients' => 'all'));
         $post = json_encode($post);
 
@@ -350,12 +362,14 @@ class LiveChatController extends Controller
 
         curl_close($curl);
 
+
         if ($err) {
             return response()->json([
                 'status' => 'errors',
             ]);
         } else {
             $response = json_decode($response);
+            
             if (isset($response->error)) {
                 return response()->json([
                     'status' => 'errors ' . @$response->error->message,
@@ -485,10 +499,21 @@ class LiveChatController extends Controller
                     // Finding Agent
                     $agent       = User::where('email', $message->user_id)->first();
                     $agentInital = substr($agent->name, 0, 1);
-
-                    $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    if(!$message->approved){
+                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                    }else{
+                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"> ' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span> </div></div>';
+                    }
+                    $messagess[] = $vals;
+                     //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                 } else {
-                    $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    if(!$message->approved){
+                        $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                    }else{
+                        $vals = '<div  data-chat-id="'.$message->id.'" class="d-flex justify-content-start sss mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<br><span class="msg_time"> ' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . ' </span></div></div>';
+                     //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                    }
+                    $messagess[] = $vals;
                 }
             }
 
@@ -541,7 +566,12 @@ class LiveChatController extends Controller
                                     $type = 'start';
                                 }
 
-                                $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                                if(!$message->approved){
+                                    $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex mb-4"><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                                }else{
+                                    $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send"><img src="' . $image->getUrl() . '" class="rounded-circle-livechat user_img_msg"></div></div>';
+                                }
+                                $messagess[] = $vals;
 
                             }
                         } else {
@@ -550,7 +580,14 @@ class LiveChatController extends Controller
                             } else {
                                 $type = 'start';
                             }
-                            $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                            if(!$message->approved){
+                                $vals =  '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                            }else{
+                                $vals = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>';
+                            }
+                            $messagess[] = $vals;
+
+                              //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
 
                         }
 
@@ -568,8 +605,12 @@ class LiveChatController extends Controller
                                 } else {
                                     $type = 'start';
                                 }
+                                if(!$message->approved){
 
-                                $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';
+                                    $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><div class="d-flex  mb-4"><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';                                    
+                                }else{
+                                    '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="msg_cotainer"><span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div><div class="msg_cotainer_send">' . $attachment . '</div></div>';
+                                }
                             }
                         } else {
                             if ($message->status == 2) {
@@ -577,7 +618,12 @@ class LiveChatController extends Controller
                             } else {
                                 $type = 'start';
                             }
-                            $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                            if(!$message->approved){
+                                $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><div class="d-flex  mb-4"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                            }else{
+                                $messagess[] = '<div data-chat-id="'.$message->id.'" class="d-flex justify-content-' . $type . ' mb-4"><div class="rounded-circle-livechat user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $message->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($message->created_at))->diffForHumans() . '</span></div></div>';
+                            }
+                             //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                         }
 
                     }
@@ -614,8 +660,14 @@ class LiveChatController extends Controller
                         // Finding Agent
                         $agent       = User::where('email', $chat->user_id)->first();
                         $agentInital = substr($agent->name, 0, 1);
+                        
+                        if(!$chat->approved){
+                            $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span><input type="hidden" id="message-id" name="message-id" value="'.$chatId.'"><input type="hidden" id="message-value" name="message-value" value="'.$message->message.'"><div class="d-flex  mb-4"><button id="'.$message->id.'" class="btn btn-secondary quick_approve_add_live">Approve Message</button></div></div></div>';
+                        }else{
+                            $message[] =  '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>';
 
-                        $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-end mb-4"><div class="rounded-circle user_inital">' . $agentInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
+                        }
+                          //<div class="msg_cotainer_send"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     } else {
                         $message[] = '<div data-chat-id="'.$chat->id.'" class="d-flex justify-content-start mb-4"><div class="rounded-circle user_inital">' . $customerInital . '</div><div class="msg_cotainer">' . $chat->message . '<span class="msg_time">' . \Carbon\Carbon::createFromTimeStamp(strtotime($chat->created_at))->diffForHumans() . '</span></div></div>'; //<div class="img_cont_msg"><img src="https://static.turbosquid.com/Preview/001292/481/WV/_D.jpg" class="rounded-circle user_img_msg"></div>
                     }
