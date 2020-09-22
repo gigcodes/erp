@@ -5,7 +5,7 @@ namespace App;
 use App\ReturnExchangeHistory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class ReturnExchange extends Model
 {
 
