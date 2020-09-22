@@ -272,7 +272,7 @@ class ShipmentController extends Controller
 
     public function show(){
         $pickup = new BookPURequest();
-        $pickup->SiteID = 'luxuryunlmiAE';
+        $pickup->SiteID = '968267613';
         $pickup->Password = 'S#8sD@2gP$2o';
         $pickup->MessageTime = Carbon::now()->format(Carbon::ATOM);
         $pickup->MessageReference = 'reference_28_to_32_characters';
