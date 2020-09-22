@@ -34,7 +34,7 @@ use DateTime;
 class UserController extends Controller
 {
 
-
+	CONST DEFAULT_FOR = 4; //For User
 
 	/**
 	 * Display a listing of the resource.
@@ -113,10 +113,19 @@ class UserController extends Controller
 			'currency' => 'string'
 
 		]);
-
+	
 		$input = $request->all();
-
 		$userRate = new UserRate();
+		
+		//get default whatsapp number for vendor from whatsapp config
+		$task_info = DB::table('whatsapp_configs')
+					->select('*')
+					->where('default_for', self::DEFAULT_FOR)
+					->first();
+	
+		$input["whatsapp_number"] = $task_info->number;
+		
+		
 		$userRate->start_date = Carbon::now();
 		$userRate->hourly_rate = $input['hourly_rate'];
 		$userRate->currency = $input['currency'];
