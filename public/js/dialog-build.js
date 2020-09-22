@@ -354,6 +354,7 @@ var updateBoxEvent = function(parentId) {
 };
 updateBoxEvent(0);
 $(document).on("click", "#create-dialog-btn-open", function() {
+    console.log("open");
     $("#leaf-editor-model").modal("show");
     var myTmpl = $.templates("#add-dialog-form");
     var json = {
@@ -369,57 +370,59 @@ $(document).on("click", "#create-dialog-btn-open", function() {
 });
 
 
-$(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
-    e.preventDefault();
-    var previous_node = 0;
-    var previous = $("#dialog-tree").find("li").last();
-    if (previous.length > 0) {
-        previous_node = previous.data("id");
-    }
-    $.ajax({
-        type: "get",
-        url: "/chatbot/rest/dialog/create",
-        data: {
-            "previous_node": previous_node,
-            "dialog_type": "folder"
-        },
-        dataType: "json",
-        success: function(response) {
-            if (response.code == 200) {
-                updateBoxEvent();
-            }
-        },
-        error: function() {
-            toastr['error']('Could not create dialog folder!');
-        }
-    });
-});
+// $(document).on("click", "#create-dialog-folder-btn-rest", function(e) {
+//     e.preventDefault();
+//     var previous_node = 0;
+//     var previous = $("#dialog-tree").find("li").last();
+//     if (previous.length > 0) {
+//         previous_node = previous.data("id");
+//     }
+//     $.ajax({
+//         type: "get",
+//         url: "/chatbot/rest/dialog/create",
+//         data: {
+//             "previous_node": previous_node,
+//             "dialog_type": "folder"
+//         },
+//         dataType: "json",
+//         success: function(response) {
+//             if (response.code == 200) {
+//                 updateBoxEvent();
+//             }
+//         },
+//         error: function() {
+//             toastr['error']('Could not create dialog folder!');
+//         }
+//     });
+// });
 
 
-$(document).on("click", "#create-dialog-btn-rest", function(e) {
-    e.preventDefault();
-    var previous_node = 0;
-    var previous = $("#dialog-tree").find("li").last();
-    if (previous.length > 0) {
-        previous_node = previous.data("id");
-    }
-    $.ajax({
-        type: "get",
-        url: "/chatbot/rest/dialog/create",
-        data: {
-            "previous_node": previous_node
-        },
-        dataType: "json",
-        success: function(response) {
-            if (response.code == 200) {
-                updateBoxEvent();
-            }
-        },
-        error: function() {
-            toastr['error']('Could not change module!');
-        }
-    });
-});
+// $(document).on("click", "#create-dialog-btn-rest", function(e) {
+//     e.preventDefault();
+//     var previous_node = 0;
+//     var previous = $("#dialog-tree").find("li").last();
+//     if (previous.length > 0) {
+//         previous_node = previous.data("id");
+//     }
+//     $.ajax({
+//         type: "get",
+//         url: "/chatbot/rest/dialog/create",
+//         data: {
+//             "previous_node": previous_node
+//         },
+//         dataType: "json",
+//         success: function(response) {
+//             if (response.code == 200) {
+//                 updateBoxEvent();
+//             }
+//         },
+//         error: function() {
+//             toastr['error']('Could not change module!');
+//         }
+//     });
+// });
+
+
 $(document).on("click", ".node__contents", function(e) {
     var node = $(this).closest(".node").data("id");
     $("#leaf-editor-model").modal("show");
@@ -428,6 +431,7 @@ $(document).on("click", ".node__contents", function(e) {
         url: "/chatbot/rest/dialog/" + node,
         dataType: "json",
         success: function(response) {
+            console.log(response);
             var myTmpl = $.templates("#add-dialog-form");
             var html = myTmpl.render({
                 "data": response.data
@@ -546,6 +550,7 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
             previous_node = previousNodeChild.data("id");
         }
         var parent_id = main.data("parent-id");
+
         $.ajax({
             type: "get",
             url: "/chatbot/rest/dialog/create",
@@ -573,6 +578,7 @@ $(document).on("click", ".bx--overflow-menu-options > li", function() {
             current_node = nextNodeChild.data("id");
         }
         var parent_id = main.data("parent-id");
+
         $.ajax({
             type: "get",
             url: "/chatbot/rest/dialog/create",

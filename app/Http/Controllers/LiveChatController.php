@@ -13,13 +13,13 @@ use App\User;
 use Illuminate\Http\Request;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Plank\Mediable\Media;
-
 use Mail;
 use DB;
 use App\Mails\Manual\PurchaseEmail;
 use App\Tickets;
 use App\TicketStatuses;
 use App\Email;
+use Google\Cloud\Translate\TranslateClient;
 
 class LiveChatController extends Controller
 {
@@ -112,10 +112,17 @@ class LiveChatController extends Controller
 
                     $customerDetails = Customer::find($customerLiveChat->customer_id);
                     $language        = $customerDetails->language;
-                    if ($language != null) {
-                        $result  = TranslationHelper::translate($language, 'en', $message);
-                        $message = $result . ' -- ' . $message;
+                    if($language == null){
+                        $translate = new TranslateClient([
+                            'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                        ]);
+                        $result = $translate->detectLanguage($message);
+                        $customerDetails->language = $result['languageCode'];
+                        $language = $result['languageCode'];
                     }
+                
+                    $result  = TranslationHelper::translate($language, 'en', $message);
+                    $message = $result . ' -- ' . $message;
 
                     if ($author_id == 'buying@amourint.com') {
                         $messageStatus = 2;
@@ -211,12 +218,19 @@ class LiveChatController extends Controller
             }
 
             if ($receivedJson->action == 'incoming_chat_thread') {
+
                 $chat   = $receivedJson->payload->chat;
                 $chatId = $chat->id;
 
                 //Getting user
                 $userEmail = $chat->users[0]->email;
+                $text = $chat->thread->events[1]->text;
                 $userName  = $chat->users[0]->name;
+                /*$translate = new TranslateClient([
+                    'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                ]);*/
+                //$result = $translate->detectLanguage($text);
+                $customer_language = 'en';//$result['languageCode'];
                 $websiteId = null;
                 try {
                     $websiteURL = self::getDomain($chat->thread->properties->routing->start_url);
@@ -275,6 +289,7 @@ class LiveChatController extends Controller
                     $customer        = new Customer;
                     $customer->name  = $userName;
                     $customer->email = $userEmail;
+                    $customer->language = $customer_language;
                     $customer->phone = null;
                     $customer->store_website_id = $websiteId;
                     $customer->save();

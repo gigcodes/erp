@@ -75,6 +75,7 @@ use App\Account;
 use App\BrandFans;
 use App\ChatMessagesQuickData;
 use App\ColdLeads;
+use App\ChatbotQuestion;
 use Google\Cloud\Translate\TranslateClient;
 
 
@@ -1096,13 +1097,13 @@ class WhatsAppController extends FindByNumberController
                 $language = $customerDetails->language;
                 if(empty($language)){
                     //Translate Google API
-                    /*$translate = new TranslateClient([
+                    $translate = new TranslateClient([
                         'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                    ]);*/
-                    //$result = $translate->detectLanguage($text);
-                    $customerDetails->language = 'en';//$result['languageCode'];
+                    ]);
+                    $result = $translate->detectLanguage($text);
+                    $language = $result['languageCode'] ? $result['languageCode'] : 'en';
+                    $customerDetails->language = $language;
                     $customerDetails->update();
-                    $language = 'en';//$result['languageCode'];
                 }
                 $fromLang = $language;
                 $toLang = "en";
@@ -1743,7 +1744,6 @@ class WhatsAppController extends FindByNumberController
                         ]);
                     }
                 }
-
                 //Create Task record
                 if(isset($customer->id) && $customer->id > 0) {
                     // start to check with watson api directly
@@ -1752,32 +1752,52 @@ class WhatsAppController extends FindByNumberController
                             WatsonManager::sendMessage($customer,$params['message']);
                         }
                     }
-
-
                     // Auto Replies
-                    $auto_replies = AutoReply::where('is_active', 1)->get();
-
+                    // $auto_replies = AutoReply::where('is_active', 1)->get();
+                    $auto_replies = ChatbotQuestion::join('chatbot_question_examples','chatbot_questions.id','chatbot_question_examples.chatbot_question_id')->where('erp_or_watson','erp')->select('chatbot_questions.*','chatbot_question_examples.question')->get();
                     foreach ($auto_replies as $auto_reply) {
                         if ($customer && array_key_exists('message', $params) && $params[ 'message' ] != '') {
-                            $keyword = $auto_reply->keyword;
-
-                            if (preg_match("/{$keyword}/i", $params[ 'message' ])) {
-                                $temp_params = $params;
-                                $temp_params[ 'message' ] = $auto_reply->reply;
-                                $temp_params[ 'media_url' ] = null;
-                                $temp_params[ 'status' ] = 8;
-
-                                // Create new message
-                                $message = ChatMessage::create($temp_params);
-
-                                // Send message if all required data is set
-                                if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
-                                    $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
-                                    if ($sendResult) {
-                                        $message->unique_id = $sendResult[ 'id' ] ?? '';
-                                        $message->save();
+                            $keyword = $auto_reply->question;
+                            if($auto_reply->keyword_or_question == 'intent') {
+                                if ($keyword == $params[ 'message' ] && $auto_reply->suggested_reply) {
+                                    $temp_params = $params;
+                                    $temp_params[ 'message' ] = $auto_reply->suggested_reply;
+                                    $temp_params[ 'media_url' ] = null;
+                                    $temp_params[ 'status' ] = 8;
+    
+                                    // Create new message
+                                    $message = ChatMessage::create($temp_params);
+    
+                                    // Send message if all required data is set
+                                    if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
+                                        $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
+                                        if ($sendResult) {
+                                            $message->unique_id = $sendResult[ 'id' ] ?? '';
+                                            $message->save();
+                                        }
+                                        break;
                                     }
-                                    break;
+                                }
+                            }
+                            else {
+                                if (preg_match("/{$keyword}/i", $params[ 'message' ]) && $auto_reply->suggested_reply) {
+                                    $temp_params = $params;
+                                    $temp_params[ 'message' ] = $auto_reply->suggested_reply;
+                                    $temp_params[ 'media_url' ] = null;
+                                    $temp_params[ 'status' ] = 8;
+    
+                                    // Create new message
+                                    $message = ChatMessage::create($temp_params);
+    
+                                    // Send message if all required data is set
+                                    if ($temp_params[ 'message' ] || $temp_params[ 'media_url' ]) {
+                                        $sendResult = $this->sendWithThirdApi($customer->phone, isset($instanceNumber) ? $instanceNumber : null, $temp_params[ 'message' ], $temp_params[ 'media_url' ]);
+                                        if ($sendResult) {
+                                            $message->unique_id = $sendResult[ 'id' ] ?? '';
+                                            $message->save();
+                                        }
+                                        break;
+                                    }
                                 }
                             }
                         }
@@ -2061,7 +2081,6 @@ class WhatsAppController extends FindByNumberController
             'social_strategy_id' => 'sometimes|nullable|numeric',
             'store_social_content_id' => 'sometimes|nullable|numeric',
         ]);
-
         $data = $request->except('_token');
         // set if there is no queue defaut for all pages
         if (!isset($data[ "is_queue" ])) {
@@ -2091,6 +2110,9 @@ class WhatsAppController extends FindByNumberController
                     $vendor = Vendor::where('phone', $user->phone)->first();
                     $data[ 'vendor_id' ] = $vendor->id;
                     $module_id = $vendor->id;
+                }
+                if($request->get('message')){
+                    $data['message'] = $request->get('message');
                 }
             } elseif ($context == 'task') {
                 $data[ 'task_id' ] = $request->task_id;
@@ -2252,7 +2274,6 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $number = $number->phone;
-
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $this->sendWithThirdApi($number, null, '', $image->getUrl());

@@ -57,4 +57,19 @@ class HubstaffActivity extends Model
     {
         return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at','>=',$start)->whereDate('hubstaff_activities.starts_at','<=',$end)->where('hubstaff_members.user_id',$user_id)->where('hubstaff_activities.status',1)->where('hubstaff_activities.paid',0)->select('hubstaff_activities.*')->get();
     }
+
+    /**
+     * Get all activites, 
+     * which have approved and does not paid yet.
+     * @return array
+     */
+    public static function getAllTrackedActivities()
+    {
+        return self::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')
+            ->where('hubstaff_activities.status',1)
+            ->where('hubstaff_activities.paid',0)
+            ->orderBy('created_at', 'DESC')
+            ->select('hubstaff_activities.*')
+            ->get();
+    }
 }

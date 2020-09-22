@@ -22,20 +22,41 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Live Scraper Logs
+			<h2 class="page-heading">Live Scraper Logs
             <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
             </h2>
+			@if ($message = Session::get('message'))
+				<div class="alert alert-success">
+					<p>{{ $message }}</p>
+				</div>
+			@endif
         </div>
     </div>
 
     @include('partials.flash_messages')
-
+	<div class="row">
+		<div class="col-md-6">
+			<form method="get" action="{{ url('logging/live-laravel-logs') }}" class="form-horizontal" role="form">
+				<div class="col-md-4">
+					<select name="type" class="form-control select-multiple" id="error-select">
+						@foreach($errSelection as $key => $selection)
+							<option value="{{ $selection }}" {{ app('request')->input('type') == $selection ? ' selected' : '' }}>{{ $selection }}</option>
+						@endforeach
+					</select>
+				</div>
+				<div class="col-md-2">
+					<button type='submit' class="btn btn-default">Search</button>
+				</div>
+			</form>
+		</div>
+	</div>
     <div class="mt-3 col-md-12">
         <table class="table table-bordered table-striped" id="log-table">
             <thead>
             <tr>
                 <th width="10%">Filename</th>
-                <th width="30%">Log</th>
+                <th width="50%">Log</th>
+                <th width="10%">Action</th>
             </tr>
             </thead>
             <tbody id="content_data">
@@ -45,6 +66,36 @@
         </table>
     </div>
  
+ 
+	<div id="assign_task_model" class="modal fade" role="dialog" data-backdrop="static">
+		<div class="modal-dialog">
+			<!-- Modal content-->
+			<div class="modal-content">
+				<form action="{{ url('logging/assign') }}" method="POST">
+				@csrf
+				<div class="modal-header">
+					<h4 class="modal-title">Assign Task</h4>
+				</div>
+				<div class="modal-body">
+					<input type="hidden" name="issue" id="issue">
+					<div class="form-group">
+						<strong>User:</strong>
+						<select class="form-control select-multiple" name="assign_to" id="user-select">
+							<option value="">Select User</option>
+							@foreach($users as $key => $user)
+								<option value="{{ $user->id }}">{{ $user->name }}</option>
+							@endforeach
+						</select>
+					</div>
+				</div>
+				<div class="modal-footer">
+				  <button type="button" class="btn btn-default close-setting" data-dismiss="modal">Close</button>
+				  <button type="submit" class="btn btn-secondary">Assign</button>
+				</div>
+			</form>
+        </div>
+      </div>
+    </div>
 
 @endsection
 
@@ -56,12 +107,23 @@
     
     <script type="text/javascript">
 
+	function encode(e){return e.replace(/[^]/g,function(e){return"&#"+e.charCodeAt(0)+";"})}
+
 
 
     //Ajax Request For Search
     $(document).ready(function () {
           
-        
+		$('.select-multiple').select2({width: '100%'}); 
+    	$(".assign_task").on('click', function () {
+			var err = $(this).closest("tr").find("span.td-full-container").text();
+			$("#issue").val(err.replace(/[^]/g,function(err){return "&#"+err.charCodeAt(0)+";"}));
+		});
+		$('.close-setting').on('click', function() {
+			$("#issue").val('');
+		});
+		
+		
         //Expand Row
          $(document).on('click', '.expand-row', function () {
             var selection = window.getSelection();

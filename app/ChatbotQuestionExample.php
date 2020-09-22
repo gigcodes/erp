@@ -8,7 +8,7 @@ class ChatbotQuestionExample extends Model
 {
     public $timestamps  = false;
     protected $fillable = [
-        'question', 'chatbot_question_id',
+        'question', 'chatbot_question_id','types',
     ];
 
     public function questionModal()
@@ -33,5 +33,9 @@ class ChatbotQuestionExample extends Model
         }
 
         return $selectedAn;
+    }
+
+    public function chatbotKeywordValueTypes() {
+        return $this->hasMany("App\ChatbotKeywordValueTypes", "chatbot_keyword_value_id", "id");
     }
 }

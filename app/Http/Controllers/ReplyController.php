@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Reply;
 use App\Setting;
 use App\ReplyCategory;
+use App\ChatbotQuestion;
 
 class ReplyController extends Controller
 {
@@ -16,8 +17,8 @@ class ReplyController extends Controller
     public function index()
     {
       $replies = Reply::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
-
-  		return view('reply.index',compact('replies'))
+      $reply_categories = ReplyCategory::all();
+  		return view('reply.index',compact('replies','reply_categories'))
   					->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -136,4 +137,29 @@ class ReplyController extends Controller
       }
   		return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
     }
+
+    public function chatBotQuestion(Request $request)
+    {
+      $this->validate($request,[
+        'intent_name' => 'required',
+        'intent_reply' => 'required',
+        'intent_model' => 'required',
+        'intent_category_id' => 'required'
+      ]);
+
+
+        $ChatbotQuestion = new ChatbotQuestion;
+        $ChatbotQuestion->value = 'Intent';
+        $ChatbotQuestion->suggested_reply = $request->intent_reply;
+        $ChatbotQuestion->category_id = $request->intent_category_id;
+        $ChatbotQuestion->keyword_or_question = $request->intent_model;
+        $ChatbotQuestion->is_active = 1;
+        $ChatbotQuestion->erp_or_watson = 'erp';
+
+        $ChatbotQuestion->save();
+        dd();
+        return redirect()->route('reply')->with('success','Intent Updated');
+      
+    }
+
 }

@@ -1,7 +1,6 @@
 <?php
 
 namespace Modules\ChatBot\Http\Controllers;
-
 use App\Library\Watson\Model as WatsonManager;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
@@ -10,7 +9,7 @@ use Illuminate\Support\Facades\Validator;
 use \App\ChatbotKeyword;
 use \App\ChatbotKeywordValue;
 use \App\ChatbotKeywordValueTypes;
-
+use \App\ChatbotQuestion;
 class KeywordController extends Controller
 {
     /**
@@ -19,7 +18,7 @@ class KeywordController extends Controller
      */
     public function index()
     {
-
+        dd("We are not using this page anymore");
         $chatKeywords = ChatbotKeyword::leftJoin("chatbot_keyword_values as ckv", "ckv.chatbot_keyword_id", "chatbot_keywords.id")
             ->select("chatbot_keywords.*", \DB::raw("group_concat(ckv.value) as `values`"))
             ->groupBy("chatbot_keywords.id")
@@ -31,11 +30,13 @@ class KeywordController extends Controller
 
     public function create()
     {
+        dd("We are not using this page anymore");
         return view('chatbot::keyword.create');
     }
 
     public function save(Request $request)
     {
+        dd("We are not using this page anymore");
         $params            = $request->all();
         $params["keyword"] = str_replace(" ", "_", preg_replace('/\s+/', ' ', $params["keyword"]));
 
@@ -84,7 +85,9 @@ class KeywordController extends Controller
     {
         if ($id > 0) {
 
-            $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+            // $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+            $chatbotKeyword = ChatbotQuestion::where("id", $id)->first();
+
 
             if ($chatbotKeyword) {
                 ChatbotKeywordValue::where("chatbot_keyword_id", $id)->delete();
@@ -100,27 +103,32 @@ class KeywordController extends Controller
 
     public function edit(Request $request, $id)
     {
-        $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+        // $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+        $chatbotKeyword = ChatbotQuestion::where("id", $id)->first();
 
         return view("chatbot::keyword.edit", compact('chatbotKeyword'));
     }
 
     public function update(Request $request, $id)
     {
-
+        // dd($request->all());
         $params                       = $request->all();
-        $params["keyword"]            = str_replace(" ", "_", $params["keyword"]);
+        // $params["keyword"]            = str_replace(" ", "_", $params["keyword"]);
+        $params["value"]            = str_replace(" ", "_", $params["value"]);
         $params["chatbot_keyword_id"] = $id;
 
-        $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+        // $chatbotKeyword = ChatbotKeyword::where("id", $id)->first();
+        $chatbotKeyword = ChatbotQuestion::where("id", $id)->first();
 
         if ($chatbotKeyword) {
 
             $chatbotKeyword->fill($params);
             $chatbotKeyword->save();
-            if ( $params["value"] != NULL) {
+            if ( $params["value_name"] != NULL) {
                 $chatbotKeywordValue = new ChatbotKeywordValue;
-                $chatbotKeywordValue->fill($params);
+                $chatbotKeywordValue->value = $params["value_name"];
+                $chatbotKeywordValue->chatbot_keyword_id = $params["chatbot_keyword_id"];
+                $chatbotKeywordValue->types = $params["types"];
                 $chatbotKeywordValue->save();
                 
                 $valueType = [];
@@ -156,6 +164,7 @@ class KeywordController extends Controller
 
     public function saveAjax()
     {
+        dd("We are not using this page anymore");
         $params            = $request->all();
         $params["keyword"] = str_replace(" ", "_", preg_replace('/\s+/', ' ', $params["keyword"]));
         $values  =  $request->get("values");
@@ -184,7 +193,7 @@ class KeywordController extends Controller
 
     public function search(Request $request)
     {
-
+        dd("We are not using this page anymore");
         $keyword = request("term","");
         $allKeyword = ChatbotKeyword::where("keyword","like","%".$keyword."%")->limit(10)->get();
 
