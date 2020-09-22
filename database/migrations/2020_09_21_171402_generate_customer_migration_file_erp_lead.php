@@ -14,8 +14,10 @@ class GenerateCustomerMigrationFileErpLead extends Migration
     public function up()
     {
         Schema::table('customers', function (Blueprint $table) {
-            if (!Schema::hasColumn('is_blocked_lead', 'lead_product_freq')) {
+            if (!Schema::hasColumn('customers', 'is_blocked_lead')) {
                 $table->integer('is_blocked_lead')->default(0)->nullable()->after("do_not_disturb");
+            }
+            if (!Schema::hasColumn('customers', 'lead_product_freq')) {
                 $table->integer('lead_product_freq')->default(0)->nullable()->after("is_blocked_lead");
             }
         });
