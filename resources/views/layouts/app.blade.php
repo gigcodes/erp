@@ -1353,9 +1353,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
 									</ul>
                                 </li>

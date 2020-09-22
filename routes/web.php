@@ -2253,6 +2253,14 @@ Route::group(['middleware' => 'auth'], function () {
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
 
+//Charity Routes
+Route::get('charity', 'CharityController@index')->name('charity');
+Route::any('charity/update', 'CharityController@update')->name('charity.update');
+Route::post('charity/store', 'CharityController@store')->name('charity.store');
+Route::any('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+
+
+
 /****Webhook URL for twilio****/
 Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
 /*
