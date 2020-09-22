@@ -89,7 +89,6 @@
             "App\\": "app/",
             "Modules\\": "Modules/",
             "InstagramAPI\\": "vendors/mgp25/instagram-php/src"
-        
         },
         "files": [
             "Modules/BookStack/helpers.php",
