@@ -54,7 +54,8 @@ class Product extends Model
         'shopify_id',
         'scrap_priority',
         'assigned_to',
-        'quick_product'
+        'quick_product',
+        'approved_by'
     ];
 
     protected $dates = ['deleted_at'];
@@ -79,6 +80,7 @@ class Product extends Model
         static::updating(function ($product) {
             $oldCatID = $product->category;
             $newCatID = $product->getOriginal('category');
+
             if($oldCatID != $newCatID) {
                 \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
             }

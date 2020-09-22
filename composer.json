@@ -24,7 +24,7 @@
         "fideloper/proxy": "^4.0",
         "giggsey/libphonenumber-for-php": "^8.11",
         "google/apiclient": "^2.0",
-        "google/cloud-translate": "^1.7",
+        "google/cloud-translate": "^1.9",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.5",
         "kosinix/grafika": "^2.0",
@@ -89,6 +89,7 @@
             "App\\": "app/",
             "Modules\\": "Modules/",
             "InstagramAPI\\": "app/Library/mgp25/instagram-php/src"
+        
         },
         "files": [
             "Modules/BookStack/helpers.php",

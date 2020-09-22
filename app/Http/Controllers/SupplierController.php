@@ -253,7 +253,7 @@ class SupplierController extends Controller
         $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
 
 		//Get All Product Supplier
-		$allSupplierProduct = DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+		$allSupplierProduct = [];//DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
 		
 		//Get All supplier price range
 		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();

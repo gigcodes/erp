@@ -13,8 +13,9 @@ class CreateRoutesTable extends Migration
      */
     public function up()
     {
-        Schema::create('routes', function (Blueprint $table) {
+        Schema::create('product_translation_histories', function (Blueprint $table) {
             $table->increments('id');
+            $table->bigInteger('product_id');
 			$table->String('url',255)->nullable();
 			$table->String('page_title',255)->nullable();
 			$table->String('page_description',255)->nullable();
