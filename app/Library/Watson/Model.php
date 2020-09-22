@@ -343,9 +343,6 @@ class Model
 
     }
 
-<<<<<<< HEAD
-    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id=null)
-=======
 
     public static function sendMessage(Customer $customer, $inputText, $contextReset = false,  $message_application_id=null){
 
@@ -356,7 +353,6 @@ class Model
     }
 
     public static function sendMessageFromJob(Customer $customer, $assistant, $inputText, $contextReset = false, $message_application_id = null)
->>>>>>> a1bf41ba4478abce23e31b5e57466132058756fc
     {
          if (env("PUSH_WATSON", true) == false) {
             return true;
