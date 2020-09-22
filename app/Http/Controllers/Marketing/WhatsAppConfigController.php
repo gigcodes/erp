@@ -120,12 +120,14 @@ class WhatsappConfigController extends Controller
             'send_start' => 'required',
             'send_end' => 'required',
         ]);
-
-        $data = $request->except('_token');
+		$requestData = $request->all();
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		$data = $request->except('_token','default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
-
-        WhatsappConfig::create($data);
+		$data['default_for'] = $defaultFor;
+		WhatsappConfig::create($data);
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -162,9 +164,16 @@ class WhatsappConfigController extends Controller
         ]);
         $config = WhatsappConfig::findorfail($request->id);
 		
-        $data = $request->except('_token', 'id');
+		$requestData = $request->all();
+		
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		
+        $data = $request->except('_token', 'id', 'default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
+        $data['default_for'] = $defaultFor;
+		
         $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');

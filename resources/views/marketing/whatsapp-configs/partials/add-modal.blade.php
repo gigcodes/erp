@@ -84,7 +84,7 @@
     					</div> 
 						<div class="form-group">
     						<strong>Default For:</strong>
-    						<select class="form-control" name="default_for">
+    						<select class="form-control" name="default_for[]" multiple>
     							<option value="1">Customer</option>
     							<option value="2">Vendor</option>
     							<option value="3">Supplier</option>

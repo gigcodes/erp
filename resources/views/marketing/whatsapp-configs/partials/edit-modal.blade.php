@@ -69,13 +69,17 @@
     						@endif
     					</div>
 						
+						@php
+							$defaultForArr = explode(",",$whatsAppConfig->default_for);
+						@endphp
 						<div class="form-group">
     						<strong>Default For:</strong>
-    						<select class="form-control" name="default_for">
-    							<option value="1" @if($whatsAppConfig->default_for == 1) selected @endif>Customer</option>
-    							<option value="2" @if($whatsAppConfig->default_for == 2) selected @endif>Vendor</option>
-    							<option value="3" @if($whatsAppConfig->default_for == 3) selected @endif>Supplier</option>
-    							<option value="4" @if($whatsAppConfig->default_for == 4) selected @endif>User</option>
+    						<select class="form-control" name="default_for[]" multiple>
+								
+    							<option value="1" @if(in_array(1,$defaultForArr)) selected @endif>Customer</option>
+    							<option value="2" @if(in_array(2,$defaultForArr)) selected @endif>Vendor</option>
+    							<option value="3" @if(in_array(3,$defaultForArr)) selected @endif>Supplier</option>
+    							<option value="4" @if(in_array(4,$defaultForArr)) selected @endif>User</option>
     						</select>
 
     						@if ($errors->has('customer_support'))
