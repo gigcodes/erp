@@ -27,6 +27,14 @@ class EmailLeadsController extends Controller
     public function index(Request $request)
     {
 		$query = EmailLead::query();
+		
+		if($request->email){
+			$query = $query->where('email', 'LIKE','%'.$request->email.'%');
+		}
+		if($request->source){
+			$query = $query->where('source', 'LIKE','%'.$request->source.'%');
+		}
+		
         $emailLeads = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
 		$mailingList = Mailinglist::all();
         return view('marketing.emailleads.index', compact('emailLeads', 'mailingList') );
