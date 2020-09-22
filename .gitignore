@@ -73,4 +73,3 @@ app/Http/Composers/GlobalComposer.php
 app/Library/mgp25/*
 resources/views/vendor/maileclipse/templates/*
 /public/mailinglist/
-/vendors/*
