@@ -742,6 +742,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
                                 </li>

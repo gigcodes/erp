@@ -1966,11 +1966,19 @@ Route::group(['middleware' => 'auth', 'namespace' => 'Marketing', 'prefix' => 'm
     Route::get('mailinglist/add/{id}/{email}', 'MailinglistController@addToList')->name('mailingList.add_to_list');
     Route::get('mailinglist/delete/{id}/{email}', 'MailinglistController@delete')->name('mailingList.delete');
     Route::get('mailinglist/list/delete/{id}', 'MailinglistController@deleteList')->name('mailingList.delete.list');
-    Route::post('mailinglist-create', 'MailinglistController@create')->name('mailingList.create');
+    Route::post('mailinglist/create', 'MailinglistController@create')->name('mailingList.create');
     Route::get('mailinglist-add-manual', 'MailinglistController@addManual')->name('mailinglist.add.manual');
     Route::post('addRemark', 'MailinglistController@addRemark')->name('mailingList.addRemark');
     Route::get('gettaskremark', 'MailinglistController@getBroadCastRemark')->name('mailingList.gets.remark');
-
+	
+	
+	//Email Leads
+	Route::get('emailleads', 'EmailLeadsController@index')->name('emailleads');
+	Route::any('emailleads/import', 'EmailLeadsController@import')->name('emailleads.import');
+	Route::post('emailleads/assign', 'EmailLeadsController@assignList')->name('emailleads.assign');
+	Route::get('emailleads/export', 'EmailLeadsController@export')->name('emailleads.export');
+	Route::get('emailleads/show/{id}', 'EmailLeadsController@show')->name('emailleads.show');
+	Route::get('emailleads/unsubscribe/{lead_id}/{lead_list_id}', 'EmailLeadsController@unsubscribe')->name('emailleads.unsubscribe');
 
     Route::get('services', 'ServiceController@index')->name('services');
     Route::post('services/store', 'ServiceController@store')->name('services.store');
