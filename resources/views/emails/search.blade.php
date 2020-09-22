@@ -6,6 +6,20 @@
             <td>{{ $email->to }}</td>
             <td>{{ $email->type }}</td>
 			<td>{{ substr($email->subject, 0,  50) }} {{strlen($email->subject) > 50 ? '...' : '' }}</td>
+			<td>
+				@foreach ($email_categories as $category)
+					@if($category->id == $email->email_category_id)
+						{{$category->category_name}} 
+					@endif
+				@endforeach
+			</td>
+			<td>
+				@foreach ($email_status as $status)
+					@if($status->id == $email->status)
+						{{$status->email_status}} 
+					@endif
+				@endforeach
+			</td>
 			<td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->message, 0,  50) }} {{strlen($email->message) > 50 ? '...' : '' }}</td>
             <td>
 				

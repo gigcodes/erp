@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('content')
+@section('large_content')
 
 @section('styles')
 
@@ -33,14 +33,12 @@
 </style>
 @endsection
 <div id="myDiv">
-        <img id="loading-image" src="images/pre-loader.gif" style="display:none;"/>
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
 <div class="row">
-        <div class="col-12">
-            <h2 class="page-heading">Emails List</h2>
-          </div>
-
-
+	<div class="col-12">
+		<h2 class="page-heading">Emails List</h2>
+	</div>
 </div>
 @if ($message = Session::get('success'))
 <div class="alert alert-success">
@@ -85,7 +83,7 @@
   <div class="pull-left">
 
       <form class="form-inline" >
-        <div class="form-group">
+        <div class="form-group px-2">
           <input id="term" name="term" type="text" class="form-control"
                  value="<?php if(Request::get('term')) echo Request::get('term'); ?>"
                  placeholder="Search by Keyword">
@@ -99,17 +97,17 @@
           </div>
         </div-->
 		
-		<div class="form-group">
+		<div class="form-group px-2">
           <input id="sender" name="sender" type="text" class="form-control"
                  value="<?php if(Request::get('sender')) echo Request::get('sender'); ?>"
                  placeholder="Search by Sender">
         </div>
-		<div class="form-group">
+		<div class="form-group px-2">
           <input id="receiver" name="receiver" type="text" class="form-control"
                  value="<?php if(Request::get('receiver')) echo Request::get('receiver'); ?>"
                  placeholder="Search by Receiver">
         </div>
-		<div class="form-group">
+		<div class="form-group px-2">
           <select class="form-control" name="status" id="email_status">
 				<option value="">Select Status</option>
 				<?php
@@ -119,7 +117,7 @@
 				?>
 			</select>
         </div>
-		<div class="form-group">
+		<div class="form-group px-2">
 			<select class="form-control" name="category" id="category">
 				<option value="">Select Category</option>
 				<?php
@@ -138,7 +136,7 @@
 </div>
 </div>
 <div class="table-responsive" style="margin-top:20px;">
-      <table class="table table-bordered table-responsive text-nowrap" style="border: 1px solid #ddd;" id="email-table">
+      <table class="table table-bordered text-nowrap" style="border: 1px solid #ddd;" id="email-table">
         <thead>
           <tr>
             <th>Date</th>
@@ -147,6 +145,8 @@
             <th>mail type</th>
             <th>Subject</th>
             <th>Body</th>
+            <th>Status</th>
+            <th>Category</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -271,7 +271,7 @@
 		<!-- Modal content-->
 		<div class="modal-content">
 			<div class="modal-header">
-				<h4 class="modal-title">Create Email Status</h4>
+				<h4 class="modal-title">Email List</h4>
 				<button type="button" class="close" data-dismiss="modal">&times;</button>
 			</div>
 			<form action="{{ url('email/update_email') }}" method="POST">
@@ -300,7 +300,7 @@
 					</div>
 					<div class="modal-footer">
 						<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						<button type="submit" class="btn btn-secondary">Create</button>
+						<button type="submit" class="btn btn-secondary">Store</button>
 					</div>
 				</form>
 			</div>
@@ -507,13 +507,21 @@
     });
 
 	$(document).on('click', '.mailupdate', function (e) {
+		
+		$("#UpdateMail #email_category").val("").trigger('change');
+		$("#UpdateMail #email_status").val("").trigger('change');
+		
 		var email_id = $(this).data('id');
 		var status = $(this).data('status');
 		var category = $(this).data('category');
-		
-		$("#email_category").val(category).trigger('change');
-		$("#email_status").val(status).trigger('change');
-
+		if(category)
+		{
+			$("#UpdateMail #email_category").val(category).trigger('change');
+		}
+		if(status)
+		{
+			$("#UpdateMail #email_status").val(status).trigger('change');
+		}
 		
 		$('#email_id').val(email_id);
 	
