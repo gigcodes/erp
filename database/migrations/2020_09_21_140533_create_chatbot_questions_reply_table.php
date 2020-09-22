@@ -20,8 +20,8 @@ class CreateChatbotQuestionsReplyTable extends Migration
                 $table->integer('store_website_id')->unsigned();
                 $table->integer('chatbot_question_id')->unsigned();
                 $table->timestamps();
-                $table->foreign('store_website_id')->references('id')->on('store_websites')->onDelete('cascade');
-                $table->foreign('chatbot_question_id')->references('id')->on('chatbot_questions')->onDelete('cascade');
+                //$table->foreign('store_website_id')->references('id')->on('store_websites')->onDelete('cascade');
+                //$table->foreign('chatbot_question_id')->references('id')->on('chatbot_questions')->onDelete('cascade');
             });
         }
     }
