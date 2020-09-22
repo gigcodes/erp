@@ -43,6 +43,42 @@ var msQueue = {
             msQueue.updateForms(form);
         });
 
+		$(document).on("click","#bulk_delete",function(e){
+            e.preventDefault();
+			if($("input[name='ids[]']:checked").length <= 0)
+			{
+				 toastr['error']("Select a Request First.");
+			}
+			else
+			{
+            	msQueue.deleteBulkRecords();     
+			}
+        });
+		
+		$(document).on("click","#bulk_update",function(e){
+            e.preventDefault();
+			if($("input[name='ids[]']:checked").length <= 0)
+			{
+				 toastr['error']("Select a Request First.");
+			}
+			else
+			{
+				var selectedIds = Array();
+				$.each($("input[name='ids[]']:checked"),function(){
+					selectedIds.push($(this).val())
+				});
+				
+				var ids = selectedIds.join(',');
+				$('#emailToCustomerModal').find('form').find('input[name="selected_ids"]').val(ids);
+           	 	$('#emailToCustomerModal').modal('show');
+			}
+        });
+		
+		$(document).on("click","#create_status",function(e){
+            e.preventDefault();
+			$('#createstatusModal').modal('show');
+        });
+
         $(document).on("click",".btn-delete-template",function(e){
             e.preventDefault();
             msQueue.deleteRecords($(this).data("id"));     
@@ -51,6 +87,16 @@ var msQueue = {
         $(document).on("click",".btn-history-template",function(e){
             e.preventDefault();
             msQueue.historyList($(this).data("id"));     
+        });
+		
+		$(document).on('click', '.show-product', function (e) {
+            e.preventDefault();
+            msQueue.productDetails($(this).data("id"));     
+        });
+
+        $(document).on("click",".btn-product-info-template",function(e){
+            e.preventDefault();
+            msQueue.getProduct($(this).data("id"));     
         });
 
         $(".select2").select2({tags:true});
@@ -172,6 +218,22 @@ var msQueue = {
         }
         this.sendAjax(_z, "afterDeleteRecord",{append : true});     
     },
+	deleteBulkRecords : function() {
+		var selectedIds = Array();
+		$.each($("input[name='ids[]']:checked"),function(){
+			selectedIds.push($(this).val())
+		});
+		
+		var ids = selectedIds.join(',');
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/return-exchange/"+ids+"/delete",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterDeleteRecord",{append : true});
+    },
     afterDeleteRecord : function(response) {
         $("#loading-image").hide();
         if(response.code == 200) {
@@ -195,6 +257,42 @@ var msQueue = {
             var tplHtml       = addProductTpl.render(response);
             $(".common-modal").find(".modal-dialog").html(tplHtml);
             $(".common-modal").modal("show");
+        }
+    },
+    getProduct: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/"+id+"/product",
+            method: "get",
+            beforeSend: function() {
+                $("#loading-image").show();
+            }
+        };
+        this.sendAjax(_z, "showProductInfo",{append : true});
+    },
+    showProductInfo: function(response) {
+        if (response.code == 200) {
+            $("#loading-image").hide();
+            var addProductInfoTpl = $.templates("#template-product-block");
+            var tplHtml           = addProductInfoTpl.render(response);
+            $(".common-modal").find(".modal-dialog").html(tplHtml);
+            $(".common-modal").modal("show");
+        }
+    },
+	productDetails: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/getProducts/"+id,
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showProductDetails",{append : true});
+    },
+    showProductDetails: function(response) {
+        if(response.code == 200) {
+          $("#loading-image").hide();
+          $("#productModal").find(".modal-body").html(response.html);
+          $("#productModal").modal("show");
         }
     }
 }

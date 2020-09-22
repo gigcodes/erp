@@ -5,6 +5,36 @@
 @section("styles")
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.css" rel="stylesheet" />
+  <style type="text/css">
+    .preview-category input.form-control {
+      width: auto;
+    }
+
+    #loading-image {
+              position: fixed;
+              top: 50%;
+              left: 50%;
+              margin: -50px 0px 0px -50px;
+          }
+
+      .dis-none {
+              display: none;
+          }
+      .pd-5 {
+        padding: 3px;
+      }
+      .toggle.btn {
+        min-height:25px;
+      }
+      .toggle-group .btn {
+        padding: 2px 12px;
+      }
+      .latest-remarks-list-view tr td {
+        padding:3px !important;
+      }
+  </style>
+
 @endsection
 
 @section('content')
@@ -14,8 +44,10 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
-              <a class="btn btn-secondary" href="{{ route('voucher.payment.request') }}">Manual request</a>
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
+              @endif
+              <a class="btn btn-secondary manual-request-bt" href="{{ route('voucher.payment.request') }}">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
         </div>
@@ -80,7 +112,25 @@
               <td>{{ $task->currency }}</td>
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
-              <td><a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a></td>
+              <td>
+                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                @endif
+                <button type="button" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
+                    <i class="fa fa-upload" aria-hidden="true"></i>
+                </button>
+                <button type="button" data-payment-receipt-id="{{$task->id}}"  class="btn btn-file-list pd-5">
+                    <i class="fa fa-list" aria-hidden="true"></i>
+                </button>
+                <?php /* ?>
+                <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
+                    <i class="fa fa-comment" aria-hidden="true"></i>
+                </button-->
+                <?php */ ?>
+                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
+                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                @endif
+              </td>
             </tr>
           @endforeach
       </table>
@@ -228,20 +278,127 @@
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
-</div>
+    </div>
+
+    <div id="file-upload-area-section" class="modal fade" role="dialog">
+      <div class="modal-dialog">
+          <div class="modal-content">
+             <form action="{{ route("voucher.upload-documents") }}" method="POST" enctype="multipart/form-data">
+                <input type="hidden" name="id" id="hidden-payment-receipt-id" value="">
+                <div class="modal-header">
+                    <h4 class="modal-title">Upload File(s)</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                @csrf
+                <div class="form-group">
+                    <label for="document">Documents</label>
+                    <div class="needsclick dropzone" id="document-dropzone">
+
+                    </div>
+                </div>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default btn-save-documents">Save</button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+        </form>
+          </div>
+      </div>
+  </div>
+
+  <div id="file-upload-area-list" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+          <div class="modal-body">
+            <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th width="5%">No</th>
+                <th width="45%">Link</th>
+                <th width="25%">Send To</th>
+                <th width="25%">Action</th>
+              </tr>
+            </thead>
+            <tbody class="display-document-list">
+            </tbody>
+        </table>
+      </div>
+           <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+  </div>
+
 @endsection
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/dropzone/5.5.1/min/dropzone.min.js"></script>
   <script type="text/javascript">
+
+    $('.assign-to.select2').select2({
+      width: "100%"
+    });
+
+    var uploadedDocumentMap = {}
+    Dropzone.options.documentDropzone = {
+      url: '{{ route("voucher.upload-documents") }}',
+      maxFilesize: 20, // MB
+      addRemoveLinks: true,
+      headers: {
+          'X-CSRF-TOKEN': "{{ csrf_token() }}"
+      },
+      success: function (file, response) {
+          $('form').append('<input type="hidden" name="document[]" value="' + response.name + '">')
+          uploadedDocumentMap[file.name] = response.name
+      },
+      removedfile: function (file) {
+          file.previewElement.remove()
+          var name = ''
+          if (typeof file.file_name !== 'undefined') {
+            name = file.file_name
+          } else {
+            name = uploadedDocumentMap[file.name]
+          }
+          $('form').find('input[name="document[]"][value="' + name + '"]').remove()
+      },
+      init: function () {
+
+      }
+  }
     // $(document).ready(function() {
     //    $(".select-multiple").multiselect({
     //     enableFiltering: true,
     //    });
     // });
 
- 
+  $(document).on("click",".btn-save-documents",function(e){
+    e.preventDefault();
+    var $this = $(this);
+    var formData = new FormData($this.closest("form")[0]);
+    $.ajax({
+      url: '/voucher/save-documents',
+      type: 'POST',
+      headers: {
+            'X-CSRF-TOKEN': "{{ csrf_token() }}"
+        },
+        dataType:"json",
+      data: $this.closest("form").serialize(),
+      beforeSend: function() {
+        $("#loading-image").show();
+            }
+    }).done(function (data) {
+      $("#loading-image").hide();
+      toastr["success"]("Document uploaded successfully");
+      location.reload();
+    }).fail(function (jqXHR, ajaxOptions, thrownError) {      
+      toastr["error"](jqXHR.responseJSON.message);
+      $("#loading-image").hide();
+    });
+  });
 
     $('.select-multiple').select2({width: '100%'});
 
@@ -341,7 +498,97 @@
         });
     });
 
-    
+    $(document).on('click', '.manual-request-btn', function(e) {
+      e.preventDefault();
+      var thiss = $(this);
+      var type = 'GET';
+        $.ajax({
+          url: '/voucher/payment/request',
+          type: type,
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+          $("#loading-image").hide();
+          $('#create-manual-payment').modal('show');
+          $('#create-manual-payment-content').html(response);
+
+          $('#date_of_payment').datetimepicker({
+            format: 'YYYY-MM-DD'
+          });
+          $('.select-multiple').select2({width: '100%'});
+        }).fail(function(errObj) {
+          $("#loading-image").hide();
+        });
+    }); 
+
+    $(document).on("click",".btn-file-upload",function() {
+      var $this = $(this);
+      $("#file-upload-area-section").modal("show");
+       $("#hidden-payment-receipt-id").val($this.data("payment-receipt-id"));
+      // $("#hidden-site-id").val($this.data("site-id"));
+      // $("#hidden-site-category-id").val($this.data("site-category-id"));
+    });
+
+    $(document).on("click",".btn-file-list",function(e) {
+        e.preventDefault();
+        var $this = $(this);
+        var id = $(this).data("payment-receipt-id");
+        $.ajax({
+          url: '/voucher/'+id+'/list-documents',
+          type: 'GET',
+          headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            dataType:"json",
+          beforeSend: function() {
+            $("#loading-image").show();
+                }
+        }).done(function (response) {
+          $("#loading-image").hide();
+          var html = "";
+          $.each(response.data,function(k,v){
+            html += "<tr>";
+              html += "<td>"+v.id+"</td>";
+              html += "<td>"+v.url+"</td>";
+              html += "<td><div class='form-row'>"+v.user_list+"</div></td>";
+              html += '<td><a class="btn-secondary" href="'+v.url+'" data-site-id="'+v.site_id+'" target="__blank"><i class="fa fa-download" aria-hidden="true"></i></a>&nbsp;<a class="btn-secondary link-delete-document" data-payment-receipt-id="'+v.payment_receipt_id+'" data-id='+v.id+' href="_blank"><i class="fa fa-trash" aria-hidden="true"></i></a></td>';
+            html += "</tr>";
+          });
+          $(".display-document-list").html(html);
+          $("#file-upload-area-list").modal("show");
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+          toastr["error"]("Oops,something went wrong");
+          $("#loading-image").hide();
+        });
+      });
+
+    $(document).on("click",".link-delete-document",function(e) {
+        e.preventDefault();
+        var id = $(this).data("id");
+        var $this = $(this);
+        if(confirm("Are you sure you want to delete records ?")) {
+          $.ajax({
+            url: '/voucher/delete-document',
+            type: 'POST',
+            headers: {
+                  'X-CSRF-TOKEN': "{{ csrf_token() }}"
+              },
+              dataType:"json",
+            data: { id : id},
+            beforeSend: function() {
+              $("#loading-image").show();
+                  }
+          }).done(function (data) {
+            $("#loading-image").hide();
+            toastr["success"]("Document deleted successfully");
+            $this.closest("tr").remove();
+          }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            toastr["error"]("Oops,something went wrong");
+            $("#loading-image").hide();
+          });
+        }
+      });
 
     // $(document).on('click', '.submit-manual-receipt', function(e) {
     //   e.preventDefault();

@@ -93,6 +93,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\RunErpLeads;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
@@ -114,6 +115,7 @@ use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\WayBillTrackHistories;
 
 class Kernel extends ConsoleKernel
 {
@@ -193,6 +195,7 @@ class Kernel extends ConsoleKernel
         IncrementFrequencyWhatsappConfig::class,
         UpdateCronSchedule::class,
         RunErpEvents::class,
+        RunErpLeads::class,
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
@@ -222,7 +225,8 @@ class Kernel extends ConsoleKernel
         ScrapLogs::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
-        DeleteChatMessages::class
+        DeleteChatMessages::class,
+        WayBillTrackHistories::class
     ];
 
     /**
@@ -415,6 +419,7 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
         //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
+        // /$schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
@@ -467,6 +472,8 @@ class Kernel extends ConsoleKernel
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 		
+        //update order way billtrack histories
+        $schedule->command('command:waybilltrack')->dailyAt("1:00");
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
