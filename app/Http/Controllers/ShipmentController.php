@@ -15,6 +15,9 @@ use Mail;
 use Illuminate\Http\Request;
 use Exception;
 use Validator;
+use Mtc\Dhl\Entity\GB\BookPURequest;
+use Mtc\Dhl\Client\Web;
+use Carbon\Carbon;
 
 class ShipmentController extends Controller
 {
@@ -265,6 +268,55 @@ class ShipmentController extends Controller
     {
         $all_templates = MailinglistTemplate::where('name','=',$name)->get();
         return new JsonResponse(['status' => 1, 'data' => $all_templates]);
+    }
+
+    public function show(){
+        $pickup = new BookPURequest();
+        $pickup->SiteID = 'luxuryunlmiAE';
+        $pickup->Password = 'S#8sD@2gP$2o';
+        $pickup->MessageTime = Carbon::now()->format(Carbon::ATOM);
+        $pickup->MessageReference = 'reference_28_to_32_characters';
+
+        $pickup->Requestor->AccountNumber = '968267613';
+        $pickup->Requestor->AccountType = 'D';
+        $pickup->Requestor->CompanyName = 'Webguruz';
+        $pickup->Requestor->RequestorContact->PersonName = 9034666652;
+        $pickup->Requestor->RequestorContact->Phone = 9034666652;
+
+        // DHL REGION based on the Toolkit documentation for the pickup country
+        $pickup->RegionCode = 'AP';
+
+        $pickup->Place->LocationType = 'B';
+        $pickup->Place->CompanyName = 'Webguruz technologies PVT LTD';
+        $pickup->Place->Address1 = "4th floor Dibon building";
+        $pickup->Place->Address2 = "Sector 67";
+        $pickup->Place->PackageLocation = 'Ask receptionist';
+        $pickup->Place->City = "Mohali";
+        $pickup->Place->CountryCode = "IN";
+        $pickup->Place->PostalCode = 160062;
+
+        $pickup->Pickup->PickupDate = '2021-02-05';
+        $pickup->Pickup->ReadyByTime = '13:00';
+        $pickup->Pickup->CloseTime = '17:00';
+
+        $pickup->PickupContact->PersonName = 9034666652;
+        $pickup->PickupContact->Phone = 903466652;
+
+        $pickup->ShipmentDetails->AccountType = 'D';
+        $pickup->ShipmentDetails->AccountNumber = '968267613';
+        $pickup->ShipmentDetails->BillToAccountNumber = '968267613';
+
+        $pickup->ShipmentDetails->AWBNumber = 1111111;
+        $pickup->ShipmentDetails->NumberOfPieces = 1;
+        $pickup->ShipmentDetails->GlobalProductCode = "ABC";
+        $pickup->ShipmentDetails->Weight = "2.5";
+        $pickup->ShipmentDetails->WeightUnit = 'K';
+        $pickup->ShipmentDetails->DoorTo = 'DD';
+        $pickup->ShipmentDetails->DimensionUnit = 'C';
+
+        $client = new Web();
+        $xml_response = $client->call($pickup);
+        dd($xml_response);
     }
 
 

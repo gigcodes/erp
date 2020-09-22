@@ -91,6 +91,9 @@
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
+                        <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
+                            <i class="fa fa-shipping-fast" aria-hidden="true"></i>
+                        </a>
                     </td>
                 </tr>
             @empty

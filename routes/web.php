@@ -2192,6 +2192,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
     Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
+    Route::get('shipment/pickup-request', 'ShipmentController@show')->name('shipment/pickup-request');
+
 
     /**
      * Twilio account management
