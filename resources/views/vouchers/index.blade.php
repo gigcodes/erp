@@ -114,12 +114,12 @@
               <td>{{ $task->balance }}</td>
               <td>
                 @if (Auth::user()->hasRole('Admin'))
-                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                  <a data-toggle="tooltip" title="Create Payment" class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
                 @endif
-                <button type="button" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
+                <button type="button" data-toggle="tooltip" title="Upload File" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
-                <button type="button" data-payment-receipt-id="{{$task->id}}"  class="btn btn-file-list pd-5">
+                <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
                 <?php /* ?>
