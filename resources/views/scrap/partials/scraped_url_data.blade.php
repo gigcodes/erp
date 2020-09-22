@@ -1,3 +1,4 @@
+<?php dd($users); ?>
 @foreach ($logs as $log)
     
                 <tr @if($log->validated == 0) style="background:red !important;" @endif>
@@ -219,9 +220,57 @@
                     @endif
 
                     @endif
+                    <td>
+                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-task-assign-modal" data-id="{{$log->id}}" title="Load task assign modal"><i class="fas fa-tasks"></i></button>
+                    </td>
                 </tr>
                 
 @endforeach
 
+<div id="loadTaskAssignModal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+
+    <!-- Modal content-->
+    <div class="modal-content">
+      <form action="{{ route('scrap.assignTask') }}" method="POST">
+        <div class="modal-header">
+          <h4 class="modal-title">Assign Generic Scraper task</h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="form-group">
+            <strong>Assigned To:</strong>
+            <select class="form-control assigned_to"  name="assigned_to" data-live-search="true">>
+              @foreach($users as $user)
+              <option value="{{ $user->id }}">{{ $user->name }}</option>
+              @endforeach
+            </select>
+          </div>
+          @csrf  
+          div class="form-group">
+            <strong>Subject:</strong>
+            <input type="text" name="subject" class="form-control">
+          </div>
+          <div class="form-group">
+            <strong>Message:</strong>
+            <textarea class="form-control "  name="message" ></textarea>
+          </div>
+        
+        <div class="modal-footer">
+          <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-secondary">Create</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+    $(document).ready(function(){
+        $(".load-task-assign-modal").click(function(e){
+            $("#loadTaskAssignModal").modal("show");
+        });
+    });
+</script>
                 
             

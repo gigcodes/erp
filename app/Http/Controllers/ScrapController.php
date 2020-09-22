@@ -38,6 +38,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Validator;
+use App\User;
+use App\Helpers;
 
 class ScrapController extends Controller
 {
@@ -704,7 +706,7 @@ class ScrapController extends Controller
     {
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
-
+        $users = Helpers::getUserArray(User::role('Developer')->get());
         if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension) {
 
             $query = \App\ScrapedProducts::query();
@@ -851,10 +853,10 @@ class ScrapController extends Controller
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
-
+        
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords','users'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
@@ -1248,6 +1250,20 @@ class ScrapController extends Controller
           
             
         
+    }
+
+    public function assignScrapProductTask(Request $request){
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add([
+            'priority' => 1,
+            'issue' => implode(',', $missing)." missing in scapped products, whose website is ".$product->website." and supplier is ",// issue detail  
+            'status' => "Planned",
+            'module' => "Scraper", 
+            'subject' => implode(',', $missing)." missing in scapped products",// enter issue name  
+            'assigned_to' => 6
+        ]);
+        app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
     }
 }
 
