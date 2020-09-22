@@ -6,11 +6,11 @@ use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
 use App\Product;
+use App\Services\Products\GraphqlService;
 use App\StoreWebsite;
 use App\StoreWiseLandingPageProducts;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
@@ -228,38 +228,47 @@ class LandingPageController extends Controller
             // if stock status exist then store it
             if ($request->stock_status != null) {
                 $landingPage->stock_status = $request->stock_status;
-                if($landingPage->stock_status == 1) {
+                if ($landingPage->stock_status == 1) {
                     $landingPage->start_date = date("Y-m-d H:i:s");
-                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date. ' + 1 days'));
+                    $landingPage->end_date = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
                 }
                 $landingPage->save();
             }
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
-            $productData  = $landingPage->getShopifyPushData();
+            $productData = $landingPage->getShopifyPushData();
 
 
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
 
-//            $productData = json_decode('{"product":{"images":[],"product_type":"Dresses","published_scope":false,"title":"ALEXANDER MCQUEEN ABITI","body_html":"Abito in misto viscosa-seta nero caratterizzato da girocollo, design smanicato, stampa grafica a contrasto, chiusura posteriore con cerniera, vestibilit\u00e0 aderente e tasglio corto.","variants":[{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008","title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,"option1":"M","option2":"Asia Pasific","price":1890},{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008","title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,"option1":"M","option2":"Asia","price":1890}],"vendor":"ALEXANDER McQUEEN","tags":"Home Page","published":false,"options":[{"name":"sizes","values":["M"]},{"name":"country","values":["Asia Pasific","Asia"]}]}}',true);
+//            $productData = json_decode('{
+//            "product":{"images":[],"product_type":"Dresses","published_scope":false,
+//            "title":"ALEXANDER MCQUEEN ABITI",
+//            "body_html":"Abito in misto viscosa-seta nero caratterizzato da girocollo, design smanicato, stampa grafica a contrasto, chiusura posteriore con cerniera, vestibilit\u00e0 aderente e tasglio corto.",
+//            "variants":[{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008",
+//            "title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,
+//            "option1":"M","option2":"Asia Pasific","price":1890},{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008",
+//            "title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,
+//            "option1":"M","option2":"Asia","price":1890}],"vendor":"ALEXANDER McQUEEN","tags":"Home Page","published":false,
+//            "options":[{"name":"sizes","values":["M"]},{"name":"country","values":["Asia Pasific","Asia"]}]}}', true);
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
-                $response = $client->updateProduct($landingPage->shopify_id, $productData,$landingPage->store_website_id);
+                $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
             } else {
-                $response = $client->addProduct($productData,$landingPage->store_website_id);
+                $response = $client->addProduct($productData, $landingPage->store_website_id);
             }
 
             $errors = [];
             if (!empty($response->errors)) {
                 foreach ((array)$response->errors as $key => $message) {
-                    if(is_array($message)) {
+                    if (is_array($message)) {
                         foreach ($message as $msg) {
                             $errors[] = ucwords($key) . " " . $msg;
                         }
-                    }else{
+                    } else {
                         $errors[] = ucwords($key) . " " . $message;
                     }
                 }
@@ -278,90 +287,17 @@ class LandingPageController extends Controller
                 if ($selfProduct) {
 
                     GoogleTranslateController::translateProductDetails($selfProduct);
-                    $this->sendTranslationByGrapql($landingPage->shopify_id);
+                    $result = GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id);
+                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);
 
                     return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
                 } else {
                     return response()->json(["code" => 500, "data" => [], "message" => "Product not found."]);
                 }
-
-
             }
-
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Records not found or not store website assigned"]);
-
-    }
-
-    private function sendTranslationByGrapql($productId)
-    {
-        $languages = GoogleTranslateController::LANGUAGES;
-        $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
-
-        $privateAppPassword = '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';//this is password for Landing-Page-Store private app
-
-        /*$qryZZ = '
-                {
-                  translatableResource(resourceId: "gid://shopify/Product/'."$productId".'") {
-                    resourceId
-                    translatableContent {
-                      key
-                      value
-                      digest
-                      locale
-                    }
-                    translations(locale: "en") {
-                      key
-                      value
-                      locale
-                    }
-                  }
-                }
-            ';*/
-
-        //json
-        //change 'Content-Type: application/json'
-        //response-> [query] => Required parameter missing or invalid
-        $qry = '
-                {
-                  "id": "gid://shopify/Product/'."$productId".'",
-                  "translations": [
-                    {
-                      "key": "title",
-                      "value": "Camiseta buena",
-                      "locale": "es",
-                      "translatableContentDigest": "dcf8d211f6633dac78dbd15c219a81b8931e4141204d18fba8c477afd19b75f9"
-                    }
-                  ]
-                }
-            ';
-
-//        dd($qry);
-        $headers = array();
-        $headers[] = 'Content-Type: application/json';
-//        $headers[] = 'Content-Type: application/graphql';
-        $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $qry);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $result = curl_exec($ch);
-        $result = json_decode($result, true);
-
-//        echo '<pre>';
-//        print_r($result);
-//        echo '</pre>';
-//        die();
-
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
 
     }
 
