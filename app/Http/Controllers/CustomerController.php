@@ -1307,8 +1307,7 @@ class CustomerController extends Controller
         }
 	
 	
-		$customer->whatsapp_number = $request->whatsapp_number
-		
+		$customer->whatsapp_number = $request->whatsapp_number;
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->address = $request->address;
