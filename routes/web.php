@@ -2202,6 +2202,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
 Route::group(['middleware' => 'auth'], function () {
     Route::post('shipment/send/email', 'ShipmentController@sendEmail')->name('shipment/send/email');
     Route::get('shipment/view/sent/email', 'ShipmentController@viewSentEmail')->name('shipment/view/sent/email');
+    Route::get('shipment/waybill-track-histories', 'ShipmentController@viewWaybillTrackHistory')->name('shipment/waybill-track-histories');
     Route::resource('shipment', 'ShipmentController');
     Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');

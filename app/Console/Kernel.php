@@ -115,6 +115,7 @@ use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\WayBillTrackHistories;
 
 class Kernel extends ConsoleKernel
 {
@@ -224,7 +225,8 @@ class Kernel extends ConsoleKernel
         ScrapLogs::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
-        DeleteChatMessages::class
+        DeleteChatMessages::class,
+        WayBillTrackHistories::class
     ];
 
     /**
@@ -470,6 +472,8 @@ class Kernel extends ConsoleKernel
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
 		
+        //update order way billtrack histories
+        $schedule->command('command:waybilltrack')->dailyAt("1:00");
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
