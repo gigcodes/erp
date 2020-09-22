@@ -2222,11 +2222,6 @@ Route::group(['middleware' => 'auth'], function () {
      * Twilio account management
      */
 
-    Route::post('twilio/create_category', 'TwilioController@create_category')->name('twilio.create.category');
-        Route::post('twilio/create_ivr', 'TwilioController@create_ivr')->name('twilio.ivr.create');
-        Route::post('twilio/create_timings', 'TwilioController@create_timings')->name('twilio.create.timings');
-        Route::get('twilio/category', 'TwilioController@all_category')->name('twilio.category');
-        Route::get('twilio/delete/{cid}', 'TwilioController@delete_category')->name('twilio-delete-category');
 
     Route::get('twilio/manage-twilio-account', 'TwilioController@manageTwilioAccounts')->name('twilio-manage-accounts');
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
