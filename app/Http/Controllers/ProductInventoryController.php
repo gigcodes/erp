@@ -70,7 +70,7 @@ class ProductInventoryController extends Controller
 
         $sampleColors = ColorReference::select('erp_color')->groupBy('erp_color')->get(); 
 
-
+        $categoryArray=array();
         return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection','categoryArray','sampleColors'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
@@ -1003,11 +1003,8 @@ class ProductInventoryController extends Controller
         $products_names      = \App\Product::getPruductsNames();
         $products_categories = \App\Product::getPruductsCategories();
         $products_sku        = \App\Product::getPruductsSku();
-
-
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
-
-        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list'));
     }
 	public function getProductImages($id) {
 	  $product = Product::find($id);

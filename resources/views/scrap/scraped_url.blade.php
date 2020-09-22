@@ -181,7 +181,7 @@
                 <th width="10%">Currency</th>
                 <th width="5%">Price</th>
                 <th width="5%">Image</th>
-                <th width="10%"><button class="btn btn-link" onclick="sortByDateCreated()" id="header-created" value="0">Created_at</button></th>
+                <th width="5%">Created_at</th>
                 <!-- <th width="10%"><button class="btn btn-link" onclick="sortByDateUpdated()" id="header-updated" value="0">Updated_at</button></th> -->
                 @if($response != null)
                 @if(in_array('color',$response['columns']))
@@ -326,6 +326,7 @@
         {!! $logs->render() !!}
 
     </table>
+    {!! $logs->links() !!}
 </div>
 
 

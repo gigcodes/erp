@@ -197,11 +197,11 @@
 					   <div class="row">
 					      <div class="col-md-12">
 					         <div class="row">
-					            <div class="col-md-6">
-					               <textarea rows="3" style="width: 100%" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
+					            <div class="col-md-12">
+					               <textarea rows="1" style="width: 85%;float: left;vertical-align:middle;display:inline-block;" class="form-control quick-message-field" name="message" placeholder="Message"></textarea>
+					               <button style="display: inline-block;width: 10%;float:left;vertical-align:middle;" class="btn btn-sm btn-image send-message" data-customerid="{{$item->id}}"><img src="/images/filled-sent.png"></button>
 					            </div>
-					            <div class="col-md-6 form-inline">
-					               <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message" data-customerid="{{$item->id}}"><img src="/images/filled-sent.png"></button>
+					            <div class="col-md-12 form-inline">
                                    <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-limit="10" data-id="{{$item->id}}" data-is_admin="1" data-is_hod_crm="" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-limit="10" data-load-type="images" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></button>
                                         <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object="customer" data-id="{{$item->id}}" data-attached="1" data-load-type="pdf" data-all="1" data-is_admin="1" data-is_hod_crm="" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></button>
@@ -223,6 +223,8 @@
 			                            <a class="btn btn-image count-customer-tasks" title="Task Count" href="javascript:;" data-id="{{$item->id}}" data-user-id="">
 			                            	<img src="/images/remark.png" />
 			                            </a>
+			                            <button type="button" class="btn btn-xs btn-image create-customer-ticket-modal" title="Create Ticket" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#create-customer-ticket-modal"><img src="/images/new.png" alt=""></button>
+										<button type="button" class="btn btn-xs btn-image show-customer-tickets-modal" title="Show Tickets" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#show-customer-tickets-modal"><img src="/images/show-ticket.png" alt=""></button>
 					            </div>
 					         </div>
 					      </div>

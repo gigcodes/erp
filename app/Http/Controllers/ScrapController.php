@@ -172,7 +172,7 @@ class ScrapController extends Controller
         }
 
         $request->request->add(["properties" => $requestedProperties]);
-        
+
 
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
