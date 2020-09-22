@@ -1310,6 +1310,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
+
+
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
@@ -2219,6 +2221,7 @@ Route::group(['middleware' => 'auth'], function () {
     /**
      * Twilio account management
      */
+
 
     Route::get('twilio/manage-twilio-account', 'TwilioController@manageTwilioAccounts')->name('twilio-manage-accounts');
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
