@@ -69,6 +69,7 @@
             <th>Volume Weight</th>
             <th>Cost of Shipment</th>
             <th>Duty Cost</th>
+            <th>Location</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -86,13 +87,18 @@
                     <td>{{ @$item->volume_weight??'N/A' }}</td>
                     <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
                     <td>{{ @$item->duty_cost?? 'N/A' }}</td>
+                    <td>{{ (@$item->waybill_track_histories->count() > 0)? @$item->waybill_track_histories->last()->location : "" }}</td>
                     <td>
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
-                        <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
-                            <i class="fa fa-shipping-fast" aria-hidden="true"></i>
+                        <a class="btn" href="javascript:void(0);" id="create_pickup_request_btn" title="Create pickup request" data-waybillid="{{ $item->id }}">
+                            <i class="fa fa-truck" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+
                         </a>
                     </td>
                 </tr>
@@ -142,6 +148,24 @@ $(document).on('click', '#view_mail_btn', function() {
         success: function(data) {
             $("#view_email_body").html(data);
             $('#view_sent_email_modal').modal('show');
+        }
+    });
+});
+
+$(document).on('click','#create_pickup_request_btn',function(){
+    $("#waybill_id").val($(this).data('waybillid'));
+    $("#pickup_request").modal("show");
+});
+
+$(document).on('click', '#waybill_track_history_btn', function() {
+    var waybillId = $(this).data('waybill-id');
+    $.ajax({
+        url: "{{ route('shipment/view/sent/email') }}",
+        type: 'GET',
+        data: {'waybill_id': waybillId},
+        success: function(data) {
+            $("#view_track_body").html(data);
+            $('#view_waybill_track_histories').modal('show');
         }
     });
 });

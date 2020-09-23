@@ -353,7 +353,6 @@
         }
 
         $(document).ready(function () {
-
             $(document).on('click', '.view-btn', function (e) {
                 var id = $(this).attr("data-id");
                 $.ajax({

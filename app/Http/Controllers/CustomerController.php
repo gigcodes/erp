@@ -55,6 +55,8 @@ use Plank\Mediable\Media as PlunkMediable;
 
 class CustomerController extends Controller
 {
+	
+	CONST DEFAULT_FOR = 1; //For Customer
 
     public function __construct()
     {
@@ -1293,7 +1295,19 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->whatsapp_number = $request->whatsapp_number;
+		if(empty($request->whatsapp_number))
+		{
+			//get default whatsapp number for vendor from whatsapp config
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->where('default_for', self::DEFAULT_FOR)
+						->first();
+		
+			$data["whatsapp_number"] = $task_info->number;
+        }
+	
+	
+		$customer->whatsapp_number = $request->whatsapp_number;
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->address = $request->address;

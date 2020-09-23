@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Customer;
 use App\Email;
 use App\Library\DHL\CreateShipmentRequest;
+use App\Library\DHL\CreatePickupRequest;
 use App\MailinglistTemplate;
 use App\Mails\Manual\ShipmentEmail;
 use App\Order;
@@ -15,9 +16,7 @@ use Mail;
 use Illuminate\Http\Request;
 use Exception;
 use Validator;
-use Mtc\Dhl\Entity\GB\BookPURequest;
-use Mtc\Dhl\Client\Web;
-use Carbon\Carbon;
+use App\waybillTrackHistories;
 
 class ShipmentController extends Controller
 {
@@ -48,7 +47,7 @@ class ShipmentController extends Controller
            }
            $waybills->whereIn('customer_id',$ids);
         }
-		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer');
+		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer','waybill_track_histories');
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
@@ -187,7 +186,7 @@ class ShipmentController extends Controller
 
         try {
             //get customer details
-            $customer = Customer::where(['id' => $request->customer_id])->first();
+            $customer = Customer::where('id',$request->customer_id)->first();
             $rateReq   = new CreateShipmentRequest("soap");
             $rateReq->setShipper([
                 "street" 		=> config("dhl.shipper.street"),
@@ -270,53 +269,81 @@ class ShipmentController extends Controller
         return new JsonResponse(['status' => 1, 'data' => $all_templates]);
     }
 
-    public function show(){
-        $pickup = new BookPURequest();
-        $pickup->SiteID = '968267613';
-        $pickup->Password = 'S#8sD@2gP$2o';
-        $pickup->MessageTime = Carbon::now()->format(Carbon::ATOM);
-        $pickup->MessageReference = 'reference_28_to_32_characters';
+    public function viewWaybillTrackHistory(Request $request){
+        $tracks = waybillTrackHistories::where('waybill_id', $request->waybill_id)
+                ->orderBy('id', 'desc')->get();
 
-        $pickup->Requestor->AccountNumber = '968267613';
-        $pickup->Requestor->AccountType = 'D';
-        $pickup->Requestor->CompanyName = 'Webguruz';
-        $pickup->Requestor->RequestorContact->PersonName = 9034666652;
-        $pickup->Requestor->RequestorContact->Phone = 9034666652;
+        return view('shipment.partial.load_waybill_track_histories', ['tracks' => $tracks])->render();
+        
 
-        // DHL REGION based on the Toolkit documentation for the pickup country
-        $pickup->RegionCode = 'AP';
+    }
 
-        $pickup->Place->LocationType = 'B';
-        $pickup->Place->CompanyName = 'Webguruz technologies PVT LTD';
-        $pickup->Place->Address1 = "4th floor Dibon building";
-        $pickup->Place->Address2 = "Sector 67";
-        $pickup->Place->PackageLocation = 'Ask receptionist';
-        $pickup->Place->City = "Mohali";
-        $pickup->Place->CountryCode = "IN";
-        $pickup->Place->PostalCode = 160062;
+    public function createPickupRequest(Request $request){
+        try {
+            //get customer details
+            $waybill = Waybill::where(['id' => $request->waybill_id])->with('order','order.customer')->first();
+            $rateReq   = new CreatePickupRequest("soap");
+            $rateReq->setShipper([
+                "street"        => config("dhl.shipper.street"),
+                "city"          => config("dhl.shipper.city"),
+                "postal_code"   => config("dhl.shipper.postal_code"),
+                "country_code"  => config("dhl.shipper.country_code"),
+                "person_name"   => config("dhl.shipper.person_name"),
+                "company_name"  => "Solo Luxury",
+                "phone"         => config("dhl.shipper.phone"),
+                "email"         => config("dhl.shipper.email"),
+                "mobile"         => config("dhl.shipper.mobile"),
+            ]);
+            $rateReq->setRecipient([
+                "street"        => $waybill->order->customer->address,
+                "city"          => $waybill->order->customer->city,
+                "postal_code"   => $waybill->order->customer->pincode,
+                "country_code"  => $waybill->order->customer->country,
+                "person_name"   => $waybill->order->customer->name,
+                "company_name"  => $waybill->order->customer->name,
+                "phone"         => $waybill->order->customer->phone,
+                "email"         => $waybill->order->customer->email,
+                "mobile"        => $waybill->order->customer->phone,
+            ]);
 
-        $pickup->Pickup->PickupDate = '2021-02-05';
-        $pickup->Pickup->ReadyByTime = '13:00';
-        $pickup->Pickup->CloseTime = '17:00';
+            $rateReq->setPickupTimestamp(gmdate("Y-m-d\TH:i:s",strtotime($request->pickup_time))." GMT+05:30");
+            $rateReq->setPickupLocationCloseTime(gmdate("H:i",strtotime($request->location_close_time)));
+            $rateReq->setPickupLocation($request->pickup_location);
+            $rateReq->setSpecialPickupInstruction($request->special_pickup_instruction);
+            $rateReq->setPackages([
+                [
+                    "weight" => (float)$waybill->actual_weight,
+                    "length" => $waybill->box_length,
+                    "width"  => $waybill->box_width,
+                    "height" => $waybill->box_height,
+                    "note"   => "N/A",
+                ]
+            ]);
 
-        $pickup->PickupContact->PersonName = 9034666652;
-        $pickup->PickupContact->Phone = 903466652;
-
-        $pickup->ShipmentDetails->AccountType = 'D';
-        $pickup->ShipmentDetails->AccountNumber = '968267613';
-        $pickup->ShipmentDetails->BillToAccountNumber = '968267613';
-
-        $pickup->ShipmentDetails->AWBNumber = 1111111;
-        $pickup->ShipmentDetails->NumberOfPieces = 1;
-        $pickup->ShipmentDetails->GlobalProductCode = "ABC";
-        $pickup->ShipmentDetails->Weight = "2.5";
-        $pickup->ShipmentDetails->WeightUnit = 'K';
-        $pickup->ShipmentDetails->DoorTo = 'DD';
-        $pickup->ShipmentDetails->DimensionUnit = 'C';
-
-        $client = new Web();
-        $xml_response = $client->call($pickup);
-        dd($xml_response);
+            $phone = !empty($waybill->order->customer->phone) ? $waybill->order->customer->phone : '';
+            $rateReq->setMobile($phone);
+            //$rateReq->setServiceType($request->service_type);
+            $response = $rateReq->call();
+            if(!$response->hasError()) {
+                $receipt = $response->getReceipt();
+                if(!empty($receipt["message"])){
+                    Waybill::where('id',$request->waybill_id)->update(['createPickupRequest' => 1]);
+                }
+                return response()->json([
+                    'success' => true
+                ]);
+            }else{
+                return response()->json([
+                    'success' => false,
+                    'globalErrors' => $response->getErrorMessage(),
+                ]);
+            }
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'globalErrors' => $e->getMessage(),
+            ]);
+        }
     }
 
 

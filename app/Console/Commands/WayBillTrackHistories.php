@@ -44,6 +44,7 @@ class WayBillTrackHistories extends Command
         $orders = Order::join('order_statuses','order_statuses.id','=','orders.order_status_id')->whereNotIn('order_statuses.status', $statuses )->with(['waybill','waybill.waybill_track_histories'])->get();
         //dd($orders);
         foreach($orders as $order){
+
             if($order->waybill != null && $order->waybill->awb){
                 $trackShipment = new TrackShipmentRequest;
                 $trackShipment->setAwbNumbers([$order->waybill->awb]);
