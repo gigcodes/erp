@@ -115,6 +115,7 @@ use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
 
 class Kernel extends ConsoleKernel
@@ -226,6 +227,7 @@ class Kernel extends ConsoleKernel
         getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class,
+        CustomerListToEmailLead::class,
         WayBillTrackHistories::class
     ];
 
@@ -471,9 +473,13 @@ class Kernel extends ConsoleKernel
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
+
+		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+
 		
         //update order way billtrack histories
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
+
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');

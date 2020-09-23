@@ -323,10 +323,6 @@ class SupplierController extends Controller
             //'supplier_status_id' => 'required'
         ]);
 		
-		
-		
-		}
-		
         $data = $request->except('_token');
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
