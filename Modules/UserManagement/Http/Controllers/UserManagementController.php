@@ -939,5 +939,14 @@ class UserManagementController extends Controller
         ]);
     }
 
+    public function approveUser($id) {
+        $user = User::find($id);
+        if($user) {
+            $user->update(['approve_login' => date('Y-m-d')]);
+            return response()->json(['message' => 'Successfully approved','code' => 200]);
+        }
+        return response()->json(['message' => 'User not found','code' => 404]);
+    }
+
 
 }

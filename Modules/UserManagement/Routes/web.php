@@ -34,6 +34,7 @@ Route::prefix('user-management')->group(function() {
     Route::post('user-avaibility/submit-time', 'UserManagementController@saveUserAvaibility')->name("user-management.user-avaibility.submit-time");
     Route::get('user-avaibility/{id}', 'UserManagementController@userAvaibility')->name("user-management.user-avaibility");
     Route::post('user-avaibility/{id}', 'UserManagementController@userAvaibilityUpdate')->name("user-management.update-user-avaibility");
+    Route::post('approve-user/{id}', 'UserManagementController@approveUser')->name("user-management.approve-user");
     Route::post('/add-new-method', 'UserManagementController@addPaymentMethod')->name("user-management.add-payment-method");
 
     Route::get('/task/user/{id}', 'UserManagementController@userTasks')->name("user-management.tasks");
