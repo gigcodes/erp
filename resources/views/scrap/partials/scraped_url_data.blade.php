@@ -1,4 +1,3 @@
-<?php dd($users); ?>
 @foreach ($logs as $log)
     
                 <tr @if($log->validated == 0) style="background:red !important;" @endif>
@@ -221,7 +220,7 @@
 
                     @endif
                     <td>
-                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-task-assign-modal" data-id="{{$log->id}}" title="Load task assign modal"><i class="fas fa-tasks"></i></button>
+                        <button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-task-assign-modal" data-id="{{$log->id}}" title="Load task assign modal"><i class="fa fa-tasks"></i></button>
                     </td>
                 </tr>
                 
@@ -240,14 +239,14 @@
         <div class="modal-body">
           <div class="form-group">
             <strong>Assigned To:</strong>
-            <select class="form-control assigned_to"  name="assigned_to" data-live-search="true">>
-              @foreach($users as $user)
-              <option value="{{ $user->id }}">{{ $user->name }}</option>
+            <select class="form-control assigned_to"  name="assigned_to" data-live-search="true">
+              @foreach($users as $k => $user)
+              <option value="{{ $k }}">{{ $user }}</option>
               @endforeach
             </select>
           </div>
           @csrf  
-          div class="form-group">
+          <div class="form-group">
             <strong>Subject:</strong>
             <input type="text" name="subject" class="form-control">
           </div>

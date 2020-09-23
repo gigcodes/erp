@@ -862,7 +862,7 @@ class ScrapController extends Controller
             ], 200);
         }
 
-        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords'));
+        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords','users'));
     }
 
     public function getProductsToScrape()
@@ -1257,13 +1257,14 @@ class ScrapController extends Controller
         $requestData->setMethod('POST');
         $requestData->request->add([
             'priority' => 1,
-            'issue' => implode(',', $missing)." missing in scapped products, whose website is ".$product->website." and supplier is ",// issue detail  
+            'issue' => $request->message,// issue detail  
             'status' => "Planned",
             'module' => "Scraper", 
-            'subject' => implode(',', $missing)." missing in scapped products",// enter issue name  
+            'subject' => $request->subject,// enter issue name  
             'assigned_to' => 6
         ]);
         app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        return redirect()->back();
     }
 }
 
