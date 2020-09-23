@@ -94,6 +94,13 @@ class UserManagementController extends Controller
                 $u["isAdmin"] = $u->isAdmin();
                 $u['is_online'] = $u->isOnline();
 
+                if($u->approve_login == date('Y-m-d')) {
+                    $u['already_approved'] = true;
+                }
+                else {
+                    $u['already_approved'] = false;
+                }
+
                 $online_now = $u->lastOnline();
                 if($online_now) {
                     $u["online_now"] =   \Carbon\Carbon::parse($online_now)->format('d-m H:i');

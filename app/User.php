@@ -167,11 +167,9 @@ class User extends Authenticatable
     public function isAdmin()
     {
         $roles = $this->roles->pluck('name')->toArray();
-
         if (in_array('Admin', $roles)) {
             return true;
         }
-
         return false;
     }
 

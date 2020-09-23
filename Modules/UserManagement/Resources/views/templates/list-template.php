@@ -79,7 +79,9 @@ td+td {
 									{{/if}}
 									<?php } ?>
 									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
-									<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
+									{{if !prop.already_approved}}
+									<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
+									{{/if}}
 								</div> 
 							</div>   
 						</div>    	  
