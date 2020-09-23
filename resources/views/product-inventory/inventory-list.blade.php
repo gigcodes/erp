@@ -11,7 +11,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Inventory Data</h2>
+            <h2 class="page-heading">Inventory Data ({{ count($inventory_data) }})</h2>
         </div>
     </div>
 
@@ -46,6 +46,9 @@
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
             <div class="form-group mr-3 mb-3">
+                {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            </div>
+            <div class="form-group mr-3 mb-3">
                 <div class='input-group date' id='filter-date'>
                     <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                     <span class="input-group-addon">
@@ -53,7 +56,7 @@
                       </span>
                 </div>
             </div>
-            <button type="submit" class="btn btn-info"><i class="fa fa-filter"></i>Filter</button>
+            <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
 
         </form>
     </div>
@@ -67,6 +70,7 @@
                 <th>Category</th>
                 <th>Brand</th>
                 <th>Supplier</th>
+                <th>Status</th>
                 <th>Created Date</th>
                 <th>Actions</th>
             </tr>
@@ -137,7 +141,7 @@
                     result += '</table>';
 
                 } else {
-                    result = '<h3>this product dont have any media</h3>';
+                    result = '<h3>this product dont have any media </h3>';
                 }
 
                 $('#medias-modal .modal-body').html(result)

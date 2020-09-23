@@ -67,18 +67,18 @@ class RunErpLeads extends Command
 
                     $products = $products->join("brands as b", "b.id", "products.brand");
                     $products = $products->join("categories as c", "c.id", "products.category");
-                    $products = $products->join('product_status_histories as psh', function ($join) {
-                        $join->on('psh.product_id', '=', 'products.id');
-                        $join->where('psh.created_at', '>=', date("Y-m-d"));
-                        $join->where('psh.new_status', '=', 9);
-                    });
+                    $products = $products->where('products.created_at', '>=', date("Y-m-d"))
+                    ->where("products.name","!=","")
+                    ->where("products.sku","!=","")
+                    ->where("products.price","!=","");
 
                     $products = $products->where(function ($q) use ($lead) {
                         $q->orWhere("b.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
                     });
 
-                    $allProduts = $products->select(["products.*"])->limit($lead_product_limit)->get()->pluck("id")->toArray();
 
+                    $allProduts = $products->select(["products.*"])->limit($lead_product_limit)->get()->pluck("id")->toArray();
+                    
                     if (!empty($products)) {
                         $requestData = new Request();
                         $requestData->setMethod('POST');

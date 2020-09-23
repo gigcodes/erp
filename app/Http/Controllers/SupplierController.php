@@ -38,6 +38,8 @@ use Validator;
 
 class SupplierController extends Controller
 {
+	
+	const DEFAULT_FOR = 3;//For Supplier
     /**
      * Add/Edit Remainder functionality
      */
@@ -320,7 +322,11 @@ class SupplierController extends Controller
             'gst' => 'sometimes|nullable|max:255',
             //'supplier_status_id' => 'required'
         ]);
-
+		
+		
+		
+		}
+		
         $data = $request->except('_token');
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
@@ -331,6 +337,15 @@ class SupplierController extends Controller
            $data["supplier_status_id"] = 0;
         }
 
+		//get default whatsapp number for vendor from whatsapp config
+		if(empty($data["whatsapp_number"]))  {
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+						->first();
+		
+			$data["whatsapp_number"] = $task_info->number;
+		}
         $supplier = Supplier::create($data);
 
         if ($supplier->id > 0) {

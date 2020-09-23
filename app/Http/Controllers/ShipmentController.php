@@ -15,6 +15,7 @@ use Mail;
 use Illuminate\Http\Request;
 use Exception;
 use Validator;
+use App\waybillTrackHistories;
 
 class ShipmentController extends Controller
 {
@@ -45,7 +46,7 @@ class ShipmentController extends Controller
            }
            $waybills->whereIn('customer_id',$ids);
         }
-		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer');
+		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer','waybill_track_histories');
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
@@ -265,6 +266,14 @@ class ShipmentController extends Controller
     {
         $all_templates = MailinglistTemplate::where('name','=',$name)->get();
         return new JsonResponse(['status' => 1, 'data' => $all_templates]);
+    }
+
+    public function viewWaybillTrackHistory(Request $request){
+        $tracks = waybillTrackHistories::where('waybill_id', $request->waybill_id)
+                ->orderBy('id', 'desc')->get();
+
+        return view('shipment.partial.load_waybill_track_histories', ['tracks' => $tracks])->render();
+        
     }
 
 

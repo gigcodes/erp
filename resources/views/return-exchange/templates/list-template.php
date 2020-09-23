@@ -1,46 +1,62 @@
 <script type="text/x-jsrender" id="template-result-block">
 	<div class="row page-template-{{:page}}">
-		<table class="table table-bordered">
+		<table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		      	<th><input type="checkbox" class="select-all-records"></th>
-		      	<th>Id</th>
-		        <th>Customer Name</th>
-		        <th>Product Name</th>
-				<th>Website</th>
-		        <th>Type</th>
-		        <th>Refund amount</th>
-		        <th>Reason for refund</th>
-		        <th>Status</th>
-		        <th>Pickup Address</th>
-		        <th>Remarks</th>
-		        <th>Created At</th>
-		        <th width="5%" align="center">Action</th>
+		      	<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
+		        <th style="width:8%">Customer Name</th>
+		        <th style="width:7%">Product Name</th>
+				<th style="width:10%">Website</th>
+		        <th style="width:5%">Type</th>
+		        <th style="width:5%">Refund amount</th>
+		        <th style="width:10%">Reason for refund</th>
+		        <th style="width:5%">Status</th>
+		        <th style="width:10%">Pickup Address</th>
+		        <th style="width:10%">Refund details</th>
+		        <th style="width:10%">Remarks</th>
+		        <th style="width:5%">Created At</th>
+		        <th width="10%" align="center">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
-			      	<td>{{:prop.id}}</td>
+			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}">{{:prop.id}}</td>
 			      	<td>{{:prop.customer_name}}</td>
 			      	<td>{{:prop.name}}</td>
 					<td>{{:prop.website}}</td>
 			        <td>{{:prop.type}}</td>
 			        <td>{{:prop.refund_amount}}</td>
-			        <td>{{:prop.reason_for_refund}}</td>
+			        <td><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span> </td>
 			        <td>{{:prop.status_name}}</td>
 			        <td>{{:prop.pickup_address}}</td>
+			        <td class="expand-row" data-id="{{>prop.id}}">
+					<div class="td-mini-container-{{>prop.id}}">
+						<p>DOR : {{:prop.date_of_request_formated}}</p>
+					</div>
+					<div class="td-full-container-{{>prop.id}} hidden">
+						<p>DOR : {{:prop.date_of_request_formated}}</p>
+						<p>DOI : {{:prop.date_of_issue_formated}}</p>
+						<p>DOD: {{:prop.dispatch_date_formated}}</p>
+						<p>Credited: {{if prop.credited}} Yes {{else}} No {{/if}}</p>
+					</div>
+					</td>
 			        <td>{{:prop.remarks}}</td>
-              <td>{{:prop.created_at_formated}}</td>
+              		<td>{{:prop.created_at_formated}}</td>
 			        <td class="action" align="center">
-						<div class="cls_action_btn" style="width:100px;">
-			        	<button type="button" class="btn btn-delete-template" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
-			        	<button type="button" class="btn btn-edit-template" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
-			        	<button type="button" class="btn btn-history-template" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
-						<button type="button" class="btn send-email-to-customer" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
-						<button type="button" class="btn show-product" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
-            <button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template"><img width="15px" src="/images/view.png"></button>
+						<div class="cls_action_btn">
+			        	<button type="button" class="btn btn-delete-template no_pd" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="{{>prop.id}}"><img width="15px" src="/images/delete.png"></button>
+			        	<button type="button" class="btn btn-edit-template no_pd" data-id="{{>prop.id}}"><img width="15px" src="/images/edit.png"></button>
+			        	<button type="button" class="btn btn-history-template no_pd" data-id="{{>prop.id}}" ><img width="15px" src="/images/list-128x128.png"></button>
+						<button type="button" class="btn send-email-to-customer no_pd" data-id="{{>prop.customer_id}}"><i class="fa fa-envelope-square"></i></button>
+						{{if prop.product_id}}
+						<button type="button" class="btn show-product no_pd" data-id="{{>prop.product_id}}"><i class="fa fa-product-hunt"></i></button>
+						{{/if}}
+            			<button type="button" data-id="{{>prop.product_id}}" class="btn btn-product-info-template no_pd"><img width="15px" src="/images/view.png"></button>
+						{{if !prop.credited}}
+						<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
+						{{/if}}
+            			
 						</div>
 			        </td>
 			      </tr>
