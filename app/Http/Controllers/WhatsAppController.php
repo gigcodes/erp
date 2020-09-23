@@ -2258,11 +2258,15 @@ class WhatsAppController extends FindByNumberController
                            $userId  = $issue->tester_id;
                         }
                      }
-                     if(isset(Auth::user()->id) && Auth::user()->id == $userId) {
-                        $userId = $issue->created_by;
-                     }else{
-                        $userId = 1;
-                     }
+                    //  if(isset(Auth::user()->id) && Auth::user()->id == $userId) {
+                    //     $userId = $issue->created_by;
+                    //  }else{
+                    //     $userId = 1;
+                    //  }
+                    $admin = 0;
+                    if(!Auth::user()->isAdmin()) {
+                        $admin = $issue->created_by;
+                    }
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];
                     $params[ 'sent_to_user_id' ] = $userId;
@@ -2278,24 +2282,33 @@ class WhatsAppController extends FindByNumberController
                     $number = $number->phone;
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
-                            $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                            if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
-                                $creator = User::find($issue->created_by);
+                            $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
+                            $params[ 'media_url' ] = $image->getUrl();
+
+                            if(Auth::user()->id != $userId) {
+                                $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                                $chat_message = ChatMessage::create($params);
+                            }
+                            if($admin) {
+                                $creator = User::find($admin);
                                 if ($creator) {
                                     $num = $creator->phone;
                                     $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                    $params[ 'erp_user' ] = $admin;
+                                    $params[ 'user_id' ]  = $data['user_id'];
+                                    $params[ 'sent_to_user_id' ] = $admin;
+                                    $params[ 'approved' ] = 1;
+                                    $params[ 'status' ] = 2;
+                                    $chat_message = ChatMessage::create($params);
                                 }
                             }
-                            if(Auth::id() == $issue->assigned_to) {
-                                $master = User::find($issue->master_user_id);
-                                if ($master) {
-                                    $num = $master->phone;
-                                    $this->sendWithThirdApi($num, null, '', $image->getUrl());
-                                }
-                            }
-                            $params[ 'message' ] = '#TASK-' . $issue->id . '-' . $issue->subject . '=>' . $image->getUrl();
-                            $params[ 'media_url' ] = $image->getUrl();
-                            $chat_message = ChatMessage::create($params);
+                            // if(Auth::id() == $issue->assigned_to) {
+                            //     $master = User::find($issue->master_user_id);
+                            //     if ($master) {
+                            //         $num = $master->phone;
+                            //         $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                            //     }
+                            // }
                         }
                     } elseif ($request->type == 2) {
                         $issue = Issue::find($request->get('issue_id'));
@@ -2303,67 +2316,95 @@ class WhatsAppController extends FindByNumberController
                             foreach ($request->file('images') as $image) {
                                 $media = MediaUploader::fromSource($image)->upload();
                                 $issue->attachMedia($media, config('constants.media_tags'));
-                                $this->sendWithThirdApi($number, null, '', $media->getUrl());
-                                if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
-                                    $creator = User::find($issue->created_by);
+                                $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
+                                $params[ 'media_url' ] = $media->getUrl();
+                                if(Auth::user()->id != $userId) {
+                                    $this->sendWithThirdApi($number, null, '', $media->getUrl());
+                                    $chat_message = ChatMessage::create($params);
+                                }
+                                
+                                if($admin) {
+                                    $creator = User::find($admin);
                                     if ($creator) {
                                         $num = $creator->phone;
                                         $this->sendWithThirdApi($num, null, '', $media->getUrl());
+                                        $params[ 'erp_user' ] = $admin;
+                                        $params[ 'user_id' ]  = $data['user_id'];
+                                        $params[ 'sent_to_user_id' ] = $admin;
+                                        $params[ 'approved' ] = 1;
+                                        $params[ 'status' ] = 2;
+                                        $chat_message = ChatMessage::create($params);
                                     }
                                 }
-                                if(Auth::id() == $issue->assigned_to) {
-                                    $master = User::find($issue->master_user_id);
-                                    if ($master) {
-                                        $num = $master->phone;
-                                        $this->sendWithThirdApi($num, null, '', $image->getUrl());
-                                    }
-                                }
-                                $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
-                                $params[ 'media_url' ] = $media->getUrl();
-                                $chat_message = ChatMessage::create($params);
+                                // if(Auth::id() == $issue->assigned_to) {
+                                //     $master = User::find($issue->master_user_id);
+                                //     if ($master) {
+                                //         $num = $master->phone;
+                                //         $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                //     }
+                                // }
                             }
                         }
                     } else {
                         $params[ 'developer_task_id' ] = $request->get('issue_id');
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
-                        $this->sendWithThirdApi($number, null, $params[ 'message' ]);
-                        if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
-                            $creator = User::find($issue->created_by);
+                        if(Auth::user()->id != $userId) {
+                            $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                            $chat_message = ChatMessage::create($params);
+                        }
+                        
+                        if($admin) {
+                            $creator = User::find($admin);
                             if ($creator) {
                                 $num = $creator->phone;
                                 $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                                $params[ 'erp_user' ] = $admin;
+                                $params[ 'user_id' ]  = $data['user_id'];
+                                $params[ 'sent_to_user_id' ] = $admin;
+                                $params[ 'approved' ] = 1;
+                                $params[ 'status' ] = 2;
+                                $chat_message = ChatMessage::create($params);
                             }
                         }
-                        if(Auth::id() == $issue->assigned_to) {
-                            $master = User::find($issue->master_user_id);
-                            if ($master) {
-                                $num = $master->phone;
-                                $this->sendWithThirdApi($num, null, $params[ 'message' ]);
-                            }
-                        }
-                        $chat_message = ChatMessage::create($params);
+                        // if(Auth::id() == $issue->assigned_to) {
+                        //     $master = User::find($issue->master_user_id);
+                        //     if ($master) {
+                        //         $num = $master->phone;
+                        //         $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                        //     }
+                        // }
+                        
 
 
                         if ($issue->hasMedia(config('constants.media_tags'))) {
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                                 $params[ 'media_url' ] = $image->getUrl();
-                                $this->sendWithThirdApi($number, null, '', $image->getUrl());
-                                if(Auth::id() == $issue->master_user_id || Auth::id() == $issue->tester_id || Auth::id() == $issue->team_lead_id) {
-                                    $creator = User::find($issue->created_by);
+                                if(Auth::user()->id != $userId) {
+                                    $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                                    $chat_message = ChatMessage::create($params);
+                                }
+                                if($admin) {
+                                    $creator = User::find($admin);
                                     if ($creator) {
                                         $num = $creator->phone;
                                         $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                                        $params[ 'erp_user' ] = $admin;
+                                        $params[ 'user_id' ]  = $data['user_id'];
+                                        $params[ 'sent_to_user_id' ] = $admin;
+                                        $params[ 'approved' ] = 1;
+                                        $params[ 'status' ] = 2;
+                                        $chat_message = ChatMessage::create($params);
                                     }
                                 }
-                                if(Auth::id() == $issue->assigned_to) {
-                                    $master = User::find($issue->master_user_id);
-                                    if ($master) {
-                                        $num = $master->phone;
-                                        $this->sendWithThirdApi($num, null, '', $image->getUrl());
-                                    }
-                                }
-                                $chat_message = ChatMessage::create($params);
+                                // if(Auth::id() == $issue->assigned_to) {
+                                //     $master = User::find($issue->master_user_id);
+                                //     if ($master) {
+                                //         $num = $master->phone;
+                                //         $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                //     }
+                                // }
+                                
                             }
                         }
                     }
