@@ -15,6 +15,7 @@ use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
 use App\Library\Watson\Language\Workspaces\V1\LogService;
 use \App\ChatbotKeywordValue;
+use App\WatsonWorkspace;
 
 class Model
 {
@@ -78,6 +79,12 @@ class Model
                 //$result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
+
+                $watson_workspace = new WatsonWorkspace;
+                $watson_workspace->type = 'ChatbotKeyword';
+                $watson_workspace->element_id = $keyword->id;
+                $watson_workspace->save();
+
                 ManageWatson::dispatch('entity',$keyword, $storeParams, 'create');
             }
 
@@ -161,6 +168,11 @@ class Model
                // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
+
+                $watson_workspace = new WatsonWorkspace;
+                $watson_workspace->type = 'ChatbotQuestion';
+                $watson_workspace->element_id = $question->id;
+                $watson_workspace->save();
 
                 ManageWatson::dispatch('intent',$question, $storeParams, 'create');
 
