@@ -1,0 +1,10 @@
+username: gopanisandip00@solo.com 
+password:  hJuuV382ep
+
+clangosh@example.com
+Password is "secret"
+
+
+ - You have created separate languages table for product translations, You don't need to create separate table, there is already a table 'languages', can you use that table, also put tooltip in action column 	buttons.
+- Rejection is not working i think, can you please look into this
+- Branch: DEVTASK-3020
