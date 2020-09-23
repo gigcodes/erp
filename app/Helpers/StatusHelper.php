@@ -185,8 +185,6 @@ class StatusHelper extends Model
     {
         // Check if status ID is matching approved product statuses
 
-        $statusId = 11;
-
         switch ($statusId) {
             case self::$pushToMagento;
             case self::$inMagento;
