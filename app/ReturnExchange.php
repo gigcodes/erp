@@ -5,12 +5,12 @@ namespace App;
 use App\ReturnExchangeHistory;
 use Illuminate\Database\Eloquent\Model;
 use Plank\Mediable\Mediable;
-
+use Illuminate\Database\Eloquent\SoftDeletes;
 class ReturnExchange extends Model
 {
 
     use Mediable;
-
+    use SoftDeletes;
     protected $fillable = [
         'customer_id',
         'type',
@@ -20,7 +20,7 @@ class ReturnExchange extends Model
         'pickup_address',
         'remarks',
     ];
-
+	
     const STATUS = [
         1 => 'Return request received from customer',
         2 => 'Return request sent to courier',
@@ -29,7 +29,7 @@ class ReturnExchange extends Model
         5 => 'Return accepted',
         6 => 'Return rejected',
     ];
-
+	
     public function notifyToUser()
     {
         if ($this->type == "refund") {
@@ -45,6 +45,11 @@ class ReturnExchange extends Model
     public function returnExchangeHistory()
     {
         return $this->hasMany(\App\ReturnExchangeHistory::class, "return_exchange_id", "id");
+    }
+	
+	public function returnExchangeStatus()
+    {
+        return $this->hasOne(\App\ReturnExchangeStatus::class, "status", "id");
     }
 
     /**

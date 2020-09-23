@@ -76,6 +76,7 @@ use App\BrandFans;
 use App\ChatMessagesQuickData;
 use App\ColdLeads;
 use App\ChatbotQuestion;
+use Google\Cloud\Translate\TranslateClient;
 
 
 class WhatsAppController extends FindByNumberController
@@ -1075,7 +1076,9 @@ class WhatsAppController extends FindByNumberController
             $dubbizle = $this->findDubbizleByNumber($searchNumber);
             $contact = $this->findContactByNumber($searchNumber);
             $customer = $this->findCustomerByNumber($searchNumber);
-
+            
+            
+            
             // check the message related to the supplier 
             $sendToSupplier = false;
             if(!empty($text)) {
@@ -1089,6 +1092,34 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
+            if(!empty($customer)) {
+                $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
+                $language = $customerDetails->language;
+                if(empty($language)){
+                    //Translate Google API
+                    $translate = new TranslateClient([
+                        'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                    ]);
+                    $result = $translate->detectLanguage($text);
+                    $language = $result['languageCode'] ? $result['languageCode'] : 'en';
+                    $customerDetails->language = $language;
+                    $customerDetails->update();
+                }
+                $fromLang = $language;
+                $toLang = "en";
+
+                if($sendToSupplier) {
+                    $fromLang   = "en";
+                    $toLang     = $language;
+                }
+
+                $result = TranslationHelper::translate($fromLang, $toLang, $text);
+                if($sendToSupplier) {
+                    $text = $result;
+                }else {
+                    $text = $result.' -- '.$text;
+                }
+            }
 
             if(!empty($supplier)) 
             {
@@ -2050,7 +2081,6 @@ class WhatsAppController extends FindByNumberController
             'social_strategy_id' => 'sometimes|nullable|numeric',
             'store_social_content_id' => 'sometimes|nullable|numeric',
         ]);
-
         $data = $request->except('_token');
         // set if there is no queue defaut for all pages
         if (!isset($data[ "is_queue" ])) {
@@ -2080,6 +2110,9 @@ class WhatsAppController extends FindByNumberController
                     $vendor = Vendor::where('phone', $user->phone)->first();
                     $data[ 'vendor_id' ] = $vendor->id;
                     $module_id = $vendor->id;
+                }
+                if($request->get('message')){
+                    $data['message'] = $request->get('message');
                 }
             } elseif ($context == 'task') {
                 $data[ 'task_id' ] = $request->task_id;
@@ -2241,7 +2274,6 @@ class WhatsAppController extends FindByNumberController
                     }
 
                     $number = $number->phone;
-
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                             $this->sendWithThirdApi($number, null, '', $image->getUrl());
@@ -3535,7 +3567,7 @@ class WhatsAppController extends FindByNumberController
         $today_date = Carbon::now()->format('Y-m-d');
 
         if ($context == "customer") {
-
+\Log::info("Asfasfasf ");
             // check the customer message
             $customer = \App\Customer::find($message->customer_id);
             if($customer && $customer->hasDND()){
@@ -3707,6 +3739,17 @@ class WhatsAppController extends FindByNumberController
                 if($context == 'supplier')
                 {
                     $supplierDetails = Supplier::find($message->supplier_id);
+                    $language = $supplierDetails->language;
+                    if($language !=null)
+                    {
+                        $result = TranslationHelper::translate('en', $language, $message->message);
+                        $message->message = $result;
+                    }
+                }
+                if($context == 'customer')
+                {
+                    \Log::info('My TEst Run');
+                    $supplierDetails = Customer::find($message->supplier_id);
                     $language = $supplierDetails->language;
                     if($language !=null)
                     {

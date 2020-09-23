@@ -1,29 +1,15 @@
-@extends('layouts.app')
-@section('title', 'Payment Request Form')
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/css/bootstrap-select.min.css">
 @endsection
 
-@section('content')
-    <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Payment request</h2>
-            <div class="pull-right">
-              <a class="btn btn-secondary" href="{{ route('voucher.index') }}">Back</a>
-            </div>
-
-        </div>
-    </div>
-
-    @include('partials.flash_messages')
-
-
-    <div class="row">
-      <div class="col-xs-12 col-md-8 col-md-offset-2">
         {!! Form::open(array('route' => 'voucher.payment.request-submit','method'=>'POST')) !!}
 
-
+      <div class="modal-header">
+          <h4 class="modal-title"></h4>
+          <button type="button" class="close" data-dismiss="modal">&times;</button>
+      </div>
+      <div class="modal-body">
 
         <div class="form-group">
             <strong>User:</strong>
@@ -48,7 +34,7 @@
               <span class="glyphicon glyphicon-calendar"></span>
             </span>
           </div>
-<br>
+          <br>
           <div class="form-group">
             <strong>Time spent (In minutes):</strong>
             <input type="number" name="worked_minutes" class="form-control" value="{{ old('worked_minutes') }}">
@@ -92,12 +78,13 @@
         </div>
 
         <button type="submit" class="btn btn-secondary">Create</button>
-
-        {!! Form::close() !!}
       </div>
-    </div>
-
-@endsection
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-danger">Submit</button>
+      </div>
+        {!! Form::close() !!}
+      
 
 @section('scripts')
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>

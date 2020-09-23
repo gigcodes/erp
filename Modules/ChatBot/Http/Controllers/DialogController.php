@@ -150,13 +150,12 @@ class DialogController extends Controller
 
     public function saveAjax(Request $request)
     {
+        // dd($request->all());
         $params          = $request->all();
         $params["name"]  = str_replace(" ", "_", $params["title"]);
         $responseType    = $request->get("response_type", false);
         $previousSibling = $request->get("previous_sibling",false);
         $parentId = $request->get("parent_id",0);
-        // dd($request->all());
-
         $matchCondition = implode(" ", $request->get("conditions"));
 
         $id               = $request->get("id", 0);
@@ -167,7 +166,6 @@ class DialogController extends Controller
                 $notToDelete[] = $k;
             }
         }
-
         $chatbotDialog = ChatbotDialog::find($id);
         if (empty($chatbotDialog)) {
 
@@ -327,7 +325,6 @@ class DialogController extends Controller
                 $parentResponse = $dialog->parentResponse;
                 if (!$parentResponse->isEmpty()) {
                     foreach ($parentResponse as $pResponse) {
-                        
                         $findMatch = false;
                         $explodeMatchCnd = [];
                         if(strpos($pResponse->match_condition,":") !== false) {
@@ -339,7 +336,6 @@ class DialogController extends Controller
                         }elseif(strpos($pResponse->match_condition,">") !== false) {
                            $findMatch = ">"; 
                         }
-
                         if($findMatch) {
                             $hasString   = explode(":", str_replace(['"',"(",")"], '', $pResponse->match_condition));
                             $explodeMatchCnd = [
@@ -420,7 +416,7 @@ class DialogController extends Controller
     {
         $parentId = $request->get("parent_id", 0);
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
-            ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
+            ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"), "cdr.value as dialog_response")
             // ->where("chatbot_dialogs.response_type", "standard")
             ->groupBy("chatbot_dialogs.id")
             ->orderBy("chatbot_dialogs.dialog_type", "folder")
