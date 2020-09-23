@@ -425,6 +425,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
@@ -650,6 +651,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -1109,14 +1111,17 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
+                                    <!-- <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents / Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.dialog-grid.list')}}">Dialog Grid</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedWords')}}">Most used words</a>
@@ -1348,15 +1353,21 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
 									</ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                 </li>
 								
                                     <li class="nav-item dropdown">
@@ -1786,7 +1797,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                             <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
-                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    
                     <li>
                         <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
@@ -1794,7 +1805,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                            </span>
                         </a>
                     </li>
-                    @endif
+                   
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -1830,9 +1841,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-    <?php /*
+
     @if(Auth::check())
-    @if($liveChatUsers != '' && $liveChatUsers != null)
+
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
             <button class="chat-button">
@@ -1983,9 +1994,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
             </div>
         </div>
     </div>
+
     @endif
-    @endif
-    */ ?>
 
     <!-- Scripts -->
 
@@ -2548,9 +2558,18 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
 
-
-
-
+        $(document).on('click','.show_sku_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#sku_small_string_'+id).hide();
+            $('#sku_long_string_'+id).css({'display':'block'});
+        });
+        $(document).on('click','.show_prod_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#prod_small_string_'+id).hide();
+            $('#prod_long_string_'+id).css({'display':'block'});
+        });
 
     </script>
 

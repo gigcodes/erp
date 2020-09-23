@@ -104,8 +104,13 @@ class HubstaffActivitiesController extends Controller
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d',strtotime("-1 days"));
         $end_date = $request->end_date ? $request->end_date : date('Y-m-d',strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
-
-        $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        $task_id = $request->task_id ? $request->task_id : null;
+ 
+        if($task_id > 0){
+             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id)->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        }else{
+             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        }
 
 
         if(Auth::user()->isAdmin()) {
@@ -659,7 +664,7 @@ class HubstaffActivitiesController extends Controller
 
 
     public function submitManualRecords(Request $request) {
-        if($request->starts_at && $request->starts_at != '' && $request->total_time > 0) {
+        if($request->starts_at && $request->starts_at != '' && $request->total_time > 0 && $request->task_id > 0) {
             $member = HubstaffMember::where('user_id',Auth::user()->id)->first();
             if($member) {
                 $firstId = HubstaffActivity::orderBy('id','asc')->first();
@@ -668,9 +673,52 @@ class HubstaffActivitiesController extends Controller
                 }
                 else {
                     $previd = 1;  
-                }
+            }
+            // if($request->task_type == 'devtask') {
+            //     $devtask = DeveloperTask::find($request->task_id);
+            //     if($devtask) {
+            //         if($request->role == 'developer') {
+            //             $devtask->hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'lead') {
+            //             $devtask->lead_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'tester') {
+            //             $devtask->tester_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else {
+            //             $devtask->hubstaff_task_id = $request->task_id;  
+            //         }
+            //         $devtask->save();
+            //     }
+            // }
+           
+
+            // if($request->task_type == 'devtask') {
+            //     $task = Task::find($request->task_id);
+            //     if($task) {
+            //         if($request->role == 'developer') {
+            //             $task->hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'lead') {
+            //             $task->lead_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else if($request->role == 'tester') {
+            //             $task->tester_hubstaff_task_id = $request->task_id;
+            //         }
+            //         else {
+            //             $task->hubstaff_task_id = $request->task_id;  
+            //         }
+            //         $task->save();
+            //     }
+            // }
+
+            if(!$request->user_notes) {
+                $request->user_notes = '';
+            }
             $activity = new HubstaffActivity;
             $activity->id = $previd;
+            $activity->task_id = $request->task_id;
             $activity->user_id = $member->hubstaff_user_id;
             $activity->starts_at = $request->starts_at;
             $activity->tracked = $request->total_time * 60;
@@ -679,6 +727,7 @@ class HubstaffActivitiesController extends Controller
             $activity->overall = 0;
             $activity->status = 0;
             $activity->is_manual = 1;
+            $activity->user_notes = $request->user_notes;
             $activity->save();
             return response()->json(["message" => 'Successful'],200);
             }
@@ -729,7 +778,7 @@ class HubstaffActivitiesController extends Controller
         if ($validator->fails()) 
         {
             return response()->json(['message' => $validator->messages()->first()],500);
-							
+                            
         } else 
         {
             // $requestArr = $request->all();

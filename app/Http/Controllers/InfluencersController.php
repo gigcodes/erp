@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Influencers;
 use App\InfluencersDM;
+use App\InfluencerKeyword;
 use Illuminate\Http\Request;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InfluencersController extends Controller
 {
@@ -18,7 +20,7 @@ class InfluencersController extends Controller
     public function index()
     {
         $hashtags = Influencers::all();
-
+        $keywords = InfluencerKeyword::all();
         return view('instagram.influencers.index', compact('hashtags'));
     }
 
@@ -100,5 +102,88 @@ class InfluencersController extends Controller
     public function destroy(Influencers $influencers)
     {
         //
+    }
+
+    public function saveKeyword(Request $request)
+    {
+        $name = $request->name;
+        
+        $keywordCheck = InfluencerKeyword::where('name',$name)->first();
+        
+        if(!$keywordCheck){
+            $keyword = new InfluencerKeyword();
+            $keyword->name = $name;
+            $keyword->save();
+            return response()->json(['message' => 'Influencer Keyword Saved']); 
+        }
+        
+        return response()->json(['message' => 'Influencer Keyword Exist']);
+        
+    }
+
+    public function getScraperImage(Request $request)
+    {
+       $name = $request->name;
+
+       $cURLConnection = curl_init();
+
+        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-image?'.$name);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        if($jsonArrayResponse->status == 'Something Went Wrong'){
+            return \Response::json(array('success' => false,'message' => 'No Image Available')); 
+        } 
+        $content = base64_decode($b64);
+
+        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    
+        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+    }
+
+    public function checkScraper(Request $request)
+    {
+       $name = $request->name;
+
+       $cURLConnection = curl_init();
+
+        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-status?'.$name);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+    public function startScraper(Request $request)
+    {
+       $name = $request->name;
+
+       $cURLConnection = curl_init();
+
+        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/start-script?'.$name);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
     }
 }
