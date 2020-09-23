@@ -54,6 +54,7 @@ class Model
             $values                     = $keyword->chatbotKeywordValues()->get();
             $storeParams["values"]      = [];
             $typeValue                  = [];
+
             foreach ($values as $value) {
                 $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
                 if ($value["types"] == "synonyms") {
@@ -78,6 +79,9 @@ class Model
                 //$result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
+
+
+
                 ManageWatson::dispatch('entity',$keyword, $storeParams, 'create');
             }
 

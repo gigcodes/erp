@@ -9,6 +9,8 @@ class WatsonAccount extends Model
     protected $fillable = [
         'store_website_id',
         'api_key',
+        'work_space_id',
+        'assistant_id',
         'url',
         'is_active'
     ];
