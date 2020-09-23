@@ -289,7 +289,7 @@ class CreatePickupRequest extends APIAbstract
             $xml->writeAttribute('xmlns:wsu', "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
             $xml->writeAttribute('xmlns:wsse', "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
             $xml->writeAttribute('xmlns:soapenv', "http://schemas.xmlsoap.org/soap/envelope/");
-            $xml->writeAttribute('xmlns:pic', "http://scxgxtt.phx-dc.dhl.com/euExpressRateBook/ShipmentMsgRequest");
+            $xml->writeAttribute('xmlns:pic', "http://scxgxtt.phx-dc.dhl.com/euExpressRateBook/PickUpRequest");
             $xml->startElement('soapenv:Header');
                 $xml->startElement('wsse:UsernameToken');
                     $xml->writeAttribute('wsu:Id', "Request");
