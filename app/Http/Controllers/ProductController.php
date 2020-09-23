@@ -3382,11 +3382,20 @@ class ProductController extends Controller
 
     public function translationLanguage(ProductTranslationRequest $request)
     {
-
-        TranslationLanguage::create([
-            'locale' => $request->input('locale')
+        $this->validate($request, [
+            'locale'   => 'sometimes|nullable|string|max:255',
+            'code'       => 'required'
         ]);
 
+        $data = $request->except('_token');
+        Language::create($data);
+
+//        return redirect()->route('products.product-translation')->withSuccess('You have successfully stored language');
+
+//        TranslationLanguage::create([
+//            'locale' => $request->input('locale')
+//        ]);
+//
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
@@ -3404,8 +3413,8 @@ class ProductController extends Controller
         $product_translation_history->save();
 
         return response()->json([
-            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
-            'value' => !$request->value,
+            'message' => 'Rejected Successfully',
+            'value' => $request->value,
         ]);
     }
 
