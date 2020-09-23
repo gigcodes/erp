@@ -287,8 +287,8 @@ class LandingPageController extends Controller
                 if ($selfProduct) {
 
                     GoogleTranslateController::translateProductDetails($selfProduct);
-                    $result = GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id);
-                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);
+                    GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id);
+//                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
 
                     return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
                 } else {
