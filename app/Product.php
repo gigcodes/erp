@@ -1030,6 +1030,36 @@ class Product extends Model
 
         return $query->orderBy('products.created_at','DESC')->paginate(8,$columns);
     }
+    public static function getProductsCount($filter_data = array())
+    { 
+        $columns = array(
+            'products.id',
+            'products.name as product_name',
+            'b.name as brand_name',
+            'category',
+            'supplier',
+            'sku',
+            'status_id',
+            'products.created_at'
+        );
+
+        $query =  \App\Product::leftJoin("brands as b",function($q){
+                $q->on("b.id","products.brand");
+            });
+
+        //  check filtering
+        if(isset($filter_data['product_names']))      $query = $query->whereIn('products.name',$filter_data['product_names']);
+
+        if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
+
+
+        if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
+        if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
+        if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
+        if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
+
+        return $query->orderBy('products.created_at','DESC')->count();
+    }
 
     public static function getPruductsNames()
     {
