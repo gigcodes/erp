@@ -2258,8 +2258,10 @@ class WhatsAppController extends FindByNumberController
                            $userId  = $issue->tester_id;
                         }
                      }
-                     if(Auth::user()->id == $userId) {
+                     if(isset(Auth::user()->id) && Auth::user()->id == $userId) {
                         $userId = $issue->created_by;
+                     }else{
+                        $userId = 1;
                      }
                     $params[ 'erp_user' ] = $userId;
                     $params[ 'user_id' ]  = $data['user_id'];

@@ -1606,6 +1606,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
+    Route::post('/scrap/assignTask','ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
