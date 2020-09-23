@@ -114,6 +114,7 @@ use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 
 class Kernel extends ConsoleKernel
 {
@@ -222,7 +223,8 @@ class Kernel extends ConsoleKernel
         ScrapLogs::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
-        DeleteChatMessages::class
+        DeleteChatMessages::class,
+        PriceComparisonScraperCommand::class
     ];
 
     /**
