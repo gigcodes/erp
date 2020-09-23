@@ -39,15 +39,20 @@ class assignIncompleteProducts extends Command
      */
     public function handle()
     {
-        $products = ScrapedProducts::whereNull('category')->orWhereNull('is_color_fixed')->where(['cron_executed' => 0])->get();
+        $products = ScrapedProducts::where(['cron_executed' => 0])->get();
         $pids = [];
         foreach($products as $product){
             $missing = [];
-            if($product->category == NULL){
+            if($product->properties == NULL){
                 $missing[] = "Category";
-            }
-            if($product->is_color_fixed == 0){
-                $missing[] = "Color";   
+                $missing[] = "Color";
+            }else{
+                if(isset($product->properties['category']) && $product->properties['category'] == NULL){
+                    $missing[] = "Category";
+                }
+                if(isset($product->properties['color']) && $product->properties['color'] == NULL){
+                    $missing[] = "Color";   
+                }
             }
             $requestData = new Request();
             $requestData->setMethod('POST');

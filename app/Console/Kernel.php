@@ -469,7 +469,7 @@ class Kernel extends ConsoleKernel
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
-		
+		$schedule->command('command:assign_incomplete_products')->dailyAt('01:00');
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
