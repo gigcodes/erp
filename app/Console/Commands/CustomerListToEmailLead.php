@@ -51,6 +51,7 @@ class CustomerListToEmailLead extends Command
 					continue;
 				}
 				$emailLead->email = $val->email;
+				$emailLead->source = "erp";
 				$emailLead->created_at = date('Y-m-d H:i:s');
 				$emailLead->save();
 				$i++;
