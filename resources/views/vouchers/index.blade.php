@@ -44,10 +44,10 @@
             <h2 class="page-heading">Vendor payments</h2>
 
             <div class="pull-right">
-              @if (Auth::user()->hasRole('Admin'))
+              @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
               @endif
-              <a class="btn btn-secondary manual-request-btn" href="#">Manual request</a>
+              <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
         </div>
@@ -126,7 +126,7 @@
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button-->
-                <?php */ ?>
+                <?php */ ?>                
               </td>
             </tr>
           @endforeach
