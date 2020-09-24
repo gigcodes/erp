@@ -8,9 +8,14 @@ use Illuminate\Support\Facades\Log;
 
 class GraphqlService
 {
+    private static $storeWebsiteUrl;
+    private static $storeWebsitePwd;
+
     //register multiple translations by one call
-    public static function sendTranslationByGrapql($shopifyProductId, $productId)
+    public static function sendTranslationByGrapql($shopifyProductId, $productId, $url, $pwd)
     {
+        self::$storeWebsiteUrl = $url;
+        self::$storeWebsitePwd = $pwd;
         $result = true;
         $localeExist = self::getValidLocales()['success'];
 
@@ -18,9 +23,8 @@ class GraphqlService
             $validLocales = self::getValidLocales()['validLocales'];
             $localeDiffs  = self::getValidLocales()['localeDiffs'];
 
-            $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
+            $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
 
-            $privateAppPassword = env('SHOPIFY_SHOP_PASSWORD');//this is password for Landing-Page-Store private app
             $translations = self::generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId);
 
             if (!count($translations)) {
@@ -59,7 +63,7 @@ class GraphqlService
 
             $headers = [];
             $headers[] = 'Content-Type: application/json';
-            $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
+            $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
             $ch = curl_init();
 
@@ -93,7 +97,7 @@ class GraphqlService
             //add logs
             $result = false;
             $message = 'no_locales: No locales enabled in shopify store. Please visit:
-             https://o-labels.myshopify.com/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
+             '.self::$storeWebsiteUrl.'/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
             self::addLogs($message);
         }
 
@@ -102,13 +106,11 @@ class GraphqlService
 
     private static function getDataByCurl($query)
     {
-        $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
-
-        $privateAppPassword = env('SHOPIFY_SHOP_PASSWORD');;//this is password for Landing-Page-Store private app
+        $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
 
         $headers = [];
         $headers[] = 'Content-Type: application/graphql';
-        $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
+        $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
         $ch = curl_init();
 
@@ -133,9 +135,7 @@ class GraphqlService
     //check translations exist
     public static function testGetDataByCurl($shopifyProductId)
     {
-        $endpoint = "https://o-labels.myshopify.com/admin/api/2020-07/graphql.json";//this is provided by graphcms
-
-        $privateAppPassword = env('SHOPIFY_SHOP_PASSWORD');;//this is password for Landing-Page-Store private app
+        $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
 
         //Retrieve a single translatable resource by its ID
         $qry = '
@@ -159,7 +159,7 @@ class GraphqlService
 
         $headers = [];
         $headers[] = 'Content-Type: application/graphql';
-        $headers[] = 'X-Shopify-Access-Token: ' . $privateAppPassword;
+        $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
 
         $ch = curl_init();
 

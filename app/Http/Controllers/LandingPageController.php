@@ -285,10 +285,14 @@ class LandingPageController extends Controller
                 $selfProduct = Product::find($landingPage->product_id);
 
                 if ($selfProduct) {
+                    $storeWebsiteUrl = StoreWebsite::find($landingPage->store_website_id);
 
-                    GoogleTranslateController::translateProductDetails($selfProduct);
-                    GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id);
+                    if ($storeWebsiteUrl) {
+                        GoogleTranslateController::translateProductDetails($selfProduct);
+                        GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,
+                            $storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password);
 //                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
+                    }
 
                     return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
                 } else {
