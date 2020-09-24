@@ -1400,7 +1400,7 @@ class WhatsAppController extends FindByNumberController
                 // Send message if all required data is set
                 if ($category && $category->user_id && ($params[ 'message' ] || $params[ 'media_url' ])) {
                     $user = User::find($category->user_id);
-                    $sendResult = $this->sendWithThirdApi($user->phone, null, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ], $params[ 'media_url' ]);
+                    $sendResult = $this->sendWithThirdApi($user->phone, $user->whatsapp_number, 'V-' . $vendor->id . '-(' . $vendor->name . ')=> ' . $params[ 'message' ], $params[ 'media_url' ]);
                     if ($sendResult) {
                         $message->unique_id = $sendResult[ 'id' ] ?? '';
                         $message->save();
@@ -1411,13 +1411,14 @@ class WhatsAppController extends FindByNumberController
             // check if the supplier message has been set then we need to send that message to erp user
             if($supplier) {
                 
-                $phone = $supplier->phone;;
+                $phone = $supplier->phone;
+                $whatsapp = $supplier->whatsapp_number;
                 if(!$sendToSupplier)  {
                    $phone = ChatMessage::getSupplierForwardTo(); 
                 }
 
                 $textMessage = ($sendToSupplier) ? $params[ 'message' ] : 'S-' . $supplier->id . '-(' . $supplier->supplier . ')=> ' . $params[ 'message' ];
-                $sendResult = $this->sendWithThirdApi($phone, null, $textMessage, $params[ 'media_url' ]);
+                $sendResult = $this->sendWithThirdApi($phone, $whatsapp, $textMessage, $params[ 'media_url' ]);
                 if ($sendResult) {
                     $message->unique_id = $sendResult[ 'id' ] ?? '';
                     $message->save();
@@ -1827,7 +1828,7 @@ class WhatsAppController extends FindByNumberController
                 $params[ 'message' ] = $message;
                 $params[ 'status' ] = 2;
 
-                $this->sendWithThirdApi($vendor->phone, null, $params[ 'message' ], $params[ 'media_url' ]);
+                $this->sendWithThirdApi($vendor->phone, $vendor->whatsapp_number, $params[ 'message' ], $params[ 'media_url' ]);
                 ChatMessage::create($params);
             }
 
@@ -2174,7 +2175,7 @@ class WhatsAppController extends FindByNumberController
                         if ($key == 0) {
                             $data[ 'contact_id' ] = $task->assign_to;
                         } else {
-                            $this->sendWithThirdApi($contact->phone, null, $data[ 'message' ]);
+                            $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $data[ 'message' ]);
                         }
                     }
                     // } else {
@@ -2205,10 +2206,10 @@ class WhatsAppController extends FindByNumberController
                     if (!$number) {
                         return response()->json(['message' => null]);
                     }
-
+                    $whatsapp_number = $number->whatsapp_number;
                     $number = $number->phone;
 
-                    $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                    $this->sendWithThirdApi($number, $whatsapp_number, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
 
 
@@ -2219,13 +2220,13 @@ class WhatsAppController extends FindByNumberController
                     $module_id = $request->user_id;
                     $user = User::find($request->user_id);
                     if($user && $user->phone) {
-                        $this->sendWithThirdApi($user->phone, null, $request->message);
+                        $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message);
                     }
                 }
                 elseif ($context == 'overdue') {
                     $data[ 'erp_user' ] = $request->user_id;
                     $user = User::find($request->user_id);
-                    $this->sendWithThirdApi($user->phone, null, $request->message);
+                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $request->message);
                 }
                  elseif ($context == 'user') {
                     $data[ 'erp_user' ] = $request->user_id;
@@ -2278,7 +2279,7 @@ class WhatsAppController extends FindByNumberController
                     if (!$number) {
                         return response()->json(['message' => null]);
                     }
-
+                    $whatsapp = $number->whatsapp_number;
                     $number = $number->phone;
                     if ($request->type == 1) {
                         foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
@@ -2286,14 +2287,15 @@ class WhatsAppController extends FindByNumberController
                             $params[ 'media_url' ] = $image->getUrl();
 
                             if(Auth::user()->id != $userId) {
-                                $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                                $this->sendWithThirdApi($number, $whatsapp, '', $image->getUrl());
                                 $chat_message = ChatMessage::create($params);
                             }
                             if($admin) {
                                 $creator = User::find($admin);
                                 if ($creator) {
                                     $num = $creator->phone;
-                                    $this->sendWithThirdApi($num, null, '', $image->getUrl());
+                                    $whatsapp = $creator->whatsapp_number;
+                                    $this->sendWithThirdApi($num, $whatsapp, '', $image->getUrl());
                                     $params[ 'erp_user' ] = $admin;
                                     $params[ 'user_id' ]  = $data['user_id'];
                                     $params[ 'sent_to_user_id' ] = $admin;
@@ -2319,7 +2321,7 @@ class WhatsAppController extends FindByNumberController
                                 $params[ 'message' ] = '#ISSUE-' . $issue->id . '-' . $issue->subject . '=>' . $media->getUrl();
                                 $params[ 'media_url' ] = $media->getUrl();
                                 if(Auth::user()->id != $userId) {
-                                    $this->sendWithThirdApi($number, null, '', $media->getUrl());
+                                    $this->sendWithThirdApi($number, $whatsapp, '', $media->getUrl());
                                     $chat_message = ChatMessage::create($params);
                                 }
                                 
@@ -2327,7 +2329,8 @@ class WhatsAppController extends FindByNumberController
                                     $creator = User::find($admin);
                                     if ($creator) {
                                         $num = $creator->phone;
-                                        $this->sendWithThirdApi($num, null, '', $media->getUrl());
+                                        $whatsapp = $creator->whatsapp_number;
+                                        $this->sendWithThirdApi($num, $whatsapp, '', $media->getUrl());
                                         $params[ 'erp_user' ] = $admin;
                                         $params[ 'user_id' ]  = $data['user_id'];
                                         $params[ 'sent_to_user_id' ] = $admin;
@@ -2350,7 +2353,7 @@ class WhatsAppController extends FindByNumberController
                         $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
                         $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
                         if(Auth::user()->id != $userId) {
-                            $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                            $this->sendWithThirdApi($number, $whatsapp, $params[ 'message' ]);
                             $chat_message = ChatMessage::create($params);
                         }
                         
@@ -2358,7 +2361,8 @@ class WhatsAppController extends FindByNumberController
                             $creator = User::find($admin);
                             if ($creator) {
                                 $num = $creator->phone;
-                                $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                                $whatsapp = $creator->whatsapp_number;
+                                $this->sendWithThirdApi($num, $whatsapp, $params[ 'message' ]);
                                 $params[ 'erp_user' ] = $admin;
                                 $params[ 'user_id' ]  = $data['user_id'];
                                 $params[ 'sent_to_user_id' ] = $admin;
@@ -2381,14 +2385,15 @@ class WhatsAppController extends FindByNumberController
                             foreach ($issue->getMedia(config('constants.media_tags')) as $image) {
                                 $params[ 'media_url' ] = $image->getUrl();
                                 if(Auth::user()->id != $userId) {
-                                    $this->sendWithThirdApi($number, null, '', $image->getUrl());
+                                    $this->sendWithThirdApi($number, $whatsapp, '', $image->getUrl());
                                     $chat_message = ChatMessage::create($params);
                                 }
                                 if($admin) {
                                     $creator = User::find($admin);
                                     if ($creator) {
                                         $num = $creator->phone;
-                                        $this->sendWithThirdApi($num, null, $params[ 'message' ]);
+                                        $whatsapp = $creator->whatsapp_number;
+                                        $this->sendWithThirdApi($num, $whatsapp, $params[ 'message' ]);
                                         $params[ 'erp_user' ] = $admin;
                                         $params[ 'user_id' ]  = $data['user_id'];
                                         $params[ 'sent_to_user_id' ] = $admin;
@@ -2745,7 +2750,7 @@ class WhatsAppController extends FindByNumberController
                         $data[ 'message' ] = $request->message;
                         $chat_message = ChatMessage::create($data);
 
-                        $this->sendWithThirdApi($old->phone, null, $request->message);
+                        $this->sendWithThirdApi($old->phone, $old->whatsapp_number, $request->message);
 
                         return response()->json([
                             'data' => $data
@@ -2764,7 +2769,7 @@ class WhatsAppController extends FindByNumberController
                                 $params[ 'site_development_id' ] = $request->get('site_development_id');
                                 $params[ 'approved' ] = 1;
                                 $params[ 'status' ] = 2;
-                                $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                                $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params[ 'message' ]);
                                 $chat_message = ChatMessage::create($params);
                                 return response()->json(['message' => $chat_message],200);
                             }    
@@ -2784,7 +2789,7 @@ class WhatsAppController extends FindByNumberController
                             $params[ 'store_social_content_id' ] = $request->get('store_social_content_id');
                             $params[ 'approved' ] = 1;
                             $params[ 'status' ] = 2;
-                            $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                            $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params[ 'message' ]);
                             $chat_message = ChatMessage::create($params);
                         }
                     }
@@ -2812,10 +2817,11 @@ class WhatsAppController extends FindByNumberController
                     }
                     
                     $number = $user->phone;
+                    $whatsapp_number = $user->whatsapp_number;
                     if(!$number) {
                         return response()->json(['message' => 'User whatsapp no not available'],500);
                     }
-                    $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                    $this->sendWithThirdApi($number, $whatsapp_number, $params[ 'message' ]);
                     $chat_message = ChatMessage::create($params);
                     // return response()->json(['message' => $chat_message]);
                 }
@@ -2829,7 +2835,7 @@ class WhatsAppController extends FindByNumberController
                     
                     $params[ 'status' ] = 2;
 
-                    $this->sendWithThirdApi($user->phone, null, $params[ 'message' ]);
+                    $this->sendWithThirdApi($user->phone, $user->whatsapp_number, $params[ 'message' ]);
                     
                     $chat_message = ChatMessage::create($params);
                     
@@ -2844,9 +2850,10 @@ class WhatsAppController extends FindByNumberController
                         $params[ 'message' ] = '#DEVTASK-' . $task->id . ' ' . $request->get('message');
                         $params[ 'status' ] = 2;
 
-                        $number = User::find($task->user_id)->phone;
-
-                        $this->sendWithThirdApi($number, null, $params[ 'message' ]);
+                        $user = User::find($task->user_id);
+                        $number = $user->phone;
+                        $whatsapp_number = $user->whatsapp_number;
+                        $this->sendWithThirdApi($number, $whatsapp_number, $params[ 'message' ]);
 
                         $chat_message = ChatMessage::create($params);
 
@@ -2954,7 +2961,7 @@ class WhatsAppController extends FindByNumberController
                         if ($key == 0) {
                             $data[ 'contact_id' ] = $task->assign_to;
                         } else {
-                            $this->sendWithThirdApi($contact->phone, null, null, $media->getUrl());
+                            $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, null, $media->getUrl());
                         }
                     }
                 }
@@ -5051,7 +5058,7 @@ class WhatsAppController extends FindByNumberController
                 if (count($task->contacts) > 0) {
                     foreach ($task->contacts as $key => $contact) {
                         if ($key != 0) {
-                            $this->sendWithThirdApi($contact->phone, null, $params[ 'message' ]);
+                            $this->sendWithThirdApi($contact->phone, $contact->whatsapp_number, $params[ 'message' ]);
                         }
                     }
                 }
