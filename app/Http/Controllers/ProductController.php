@@ -1349,7 +1349,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = TranslationLanguage::get()->pluck('locale')->toArray();
+                $languages = Language::get()->pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1387,8 +1387,6 @@ class ProductController extends Controller
 
 
         }
-
-
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
