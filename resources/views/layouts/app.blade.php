@@ -742,6 +742,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1352,9 +1353,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
 									</ul>
                                 </li>
@@ -1794,7 +1797,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                             <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
-                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    
                     <li>
                         <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
@@ -1802,7 +1805,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                            </span>
                         </a>
                     </li>
-                    @endif
+                   
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -1838,9 +1841,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-    <?php /*
+
     @if(Auth::check())
-    @if($liveChatUsers != '' && $liveChatUsers != null)
+
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
             <button class="chat-button">
@@ -1991,9 +1994,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
             </div>
         </div>
     </div>
+
     @endif
-    @endif
-    */ ?>
 
     <!-- Scripts -->
 

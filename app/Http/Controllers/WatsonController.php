@@ -39,7 +39,9 @@ class WatsonController extends Controller
     {
         $this->validate($request, [
             'store_website_id' => 'required|integer',
-            'api_key' => 'required|string|string',
+            'api_key' => 'required|string',
+            'work_space_id' => 'required|string',
+            'assistant_id' => 'required|string',
             'url' => 'required|string'
         ]);
         WatsonAccount::create($request->all());

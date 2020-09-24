@@ -984,13 +984,9 @@ class ProductInventoryController extends Controller
 
 	public function inventoryList(Request $request)
     {
-
-    	/*print_r($_GET['product_status']);
-    	die();*/
         $filter_data = $request->input();
-     
         $inventory_data = \App\Product::getProducts($filter_data);
-        $inventory_data_count = \App\Product::getProductsCount($filter_data);
+        $inventory_data_count = $inventory_data->total();
         $status_list = \App\Helpers\StatusHelper::getStatus();
 
         foreach ($inventory_data as $product) {
@@ -1011,5 +1007,16 @@ class ProductInventoryController extends Controller
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count'));
     }
-
+	public function getProductImages($id) {
+	  $product = Product::find($id);
+	  $urls = [];
+      if($product) {
+        $medias =  \App\Mediables::getMediasFromProductId($id);
+		 $medias = $product->getMedia(config('constants.media_tags'));
+		 foreach($medias as $media) {
+			$urls[] = $media->getUrl();
+		 }
+	  }
+	  return response()->json(['urls' => $urls]);
+	}
 }

@@ -58,7 +58,7 @@ class FetchAllEmails extends Command
         $emailAddresses = EmailAddress::where("driver","imap")->orderBy('id', 'asc')->get();
 
         foreach($emailAddresses as $emailAddress) {
-			try {
+            try {
                 $imap = new Client([
                     'host' => $emailAddress->host,
                     'port' => $emailAddress->port,
@@ -68,11 +68,9 @@ class FetchAllEmails extends Command
                     'password' => $emailAddress->password,
                     'protocol' => 'imap',
                 ]);
-				
-				
 
                 $imap->connect();
-				
+
                 $types = [
                     'inbox' => [
                         'inbox_name' => 'INBOX',
@@ -102,8 +100,6 @@ class FetchAllEmails extends Command
 
                     $latest_email_date = $latest_email?Carbon::parse($latest_email->created_at):false;
 
-					echo "Dump";
-
                     dump("Last received at: " . ($latest_email_date?:'never'));
                     // Uncomment below just for testing purpose
 //                    $latest_email_date = Carbon::parse('2020-01-01');
@@ -116,88 +112,81 @@ class FetchAllEmails extends Command
                     // dump($inbox->messages()->where([
                     //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
                     //     ])->get());
-					if(!empty($emails))
-					{
-						foreach ($emails as $email) {
-							echo "Email Check";
-							dump("email check");
-							$reference_id = $email->references;
-	//                        dump($reference_id);
-							$origin_id = $email->message_id;
 
-							// Skip if message is already stored
-							if (Email::where('origin_id', $origin_id)->count() > 0) {
-								echo "Email Already Received";
-								continue;
-							}
-							// check if email has already been received
+                    foreach ($emails as $email) {
 
-							if ($email->hasHTMLBody()) {
-								$content = $email->getHTMLBody();
-							} else {
-								$content = $email->getTextBody();
-							}
+                        $reference_id = $email->references;
+//                        dump($reference_id);
+                        $origin_id = $email->message_id;
 
-							if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
-								$attachments_array = [];
-								$attachments = $email->getAttachments();
+                        // Skip if message is already stored
+                        if (Email::where('origin_id', $origin_id)->count() > 0) {
+                            continue;
+                        }
 
-								$attachments->each(function ($attachment) use (&$attachments_array) {
-									$attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
-									file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
-									$path = "email-attachments/" . $attachment->name;
+                        // check if email has already been received
 
-									$attachments_array[] = $path;
-								});
+                        if ($email->hasHTMLBody()) {
+                            $content = $email->getHTMLBody();
+                        } else {
+                            $content = $email->getTextBody();
+                        }
 
-								$from = $email->getFrom()[0]->mail;
-								$to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
+                        if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
+                            $attachments_array = [];
+                            $attachments = $email->getAttachments();
 
-								// Model is sender if its incoming else its receiver if outgoing
-								if ($type['type'] == 'incoming') {
-									$model_email = $from;
-								} else {
-									$model_email = $to;
-								}
+                            $attachments->each(function ($attachment) use (&$attachments_array) {
+                                $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
+                                file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
+                                $path = "email-attachments/" . $attachment->name;
 
-								// Get model id and model type
+                                $attachments_array[] = $path;
+                            });
 
-								extract($this->getModel($model_email, $email_list));
-								/**
-								 * @var $model_id
-								 * @var $model_type
-								 */
+                            $from = $email->getFrom()[0]->mail;
+                            $to = array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail;
 
-								$params = [
-									'model_id' => $model_id,
-									'model_type' => $model_type,
-									'origin_id' => $origin_id,
-									'reference_id' => $reference_id,
-									'type' => $type['type'],
-									'seen' => $email->getFlags()['seen'],
-									'from' => $email->getFrom()[0]->mail,
-									'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
-									'subject' => $email->getSubject(),
-									'message' => $content,
-									'template' => 'customer-simple',
-									'additional_data' => json_encode(['attachment' => $attachments_array]),
-									'created_at' => $email->getDate(),
-								];
-							   dump("Received from: ". $email->getFrom()[0]->mail);
-								Email::create($params);
-								dump("Email Created");
-							}
-						}
-					}else{
-						dump("No new email recorded");
-					}
+                            // Model is sender if its incoming else its receiver if outgoing
+                            if ($type['type'] == 'incoming') {
+                                $model_email = $from;
+                            } else {
+                                $model_email = $to;
+                            }
+
+                            // Get model id and model type
+
+                            extract($this->getModel($model_email, $email_list));
+                            /**
+                             * @var $model_id
+                             * @var $model_type
+                             */
+
+                            $params = [
+                                'model_id' => $model_id,
+                                'model_type' => $model_type,
+                                'origin_id' => $origin_id,
+                                'reference_id' => $reference_id,
+                                'type' => $type['type'],
+                                'seen' => $email->getFlags()['seen'],
+                                'from' => $email->getFrom()[0]->mail,
+                                'to' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                'subject' => $email->getSubject(),
+                                'message' => $content,
+                                'template' => 'customer-simple',
+                                'additional_data' => json_encode(['attachment' => $attachments_array]),
+                                'created_at' => $email->getDate(),
+                            ];
+//                            dump("Received from: ". $email->getFrom()[0]->mail);
+                            Email::create($params);
+                        }
+                    }
                 }
 
                 dump('__________');
 
                 $report->update(['end_time' => Carbon::now()]);
             } catch (\Exception $e) {
-				echo $e->getMessage();
                 \App\CronJob::insertLastError($this->signature, $e->getMessage());
             }
         }

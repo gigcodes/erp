@@ -71,13 +71,13 @@ class ProductController extends Controller
      */
     function __construct()
     {
-//		$this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
-//		$this->middleware('permission:product-lister', ['only' => ['listing']]);
+//      $this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
+//      $this->middleware('permission:product-lister', ['only' => ['listing']]);
         $this->middleware('permission:product-lister', ['only' => ['listing']]);
-//		$this->middleware('permission:product-create', ['only' => ['create','store']]);
-//		$this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+//      $this->middleware('permission:product-create', ['only' => ['create','store']]);
+//      $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
 
-//		$this->middleware('permission:product-delete', ['only' => ['destroy']]);
+//      $this->middleware('permission:product-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -115,7 +115,6 @@ class ProductController extends Controller
     public function approvedListing(Request $request)
     {
 
-        // dd($request->all());
 
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
@@ -125,14 +124,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -186,14 +185,14 @@ class ProductController extends Controller
         $type = '';
         $assigned_to_users = '';
 
-        if ($request->brand[0] != null) {
+        if (is_array($request->brand) && $request->brand[0] != null) {
             $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
         }
 
-        if ($request->color[0] != null) {
+        if (is_array($request->color) && $request->color[0] != null) {
             $newProducts = $newProducts->whereIn('color', $request->get('color'));
         }
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (is_array($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -242,12 +241,41 @@ class ProductController extends Controller
 
             $type = $request->get('type');
         }
-        //
+
         if (trim($term) != '') {
-            $newProducts = $newProducts->where(function ($query) use ($term) {
-                $query->where('id', 'LIKE', "%$term%")->orWhere('sku', 'LIKE', "%$term%");
+
+            $newProducts->where(function ($query) use ($term) {
+                $query->where('short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhereHas('brands', function($q) use($term){
+                        $q->where('name', 'LIKE', "%" . $term . "%");
+                })
+                ->orWhereHas('product_category', function($q) use($term){
+                    $q->where('title', 'LIKE', "%" . $term . "%");
+                });
             });
         }
+
+//        if(!empty($request->term)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->where('color', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('short_description', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('category', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('brand', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('sku', 'LIKE', '%' . $request->term . '%') ;
+//            });
+//        }
+//        if(!empty($request->color)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('color', $request->color);
+//            });
+//        }
+//        if(!empty($request->category)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('category', $request->category);
+//            });
+//        }
 
 
         if ($request->get('user_id') > 0) {
@@ -296,8 +324,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -307,7 +335,7 @@ class ProductController extends Controller
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
             'cropped' => $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
         ]);
@@ -322,14 +350,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -442,8 +470,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -452,8 +480,8 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
         ]);
@@ -471,14 +499,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -588,8 +616,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -598,8 +626,8 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'queueSize' => $queueSize
@@ -637,14 +665,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         // dd($suppliers);
 
@@ -662,7 +690,7 @@ class ProductController extends Controller
         }
 
         // $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-        // 																			 ->renderAsDropdown();
+        //                                                                           ->renderAsDropdown();
 
         $term = $request->input('term');
         $brand = '';
@@ -684,13 +712,13 @@ class ProductController extends Controller
         $userWhereClause = '';
 
         // if (Auth::user()->hasRole('Products Lister')) {
-        // 	$products = Auth::user()->products();
+        //  $products = Auth::user()->products();
         // } else {
-        // 	$products = (new Product)->newQuery();
+        //  $products = (new Product)->newQuery();
         // }
 
 
-        if ($request->brand[0] != null) {
+        if (is_array($request->brand) && $request->brand[0] != null) {
             // $products = $products->whereIn('brand', $request->brand);
             $brands_list = implode(',', $request->brand);
 
@@ -698,7 +726,7 @@ class ProductController extends Controller
             $brandWhereClause = " AND brand IN ($brands_list)";
         }
 
-        if ($request->color[0] != null) {
+        if (is_array($request->color) && $request->color[0] != null) {
             // $products = $products->whereIn('color', $request->color);
             $colors_list = implode(',', $request->color);
 
@@ -706,7 +734,7 @@ class ProductController extends Controller
             $colorWhereClause = " AND color IN ($colors_list)";
         }
         //
-        if ($request->category[0] != null && $request->category[0] != 1) {
+        if (is_array($request->category) && $request->category[0] != null && $request->category[0] != 1) {
             $category_children = [];
 
             foreach ($request->category as $category) {
@@ -740,7 +768,7 @@ class ProductController extends Controller
             $categoryWhereClause = " AND category IN ($category_list)";
         }
         //
-        if ($request->supplier[0] != null) {
+        if (is_array($request->supplier) && $request->supplier[0] != null) {
             $suppliers_list = implode(',', $request->supplier);
 
             // $products = $products->with('Suppliers')
@@ -777,33 +805,33 @@ class ProductController extends Controller
         if (trim($term) != '') {
             // $products = $products
             // ->orWhere( 'sku', 'LIKE', "%$term%" )
-            // ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+            // ->orWhere( 'id', 'LIKE', "%$term%" )//                                        ->orWhere( 'category', $term )
             // ;
 
             $termWhereClause = ' AND (sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%")';
 
             // if ($term == - 1) {
-            // 	$products = $products->orWhere( 'isApproved', - 1 );
+            //  $products = $products->orWhere( 'isApproved', - 1 );
             // }
 
             // if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-            // 	$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+            //  $brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+            //  $products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
             // }
             //
             // if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-            // 	$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+            //  $category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+            //  $products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
             // }
             //
             // if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
-            // 	$products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+            //  $products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
             // }
         }
         //  else {
-        // 	if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-        // 		$products = $products;
-        // 	}
+        //  if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
+        //      $products = $products;
+        //  }
         // }
 
 
@@ -840,9 +868,9 @@ class ProductController extends Controller
         }
 
         // if (Auth::user()->hasRole('Products Lister')) {
-        // 	// dd('as');
-        // 	$products_count = Auth::user()->products;
-        // 	$products = Auth::user()->products()->get()->toArray();
+        //  // dd('as');
+        //  $products_count = Auth::user()->products;
+        //  $products = Auth::user()->products()->get()->toArray();
 
         // $currentPage = LengthAwarePaginator::resolveCurrentPage();
         // $perPage = Setting::get('pagination');
@@ -861,24 +889,24 @@ class ProductController extends Controller
 
         if (Auth::user()->hasRole('Products Lister')) {
             $sql = '
-											SELECT *, user_products.user_id as product_user_id,
-											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
-											FROM products
+                                            SELECT *, user_products.user_id as product_user_id,
+                                            (SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+                                            FROM products
 
-											LEFT JOIN (
-												SELECT user_id, product_id FROM user_products
-												) as user_products
-											ON products.id = user_products.product_id
+                                            LEFT JOIN (
+                                                SELECT user_id, product_id FROM user_products
+                                                ) as user_products
+                                            ON products.id = user_products.product_id
 
-											LEFT JOIN (
-												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
-												) AS remarks
-											ON products.id = remarks.taskid
+                                            LEFT JOIN (
+                                                SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+                                                ) AS remarks
+                                            ON products.id = remarks.taskid
 
-											WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
-											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
-				';
+                                            WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+                                             AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
+                                            ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
+                ';
         } else {
             $sql = '
                 SELECT *, user_products.user_id as product_user_id,
@@ -896,11 +924,11 @@ class ProductController extends Controller
                 ON products.id = remarks.taskid
                 WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
                 ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, products.updated_at DESC
-				';
+                ';
         }
         $new_products = DB::select($sql);
 
-//			dd($new_products);
+//          dd($new_products);
         $products_count = count($new_products);
         //
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -935,8 +963,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -987,7 +1015,7 @@ class ProductController extends Controller
         $data['color'] = $product->color;
         $data['price'] = $product->price;
         $data['status'] = $product->status_id;
-//		$data['price'] = $product->inr;
+//      $data['price'] = $product->inr;
         $data['euro_to_inr'] = $product->euro_to_inr;
         $data['price_inr'] = $product->price_inr;
         $data['price_inr_special'] = $product->price_inr_special;
@@ -1168,6 +1196,8 @@ class ProductController extends Controller
 
         if ($product) {
             $productCatHis = new \App\ProductCategoryHistory;
+//            dd($productCatHis);
+
             $productCatHis->user_id = \Auth::user()->id;
             $productCatHis->category_id = $request->category;
             $productCatHis->old_category_id = $product->category;
@@ -1176,10 +1206,10 @@ class ProductController extends Controller
 
             \App\ProductStatus::pushRecord($product->id, "MANUAL_CATEGORY");
         }
+//        dd($product);
 
         $product->category = $request->category;
         $product->save();
-
         $lh = new ListingHistory();
         $lh->user_id = Auth::user()->id;
         $lh->product_id = $id;
@@ -1319,7 +1349,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = TranslationLanguage::get()->pluck('locale')->toArray();
+                $languages = Language::get()->pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1357,8 +1387,6 @@ class ProductController extends Controller
 
 
         }
-
-
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
@@ -1563,46 +1591,80 @@ class ProductController extends Controller
         return Redirect::Back();
     }
 
-    public function approveProduct(Request $request, $id)
+    public function approveProduct(Request $request, $id = null)
     {
-        $product = Product::find($id);
+        if ($id !== null) {
+            $product = Product::find($id);
 
-        $product->is_approved = 1;
-        $product->approved_by = Auth::user()->id;
-        $product->listing_approved_at = Carbon::now()->toDateTimeString();
-        $product->save();
+            $product->is_approved = 1;
+            $product->approved_by = Auth::user()->id;
+            $product->listing_approved_at = Carbon::now()->toDateTimeString();
+            $product->save();
 
-        $l = new ListingHistory();
-        $l->user_id = Auth::user()->id;
-        $l->product_id = $product->id;
-        $l->action = 'LISTING_APPROVAL';
-        $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
-        $l->save();
+            $l = new ListingHistory();
+            $l->user_id = Auth::user()->id;
+            $l->product_id = $product->id;
+            $l->action = 'LISTING_APPROVAL';
+            $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
+            $l->save();
 
-        // once product approved the remove from the edititing list
-        $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
-        if ($productVUser) {
-            $productVUser->delete();
+            // once product approved the remove from the edititing list
+            $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
+            if ($productVUser) {
+                $productVUser->delete();
+            }
+
+            ActivityConroller::create($product->id, 'productlister', 'create');
+
+        } else {
+            $ids = $request->ids;
+            $products = Product::whereIn('id', explode(",", $ids))->get();
+            foreach ($products as $product) {
+                $product->is_approved = 1;
+                $product->approved_by = Auth::user()->id;
+                $product->listing_approved_at = Carbon::now()->toDateTimeString();
+                $product->save();
+
+                $l = new ListingHistory();
+                $l->user_id = Auth::user()->id;
+                $l->product_id = $product->id;
+                $l->action = 'LISTING_APPROVAL';
+                $l->content = ['action' => 'LISTING_APPROVAL', 'message' => 'Listing approved!'];
+                $l->save();
+
+                // once product approved the remove from the edititing list
+                $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
+                if ($productVUser) {
+                    $productVUser->delete();
+                }
+            }
+
+            // once product approved the remove from the edititing list
+            $productVUser = \App\ProductVerifyingUser::where("product_id", $id)->first();
+            if ($productVUser) {
+                $productVUser->delete();
+            }
+
+
+            ActivityConroller::create($product->id, 'productlister', 'create');
+
+    //      if (Auth::user()->hasRole('Products Lister')) {
+    //          $products_count = Auth::user()->products()->count();
+    //          $approved_products_count = Auth::user()->approved_products()->count();
+    //          if (($products_count - $approved_products_count) < 100) {
+    //              $requestData = new Request();
+    //              $requestData->setMethod('POST');
+    //              $requestData->request->add(['amount_assigned' => 100]);
+    //
+    //              app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+    //          }
+    //      }
+
         }
-
-
-        ActivityConroller::create($product->id, 'productlister', 'create');
-
-//		if (Auth::user()->hasRole('Products Lister')) {
-//			$products_count = Auth::user()->products()->count();
-//			$approved_products_count = Auth::user()->approved_products()->count();
-//			if (($products_count - $approved_products_count) < 100) {
-//				$requestData = new Request();
-//				$requestData->setMethod('POST');
-//				$requestData->request->add(['amount_assigned' => 100]);
-//
-//				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
-//			}
-//		}
-
         return response()->json([
             'result' => true,
-            'status' => 'is_approved'
+            'status' => 'is_approved',
+            'success' => 'Products Approved successfully'
         ]);
     }
 
@@ -2200,7 +2262,8 @@ class ProductController extends Controller
 
         $product->name = $request->name;
         $product->sku = $request->sku;
-        $product->size = is_array($request->size) ? implode(',', $request->size) : ($request->size ?? $request->other_size);
+       // $size_array = implode(',', $request->size) ;
+        $product->size = implode(',', $request->size);
         $product->brand = $request->brand;
         $product->color = $request->color;
         $product->supplier = $request->supplier;
@@ -2682,14 +2745,14 @@ class ProductController extends Controller
         }
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         if ($request->supplier[0] != null) {
 
@@ -2756,14 +2819,35 @@ class ProductController extends Controller
 
     public function deleteProduct(Request $request)
     {
-        $product = Product::find($request->get('product_id'));
+        if ($request->has('product_id')) {
+            $product = Product::find($request->get('product_id'));
 
-        if ($product) {
-            $product->forceDelete();
+            if ($product) {
+                $product->forceDelete();
+            }
+        } else {
+            $ids = $request->ids;
+            $delete_products = Product::whereIn('id', explode(",", $ids))->get();
+            foreach ($delete_products as $delete_product) {
+//                $delete_product->forceDelete();
+                $delete_product->deleted_at = date('Y-m-d H:i:s');
+                $delete_product->save();
+            }
         }
+//
+//        return json_encode('done');
+//        if(!empty($request->product_id_array)){
+//            $product_ids = $request->product_id_array ;
+//            foreach ($product_ids as $product_id) {
+//                $product = Product::where('id', $product_id);
+//                $product->forceDelete();
+//            }
+//        }
+
 
         return response()->json([
-            'status' => 'success'
+            'status' => 'Products Deleted successfully',
+            'success' => 'Products Deleted successfully'
         ]);
     }
 
@@ -3106,7 +3190,6 @@ class ProductController extends Controller
                                 $compositions[] = str_replace(['&nbsp;', '/span>'], ' ', $composition);
 
                             }
-
                         }
 
                     }
@@ -3297,11 +3380,20 @@ class ProductController extends Controller
 
     public function translationLanguage(ProductTranslationRequest $request)
     {
-
-        TranslationLanguage::create([
-            'locale' => $request->input('locale')
+        $this->validate($request, [
+            'locale'   => 'sometimes|nullable|string|max:255',
+            'code'       => 'required'
         ]);
 
+        $data = $request->except('_token');
+        Language::create($data);
+
+//        return redirect()->route('products.product-translation')->withSuccess('You have successfully stored language');
+
+//        TranslationLanguage::create([
+//            'locale' => $request->input('locale')
+//        ]);
+//
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
@@ -3319,8 +3411,8 @@ class ProductController extends Controller
         $product_translation_history->save();
 
         return response()->json([
-            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
-            'value' => !$request->value,
+            'message' => 'Rejected Successfully',
+            'value' => $request->value,
         ]);
     }
 
@@ -3681,4 +3773,23 @@ class ProductController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong row id!"]);
     }
+
+    public function updateApprovedBy(Request $request, $product_id)
+    {
+
+        $product = Product::find($product_id);
+
+        if ($product) {
+            $product->update([
+                'is_approved' => 1,
+                'approved_by' => $request->user_id
+            ]);
+        }
+
+        return response()->json([
+            "code" => 200
+        ]);
+
+    }
+
 }

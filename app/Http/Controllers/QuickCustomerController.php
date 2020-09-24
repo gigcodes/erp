@@ -88,5 +88,4 @@ class QuickCustomerController extends Controller
         ]);
 
     }
-
 }
