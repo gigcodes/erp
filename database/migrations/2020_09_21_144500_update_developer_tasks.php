@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddStatusIdToLandingPageProductsTable extends Migration
+class UpdateDeveloperTasks extends Migration
 {
     /**
      * Run the migrations.
@@ -13,8 +13,9 @@ class AddStatusIdToLandingPageProductsTable extends Migration
      */
     public function up()
     {
-        Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->integer('landing_page_status_id')->unsigned()->after('status');
+        //
+        Schema::table('developer_tasks', function($table) {
+            $table->date('estimate_date');
         });
     }
 
@@ -25,8 +26,9 @@ class AddStatusIdToLandingPageProductsTable extends Migration
      */
     public function down()
     {
-        Schema::table('landing_page_products', function (Blueprint $table) {
-            $table->dropColumn('landing_page_status_id');
+        //
+        Schema::table('developer_tasks', function($table) {
+            $table->dropColumn('estimate_date');
         });
     }
 }

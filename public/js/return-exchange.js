@@ -78,7 +78,14 @@ var msQueue = {
             e.preventDefault();
 			$('#createstatusModal').modal('show');
         });
-
+        $(document).on("click","#create_refund",function(e){
+            e.preventDefault();
+			$('#createRefundModal').modal('show');
+        });
+        $(document).on("click",".create-update-refund",function(e){
+            e.preventDefault();
+            msQueue.getRefundInfo($(this).data("id")); 
+        });
         $(document).on("click",".btn-delete-template",function(e){
             e.preventDefault();
             msQueue.deleteRecords($(this).data("id"));     
@@ -294,7 +301,31 @@ var msQueue = {
           $("#productModal").find(".modal-body").html(response.html);
           $("#productModal").modal("show");
         }
-    }
+    },
+    getRefundInfo: function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/getRefundInfo/"+id,
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "showRefundPopup",{append : true});
+    },
+    showRefundPopup: function(response) {
+        console.log(response);
+        createRefundModal
+        if(response.code == 200) {
+          $("#loading-image").hide();
+          $("#updateRefundModal").find(".update-refund-section").html(response.html);
+          $("#updateRefundModal").modal("show");
+          if ($("#updateRefundModal").find("#dispatch_date").prop('checked')) {
+              $("#updateRefundModal").find("#additional-fields").show();
+          } else {
+              $("#updateRefundModal").find("#additional-fields").hide();
+          }
+        }
+    },
 }
 
 $.extend(msQueue, common);

@@ -2,11 +2,27 @@
   @foreach ($inventory_data as $row => $data)
     <tr>
     <td>{{ $data['id'] }}</td>
-    <td>{{ $data['sku'] }}</td>
-    <td>{{ $data['product_name'] }}</td>
+    <td>
+      <span id="sku_long_string_{{$data['id']}}" style="display: none">{{ $data['sku'] }}</span>
+      <span id="sku_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['sku'],-10) ?> @if(strlen($data['sku'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_sku_long">More</a> @endif
+
+    </td>
+    <td>
+    <span id="prod_long_string_{{$data['id']}}" style="display: none">{{ $data['product_name'] }}</span>
+      <span id="prod_small_string_{{$data['id']}}"><?php echo \Illuminate\Support\Str::substr($data['product_name'],-10) ?> @if(strlen($data['product_name'])>10) ...<a href="javascript:;" data-id="{{$data['id']}}" class="show_prod_long">More</a> @endif
+
+
+    </td>
     <td>{{ $data['category'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
+    <td>
+      @foreach($status_list as $key => $status)
+        @if($key==$data['status_id'])
+          {{ $status }}
+        @endif
+      @endforeach
+     </td>
     <td>{{ $data['created_at'] }}</td>
     <td>
       <a  title="show medias" class="btn btn-image show-medias-modal" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>
@@ -17,5 +33,5 @@
   </tr>
   @endforeach
 @else
-  <tr><td colspan="8"><h2>No Records</h2></td></tr>
+  <tr><td colspan="9"><h2>No Records</h2></td></tr>
 @endif

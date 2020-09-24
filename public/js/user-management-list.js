@@ -703,7 +703,7 @@ $.views.helpers({
                     estimate_minutes: estimate_minutes,
                     issue_id: issueId
                 },
-                success: function () {
+                success: function (response) {
                     toastr["success"]("Estimate Minutes updated successfully!", "Message")
                 }
             });

@@ -54,7 +54,8 @@ class Product extends Model
         'shopify_id',
         'scrap_priority',
         'assigned_to',
-        'quick_product'
+        'quick_product',
+        'approved_by'
     ];
 
     protected $dates = ['deleted_at'];
@@ -79,6 +80,7 @@ class Product extends Model
         static::updating(function ($product) {
             $oldCatID = $product->category;
             $newCatID = $product->getOriginal('category');
+
             if($oldCatID != $newCatID) {
                 \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
             }
@@ -1017,6 +1019,10 @@ class Product extends Model
 
         //  check filtering
         if(isset($filter_data['product_names']))      $query = $query->whereIn('products.name',$filter_data['product_names']);
+
+        if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
+
+
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
         if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);

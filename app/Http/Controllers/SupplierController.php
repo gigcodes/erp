@@ -38,6 +38,8 @@ use Validator;
 
 class SupplierController extends Controller
 {
+	
+	const DEFAULT_FOR = 3;//For Supplier
     /**
      * Add/Edit Remainder functionality
      */
@@ -253,7 +255,7 @@ class SupplierController extends Controller
         $whatsappConfigs = WhatsappConfig::where('provider','LIKE','%Chat-API%')->get();
 
 		//Get All Product Supplier
-		$allSupplierProduct = DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
+		$allSupplierProduct = [];//DB::select('SELECT ps.product_id, ps.supplier_id, pp.name, ss.supplier FROM product_suppliers ps JOIN suppliers ss on ps.supplier_id = ss.id JOIN products pp on ps.product_id = pp.id');
 		
 		//Get All supplier price range
 		$allSupplierPriceRanges = SupplierPriceRange::select("supplier_price_range.*",DB::raw("CONCAT(supplier_price_range.price_from,'-',supplier_price_range.price_to) as full_range"))->get()->toArray();
@@ -320,7 +322,7 @@ class SupplierController extends Controller
             'gst' => 'sometimes|nullable|max:255',
             //'supplier_status_id' => 'required'
         ]);
-
+		
         $data = $request->except('_token');
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
@@ -331,6 +333,15 @@ class SupplierController extends Controller
            $data["supplier_status_id"] = 0;
         }
 
+		//get default whatsapp number for vendor from whatsapp config
+		if(empty($data["whatsapp_number"]))  {
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+						->first();
+		
+			$data["whatsapp_number"] = $task_info->number;
+		}
         $supplier = Supplier::create($data);
 
         if ($supplier->id > 0) {

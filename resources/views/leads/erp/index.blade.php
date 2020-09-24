@@ -13,7 +13,8 @@
       <h2 class="page-heading">Erp Leads <a class="btn btn-secondary editor_create" href="javascript:;">+</a></h2>
 
   </div>
-  <?php /*
+  <?php  /*
+
   <div class="col-lg-12 margin-tb">
     <form id="search" method="GET" class="form-inline">
         <input name="term" type="text" class="form-control"
@@ -52,6 +53,7 @@
   </div>
   */?>
   <div class="col-md-12">
+
 <?php $base_url = URL::to('/');?>
   <div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('erp-leads.erpLeads') }}" method="GET">
@@ -170,7 +172,7 @@
                   <!-- <td>{{$source['id']}}</td> -->
                   <td class="tblcell">
                     
-                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}aa</label></div>
+                    <div class="checkbox"><label class="checkbox-inline"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'">{{$source['id']}}</label></div>
                   </td>
                   <td class="tblcell"> <div class="checkbox"><label class="checkbox-inline ew"><input name="customer_message[]" class="customer_message" type="checkbox" value="'+row.customer_id+'" style="display: none">{{$source['status_name']}}</label></div></td>
                   <td class="tblcell">
@@ -329,6 +331,35 @@
           customers = tmpCustomers;
         } 
       });
+      $(document).on('click', '.block_customer', function () {
+           var customer_id = $(this).data('customer_id');
+           var column = $(this).data('column');
+           var lead_product_freq = $(this).closest('td').find("input[name='lead_product_freq']").val();
+           var data = {
+                lead_product_freq : lead_product_freq,
+                customer_id : customer_id,
+                column: column,
+       
+            };
+
+              $.ajax({
+                url: "{{ route('leads.block.customer') }}",
+                type: "POST",
+                 headers: {
+                    'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                data: data,
+                dataType :'json',
+              }).done(function() {
+                alert('Leads for Customer are blocked');
+                // window.location.reload();
+              }).fail(function(response) {
+             
+
+                alert('Could not say No!');
+                console.log(response);
+              });
+        });
 
       $(".images_attach").click(function(e){
           e.preventDefault();
@@ -428,6 +459,7 @@
 
       });
      
+
       // var table = $('.dataTable').DataTable({
       //       processing: true,
       //       serverSide: true,
