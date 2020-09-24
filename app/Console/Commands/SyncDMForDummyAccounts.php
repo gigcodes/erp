@@ -13,8 +13,7 @@ use InstagramAPI\Instagram;
 
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
-class
-SyncDMForDummyAccounts extends Command
+class SyncDMForDummyAccounts extends Command
 {
     /**
      * The name and signature of the console command.
