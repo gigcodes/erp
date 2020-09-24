@@ -71,13 +71,13 @@ class ProductController extends Controller
      */
     function __construct()
     {
-//		$this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
-//		$this->middleware('permission:product-lister', ['only' => ['listing']]);
+//      $this->middleware( 'permission:product-list', [ 'only' => [ 'show' ]]);
+//      $this->middleware('permission:product-lister', ['only' => ['listing']]);
         $this->middleware('permission:product-lister', ['only' => ['listing']]);
-//		$this->middleware('permission:product-create', ['only' => ['create','store']]);
-//		$this->middleware('permission:product-edit', ['only' => ['edit','update']]);
+//      $this->middleware('permission:product-create', ['only' => ['create','store']]);
+//      $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
 
-//		$this->middleware('permission:product-delete', ['only' => ['destroy']]);
+//      $this->middleware('permission:product-delete', ['only' => ['destroy']]);
     }
 
     /**
@@ -124,14 +124,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -324,8 +324,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -335,7 +335,7 @@ class ProductController extends Controller
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
             'cropped' => $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
         ]);
@@ -350,14 +350,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -470,8 +470,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -480,8 +480,8 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
         ]);
@@ -499,14 +499,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         foreach (Category::all() as $category) {
             if ($category->parent_id != 0) {
@@ -616,8 +616,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -626,8 +626,8 @@ class ProductController extends Controller
             'type' => $type,
             'users' => $users,
             'assigned_to_users' => $assigned_to_users,
-//            'cropped'	=> $cropped,
-//            'left_for_users'	=> $left_for_users,
+//            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'queueSize' => $queueSize
@@ -665,14 +665,14 @@ class ProductController extends Controller
         $brands = Brand::getAll();
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         // dd($suppliers);
 
@@ -690,7 +690,7 @@ class ProductController extends Controller
         }
 
         // $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-        // 																			 ->renderAsDropdown();
+        //                                                                           ->renderAsDropdown();
 
         $term = $request->input('term');
         $brand = '';
@@ -712,9 +712,9 @@ class ProductController extends Controller
         $userWhereClause = '';
 
         // if (Auth::user()->hasRole('Products Lister')) {
-        // 	$products = Auth::user()->products();
+        //  $products = Auth::user()->products();
         // } else {
-        // 	$products = (new Product)->newQuery();
+        //  $products = (new Product)->newQuery();
         // }
 
 
@@ -805,33 +805,33 @@ class ProductController extends Controller
         if (trim($term) != '') {
             // $products = $products
             // ->orWhere( 'sku', 'LIKE', "%$term%" )
-            // ->orWhere( 'id', 'LIKE', "%$term%" )//		                                 ->orWhere( 'category', $term )
+            // ->orWhere( 'id', 'LIKE', "%$term%" )//                                        ->orWhere( 'category', $term )
             // ;
 
             $termWhereClause = ' AND (sku LIKE "%' . $term . '%" OR id LIKE "%' . $term . '%")';
 
             // if ($term == - 1) {
-            // 	$products = $products->orWhere( 'isApproved', - 1 );
+            //  $products = $products->orWhere( 'isApproved', - 1 );
             // }
 
             // if ( Brand::where('name', 'LIKE' ,"%$term%")->first() ) {
-            // 	$brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
+            //  $brand_id = Brand::where('name', 'LIKE' ,"%$term%")->first()->id;
+            //  $products = $products->orWhere( 'brand', 'LIKE', "%$brand_id%" );
             // }
             //
             // if ( $category = Category::where('title', 'LIKE' ,"%$term%")->first() ) {
-            // 	$category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
-            // 	$products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
+            //  $category_id = $category = Category::where('title', 'LIKE' ,"%$term%")->first()->id;
+            //  $products = $products->orWhere( 'category', CategoryController::getCategoryIdByName( $term ) );
             // }
             //
             // if (!empty( $stage->getIDCaseInsensitive( $term ) ) ) {
-            // 	$products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
+            //  $products = $products->orWhere( 'stage', $stage->getIDCaseInsensitive( $term ) );
             // }
         }
         //  else {
-        // 	if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
-        // 		$products = $products;
-        // 	}
+        //  if ($request->brand[0] == null && $request->color[0] == null && ($request->category[0] == null || $request->category[0] == 1) && $request->supplier[0] == null && $request->type == '') {
+        //      $products = $products;
+        //  }
         // }
 
 
@@ -868,9 +868,9 @@ class ProductController extends Controller
         }
 
         // if (Auth::user()->hasRole('Products Lister')) {
-        // 	// dd('as');
-        // 	$products_count = Auth::user()->products;
-        // 	$products = Auth::user()->products()->get()->toArray();
+        //  // dd('as');
+        //  $products_count = Auth::user()->products;
+        //  $products = Auth::user()->products()->get()->toArray();
 
         // $currentPage = LengthAwarePaginator::resolveCurrentPage();
         // $perPage = Setting::get('pagination');
@@ -889,24 +889,24 @@ class ProductController extends Controller
 
         if (Auth::user()->hasRole('Products Lister')) {
             $sql = '
-											SELECT *, user_products.user_id as product_user_id,
-											(SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
-											FROM products
+                                            SELECT *, user_products.user_id as product_user_id,
+                                            (SELECT mm1.created_at FROM remarks mm1 WHERE mm1.id = remark_id) AS remark_created_at
+                                            FROM products
 
-											LEFT JOIN (
-												SELECT user_id, product_id FROM user_products
-												) as user_products
-											ON products.id = user_products.product_id
+                                            LEFT JOIN (
+                                                SELECT user_id, product_id FROM user_products
+                                                ) as user_products
+                                            ON products.id = user_products.product_id
 
-											LEFT JOIN (
-												SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
-												) AS remarks
-											ON products.id = remarks.taskid
+                                            LEFT JOIN (
+                                                SELECT MAX(id) AS remark_id, taskid FROM remarks WHERE module_type = "productlistings" GROUP BY taskid
+                                                ) AS remarks
+                                            ON products.id = remarks.taskid
 
-											WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
-											 AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
-											ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
-				';
+                                            WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0 AND is_crop_approved = 1 AND is_crop_ordered = 1 ' . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $stockWhereClause . ' AND id IN (SELECT product_id FROM user_products WHERE user_id = ' . Auth::id() . ')
+                                             AND id NOT IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 60)
+                                            ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, created_at DESC
+                ';
         } else {
             $sql = '
                 SELECT *, user_products.user_id as product_user_id,
@@ -924,11 +924,11 @@ class ProductController extends Controller
                 ON products.id = remarks.taskid
                 WHERE stock>=1 AND is_approved = 0 AND is_listing_rejected = 0  AND is_crop_approved = 1 AND is_crop_ordered = 1  ' . $stockWhereClause . $brandWhereClause . $colorWhereClause . $categoryWhereClause . $supplierWhereClause . $typeWhereClause . $termWhereClause . $croppedWhereClause . $userWhereClause . '
                 ORDER BY listing_approved_at DESC, category, is_crop_ordered DESC, remark_created_at DESC, products.updated_at DESC
-				';
+                ';
         }
         $new_products = DB::select($sql);
 
-//			dd($new_products);
+//          dd($new_products);
         $products_count = count($new_products);
         //
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
@@ -963,8 +963,8 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection'	=> $category_selection,
-            // 'category_search'	=> $category_search,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -1015,7 +1015,7 @@ class ProductController extends Controller
         $data['color'] = $product->color;
         $data['price'] = $product->price;
         $data['status'] = $product->status_id;
-//		$data['price'] = $product->inr;
+//      $data['price'] = $product->inr;
         $data['euro_to_inr'] = $product->euro_to_inr;
         $data['price_inr'] = $product->price_inr;
         $data['price_inr_special'] = $product->price_inr_special;
@@ -1648,17 +1648,17 @@ class ProductController extends Controller
 
             ActivityConroller::create($product->id, 'productlister', 'create');
 
-    //		if (Auth::user()->hasRole('Products Lister')) {
-    //			$products_count = Auth::user()->products()->count();
-    //			$approved_products_count = Auth::user()->approved_products()->count();
-    //			if (($products_count - $approved_products_count) < 100) {
-    //				$requestData = new Request();
-    //				$requestData->setMethod('POST');
-    //				$requestData->request->add(['amount_assigned' => 100]);
+    //      if (Auth::user()->hasRole('Products Lister')) {
+    //          $products_count = Auth::user()->products()->count();
+    //          $approved_products_count = Auth::user()->approved_products()->count();
+    //          if (($products_count - $approved_products_count) < 100) {
+    //              $requestData = new Request();
+    //              $requestData->setMethod('POST');
+    //              $requestData->request->add(['amount_assigned' => 100]);
     //
-    //				app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
-    //			}
-    //		}
+    //              app('App\Http\Controllers\UserController')->assignProducts($requestData, Auth::id());
+    //          }
+    //      }
 
         }
         return response()->json([
@@ -2745,14 +2745,14 @@ class ProductController extends Controller
         }
 
         $suppliers = DB::select('
-				SELECT id, supplier
-				FROM suppliers
+                SELECT id, supplier
+                FROM suppliers
 
-				INNER JOIN (
-					SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
-					) as product_suppliers
-				ON suppliers.id = product_suppliers.supplier_id
-		');
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
 
         if ($request->supplier[0] != null) {
 
@@ -3380,11 +3380,20 @@ class ProductController extends Controller
 
     public function translationLanguage(ProductTranslationRequest $request)
     {
-
-        TranslationLanguage::create([
-            'locale' => $request->input('locale')
+        $this->validate($request, [
+            'locale'   => 'sometimes|nullable|string|max:255',
+            'code'       => 'required'
         ]);
 
+        $data = $request->except('_token');
+        Language::create($data);
+
+//        return redirect()->route('products.product-translation')->withSuccess('You have successfully stored language');
+
+//        TranslationLanguage::create([
+//            'locale' => $request->input('locale')
+//        ]);
+//
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
@@ -3402,8 +3411,8 @@ class ProductController extends Controller
         $product_translation_history->save();
 
         return response()->json([
-            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
-            'value' => !$request->value,
+            'message' => 'Rejected Successfully',
+            'value' => $request->value,
         ]);
     }
 

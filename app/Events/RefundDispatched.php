@@ -2,7 +2,7 @@
 
 namespace App\Events;
 
-use App\Refund;
+use App\ReturnExchange;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -21,7 +21,7 @@ class RefundDispatched
      * @return void
      */
     public $refund;
-    public function __construct(Refund $refund)
+    public function __construct(ReturnExchange $refund)
     {
         $this->refund = $refund;
     }

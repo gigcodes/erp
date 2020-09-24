@@ -5,9 +5,23 @@
             <td>{{ $email->from }}</td>
             <td>{{ $email->to }}</td>
             <td>{{ $email->type }}</td>
-			<td>{{ substr($email->subject, 0,  50) }} {{strlen($email->subject) > 50 ? '...' : '' }}</td>
-			<td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->message, 0,  50) }} {{strlen($email->message) > 50 ? '...' : '' }}</td>
-            <td>
+			<td data-toggle="modal" data-target="#viewMail"  onclick="opnMsg({{$email}})" style="cursor: pointer;">{{ substr($email->subject, 0,  10) }} {{strlen($email->subject) > 10 ? '...' : '' }}</td>
+			<td>{{ substr($email->message, 0,  10) }} {{strlen($email->message) > 10 ? '...' : '' }}</td>
+			<td>
+				@foreach ($email_categories as $category)
+					@if($category->id == $email->email_category_id)
+						{{$category->category_name}} 
+					@endif
+				@endforeach
+			</td>
+			<td>
+				@foreach ($email_status as $status)
+					@if($status->id == $email->status)
+						{{$status->email_status}} 
+					@endif
+				@endforeach
+			</td>
+			<td>
 				
                 <a title="Resend" class="btn-image resend-email-btn" data-id="{{ $email->id }}" >
                     <i class="fa fa-repeat"></i>
