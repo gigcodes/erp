@@ -195,7 +195,7 @@ class InfluencersController extends Controller
 
         $cURLConnection = curl_init();
 
-        $link = 'http://127.0.0.1:8100/send-log?'.$name;
+        $link = 'http://178.62.200.246:8100/send-log?'.$name;
         //dd($link);
         curl_setopt($cURLConnection, CURLOPT_URL, $link);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
