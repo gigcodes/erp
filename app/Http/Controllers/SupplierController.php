@@ -323,10 +323,6 @@ class SupplierController extends Controller
             //'supplier_status_id' => 'required'
         ]);
 		
-		
-		
-		}
-		
         $data = $request->except('_token');
         $data[ 'default_phone' ] = $request->phone ?? '';
         $data[ 'default_email' ] = $request->email ?? '';
@@ -341,7 +337,7 @@ class SupplierController extends Controller
 		if(empty($data["whatsapp_number"]))  {
 			$task_info = DB::table('whatsapp_configs')
 						->select('*')
-						->where('default_for', self::DEFAULT_FOR)
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
 						->first();
 		
 			$data["whatsapp_number"] = $task_info->number;

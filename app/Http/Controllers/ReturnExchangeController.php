@@ -7,7 +7,8 @@ use App\ReturnExchange;
 use App\Order;
 use App\Product;
 use Illuminate\Http\Request;
-
+use Carbon\Carbon;
+use App\Events\RefundDispatched;
 class ReturnExchangeController extends Controller
 {
     public function getOrders($id)
@@ -85,7 +86,6 @@ class ReturnExchangeController extends Controller
     {
 
         $returnExchange = ReturnExchange::latest('created_at')->paginate(10);
-
         return view("return-exchange.index",$returnExchange);
     }
 
@@ -155,6 +155,11 @@ class ReturnExchangeController extends Controller
         $items = $returnExchange->items();
         foreach ($items as &$item) {
 			$item["created_at_formated"] = date('d-m-Y', strtotime($item->created_at));
+			$item["date_of_refund_formated"] = date('d-m-Y', strtotime($item->date_of_refund));
+            $item["dispatch_date_formated"] = date('d-m-Y', strtotime($item->dispatch_date));
+            $item["date_of_request_formated"] = date('d-m-Y', strtotime($item->date_of_request));
+			$item["date_of_issue_formated"] = date('d-m-Y', strtotime($item->date_of_issue));
+            
             //$item["status_name"] = @ReturnExchange::STATUS[$item->status];
         }
 
@@ -235,7 +240,6 @@ class ReturnExchangeController extends Controller
     public function getProducts($id)
     {
         if (!empty($id)) {
-<<<<<<< HEAD
             $product  = \App\Product::find($id);
             if (!empty($product)) {
 				
@@ -366,27 +370,83 @@ class ReturnExchangeController extends Controller
 		else {
 			return response()->json(['message' => 'Fail'],401);
 		}
-	}
-=======
-            $order  = \App\Order::find($id);
-            $orderData = [];
+    }
+    
+    public function createRefund(Request $request) {
+        $this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'refund_amount'		=> 'required',
+            'refund_amount_mode' => 'required|string'            
+		]);
 
-            if (!empty($order)) {
-                $products = $order->order_product;
-                if (!empty($products)) {
-                    foreach ($products as $product) {
-                        $pr = \App\Product::find($product->product_id);
-                        if($pr) {
-                        $orderData[] = ['id' => $product->id, 'name' => $pr->name];
-                        }
-                    }
+        $data = $request->except('_token');
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+
+		if ($request->credited) {
+            $data['credited'] = 1;
+        }
+        ReturnExchange::create($data);
+        
+        return response()->json(['message' => 'You have successfully added refund!'],200);
+    }
+
+    public function getRefundInfo($id) {
+        $returnExchange = ReturnExchange::find($id);
+        $response = (string) view("return-exchange.templates.update-refund", compact('returnExchange','id'));
+
+        return response()->json(["code" => 200, "html" => $response]);
+        // return view('',compact('returnExchange'));
+    }
+
+    public function updateRefund(Request $request) {
+        $this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'refund_amount'		=> 'required',
+			'id'		=> 'required',
+            'refund_amount_mode' => 'required|string'            
+		]);
+     
+        $data = $request->except('_token','id','customer_id');
+        $returnExchange = ReturnExchange::find($request->id);
+        if(!$returnExchange->date_of_issue) {
+            $data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+        }
+        if($returnExchange) {
+            $returnExchange->update($data);
+        }
+        $updateOrder =0;
+		if (!$request->dispatched) {
+			$data['dispatch_date'] = $returnExchange->dispatch_date;
+			$data['awb'] = $returnExchange->awb;
+		} else {
+            $order_products = ReturnExchange::join('return_exchange_products','return_exchanges.id','return_exchange_products.return_exchange_id')
+            ->join('order_products','order_products.id','return_exchange_products.order_product_id')->select('order_products.*')->first();
+            if($order_products) {
+                $order = Order::find($order_products->order_id);
+                if($order) {
+                    $updateOrder =1;
+                    $order->order_status = 'Refund Dispatched';
+                    $order->order_status_id = \App\Helpers\OrderHelper::$refundDispatched;
+                    event(new RefundDispatched($returnExchange));
                 }
             }
+		}
+
+		if ($request->credited) {
+            $data['credited'] = 1;
+            if($updateOrder == 1) {
+                $order->order_status = 'Refund Credited';
+			    $order->order_status_id = \App\Helpers\OrderHelper::$refundCredited;
+            }
         }
-        $status   = ReturnExchange::STATUS;
-        $id = $order->customer_id;
-        $response = (string) view("partials.order-return-exchange", compact('id', 'orderData', 'status'));
-        return response()->json(["code" => 200, "html" => $response]);
+       
+
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+        if($returnExchange) {
+            if($updateOrder == 1) {
+                $order->save();
+            }
+        }
+        return response()->json(['message' => 'You have successfully added refund!'],200);
     }
->>>>>>> d02338110ec5250c590dfe020404630485177dcd
 }

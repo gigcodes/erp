@@ -104,8 +104,13 @@ class HubstaffActivitiesController extends Controller
         $start_date = $request->start_date ? $request->start_date : date('Y-m-d',strtotime("-1 days"));
         $end_date = $request->end_date ? $request->end_date : date('Y-m-d',strtotime("-1 days"));
         $user_id = $request->user_id ? $request->user_id : null;
-
-        $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        $task_id = $request->task_id ? $request->task_id : null;
+ 
+        if($task_id > 0){
+             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id)->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        }else{
+             $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
+        }
 
 
         if(Auth::user()->isAdmin()) {
@@ -773,7 +778,7 @@ class HubstaffActivitiesController extends Controller
         if ($validator->fails()) 
         {
             return response()->json(['message' => $validator->messages()->first()],500);
-							
+                            
         } else 
         {
             // $requestArr = $request->all();

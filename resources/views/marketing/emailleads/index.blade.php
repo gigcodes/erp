@@ -4,29 +4,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 @endsection
 
-@section('content')
+@section('large_content')
     <div id="myDiv">
         <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
     </div>
-    <div class="row">
-        <div class="col-md-6 margin-tb">
-            <div class="row">
-                <div class="col-lg-12 margin-tb">
-                    <h2 class="page-heading">Email Leads</h2>
-					@if ( Session::has('message') )
-					  <p class="alert {{ Session::get('flash_type') }}">{{ Session::get('message') }}</p>
-					@endif
-                    <div class="btn-toolbar">
-						<button class="btn btn-secondary assign_list" type="button" data-toggle="modal" data-target="#assignModel">Assign Mailing List</button>
-						<button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#importEmailLeads">Import Email Leads</button>
-						<a class="btn btn-secondary" href="{{url('/emailleads/export')}}">Download Sample File</a>
+	<div class="row">
+        <div class="col-lg-12 margin-tb">
+            <?php $base_url = URL::to('/');?>
+            <h2 class="page-heading">Email Leads</h2>
+			@if ( Session::has('message') )
+			  <p class="alert {{ Session::get('flash_type') }}">{{ Session::get('message') }}</p>
+			@endif
+            <div class="pull-left cls_filter_box">
+                <form class="form-inline" action="{{ route('emailleads') }}" method="GET">
+                    <div class="form-group ml-3 cls_filter_inputbox">
+						<label for="leads_email">Email</label>
+						<input type="input" class="form-control" name="email" id="leads_email" value="{{request()->get('email')}}">
 					</div>
-                </div>
+					<div class="form-group ml-3 cls_filter_inputbox">
+						<label for="leads_source">Source</label>
+						<input type="input" class="form-control" name="source" id="leads_source" value="{{request()->get('source')}}">
+					</div>
+                    <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="<?php echo $base_url;?>/images/filter.png"/></button>
+                </form>
             </div>
         </div>
+        <div class="col-lg-12 margin-tb">
+            <div class="pull-right mt-3">
+                <button class="btn btn-secondary assign_list" type="button" data-toggle="modal" data-target="#assignModel">Assign Mailing List</button>
+				<button class="btn btn-secondary" type="button" data-toggle="modal" data-target="#importEmailLeads">Import Email Leads</button>
+				<a class="btn btn-secondary" href="{{url('/emailleads/export')}}">Download Sample File</a>
+            </div>
+        </div>   
     </div>
+	
+    
     <div class="row">
-        <div class="col-md-6 margin-tb">
+        <div class="col-md-12 margin-tb">
 			<div class="panel-group" style="margin-bottom: 5px;">
                 <div class="panel mt-3 panel-default">
                     <div class="panel-heading">
@@ -40,6 +54,7 @@
 								<th>Select All</th>
 								<th>Email</th>
 								<th>Source</th>
+								<th>Date Created</th>
 								<th>Action</th>
 							</tr>
 							@foreach ($emailLeads as $lead )
@@ -47,6 +62,7 @@
 									<td><input type="checkbox" name="lead_id[]" data-leadid = "{{$lead->id}}"></td>
 									<td>{{$lead->email}}</td>
 									<td>{{$lead->source}}</td>
+									<td>{{$lead->created_at}}</td>
 									<td><a href="{{url('emailleads/show',$lead->id)}}"><i class="fa fa-edit"></i></a></td>
 								</tr>
 							@endforeach

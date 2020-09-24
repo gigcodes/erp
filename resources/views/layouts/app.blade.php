@@ -1353,9 +1353,11 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
 									</ul>
                                 </li>
@@ -2556,9 +2558,18 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
 
-
-
-
+        $(document).on('click','.show_sku_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#sku_small_string_'+id).hide();
+            $('#sku_long_string_'+id).css({'display':'block'});
+        });
+        $(document).on('click','.show_prod_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#prod_small_string_'+id).hide();
+            $('#prod_long_string_'+id).css({'display':'block'});
+        });
 
     </script>
 

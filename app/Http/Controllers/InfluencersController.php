@@ -186,4 +186,35 @@ class InfluencersController extends Controller
         return \Response::json(array('success' => true,'message' => $b64));
        
     }
+
+    public function getLogFile(Request $request)
+    {
+        $name = $request->name;
+
+        $name = str_replace(" ","",$name);
+
+        $cURLConnection = curl_init();
+
+        $link = 'http://178.62.200.246:8100/send-log?'.$name;
+        //dd($link);
+        curl_setopt($cURLConnection, CURLOPT_URL, $link);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+        
+        $b64 = $jsonArrayResponse->status;
+        
+        if($jsonArrayResponse->status == 'Something Went Wrong'){
+            return \Response::json(array('success' => false,'message' => 'No Logs Available')); 
+        } 
+        $content = base64_decode($b64);
+
+        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    
+        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+       
+    }
 }

@@ -7,6 +7,8 @@ use App\Reply;
 use App\Setting;
 use App\ReplyCategory;
 use App\ChatbotQuestion;
+use App\ChatbotQuestionsReply;
+
 
 class ReplyController extends Controller
 {
@@ -157,7 +159,21 @@ class ReplyController extends Controller
         $ChatbotQuestion->erp_or_watson = 'erp';
 
         $ChatbotQuestion->save();
-        dd();
+
+        $wotson_account_website_ids = WatsonAccount::get()->pluck('store_website_id')->toArray();
+
+        $data_to_insert = [];
+
+        foreach($wotson_account_website_ids as $id_){
+            $data_to_insert[] = [
+                'chatbot_question_id' => $ChatbotQuestion->id,
+                'store_website_id' => $id_,
+                'suggested_reply' => $request->intent_reply
+            ];
+        }
+
+        ChatbotQuestionsReply::insert($data_to_insert);
+
         return redirect()->route('reply')->with('success','Intent Updated');
       
     }

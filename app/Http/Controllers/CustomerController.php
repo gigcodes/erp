@@ -1300,7 +1300,7 @@ class CustomerController extends Controller
 			//get default whatsapp number for vendor from whatsapp config
 			$task_info = DB::table('whatsapp_configs')
 						->select('*')
-						->where('default_for', self::DEFAULT_FOR)
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
 						->first();
 		
 			$data["whatsapp_number"] = $task_info->number;

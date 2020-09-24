@@ -109,7 +109,7 @@ class EmailController extends Controller
 		//Get All Status
 		$email_categories = DB::table('email_category')->get();
 		
-        $emails = $query->paginate(5)->appends(request()->except(['page']));
+        $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('emails.search', compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),

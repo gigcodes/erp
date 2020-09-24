@@ -1310,6 +1310,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
 
 /* ------------------Twilio functionality Routes[PLEASE DONT MOVE INTO MIDDLEWARE AUTH] ------------------------ */
+
+
 Route::get('twilio/token', 'TwilioController@createToken');
 Route::post('twilio/ivr', 'TwilioController@ivr');
 Route::post('twilio/gatherAction', 'TwilioController@gatherAction');
@@ -1475,6 +1477,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-image', 'InfluencersController@getScraperImage')->name('influencers.image');
     Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
     Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
+    Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -1604,6 +1607,7 @@ Route::prefix('scrap')->middleware('auth')->group(function () {
     Route::get('/server-statistics', 'ScrapStatisticsController@serverStatistics')->name('scrap.scrap_server_status');
     Route::get('/server-statistics/history/{scrap_name}', 'ScrapStatisticsController@serverStatisticsHistory')->name('scrap.scrap_server_history');
     Route::get('/{name}', 'ScrapController@showProducts')->name('show.logFile');
+    Route::post('/scrap/assignTask','ScrapController@assignScrapProductTask')->name('scrap.assignTask');
 });
 
 Route::resource('quick-reply', 'QuickReplyController');
@@ -2191,8 +2195,11 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::get('/records', 'ReturnExchangeController@records')->name('return-exchange.records');
     Route::get('/model/{id}', 'ReturnExchangeController@getOrders');
     Route::get('/getProducts/{id}', 'ReturnExchangeController@getProducts');
+    Route::get('/getRefundInfo/{id}', 'ReturnExchangeController@getRefundInfo');
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
 	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
+    Route::post('/createRefund', 'ReturnExchangeController@createRefund')->name('return-exchange.createRefund');
+	Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
 	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
@@ -2221,6 +2228,7 @@ Route::group(['middleware' => 'auth'], function () {
     /**
      * Twilio account management
      */
+
 
     Route::get('twilio/manage-twilio-account', 'TwilioController@manageTwilioAccounts')->name('twilio-manage-accounts');
     Route::post('twilio/add-account', 'TwilioController@addAccount')->name('twilio-add-account');
@@ -2253,6 +2261,14 @@ Route::group(['middleware' => 'auth'], function () {
 
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
+
+
+//Charity Routes
+Route::get('charity', 'CharityController@index')->name('charity');
+Route::any('charity/update', 'CharityController@update')->name('charity.update');
+Route::post('charity/store', 'CharityController@store')->name('charity.store');
+Route::any('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+
 
 
 /****Webhook URL for twilio****/
