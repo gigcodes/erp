@@ -2,6 +2,7 @@
 
 namespace Modules\ChatBot\Http\Controllers;
 
+use App\ChatbotCategory;
 use App\ChatMessage;
 use App\Suggestion;
 use Illuminate\Http\Request;
@@ -17,6 +18,7 @@ class MessageController extends Controller
     public function index(Request $request)
     {
         $search = request("search");
+        $status = request("status");
 
         $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
@@ -27,6 +29,12 @@ class MessageController extends Controller
                 $q->where("cr.question", "like", "%" . $search . "%")
                     ->orWhere("c.name", "Like", "%" . $search . "%")
                     ->orWhere("chat_messages.message", "like", "%" . $search . "%");
+            });
+        }
+
+        if(isset($status) && $status !== null){
+            $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($status) {
+                $q->where("chat_messages.approved", $status);
             });
         }
 
@@ -47,7 +55,15 @@ class MessageController extends Controller
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
-        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page'));
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
+//dd($pendingApprovalMsg);
+        return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
     }
 
     public function approve()
