@@ -1093,31 +1093,37 @@ class WhatsAppController extends FindByNumberController
             }
 
             if(!empty($customer)) {
-                $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
-                $language = $customerDetails->language;
-                if(empty($language)){
-                    //Translate Google API
-                    $translate = new TranslateClient([
-                        'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                    ]);
-                    $result = $translate->detectLanguage($text);
-                    $language = $result['languageCode'] ? $result['languageCode'] : 'en';
-                    $customerDetails->language = $language;
-                    $customerDetails->update();
-                }
-                $fromLang = $language;
-                $toLang = "en";
+                try {
+                    
+                    $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
+                    $language = $customerDetails->language;
 
-                if($sendToSupplier) {
-                    $fromLang   = "en";
-                    $toLang     = $language;
-                }
+                    if(empty($language)){
+                        //Translate Google API
+                        $translate = new TranslateClient([
+                            'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                        ]);
+                        $result = $translate->detectLanguage($text);
+                        $language = $result['languageCode'] ? $result['languageCode'] : 'en';
+                        $customerDetails->language = $language;
+                        $customerDetails->update();
+                    }
 
-                $result = TranslationHelper::translate($fromLang, $toLang, $text);
-                if($sendToSupplier) {
-                    $text = $result;
-                }else {
-                    $text = $result.' -- '.$text;
+                    $fromLang = $language;
+                    $toLang = "en";
+                    if($sendToSupplier) {
+                        $fromLang   = "en";
+                        $toLang     = $language;
+                    }
+
+                    $result = TranslationHelper::translate($fromLang, $toLang, $text);
+                    if($sendToSupplier) {
+                        $text = $result;
+                    }else {
+                        $text = $result.' -- '.$text;
+                    }
+                }catch(\Exception $e) {
+                    \Log::info("Message with google api ".self::class."__".__FUNCTION__."_".__LINE__);
                 }
             }
 
