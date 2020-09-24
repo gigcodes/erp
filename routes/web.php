@@ -1477,6 +1477,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-image', 'InfluencersController@getScraperImage')->name('influencers.image');
     Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
     Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
+    Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');

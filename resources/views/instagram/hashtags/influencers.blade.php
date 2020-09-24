@@ -78,8 +78,9 @@
                                 <tr>
                                    <td>{{ $keyword->name }}</td>
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
-                                   <button  class="btn btn-link" title="History" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
-                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-refresh"></i></button> 
+                                   <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
+                                   <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-refresh"></i></button> 
+                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> 
                                    </td>
                                 </tr>
                                 @endforeach
@@ -106,6 +107,7 @@
                         <th>Followers</th>
                         <th>Following</th>
                         <th>Description</th>
+                        <th>Keyword</th>
                     </tr>
                    </thead>
                      <tbody>
@@ -279,6 +281,37 @@
                 }); 
             }
              
+          }
+
+          function getLog(name) {
+            var result = confirm("You Want the log for this script "+name+"?");
+            if(result){
+                $.ajax({
+                   url: '{{ route('influencers.log') }}',
+                   type: 'POST',
+                   dataType: 'json',
+                   data: {
+                        name: name,
+                        "_token": "{{ csrf_token() }}",
+                    },
+                   })
+                   .done(function(response) {
+                       if(response.message == 'No Logs Available'){
+                          alert(response.message);
+                       }else{
+                          openInNewTab(response.message)
+                       } 
+                   })
+                   .fail(function() {
+                       console.log("error");
+                }); 
+            }
+             
+          } 
+
+          function openInNewTab(url) {
+            var win = window.open(url, '_blank');
+            win.focus();
           }       
     </script>
 
