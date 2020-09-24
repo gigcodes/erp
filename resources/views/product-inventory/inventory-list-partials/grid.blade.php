@@ -17,7 +17,7 @@
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
     <td>
-      @foreach($status_list as $key => $status)
+      @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
         @if($key==$data['status_id'])
           {{ $status }}
         @endif

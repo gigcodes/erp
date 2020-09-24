@@ -1042,7 +1042,7 @@ class Product extends Model
         }
         return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
     }
-
+    
     public static function getPruductsNames()
     {
         $columns = array('name');
