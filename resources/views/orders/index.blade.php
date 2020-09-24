@@ -455,6 +455,21 @@
         // buttonWidth: '100%',
         // includeSelectAllOption: true
       });
+	  
+	  
+	  $('ul.pagination').hide();
+		$('.infinite-scroll').jscroll({
+			autoTrigger: true,
+			// debug: true,
+			loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+			padding: 0,
+			nextSelector: '.pagination li.active + li a',
+			contentSelector: 'div.infinite-scroll',
+			callback: function () {
+				$('ul.pagination').first().remove();
+				$('ul.pagination').hide();
+			}
+		});
     });
 
     $(document).on('click', '.change_message_status', function(e) {
@@ -560,19 +575,7 @@
     });
 
 	
-	$('ul.pagination').hide();
-	$('.infinite-scroll').jscroll({
-        autoTrigger: true,
-		// debug: true,
-        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        padding: 20,
-        nextSelector: '.pagination li.active + li a',
-        contentSelector: 'div.infinite-scroll',
-        callback: function () {
-            $('ul.pagination').first().remove();
-			$('ul.pagination').hide();
-        }
-    });
+	
 
 
     var selected_orders = [];
