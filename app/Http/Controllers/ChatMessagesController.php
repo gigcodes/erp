@@ -96,6 +96,7 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -140,13 +141,14 @@ class ChatMessagesController extends Controller
                                                 ->whereNull("media_url")
                                                 ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                                             });
-                    });                    
+                    });
+                    dd($chatMessages->get());
                 break;
         }
+
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-        
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
 
