@@ -60,6 +60,8 @@
         </div>
         <div class="col-md-5">
             <div class="form-inline pull-right">
+                <button type="button" class="btn btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
+                <button type="button" class="btn btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
         	</div>
         </div>
@@ -128,13 +130,41 @@
 	</div>
 </div>
 @include('chatbot::partial.create_question')
+@include('chatbot::partial.create_dynamic_task')
 @include('chatbot::partial.autoreply-create-modal')
 @include('partials.chat-history')
 <script type="text/javascript">
 	$("#create-keyword-btn").on("click",function() {
 		$("#create-question").modal("show");
 	});
+	$("#create-task-btn").on("click",function() {
+		$("#create-dynamic-task").modal("show");
+	});
 	$(".form-save-btn").on("click",function(e) {
+		e.preventDefault();
+		var form = $(this).closest("form");
+		$.ajax({
+			type: form.attr("method"),
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType : "json",
+            success: function (response) {
+               //location.reload();
+               if(response.code == 200) {
+               	  toastr['success']('data updated successfully!');
+               	  window.location.replace(response.redirect);
+               }else{
+				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
+               } 
+            },
+            error: function () {
+               toastr['error']('Could not change module!');
+            }
+        });
+	});
+
+	$(".form-task-btn").on("click",function(e) {
 		e.preventDefault();
 		var form = $(this).closest("form");
 		$.ajax({

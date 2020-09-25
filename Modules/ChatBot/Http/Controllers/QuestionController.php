@@ -50,8 +50,11 @@ class QuestionController extends Controller
                 $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
             }
         }
+
+         $task_category = DB::table('task_categories')->select('*')->get();
+         $userslist = DB::table('users')->select('*')->get();
         
-        return view('chatbot::question.index', compact('chatQuestions','allCategoryList'));
+        return view('chatbot::question.index', compact('chatQuestions','allCategoryList','task_category','userslist'));
     }
 
     public function create()
