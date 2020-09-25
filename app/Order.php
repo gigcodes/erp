@@ -154,6 +154,9 @@ class Order extends Model
         return $count > 0 ? TRUE : FALSE;
     }
 
+    public function order_status(){
+        return $this->belongsTo('App\OrderStatus');
+    }
     // public function getCommunicationAttribute()
     // {
     // 	$message = $this->messages();
