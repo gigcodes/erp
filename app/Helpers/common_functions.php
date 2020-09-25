@@ -205,17 +205,17 @@ function formatDuration($seconds_time)
 }
 
 
-function get_field_by_number($no, $field = "name") 
+function get_field_by_number($no, $field = "name")
 {
     $no  = explode("@", $no);
 
     if(!empty($no[0])) {
-        
+
         $customer = \App\Customer::where("phone",$no[0])->first();
         if($customer) {
             return $customer->{$field}. " (Customer)";
         }
-        
+
         $vendor = \App\Vendor::where("phone",$no[0])->first();
         if($vendor) {
             return $vendor->{$field}. " (Vendor)";
@@ -228,6 +228,10 @@ function get_field_by_number($no, $field = "name")
     }
 
     return "";
+}
+
+function splitTextIntoSentences($text){
+    return preg_split('/(?<=[.?!])\s+(?=[a-z])/i', $text);
 }
 
 function isJson($string) {

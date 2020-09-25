@@ -61,6 +61,8 @@ use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
+use App\Translations;
+
 
 class ProductController extends Controller
 {
@@ -1349,7 +1351,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = Language::get()->pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1384,8 +1386,6 @@ class ProductController extends Controller
                     'status' => 'listed'
                 ]);
             }
-
-
         }
         // Return error response by default
         return response()->json([
@@ -2528,7 +2528,7 @@ class ProductController extends Controller
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
                 } else {
-                    $multi = count($websiteArray);
+                    $multi = count($websiteArrays);
                 }
             } catch (\Exception $e) {
                 $multi = 1;
