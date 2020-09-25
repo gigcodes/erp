@@ -68,7 +68,7 @@ class HubstaffActivity extends Model
             ->where('hubstaff_activities.status',1)
             ->where('hubstaff_activities.paid',0)
             ->orderBy('created_at', 'DESC')
-            ->select('hubstaff_activities.*')
+            ->select('hubstaff_activities.*', 'hubstaff_members.user_id as hm_user_id')
             ->get();
     }
 }
