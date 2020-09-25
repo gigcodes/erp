@@ -13,11 +13,11 @@
 
 
     </td>
-    <td>{{ $data['category'] }}</td>
+    <td>{{ $data['category_name'] }}</td>
     <td>{{ $data['brand_name'] }}</td>
     <td>{{ $data['supplier'] }}</td>
     <td>
-      @foreach($status_list as $key => $status)
+      @foreach(\App\Helpers\StatusHelper::getStatus() as $key => $status)
         @if($key==$data['status_id'])
           {{ $status }}
         @endif
@@ -25,7 +25,7 @@
      </td>
     <td>{{ $data['created_at'] }}</td>
     <td>
-      <a  title="show medias" class="btn btn-image show-medias-modal" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>
+      <a  title="show medias" class="btn btn-image show-medias-modal" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>
       <a  title="show status history" class="btn btn-image show-status-history-modal"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
     </td>
     <td class="medias-data" data='@if(isset($data['medias']))@json($data['medias'])@endif' style="display:none"></td>

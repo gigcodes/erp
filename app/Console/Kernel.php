@@ -115,6 +115,7 @@ use App\Console\Commands\ScrapLogs;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
 
 class Kernel extends ConsoleKernel
@@ -226,6 +227,7 @@ class Kernel extends ConsoleKernel
         getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class,
+        CustomerListToEmailLead::class,
         WayBillTrackHistories::class
     ];
 

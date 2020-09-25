@@ -47,7 +47,7 @@
               @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
                 <a class="btn btn-secondary manual-payment-btn" href="#">Manual payment</a>
               @endif
-              <a class="btn btn-secondary manual-request-bt" href="{{ route('voucher.payment.request') }}">Manual request</a>
+              <a class="btn btn-secondary manual-request-btn" href="javascript:void(0);">Manual request</a>
               <!-- <a class="btn btn-secondary" href="{{ route('voucher.create') }}">+</a> -->
             </div>
         </div>
@@ -113,23 +113,20 @@
               <td>{{ $task->paid_amount }}</td>
               <td>{{ $task->balance }}</td>
               <td>
-                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
+                @if (Auth::user()->hasRole('Admin'))
+                  <a data-toggle="tooltip" title="Create Payment" class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
                 @endif
-                <button type="button" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
+                <button type="button" data-toggle="tooltip" title="Upload File" data-payment-receipt-id="{{$task->id}}" class="btn btn-file-upload pd-5">
                     <i class="fa fa-upload" aria-hidden="true"></i>
                 </button>
-                <button type="button" data-payment-receipt-id="{{$task->id}}"  class="btn btn-file-list pd-5">
+                <button type="button" data-payment-receipt-id="{{$task->id}}" data-toggle="tooltip" title="List of Files" class="btn btn-file-list pd-5">
                     <i class="fa fa-list" aria-hidden="true"></i>
                 </button>
                 <?php /* ?>
                 <button type="button" data-site-id="@if($site){{ $site->id }}@endif" data-site-category-id="{{ $category->id }}" data-store-website-id="@if($website) {{ $website->id }} @endif" class="btn btn-store-development-remark pd-5">
                     <i class="fa fa-comment" aria-hidden="true"></i>
                 </button-->
-                <?php */ ?>
-                @if (Auth::user()->hasRole('Admin') || Auth::user()->hasRole('HOD of CRM'))
-                  <a class="btn btn-secondary create-payment" data-id="{{$task->id}}">+</a>
-                @endif
+                <?php */ ?>                
               </td>
             </tr>
           @endforeach

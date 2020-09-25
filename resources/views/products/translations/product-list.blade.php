@@ -133,6 +133,7 @@
     </div>
 
     @foreach ($product_translations as $key => $product)
+
         <div id="product_image_{{ $product->id }}" class="modal fade" role="dialog">
             <div class="modal-dialog">
                 <!-- Modal content-->
@@ -145,7 +146,9 @@
 
                         <div class="col-md-5">
 
+
                         <!-- {{ $product = $product->product }} -->
+<!--                        --><?php //dd($product); ?>
                         <?php $gridImage = ''; ?>
                         @if ($product->hasMedia(config('constants.media_gallery_tag')))
                             @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
@@ -225,35 +228,69 @@
         <div class="modal-dialog">
             <!-- Modal content-->
             <div class="modal-content ">
+{{--                <form class="add_translation_language" action="{{ route('translation.language.add') }}" method="POST">--}}
+{{--                    <div class="modal-header">--}}
+{{--                        <h4 class="modal-title">Add Language </h4>--}}
+{{--                        <button type="button" class="close" data-dismiss="modal">&times;</button>--}}
+{{--                    </div>--}}
+{{--                    <div class="modal-body">--}}
+{{--                        <div class="row">--}}
+{{--                            {{ csrf_field() }}--}}
+{{--                            <label class="form-label col-sm-12">Choose Locale :</label>--}}
+
+{{--                            @php--}}
+{{--                                $added_languages = $languages->pluck('locale')->toArray();--}}
+{{--                            @endphp--}}
+
+{{--                            <div class="col-sm-12">--}}
+{{--                                <select name="locale" class="select-multiple">--}}
+{{--                                    <option></option>--}}
+{{--                                    @foreach($all_languages as $lng_)--}}
+{{--                                        @if(!in_array($lng_->locale, $added_languages))--}}
+{{--                                            <option value="{{ $lng_->locale }}">{{ strtoupper($lng_->locale) }}</option>--}}
+{{--                                        @endif--}}
+{{--                                    @endforeach--}}
+{{--                                </select>--}}
+{{--                            </div>--}}
+{{--                        </div>--}}
+{{--                        <div class="modal-footer">--}}
+{{--                            <button type="submit" class="btn btn-secondary saveLanguage">Add</button>--}}
+{{--                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>--}}
+{{--                        </div>--}}
+{{--                    </div>--}}
+{{--                </form>--}}
                 <form class="add_translation_language" action="{{ route('translation.language.add') }}" method="POST">
+                    @csrf
+
                     <div class="modal-header">
-                        <h4 class="modal-title">Add Language </h4>
+                        <h4 class="modal-title">Store a language</h4>
                         <button type="button" class="close" data-dismiss="modal">&times;</button>
                     </div>
                     <div class="modal-body">
-                        <div class="row">
-                            {{ csrf_field() }}
-                            <label class="form-label col-sm-12">Choose Locale :</label>
+                        <div class="form-group">
+                            <strong>Locale:</strong>
+                            <input type="text" name="locale" class="form-control" value="{{ old('locale') }}">
 
-                            @php
-                                $added_languages = $languages->pluck('locale')->toArray();
-                            @endphp
+                            @if ($errors->has('locale'))
+                                <div class="alert alert-danger">{{$errors->first('locale')}}</div>
+                            @endif
+                        </div>
 
-                            <div class="col-sm-12">
-                                <select name="locale" class="select-multiple">
-                                    <option></option>
-                                    @foreach($all_languages as $lng_)
-                                        @if(!in_array($lng_->locale, $added_languages))
-                                            <option value="{{ $lng_->locale }}">{{ strtoupper($lng_->locale) }}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                            </div>
+                        <div class="form-group">
+                            <strong>Magento Code:</strong>
+                            <input type="text" name="code" class="form-control" value="{{ old('code') }}" required>
+
+                            @if ($errors->has('code'))
+                                <div class="alert alert-danger">{{$errors->first('code')}}</div>
+                            @endif
                         </div>
-                        <div class="modal-footer">
-                            <button type="submit" class="btn btn-secondary saveLanguage">Add</button>
-                            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-                        </div>
+
+
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-secondary">Store</button>
                     </div>
                 </form>
             </div>
@@ -443,14 +480,12 @@
                     value: value,
                 },
                 success: function (response) {
+                    $('.rejectProduct').remove();
                     alert(response.message);
-                    if (response.value == 1) {
-                        thiss.removeClass('fa fa-close');
-                        thiss.addClass('fa fa-check');
-                    } else {
-                        thiss.removeClass('fa fa-check');
-                        thiss.addClass('fa fa-close');
-                    }
+                    // if (response.value == 1) {
+                    //     // thiss.removeClass('fa fa-close');
+                    //     // thiss.addClass('fa fa-check');
+                    // }
                     $("#loading-image").hide();
                     // location.reload();
                 }

@@ -230,6 +230,11 @@ function get_field_by_number($no, $field = "name")
     return "";
 }
 
+
 function splitTextIntoSentences($text){
     return preg_split('/(?<=[.?!])\s+(?=[a-z])/i', $text);
+
+function isJson($string) {
+     json_decode($string);
+     return (json_last_error() == JSON_ERROR_NONE);
 }

@@ -206,6 +206,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::resource('productsupervisor', 'ProductSupervisorController');
     Route::resource('productlister', 'ProductListerController');
     Route::resource('productapprover', 'ProductApproverController');
+    Route::get('productinventory/product-images/{id}', 'ProductInventoryController@getProductImages')->name('productinventory.product-images');
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
@@ -308,6 +309,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::get('erp-leads/history', 'LeadsController@erpLeadsHistory')->name('leads.erpLeadsHistory');
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
@@ -315,7 +317,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
     Route::post('erp-lead-block-customer', 'LeadsController@blockcustomerlead')->name('leads.block.customer');        
-
+    
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
@@ -1477,6 +1479,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-image', 'InfluencersController@getScraperImage')->name('influencers.image');
     Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
     Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
+    Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');

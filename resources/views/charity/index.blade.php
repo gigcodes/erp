@@ -5,10 +5,10 @@
     <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 @endsection
 
-@section('content')
+@section('large_content')
 	<?php $base_url = URL::to('/');?>
 	<div class = "row">
-		<div class="col-lg-6 margin-tb">
+		<div class="col-lg-12 margin-tb">
 			<h2 class="page-heading">Charity List</h2>
 			@if(Session::has('flash_type'))
 				<p class="alert alert-{{Session::get('flash_type')}}">{{ Session::get('message') }}</p>
@@ -16,7 +16,7 @@
         </div>
 	</div>
 	<div class="row">
-		<div class="col-lg-6 margin-tb">
+		<div class="col-lg-12 margin-tb">
 			<div class="pull-left cls_filter_box">
                 <form class="form-inline" action="{{ route('routes.index') }}" method="GET">
                     <div class="form-group ml-3 cls_filter_inputbox">
@@ -33,7 +33,7 @@
     </div>
    
     <div class="row">
-        <div class="col-lg-6 margin-tb">
+        <div class="col-lg-12 margin-tb">
 			<div class="panel-group" style="margin-bottom: 5px;">
                 <div class="panel mt-3 panel-default">
                     <div class="panel-heading">
@@ -45,6 +45,7 @@
 								<th>Name</th>
 								<th>Contact No</th>
 								<th>Email</th>
+								<th>Created Date</th>
 								<th>Action</th>
 							</tr>
 							@foreach ($charityData as $data )
@@ -52,8 +53,12 @@
 									<td>{{$data->name}}</td>
 									<td>{{$data->contact_no}}</td>
 									<td>{{$data->email}}</td>
+									<td>{{$data->created_at}}</td>
 									<td>
-										<button type="button" class="btn btn-default edit_charity" data-toggle="modal" data-name="{{$data->name}}" data-contact_no="{{$data->contact_no}}" data-id="{{$data->id}}" data-email="{{$data->email}}" data-target="#updateCharityModal">Update</button>
+										<a href="{{url('charity/charity-order',$data->id)}}" class="btn btn-image"><img src="images/view.png" style="cursor: default;"></a>
+										<button type="button" data-toggle="modal" data-target="#updateCharityModal" class="btn btn-image edit_charity" data-name="{{$data->name}}" data-contact_no="{{$data->contact_no}}" data-id="{{$data->id}}" data-email="{{$data->email}}">
+											<img src="images/edit.png" alt="" style="width: 18px;">
+										</button>
 									</td>
 								</tr>
 							@endforeach
