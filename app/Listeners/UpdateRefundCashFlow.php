@@ -21,7 +21,7 @@ class UpdateRefundCashFlow
     /**
      * Handle the event.
      *
-     * @param  object  $event
+     * @param  object  $event1
      * @return void
      */
     public function handle(RefundDispatched $event)

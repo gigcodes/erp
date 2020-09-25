@@ -429,7 +429,15 @@
                 dataType: "json",
                 success: function (response) {
                     toastr["success"]("Message sent successfully!", "Message");
-                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    if(response.message) {
+                        var created_at = response.message.created_at;
+                        var message = response.message.message;
+                    }
+                    else {
+                        var created_at = '';
+                        var message = '';
+                    }
+                    $('#message_list_' + issueId).append('<li>' + created_at + " : " + message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
                 },

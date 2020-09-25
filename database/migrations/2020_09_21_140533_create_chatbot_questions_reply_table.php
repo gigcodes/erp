@@ -13,15 +13,17 @@ class CreateChatbotQuestionsReplyTable extends Migration
      */
     public function up()
     {
-        Schema::create('chatbot_questions_reply', function (Blueprint $table) {
-            $table->increments('id');
-            $table->string('suggested_reply');
-            $table->integer('store_website_id')->unsigned();
-            $table->integer('chatbot_question_id')->unsigned();
-            $table->timestamps();
-            $table->foreign('store_website_id')->references('id')->on('store_websites')->onDelete('cascade');
-            $table->foreign('chatbot_question_id')->references('id')->on('chatbot_questions')->onDelete('cascade');
-        });
+        if(!Schema::hasTable('chatbot_questions_reply')){
+            Schema::create('chatbot_questions_reply', function (Blueprint $table) {
+                $table->increments('id');
+                $table->string('suggested_reply');
+                $table->integer('store_website_id')->unsigned();
+                $table->integer('chatbot_question_id')->unsigned();
+                $table->timestamps();
+                //$table->foreign('store_website_id')->references('id')->on('store_websites')->onDelete('cascade');
+                //$table->foreign('chatbot_question_id')->references('id')->on('chatbot_questions')->onDelete('cascade');
+            });
+        }
     }
 
     /**

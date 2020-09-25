@@ -42,7 +42,12 @@ return $analytics;
  */
 function getReport($analytics, $request) {
 	// Replace with your view ID, for example XXXX.
-	$VIEW_ID = env('ANALYTICS_VIEW_ID');
+    if(isset($request['view_id'])){
+        $VIEW_ID = (string) $request['view_id'];
+    }else{
+$VIEW_ID = env('ANALYTICS_VIEW_ID');
+    }
+
   	// Create the DateRange object.
 	$dateRange = new Google_Service_AnalyticsReporting_DateRange();
 	$dateRange->setStartDate(!empty($request) && !empty($request['start_date']) ? $request['start_date'] : "1DaysAgo");
@@ -99,7 +104,7 @@ function getReport($analytics, $request) {
 	$date->setName("ga:date");
 	$mobileDeviceInfo = new Google_Service_AnalyticsReporting_Dimension();
 	$mobileDeviceInfo->setName("ga:mobileDeviceInfo");
-	
+
 	// Create the ReportRequest object.
 	$request = new Google_Service_AnalyticsReporting_ReportRequest();
 	$request->setViewId($VIEW_ID);
@@ -151,6 +156,6 @@ function printResults($reports) {
 	} else {
 		return ;
 	}
-	
+
   }
 }

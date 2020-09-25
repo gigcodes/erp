@@ -986,6 +986,11 @@
                                     @if ($product->product_user_id != null)
                                         {{ \App\User::find($product->product_user_id)->name }}
                                     @endif
+
+                                        <i style="cursor: pointer;" class="fa fa-upload upload-single" data-id="{{ $product->id }}" title="push to magento"
+                                           aria-hidden="true"></i>
+
+
                                 @else
                                     {{--                                    <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                     {{--                                            data-id="{{ $product->id }}" data-type="submit_for_approval">Submit For--}}
@@ -1008,6 +1013,8 @@
 
                                 <i style="cursor: pointer;" class="fa fa-trash" data-toggle="modal" title="Scrape"
                                    data-target="#product_scrape_{{ $product->id }}" aria-hidden="true"></i>
+
+
 
                             </td>
                             <td>
@@ -2725,6 +2732,31 @@
                 alert('Could not update status');
             });
 
+        });
+
+
+
+        $(document).on('click', '.upload-single', function () {
+            $(self).hide();
+            var ajaxes = [];
+            // for (var i = 0; i < productIds.length; i++) {
+            var id = $(this).data('id');
+                url = "{{ url('products') }}/" + id + '/listMagento';
+                ajaxes.push($.ajax({
+                    type: 'POST',
+                    url: url,
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                    }
+                }).done(function (response) {
+                    $('#product' + id).hide();
+                }));
+            // }
+
+            $.when.apply($, ajaxes)
+                .done(function () {
+                    //location.reload();
+                });
         });
 
 

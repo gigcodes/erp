@@ -39,6 +39,15 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <strong>Date Range</strong>
+                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
+                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label for="keyword">Status:</label>
                             <select name="status" id="" class="form-control">
                             <option value="">Select</option>
@@ -127,28 +136,8 @@
                 <label for="">Total time (In minutes)</label>
                 <input type="number" name="total_time" class="form-control" required>
             </div>
-            <!-- <div class="form-group">
-                <label for=""> Task type</label>
-                <select name="task_type" id="" class="form-control">
-                    <option value="devtask">Devtask</option>
-                    <option value="task">Task</option>
-                </select>
-            </div> -->
             <div class="form-group">
-                <label for=""> Task id (Eg. 2928)</label>
-                <input type="number" name="task_id" class="form-control" required>
-                <!-- <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea> -->
-            </div>
-            <!-- <div class="form-group">
-                <label for=""> Your role on this task</label>
-                <select name="role" id="" class="form-control">
-                    <option value="developer">Developer</option>
-                    <option value="lead">Lead</option>
-                    <option value="tester">Tester</option>
-                </select>
-            </div> -->
-            <div class="form-group">
-                <label for=""> Note </label>
+                <label for=""> Notes </label>
                 <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea>
             </div>
             </div>

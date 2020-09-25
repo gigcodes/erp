@@ -15,6 +15,8 @@ use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
 use App\Library\Watson\Language\Workspaces\V1\IntentService;
 use App\Library\Watson\Language\Workspaces\V1\LogService;
 use \App\ChatbotKeywordValue;
+use App\WatsonAccount;
+use App\WatsonWorkspace;
 
 class Model
 {
@@ -54,6 +56,7 @@ class Model
             $values                     = $keyword->chatbotKeywordValues()->get();
             $storeParams["values"]      = [];
             $typeValue                  = [];
+
             foreach ($values as $value) {
                 $typeValue = ChatbotKeywordValue::where("id", $value["id"])->first()->chatbotKeywordValueTypes()->get()->pluck("type");
                 if ($value["types"] == "synonyms") {
@@ -78,6 +81,19 @@ class Model
                 //$result                = $watson->create($workSpaceId, $storeParams);
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
+
+                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+
+                foreach($wotson_account_ids as $id){
+                    $data_to_insert[] = [
+                        'type' => 'ChatbotKeyword',
+                        'watson_account_id' => $id,
+                        'element_id' => $keyword->id
+                    ];
+                }
+
+                WatsonWorkspace::insert($data_to_insert);
+
                 ManageWatson::dispatch('entity',$keyword, $storeParams, 'create');
             }
 
@@ -161,6 +177,18 @@ class Model
                // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
                 $question->save();
+
+                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+
+                foreach($wotson_account_ids as $id){
+                    $data_to_insert[] = [
+                        'type' => 'ChatbotQuestion',
+                        'watson_account_id' => $id,
+                        'element_id' => $question->id
+                    ];
+                }
+
+                WatsonWorkspace::insert($data_to_insert);
 
                 ManageWatson::dispatch('intent',$question, $storeParams, 'create');
 
@@ -306,6 +334,19 @@ class Model
                 //$result               = $watson->create($workSpaceId, $storeParams);
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
+
+                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+
+                foreach($wotson_account_ids as $id){
+                    $data_to_insert[] = [
+                        'type' => 'ChatbotDialog',
+                        'watson_account_id' => $id,
+                        'element_id' => $dialog->id
+                    ];
+                }
+
+                WatsonWorkspace::insert($data_to_insert);
+
                 ManageWatson::dispatch('dialog',$dialog, $storeParams, 'create', 'name');
             }
 

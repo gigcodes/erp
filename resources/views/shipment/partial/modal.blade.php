@@ -92,5 +92,22 @@
 	</div>
 </div>
 
+<div id="view_waybill_track_histories" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+  
+        <!-- Modal content-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Waybill Track history</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+    
+            <div class="modal-body" id="view_track_body">
+
+      </div>
+    </div>
+  </div>
+</div>
+
 
   

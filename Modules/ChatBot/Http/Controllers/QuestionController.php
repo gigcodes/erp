@@ -14,7 +14,6 @@ use \App\ChatbotKeywordValueTypes;
 use App\Customer;
 use App\ScheduledMessage;
 use Auth;
-use Artisan;
 class QuestionController extends Controller
 {
     /**
@@ -23,8 +22,6 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        // $call = Artisan::call('keyword:merge');
-        // dd($called);
         $q           = request("q", "");
         $category_id = request("category_id", 0);
         $keyword_or_question = request("keyword_or_question", 'intent');
@@ -479,7 +476,13 @@ class QuestionController extends Controller
             if ($groupId > 0 && $erp_or_watson == 'watson') {
                 WatsonManager::pushQuestion($groupId);
             }
-            return response()->json(["code" => 200]);
+            $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+            $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
+    
+    
+    
+            $allSuggestedOptions = $keywords + $question;
+            return response()->json(["code" => 200, 'allSuggestedOptions' => $allSuggestedOptions]);
         }
         else {
             return response()->json(["code" => 500, "message" => 'Please select an intent or write a new one.']);

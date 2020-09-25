@@ -1,7 +1,4 @@
 @extends('layouts.app')
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
-<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
-
 @section('content')
     <div class="row" xmlns="http://www.w3.org/1999/html">
         <div class="col-lg-12 margin-tb">
@@ -10,22 +7,11 @@
     </div>
     @include('partials.flash_messages')
     <div class="row mb-3">
-        <div class="col-md-4 col-sm-6">
+        <div class="col-md-10 col-sm-12">
             <div class="row">
                 <a href="{{ route('twilio-get-numbers', $account_id) }}">
                     <button type="button" class="btn btn-secondary">Get Twilio Numbers</button>
                 </a>
-            </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="row">
-                <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#twilio_category_add">Add Category</button>
-            </div>
-        </div>
-        <div class="col-md-4 col-sm-6">
-            <div class="row">
-                <a href="{{ route('twilio.category') }}" type="button" class="btn btn-secondary">All Categories</a>
-
             </div>
         </div>
     </div>
@@ -81,8 +67,6 @@
                                         </a>
                                         <a href="javascript:void(0);" class="call_forwarding btn d-inline btn-image" data-attr="{{ $number->id }}" title="Call Forwarding" ><img src="/images/remark.png" style="cursor: default;"></a>
                                         <a href="{{ route('twilio-call-recording', $account_id) }}" class="btn d-inline btn-image" title="Call Recording" ><img src="/images/view.png" style="cursor: default;"></a>
-                                        <button type="button" class="btn btn-image edit-vendor open-AddIVRDialog" data-id="{{ $number->id }}" data-toggle="modal" data-target="#IVREditModal" data-vendor="{{ json_encode($all_category) }}">Assign IVR MP3</button>
-                                        <button type="button" class="btn btn-image edit-vendor open-AddTimingDialog" data-id="{{ $number->id }}" data-toggle="modal" data-target="#timingEditModal" data-vendor="{{ json_encode($all_category) }}">Assign Timings</button>
                                     </td>
                                 </tr>
                                 <tr class="hidden_row_{{ $number->id  }}" data-eleid="{{ $number->id }}" style="display:none;">
@@ -145,18 +129,8 @@
         </div>
     </div>
 
- @include('partials.modals.twilio_call_category')
- @include('partials.modals.add-ivr')
- @include('partials.modals.add-timing')
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-
     <script type="text/javascript">
-
         $(document).ready(function(){
-            $('#timingEditModal #monday_morning_start,#monday_morning_end,#monday_evening_start,#monday_evening_end,#tuesday_morning_start,#tuesday_morning_end,#tuesday_evening_start,#tuesday_evening_end,#wednesday_morning_start,#wednesday_morning_end,#wednesday_evening_start,#wednesday_evening_end,#thursday_morning_start,#thursday_morning_end,#thursday_evening_start,#thursday_evening_end,#friday_morning_start,#friday_morning_end,#friday_evening_start,#friday_evening_end,#saturday_morning_start,#saturday_morning_end,#saturday_evening_start,#saturday_evening_end,#sunday_morning_start,#sunday_morning_end,#sunday_evening_start,#sunday_evening_end').datetimepicker({
-                format: 'HH:mm:ss'
-            });
-            
             var counter_one, counter_two;
             $('.open_row').on("click", function(){
                 var row_id = $(this).attr('id');
@@ -232,16 +206,6 @@
 
             });
 
-        });
-        $(document).on("click", ".open-AddIVRDialog", function () {
-            var twilioSid = $(this).data('id');
-            $("#IVREditModal #twilioSid").val( twilioSid );
-        });
-        $(document).on("click", ".open-AddTimingDialog", function () {
-            console.log('asf');
-            var twilioSids = $(this).data('id');
-            console.log(twilioSids);
-            $("#timingEditModal #twilioSidVal").val( twilioSids );
         });
     </script>
 @endsection
