@@ -254,7 +254,7 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select select2" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
