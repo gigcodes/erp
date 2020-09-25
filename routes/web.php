@@ -2278,3 +2278,12 @@ Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
 Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
 Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
 Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
+
+/**
+ * Store Analytics Module
+ */
+Route::get('/store-website-analytics/index', 'StoreWebsiteAnalyticsController@index');
+Route::any('/store-website-analytics/create', 'StoreWebsiteAnalyticsController@create');
+Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsController@edit');
+Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
+Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
