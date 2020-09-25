@@ -176,7 +176,7 @@ class RepositoryController extends Controller
         $devTask = DeveloperTask::find($devTaskId);
 
         if ($devTask) {
-            $devTask->status = 'DONE';
+            $devTask->status = 'In Review';
             $devTask->save();
         }
     }
