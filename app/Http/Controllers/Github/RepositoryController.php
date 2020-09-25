@@ -33,7 +33,7 @@ class RepositoryController extends Controller
 
     private function refreshGithubRepos()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos";
+        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
         $response = $this->client->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());

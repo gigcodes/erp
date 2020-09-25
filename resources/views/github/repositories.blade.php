@@ -7,7 +7,7 @@
 <script>
     $(document).ready(function() {
         $('#repository-table').DataTable({
-            "paging": false,
+            "paging": true,
             "ordering": true,
             "info": false
         });

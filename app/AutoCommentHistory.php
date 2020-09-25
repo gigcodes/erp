@@ -15,6 +15,7 @@ class AutoCommentHistory extends Model
     }
 
     public function user() {
+    	
         return $this->belongsToMany(User::class, 'users_auto_comment_histories', 'auto_comment_history_id', 'user_id', 'id');
     }
 }

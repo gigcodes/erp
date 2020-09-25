@@ -39,6 +39,13 @@ class Product extends Model
      * @var array
      */
     protected $fillable = [
+        'name',
+        'brand',
+        'category',
+        'short_description',
+        'price',
+        'status_id',
+        'id',
         'sku',
         'is_barcode_check',
         'has_mediables',
@@ -46,7 +53,9 @@ class Product extends Model
         'stock_status',
         'shopify_id',
         'scrap_priority',
-        'assigned_to'
+        'assigned_to',
+        'quick_product',
+        'approved_by'
     ];
 
     protected $dates = ['deleted_at'];
@@ -71,8 +80,20 @@ class Product extends Model
         static::updating(function ($product) {
             $oldCatID = $product->category;
             $newCatID = $product->getOriginal('category');
+
             if($oldCatID != $newCatID) {
-                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);     
+                \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
+            }
+
+            $old_status_id = $product->status_id;
+            $new_status_id = $product->getOriginal('status_id');
+            if($old_status_id != $new_status_id) {
+                $data = array(
+                    'product_id' => $product->id,
+                    'old_status' => $old_status_id,
+                    'new_status' => $new_status_id
+                );
+                \App\ProductStatusHistory::addStatusToProduct($data);
             }
         });
 
@@ -934,7 +955,7 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
-        if(empty($this->title) || $this->title == ".." || empty($this->short_description) || empty($this->price)) {
+        if(empty($this->name) || $this->name == ".." || empty($this->short_description) || empty($this->price)) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
         }else{
@@ -977,5 +998,82 @@ class Product extends Model
         }
 
         return $platformId;
+    }
+
+    public static function getProducts($filter_data = array())
+    {
+        $columns = array(
+            'products.id',
+            'products.name as product_name',
+            'b.name as brand_name',
+            'category',
+            'supplier',
+            'sku',
+            'status_id',
+            'products.created_at'
+        );
+
+        $query =  \App\Product::leftJoin("brands as b",function($q){
+                $q->on("b.id","products.brand");
+            });
+
+        //  check filtering
+        if(isset($filter_data['product_names']))      $query = $query->whereIn('products.name',$filter_data['product_names']);
+
+        if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
+
+
+        if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
+        if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
+        if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
+        if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
+
+        return $query->orderBy('products.created_at','DESC')->paginate(8,$columns);
+    }
+
+    public static function getPruductsNames()
+    {
+        $columns = array('name');
+        $result = array();
+
+        $products_names =  \App\Product::distinct('name')->get($columns);
+        foreach ( $products_names as $product_name ) {
+            $result[$product_name->name] = $product_name->name;
+        }
+
+        asort( $result );
+        return $result;
+    }
+
+    public static function getPruductsCategories()
+    {
+        $columns = array('category');
+        $result = array();
+
+        $products_categories =  \App\Product::distinct('category')->get($columns);
+        foreach ( $products_categories as $product_category ) {
+            $result[$product_category->category] = $product_category->category;
+        }
+
+        asort( $result );
+        return $result;
+    }
+
+    public static function getPruductsSku()
+    {
+        $columns = array('sku');
+        $result = array();
+
+        $products_sku =  \App\Product::distinct('sku')->get($columns);
+        foreach ( $products_sku as $product_sku ) {
+            $result[$product_sku->sku] = $product_sku->sku;
+        }
+
+        asort( $result );
+        return $result;
+    } 
+    public function getStatusName()
+    {
+        return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];
     }
 }

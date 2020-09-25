@@ -493,10 +493,11 @@ class ScrapStatisticsController extends Controller
     public function serverStatistics()
     {
         try {
-            $scrappers = Scraper::paginate(50);
+            $scrappers = Scraper::with('getScrapHistory')->paginate(50);
             return view('scrap.scrap-server-status',compact('scrappers'));
         } catch (\Exception $e) {
-            dd($e->getMessage());
+            session()->flash('error', $e->getMessage());
+            return redirect()->back();
         }
     }
 
