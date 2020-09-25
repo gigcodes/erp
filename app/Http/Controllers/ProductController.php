@@ -60,9 +60,9 @@ use App\Loggers\LogListMagento;
 use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
+use App\ProductTranslationHistory;
 use App\Translations;
 
-use App\ProductTranslationHistory;
 
 class ProductController extends Controller
 {
@@ -1351,7 +1351,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = Language::get()->pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1392,31 +1392,6 @@ class ProductController extends Controller
             'result' => 'productNotFound',
             'status' => 'error'
         ]);
-    }
-    private function translateProducts(GoogleTranslate $googleTranslate,$language,$names = []){
-           $response = [];
-           if(count($names) > 0){
-               foreach($names as $name){
-                    // Check translation SEPARATE LINE exists or not
-                    $checkTranslationTable = Translations::select('text')->where('to',$language)->where('text_original',$name)->first();
-
-                    // If translation exists then USE it else do GOOGLE call
-                    if($checkTranslationTable) {
-                        $response[] = $checkTranslationTable->text;
-                    } else {
-                        $translationString = $googleTranslate->translate($language,$name);
-
-                        // Devtask-2893 : Added model to save individual line translation
-                        Translations::addTranslation($name, $translationString, 'en', $language);
-                        $response[] = $translationString;
-                    }
-               }
-               return implode($response);
-           }
-           else{
-               return '';
-           }
-
     }
 
     public function unlistMagento(Request $request, $id)
@@ -2553,7 +2528,7 @@ class ProductController extends Controller
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
                 } else {
-                    $multi = count($websiteArray);
+                    $multi = count($websiteArrays);
                 }
             } catch (\Exception $e) {
                 $multi = 1;

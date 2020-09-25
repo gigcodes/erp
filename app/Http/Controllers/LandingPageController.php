@@ -6,6 +6,7 @@ use App\Brand;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\LandingPageStatus;
+use App\Language;
 use App\Library\Shopify\Client as ShopifyClient;
 use App\Product;
 use App\Services\Products\GraphqlService;
@@ -15,6 +16,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
+use Plank\Mediable\Media;
 
 class LandingPageController extends Controller
 {
@@ -84,7 +86,6 @@ class LandingPageController extends Controller
         }
 
         $records = $records->select(["landing_page_products.*","p.status_id","p.stock"])->latest()->paginate();
-//        dd($records);
         $store_websites = StoreWebsite::where('website_source','=','shopify')->get();
 
         $items = [];
@@ -273,7 +274,7 @@ class LandingPageController extends Controller
                 $landingPage->stock_status = $request->stock_status;
                 if ($landingPage->stock_status == 1) {
                     $landingPage->start_date = date("Y-m-d H:i:s");
-                    $landingPage->end_date = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
+                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
                 }
                 $landingPage->save();
             }
@@ -282,21 +283,10 @@ class LandingPageController extends Controller
             $landingPageProduct = $landingPage->product;
             $productData = $landingPage->getShopifyPushData();
 
-
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
 
-//            $productData = json_decode('{
-//            "product":{"images":[],"product_type":"Dresses","published_scope":false,
-//            "title":"ALEXANDER MCQUEEN ABITI",
-//            "body_html":"Abito in misto viscosa-seta nero caratterizzato da girocollo, design smanicato, stampa grafica a contrasto, chiusura posteriore con cerniera, vestibilit\u00e0 aderente e tasglio corto.",
-//            "variants":[{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008",
-//            "title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,
-//            "option1":"M","option2":"Asia Pasific","price":1890},{"barcode":"296563","fulfillment_service":"manual","requires_shipping":true,"sku":"622735Q1AOH1008",
-//            "title":"ALEXANDER MCQUEEN ABITI","inventory_management":"shopify","inventory_policy":"deny","inventory_quantity":0,
-//            "option1":"M","option2":"Asia","price":1890}],"vendor":"ALEXANDER McQUEEN","tags":"Home Page","published":false,
-//            "options":[{"name":"sizes","values":["M"]},{"name":"country","values":["Asia Pasific","Asia"]}]}}', true);
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
                 $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
@@ -328,16 +318,21 @@ class LandingPageController extends Controller
                 $selfProduct = Product::find($landingPage->product_id);
 
                 if ($selfProduct) {
+                    $storeWebsiteUrl = StoreWebsite::find($landingPage->store_website_id);
 
-                    GoogleTranslateController::translateProductDetails($selfProduct);
-                    GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id);
+                    if ($storeWebsiteUrl) {
+                        GoogleTranslateController::translateProductDetails($selfProduct);
+                        GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,
+                            $storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password);
 //                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
+                    }
 
                     return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
                 } else {
                     return response()->json(["code" => 500, "data" => [], "message" => "Product not found."]);
                 }
             }
+
         }
 
         return response()->json(["code" => 500, "data" => [], "message" => "Records not found or not store website assigned"]);
