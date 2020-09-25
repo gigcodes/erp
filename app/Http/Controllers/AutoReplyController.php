@@ -39,7 +39,6 @@ class AutoReplyController extends Controller
         $simple_auto_replies = new LengthAwarePaginator($currentItems, count($simple_auto_replies), $perPage, $currentPage, [
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
-
         return view('autoreplies.index', [
             'auto_replies'               => $auto_replies,
             'simple_auto_replies'        => $simple_auto_replies,
@@ -400,7 +399,6 @@ class AutoReplyController extends Controller
         });
 
         $mostUsedPhrases->groupBy("phrase");
-
         $mostUsedPhrases = $mostUsedPhrases->orderBy("total_count", "desc");
 
         $mostUsedPhrases = $mostUsedPhrases->paginate(10);

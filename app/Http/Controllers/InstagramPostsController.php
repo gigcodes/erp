@@ -163,6 +163,9 @@ class InstagramPostsController extends Controller
                         $influencer->following = $postJson['Following'];
                         $influencer->posts = $postJson['Posts'];
                         $influencer->description = $postJson['Bio'];
+                        if(isset($postJson['keyword'])){
+                            $influencer->keyword = $postJson['keyword'];
+                        }
                         $influencer->save();
                     }
                 }else{

@@ -9,7 +9,7 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
 
 <div class="row" id="common-page-layout">
-	<div class="col-lg-12 margin-tb">
+    <div class="col-lg-12 margin-tb">
         <h2 class="page-heading">{{$title}} <span class="count-text"></span></h2>
         <div class="pull-right">
         <a class="btn btn-secondary" data-toggle="modal" data-target="#fetch-activity-modal" style="color:white;">Fetch Activity</a>
@@ -20,26 +20,31 @@
    
     <br>
     <div class="col-lg-12 margin-tb">
-    	<div class="row">
-		    <div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
-		    		<form class="form-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
-					  <div class="row">
-			  			<div class="form-group">
-						    <label for="keyword">User:</label>
-                            <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
-					  	</div>
-					  	<div class="form-group">
-		                    <strong>Date Range</strong>
-		                    <input type="text" value="{{$start_date}}" name="start_date" hidden/>
-		                    <input type="text" value="{{$end_date}}" name="end_date" hidden/>
-		                    <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
-		                        <i class="fa fa-calendar"></i>&nbsp;
-		                        <span></span> <i class="fa fa-caret-down"></i>
-		                    </div>
-		                </div>
+        <div class="row">
+            <div class="col">
+                <div class="h" style="margin-bottom:10px;">
+                    <form class="form-inline" action="{{route('hubstaff-acitivties.activities')}}" method="get">
+                      <div class="row">
                         <div class="form-group">
-						    <label for="keyword">Status:</label>
+                            <label for="keyword">User:</label>
+                            <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
+                        </div>
+                        <div class="form-group">
+                            <strong>Date Range</strong>
+                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
+                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="keyword">Task ID:</label>
+                            <input type="text" class="form-control" value="" placeholder="Add Your Task ID Here" name="task_id"/>
+                            
+                        </div>
+                        <div class="form-group">
+                            <label for="keyword">Status:</label>
                             <select name="status" id="" class="form-control">
                             <option value="">Select</option>
                             <option value="new" {{$status == 'new' ? 'selected' : ''}}>New</option>
@@ -47,19 +52,19 @@
                             <option value="forwarded_to_lead" {{$status == 'forwarded_to_lead' ? 'selected' : ''}}>Forwarded to team lead</option>
                             <option value="approved" {{$status == 'approved' ? 'selected' : ''}}>Approved by admin</option>
                             </select>
-					  	</div>
-		               	<div class="form-group">
-					  		<label for="button">&nbsp;</label>
-					  		<button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-					  			<img src="/images/search.png" style="cursor: default;">
-					  		</button>
-					  	</div>	
-					  </div>	
-					</form>	
-		    	</div>
-		    </div>
-	    </div>	
-		<div class="col-md-12 margin-tb">
+                        </div>
+                        <div class="form-group">
+                            <label for="button">&nbsp;</label>
+                            <button type="submit" style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+                                <img src="/images/search.png" style="cursor: default;">
+                            </button>
+                        </div>  
+                      </div>    
+                    </form> 
+                </div>
+            </div>
+        </div>  
+        <div class="col-md-12 margin-tb">
         <div class="table-responsive">
         <table class="table table-bordered">
         <tr>
@@ -81,6 +86,7 @@
               <td><span>{{number_format($user['totalNotPaid'] / 60,2,".",",")}}</td>
               <td>{{$user['status']}}</td>
               <td>{{$user['note']}}</td>
+              
               <td>
                 @if($user['forworded_to'] == Auth::user()->id && !$user['final_approval'])
                 <form action="">
@@ -93,23 +99,23 @@
           @endforeach
       </table>
     </div>
-		</div>
-	</div>
+        </div>
+    </div>
 </div>
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
 <div id="records-modal" class="modal" role="dialog">
-  	<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content" id="record-content">
 
       </div>
-  	</div>	
+    </div>  
 </div>
 
 
 <div id="open-timing-modal" class="modal" role="dialog">
-  	<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <form>
             @csrf
@@ -120,11 +126,15 @@
             <div class="modal-body">
             <div class="form-group">
                 <label for="">Date</label>
-                <input type="text" name="starts_at" value="" class="form-control" id="starts_at" required placeholder="Enter Date">
+                <input type="text" name="starts_at" value="" class="form-control" id="custom_hour" required placeholder="Enter Date">
             </div>
             <div class="form-group">
                 <label for="">Total time (In minutes)</label>
                 <input type="number" name="total_time" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for=""> Notes </label>
+                <textarea name="user_notes" class="form-control" style="resize:none" required placeholder="Add Your Comments Here"></textarea>
             </div>
             </div>
             <div class="modal-footer">
@@ -133,10 +143,10 @@
             </div>
         </form>
       </div>
-  	</div>	
+    </div>  
 </div>
 <div id="fetch-activity-modal" class="modal" role="dialog">
-  	<div class="modal-dialog modal-lg" role="document">
+    <div class="modal-dialog modal-lg" role="document">
       <div class="modal-content">
         <form>
             @csrf
@@ -160,7 +170,7 @@
             </div>
         </form>
       </div>
-  	</div>	
+    </div>  
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -169,12 +179,46 @@
 
 <script type="text/javascript">
 
+$(document).on('change', '.task_efficiency', function(e) 
+{
+    var user_id = $(this).data('user_id');
+    var efficiency = $(this).val();
+    var type = $(this).data('type');
+    var date = $(this).data('date');
+    var hour = $(this).data('hour');
+
+    var $action_url = '{{ route("hubstaff-acitivties.efficiency.save") }}';                 
+        jQuery.ajax({
+                
+            type: "POST",
+            url: $action_url,
+            data: { user_id: user_id,efficiency: efficiency,type: type, date: date, hour: hour  },
+            headers: { 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content') },
+            //cache: false,
+            //dataType: 'json',
+            success: function(data)
+            {
+                toastr['success'](data.message);
+                
+            },
+            error: function(error)
+            {
+                toastr['error'](data.message);
+            },
+                
+        });
+        return false;
+
+});
 
 $("#activity-available").val(new Date().toUTCString());
 $(".select2").select2({tags:true});
 
 $('#starts_at').datetimepicker({
     format: 'YYYY-MM-DD'
+});
+$('#custom_hour').datetimepicker({
+    format: 'YYYY-MM-DD HH:mm:ss'
 });
 $('#time_from').datetimepicker({
     format: 'YYYY-MM-DD HH:mm:ss'
@@ -373,11 +417,14 @@ let r_s = jQuery('input[name="start_date"]').val();
                 $("#loading-image").show();
             }
             }).done( function(response) {
-            $("#loading-image").hide();
-            window.location.reload();
+                $("#loading-image").hide();
+                window.location.reload();
             }).fail(function(errObj) {
-                toastr['error'](errObj.responseJSON.message, 'error');
-            $("#loading-image").hide();
+                $("#loading-image").hide();
+                if(errObj.responseJSON) {
+                    toastr['error'](errObj.responseJSON.message, 'error');
+                }
+                window.location.reload();
             });
         });
 

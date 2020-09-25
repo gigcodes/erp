@@ -685,7 +685,7 @@ class ProductHelper extends Model
 
     public static function storeWebsite()
     {
-        return \App\storeWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
+        return \App\StoreWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
 
     }
 

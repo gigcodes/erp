@@ -3,6 +3,7 @@
 namespace App\Services\Products;
 
 use App\Http\Controllers\GoogleTranslateController;
+use App\Language;
 use App\Product_translation;
 use Illuminate\Support\Facades\Log;
 
@@ -186,7 +187,7 @@ class GraphqlService
     private static function getValidLocales ()
     {
         $data = ['success' => false];
-        $languages   = GoogleTranslateController::LANGUAGES;
+        $languages = Language::pluck('locale')->toArray();
         $shopLocalesData = self::retrieveDataByGrapql('getLocales');
 
         if (isset($shopLocalesData['data']['shopLocales'])) {

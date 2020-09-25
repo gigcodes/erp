@@ -3,7 +3,7 @@
 
     <!-- Modal content-->
     <div class="modal-content">
-      <form action="{{ route('vendors.store') }}" method="POST">
+      <form action="{{ url('vendors/store') }}" method="POST">
         @csrf
 
         <div class="modal-header">
