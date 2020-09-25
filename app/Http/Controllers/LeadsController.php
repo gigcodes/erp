@@ -34,6 +34,8 @@ use App\CallBusyMessage;
 use App\MessageQueue;
 use App\BroadcastImage;
 use App\Http\Controllers\WhatsAppController;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\DB;
 
 class LeadsController extends Controller
 {
@@ -1337,74 +1339,34 @@ class LeadsController extends Controller
 
     public function erpLeadsHistory(request $request)
     {
-        $histories = \App\ErpLeadSendingHistory::all()->toArray();
-        $sourcePaginateArr = array();
         $erpLeadStatus = \App\ErpLeadStatus::all()->toArray();
         // \DB::enableQueryLog();
-        $source =  \App\ErpLeadSendingHistory::leftjoin("products",\DB::raw("FIND_IN_SET(products.id,erp_lead_sending_histories.product_id)"),">",\DB::raw("'0'"))
+        $source =  \App\ErpLeadSendingHistory::leftjoin("products", "products.id", "erp_lead_sending_histories.product_id")
             ->leftJoin("customers as c", "c.id", "erp_lead_sending_histories.customer_id")
             ->leftJoin("erp_leads", "erp_leads.id", "erp_lead_sending_histories.lead_id")
             ->leftJoin("erp_lead_status", "erp_leads.lead_status_id", "erp_lead_status.id")
             ->orderBy("erp_lead_sending_histories.id", "desc")
-            ->select(["erp_lead_sending_histories.*", "products.name as product_name", "c.name as customer_name", "c.id as customer_id","erp_lead_status.name as lead_status"]);
+            ->select(["erp_lead_sending_histories.*", "products.name as product_name", "c.name as customer_name", "c.id as customer_id", "erp_lead_status.name as lead_status"]);
 
         if ($request->get('lead_customer')) {
             $source = $source->where('c.name', 'like', "%" . $request->get('lead_customer') . "%");
         }
 
         if ($request->get('product_name')) {
-            $source = $source->where('products.name','like',  "%" . $request->get('product_name') . "%");
+            $source = $source->where('products.name', 'like',  "%" . $request->get('product_name') . "%");
         }
 
         if ($request->get('lead_status')) {
-            $source = $source->where('erp_leads.lead_status_id','=', $request->get('lead_status'));
+            $source = $source->where('erp_leads.lead_status_id', '=', $request->get('lead_status'));
         }
-        
+
         if ($request->get('created_at')) {
             $source = $source->whereDate('erp_lead_sending_histories.created_at', '=',  $request->get('created_at'));
         }
-
-        $total = $source->count();
-
-       // dd(\DB::getQueryLog());
-
-        $source = $source->get();
-
-
-        
-
-        foreach ($source as $value) {
-            $srcArr = json_decode(json_encode($value), true);
-            array_push($sourcePaginateArr, $srcArr);
-        }
-        // echo "<pre>";print_r($sourcePaginateArr);die('ss');
-
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = Setting::get('pagination');
-        if (request()->get('select_all') == 'true') {
-            $perPage = count($sourcePaginateArr);
-            $currentPage = 1;
-        }
-
-        if (!is_numeric($perPage)) {
-            $perPage = 2;
-        }
-
-
-        $currentItems = array_slice($sourcePaginateArr, $perPage * ($currentPage - 1), $perPage);
-
-        $sourcePaginateArr = new LengthAwarePaginator($currentItems, count($sourcePaginateArr), $perPage, $currentPage, [
-            'path'  => LengthAwarePaginator::resolveCurrentPath()
-        ]);
-        /* \DB::enableQueryLog();
-
-        dd(\DB::getQueryLog()); */
-         //echo "<pre>";print_r($sourcePaginateArr);die;
-         session()->flashInput($request->input());
+        $source = $source->paginate(5);
+        session()->flashInput($request->input());
         return view("leads.erp.history", [
-            'histories'   => $histories,
-            'recordsTotal' => $total,
-            'sourceData' => $sourcePaginateArr,
+            'sourceData' => $source,
             'erpLeadStatus' => $erpLeadStatus
         ]);
     }

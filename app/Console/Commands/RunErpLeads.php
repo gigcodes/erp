@@ -7,6 +7,7 @@ use Illuminate\Console\Command;
 use Illuminate\Http\Request;
 use App\ErpLeadSendingHistory;
 use Carbon\Carbon;
+
 class RunErpLeads extends Command
 {
     /**
@@ -77,32 +78,31 @@ class RunErpLeads extends Command
                     $products = $products->where(function ($q) use ($lead) {
                         $q->orWhere("b.id", $lead->brand_id)->orWhere("c.id", $lead->category_id);
                     });
-
-
                     $allProduts = $products->select(["products.*"])->limit($lead_product_limit)->get()->pluck("id")->toArray();
                     if (!empty($products)) {
 
                         $allProdCounts = count($allProduts);
-                        if ($allProdCounts > 0) {
-                            $implodeProds = implode(',', $allProduts);
+                        $newProdArr = [];
+                        for ($i = 0; $i < $allProdCounts; $i++) {
                             //add data to erp_lead_sending_histories tables
                             $ErpLeadSendingHistory = new ErpLeadSendingHistory;
-                            $checkCustomerExist = $ErpLeadSendingHistory::select('*')
-                                ->where('customer_id', '=', $lead->customer_id)
-                                ->whereIn('product_id', [$implodeProds])
+                            $checkCustomerExist = $ErpLeadSendingHistory::where('customer_id', '=', $lead->customer_id)
+                                ->where('product_id', '=', $allProduts[$i])
+                                ->where('lead_id', '=', $lead->id)
                                 ->count();
                             if ($checkCustomerExist == 0) {
-                                $requestData = new Request();
-                                $requestData->setMethod('POST');
-                                $requestData->request->add(['customer_id' => $lead->customer_id, 'selected_product' => $allProduts]);
-                                $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
-                                if($res){
-                                $ErpLeadSendingHistory->product_id = $implodeProds;
+                                $ErpLeadSendingHistory->product_id = $allProduts[$i];
                                 $ErpLeadSendingHistory->customer_id = $lead->customer_id;
                                 $ErpLeadSendingHistory->lead_id = $lead->id;
                                 $ErpLeadSendingHistory->save();
-                                }
+                                $newProdArr[$i] = $allProduts[$i];
                             }
+                        }
+                        if (count($newProdArr) > 0) {
+                            $requestData = new Request();
+                            $requestData->setMethod('POST');
+                            $requestData->request->add(['customer_id' => $lead->customer_id, 'selected_product' =>   $newProdArr]);
+                            $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                         }
                     }
                 }
