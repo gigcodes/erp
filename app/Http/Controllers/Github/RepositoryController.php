@@ -165,8 +165,7 @@ class RepositoryController extends Controller
         );
     }
 
-    private function updateDevTask($branchName)
-    {
+    private function updateDevTask($branchName){
         $devTaskId = null;
         $usIt = explode($branchName, '-');
 
