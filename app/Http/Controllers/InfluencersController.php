@@ -125,6 +125,8 @@ class InfluencersController extends Controller
     {
        $name = $request->name;
 
+       $name = str_replace(" ","",$name);
+
        $cURLConnection = curl_init();
 
         curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-image?'.$name);
@@ -151,6 +153,8 @@ class InfluencersController extends Controller
     {
        $name = $request->name;
 
+       $name = str_replace(" ","",$name);
+
        $cURLConnection = curl_init();
 
         curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-status?'.$name);
@@ -170,6 +174,8 @@ class InfluencersController extends Controller
     public function startScraper(Request $request)
     {
        $name = $request->name;
+
+       $name = str_replace(" ","",$name);
 
        $cURLConnection = curl_init();
 
