@@ -7,8 +7,9 @@ use App\Reply;
 use App\Setting;
 use App\ReplyCategory;
 use App\ChatbotQuestion;
-use App\ChatbotQuestionsReply;
-
+use App\ChatbotQuestionReply;
+use App\WatsonAccount;
+use App\ChatbotQuestionExample;
 
 class ReplyController extends Controller
 {
@@ -145,20 +146,38 @@ class ReplyController extends Controller
       $this->validate($request,[
         'intent_name' => 'required',
         'intent_reply' => 'required',
-        'intent_model' => 'required',
-        'intent_category_id' => 'required'
+        'question' => 'required',
       ]);
+    
 
+        $ChatbotQuestion = null;
+        $example = ChatbotQuestionExample::where('question',$request->question)->first();
+        if($example) {
+          return response()->json(['message' => 'User intent is already available']);
+        }
 
-        $ChatbotQuestion = new ChatbotQuestion;
-        $ChatbotQuestion->value = 'Intent';
+        if (is_numeric($request->intent_name)) {
+          $ChatbotQuestion = ChatbotQuestion::where("id", $request->intent_name)->first();
+      }
+      else {
+          if($request->intent_name != '') {
+              $ChatbotQuestion = ChatbotQuestion::create([
+                  "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $request->intent_name)),
+              ]);
+          }
+      }
         $ChatbotQuestion->suggested_reply = $request->intent_reply;
         $ChatbotQuestion->category_id = $request->intent_category_id;
-        $ChatbotQuestion->keyword_or_question = $request->intent_model;
+        $ChatbotQuestion->keyword_or_question = 'intent';
         $ChatbotQuestion->is_active = 1;
         $ChatbotQuestion->erp_or_watson = 'erp';
-
+        $ChatbotQuestion->auto_approve = 1;
         $ChatbotQuestion->save();
+
+        $ex = new ChatbotQuestionExample;
+        $ex->question = $request->question;
+        $ex->chatbot_question_id = $ChatbotQuestion->id;
+        $ex->save();
 
         $wotson_account_website_ids = WatsonAccount::get()->pluck('store_website_id')->toArray();
 
@@ -172,10 +191,10 @@ class ReplyController extends Controller
             ];
         }
 
-        ChatbotQuestionsReply::insert($data_to_insert);
+        ChatbotQuestionReply::insert($data_to_insert);
+        Reply::where('id',$request->intent_reply_id)->delete();
 
-        return redirect()->route('reply')->with('success','Intent Updated');
-      
+        return response()->json(['message' => 'Successfully created','code' => 200]);     
     }
 
 }
