@@ -2,7 +2,6 @@
 
 namespace App;
 
-use App\CronJob;
 use App\DeveloperTask;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\Request;
