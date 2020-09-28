@@ -9,7 +9,7 @@ use Plank\Mediable\Mediable;
 class ErpLeads extends Model
 {
     //
-    use SoftDeletes;
+    //use SoftDeletes;
     use Mediable;
     protected $fillable = [
         'lead_status_id',

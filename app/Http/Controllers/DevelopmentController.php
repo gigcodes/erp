@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DevelopmentHelper;
+use App\LeadHubstaffDetail;
 use App\Setting;
 use App\TaskAttachment;
 use File;
@@ -1722,8 +1723,7 @@ class DevelopmentController extends Controller
     public function assignTeamlead(Request $request)
     {
         $team_lead_id = $request->get("team_lead_id");
-        $issue = DeveloperTask::find($request->get('issue_id'))->toArray();
-        $issue['team_lead_id'] = $request->get('team_lead_id');
+        $issue = DeveloperTask::find($request->get('issue_id'));
 
         $user = User::find($team_lead_id);
 
@@ -1748,9 +1748,17 @@ class DevelopmentController extends Controller
                 $team->user_id = $team_lead_id;
                 $team->save();
             }
-            DeveloperTask::create($issue);
-//            $issue->team_lead_id = $team_lead_id;
-//            $issue->save();
+            $issue->team_lead_id = $team_lead_id;
+            $issue->save();
+
+            LeadHubstaffDetail::where('task_id', $issue->id)->update(['current' => 0]);
+            $leadHubstaffDetail = new LeadHubstaffDetail;
+            $leadHubstaffDetail->hubstaff_task_id = $issue->hubstaff_task_id;
+            $leadHubstaffDetail->task_id = $issue->id;
+            $leadHubstaffDetail->team_lead_id = $team_lead_id;
+            $leadHubstaffDetail->current = 1;
+            $leadHubstaffDetail->save();
+
         }
         return response()->json([
             'status' => 'success'
