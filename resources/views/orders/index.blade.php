@@ -435,7 +435,7 @@
 
       $(document).on("change",".order-status-select",function() {
         $.ajax({
-          url: "/order/change-status",
+          url: "/erp/order/change-status",
           type: "GET",
           async : false,
           data : {

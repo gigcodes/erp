@@ -58,8 +58,7 @@
     </div>
 
 
-    <div class="modal fade template-modal" id="exampleModalCenter" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade template-modal" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -77,6 +76,17 @@
                                    aria-describedby="NameHelp" placeholder="Enter Name">
                             <span class="text-danger"></span>
                         </div>
+						<div class="form-group">
+                            <label for="form_subject">Subject</label>
+                            <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
+                            <span class="text-danger"></span>
+                        </div>
+						<div class="form-group">
+                            <label for="form_static_template">Static Template</label>
+                            <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8'></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+						
                         <div class="form-group">
                             <label for="mail_tpl">Email Template</label>
                             <?php echo Form::select("mail_tpl",["-- None --"] + $rViewMail,null,["class" => "form-control select2" , "required" => true,"id" => "form_mail_tpl"]); ?>
@@ -122,8 +132,8 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Name</th>
                 <th style="">Mail Tpl</th>
-                <!-- <th style="">Image Count</th>
-                <th style="">Text Count</th> -->
+                <th style="">Subject</th>
+                <th style="">Static Template</th>
                 <th style="">Template Example</th>
                 <th style="">Action</th>
                 {{--  <th style="">File</th>--}}
@@ -134,8 +144,8 @@
                 <tr>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["mail_tpl"]}}</td>
-                    <!-- <td>{{$value["image_count"]}}</td> -->
-                    <!-- <td>{{$value["text_count"]}}</td> -->
+                    <td>{{$value["subject"]}}</td>
+                    <td>{{$value["static_template"]}}</td>
                     <td>
                         @if($value['example_image'])
                             <img style="width: 100px" src="{{ asset($value['example_image']) }}">
@@ -261,7 +271,7 @@
                 var formField = findForm.find("#form_"+k);
                 if(formField.length > 0) {
                     var tagName = formField.prop("tagName").toLowerCase();
-                    if(tagName == "input" || tagName == "hidden") {
+                    if(tagName == "input" || tagName == "hidden" || tagName == "textarea") {
                         formField.val(v);
                     }else if(tagName == "select") {
                         var options = formField.find("option");

@@ -96,6 +96,8 @@ class MailinglistTemplateController extends Controller
         }
 
         $mailing_item->name        = $data['name'];
+        $mailing_item->subject        = $data['subject'];
+        $mailing_item->static_template        = $data['static_template'];
 
         // if($mailFile) {
         //     $mailing_item->mail_class  = isset($data['mail_class']) ? $data['mail_class'] : null;
