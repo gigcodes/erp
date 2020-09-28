@@ -80,6 +80,16 @@ class UserManagementController extends Controller
                     $u["team"] = $team;
                     $user_in_team = 1;
                 }
+
+                $pending_tasks = Task::where('is_statutory', 0)
+            ->whereNull('is_completed')
+            ->Where('assign_to', $u->id)->count();
+
+            $total_tasks = Task::where('is_statutory', 0)
+            ->Where('assign_to', $u->id)->count();
+                $u["pending_tasks"] = $pending_tasks;
+                $u["total_tasks"] = $total_tasks;
+
                 $isMember = $u->teams()->first();
                 if($isMember) {
                     $user_in_team = 1;
