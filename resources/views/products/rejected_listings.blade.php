@@ -3,24 +3,25 @@
 @section('large_content')
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Rejected Listings ({{$products->total()}})</h2>
+            <h2 class="page-heading rejected-title">Rejected Listings ({{$products->total()}})</h2>
         </div>
     </div>
+<div class="rejected-listings">
     <div class="row">
         <div class="col-md-12">
             <form method="get" action="{{action('ProductController@showRejectedListedProducts')}}">
                 <div class="row">
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <input type="text"name="id" id="id" class="form-control" placeholder="Id, sku...">
                     </div>
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <select name="type" id="type" class="form-control">
                             <option value="">Any</option>
                             <option value="rejected">Only Rejected</option>
                             <option value="accepted">Only Accepted</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <select name="reason" id="reason" class="form-control">
                             <option value="">All</option>
                             <option {{ $reason=='Category Incorrect' ? 'selected' : '' }} value="Category Incorrect">Category Incorrect</option>
@@ -33,7 +34,7 @@
                             <option {{ $reason=='Composition Not Found' ? 'selected' : '' }} value="Composition Not Found">Composition Not Found</option>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <select class="form-control" name="category[]">
                             @foreach ($category_array as $data)
                                 <option value="{{ $data['id'] }}" {{ in_array($data['id'], $selected_categories) ? 'selected' : '' }}>{{ $data['title'] }}</option>
@@ -60,7 +61,7 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <select data-placeholder="Select Supplier..." class="form-control select-multiple" name="supplier[]" multiple>
                             <optgroup label="Suppliers">
                                 @foreach ($suppliers as $key => $item)
@@ -69,7 +70,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="col-md-2">
+                    <div class="form-group cls_filter_inputbox">
                         <select class="form-control" name="user_id" id="user_id">
                             <option value="">Select User</option>
                             @foreach($users as $user)
@@ -77,16 +78,18 @@
                             @endforeach
                         </select>
                     </div>
-                    <div class="col-md-2">
-                        <input type="date" name="date" id="date" value="{{Request::get('date') ?? date('Y-m-d')}}">
+                    <div class="form-group cls_filter_inputbox">
+                        <input type="date" class="form-control" name="date" id="date" value="{{Request::get('date') ?? date('Y-m-d')}}">
                     </div>
-                    <div class="col-md-1">
+                    <div class="form-group cls_filter_inputbox">
                         <button class="btn btn-image"><img src="{{asset('images/search.png')}}" alt="Search"></button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
+</div>
+
     <div class="row">
         <div class="col-md-12">
             <div class="panel-group">
@@ -116,11 +119,96 @@
             </div>
         </div>
     </div>
+
+    <!------ pagination start --------->
+
+   <!--  <div class="row">
+        <div class="col-md-12 text-center">
+            {!! $products->appends($request->except('page'))->links() !!}
+        </div>
+    </div> -->
+
+    <!------ pagination End --------->
+
+<div class="rejected-table">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="table-responsive">
+                <table class="table table-bordered">
+                    <thead>
+                        <tr>
+                            <th width="10%">R DATE</th>
+                            <th width="5%" table-hover-cell><a href="#">Id</a></th>
+                            <th width="8%">SKU</th>
+                            <th width="8%">Reason</th>
+                            <th width="10%">BRAND</th>
+                            <th width="10%">Title</th>
+                            <th width="5%">COLOR</th>
+                            <th width="10%">CATEGORY</th>
+                            <th width="5%">SIZES</th>
+                            <th width="5%">PRICE</th>
+                            <th width="14%">REJECTED BY</th>
+                            <th width="5%">IMAGE</th>
+                            <th width="10%">ACTION </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                         @foreach($products as $product)
+                        <tr>
+                            <td>20-06-11</td>
+                            <td class="table-hover-cell">12</td>
+                            <td>{{ $product->sku }}</td>
+                            <td>{{ $product->listing_remark ?? 'N/A' }}</td>
+                            <td>Shirts</td>
+                            <td class="title"><p>{{ $product->name }}</td>
+                            <td>{{ $product->color }}</td>
+                            <td>{{ $product->product_category ? $product->product_category->title : 'N/A' }}</td>
+                            <td>{{ $product->size }}</td>
+                            <td>
+                            <strong>EUR</strong> {{ $product->price }}<br>
+                            <strong>INR</strong> {{ $product->price_inr }}<br>
+                            <strong>Special</strong> {{ $product->price_special }}
+                        </td>
+                            <td>{{ $product->listing_rejected_on }}</td>
+                            <td>
+                            <a href="{{ action('ProductController@show', $product->id) }}">
+                                <img style="width: 150px;" src="{{ $product->getMedia('gallery')->first() ? $product->getMedia('gallery')->first()->getUrl() : '' }}" alt="Image">
+                            </a>
+                            <br>
+                            <a href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>
+                        </td>
+                            <td>
+                               
+                          
+                            <div class="form-group">
+                                <a data-id="{{$product->id}}" class="btn btn-danger btn-sm text-light delete-product">Delete</a>&nbsp;
+                                @if(!$product->is_approved)
+                                    <a data-id="{{$product->id}}" class="btn btn-secondary btn-sm text-light relist-product">Re-list</a>
+                                @endif
+                            </div>
+                              </td>
+                        </tr>
+                        @endforeach
+                       
+
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!------ pagination start --------->
+
     <div class="row">
         <div class="col-md-12 text-center">
             {!! $products->appends($request->except('page'))->links() !!}
         </div>
     </div>
+
+    <!------ pagination End --------->
+
     <div class="row">
         <div class="col-md-12 mt-5">
             <table class="table table-bordered table-striped">
@@ -279,5 +367,16 @@
                 }
             });
         });
+
+        $(".title").click(function(){
+
+            $(this).addClass("full");
+        });
+
+        // if ($("td.title").html().length > 20) {
+        //     short_text = $("td.title").html().substr(0, 20);
+        //     $("td.title").html(short_text + "...");
+        // }
+
     </script>
 @endsection

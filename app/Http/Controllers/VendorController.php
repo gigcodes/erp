@@ -36,6 +36,7 @@ class VendorController extends Controller
 
   use githubTrait;
   use hubstaffTrait;
+  CONST DEFAULT_FOR = 2; //For Vendor
 
   /**
    * Display a listing of the resource.
@@ -65,6 +66,7 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
+	
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
@@ -419,8 +421,15 @@ class VendorController extends Controller
 
     $data = $request->except(['_token', 'create_user']);
     if(empty($data["whatsapp_number"]))  {
-      $data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
-    }
+		//$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+		//get default whatsapp number for vendor from whatsapp config
+		$task_info = DB::table('whatsapp_configs')
+                    ->select('*')
+                    ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+                    ->first();
+	
+		$data["whatsapp_number"] = $task_info->number;
+	}
 
     if(empty($data["default_phone"]))  {
       $data["default_phone"] = $data["phone"];
@@ -429,6 +438,7 @@ class VendorController extends Controller
     if(!empty($source)) {
        $data["status"] = 0;
     }  
+
 
     Vendor::create($data);
 

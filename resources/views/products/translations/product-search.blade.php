@@ -20,9 +20,11 @@
 
         <td>
 {{--            <a class="btn btn-image view-btn" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}"><img src="/images/view.png"/></a>--}}
-            <i style="cursor: pointer; " class="fa fa-eye" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}" aria-hidden="true"></i>
-            <i style="cursor: pointer; " class="fa fa-history" data-toggle="modal" data-target="#showHistory_{{ $product->id }}" data-id="{{$product->id}}" aria-hidden="true"></i>
-            <i style="cursor: pointer; " class="fa fa-{{ $product->is_rejected == 1 ? '' : 'close' }} rejectProduct" data-toggle="modal" data-action="{{ route('product.translation.rejection') }}" data-value="{{$product->is_rejected}}" data-id="{{$product->id}}" aria-hidden="true"></i>
+            <i style="cursor: pointer; " class="fa fa-eye" data-toggle="modal" data-target="#translationModal" data-id="{{$product->id}}" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Product Edit"></i>
+            <i style="cursor: pointer; " class="fa fa-history" data-toggle="modal" data-target="#showHistory_{{ $product->id }}" data-id="{{$product->id}}" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Product History"></i>
+            @if($product->is_rejected == 0)
+            <i style="cursor: pointer; " class="fa fa-close rejectProduct" data-toggle="modal" data-action="{{ route('product.translation.rejection') }}" data-value="1" data-id="{{$product->id}}" aria-hidden="true" data-toggle="tooltip" data-placement="top" title="Product status"></i>
+        @endif
         </td>
     </tr>
 @endforeach

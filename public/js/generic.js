@@ -84,10 +84,10 @@ var getHtml = function(response) {
             var reviewed_msg = '';
         }
         if(message.inout == 'out') {
-            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'">';
+            fullHtml = fullHtml + '<tr class="out-background filter-message '+ reviewed_msg+'" data-message="'+message.message+'">';
         }
         else {
-            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg">'; 
+            fullHtml = fullHtml + '<tr class="in-background filter-message reviewed_msg" data-message="'+message.message+'">'; 
         }
         fullHtml = fullHtml + '<td style="width:5%"><input data-id="'+message.id+'" data-message="'+message.message+'" type="checkbox" class="click-to-clipboard" /></td>';
         var fromMsg = '';
@@ -293,6 +293,12 @@ var getHtml = function(response) {
             // }
         }
 
+        if(message.datetime) {
+            var datetime = message.datetime.substr(0, 19);
+        }
+        else {
+            var datetime = message.datetime;
+        }
        
 
         if (message.inout == 'in') {
@@ -305,7 +311,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + message.datetime.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on ' + datetime + '</span>';
 
 
         } else if (message.inout == 'out') {
@@ -317,7 +323,7 @@ var getHtml = function(response) {
             }
 
             li += '<div id="'+message.id+'" class="bubble alt"><div class="txt"><p class="name alt"></p><p class="message"  data-message="'+message.message+'">' + media + message.message + '</p></div></div>';
-            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + message.datetime.substr(0, 19) + '</span>';
+            fromMsg = fromMsg + '<span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From ' + message.sendBy + ' to ' + message.sendTo + ' on '  + datetime + '</span>';
         } else {
             li += '<div>' + index + '</div>';
         }

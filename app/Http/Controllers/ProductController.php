@@ -61,6 +61,8 @@ use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
+use App\Translations;
+
 
 class ProductController extends Controller
 {
@@ -1349,7 +1351,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = TranslationLanguage::get()->pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1384,11 +1386,7 @@ class ProductController extends Controller
                     'status' => 'listed'
                 ]);
             }
-
-
         }
-
-
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
@@ -2530,7 +2528,7 @@ class ProductController extends Controller
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
                 } else {
-                    $multi = count($websiteArray);
+                    $multi = count($websiteArrays);
                 }
             } catch (\Exception $e) {
                 $multi = 1;
@@ -3382,11 +3380,20 @@ class ProductController extends Controller
 
     public function translationLanguage(ProductTranslationRequest $request)
     {
-
-        TranslationLanguage::create([
-            'locale' => $request->input('locale')
+        $this->validate($request, [
+            'locale'   => 'sometimes|nullable|string|max:255',
+            'code'       => 'required'
         ]);
 
+        $data = $request->except('_token');
+        Language::create($data);
+
+//        return redirect()->route('products.product-translation')->withSuccess('You have successfully stored language');
+
+//        TranslationLanguage::create([
+//            'locale' => $request->input('locale')
+//        ]);
+//
         return response()->json([
             'message' => 'Successfully updated the data'
         ]);
@@ -3404,8 +3411,8 @@ class ProductController extends Controller
         $product_translation_history->save();
 
         return response()->json([
-            'message' => $request->value == 0 ? 'Rejected Successfully' : 'Approved Successfully',
-            'value' => !$request->value,
+            'message' => 'Rejected Successfully',
+            'value' => $request->value,
         ]);
     }
 
