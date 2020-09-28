@@ -80,7 +80,9 @@
                                    <td><button class="btn btn-link" onclick="getImage('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Image From Scrapper"><i class="fa fa-barcode"></i></button>
                                    <button  class="btn btn-link" title="Get Status" onclick="getStatus('{{ $keyword->name }}')" title="Get Status Of Scrapper"><i class="fa fa-history" aria-hidden="true"></i></button> 
                                    <button class="btn btn-link" onclick="startScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Start Script"><i class="fa fa-refresh"></i></button> 
-                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button> 
+                                   <button class="btn btn-link" onclick="getLog('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Get Log From Server"><i class="fa fa-history"></i></button>
+                                   <button class="btn btn-link" onclick="restartScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Restart Script From Server"><i class="fa fa-stop"></i></button> 
+                                   <button class="btn btn-link" onclick="stopScript('{{ $keyword->name }}')" data-toggle="tooltip" data-placement="top" title="Stop Script From Server"><i class="fa fa-stop"></i></button> 
                                    </td>
                                 </tr>
                                 @endforeach
@@ -301,6 +303,48 @@
                        }else{
                           openInNewTab(response.message)
                        } 
+                   })
+                   .fail(function() {
+                       console.log("error");
+                }); 
+            }
+             
+          }
+          function restartScript(name) {
+            var result = confirm("You Want to re-start this script "+name+"?");
+            if(result){
+                $.ajax({
+                   url: '{{ route('influencers.restart') }}',
+                   type: 'POST',
+                   dataType: 'json',
+                   data: {
+                        name: name,
+                        "_token": "{{ csrf_token() }}",
+                    },
+                   })
+                   .done(function(response) {
+                       alert(response.message);
+                   })
+                   .fail(function() {
+                       console.log("error");
+                }); 
+            }
+             
+          }
+          function stopScript(name) {
+            var result = confirm("You Want to stop this script "+name+"?");
+            if(result){
+                $.ajax({
+                   url: '{{ route('influencers.stop') }}',
+                   type: 'POST',
+                   dataType: 'json',
+                   data: {
+                        name: name,
+                        "_token": "{{ csrf_token() }}",
+                    },
+                   })
+                   .done(function(response) {
+                       alert(response.message);
                    })
                    .fail(function() {
                        console.log("error");
