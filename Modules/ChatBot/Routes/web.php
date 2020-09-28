@@ -55,8 +55,9 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         });
 
         Route::prefix('autoreply')->group(function () {
-            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");            
+            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");
         });
+
     });
 
     Route::prefix('dialog')->group(function () {
