@@ -142,7 +142,6 @@ class ChatMessagesController extends Controller
                                                 ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                                             });
                     });
-                    dd($chatMessages->get());
                 break;
         }
 
