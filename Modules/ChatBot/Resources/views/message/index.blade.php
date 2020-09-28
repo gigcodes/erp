@@ -101,6 +101,7 @@
             }).done(function (response) {
                 $("#loading-image").hide();
                 if (response.code == 200) {
+                    $this.remove();
                     toastr['success'](response.message, 'success');
                 }
             }).fail(function (response) {

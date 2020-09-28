@@ -22,7 +22,8 @@ class MessageController extends Controller
 
         $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
-            ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id");
+            ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id")
+            ->leftJoin("chatbot_questions as cq", "cq.chat_message_id", "chat_messages.id");
 
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
@@ -44,7 +45,7 @@ class MessageController extends Controller
                 $q->whereIn("status",ChatMessage::AUTO_REPLY_CHAT)->where("group_id",">",0);
             });
         })->where("chat_messages.customer_id", ">", 0)
-            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id"])
+            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id", 'cq.chat_message_id'])
             ->latest()
             ->paginate(20);
 

@@ -5,7 +5,7 @@
         <th width="2%">Name</th>
         <th width="15%">User input</th>
         <th width="15%">Bot Replied</th>
-        <th width="30%">Images</th>
+{{--        <th width="30%">Images</th>--}}
         <th width="5%">Action</th>
     </tr>
     </thead>
@@ -15,42 +15,46 @@
     <tr>
         <td>{{ $pam->customer_id }}[{{ $pam->chat_id }}]</td>
         <td>{{ $pam->customer_name }}</td>
-        <td>{{ $pam->question }}</td>
-        <td>{{ $pam->message }}</td>
-        <td class="images-layout">
-            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">
-                {{ csrf_field() }}
-                @if($pam->hasMedia(config('constants.media_tags')))
-                    @foreach($pam->getMedia(config('constants.media_tags')) as $medias)
-                        <div class="panel-img-shorts">
-                            <input type="checkbox" name="delete_images[]"
-                                   value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"
-                                   data-media-id="{{ $medias->id }}"
-                                   data-mediable-id="{{ $medias->pivot->mediable_id }}">
-                            <img width="50px" heigh="50px" src="{{ $medias->getUrl() }}">
-                        </div>
-                    @endforeach
-                @endif
-            </form>
-        </td>
+        <td class="user-input">{{ $pam->question }}</td>
+        <td class="boat-replied">{{ $pam->message }}</td>
+{{--        <td class="images-layout">--}}
+{{--            <form class="remove-images-form" action="{{ route('chatbot.messages.remove-images') }}" method="post">--}}
+{{--                {{ csrf_field() }}--}}
+{{--                @if($pam->hasMedia(config('constants.media_tags')))--}}
+{{--                    @foreach($pam->getMedia(config('constants.media_tags')) as $medias)--}}
+{{--                        <div class="panel-img-shorts">--}}
+{{--                            <input type="checkbox" name="delete_images[]"--}}
+{{--                                   value="{{ $medias->pivot->mediable_id.'_'.$medias->id }}" class="remove-img"--}}
+{{--                                   data-media-id="{{ $medias->id }}"--}}
+{{--                                   data-mediable-id="{{ $medias->pivot->mediable_id }}">--}}
+{{--                            <img width="50px" heigh="50px" src="{{ $medias->getUrl() }}">--}}
+{{--                        </div>--}}
+{{--                    @endforeach--}}
+{{--                @endif--}}
+{{--            </form>--}}
+{{--        </td>--}}
         <td>
+            @if($pam->approved == 0)
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
                 <img width="15px" height="15px" src="/images/completed-green.png">
             </a>
-            <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">
-                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">
-            </a>
-            @if($pam->suggestion_id)
-                <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">
-                    <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">
-                </a>
             @endif
+{{--            <a href="javascript:;" class="delete-images" data-id="{{ $pam->chat_id }}">--}}
+{{--                <img width="15px" title="Remove Images" height="15px" src="/images/do-not-disturb.png">--}}
+{{--            </a>--}}
+{{--            @if($pam->suggestion_id)--}}
+{{--                <a href="javascript:;" class="add-more-images" data-id="{{ $pam->chat_id }}">--}}
+{{--                    <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">--}}
+{{--                </a>--}}
+{{--            @endif--}}
             <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
             </span>
+                @if($pam->chat_message_id !== $pam->chat_id)
             <a href="javascript:;" class="approve_message" data-id="{{ $pam->chat_id }}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
             </a>
+                    @endif
         </td>
     </tr>
     <?php }?>
@@ -76,6 +80,8 @@
                     </button>
                 </div>
                 <div class="modal-body">
+
+                    <input type="hidden" name="chat_message_id" value="{{$pam->chat_id}}">
                     @include('chatbot::partial.form.value')
                 </div>
                 <div class="modal-footer">
@@ -90,12 +96,15 @@
 <script type="text/javascript">
     $(".approve_message").on("click", function () {
         $("#approve-reply-popup").modal("show");
+        $('.user-input').text();
+        $('#approve-reply-popup [name="question[]"').val($('.user-input').text())
     });
     $('#entity_details').hide();
     $('#erp_details').hide();
 
     $(".form-save-btn").on("click",function(e) {
         e.preventDefault();
+
         var form = $(this).closest("form");
         $.ajax({
             type: form.attr("method"),
