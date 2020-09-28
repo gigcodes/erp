@@ -16,6 +16,7 @@ use App\SiteDevelopment;
 use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\ChatMessage;
+use Carbon\Carbon;
 class ChatMessagesController extends Controller
 {
     /**
@@ -95,6 +96,7 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -139,13 +141,13 @@ class ChatMessagesController extends Controller
                                                 ->whereNull("media_url")
                                                 ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                                             });
-                    });                    
+                    });
                 break;
         }
+
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-        // dd($request->object);
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
 
@@ -315,6 +317,7 @@ class ChatMessagesController extends Controller
                     //parent image ends
                 }
             }
+
             $messages[] = [
                 'id' => $chatMessage->id,
                 'type' => $request->object,
@@ -324,7 +327,7 @@ class ChatMessagesController extends Controller
                 'message' => $textMessage,
                 'parentMessage' => $textParent,
                 'media_url' => $chatMessage->media_url,
-                'datetime' => $chatMessage->created_at,
+                'datetime' => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
                 'media' => is_array($media) ? $media : null,
                 'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
                 'product_id' => !empty($productId) ? $productId : null,
@@ -341,7 +344,7 @@ class ChatMessagesController extends Controller
                 'quoted_message_id' => $chatMessage->quoted_message_id
             ];
         }
-
+        
         // Return JSON
         return response()->json([
             'messages' => $messages

@@ -6,6 +6,8 @@
 @section('large_content')
 @section('link-css')
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css"/>
+<link href="/css/bootstrap-toggle.min.css" rel="stylesheet">
+<link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
 @endsection
 <style type="text/css">
 	.preview-category input.form-control {
@@ -103,7 +105,7 @@
 </div>
 <div class="common-modal modal" role="dialog">
   	<div class="modal-dialog" role="document">
-  	</div>	
+  	</div>
 </div>
 <div id="task_statistics" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -137,13 +139,89 @@
         </div>
     </div>
 </div>
+
+<div id="addPhrases" class="modal fade" role="dialog">
+    <div class="modal-dialog <?php echo (!empty($type) && $type = 'scrap') ? 'modal-lg' : ''  ?>">
+
+        <!-- Modal conten1t-->
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Add Intent</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+
+            <div class="modal-body">
+                <form method="post" action="<?php echo route('chatbot.question.saveAjax'); ?>" id="add-phrases">
+                    {{csrf_field()}}
+
+                    <div class="form-group">
+<?php echo Form::select("group_id",[],null,["class" => "form-control select-phrase-group", "id" => "select-phrase-group-box" , "style"=> "width:100%", "placeholder" => "Choose Existing"]); ?>
+{{--                        <select class="multiselect-2" name="group" multiple data-placeholder="Select Group">--}}
+{{--                            @foreach($groups as $group)--}}
+{{--                                <option value="{{ $group->id }}">@if($group->name != null) {{ $group->name }} @else {{ $group->group }}@endif</option>--}}
+{{--                            @endforeach--}}
+{{--                        </select>--}}
+                    </div>
+
+                    <div class="form-group">
+                        <?php echo Form::select("category_id",[],null,["class" => "form-control select-phrase-category", "id" => "select-phrase-category" , "style"=> "width:100%", "placeholder" => "Choose Category"]); ?>
+                    </div>
+
+                    <div class="form-group">
+                        <?php echo Form::text("question",null,["class" => "form-control question", "placeholder" => "Enter User Intent"]); ?>
+                    </div>
+                    <div class="form-group">
+                        <?php echo Form::text("suggested_reply",null,["class" => "form-control suggested_reply", "placeholder" => "Enter Suggested reply"]); ?>
+                    </div>
+                    <div class="form-group">
+                        <select name="erp_or_watson" id="" class="form-control">
+                            <option value="">Push to</option>
+                            <option value="watson">Watson</option>
+                            <option value="erp">Erp</option>
+                        </select>
+                    </div>
+                    <button type="button" class="btn btn-secondary btn-block mt-2" id="add-phrases-btn">Add</button>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="leaf-editor-model" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="exampleModalLabel">Editor</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary save-dialog-btn">Save changes</button>
+            </div>
+        </div>
+    </div>
+</div>
+<?php include_once(app_path()."/../Modules/ChatBot/Resources/views/dialog/includes/template.php"); ?>
+
 @include("quick-customer.templates.list-template")
+@include("partials.customer-new-ticket")
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
 <script type="text/javascript" src="/js/common-helper.js"></script>
 <script type="text/javascript" src="/js/site-helper.js"></script>
 <script type="text/javascript" src="/js/quick-customer.js"></script>
+<script src="/js/bootstrap-toggle.min.js"></script>
+<script type="text/javascript" src="/js/jsrender.min.js"></script>
+<script type="text/javascript" src="/js/dialog-build.js"></script>
 
 <script type="text/javascript">
 	page.init({
@@ -1422,6 +1500,77 @@
         siteHelpers.changeQuickComment($(this));
     });
 
+    $(document).on('change', '.quickComment', function () {
+        siteHelpers.changeQuickComment($(this));
+    });
+    $(document).on("click",".add-chat-phrases",function(e) {
+        e.preventDefault();
+        // $("#addPhrases").find(".question").val($(this).data("message"));
+        $("#addPhrases").modal("show");
+    });
+    $('.select-phrase-group').select2({
+        tags : true,
+        allowClear: true,
+        placeholder: "",
+        ajax: {
+            url: '/chatbot/question/search',
+            dataType: 'json',
+            processResults: function (data) {
+                return {
+                    results: data.items
+                };
+            }
+        }
+    });
+    $(document).on("click","#add-phrases-btn",function() {
+        var form  = $(this).closest("form");
+        $.ajax({
+            type: "POST",
+            url: form.attr("action"),
+            data :form.serialize(),
+            dataType : "json",
+        }).done(function (response) {
+            toastr['success']('Message dialog update successfully', 'success');
+        }).fail(function (response) {
+            toastr['error']('Oops, Something went wrong!', 'success');
+        });
+    });
+    $(document).on("click", ".create-dialog",function() {
+
+        $("#leaf-editor-model").modal("show");
+
+        var myTmpl = $.templates("#add-dialog-form");
+        var question = $(this).closest(".message").data("message");
+        var assistantReport = [];
+        assistantReport.push({"response" : "" , "condition_sign" : "" , "condition_value" : "" , "condition" : "","id" : 0});
+        var json = {
+            "create_type": "intents_create",
+            "intent"  : {
+                "question" : question,
+            },
+            "assistant_report" : assistantReport,
+            "response" :  "",
+            "allSuggestedOptions" : JSON.parse('<?php echo json_encode(\App\ChatbotDialog::allSuggestedOptions()) ?>')
+        };
+        var html = myTmpl.render({
+            "data": json
+        });
+
+        window.buildDialog = json;
+
+        $("#leaf-editor-model").find(".modal-body").html(html);
+        $("[data-toggle='toggle']").bootstrapToggle('destroy')
+        $("[data-toggle='toggle']").bootstrapToggle();
+        $(".search-alias").select2({width : "100%"});
+
+        var eleLeaf = $("#leaf-editor-model");
+        searchForIntent(eleLeaf);
+        searchForCategory(eleLeaf);
+        searchForDialog(eleLeaf);
+        previousDialog(eleLeaf);
+        parentDialog(eleLeaf);
+
+    });
 </script>
 
 @endsection

@@ -57,6 +57,11 @@
             <div class="pull-right">
                 <button type="button" class="btn btn-secondary ml-3" onclick="addGroupPhrase()">Phrase Group</a>
             </div>
+            <div class="pull-left">
+                <a class="btn intent-edit" data-toggle="modal" data-target="#intent-reply-popup">
+                    <span>Add Popup</span>
+                </a>
+            </div>
         </div>
     </div>
 

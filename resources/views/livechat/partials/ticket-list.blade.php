@@ -3,6 +3,7 @@
 <tr>
     <td>{{ ++$i }}</td>
     <td>{{ $ticket->ticket_id }}</td>
+    <td>{{ $ticket->source_of_ticket }}</td>
     <td>{{ $ticket->name}}</td>
     <td>{{ $ticket->email }}</td>
     <td>{{ $ticket->subject }}</td>

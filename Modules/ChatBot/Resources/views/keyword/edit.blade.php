@@ -19,13 +19,14 @@
 					    <div class="form-group col-md-6">
 					      <label for="keyword">Entity</label>
 					      <small id="emailHelp" class="form-text text-muted">Name your entity to match the category of values that it will detect.</small>
-					      <?php echo Form::text("keyword", $chatbotKeyword->keyword, ["class" => "form-control", "id" => "keyword", "placeholder" => "Enter your keyword"]); ?>
+					      <!-- <?php echo Form::text("keyword", $chatbotKeyword->keyword, ["class" => "form-control", "id" => "keyword", "placeholder" => "Enter your keyword"]); ?> -->
+						  <?php echo Form::text("value", $chatbotKeyword->value, ["class" => "form-control", "id" => "keyword", "placeholder" => "Enter your keyword"]); ?>
 					    </div>
 					  </div>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
 					      <label for="value">Value</label>
-					      <?php echo Form::text("value", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+					      <?php echo Form::text("value_name", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
 					</div>
 					<div class="form-row align-items-end">

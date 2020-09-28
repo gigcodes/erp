@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Analytics;
 use App\AnalyticsSummary;
 use App\AnalyticsCustomerBehaviour;
+use App\StoreWebsiteAnalytic;
 use Spatie\Analytics\Period;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Input;
@@ -31,7 +32,10 @@ class AnalyticsController extends Controller
             orWhere('device_info', 'like', '%' . $request[ 'device_os' ] . '%')
                 ->get()->toArray();
         } else {
-            include(app_path() . '/Functions/Analytics.php');
+            $data = Analytics::all()->toArray();
+            if(empty($data)){
+                include(app_path() . '/Functions/Analytics.php');
+            }
         }
         // Analytics::get()->toArray();
         // foreach ($data as $key => $new_item) {
@@ -133,5 +137,36 @@ class AnalyticsController extends Controller
             include(app_path() . '/Functions/Analytics.php');
         }
         return View('analytics.customer-behaviour', compact('data', 'pages'));
+    }
+
+    public function cronShowData(){
+        $analyticsDataArr = [];
+        include(app_path() . '/Functions/Analytics.php');
+        $data = StoreWebsiteAnalytic::all()->toArray();
+        foreach ($data as $value) {
+            getReport($analytics, $value);
+            $resultData = printResults($response);
+            foreach ($resultData as $new_item) {
+                 $analyticsDataArr[] = [
+                        "operatingSystem" => $new_item['operatingSystem'],
+                        "user_type" => $new_item['user_type'],
+                        "time" => $new_item['time'],
+                        "page_path" => $value['website'].$new_item['page_path'],
+                        "country" => $new_item['country'],
+                        "city" => $new_item['city'],
+                        "social_network" => $new_item['social_network'],
+                        "date" => $new_item['date'],
+                        "device_info" => $new_item['device_info'],
+                        "sessions" => $new_item['sessions'],
+                        "pageviews" => $new_item['pageviews'],
+                        "bounceRate" => $new_item['bounceRate'],
+                        "avgSessionDuration" => $new_item['avgSessionDuration'],
+                        "timeOnPage" => $new_item['timeOnPage'],
+
+                  ];
+
+            }
+        }
+        Analytics::insert($analyticsDataArr);
     }
 }

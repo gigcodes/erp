@@ -7,7 +7,7 @@
 @include('partials.flash_messages')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ (isset($title)) ? ucfirst($title) : "tickets"}} (<span id="list_count">{{ $data->total() }}</span>)  </h2>
+            <h2 class="page-heading">{{ (isset($title)) ? ucfirst($title) : "Tickets"}} (<span id="list_count">{{ $data->total() }}</span>)  </h2>
             
             <div class="form-group">
                 <div class="row">
@@ -75,6 +75,7 @@
           <tr>
             <th>Sr. No.</th>
             <th>Ticket</th>
+            <th>Source</th>
             <th>Name</th>
             <th>Email</th>
             <th>Subject</th>

@@ -10899,3 +10899,100 @@ li.active{
 .reviewed_msg {
     background-color: grey !important;
 }
+
+.toast-top-right .toast {
+    padding-left: 51px !important;
+    padding-bottom: 16px !important;
+}
+
+.toast-top-right .toast .toast-message, .toast-top-right .toast .toast-title{
+    color: #fff !important;
+}
+/******** Rejected page Ankaj css start here *********/
+
+.page-heading.rejected-title {
+    text-align: left;
+    font-size: 16px;
+    font-weight: bold;
+    box-shadow: 0px 3px 4px 1px rgb(0 0 0 / 15%);
+}
+td.title.full p {
+    text-overflow: inherit;
+    overflow: inherit;
+    -webkit-box-orient: inherit;
+}
+.rejected-listings .cls_filter_inputbox{
+    width: 13%;
+    margin-left: 9px;
+} 
+.rejected-listings .cls_filter_inputbox:last-child {
+    width: 3%;
+    margin-top: 5px;
+}
+.rejected-listings .cls_filter_inputbox span.select2.select2-container {
+    width: 100% !important;
+}
+.rejected-listings .cls_filter_inputbox:last-child button.btn.btn-image {
+    padding: 0;
+}
+.rejected-listings {
+    padding-left: 5px;
+    padding-top: 8px;
+    padding-bottom: 5px;
+}
+.rejected-listings .form-control{
+    box-shadow: 0 1px 9px rgb(0 0 0 / 14%);
+    padding: 6px 5px;
+}
+.rejected-listings .select2-container--default .select2-selection--multiple {
+    height: 34px;
+    padding-left: 5px;
+}
+.table>thead:first-child>tr:first-child>th {
+    border-top: 1px solid #ddd !important;
+}
+.rejected-table .relist-product {
+    background: #333;
+    font-weight: 600;
+}
+.rejected-table .delete-product {
+    background: red;
+    font-weight: 600;
+}
+.rejected-table .table>thead>tr>th {
+    border-bottom-width: 0;
+    padding-top: 15px;
+    padding-bottom: 15px;
+}
+.rejected-table-img img {
+    width: 100%;
+    max-width: 35px;
+}
+.rejected-table-img {
+    text-align: center;
+}
+.table-hover-cell:hover {
+    background-color: #eee;
+}
+td.title p {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    margin-bottom: 0;
+}
+
+/********* Responsive start Here ****************/
+@media (max-width: 991px) {
+.rejected-listings .cls_filter_inputbox {
+    width: 100%;
+    margin-left: 0;
+    padding: 0 15px;
+}
+.rejected-listings .cls_filter_inputbox:last-child {
+    width: 100%;
+    margin-top: 0;
+}
+}
+/******** Rejected page Ankaj css End here *********/

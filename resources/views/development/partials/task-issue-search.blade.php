@@ -96,6 +96,9 @@
                 </select>
             </div>
         @endif
+        <div class="col-md-2 pd-sm">
+            <input placeholder="E. Date" type="text" class="form-control estimate-date_picker" id="estimate_date_picker" name="estimate_date" >
+        </div>
         <div class="col-md-1 pd-sm">
             {{--
             @if ( isset($_REQUEST['show_resolved']) && $_REQUEST['show_resolved'] == 1 )

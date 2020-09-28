@@ -80,6 +80,16 @@ class UserManagementController extends Controller
                     $u["team"] = $team;
                     $user_in_team = 1;
                 }
+
+                $pending_tasks = Task::where('is_statutory', 0)
+            ->whereNull('is_completed')
+            ->Where('assign_to', $u->id)->count();
+
+            $total_tasks = Task::where('is_statutory', 0)
+            ->Where('assign_to', $u->id)->count();
+                $u["pending_tasks"] = $pending_tasks;
+                $u["total_tasks"] = $total_tasks;
+
                 $isMember = $u->teams()->first();
                 if($isMember) {
                     $user_in_team = 1;
@@ -791,20 +801,28 @@ class UserManagementController extends Controller
         if(Auth::user()->hasRole('Admin')) {
             $members = $request->input('members');
             if($members) {
-                foreach($members as $mem) {
+                foreach($members as $key => $mem) {
                     $u = User::find($mem);
                     if($u) {
                         $isMember = $u->teams()->first();
                         $isLeader = Team::where('user_id',$mem)->first();
                         if(!$isMember && !$isLeader) {
                             $team->users()->attach($mem); 
+                            $response[$key]["msg"] = $u->name." added in team successfully";
+                            $response[$key]["status"] = 'success';
+                        }else if($isMember){
+                            $response[$key]["msg"] = $u->name." is already team member";
+                            $response[$key]["status"] = 'error';
+                        }else{
+                            $response[$key]["msg"] = $u->name." is already team leader";
+                            $response[$key]["status"] = 'error';
                         }
                     }
                 }
             }
             return response()->json([
                 "code"       => 200,
-                "message"       => 'Team created successfully'
+                "data"       => $response
             ]);
         }
         return response()->json([
@@ -829,6 +847,24 @@ class UserManagementController extends Controller
         ]);
     }
 
+    public function deleteTeam($id, Request $request)
+    {
+        $team = Team::find($id);
+        if($team){
+            $team->users()->detach();
+            $team->delete();
+            return response()->json([
+                "code"       => 200,
+                "data"       => "Team deleted successfully"
+            ]);
+        }else{
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Unauthorized access'
+            ]);
+        }
+    }
+
 
     public function editTeam($id, Request $request) {
         $team = Team::find($id);
@@ -838,20 +874,28 @@ class UserManagementController extends Controller
             $members = $request->input('members');
             if($members) {
                 $team->users()->detach();
-                foreach($members as $mem) {
+                foreach($members as $key => $mem) {
                     $u = User::find($mem);
                     if($u) {
                         $isMember = $u->teams()->first();
                         $isLeader = Team::where('user_id',$mem)->first();
                         if(!$isMember && !$isLeader) {
                             $team->users()->attach($mem); 
+                            $response[$key]["msg"] = $u->name." added in team successfully";
+                            $response[$key]["status"] = 'success';
+                        }else if($isMember){
+                            $response[$key]["msg"] = $u->name." is already team member";
+                            $response[$key]["status"] = 'error';
+                        }else{
+                            $response[$key]["msg"] = $u->name." is already team leader";
+                            $response[$key]["status"] = 'error';
                         }
                     }
                 }
             }
             return response()->json([
                 "code"       => 200,
-                "message"       => 'Team updated successfully'
+                "data"       => $response
             ]);
         }
         return response()->json([

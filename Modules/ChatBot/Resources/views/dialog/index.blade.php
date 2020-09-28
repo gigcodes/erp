@@ -6,6 +6,12 @@
 @section('content')
 <link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 <link rel="stylesheet" type="text/css" href="/css/dialog-node-editor.css">
+
+<style>
+.select2-container--default .select2-selection--single {
+  height : 30px;
+}
+</style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
 	    <h2 class="page-heading">Dialog | Chatbot</h2>
@@ -54,7 +60,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary save-dialog-btn">Save changes</button>
+        <button type="button" class="btn btn-secondary save-dialog-btn">Save changes</button>
       </div>
     </div>
   </div>

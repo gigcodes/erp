@@ -8,6 +8,8 @@ use App\Stage;
 use App\Brand;
 use App\Category;
 use App\Helpers;
+use App\Mediables;
+use App\ProductStatusHistory;
 use App\ReadOnly\LocationList;
 use Dompdf\Css\Style;
 use Dompdf\Css\Stylesheet;
@@ -68,7 +70,7 @@ class ProductInventoryController extends Controller
 
         $sampleColors = ColorReference::select('erp_color')->groupBy('erp_color')->get(); 
 
-
+        $categoryArray=array();
         return view('partials.grid',compact('products', 'products_count', 'roletype', 'category_selection','categoryArray','sampleColors'))
 			->with('i', (request()->input('page', 1) - 1) * 10);
 
@@ -978,5 +980,43 @@ class ProductInventoryController extends Controller
 
 		return response()->json(["code" => 500,"message" => "Oops, Required field is missing"]);
 
+	}
+
+	public function inventoryList(Request $request)
+    {
+        $filter_data = $request->input();
+        $inventory_data = \App\Product::getProducts($filter_data);
+        $inventory_data_count = $inventory_data->total();
+        $status_list = \App\Helpers\StatusHelper::getStatus();
+
+        foreach ($inventory_data as $product) {
+            $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
+            $product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+            foreach ($product_history as $each) {
+                $each['old_status'] = $status_list[$each['old_status']];
+                $each['new_status'] = $status_list[$each['new_status']];
+            }
+            $product['status_history'] = $product_history;
+        }
+
+        //for filter
+        $brands_names        = \App\Brand::getAll();
+        $products_names      = \App\Product::getPruductsNames();
+        $products_categories = \App\Product::getPruductsCategories();
+        $products_sku        = \App\Product::getPruductsSku();
+        if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
+        return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count'));
+    }
+	public function getProductImages($id) {
+	  $product = Product::find($id);
+	  $urls = [];
+      if($product) {
+        $medias =  \App\Mediables::getMediasFromProductId($id);
+		 $medias = $product->getMedia(config('constants.media_tags'));
+		 foreach($medias as $media) {
+			$urls[] = $media->getUrl();
+		 }
+	  }
+	  return response()->json(['urls' => $urls]);
 	}
 }
