@@ -1480,6 +1480,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
     Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
     Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
+    Route::post('influencer-restart-script', 'InfluencersController@restartScript')->name('influencers.restart');
+    Route::post('influencer-stop-script', 'InfluencersController@stopScript')->name('influencers.stop');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
