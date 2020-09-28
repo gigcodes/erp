@@ -45,6 +45,8 @@ class Client
         return $this->_sendRequestToShopify($url, $json, "POST", $store_id);
     }
 
+    //I think $collections = null, variable should be removed, but don't want to make changes on this file
+    //please check this yourself
     public function updateProduct($id, $json = null, $collections = null, $store_id = null)
     {
         $url = '/admin/api/' . $this->_apiVersion . '/products/' . $id . '.json';

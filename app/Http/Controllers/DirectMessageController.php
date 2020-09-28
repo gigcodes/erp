@@ -11,6 +11,9 @@ use \App\InstagramUsersList;
 use \App\InstagramThread;
 use Plank\Mediable\Media;
 use App\ChatMessage;
+use App\Brand;
+use DB;
+use App\ReadOnly\SoloNumbers;
 use InstagramAPI\Media\Photo\InstagramPhoto;
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
@@ -18,8 +21,10 @@ class DirectMessageController extends Controller
 {
     public function index()
     {
+     
     	$threads = InstagramThread::whereNotNull('instagram_user_id')->whereNotNull('account_id')->get();
-
+$select_brands = Brand::pluck('name','id');
+$solo_numbers = (new SoloNumbers)->all();
     	// if ($request->ajax()) {
      //        return response()->json([
      //            'tbody' => view('instagram.direct.data', compact('threads'))->render(),
@@ -27,7 +32,7 @@ class DirectMessageController extends Controller
      //        ], 200);
      //    }
 
-    	return view('instagram.direct.index',['threads' => $threads]);
+    	return view('instagram.direct.index',['threads' => $threads,'select_brands' => $select_brands,'solo_numbers' => $solo_numbers]);
     }
 
 

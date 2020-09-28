@@ -14,10 +14,8 @@ class CreateLogListMagentosTable extends Migration
      */
     public function up()
     {
-        DB::statement("
-        ALTER TABLE `log_list_magentos` ADD `sync_status` ENUM('success', 'error') NULL DEFAULT NULL AFTER `store_website_id`;
-        ALTER TABLE `log_list_magentos` ADD `languages` TEXT NULL DEFAULT NULL COMMENT 'Language Id (JSON)' AFTER `sync_status`;
-        ");
+        DB::statement("ALTER TABLE `log_list_magentos` ADD `sync_status` ENUM('success', 'error') NULL DEFAULT NULL AFTER `store_website_id`");
+        DB::statement("ALTER TABLE `log_list_magentos` ADD `languages` TEXT NULL DEFAULT NULL COMMENT 'Language Id (JSON)' AFTER `sync_status`");
     }
 
     /**

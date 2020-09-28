@@ -11,7 +11,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Inventory Data ({{ count($inventory_data) }})</h2>
+            <h2 class="page-heading">Inventory Data ({{ $inventory_data_count }})</h2>
         </div>
     </div>
 

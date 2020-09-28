@@ -39,9 +39,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="keyword">Task ID:</label>
-                            <input type="text" class="form-control" value="" placeholder="Add Your Task ID Here" name="task_id"/>
-                            
+                            <strong>Date Range</strong>
+                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
+                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
                         </div>
                         <div class="form-group">
                             <label for="keyword">Status:</label>

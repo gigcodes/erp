@@ -10900,6 +10900,14 @@ li.active{
     background-color: grey !important;
 }
 
+.toast-top-right .toast {
+    padding-left: 51px !important;
+    padding-bottom: 16px !important;
+}
+
+.toast-top-right .toast .toast-message, .toast-top-right .toast .toast-title{
+    color: #fff !important;
+}
 /******** Rejected page Ankaj css start here *********/
 
 .page-heading.rejected-title {

@@ -49,7 +49,10 @@
                             <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{:prop.task_id}}"><img style="padding: 0;margin-top: -14px;" src="/images/filled-sent.png"/></button>
                         </div>
 					  </td>
-					  <td></td>
+					  <td>
+					  	<input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+					  	<button class="btn btn-sm btn-image send-message" data-id="{{:prop.task_id}}"><img src="/images/filled-sent.png"/></button>
+					  </td>
 				  </tr>
 				  {{/props}}
 		    </tbody>
@@ -64,3 +67,75 @@
         format: 'YYYY-MM-DD HH:mm'
     }); 
 </script>
+<script>
+	$(document).on('click', '.send-message', function () {
+		var cached_suggestions = localStorage['message_suggestions'];
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('id');
+            var message = $(this).siblings('input').val();
+
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        $(thiss).siblings('input').val('');
+
+                        if (cached_suggestions) {
+                            suggestions = JSON.parse(cached_suggestions);
+
+                            if (suggestions.length == 10) {
+                                suggestions.push(message);
+                                suggestions.splice(0, 1);
+                            } else {
+                                suggestions.push(message);
+                            }
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('EXISTING');
+                            console.log(suggestions);
+                        } else {
+                            suggestions.push(message);
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('NOT');
+                            console.log(suggestions);
+                        }
+
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
+	</script>

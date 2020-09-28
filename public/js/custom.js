@@ -714,4 +714,6 @@ var customerSearch = function() {
     });
   };
 
-  checkQueueIsStucked();
+  $( document ).ready(function() {
+    checkQueueIsStucked();
+  });

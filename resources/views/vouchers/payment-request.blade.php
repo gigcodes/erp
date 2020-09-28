@@ -77,11 +77,11 @@
           @endif
         </div>
 
-        <button type="submit" class="btn btn-secondary">Create</button>
+        <!--button type="submit" class="btn btn-secondary">Create</button-->
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-        <button type="submit" class="btn btn-danger">Submit</button>
+        <button type="submit" class="btn btn-danger">Create</button>
       </div>
         {!! Form::close() !!}
       
