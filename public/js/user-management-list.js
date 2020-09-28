@@ -97,6 +97,9 @@ var page = {
         $(".common-modal").on("click",".edit-team",function() {
             page.submitEditTeam($(this));
         });
+        $(".common-modal").on("click",".delete-team",function() {
+            page.submitDeleteTeam($(this));
+        });
 
         $(".common-modal").on("keyup",".search-role",function() {
             page.roleSearch();
@@ -331,7 +334,13 @@ var page = {
     },
     saveTeam : function(response) {
         if(response.code  == 200) {
-            toastr['success']('Team created successfully', 'success');
+            $.each(response.data , function(key, val) { 
+                if(val['status'] == "success"){
+                    toastr['success'](val['msg'], 'success');
+                }else{
+                    toastr['error'](val['msg'], 'error');
+                }
+            });
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
@@ -371,7 +380,34 @@ var page = {
     },
     saveEditTeam : function(response) {
         if(response.code  == 200) {
-            toastr['success']('Team updated successfully', 'success');
+            $.each(response.data , function(key, val) { 
+                if(val['status'] == "success"){
+                    toastr['success'](val['msg'], 'success');
+                }else{
+                    toastr['error'](val['msg'], 'error');
+                }
+            });
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    submitDeleteTeam : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/delete-team/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveDeleteTeam");
+    },
+    saveDeleteTeam : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Team delete successfully', 'success');
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
