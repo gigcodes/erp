@@ -444,6 +444,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');

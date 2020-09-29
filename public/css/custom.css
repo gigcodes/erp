@@ -133,9 +133,12 @@
 .notification-table tr.isread{
     background: #ECF2FB;
 }
-
+#title
+{
+    background: darkgray;color:#fff;padding:10px;margin-top:10px;margin-bottom:10px;
+}
 .grid-image{
-  height: 200px !important;
+  /* height: 200px !important; */
   margin: 0 auto;
 }
 

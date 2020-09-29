@@ -8,7 +8,7 @@ class ChatbotQuestion extends Model
 {
     protected $fillable = [
         'value', 'workspace_id', 'created_at', 'updated_at', 'keyword_or_question', 'category_id',
-        'sending_time','repeat','is_active','erp_or_watson','suggested_reply','auto_approve'
+        'sending_time','repeat','is_active','erp_or_watson','suggested_reply','auto_approve','chat_message_id'
     ];
 
     public function chatbotQuestionExamples()

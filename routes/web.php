@@ -251,7 +251,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
     Route::resource('reply', 'ReplyController');
-    Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestion')->name('reply.create.chatbot_questions');
+    Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
 
     // Auto Replies
@@ -309,6 +309,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Route::post('erp-leads', 'LeadsController@filterErpLeads')->name('erp-leads.filterErpLeads');
     Route::post('erp-leads-send-message', 'LeadsController@sendMessage')->name('erp-leads-send-message');
     Route::get('erp-leads/response', 'LeadsController@erpLeadsResponse')->name('leads.erpLeadsResponse');
+    Route::get('erp-leads/history', 'LeadsController@erpLeadsHistory')->name('leads.erpLeadsHistory');
     Route::post('erp-leads/{id}/changestatus', 'LeadsController@updateErpStatus');
     Route::get('erp-leads/edit', 'LeadsController@erpLeadsEdit')->name('leads.erpLeads.edit');
     Route::get('erp-leads/create', 'LeadsController@erpLeadsCreate')->name('leads.erpLeads.create');
@@ -316,7 +317,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('erp-leads/delete', 'LeadsController@erpLeadDelete')->name('leads.erpLeads.delete');
     Route::get('erp-leads/customer-search', 'LeadsController@customerSearch')->name('leads.erpLeads.customerSearch');
     Route::post('erp-lead-block-customer', 'LeadsController@blockcustomerlead')->name('leads.block.customer');        
-
+    
     //Cron
     Route::get('cron', 'CronController@index')->name('cron.index');
     Route::get('cron/run', 'CronController@runCommand')->name('cron.run.command');
@@ -1479,6 +1480,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::post('influencer-keyword-status', 'InfluencersController@checkScraper')->name('influencers.status');
     Route::post('influencer-keyword-start', 'InfluencersController@startScraper')->name('influencers.start');
     Route::post('influencer-keyword-log', 'InfluencersController@getLogFile')->name('influencers.log');
+    Route::post('influencer-restart-script', 'InfluencersController@restartScript')->name('influencers.restart');
+    Route::post('influencer-stop-script', 'InfluencersController@stopScript')->name('influencers.stop');
     Route::resource('automated-reply', 'InstagramAutomatedMessagesController');
     Route::get('/', 'InstagramController@index');
     Route::get('comments/processed', 'HashtagController@showProcessedComments');
@@ -2278,3 +2281,12 @@ Route::get('/run-webhook/{sid}', 'TwilioController@runWebhook');
 Route::get('/quick-replies', 'QuickReplyController@quickReplies')->name('quick-replies');
 Route::get('/get-store-wise-replies/{category_id}/{store_website_id?}', 'QuickReplyController@getStoreWiseReplies')->name('store-wise-replies');
 Route::post('/save-store-wise-reply', 'QuickReplyController@saveStoreWiseReply')->name('save-store-wise-reply');
+
+/**
+ * Store Analytics Module
+ */
+Route::get('/store-website-analytics/index', 'StoreWebsiteAnalyticsController@index');
+Route::any('/store-website-analytics/create', 'StoreWebsiteAnalyticsController@create');
+Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsController@edit');
+Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
+Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
