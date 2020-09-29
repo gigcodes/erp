@@ -77,7 +77,7 @@ use App\ChatMessagesQuickData;
 use App\ColdLeads;
 use App\ChatbotQuestion;
 use Google\Cloud\Translate\TranslateClient;
-
+use App\Hubstaff\HubstaffActivitySummary;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2242,6 +2242,30 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'dubbizle') {
                     $data[ 'dubbizle_id' ] = $request->dubbizle_id;
                     $module_id = $request->dubbizle_id;
+                }
+                elseif ($context == 'time_approval') {
+                    $summary = HubstaffActivitySummary::find($request->summery_id);
+                    if($summary) {
+                        $userId = $summary->user_id;
+                        $number = User::find($userId);
+                        if (!$number) {
+                            return response()->json(['message' => null]);
+                        }
+                        $whatsapp = $number->whatsapp_number;
+                        $number = $number->phone;
+
+                        $params[ 'erp_user' ] = $userId;
+                        $params[ 'user_id' ]  = $userId;
+                        $params[ 'sent_to_user_id' ] = $userId;
+                        $params[ 'approved' ] = 1;
+                        $params[ 'status' ] = 2;
+                        $params[ 'hubstaff_activity_summary_id' ] = $request->summery_id;
+                        $params[ 'message' ] = $request->message;
+                        $this->sendWithThirdApi($number, $whatsapp, $params[ 'message' ]);
+                        $chat_message = ChatMessage::create($params);
+                        return response()->json(['message' => $chat_message]);
+                    }
+                    return response()->json(['message' => null]);
                 } elseif ($context == 'issue') {
                     $sendTo = $request->get('sendTo',"to_developer");
                     $params[ 'issue_id' ] = $request->get('issue_id');
