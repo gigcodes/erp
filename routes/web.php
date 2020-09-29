@@ -2193,7 +2193,13 @@ Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Contro
 Route::get('charity', 'CharityController@index')->name('charity');
 Route::any('charity/update', 'CharityController@update')->name('charity.update');
 Route::post('charity/store', 'CharityController@store')->name('charity.store');
-Route::any('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+Route::get('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.add-status');
+Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
+Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
+Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
+
+
 
 
 
