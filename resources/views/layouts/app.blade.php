@@ -2454,6 +2454,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }
