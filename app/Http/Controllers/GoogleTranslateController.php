@@ -55,11 +55,16 @@ class GoogleTranslateController extends Controller
                 if($checkTranslationTable) {
                     $response[] = $checkTranslationTable->text;
                 } else {
-                    $translationString = $googleTranslate->translate($language,$name);
+                    try {
+                        $translationString = $googleTranslate->translate($language,$name);
 
-                    // Devtask-2893 : Added model to save individual line translation
-                    Translations::addTranslation($name, $translationString, 'en', $language);
-                    $response[] = $translationString;
+                        // Devtask-2893 : Added model to save individual line translation
+                        Translations::addTranslation($name, $translationString, 'en', $language);
+                        $response[] = $translationString;
+                        
+                    } catch (\Exception $e) {
+                        \Log::error($e);
+                    }
                 }
             }
             return implode($response);
