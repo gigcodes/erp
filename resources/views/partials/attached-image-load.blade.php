@@ -3,9 +3,24 @@
     <div class="col text-center">
         <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
     </div>
+    <div class="text-right">
+        @php
+        $customer_id = (!empty($_GET["customer_id"])) ?  $_GET["customer_id"] : $_GET["get_customer_id"];
+        $customer = \App\Customer::whereId($customer_id)->first();
+        @endphp
+        @if($customer_id)
+        <p>Customer Name: {{$customer->name}}</p>
+        <p>Customer Number: {{$customer->phone}}</p>
+        <p>Customer Id: {{$customer->id}}</p>
+        @endif
+    </div>
 </div>
+
 <div class="infinite-scroll">
-    <div class="row">
+    <div class="container">
+        @php
+        $count = 0;
+        @endphp
         @foreach ($products as $kr => $product)
         @if ($product->hasMedia(config('constants.attach_image_tag')))
         @php
@@ -21,20 +36,14 @@
         $selected_all = false;
         }
         $image_keys = json_encode($image_key);
+        if($count == 6){
+            $count = 0;
+        }
+        if($count == 0){
+                echo '<div class="row parent-row">';
+        }
         @endphp
         <div class="col-md-2 col-xs-4 text-center product-list-card mb-4">
-            <div style="text-align: left;">
-                @php
-                $customer_id = (!empty($_GET["customer_id"])) ?  $_GET["customer_id"] : $_GET["get_customer_id"];
-                $customer = \App\Customer::whereId($customer_id)->first();
-                @endphp
-                @if($customer_id)
-                <p>Customer Name: {{$customer->name}}</p>
-                <p>Customer Number: {{$customer->phone}}</p>
-                <p>Customer Id: {{$customer->id}}</p>
-                @endif
-            </div>
-
             <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
                 <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
                     <div class="carousel-inner maincarousel">
@@ -42,36 +51,35 @@
                     </div>
                 </a>
             </div>
-
-            <div class="custom-control custom-checkbox" style="padding: 0px; margin-bottom: 10px;">
-                <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr}}" checked="" >
-                <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr}}"></label>
-            </div>
-
-            <div class="btn-group" role="group" aria-label="Basic example">
-                <a href="#" class="btn btn-xs {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : 'btn-secondary' }} attach-photo" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}">Attach</a>
-                @if($model_type != 'landing-page')
-                <a href="#" class="btn btn-xs {{ $selected_all ? 'btn-success' : 'btn-secondary' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}">Attach All</a>
-                @endif
-            </div>
-
-            <div class="dropdown load-chat-images-dropdown-menu mt-3 mb-4">
-                <button type="button" class="btn btn-primary dropdown-toggle load-chat-images-actions">
-                    Actions
-                </button>
-                <div class="dropdown-menu">
-                    <a href="#" class="dropdown-item create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}">+ Dimensions</a>
-                    <a href="#" class="dropdown-item create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}">+ Lead</a>
-                    <a href="#" class="dropdown-item create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}"> - Detailed Images</a>
-                    <a href="#" class="dropdown-item create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}">+ Order</a>
-                    <a href="#" class="dropdown-item create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="cc">+ KYC</a>
-                    <a href="#" title="Forward" class="dropdown-item forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="{{$image_key}}">- Forward</a>
-                    <a href="#" title="Resend" data-id="{{$image_key}}" class="dropdown-item resend-message">- Resend</a>
-                    <a href="#" title="Remove"  class="dropdown-item delete-message" data-id="{{$image_key}}">- Remove</a>
-                    <a href="#" title="Mark as reviewed" class="dropdown-item review-btn" data-id="{{$image_key}}">- Mark as reviewed</a>
+            <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
+                <div class="custom-control custom-checkbox">
+                    <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr}}" checked="" >
+                    <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr}}"></label>
                 </div>
-            </div> 
+
+                <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
+                @if($model_type != 'landing-page')
+                <a href="javascript:;" class="btn btn-sm btn-image {{ $selected_all ? 'btn-success' : '' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}"><img src="{{asset('images/double-attach.png')}}"></a>
+                    @endif
+                    <a href="javascript:;" class="btn btn-sm select_row" title="Select Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
+                    <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
+                    <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>
+                    <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a>
+                    <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
+                    <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="cc" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
+                    <a href="javascript:;" title="Forward" class="btn btn-sm forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="{{$image_key}}" title="Forward"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a>
+                    <a href="javascript:;" title="Resend" data-id="{{$image_key}}" class="btn btn-sm resend-message" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                    <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$image_key}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                    <a href="javascript:;" title="Mark as reviewed" class="btn btn-sm review-btn" data-id="{{$image_key}}" title="Mark as reviewd"><i class="fa fa-check" aria-hidden="true"></i></a>
+                    <!--<a title="Dialog" href="javascript:;" class="btn btn-sm create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>-->
+            </div>
         </div>
+        @php
+          $count++;
+         if($count == 6){
+           echo '</div>';
+         }
+        @endphp
 
         @else
         <div class="col-md-3 col-xs-6 text-center mb-5">
@@ -98,7 +106,6 @@
         </div>
         @endif
         @endforeach
-    </div>
     <div class="row">
         <div class="col text-center">
             <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>

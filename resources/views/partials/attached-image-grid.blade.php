@@ -23,58 +23,35 @@
             margin: -50px 0px 0px -50px;
             z-index: 60;
         }
-        .carousel-control:focus, .carousel-control:hover {
-            color: #0284b8 !important;
+
+        .row .btn-group .btn {
+            margin: 0px;
         }
-
-        .product-slider { padding: 45px; }
-
-        
-          .product-slider #carousel { margin: 0; }
-
-           .product-slider .maincarousel .item { height: 150px; } 
-
-           .product-slider .carousel-inner img {object-fit: contain;}
-
-          .product-slider .thumbcarousel { margin: 12px 0 0; padding: 0 45px; }
-
-          .product-slider .thumbcarousel .item { text-align: center; }
-
-          .product-slider .thumbcarousel .item .thumb {  width: 20%; margin: 0 2%; display: inline-block; vertical-align: middle; cursor: pointer; max-width: 35px; }
-
-          .product-slider .maincarousel .item img { width: 100%; height: 150px; }
-
-          .carousel-control { color: #0284b8; text-align: center; text-shadow: none; font-size: 30px; width: 30px; height: 30px; line-height: 20px; top: 23%; }
-          .carousel-caption, .carousel-control .fa { font: normal normal normal 30px/26px FontAwesome; }
-          .carousel-control { background-color: rgba(0, 0, 0, 0); bottom: auto; font-size: 20px; left: 0; position: absolute; top: 30%; width: auto; }
-
-          .carousel-control.right, .carousel-control.left { background-color: rgba(0, 0, 0, 0); background-image: none; }
-
-          .row .btn-group .btn {
-          margin: 0px;
-          }
-          .btn-group-actions{
-              text-align: right;
-          }
-          .select-multiple-cat-list + .select2-container{
-              width: 225px !important;
-          }
-          .multiselect-supplier + .select2-container{
-          width: 198px !important;
-          }
-          .size-input{
-              width: 155px !important;
-          }
-          .quick-sell-multiple{
-              width: 98px !important;
-          }
-          .image-filter-btn{
-               padding: 10px;
-               margin-top: -12px;
-          }
-          .update-product + .select2-container{
-              width: 150px !important;
-          }
+        .btn-group-actions{
+            text-align: right;
+        }
+        .select-multiple-cat-list + .select2-container{
+            width: 225px !important;
+        }
+        .multiselect-supplier + .select2-container{
+            width: 198px !important;
+        }
+        .size-input{
+            width: 155px !important;
+        }
+        .quick-sell-multiple{
+            width: 98px !important;
+        }
+        .image-filter-btn{
+            padding: 10px;
+            margin-top: -12px;
+        }
+        .update-product + .select2-container{
+            width: 150px !important;
+        }
+        .product-list-card > .btn, .btn-sm {
+            padding: 5px;
+        }
     </style>
 @endsection
 
@@ -925,6 +902,13 @@
              }
          });
         }
+        
+        $('body').on("click",'.select_row', function (event) {
+        $(".select-pr-list-chk").prop("checked", false).trigger('change');
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
     </script>
 
 @endsection
