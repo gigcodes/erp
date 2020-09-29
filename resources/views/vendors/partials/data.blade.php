@@ -136,7 +136,15 @@
     <td>
         <div class="cls_action_btn">
             <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
-
+			
+			@php 
+			$iconReminderColor = 'grey';
+			if($vendor->frequency)
+			{
+				$iconReminderColor = 'red';
+			}
+			
+			@endphp
             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
              data-id="{{ $vendor->id }}"
              data-frequency="{{ $vendor->frequency ?? '0' }}"
@@ -144,7 +152,8 @@
              data-reminder_from="{{ $vendor->reminder_from }}"
              data-reminder_last_reply="{{ $vendor->reminder_last_reply }}"
              >
-                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
+                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px; background-color:{{$iconReminderColor}};">
+				
             </button>
 
             <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
