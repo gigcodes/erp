@@ -39,7 +39,9 @@
         .selecte-choice-reply {
             cursor: pointer;
         }
-
+        .select2-container {
+            width:100% !important;
+        }
     </style>
 @endsection
 
@@ -348,12 +350,18 @@
         $(document).on("change","#phraseGroup",function(){
            $("#autochat-reply").val($(this).find(':selected').data("suggested-reply"));
         });
+        $(document).ready(function () {  
+            $('.existing-intent.select2').select2({tags: true});
+        });
 
         function createGroupPhrase() {
             var phraseId = [];
-            name = $('#phrasename').val();
             phrase_group = $('#phraseGroup').val();
             reply = $('#autochat-reply').val();
+            erp_or_watson = $('#erp_or_watson').val();
+            auto_approve = $('#auto_approve').val();
+            category_id = $('#category_id').val();
+            
             $.each($("input[name='phrase']:checked"), function(){
                 phraseId.push($(this).val());
                 keyword = $(this).attr("data-keyword")
@@ -371,13 +379,21 @@
                 data: {
                     phraseId: phraseId,
                     keyword : keyword,
-                    name : name,
                     phrase_group : phrase_group,
                     reply : reply,
+                    erp_or_watson : erp_or_watson,
+                    auto_approve : auto_approve,
+                    category_id : category_id
                 },
                 }).done(response => {
-                    alert('Added Phrase Group');
-                    location.reload();
+                    if(response.code == 200) {
+                        toastr['success']('Intent created successfully successfully', 'success');
+                        location.reload();
+                    }
+                    else {
+                        toastr['error'](response.message, 'error'); 
+                    }
+                    
                 }).fail(function (response) {
                     alert('Could not add Phrase group!');
                 });
