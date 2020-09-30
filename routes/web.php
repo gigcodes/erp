@@ -2294,3 +2294,5 @@ Route::any('/store-website-analytics/create', 'StoreWebsiteAnalyticsController@c
 Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsController@edit');
 Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
+
+Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');

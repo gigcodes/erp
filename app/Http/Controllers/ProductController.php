@@ -3791,5 +3791,371 @@ class ProductController extends Controller
         ]);
 
     }
+    
+    public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
+        // ->where('composition', 'LIKE', '%' . request('keyword') . '%')
+        // dd($request->all());
+        $model_type = 'customer';
+        if ($model_type == 'customer') {
+            $customerId = $model_id;
+        } else {
+            $customerId = null;
+        }
+
+        //\DB::enableQueryLog();
+        $roletype = $request->input('roletype') ?? 'Sale';
+        $term = $request->input('term');
+        if ($request->total_images) {
+            $perPageLimit = $request->total_images;
+        } else {
+            $perPageLimit = $request->get("per_page");
+        }
+
+
+        if (Order::find($model_id)) {
+            $selected_products = self::getSelectedProducts($model_type, $model_id);
+        } else {
+            $selected_products = [];
+        }
+
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
+
+        $sourceOfSearch = $request->get("source_of_search", "na");
+
+        // start add fixing for the price range since the one request from price is in range
+        // price  = 0 , 100
+
+        $priceRange = $request->get("price", null);
+
+        if ($priceRange && !empty($priceRange)) {
+            @list($minPrice, $maxPrice) = explode(",", $priceRange);
+            // adding min price
+            if (isset($minPrice)) {
+                $request->request->add(['price_min' => $minPrice]);
+            }
+            // addin max price
+            if (isset($maxPrice)) {
+                $request->request->add(['price_max' => $maxPrice]);
+            }
+        }
+
+        $products = (new Product())->newQuery()->latest();
+        $products->where("has_mediables", 1);
+
+        if (isset($request->brand[0])) {
+            if ($request->brand[0] != null) {
+                $products = $products->whereIn('brand', $request->brand);
+            }
+        }
+
+        if (isset($request->color[0])) {
+            if ($request->color[0] != null) {
+                $products = $products->whereIn('color', $request->color);
+            }
+        }
+
+        if (isset($request->category[0])) {
+            if ($request->category[0] != null && $request->category[0] != 1) {
+
+                $category_children = [];
+
+                foreach ($request->category as $category) {
+
+                    $is_parent = Category::isParent($category);
+
+                    if ($is_parent) {
+                        $childs = Category::find($category)->childs()->get();
+
+                        foreach ($childs as $child) {
+                            $is_parent = Category::isParent($child->id);
+
+                            if ($is_parent) {
+                                $children = Category::find($child->id)->childs()->get();
+
+                                foreach ($children as $chili) {
+                                    array_push($category_children, $chili->id);
+                                }
+                            } else {
+                                array_push($category_children, $child->id);
+                            }
+                        }
+                    } else {
+                        array_push($category_children, $category);
+                    }
+                }
+
+                $products = $products->whereIn('category', $category_children);
+            }
+        }
+
+        if ($request->price_min != null && $request->price_min != 0) {
+            $products = $products->where('price_inr_special', '>=', $request->price_min);
+        }
+
+        if ($request->price_max != null) {
+            $products = $products->where('price_inr_special', '<=', $request->price_max);
+        }
+
+        if (isset($request->supplier[0])) {
+            if ($request->supplier[0] != null) {
+                $suppliers_list = implode(',', $request->supplier);
+
+                $products = $products->whereRaw("products.id in (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))");
+            }
+        }
+
+        if (trim($request->size) != '') {
+            $products = $products->whereNotNull('size')->where(function ($query) use ($request) {
+                $query->where('size', $request->size)->orWhere('size', 'LIKE', "%$request->size,")->orWhere('size', 'LIKE', "%,$request->size,%");
+            });
+        }
+
+        if (isset($request->location[0])) {
+            if ($request->location[0] != null) {
+                $products = $products->whereIn('location', $request->location);
+            }
+        }
+
+        if (isset($request->type[0])) {
+            if ($request->type[0] != null && is_array($request->type)) {
+                if (count($request->type) > 1) {
+                    $products = $products->where(function ($query) use ($request) {
+                        $query->where('is_scraped', 1)->orWhere('status', 2);
+                    });
+                } else {
+                    if ($request->type[0] == 'scraped') {
+                        $products = $products->where('is_scraped', 1);
+                    } elseif ($request->type[0] == 'imported') {
+                        $products = $products->where('status', 2);
+                    } else {
+                        $products = $products->where('isUploaded', 1);
+                    }
+                }
+            }
+        }
+
+        if ($request->date != '') {
+            if (isset($products)) {
+                if ($request->type[0] != null && $request->type[0] == 'uploaded') {
+                    $products = $products->where('is_uploaded_date', 'LIKE', "%$request->date%");
+                } else {
+                    $products = $products->where('created_at', 'LIKE', "%$request->date%");
+                }
+            }
+        }
+
+        if (trim($term) != '') {
+            $products = $products->where(function ($query) use ($term) {
+                $query->where('sku', 'LIKE', "%$term%")
+                        ->orWhere('id', 'LIKE', "%$term%")
+                        ->orWhere('name', 'LIKE', "%$term%")
+                        ->orWhere('short_description', 'LIKE', "%$term%");
+                if ($term == -1) {
+                    $query = $query->orWhere('isApproved', -1);
+                }
+
+                $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                if ($brand_id) {
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
+                }
+
+                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                if ($category_id) {
+                    $query = $query->orWhere('category', $category_id);
+                }
+            });
+            if ($roletype != 'Selection' && $roletype != 'Searcher') {
+
+                $products = $products->whereNull('dnf');
+            }
+        }
+
+
+        if (isset($request->ids[0])) {
+            if ($request->ids[0] != null) {
+                $products = $products->whereIn('id', $request->ids);
+            }
+        }
+
+
+        $selected_categories = $request->category ? $request->category : 1;
+
+        if ($request->quick_product === 'true') {
+            $products = $products->where('quick_product', 1);
+        }
+
+        // assing product to varaible so can use as per condition for join table media
+        if ($request->quick_product !== 'true') {
+            $products = $products->whereRaw("(stock > 0 OR (supplier ='In-Stock'))");
+        }
+
+        // if source is attach_media for search then check product has image exist or not
+        if ($request->get("unsupported", null) != "") {
+
+            $products = $products->join("mediables", function ($query) {
+                $query->on("mediables.mediable_id", "products.id")->where("mediable_type", \App\Product::class);
+            });
+
+            $mediaIds = \DB::table("media")->where("aggregate_type", "image")->join("mediables", function ($query) {
+                        $query->on("mediables.media_id", "media.id")->where("mediables.mediable_type", \App\Product::class);
+                    })->whereNotIn("extension", config("constants.gd_supported_files"))->select("id")->pluck("id")->toArray();
+
+            $products = $products->whereIn("mediables.media_id", $mediaIds);
+            $products = $products->groupBy('products.id');
+        }
+
+
+        if (!empty($request->quick_sell_groups) && is_array($request->quick_sell_groups)) {
+            $products = $products->whereRaw("(id in (select product_id from product_quicksell_groups where quicksell_group_id in (" . implode(",", $request->quick_sell_groups) . ") ))");
+        }
+
+        // brand filter count start
+        $brandGroups = clone($products);
+        $brandGroups = $brandGroups->groupBy("brand")->select([\DB::raw("count(id) as total_product"), "brand"])->pluck("total_product", "brand")->toArray();
+        $brandIds = array_values(array_filter(array_keys($brandGroups)));
+
+        $brandsModel = \App\Brand::whereIn("id", $brandIds)->pluck("name", "id")->toArray();
+
+        $countBrands = [];
+        if (!empty($brandGroups) && !empty($brandsModel)) {
+            foreach ($brandGroups as $key => $count) {
+                $countBrands[] = [
+                    "id" => $key,
+                    "name" => !empty($brandsModel[$key]) ? $brandsModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+        if ($request->category) {
+            try {
+                $filtered_category = $request->category;
+            } catch (\Exception $e) {
+                $filtered_category = [1];
+            }
+        } else {
+            $filtered_category = [1];
+        }
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
+                ->selected($filtered_category)
+                ->renderAsDropdown();
+
+
+        // category filter start count
+        $categoryGroups = clone($products);
+        $categoryGroups = $categoryGroups->groupBy("category")->select([\DB::raw("count(id) as total_product"), "category"])->pluck("total_product", "category")->toArray();
+        $categoryIds = array_values(array_filter(array_keys($categoryGroups)));
+
+        $categoryModel = \DB::table('categories')->whereIn("id", $categoryIds)->pluck("title", "id")->toArray();
+        $countCategory = [];
+        if (!empty($categoryGroups) && !empty($categoryModel)) {
+            foreach ($categoryGroups as $key => $count) {
+                $countCategory[] = [
+                    "id" => $key,
+                    "name" => !empty($categoryModel[$key]) ? $categoryModel[$key] : "N/A",
+                    "count" => $count,
+                ];
+            }
+        }
+
+        // suppliers filter start count/
+        $suppliersGroups = clone($products);
+        $all_product_ids = $suppliersGroups->pluck('id')->toArray();
+        $countSuppliers = [];
+        if (!empty($all_product_ids)) {
+            $suppliersGroups = \App\Product::leftJoin('product_suppliers', 'product_id', '=', 'products.id')
+                    ->where('products.id', $all_product_ids)
+                    ->groupBy("supplier_id")
+                    ->select([\DB::raw("count(products.id) as total_product"), "supplier_id"])
+                    ->pluck("total_product", "supplier_id")
+                    ->toArray();
+            $suppliersIds = array_values(array_filter(array_keys($suppliersGroups)));
+            $suppliersModel = \App\Supplier::whereIn("id", $suppliersIds)->pluck("supplier", "id")->toArray();
+
+            if (!empty($suppliersGroups)) {
+                foreach ($suppliersGroups as $key => $count) {
+                    $countSuppliers[] = [
+                        "id" => $key,
+                        "name" => !empty($suppliersModel[$key]) ? $suppliersModel[$key] : "N/A",
+                        "count" => $count,
+                    ];
+                }
+            }
+        }
+
+        // select fields..
+        $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.category', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
+
+        if ($request->get('is_on_sale') == 'on') {
+            $products = $products->where('is_on_sale', 1);
+        }
+
+
+        if ($request->has("limit")) {
+            $perPageLimit = ($request->get("limit") == "all") ? $products->get()->count() : $request->get("limit");
+        }
+        $categoryAll = Category::where('parent_id', 0)->get();
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
+            $childs = Category::where('parent_id', $category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' ' . $child->title);
+                $grandChilds = Category::where('parent_id', $child->id)->get();
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' ' . $child->title . ' ' . $grandChild->title);
+                    }
+                }
+            }
+        }
+
+        if ($request->total_images) {
+            $products = $products->limit($request->total_images)->get();
+            $products = new LengthAwarePaginator($products, count($products), $request->total_images, 1, [
+                'path' => LengthAwarePaginator::resolveCurrentPath()
+            ]);
+        } else {
+            $products = $products->paginate($perPageLimit);
+        }
+
+        $products_count = $products->total();
+        $all_product_ids = [];
+        $from = request("from", "");
+        if ($request->ajax()) {
+            $html = view('partials.attached-image-load', [
+                'products' => $products,
+                'all_product_ids' => $all_product_ids,
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
+                'model_type' => $model_type,
+                'countBrands' => $countBrands,
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
+                    ])->render();
+
+            if (!empty($from) && $from == "attach-image") {
+                return $html;
+            }
+
+            return response()->json(['html' => $html, 'products_count' => $products_count]);
+        }
+
+        $brand = $request->brand;
+        $message_body = $request->message ? $request->message : '';
+        $sending_time = $request->sending_time ?? '';
+
+        $locations = \App\ProductLocation::pluck("name", "name");
+        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        //\Log::info(print_r(\DB::getQueryLog(),true));
+
+        return view('partials.attached-image-grid', compact(
+                        'products', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term'
+        ));
+    }
 
 }
