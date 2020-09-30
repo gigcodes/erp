@@ -359,7 +359,7 @@ class DevelopmentController extends Controller
     }
     public function issueTaskIndex(Request $request)
     {
-
+        
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
         $type = $request->tasktype ? $request->tasktype : 'all';
@@ -515,7 +515,7 @@ class DevelopmentController extends Controller
         if ( request()->ajax() ) {
 			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
-
+        //dd($issues);
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
