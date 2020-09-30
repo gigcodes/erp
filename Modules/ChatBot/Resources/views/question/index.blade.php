@@ -131,6 +131,7 @@
 </div>
 @include('chatbot::partial.create_question')
 @include('chatbot::partial.create_dynamic_task')
+@include('chatbot::partial.create_dynamic_reply')
 @include('chatbot::partial.autoreply-create-modal')
 @include('partials.chat-history')
 <script type="text/javascript">
@@ -139,6 +140,9 @@
 	});
 	$("#create-task-btn").on("click",function() {
 		$("#create-dynamic-task").modal("show");
+	});
+	$("#create-reply-btn").on("click",function() {
+		$("#create-dynamic-reply").modal("show");
 	});
 	$(".form-save-btn").on("click",function(e) {
 		e.preventDefault();
@@ -173,10 +177,11 @@
             data: form.serialize(),
             dataType : "json",
             success: function (response) {
-               //location.reload();
+				console.log(response);
                if(response.code == 200) {
                	  toastr['success']('data updated successfully!');
-               	  window.location.replace(response.redirect);
+               location.reload();
+
                }else{
 				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
                	toastr['error'](errorMessage);
@@ -247,6 +252,16 @@
 				$('#intent_details').show();
 				$('#entity_details').hide();
 				$('#erp_details').hide();
+			}
+        });
+		$('#repo-details').hide();
+		$(document).on('change', '.change-task-type', function () {
+            var type = $(this).val();
+			if(type =='task') {
+				$('#repo-details').hide();
+			}
+			else if(type =='devtask') {
+				$('#repo-details').show();
 			}
         });
 
