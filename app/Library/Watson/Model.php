@@ -82,7 +82,7 @@ class Model
                 $keyword->workspace_id = $workSpaceId;
                 $keyword->save();
 
-                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
 
                 foreach($wotson_account_ids as $id){
                     $data_to_insert[] = [
@@ -139,6 +139,7 @@ class Model
         }
 
         $question    = ChatbotQuestion::where("id", $id)->first();
+
         $workSpaceId = self::getWorkspaceId();
 
         if ($question) {
@@ -178,7 +179,7 @@ class Model
                 $question->workspace_id = $workSpaceId;
                 $question->save();
 
-                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
 
                 foreach($wotson_account_ids as $id){
                     $data_to_insert[] = [
@@ -335,7 +336,7 @@ class Model
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
 
-                $wotson_account_ids = WatsonAccount::where('work_space_id', $workSpaceId)->pluck('id')->toArray();
+                $wotson_account_ids = WatsonAccount::pluck('id')->toArray();
 
                 foreach($wotson_account_ids as $id){
                     $data_to_insert[] = [

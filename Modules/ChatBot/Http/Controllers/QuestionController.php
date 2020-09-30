@@ -87,7 +87,7 @@ class QuestionController extends Controller
                 'repeat'       => 'sometimes|nullable|string',
                 'is_active'    => 'sometimes|nullable|integer',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(["code" => 500, "error" => []]);
             }
@@ -106,6 +106,7 @@ class QuestionController extends Controller
                 }
             }
         }
+
 
         if (array_key_exists("types",$params) && $params["types"] != NULL && array_key_exists("type",$params) && $params["type"] != NULL) {
             $chatbotQuestionExample = null;

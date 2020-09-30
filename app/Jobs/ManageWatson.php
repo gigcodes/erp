@@ -12,8 +12,8 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use App\Library\Watson\Language\Assistant\V2\AssistantService;
 use App\Library\Watson\Language\Workspaces\V1\DialogService;
 use App\Library\Watson\Language\Workspaces\V1\EntitiesService;
-use App\Library\Watson\Language\Workspaces\V1\IntentService;
 use App\Library\Watson\Language\Workspaces\V1\LogService;
+use App\Library\Watson\Language\Workspaces\V1\IntentService;
 
 class ManageWatson implements ShouldQueue
 {
@@ -64,7 +64,7 @@ class ManageWatson implements ShouldQueue
         }
 
         foreach($all_watson_accounts as $account){
-
+//dd($this->question->workspace_id, $this->storeParams);
             $watson = new $serviceClass(
                 "apiKey",
                 $account->api_key

@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Workspaces\V1;
 
 use App\Library\Watson\Service;
