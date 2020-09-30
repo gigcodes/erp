@@ -20,4 +20,9 @@ class ChatbotQuestion extends Model
     {
         return $this->hasMany("App\ChatbotKeywordValue", "chatbot_keyword_id", "id");
     }
+
+    public function chatbotQuestionReplies()
+    {
+    	return $this->hasMany("App\ChatbotQuestionReply","chatbot_question_id","id");
+    }
 }

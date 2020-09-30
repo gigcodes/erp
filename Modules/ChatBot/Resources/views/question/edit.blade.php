@@ -72,12 +72,6 @@
 					  </div>
 					  <div class="form-row">
 					    <div class="form-group col-md-6">
-					      <label for="value">Suggested Reply</label>
-					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
-					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
 					      <label for="value">Auto Approve</label>
 					      <select name="auto_approve" id="" class="form-control">
 							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
@@ -192,12 +186,6 @@
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
 					    </div>
 					</div>
-					<div class="form-row">
-					    <div class="form-group col-md-6">
-					      <label for="value">Suggested Reply</label>
-					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
-					    </div>
-					  </div>
 					<div class="form-row align-items-end">
 					    <div class="form-group col-md-2">
 						    <label for="type">Type</label>
@@ -249,12 +237,6 @@
 					    <div class="form-group col-md-6">
 					      <label for="question">Keyword</label>
 					      <?php echo Form::text("keyword", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your keyword"]); ?>
-					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
-					      <label for="value">Suggested Reply</label>
-					      <?php echo Form::text("suggested_reply", $chatbotQuestion->suggested_reply, ["class" => "form-control", "id" => "suggested_reply", "placeholder" => "Enter your reply"]); ?>
 					    </div>
 					  </div>
 					  <div class="form-row">
@@ -426,10 +408,69 @@
 
 				@endif
 		</div>
+
+
+
+<div class="col-md-12" style="margin-bottom:15px;">
+<form action="<?php echo route("chatbot.question.edit",[$chatbotQuestion->id]); ?>">
+<div class="col-md-7">
+</div>
+<div class="col-md-4" style="padding:0px;">
+				      <select name="store_website_id" class="form-control">
+						<option value="">Select Website</option>
+						@foreach($watson_accounts as $acc)
+						<option value="{{$acc->store_website_id}}" {{request()->get('store_website_id') == $acc->store_website_id ? 'selected' : ''}}>{{$acc->storeWebsite->title}}</option>
+						@endforeach
+					  </select>
+				    </div>
+<div class="col-md-1 pull-right" style="padding:0px;">
+<button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
+</div>
+</form>
+</div>
+		<div class="col-lg-12 margin-tb">
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+			  <thead>
+			    <tr>
+			      <th class="th-sm">Id</th>
+			      <th class="th-sm">Website</th>
+			      <th class="th-sm">Suggested Response</th>
+			      <th class="th-sm">Action</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <?php foreach ($replies as $reply) {?>
+				    <tr>
+				      <td><?php echo $reply->id; ?></td>
+				      <td class="">
+					  {{$reply->storeWebsite->title}}
+				     </td>
+				     <td>
+				     	{{$reply->suggested_reply}}
+				     </td>	
+				      <td>
+                        <a class="btn btn-image edit-reply-button" data-id="{{$reply->id}}" data-reply="{{$reply->suggested_reply}}">
+                        	<img src="/images/edit.png">
+                        </a>
+				      </td>
+				    </tr>
+				<?php }?>
+			  </tbody>
+			  <tfoot>
+			    <tr>
+			      <th>Id</th>
+			      <th>Website</th>
+			      <th>Suggested Response</th>
+			      <th>Action</th>
+			    </tr>
+			  </tfoot>
+			</table>
+		</div>
 	</div>
 </div>
 
 @include('chatbot::partial.create_question_annotation')
+@include('chatbot::partial.chatbot_reply_edit')
 <script src="/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 
@@ -533,6 +574,35 @@
 	        });
 		});
 
+		$(document).on("click",".edit-reply-button",function() {
+			var reply = $(this).data("reply");
+			var id = $(this).data("id");
+			$("#reply-hidden-data").val(reply);
+			$("#reply-hidden-id").val(id);
+			$("#chatbotReplyEditModal").show();
+		});
+
+		$(document).on("click",".reply-update-save-btn",function() {
+			var form = $(this).closest("form");
+			$.ajax({
+				type: form.attr("method"),
+	            url: form.attr("action"),
+	            data: form.serialize(),
+	            dataType : "json",
+	            success: function (response) {
+	               if(response.code == 200) {
+	               	  toastr['success']('data updated successfully!');
+	               	  location.reload();
+	               }else{
+	               	  toastr['error']('data is not correct or duplicate!');
+	               } 
+	            },
+	            error: function () {
+	               toastr['error']('Could not change module!');
+	            }
+	        });
+		});
+		
 		$(document).on("click",".delete-annotation",function() {
 			var $this = $(this);
 			var anntid = $this.data("id");
