@@ -33,6 +33,8 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('question')->group(function () {
         Route::get('/', 'QuestionController@index')->name("chatbot.question.list");
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
+        Route::post('/save_dymanic_task', 'QuestionController@saveDynamicTask')->name("chatbot.question.save_dymanic_task");
+        Route::post('/save_dymanic_reply', 'QuestionController@saveDynamicReply')->name("chatbot.question.save_dymanic_reply");
         Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
         Route::get('/category', 'QuestionController@getCategories')->name("chatbot.question.category");

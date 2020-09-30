@@ -14,6 +14,12 @@ use \App\ChatbotKeywordValueTypes;
 use App\Customer;
 use App\ScheduledMessage;
 use Auth;
+use DB;
+use App\ChatbotQuestionReply;
+use App\WatsonAccount;
+use App\DeveloperModule;
+use App\Github\GithubRepository;
+use App\MailinglistTemplate;
 class QuestionController extends Controller
 {
     /**
@@ -50,8 +56,22 @@ class QuestionController extends Controller
                 $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
             }
         }
-        
-        return view('chatbot::question.index', compact('chatQuestions','allCategoryList'));
+
+         $task_category = DB::table('task_categories')->select('*')->get();
+         $userslist = DB::table('users')->select('*')->get();
+
+         $moduleNames = [];
+         // Get all modules
+         $modules = DeveloperModule::all();
+         // Loop over all modules and store them
+         foreach ($modules as $module) {
+             $moduleNames[$module->id] = $module->name;
+         }
+         $respositories = GithubRepository::all();
+         
+         $templates = MailinglistTemplate::all();
+
+        return view('chatbot::question.index', compact('chatQuestions','allCategoryList','task_category','userslist','modules','respositories','templates'));
     }
 
     public function create()
@@ -208,7 +228,19 @@ class QuestionController extends Controller
             }
         }
 
-        return view("chatbot::question.edit", compact('chatbotQuestion','allCategoryList'));
+        $task_category = DB::table('task_categories')->select('*')->get();
+         $userslist = DB::table('users')->select('*')->get();
+
+         $moduleNames = [];
+         // Get all modules
+         $modules = DeveloperModule::all();
+         // Loop over all modules and store them
+         foreach ($modules as $module) {
+             $moduleNames[$module->id] = $module->name;
+         }
+         $respositories = GithubRepository::all();
+         $templates = MailinglistTemplate::all();
+        return view("chatbot::question.edit", compact('chatbotQuestion','allCategoryList','task_category','userslist','moduleNames','respositories','modules','templates'));
     }
 
     public function update(Request $request, $id)
@@ -672,6 +704,94 @@ class QuestionController extends Controller
         }
 
         return redirect()->back()->withSuccess('You have successfully created a new auto-reply!');
+    }
+
+    public function saveDynamicTask(Request $request) {
+        $params          = $request->all();
+        $params["value"] = str_replace(" ", "_", $params["value"]);
+        $validator = Validator::make($params, [
+            'value' => 'required|unique:chatbot_questions|max:255',
+            'question' => 'required',
+            'category_id' => 'required',
+            'assigned_to' => 'required',
+            'task_category_id' => 'required',
+            'task_description' => 'required',
+            'suggested_reply' => 'required',
+        ]);
+        if($params['task_type'] == 'devtask') {
+            if(!$params['repository_id'] || !$params['module_id']) {
+                return response()->json(["code" => 500, "error" => 'Repository and module is required for Devtask']);
+            }
+        }
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => 'Incomplete data or intent already exists']);
+        }
+        $params["keyword_or_question"] = 'intent';
+        $params["erp_or_watson"] = 'erp';
+        $params["auto_approve"] = 1;
+        $params["is_active"] = 1;
+        $chatbotQuestion = ChatbotQuestion::create($params);
+        if (!empty($params["question"])) {
+                    $chatbotQuestionExample        = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = $params["question"];
+                    $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                    $chatbotQuestionExample->save();
+        }
+        $wotson_account_ids = WatsonAccount::all();
+
+        foreach($wotson_account_ids as $id){
+            $data_to_insert[] = [
+                'suggested_reply' => $params["suggested_reply"],
+                'store_website_id' => $id->store_website_id,
+                'chatbot_question_id' => $chatbotQuestion->id
+            ];
+        }
+
+        ChatbotQuestionReply::insert($data_to_insert);
+        return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
+    }
+
+
+        public function saveDynamicReply(Request $request) {
+        $params          = $request->all();
+        $params["value"] = str_replace(" ", "_", $params["value"]);
+        $validator = Validator::make($params, [
+            'value' => 'required|unique:chatbot_questions|max:255',
+            'question' => 'required',
+            'category_id' => 'required',
+            'erp_or_watson' => 'required',
+            'suggested_reply' => 'required',
+        ]);
+        if ($validator->fails()) {
+            return response()->json(["code" => 500, "error" => 'Incomplete data or intent already exists']);
+        }
+        $params["keyword_or_question"] = 'intent';
+        $params["is_active"] = 1;
+        $params["dynamic_reply"] = 1;
+        $chatbotQuestion = ChatbotQuestion::create($params);
+        if (!empty($params["question"])) {
+                    $chatbotQuestionExample        = new ChatbotQuestionExample;
+                    $chatbotQuestionExample->question = $params["question"];
+                    $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
+                    $chatbotQuestionExample->save();
+        }
+       
+        if($params["erp_or_watson"] == 'watson') {
+            $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
+        }
+        else {
+            $wotson_account_ids = WatsonAccount::all();
+
+            foreach($wotson_account_ids as $id){
+                $data_to_insert[] = [
+                    'suggested_reply' => $params["suggested_reply"],
+                    'store_website_id' => $id->store_website_id,
+                    'chatbot_question_id' => $chatbotQuestion->id
+                ];
+            }
+            ChatbotQuestionReply::insert($data_to_insert);
+        }
+        return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
     }
 
 }
