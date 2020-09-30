@@ -52,6 +52,14 @@
 					  <option value="priority-customer" {{request()->get('keyword_or_question') == 'priority-customer' ? 'selected' : ''}}>Priority Customer</option>
 					  </select>
 				    </div>
+					<div class="col">
+				      <select name="store_website_id" class="form-control">
+						<option value="">Select Website</option>
+						@foreach($watson_accounts as $acc)
+						<option value="{{$acc->store_website_id}}" {{request()->get('store_website_id') == $acc->store_website_id ? 'selected' : ''}}>{{$acc->storeWebsite->title}}</option>
+						@endforeach
+					  </select>
+				    </div>
 				    <div class="col">
 				      <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
 				    </div>
@@ -90,7 +98,18 @@
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
 					  <td><?php echo $chatQuestion->questions; ?></td>
                       <td>
-					  		{{$chatQuestion->suggested_reply}}
+					  @if(request('store_website_id'))
+					  <?php 
+						$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
+						if($reply) {
+							$r = $reply->suggested_reply;
+						}
+						else {
+							$r = '';
+						}
+					  ?>
+						{{$r}}
+						@endif
 					  </td>
 				      <td>
 					  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">

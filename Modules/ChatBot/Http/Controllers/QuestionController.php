@@ -70,8 +70,9 @@ class QuestionController extends Controller
          $respositories = GithubRepository::all();
          
          $templates = MailinglistTemplate::all();
+         $watson_accounts = WatsonAccount::all();
 
-        return view('chatbot::question.index', compact('chatQuestions','allCategoryList','task_category','userslist','modules','respositories','templates'));
+        return view('chatbot::question.index', compact('chatQuestions','allCategoryList','watson_accounts','task_category','userslist','modules','respositories','templates'));
     }
 
     public function create()
@@ -240,7 +241,15 @@ class QuestionController extends Controller
          }
          $respositories = GithubRepository::all();
          $templates = MailinglistTemplate::all();
-        return view("chatbot::question.edit", compact('chatbotQuestion','allCategoryList','task_category','userslist','moduleNames','respositories','modules','templates'));
+         $watson_accounts = WatsonAccount::all();
+         if($request->store_website_id) {
+            $replies = $chatbotQuestion->chatbotQuestionReplies()->where('store_website_id',$request->store_website_id)->get();
+         }
+         else {
+            $replies = $chatbotQuestion->chatbotQuestionReplies()->get();
+         }
+         
+        return view("chatbot::question.edit", compact('chatbotQuestion','allCategoryList','task_category','userslist','moduleNames','respositories','modules','templates','watson_accounts','replies'));
     }
 
     public function update(Request $request, $id)
@@ -752,6 +761,8 @@ class QuestionController extends Controller
     }
 
 
+
+
         public function saveDynamicReply(Request $request) {
         $params          = $request->all();
         $params["value"] = str_replace(" ", "_", $params["value"]);
@@ -792,6 +803,14 @@ class QuestionController extends Controller
             ChatbotQuestionReply::insert($data_to_insert);
         }
         return response()->json(['message' => 'Successfully created the Intent', 'code' => 200]);
+    }
+
+
+    public function updateReply(Request $request) {
+        $reply = ChatbotQuestionReply::find($request->id);
+        $reply->suggested_reply = $request->suggested_reply;
+        $reply->save();
+        return response()->json(['suggested_reply' => $request->suggested_reply,'code' => 200]);
     }
 
 }
