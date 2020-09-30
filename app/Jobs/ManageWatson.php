@@ -31,7 +31,7 @@ class ManageWatson implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($service,$question,Array $storeParams, $method, $type = 'value', $old_example = false)
+    public function __construct($service, $question, array $storeParams, $method, $type = 'value', $old_example = false)
     {
         $this->question = $question;
         $this->method = $method;
@@ -51,33 +51,49 @@ class ManageWatson implements ShouldQueue
 
         $all_watson_accounts = WatsonAccount::get();
 
-        if($this->type) {
+        if ($this->type) {
             $value = $this->question->{$this->type};
         }
 
         $serviceClass = 'IntentService';
 
-        if($this->service === 'dialog'){
+        if ($this->service === 'dialog') {
             $serviceClass = 'DialogService';
-        }elseif($this->service === 'entity'){
+        } elseif ($this->service === 'entity') {
             $serviceClass = 'EntitiesService';
         }
 
-        foreach($all_watson_accounts as $account){
-//dd($this->question->workspace_id, $this->storeParams);
-            $watson = new $serviceClass(
-                "apiKey",
-                $account->api_key
-            );
+        foreach ($all_watson_accounts as $account) {
+//            dump($account);
 
-            if($this->method === 'create'){
-                $watson->create($this->question->workspace_id, $this->storeParams);
-            }else if($this->method === 'update'){
-                $watson->update($this->question->workspace_id,$value, $this->storeParams);
-            }else if($this->method === 'delete'){
-                $watson->delete($this->question->workspace_id, $value);
-            }else if($this->method === 'update_example'){
-                $watson->updateExample($this->question->workspace_id, $value, $this->old_example, $this->storeParams);
+
+            if ($this->service === 'dialog') {
+                $watson = new DialogService(
+                    "apiKey",
+                    $account->api_key
+                );
+            } else if ($this->service === 'entity') {
+                $watson = new EntitiesService(
+                    "apiKey",
+                    $account->api_key
+                );
+            }else{
+                $watson = new IntentService(
+                    "apiKey",
+                    $account->api_key
+                );
+            }
+
+            $watson->set_url($account->url);
+
+            if ($this->method === 'create') {
+                $watson->create($account->work_space_id, $this->storeParams);
+            } else if ($this->method === 'update') {
+                $watson->update($account->work_space_id, $value, $this->storeParams);
+            } else if ($this->method === 'delete') {
+                $watson->delete($account->work_space_id, $value);
+            } else if ($this->method === 'update_example') {
+                $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
             }
 
         }
@@ -87,7 +103,7 @@ class ManageWatson implements ShouldQueue
     public function fail($exception = null)
     {
         /* Remove data when job fail while creating..... */
-        if($this->method === 'create' && is_object($this->question)){
+        if ($this->method === 'create' && is_object($this->question)) {
             $this->question->delete();
         }
     }

@@ -31,6 +31,11 @@ class IntentService extends Service
         parent::__construct($username, $password);
     }
 
+    public function set_url($url)
+    {
+        return $this->url = $url;
+    }
+
     public function create($workspaceId, $params = [], $version = '2019-02-28')
     {
         return $this->client->request(
