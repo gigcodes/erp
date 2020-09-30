@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class MailinglistTemplate extends Model
 {
-    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'category_id', 'store_website_id'];
+    protected $fillable = ['name', 'mail_class', 'mail_tpl', 'image_count', 'text_count', 'example_image', 'subject', 'static_template', 'category_id', 'store_website_id'];
 
     public function file()
     {

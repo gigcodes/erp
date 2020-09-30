@@ -622,6 +622,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
@@ -1547,6 +1548,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
                                 </li>
+                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
+                                </li>
                             </ul>
                         </li>
                         @endif
@@ -2450,6 +2454,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }

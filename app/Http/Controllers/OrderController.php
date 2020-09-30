@@ -38,6 +38,7 @@ use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
+use App\MailinglistTemplate;
 use App\Category;
 use App\Mails\Manual\RefundProcessed;
 use App\Mails\Manual\AdvanceReceipt;
@@ -57,6 +58,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
 use App\Mail\ViewInvoice;
+use App\Mail\OrderStatusMail;
 use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
@@ -298,7 +300,7 @@ class OrderController extends Controller {
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
 		$totalOrders = sizeOf($orders->get());
-		$orders_array = $orders->paginate(20);
+		$orders_array = $orders->paginate(10);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
 		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
 	}
@@ -2123,13 +2125,30 @@ public function createProductOnMagento(Request $request, $id){
 	{
 		$id = $request->get("id");
 		$status = $request->get("status");
+		$status = 20;
+		
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
 			$statuss = OrderStatus::where("id",$status)->first();
+			
 			if($order) {
 				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
+				
+				//Sending Mail on changing of order status
+				$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+				$valToReplace = [$order->customer->name,$statuss->status];
+				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+				
+				$emailData['subject'] = $templateData->subject;
+				$emailData['static_template'] = $bodyText;
+				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+				//Sending Mail on changing of order status
+				
+				
+				
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();

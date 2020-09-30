@@ -675,6 +675,4 @@ class QuestionController extends Controller
         return redirect()->back()->withSuccess('You have successfully created a new auto-reply!');
     }
 
-
-
 }

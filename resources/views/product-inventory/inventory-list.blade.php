@@ -11,7 +11,7 @@
 @section('content')
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Inventory Data ({{ count($inventory_data) }})</h2>
+            <h2 class="page-heading">Inventory Data ({{ $inventory_data_count }})</h2>
         </div>
     </div>
 
@@ -34,17 +34,17 @@
     <div class="col-lg-12 margin-tb">
         <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
             <div class="form-group mr-3 mb-3">
-                {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control']) !!}
             </div>
             <div class="form-group mr-3 mb-3">
-                {!! Form::select('product_names[]',$products_names, request("product_names",[]), ['data-placeholder' => 'Select a Name','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+                {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
             <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
-            <div class="form-group mr-3 mb-3">
+            <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
-            </div>
+            </div> -->
             <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
@@ -119,22 +119,21 @@
             $(".select-multiple2").select2();
 
             $('body').delegate('.show-medias-modal','click',function() {
-                let data = $(this).parent().parent().find('.medias-data').attr('data')
-
-                let result = '';
-
-                if(data != '[]') {
-                    data = JSON.parse(data)
-
+                id = $(this).data('id');
+                $.ajax({
+                url: '/productinventory/product-images/'+id,
+                type: 'GET'
+                })
+                .done(function(data) {
+                    $('#medias-modal .modal-body').html('');
+                    let result = '';
+                    if(data.urls.length > 0) {
                     result += '<table class="table table-bordered">';
-                    result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
+                    result += '<thead><th>Image</th></thead>';
                     result += '<tbody>';
-                    for(let value in data) {
+                    for(var i=0;i<data.urls.length;i++) {
                         result += '<tr>';
-                        result += "<td>"+data[value].directory+"</td>"
-                        result += "<td>"+data[value].filename+"</td>"
-                        result += "<td>"+data[value].extension+"</td>"
-                        result += "<td>"+data[value].disk+"</td>"
+                        result += '<td><img style="height:100px" src="'+data.urls[i]+'" /></td>'
                         result += '</tr>';
                     }
                     result += '</tbody>';
@@ -143,8 +142,39 @@
                 } else {
                     result = '<h3>this product dont have any media </h3>';
                 }
+                $('#medias-modal .modal-body').html(result);
 
-                $('#medias-modal .modal-body').html(result)
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                });
+
+
+                // let data = $(this).parent().parent().find('.medias-data').attr('data')
+
+                // let result = '';
+
+                // if(data != '[]') {
+                //     data = JSON.parse(data)
+
+                //     result += '<table class="table table-bordered">';
+                //     result += '<thead><th>Directory</th><th>filename</th><th>extension</th><th>disk</th></thead>';
+                //     result += '<tbody>';
+                //     for(let value in data) {
+                //         console.log(data[value]);
+                //         result += '<tr>';
+                //         result += "<td>"+data[value].directory+"</td>"
+                //         result += "<td>"+data[value].filename+"</td>"
+                //         result += "<td>"+data[value].extension+"</td>"
+                //         result += "<td>"+data[value].disk+"</td>"
+                //         result += '</tr>';
+                //     }
+                //     result += '</tbody>';
+                //     result += '</table>';
+
+                // } else {
+                //     result = '<h3>this product dont have any media</h3>';
+                // }
+
 
                 $('#medias-modal').modal('show')
             })

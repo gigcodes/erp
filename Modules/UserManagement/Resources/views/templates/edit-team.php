@@ -39,7 +39,8 @@
                 </div>
 		   </div>
 		   <div class="modal-footer">
-		      <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" data-id="{{:team.id}}" class="btn btn-secondary delete-team" data-dismiss="modal">Delete Team</button>
 		      <button type="button" data-id="{{:team.id}}" class="btn btn-secondary edit-team" data-dismiss="modal">Submit</button>
 		   </div>
 		</div>

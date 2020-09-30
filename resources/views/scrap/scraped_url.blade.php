@@ -225,6 +225,7 @@
                 @endif
 
                 @endif
+                <th>Action</th>
             </tr>
             <!-- <tr>
                 <th width="30%">
