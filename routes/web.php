@@ -910,7 +910,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('development/issue/list-by-user-id', 'DevelopmentController@listByUserId')->name('development.issue.list.by.user.id');
     Route::post('development/issue/set-priority', 'DevelopmentController@setPriority')->name('development.issue.set.priority');
     Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
-    Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve'); 
+    Route::post('development/time/history/approve', 'DevelopmentController@approveTimeHistory')->name('development/time/history/approve');
+    Route::post('development/date/history/approve', 'DevelopmentController@approveDateHistory')->name('development/date/history/approve');
+    Route::post('development/lead/time/history/approve', 'DevelopmentController@approveLeadTimeHistory')->name('development/lead/time/history/approve');
     Route::post('development/time/meeting/approve/{task_id}', 'DevelopmentController@approveMeetingHistory')->name('development/time/meeting/approve');
     Route::post('development/time/meeting/store', 'DevelopmentController@storeMeetingTime')->name('development/time/meeting/store');
     Route::get('development/issue/create', 'DevelopmentController@issueCreate')->name('development.issue.create');
@@ -926,6 +928,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_date-change/assign', 'DevelopmentController@saveEstimateDate');
     Route::get('development/date/history', 'DevelopmentController@getDateHistory')->name('development/date/history');
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes')->name('development.issue.estimate_minutes.store');
+    Route::get('development/issue/lead_estimate_minutes/assign', 'DevelopmentController@saveLeadEstimateTime')->name('development.issue.lead_estimate_minutes.store');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');
     Route::get('development/issue/milestone/assign', 'DevelopmentController@saveMilestone');
@@ -969,6 +972,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('development/cost/store', 'DevelopmentController@costStore')->name('development.cost.store');
     Route::get('development/time/history', 'DevelopmentController@getTimeHistory')->name('development/time/history');
+    Route::get('development/lead/time/history', 'DevelopmentController@getLeadTimeHistory')->name('development/lead/time/history');
     Route::get('development/user/history', 'DevelopmentController@getUserHistory')->name('development/user/history');
     Route::get('development/tracked/history', 'DevelopmentController@getTrackedHistory')->name('development/tracked/history');
     Route::post('development/create/hubstaff_task', 'DevelopmentController@createHubstaffManualTask')->name('development/create/hubstaff_task');
@@ -2269,7 +2273,13 @@ Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Contro
 Route::get('charity', 'CharityController@index')->name('charity');
 Route::any('charity/update', 'CharityController@update')->name('charity.update');
 Route::post('charity/store', 'CharityController@store')->name('charity.store');
-Route::any('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+Route::get('charity/charity-order/{charity_id}', 'CharityController@charityOrder')->name('charity.charity-order');
+Route::post('charity/add-status', 'CharityController@addStatus')->name('charity.add-status');
+Route::post('charity/update-charity-order-status', 'CharityController@updateCharityOrderStatus')->name('charity.update-charity-order-status');
+Route::post('charity/create-history', 'CharityController@createHistory')->name('charity.create-history');
+Route::get('charity/view-order-history/{order_id}', 'CharityController@viewHistory')->name('charity.view-order-history');
+
+
 
 
 
@@ -2290,3 +2300,5 @@ Route::any('/store-website-analytics/create', 'StoreWebsiteAnalyticsController@c
 Route::get('/store-website-analytics/edit/{id}', 'StoreWebsiteAnalyticsController@edit');
 Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsController@delete');
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
+
+Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');

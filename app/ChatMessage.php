@@ -237,7 +237,12 @@ class ChatMessage extends Model
         ->pluck("group_id","group_id")
         ->toArray();
     }
-
+    public static function pendingQueueLeadList($params = [])
+    {
+        return self::where($params)->where("lead_id",">",0)
+        ->pluck("lead_id","lead_id")
+        ->toArray();
+    }
     public static function getQueueLimit()
     {
         $limit  = \App\Setting::where("name","is_queue_sending_limit")->first();

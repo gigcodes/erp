@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Log;
 
 class LogListMagento extends Model
 {
-    public static function log($productId, $message, $severity = 'info',$storeWebsiteId =  null)
+    public static function log($productId, $message, $severity = 'info',$storeWebsiteId =  null, $syncStatus = null, $languages = null)
     {
         // Write to log file
         Log::channel('listMagento')->$severity($message);
@@ -17,6 +17,8 @@ class LogListMagento extends Model
         $logListMagento->product_id = $productId;
         $logListMagento->message = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
+        $logListMagento->sync_status = $syncStatus;
+        $logListMagento->languages = $languages;
         $logListMagento->save();
 
         // Return

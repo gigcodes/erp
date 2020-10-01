@@ -623,6 +623,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue Approval</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue (Approved)</a>
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
@@ -2454,6 +2456,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }

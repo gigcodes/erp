@@ -9,4 +9,9 @@ class ChatbotQuestionReply extends Model
 
     public $table = 'chatbot_questions_reply';
 
+    public function storeWebsite()
+    {
+        return $this->belongsTo('App\StoreWebsite', 'store_website_id');
+    }
+
 }

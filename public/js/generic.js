@@ -616,6 +616,7 @@ function createLead (thiss,dataSending) {
     }
 
     var text = $(thiss).text();
+    var html = $(thiss).html();
 
     if (selected_product_images.length > 0) {
         if ($('#add_lead').length > 0 && $(thiss).hasClass('create-product-lead')) {
@@ -697,18 +698,34 @@ function createLead (thiss,dataSending) {
                         selected_product: selected_product_images
                     },dataSending)
                 }).done(function() {
-                    $(thiss).text(text);
+                    if (text != '') {
+                        $(thiss).text(text);
+                    } else {
+                        $(thiss).html(html);
+                    }
                 }).fail(function(response) {
-                    $(thiss).text(text);
+                    if (text != '') {
+                        $(thiss).text(text);
+                    } else {
+                        $(thiss).html(html);
+                    }
                     alert('Could not send product dimension to customer!');
                 });
             }
         }).fail(function(error) {
-            $(thiss).text(text);
+            if (text != '') {
+                $(thiss).text(text);
+            } else {
+                $(thiss).html(html);
+            }
             alert('There was an error creating a lead');
         });
     } else {
-        $(thiss).text(text);
+        if (text != '') {
+            $(thiss).text(text);
+        } else {
+            $(thiss).html(html);
+        }
         alert('Please select at least 1 product first');
     }
 }
@@ -790,7 +807,8 @@ $(document).on('click', '.resend-message-js', function(e) {
 $(document).on('click', '.resend-message', function () {
     var id = $(this).data('id');
     var thiss = $(this);
-
+var text = $(thiss).text();
+var html = $(thiss).html();
     $.ajax({
         type: "POST",
         url: "/whatsapp/" + id + "/resendMessage",
@@ -803,10 +821,13 @@ $(document).on('click', '.resend-message', function () {
     }).done(function () {
         $(thiss).remove();
     }).fail(function (response) {
-        $(thiss).text('Resend');
-
+        if (text != '') {
+            $(thiss).text('Resend');
+        } else {
+            $(thiss).html(html);
+        }
+        
         console.log(response);
-
         alert('Could not resend message');
     });
 });
@@ -814,6 +835,8 @@ $(document).on('click', '.resend-message', function () {
 $(document).on('click', '.review-btn', function () {
     var id = $(this).data('id');
     var thiss = $(this);
+    var text = $(thiss).text();
+    var html = $(thiss).html();
     $.ajax({
         type: "POST",
         url: "/chat-messages/" + id + "/set-reviewed",
@@ -851,6 +874,7 @@ $(document).on('click', '.create-product-order', function(e) {
     }
 
     var text = $(this).text();
+    var html = $(this).html();
     var thiss = this;
 
     if (selected_product_images.length > 0) {
@@ -915,18 +939,34 @@ $(document).on('click', '.create-product-order', function(e) {
               selected_product: selected_product_images
             }
           }).done(function() {
-            $(thiss).text(text);
+                    if (text != '') {
+                        $(thiss).text(text);
+                    } else {
+                        $(thiss).html(html);
+                    }
           }).fail(function(response) {
-            $(thiss).text(text);
+                    if (text != '') {
+                        $(thiss).text(text);
+                    } else {
+                        $(thiss).html(html);
+                    }
             alert('Could not send delivery message to customer!');
           });
         }
       }).fail(function(error) {
-        $(thiss).text(text);
+            if (text != '') {
+                $(thiss).text(text);
+            } else {
+                $(thiss).html(html);
+            }
         alert('There was an error creating a order');
       });
     } else {
-        $(thiss).text(text);
+        if (text != '') {
+            $(thiss).text(text);
+        } else {
+            $(thiss).html(html);
+        }
          alert('Please select at least 1 product first');
     }
 });
@@ -1032,11 +1072,12 @@ $('#chat-list-history').on("scroll", function() {
 });
 
 $(document).on("click",".create-kyc-customer",function(e) {
-    console.log("Hello world");
     e.preventDefault();
     var customerId = $(this).data("customer-id");
     var mediaId    = $(this).data("media-key");
     var thiss = $(this);
+    var text = $(thiss).text();
+    var html = $(thiss).html();
     $.ajax({
         type: 'POST',
         url: "/customer/create-kyc",
@@ -1052,7 +1093,11 @@ $(document).on("click",".create-kyc-customer",function(e) {
             toastr["success"]("File added into kyc", 'Message');
         }
       }).fail(function(error) {
-        $(thiss).text("+ KYC");
+        if (text != '') {
+            $(thiss).text("+ KYC");
+        } else {
+            $(thiss).html(html);
+        }
         toastr["error"]("There was an error creating a order", 'Message');
       });
 });
