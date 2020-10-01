@@ -88,6 +88,7 @@
                 <div class="form-group mr-3 mb-3">
                     <input type="text" class="search form-control" id="product_id" placeholder='PID eg.123,124,125' size="17">
                 </div>
+
                 <div class="form-group mr-3 mb-3">
                     <div class='input-group' id='created-date'>
                         <input type='text' class="form-control " name="phone_date" value="" placeholder="Date" id="created_date" size="12" />
@@ -96,7 +97,20 @@
                         </span>
                     </div>
                 </div>
-
+                <div class="form-group mr-3 mb-3">
+                    <select class="search form-control" id="prod_img_filter" name="prod_img_filter">
+                        <option value="">FIlter Images</option>
+                        <option value="0">With Images</option>
+                        <option value="1">Without Images</option>
+                    </select>
+                </div>
+                <div class="form-group mr-3 mb-3">
+                    <select class="search form-control" id="prod_error_filter" name="prod_error_filter">
+                        <option value="">Filter Errors</option>
+                        <option value="0">With Errors</option>
+                        <option value="1">Without Errors</option>
+                    </select>
+                </div>
                 <div class="form-group">
                     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image" id="btn-scraped-search-action">
                         <img src="/images/search.png" style="cursor: default;">
@@ -225,6 +239,7 @@
                 @endif
 
                 @endif
+                <th width="5%">Errors</th>
                 <th>Action</th>
             </tr>
             <!-- <tr>
@@ -805,7 +820,8 @@
         psize = $('#psize').val();
         dimension = $('#dimension').val();
         product_id = $('#product_id').val();
-        
+        prod_img_filter = $('#prod_img_filter').val();
+        prod_error_filter = $('#prod_error_filter').val();
         src = "/scrap/scraped-urls";
         $.ajax({
             url: src,
@@ -826,6 +842,8 @@
                 psize: psize,
                 dimension: dimension,
                 product_id: product_id,
+                prod_img_filter:prod_img_filter,
+                prod_error_filter:prod_error_filter,
             },
             beforeSend: function() {
                 if (orderCreated == 0) {

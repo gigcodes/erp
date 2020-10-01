@@ -707,8 +707,8 @@ class ScrapController extends Controller
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
         $users = Helpers::getUserArray(User::role('Developer')->get());
-        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension) {
-
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension || $request->prod_img_filter || $request->prod_error_filter) {
+            //DB::enableQueryLog();
             $query = \App\ScrapedProducts::query();
 
             $dateRange = request("daterange","");
@@ -724,6 +724,17 @@ class ScrapController extends Controller
             }
 
             //global search website
+            if(request('prod_img_filter') != null && request('prod_img_filter') == '0' ){
+                $query->whereRaw('( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }elseif( request('prod_img_filter') != null && request('prod_img_filter') == '1'){
+                $query->whereRaw('not( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }
+
+            if(request('prod_error_filter') != null && request('prod_error_filter') == '0' ){
+                $query->where('validation_result','!=',null);
+            }elseif( request('prod_error_filter') != null && request('prod_error_filter') == '1'){
+                $query->where('validation_result','=',null);
+            }
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
             }
@@ -853,7 +864,7 @@ class ScrapController extends Controller
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
-        
+        //dd(DB::getQueryLog());
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords','users'))->render(),
