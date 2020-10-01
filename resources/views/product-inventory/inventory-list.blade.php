@@ -143,7 +143,7 @@
                     result += '</table>';
 
                 } else {
-                    result = '<h3>this product dont have any media </h3>';
+                    result = '<h3>This product dont have any media </h3>';
                 }
                 $('#medias-modal .modal-body').html(result);
 
@@ -204,7 +204,7 @@
                     result += '</table>';
 
                 } else {
-                    result = '<h3>this Product dont have status history</h3>';
+                    result = '<h3>This Product dont have status history</h3>';
                 }
 
                 $('#status-history-modal .modal-body').html(result)
