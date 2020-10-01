@@ -138,7 +138,7 @@
             <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
 			
 			@php 
-			$iconReminderColor = 'grey';
+			$iconReminderColor = '';
 			if($vendor->frequency)
 			{
 				$iconReminderColor = 'red';

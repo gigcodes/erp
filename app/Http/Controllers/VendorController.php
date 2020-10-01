@@ -60,7 +60,7 @@ class VendorController extends Controller
     $vendor->save();
 	
 	$message = "Reminder : ".$request->get('message');
-	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->whatsapp_number, '', $message);
+	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
 	
     return response()->json([
       'success'
