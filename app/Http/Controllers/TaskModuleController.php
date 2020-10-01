@@ -2397,9 +2397,9 @@ class TaskModuleController extends Controller {
 				$task->update(['due_date' => $request->date]);
 			}
 		}else{
-			$task = DeveloperTask::find($request->task_id);
 			if($request->date) {
-				$task->update(['due_date' => $request->date]);
+				DeveloperTask::where('id',$request->task_id)
+					->update(['due_date' => $request->date]);
 			}
 		}
 		
