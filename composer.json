@@ -48,7 +48,6 @@
         "plank/laravel-mediable": "^2.7",
         "plesk/api-php-lib": "^1.0",
         "pragmarx/tracker": "^4.0",
-        "predis/predis": "^1.1",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
         "qoraiche/laravel-mail-editor": "^2.0",
