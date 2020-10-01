@@ -1011,7 +1011,7 @@ class ProductInventoryController extends Controller
 	  $urls = [];
       if($product) {
         $medias =  \App\Mediables::getMediasFromProductId($id);
-		 $medias = $product->getMedia(config('constants.media_tags'));
+		 $medias = $product->getMedia(config('constants.attach_image_tag'));
 		 foreach($medias as $media) {
 			$urls[] = $media->getUrl();
 		 }
