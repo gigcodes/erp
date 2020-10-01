@@ -68,10 +68,10 @@ class CreatePreviousPayments extends Command
                 $end_date = date('Y-m-d',strtotime("-1 days"));
 
                 // Get user rate connected with start date.
-                $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at, $record->user_id);
+                $latestRatesOnDate = UserRate::latestRatesOnDate($record->starts_at, $record->hm_user_id);
 
                 // Get user last payment.
-                $lastPayment = PaymentReceipt::where('user_id',$record->user_id)->orderBy('date','DESC')->first();
+                $lastPayment = PaymentReceipt::where('user_id',$record->hm_user_id)->orderBy('date','DESC')->first();
 
                 // Change start date if user last payment exist.
                 if($lastPayment) {
@@ -95,7 +95,7 @@ class CreatePreviousPayments extends Command
                     $paymentReceipt->status = 'Pending';
                     $paymentReceipt->rate_estimated = $total;
                     $paymentReceipt->date = $end_date;
-                    $paymentReceipt->user_id = $record->user_id;
+                    $paymentReceipt->user_id = $record->hm_user_id;
                     $paymentReceipt->billing_start_date = $start_date;
                     $paymentReceipt->billing_end_date = $end_date;
                     $paymentReceipt->currency = ''; //we need to change this.

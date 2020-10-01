@@ -106,9 +106,9 @@ class HubstaffActivitiesController extends Controller
         $user_id = $request->user_id ? $request->user_id : null;
         $task_id = $request->task_id ? $request->task_id : null;
  
-        if($task_id > 0){
+        if($task_id > 0) {
              $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->where('hubstaff_activities.task_id', '=',$task_id)->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
-        }else{
+        } else {
              $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at', '>=',$start_date)->whereDate('hubstaff_activities.starts_at', '<=',$end_date);
         }
 
@@ -176,7 +176,6 @@ class HubstaffActivitiesController extends Controller
             else {
                 $activity->userName = '';
             }
-
             $hubActivitySummery = HubstaffActivitySummary::where('date',$activity->date)->where('user_id',$activity->system_user_id)->orderBy('created_at','desc')->first();
                 if($request->status == 'approved') {
                     if($hubActivitySummery && $hubActivitySummery->final_approval == 1) {
@@ -322,7 +321,7 @@ class HubstaffActivitiesController extends Controller
          //dd($activityUsers);
         $status = $request->status;
         
-        return view("hubstaff.activities.activity-users", compact('title','status','activityUsers','start_date','end_date','users','user_id'));
+        return view("hubstaff.activities.activity-users", compact('title','status','activityUsers','start_date','end_date','users','user_id','task_id'));
     }
 
 
@@ -339,7 +338,6 @@ class HubstaffActivitiesController extends Controller
         $activityrecords = DB::select( DB::raw("SELECT CAST(starts_at as date) AS OnDate,  SUM(tracked) AS total_tracked, hour( starts_at ) as onHour
         FROM hubstaff_activities where DATE(starts_at) = '".$request->date."' and user_id = ".$request->user_id."
         GROUP BY hour( starts_at ) , day( starts_at )"));
-
         // $activityrecords  = HubstaffActivity::whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->select('hubstaff_activities.*')->get();
 
 
@@ -365,9 +363,11 @@ class HubstaffActivitiesController extends Controller
             }
 
             if($hubActivitySummery->final_approval)  {
-                return response()->json([
-                    'message' => 'Already approved'
-                ],500);
+                if(!Auth::user()->isAdmin()) {
+                    return response()->json([
+                        'message' => 'Already approved'
+                    ],500);
+                }
             }
         }
         foreach($activityrecords as $record) {
@@ -391,16 +391,32 @@ class HubstaffActivitiesController extends Controller
                 }
                 $taskSubject = '';
                 if($a->task_id) {
-                    $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
-                    if($task) {
-                        $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
-                    }
-                    else {
-                        $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                    if($a->is_manual) {
+                        $task = DeveloperTask::where('id',$a->task_id)->first();
                         if($task) {
-                            $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::where('id',$a->task_id)->first();
+                            dd($task);
+                            if($task) {
+                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
                         }
                     }
+                    else {
+                        $task = DeveloperTask::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                        if($task) {
+                            $taskSubject = '#DEVTASK-'.$task->id.'-'.$task->subject;
+                        }
+                        else {
+                            $task = Task::where('hubstaff_task_id',$a->task_id)->orWhere('lead_hubstaff_task_id',$a->task_id)->first();
+                            if($task) {
+                                $taskSubject = '#TASK-'.$task->id.'-'.$task->task_subject;
+                            }
+                        }
+                    }
+                    
                 }
     
                 $a->taskSubject = $taskSubject;
@@ -532,6 +548,17 @@ class HubstaffActivitiesController extends Controller
         $approvedArr = [];
         $rejectedArr = [];
         $approved = 0;
+        $member = HubstaffMember::where('hubstaff_user_id',$request->user_id)->first();
+        if(!$member) {
+            return response()->json([
+                'message' => 'Hubstaff member not mapped with erp'
+            ],500);
+        }
+        if(!$member->user_id) {
+            return response()->json([
+                'message' => 'Hubstaff member not mapped with erp'
+            ],500);
+        }
         if($request->activities && count($request->activities) > 0) {
             foreach($request->activities as $id) {
                $hubActivity = HubstaffActivity::where('id',$id)->first();
@@ -558,7 +585,6 @@ class HubstaffActivitiesController extends Controller
             $rejectedArr = $query = HubstaffActivity::leftJoin('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$request->date)->where('hubstaff_activities.user_id',$request->user_id)->pluck('hubstaff_activities.id')->toArray();
         }
 
-           
 
             
             if(count($approvedArr) > 0) {
@@ -575,32 +601,56 @@ class HubstaffActivitiesController extends Controller
             else {
                 $rejectedJson = null;
             }
-            if(!$request->rejection_note) {
-                $request->rejection_note = '';
-            }
-            else {
+            $rejection_note = '';
                 if($request->previous_remarks) {
                     $prev = $request->previous_remarks. ' || ' ;
                 }
                 else {
                     $prev = '';
                 }
-                $request->rejection_note = $prev. $request->rejection_note. ' ( '.Auth::user()->name.' ) ';
+                $rejection_note = $prev. $request->rejection_note;
+                if($rejection_note != '') {
+                    $rejection_note = $rejection_note . ' ( '.Auth::user()->name.' ) ';
+                }
+
+            $hubActivitySummery = HubstaffActivitySummary::where('user_id',$user_id)->where('date',$request->date)->where('forworded_person','admin')->where('final_approval',1)->first();
+
+            if($hubActivitySummery) {
+                $hubActivitySummery->tracked = $totalTracked;
+                $hubActivitySummery->accepted = $approved;
+                $hubActivitySummery->rejected = $rejected;
+                $hubActivitySummery->approved_ids = $approvedJson;
+                $hubActivitySummery->rejected_ids = $rejectedJson;
+                $hubActivitySummery->sender = Auth::user()->id;
+                $hubActivitySummery->receiver = Auth::user()->id;
+                $hubActivitySummery->rejection_note = $rejection_note;
+                $hubActivitySummery->save();
             }
-            $hubActivitySummery = new HubstaffActivitySummary;
-            $hubActivitySummery->user_id = $user_id;
-            $hubActivitySummery->date =  $request->date;
-            $hubActivitySummery->tracked = $totalTracked;
-            $hubActivitySummery->accepted = $approved;
-            $hubActivitySummery->rejected = $rejected;
-            $hubActivitySummery->approved_ids = $approvedJson;
-            $hubActivitySummery->rejected_ids = $rejectedJson;
-            $hubActivitySummery->sender = Auth::user()->id;
-            $hubActivitySummery->receiver = Auth::user()->id;
-            $hubActivitySummery->forworded_person = 'admin';
-            $hubActivitySummery->final_approval = 1;
-            $hubActivitySummery->rejection_note = $request->rejection_note;
-            $hubActivitySummery->save();
+            else {
+                $hubActivitySummery = new HubstaffActivitySummary;
+                $hubActivitySummery->user_id = $user_id;
+                $hubActivitySummery->date =  $request->date;
+                $hubActivitySummery->tracked = $totalTracked;
+                $hubActivitySummery->accepted = $approved;
+                $hubActivitySummery->rejected = $rejected;
+                $hubActivitySummery->approved_ids = $approvedJson;
+                $hubActivitySummery->rejected_ids = $rejectedJson;
+                $hubActivitySummery->sender = Auth::user()->id;
+                $hubActivitySummery->receiver = Auth::user()->id;
+                $hubActivitySummery->forworded_person = 'admin';
+                $hubActivitySummery->final_approval = 1;
+                $hubActivitySummery->rejection_note = $rejection_note;
+                $hubActivitySummery->save();
+            }
+        
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $min = $approved/60;
+                $min = number_format($min,2);
+                $message = 'Hi, your time for '.$request->date.' has been approved. Total approved time is '.$min.' minutes.';
+                $requestData->request->add(['summery_id' => $hubActivitySummery->id, 'message' => $message, 'status' => 1]);
+                app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'time_approval');
+            
             return response()->json([
                 'totalApproved' => $approved
             ],200);

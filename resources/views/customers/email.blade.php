@@ -4,8 +4,8 @@
       <div class="card">
         <div class="card-header" id="headingEmail{{ $key }}">
           <h5 class="mb-0">
-            <button class="btn btn-link collapsed collapse-fix email-fetch" data-toggle="collapse" data-target="#emailAcc{{ $key }}" data-uid="{{ $email['uid'] ?? 'no' }}" data-id="{{ $email['id'] ?? '' }}" data-type="{{ $type }}" aria-expanded="false" aria-controls="">
-              {{ $email['subject'] }}
+            <button class="btn btn-link collapsed collapse-fix email-fetch" data-toggle="collapse" data-target="#emailAcc{{ $key }}"  data-id="{{ $email['id'] ?? '' }}" data-type="{{ $email['type']}}" aria-expanded="false" aria-controls="">
+              {{ $email['subject']}}
               {{ $email['date'] }}
             </button>
           </h5>
@@ -18,11 +18,11 @@
           </div>
         </div>
       </div>
-
-      {!! $emails->appends(Request::except('page'))->links() !!}
     @endforeach
-  @else
-    No emails for this customer
+	@if (count($emails) > 0)
+      {!! $emails->appends(request()->except('page'))->links() !!}
+    @endif
+  
   @endif
 </div>
 

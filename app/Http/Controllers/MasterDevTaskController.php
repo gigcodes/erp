@@ -43,9 +43,10 @@ class MasterDevTaskController extends Controller
         }
 
         // find the open branches
-        $github     = new GithubClient;
-        $repository = $github->getRepository();
         $repoArr    = [];
+		/*$github     = new GithubClient;
+        $repository = $github->getRepository();
+        
         if (!empty($repository)) {
             foreach ($repository as $i => $repo) {
                 $repoId = $repo->full_name;
@@ -62,7 +63,7 @@ class MasterDevTaskController extends Controller
                     }
                 }
             }
-        }
+        }*/
         $cronjobReports = null;
         
         $cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")

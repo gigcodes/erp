@@ -17,7 +17,9 @@ use App\Setting;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
-
+use App\ChatbotCategory;
+use App\ChatbotQuestionReply;
+use App\WatsonAccount;
 class AutoReplyController extends Controller
 {
     /**
@@ -276,31 +278,33 @@ class AutoReplyController extends Controller
     {
         $phrasesReq     = $request->phraseId;
         $keyword        = $request->keyword;
-        $name           = $request->name;
+        $erp_or_watson           = $request->erp_or_watson;
         $group          = $request->phrase_group;
         $suggestedReply = $request->reply;
+        $auto_approve = $request->auto_approve;
+        $category_id = $request->category_id;
 
-        //Check Existing Group
-        if ($group != '') {
-            $group   = ChatbotQuestion::find($group);
-            $groupId = $group->id;
-            //if suggested replt then store it
-            if($suggestedReply) {
-               $group->suggested_reply = $suggestedReply;
-               $group->save();
+        if($group && $group != "") {
+            if (is_numeric($group)) {
+                $chatbotQuestion = ChatbotQuestion::find($group);
+            } else {
+                $chatbotQuestion        = new ChatbotQuestion;
+                $chatbotQuestion->value = str_replace(" ", "_", preg_replace('/\s+/', ' ', $group));
             }
-        } else {
-            //Create Group
-            $group        = new ChatbotQuestion();
-            $group->value = str_replace(" ", "_", preg_replace('/\s+/', ' ', $name));
-            //if suggested replt then store it
-            if($suggestedReply) {
-               $group->suggested_reply = $suggestedReply;
-            }
-            $group->save();
-            $groupId = $group->id;
         }
-
+        else {
+            return response()->json(["message" => 'Select one intent or create one', 'code' => 500]);
+        }
+       
+        if($category_id) {
+            $chatbotQuestion->category_id = $category_id;
+        }
+        $chatbotQuestion->erp_or_watson = $erp_or_watson;
+        $chatbotQuestion->auto_approve = $auto_approve;
+        $chatbotQuestion->suggested_reply = $suggestedReply;
+        $chatbotQuestion->keyword_or_question = 'intent';
+        $chatbotQuestion->is_active = 1;
+        $chatbotQuestion->save();
 
 
         //Getting Phrase in array
@@ -308,14 +312,13 @@ class AutoReplyController extends Controller
             $phrase = ChatMessagePhrase::whereIn("id", $phrasesReq)->get();
             if (!$phrase->isEmpty()) {
                 foreach ($phrase as $rec) {
-                    $checkExistingGroup = ChatbotQuestionExample::where('chatbot_question_id', $groupId)->where('question', $rec->phrase)->first();
+                    $checkExistingGroup = ChatbotQuestionExample::where('chatbot_question_id', $chatbotQuestion->id)->where('question', $rec->phrase)->first();
                     if ($checkExistingGroup == null) {
                         //Place Api Here For Keywords
                         $phraseSave                      = new ChatbotQuestionExample();
-                        $phraseSave->chatbot_question_id = $groupId;
+                        $phraseSave->chatbot_question_id = $chatbotQuestion->id;
                         $phraseSave->question            = preg_replace("/\s+/", " ", $rec->phrase);
                         $phraseSave->save();
-
                     }
                     $value = $rec->phrase;
                     $rec->deleted_by = \Auth::user()->id;
@@ -327,9 +330,23 @@ class AutoReplyController extends Controller
         }
 
         // call api to store data
-        WatsonManager::pushQuestion($groupId);
+        if($chatbotQuestion->erp_or_watson == 'watson') {
+            WatsonManager::pushQuestion($chatbotQuestion->id);
+        }
+        else {
+            $watson_account_ids = WatsonAccount::all();
+            foreach($watson_account_ids as $id){
+                $data_to_insert[] = [
+                    'suggested_reply' => $suggestedReply,
+                    'store_website_id' => $id->store_website_id,
+                    'chatbot_question_id' => $chatbotQuestion->id
+                ];
+            }
+            ChatbotQuestionReply::insert($data_to_insert);
+        }
+        
 
-        return response()->json(["response" => 200]);
+        return response()->json(["message" => 'Successfully created intent', 'code' => 200]);
     }
 
     public function mostUsedWords(Request $request)
@@ -382,6 +399,13 @@ class AutoReplyController extends Controller
     public function mostUsedPhrases(Request $request)
     {
         $groupPhrases = \App\ChatbotQuestion::all();
+        $allCategory = ChatbotCategory::all();
+        $allCategoryList = [];
+        if (!$allCategory->isEmpty()) {
+            foreach ($allCategory as $all) {
+                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+            }
+        }
 
         $keyword = request("keyword", "");
 
@@ -417,6 +441,7 @@ class AutoReplyController extends Controller
             'recordsNeedToBeShown' => $recordsNeedToBeShown,
             'multiple'             => $multiple,
             'activeNo'             => $activeNo,
+            'allCategoryList'      => $allCategoryList
         ]);
     }
 

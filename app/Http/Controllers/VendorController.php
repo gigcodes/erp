@@ -53,12 +53,15 @@ class VendorController extends Controller
   public function updateReminder(Request $request)
   {
     $vendor = Vendor::find($request->get('vendor_id'));
-    $vendor->frequency            = $request->get('frequency');
+	$vendor->frequency            = $request->get('frequency');
     $vendor->reminder_message     = $request->get('message');
     $vendor->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
     $vendor->reminder_last_reply  = $request->get('reminder_last_reply',0);
     $vendor->save();
-
+	
+	$message = "Reminder : ".$request->get('message');
+	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
+	
     return response()->json([
       'success'
     ]);

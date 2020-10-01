@@ -77,13 +77,28 @@ use App\ChatMessagesQuickData;
 use App\ColdLeads;
 use App\ChatbotQuestion;
 use Google\Cloud\Translate\TranslateClient;
-
+use App\Hubstaff\HubstaffActivitySummary;
+use GuzzleHttp\Exception\ClientException;
+use GuzzleHttp\RequestOptions;
+use App\Hubstaff\HubstaffMember;
+use App\Helpers\HubstaffTrait;
 
 class WhatsAppController extends FindByNumberController
 {
-    const MEDIA_PDF_CHUNKS = 50;
-    const AUTO_LEAD_SEND_PRICE = 281;
 
+    use hubstaffTrait;
+    CONST MEDIA_PDF_CHUNKS = 50;
+    CONST AUTO_LEAD_SEND_PRICE = 281;
+    private $githubClient;
+
+
+    public function __construct()
+    {
+        $this->githubClient = new GuzzleClient([
+            'auth' => [getenv('GITHUB_USERNAME'), getenv('GITHUB_TOKEN')]
+        ]);
+        $this->init(getenv('HUBSTAFF_SEED_PERSONAL_TOKEN'));
+    }
     /**
      * Incoming message URL for whatsApp
      *
@@ -1091,32 +1106,38 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if (!empty($customer)) {
-                $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
-                $language = $customerDetails->language;
-                if (empty($language)) {
-                    //Translate Google API
-                    $translate = new TranslateClient([
-                        'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
-                    ]);
-                    $result = $translate->detectLanguage($text);
-                    $language = $result['languageCode'] ? $result['languageCode'] : 'en';
-                    $customerDetails->language = $language;
-                    $customerDetails->update();
-                }
-                $fromLang = $language;
-                $toLang = "en";
+            if(!empty($customer)) {
+                try {
+                    
+                    $customerDetails = is_object($customer) ? Customer::find($customer->id) : $customer;
+                    $language = $customerDetails->language;
 
-                if ($sendToSupplier) {
-                    $fromLang = "en";
-                    $toLang = $language;
-                }
+                    if(empty($language)){
+                        //Translate Google API
+                        $translate = new TranslateClient([
+                            'key' => getenv('GOOGLE_TRANSLATE_API_KEY')
+                        ]);
+                        $result = $translate->detectLanguage($text);
+                        $language = $result['languageCode'] ? $result['languageCode'] : 'en';
+                        $customerDetails->language = $language;
+                        $customerDetails->update();
+                    }
 
-                $result = TranslationHelper::translate($fromLang, $toLang, $text);
-                if ($sendToSupplier) {
-                    $text = $result;
-                } else {
-                    $text = $result . ' -- ' . $text;
+                    $fromLang = $language;
+                    $toLang = "en";
+                    if($sendToSupplier) {
+                        $fromLang   = "en";
+                        $toLang     = $language;
+                    }
+
+                    $result = TranslationHelper::translate($fromLang, $toLang, $text);
+                    if($sendToSupplier) {
+                        $text = $result;
+                    }else {
+                        $text = $result.' -- '.$text;
+                    }
+                }catch(\Exception $e) {
+                    \Log::info("Message with google api ".self::class."__".__FUNCTION__."_".__LINE__);
                 }
             }
 
@@ -1736,6 +1757,7 @@ class WhatsAppController extends FindByNumberController
                         ]);
                     }
                 }
+
                 //Create Task record
                 if (isset($customer->id) && $customer->id > 0) {
 
@@ -1758,6 +1780,7 @@ class WhatsAppController extends FindByNumberController
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
                                 $keyword = $reply->question;
                                 if(($keyword == $params['message'] || preg_match("/{$keyword}/i", $params['message'])) && $auto_reply->suggested_reply) {
+
                                     $temp_params = $params;
                                     $temp_params['message'] = $auto_reply->suggested_reply;
                                     $temp_params['media_url'] = null;
@@ -1773,6 +1796,7 @@ class WhatsAppController extends FindByNumberController
                                             $message->unique_id = $sendResult['id'] ?? '';
                                             $message->save();
                                         }
+                                        $isReplied = 1;
                                         break;
                                     }
                                 }else{
@@ -1833,9 +1857,16 @@ class WhatsAppController extends FindByNumberController
 //                        }
 //                    }
 
+                    // start to check with watson api directly
+                    if(!$isReplied) {
+                        if(!empty($params['message'])) {
+                            if ($customer && $params[ 'message' ] != '') {
+                                WatsonManager::sendMessage($customer,$params['message']);
+                            }
+                        }
+                    }
                 }
             }
-
             // Moved to the bottom of this loop, since it overwrites the message
             $fromMe = $chatapiMessage['fromMe'] ?? true;
             $params['message'] = $originalMessage;
@@ -2017,7 +2048,6 @@ class WhatsAppController extends FindByNumberController
                 // ');
 
                 foreach ($message->getMedia(config('constants.media_tags')) as $key => $image) {
-                    // dd($image);
                     $temp_image = [
                         'key' => $image->getKey(),
                         'image' => $image->getUrl(),
@@ -2261,6 +2291,30 @@ class WhatsAppController extends FindByNumberController
                 } elseif ($context == 'dubbizle') {
                     $data['dubbizle_id'] = $request->dubbizle_id;
                     $module_id = $request->dubbizle_id;
+                }
+                elseif ($context == 'time_approval') {
+                    $summary = HubstaffActivitySummary::find($request->summery_id);
+                    if($summary) {
+                        $userId = $summary->user_id;
+                        $number = User::find($userId);
+                        if (!$number) {
+                            return response()->json(['message' => null]);
+                        }
+                        $whatsapp = $number->whatsapp_number;
+                        $number = $number->phone;
+
+                        $params[ 'erp_user' ] = $userId;
+                        $params[ 'user_id' ]  = $userId;
+                        $params[ 'sent_to_user_id' ] = $userId;
+                        $params[ 'approved' ] = 1;
+                        $params[ 'status' ] = 2;
+                        $params[ 'hubstaff_activity_summary_id' ] = $request->summery_id;
+                        $params[ 'message' ] = $request->message;
+                        $this->sendWithThirdApi($number, $whatsapp, $params[ 'message' ]);
+                        $chat_message = ChatMessage::create($params);
+                        return response()->json(['message' => $chat_message]);
+                    }
+                    return response()->json(['message' => null]);
                 } elseif ($context == 'issue') {
                     $sendTo = $request->get('sendTo', "to_developer");
                     $params['issue_id'] = $request->get('issue_id');
@@ -2441,6 +2495,58 @@ class WhatsAppController extends FindByNumberController
                         'model' => \App\DeveloperTask::class,
                         'model_id' => $params['issue_id']
                     ], [
+                        'last_communicated_message' => @$params['message'],
+                        'last_communicated_message_at' => Carbon::now(),
+                        'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+                    ]);
+
+                    return response()->json(['message' => $chat_message]);
+
+                } elseif ($context == 'auto_task') {
+                    $params[ 'issue_id' ] = $request->get('issue_id');
+                    $issue = DeveloperTask::find($request->get('issue_id'));
+                    $userId  = $issue->assigned_to;
+
+                    
+                    $admin = $issue->created_by;
+
+                    $params[ 'erp_user' ] = $userId;
+                    $params[ 'user_id' ]  = $data['user_id'];
+                    $params[ 'sent_to_user_id' ] = $userId;
+                    $params[ 'approved' ] = 1;
+                    $params[ 'status' ] = 2;
+
+
+                    $number = User::find($userId);
+                    if (!$number) {
+                        return response()->json(['message' => null]);
+                    }
+                    $whatsapp = $number->whatsapp_number;
+                    $number = $number->phone;
+                        $params[ 'developer_task_id' ] = $request->get('issue_id');
+                        $prefix = ($issue->task_type_id == 1) ? "#DEVTASK-" : "#ISSUE-";
+                        $params[ 'message' ] = $prefix . $issue->id . '-' . $issue->subject . '=>' . $request->get('message');
+                        $this->sendWithThirdApi($number, $whatsapp, $params[ 'message' ]);
+                        $chat_message = ChatMessage::create($params);
+                        
+                        if($admin) {
+                            $creator = User::find($admin);
+                            if ($creator) {
+                                $num = $creator->phone;
+                                $whatsapp = $creator->whatsapp_number;
+                                $this->sendWithThirdApi($num, $whatsapp, $params[ 'message' ]);
+                                $params[ 'erp_user' ] = $admin;
+                                $params[ 'user_id' ]  = $data['user_id'];
+                                $params[ 'sent_to_user_id' ] = $admin;
+                                $params[ 'approved' ] = 1;
+                                $params[ 'status' ] = 2;
+                                $chat_message = ChatMessage::create($params);
+                            }
+                        }
+                    ChatMessagesQuickData::updateOrCreate([
+                        'model' => \App\DeveloperTask::class,
+                        'model_id' => $params['issue_id']
+                        ], [
                         'last_communicated_message' => @$params['message'],
                         'last_communicated_message_at' => Carbon::now(),
                         'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
@@ -5281,5 +5387,225 @@ class WhatsAppController extends FindByNumberController
         return response()->json(["code" => 200]);
 
     }
+    private function createTask($data) {
+        $default_user_id = \App\User::USER_ADMIN_ID;
+		$data['assign_from'] = $default_user_id;
+		$data['is_statutory'] = 0;
+        $data['task_details'] =$data['task_description'];
+        $data['task_subject'] =$data['task_subject'];
+        $data['assign_to'] =$data['assigned_to'];
 
+			$task = Task::create($data);
+
+            if ($data['assign_to']) {
+                $task->users()->attach([$data['assign_to'] => ['type' => User::class]]);
+			}
+
+            $message = "#" . $task->id . ". " . $task->task_subject . ". " . $task->task_details;
+
+			$params = [
+			 'number'       => NULL,
+			 'user_id'      => $default_user_id,
+			 'approved'     => 1,
+			 'status'       => 2,
+			 'task_id'			=> $task->id,
+			 'message'      => $message
+		    ];
+
+            $user = User::find($data['assign_to']);
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($user->phone, $user->whatsapp_number, $params['message']);
+            $chat_message = ChatMessage::create($params);
+			ChatMessagesQuickData::updateOrCreate([
+                'model' => \App\Task::class,
+                'model_id' => $params['task_id']
+                ], [
+                'last_communicated_message' => @$params['message'],
+                'last_communicated_message_at' => $chat_message->created_at,
+                'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
+            ]);
+
+
+            $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+			  $assignedUser = HubstaffMember::where('user_id', $user->id)->first();	  
+			  $hubstaffUserId = null;
+			  if ($assignedUser) {
+				  $hubstaffUserId = $assignedUser->hubstaff_user_id;
+			  }
+			  $taskSummery = substr($message, 0, 200);
+			  
+	  
+			  $hubstaffTaskId = $this->createHubstaffTask(
+				  $taskSummery,
+				  $hubstaffUserId,
+				  $hubstaff_project_id
+			  );
+	  
+			  if($hubstaffTaskId) {
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->save();
+			  }
+			  if ($hubstaffUserId) {
+				  $task = new HubstaffTask();
+				  $task->hubstaff_task_id = $hubstaffTaskId;
+				  $task->project_id = $hubstaff_project_id;
+				  $task->hubstaff_project_id = $hubstaff_project_id;
+				  $task->summary = $message;
+				  $task->save();
+              }
+              return true;
+    }
+    private function createDevtask($data) {
+        $default_user_id = \App\User::USER_ADMIN_ID;
+
+		$data['created_by'] = $default_user_id;
+        $data['task'] =$data['task_description'];
+        $data['subject'] =$data['task_subject'];
+        $data['assigned_to'] =$data['assigned_to'];
+        $data['user_id'] =$data['assigned_to'];
+        $data['priority'] = 0;
+        $data['hubstaff_task_id'] = 0;
+        $data['assigned_by'] = $default_user_id;
+        $data['status'] = 'In Progress';
+        $data['hubstaff_project'] = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
+        $task = DeveloperTask::create($data);
+
+        // CREATE GITHUB REPOSITORY BRANCH
+        $newBranchName = $this->createBranchOnGithub(
+            $data['repository_id'],
+            $task->id,
+            $task->subject
+        );
+
+        // UPDATE TASK WITH BRANCH NAME
+        if ($newBranchName) {
+            $task->github_branch_name = $newBranchName;
+            $task->save();
+        }
+
+        if (is_string($newBranchName)) {
+            $message = $data['task'] . PHP_EOL . "A new branch " . $newBranchName . " has been created. Please pull the current code and run 'git checkout " . $newBranchName . "' to work in that branch.";
+        } else {
+            $message = $data['task'];
+        }
+        $message = $data['task'];
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add(['issue_id' => $task->id, 'message' => $message, 'status' => 1]);
+
+        app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'auto_task');
+
+        $hubstaff_project_id = $data['hubstaff_project'];
+
+        $assignedUser = HubstaffMember::where('user_id', $data['assigned_to'])->first();
+
+        $hubstaffUserId = null;
+        if ($assignedUser) {
+            $hubstaffUserId = $assignedUser->hubstaff_user_id;
+        }
+        $summary = substr($data['task'], 0, 200);
+        $taskSummery = '#DEVTASK-' . $task->id . ' => ' . $summary;
+
+        $hubstaffTaskId = $this->createHubstaffTask(
+            $taskSummery,
+            $hubstaffUserId,
+            $hubstaff_project_id
+        );
+        if($hubstaffTaskId) {
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->save();
+        }
+        if ($hubstaffUserId) {
+            $task = new HubstaffTask();
+            $task->hubstaff_task_id = $hubstaffTaskId;
+            $task->project_id = $hubstaff_project_id;
+            $task->hubstaff_project_id = $hubstaff_project_id;
+            $task->summary = $data['task'];
+            $task->save();
+        }
+        return true;
+    }
+
+
+    private function createHubstaffTask(string $taskSummary, ?int $hubstaffUserId, int $projectId, bool $shouldRetry = true)
+    {
+        $tokens = $this->getTokens();
+        $url = 'https://api.hubstaff.com/v2/projects/' . $projectId . '/tasks';
+        $httpClient = new GuzzleClient();
+        try {
+
+            $body = array(
+                'summary' => $taskSummary
+            );
+
+            if ($hubstaffUserId) {
+                $body['assignee_id'] = $hubstaffUserId;
+            } else {
+                $body['assignee_id'] = getenv('HUBSTAFF_DEFAULT_ASSIGNEE_ID');
+            }
+            $response = $httpClient->post(
+                $url,
+                [
+                    RequestOptions::HEADERS => [
+                        'Authorization' => 'Bearer ' . $tokens->access_token,
+                        'Content-Type' => 'application/json'
+                    ],
+
+                    RequestOptions::BODY => json_encode($body)
+                ]
+            );
+            $parsedResponse = json_decode($response->getBody()->getContents());
+            return $parsedResponse->task->id;
+        } catch (ClientException $e) {
+        	if($e->getCode() == 401) {
+        		$this->refreshTokens();
+                if ($shouldRetry) {
+                    return $this->createHubstaffTask(
+                        $taskSummary,
+                        $hubstaffUserId,
+                        $projectId,
+                        false
+                    );
+                }
+        	}
+        }
+        return false;
+    }
+    
+    private function createBranchOnGithub($repositoryId, $taskId, $taskTitle,  $branchName = 'master')
+    {
+        $newBranchName = 'DEVTASK-' . $taskId;
+
+        // get the master branch SHA
+        // https://api.github.com/repositories/:repoId/branches/master
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/branches/' . $branchName;
+        try {
+            $response = $this->githubClient->get($url);
+            $masterSha = json_decode($response->getBody()->getContents())->commit->sha;
+        } catch (Exception $e) {
+            return false;
+        }
+
+        // create a branch
+        // https://api.github.com/repositories/:repo/git/refs
+        $url = 'https://api.github.com/repositories/' . $repositoryId . '/git/refs';
+        try {
+            $this->githubClient->post(
+                $url,
+                [
+                    RequestOptions::BODY => json_encode([
+                        "ref" => "refs/heads/" . $newBranchName,
+                        "sha" => $masterSha
+                    ])
+                ]
+            );
+            return $newBranchName;
+        } catch (Exception $e) {
+
+            if ($e instanceof ClientException && $e->getResponse()->getStatusCode() == 422) {
+                // branch already exists
+                return $newBranchName;
+            }
+            return false;
+        }
+    }
 }
