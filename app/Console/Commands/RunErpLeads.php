@@ -101,7 +101,7 @@ class RunErpLeads extends Command
                         if (count($newProdArr) > 0) {
                             $requestData = new Request();
                             $requestData->setMethod('POST');
-                            $requestData->request->add(['customer_id' => $lead->customer_id, 'selected_product' =>   $newProdArr]);
+                            $requestData->request->add(['lead_id'=>$lead->id,'customer_id' => $lead->customer_id, 'selected_product' =>   $newProdArr]);
                             $res = app('App\Http\Controllers\LeadsController')->sendPrices($requestData, new GuzzleClient);
                         }
                     }
