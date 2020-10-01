@@ -190,6 +190,7 @@
 @include("usermanagement::templates.edit-team")
 @include("usermanagement::templates.add-time")
 @include("usermanagement::templates.user-avaibility")
+@include("usermanagement::templates.show-task-hours")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
