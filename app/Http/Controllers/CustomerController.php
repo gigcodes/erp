@@ -1370,7 +1370,6 @@ class CustomerController extends Controller
             $facebookMessages = $customer->facebookMessages()->get();
         }
 
-
         return view('customers.show', [
             'customer' => $customer,
             'customers' => $customers,
