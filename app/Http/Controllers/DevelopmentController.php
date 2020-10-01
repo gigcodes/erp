@@ -1660,6 +1660,8 @@ class DevelopmentController extends Controller
         $masterUserId = $request->get("master_user_id");
         $issue = DeveloperTask::find($request->get('issue_id'));
 
+        $old_hubstaff_id = $issue->lead_hubstaff_task_id;
+
         $user = User::find($masterUserId);
 
         if(!$user) {
@@ -1679,8 +1681,8 @@ class DevelopmentController extends Controller
         $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
-
         $hubstaffUserId = null;
+
         if ($assignedUser) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
@@ -1698,6 +1700,7 @@ class DevelopmentController extends Controller
                 $hubstaffUserId,
                 $hubstaff_project_id
             );
+
             if($hubstaffTaskId) {
                 $issue->lead_hubstaff_task_id = $hubstaffTaskId;
                 $issue->save();
@@ -1719,6 +1722,7 @@ class DevelopmentController extends Controller
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $masterUserId;
         $taskUser->user_type = 'leaddeveloper';
+        $taskUser->master_user_hubstaff_task_id = $old_hubstaff_id;
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
@@ -1758,14 +1762,6 @@ class DevelopmentController extends Controller
             }
             $issue->team_lead_id = $team_lead_id;
             $issue->save();
-
-            LeadHubstaffDetail::where('task_id', $issue->id)->update(['current' => 0]);
-            $leadHubstaffDetail = new LeadHubstaffDetail;
-            $leadHubstaffDetail->hubstaff_task_id = $issue->hubstaff_task_id;
-            $leadHubstaffDetail->task_id = $issue->id;
-            $leadHubstaffDetail->team_lead_id = $team_lead_id;
-            $leadHubstaffDetail->current = 1;
-            $leadHubstaffDetail->save();
 
         }
         return response()->json([
