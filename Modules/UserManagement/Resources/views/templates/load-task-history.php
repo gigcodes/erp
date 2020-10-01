@@ -1,6 +1,6 @@
 <script type="text/x-jsrender" id="template-task-history">
 <form name="template-create-goal" method="post">
-		<div class="modal-content">
+		<div class="modal-content tasks_list_tbl">
 		   <div class="modal-header">
 		      <h5 class="modal-title">Task</h5>
 		      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -12,6 +12,7 @@
 		    <thead>
 		      <tr>
 		      	<th>Task</th>
+				<th>Description</th>
 		      	<th>Approximate time</th>
 				<th>Action</th> 
 			</tr>
@@ -21,13 +22,19 @@
 			      <tr>
 			      	<td>
 					  {{if prop.type == 'TASK'}}
-					  #TASK-{{:prop.task_id}} => {{:prop.subject}} : {{:prop.subject}}. {{:prop.details}}
+					  #TASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{else}}
-					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}} : {{:prop.subject}}. {{:prop.details}}
+					  #DEVTASK-{{:prop.task_id}} => {{:prop.subject}}
 					  {{/if}}
 
 					 
 					  </td>
+					<td>
+						<div class="show_hide_description">Show Description</div>
+						<div class="description_content" style="display:none">
+							{{:prop.details}}
+						</div>
+					</td>
 			      	<td>
 					  <div class="form-group">
 							<div class='input-group estimate_minutes'>
@@ -40,7 +47,7 @@
                         <div class="d-flex">
                             <div class="form-group" style="padding-top:5px;">
                                 <div class='input-group date due-datetime'>
-									<input type="text" class="form-control input-sm due_date_cls" name="due_date" value="{{:prop.due_date}}"/>
+									<input type="text" class="form-control input-sm due_date_cls" name="due_date" data-type={{:prop.type}} value="{{:prop.due_date}}"/>
 									<span class="input-group-addon">
                             		<span class="glyphicon glyphicon-calendar"></span>
                         			</span>

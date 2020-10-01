@@ -366,7 +366,6 @@ class DevelopmentController extends Controller
         $type = $request->tasktype ? $request->tasktype : 'all';
         $estimate_date = "";
 
-
         $title = 'Task List';
 
         $issues = DeveloperTask::with('timeSpent');
@@ -431,9 +430,9 @@ class DevelopmentController extends Controller
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-
+        
         $issues = $issues->select("developer_tasks.*","chat_messages.message","chat_messages.user_id AS message_user_id", "chat_messages.is_reminder AS message_is_reminder", "chat_messages.status as message_status","chat_messages.sent_to_user_id");
-
+        
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
@@ -540,7 +539,6 @@ class DevelopmentController extends Controller
         $title = 'Task List';
 
         $issues = DeveloperTask::with('timeSpent');
-
         if($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
@@ -690,7 +688,6 @@ class DevelopmentController extends Controller
 
     public function summaryList1(Request $request)
     {
-
         $modules = DeveloperModule::all();
         print_r($modules);
 
@@ -701,7 +698,6 @@ class DevelopmentController extends Controller
         ], $statusList);
 
         return view('development.summarylist',compact('modules','statusList'));
-
     }
     public function issueIndex(Request $request)
     {
@@ -2431,6 +2427,16 @@ class DevelopmentController extends Controller
     {
         $id = $request->id;
         $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimation_minute')->select('developer_tasks_history.*','users.name')->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
+    }
+
+    public function getDateHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('model','App\DeveloperTask')->where('attribute','estimate_date')->select('developer_tasks_history.*','users.name')->get();
         if($task_module) {
             return $task_module;
         }
