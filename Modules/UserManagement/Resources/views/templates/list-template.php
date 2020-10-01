@@ -45,6 +45,7 @@ td+td {
 					  <div class="row">
 							<div class="col-md-12">
 								<div class="col-md-12 text-primary">
+								    <span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 										<span>{{:prop.name}}</span><br>
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
@@ -136,6 +137,7 @@ td+td {
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					<?php } ?>
 					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 					</td>
 			      </tr>
 			    {{/props}}  

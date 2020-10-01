@@ -2389,10 +2389,20 @@ class TaskModuleController extends Controller {
 	}
 	
 	public function updateTaskDueDate(Request $request) {
-		$task = Task::find($request->task_id);
-		if($request->date) {
-			$task->update(['due_date' => $request->date]);
+		
+		
+		if($request->type == 'TASK'){
+			$task = Task::find($request->task_id);
+			if($request->date) {
+				$task->update(['due_date' => $request->date]);
+			}
+		}else{
+			$task = DeveloperTask::find($request->task_id);
+			if($request->date) {
+				$task->update(['due_date' => $request->date]);
+			}
 		}
+		
 		return response()->json([
             'message' => 'Successfully updated'
         ],200);
