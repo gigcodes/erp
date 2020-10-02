@@ -22,8 +22,9 @@
     </div>
     <div class="row">
         <div class="col-lg-12 margin-tb">
-			<h2 class="page-heading">Live Scraper Logs
-            <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
+			<h2 class="page-heading">Live Laravel Logs
+                <a style="float: right;" href="{{ action('LaravelLogController@liveLogDownloads') }}" class="btn btn-success btn-xs">Download</a>
+                <a style="float: right; padding-left: 10px;" href="{{ action('LaravelLogController@liveMagentoDownloads') }}" class="btn btn-success btn-xs">Magento Log</a>
             </h2>
 			@if ($message = Session::get('message'))
 				<div class="alert alert-success">

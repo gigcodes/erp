@@ -12,7 +12,7 @@ class BrandCategorySizeChart extends Model
     protected $fillable = ['brand_id', 'category_id', 'store_website_id'];
 
 
-    public static function getSizeChat($brandId, $categoryId , $siteId)
+    public static function getSizeChat($brandId, $categoryId , $siteId, $absPath = false)
     {
         $img = [];
         
@@ -20,7 +20,11 @@ class BrandCategorySizeChart extends Model
         if(!empty($sizeChart) && $sizeChart->hasMedia(["size_chart"])) {
             $medias = $sizeChart->getMedia(["size_chart"]);
             foreach($medias as $media) {
-                $img[] = $media->getUrl();
+                if($absPath) {
+                    $img[] = $media->getAbsolutePath();
+                }else{
+                    $img[] = $media->getUrl();
+                }
             }
         }
         
