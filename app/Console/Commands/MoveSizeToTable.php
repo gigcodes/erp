@@ -59,7 +59,9 @@ class MoveSizeToTable extends Command
                 if (!empty($ex)) {
                     foreach ($ex as $e) {
                         $e       = preg_replace("/\s+/", " ", $e);
-                        $sizes[] = trim(str_replace(["// Out of stock", "bold'>", "</span>"], "", $e));
+                        if(is_string($e)) {
+                            $sizes[] = trim(str_replace(["// Out of stock", "bold'>", "</span>"], "", $e));
+                        }
                     }
                 }
 
