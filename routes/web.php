@@ -251,6 +251,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
+    
+
+
     Route::resource('reply', 'ReplyController');
     Route::post('reply/chatbot/questions', 'ReplyController@chatBotQuestionT')->name('reply.create.chatbot_questions');
     Route::post('reply/category/store', 'ReplyController@categoryStore')->name('reply.category.store');
@@ -649,6 +652,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
             Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
+        });
+    });
+
+    Route::prefix('size')->group(function () {
+        Route::get('/', 'SizeController@index')->name('size.index');
+        Route::post('/save', 'SizeController@save')->name('size.save')  ;
+        Route::get('/records', 'SizeController@records')->name('size.records');
+        Route::post('/store', 'SizeController@store')->name('size.store');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'SizeController@edit')->name('size.edit');
+            Route::get('delete', 'SizeController@delete')->name('size.delete');
         });
     });
 
