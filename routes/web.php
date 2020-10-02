@@ -1104,6 +1104,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     // Vendor Module
     Route::get('vendors/product', 'VendorController@product')->name('vendors.product.index');
+    Route::post('vendors/store', 'VendorController@store')->name('vendors.store');
     Route::post('vendors/reply/add', 'VendorController@addReply')->name('vendors.reply.add');
     Route::get('vendors/reply/delete', 'VendorController@deleteReply')->name('vendors.reply.delete');
     Route::post('vendors/send/emailBulk', 'VendorController@sendEmailBulk')->name('vendors.email.send.bulk');
