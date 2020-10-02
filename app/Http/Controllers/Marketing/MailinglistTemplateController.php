@@ -35,7 +35,8 @@ class MailinglistTemplateController extends Controller
             }
         }
 
-        return view("marketing.mailinglist.templates.index", compact('mailings', 'rLstMails', 'rViewMail'));
+        return view("marketing.mailinglist.templates.index", compact('mailings', 'rViewMail'));
+//        return view("marketing.mailinglist.templates.index", compact('mailings', 'rLstMails', 'rViewMail'));
 
     }
     public function ajax(Request $request)
