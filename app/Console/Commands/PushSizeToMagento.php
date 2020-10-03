@@ -39,7 +39,7 @@ class PushSizeToMagento extends Command
     {
         //
         $website = \App\StoreWebsite::where("website_source", "magento")->where("api_token","!=","")->get();
-        $sizes   = \App\Size::limit(10)->get();
+        $sizes   = \App\Size::all();
 
         if (!$website->isEmpty()) {
             foreach ($website as $web) {
