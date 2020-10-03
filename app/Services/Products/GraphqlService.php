@@ -26,6 +26,8 @@ class GraphqlService
 
             $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
 
+            echo "<pre>"; print_r($endpoint);  echo "</pre>";die;
+
             $translations = self::generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId);
 
             if (!count($translations)) {

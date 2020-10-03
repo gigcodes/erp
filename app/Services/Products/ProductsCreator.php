@@ -356,7 +356,8 @@ class ProductsCreator
             $productSupplier->composition = $formattedDetails[ 'composition' ];
             $productSupplier->sku = $image->original_sku;
             $productSupplier->save();
-
+            $image->product_id = $product->id;
+            $image->save();
             /*$product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,

@@ -42,6 +42,9 @@
             <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div>
+            <div class="form-group mr-3 mb-3">
+                {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
+            </div>
             <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div> -->
@@ -140,7 +143,7 @@
                     result += '</table>';
 
                 } else {
-                    result = '<h3>this product dont have any media </h3>';
+                    result = '<h3>This product dont have any media </h3>';
                 }
                 $('#medias-modal .modal-body').html(result);
 
@@ -201,7 +204,7 @@
                     result += '</table>';
 
                 } else {
-                    result = '<h3>this Product dont have status history</h3>';
+                    result = '<h3>This Product dont have status history</h3>';
                 }
 
                 $('#status-history-modal .modal-body').html(result)

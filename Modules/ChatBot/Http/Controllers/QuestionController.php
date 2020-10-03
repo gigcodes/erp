@@ -108,7 +108,7 @@ class QuestionController extends Controller
                 'repeat'       => 'sometimes|nullable|string',
                 'is_active'    => 'sometimes|nullable|integer',
             ]);
-    
+
             if ($validator->fails()) {
                 return response()->json(["code" => 500, "error" => []]);
             }
@@ -127,6 +127,7 @@ class QuestionController extends Controller
                 }
             }
         }
+
 
         if (array_key_exists("types",$params) && $params["types"] != NULL && array_key_exists("type",$params) && $params["type"] != NULL) {
             $chatbotQuestionExample = null;
@@ -183,14 +184,13 @@ class QuestionController extends Controller
         }
 
 
-
         if($request->erp_or_watson == 'watson') {
             if($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
             }
-            
+
             if($request->keyword_or_question == 'entity') {
-                $result = json_decode(WatsonManager::pushKeyword($chatbotQuestion->id));
+                $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
             }
 
            // if (property_exists($result, 'error')) {
@@ -325,7 +325,7 @@ class QuestionController extends Controller
                         }
                     }
                 }
-                
+
                 if(!empty($params["question"])) {
                     $chatbotQuestionExample        = new ChatbotQuestionExample;
                     $chatbotQuestionExample->question = $params["question"];
@@ -349,8 +349,9 @@ class QuestionController extends Controller
                     }
                 }
                 if($chatbotQuestion->erp_or_watson == 'watson') {
-                    WatsonManager::pushKeyword($chatbotQuestion->id);
-                } 
+//                    WatsonManager::pushKeyword($chatbotQuestion->id);
+                    WatsonManager::pushQuestion($chatbotQuestion->id);
+                }
             }
             if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer') {
                 $validator = Validator::make($request->all(), [
@@ -371,7 +372,8 @@ class QuestionController extends Controller
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                     $chatbotQuestionExample->save();
                     if($chatbotQuestion->erp_or_watson == 'watson') {
-                        WatsonManager::pushKeyword($chatbotQuestion->id);
+                        WatsonManager::pushQuestion($chatbotQuestion->id);
+//                        WatsonManager::pushKeyword($chatbotQuestion->id);
                     }
             }
         }
@@ -388,7 +390,8 @@ class QuestionController extends Controller
             WatsonManager::pushQuestion($id);
             }
             if($chatbotQuestion->keyword_or_question == 'entity' && $chatbotQuestion->erp_or_watson == 'watson') {
-                WatsonManager::pushKeyword($id);
+//                WatsonManager::pushKeyword($id);
+                WatsonManager::pushQuestion($id);
             }
         }
         return redirect()->back();

@@ -1029,6 +1029,11 @@ class Product extends Model
 
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
+        if(isset($filter_data['in_stock']) && !empty($filter_data['in_stock'])) {
+            $query = $query->where(function ($q) {
+                $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
+            });
+        }
         // if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
         if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
         if(isset($filter_data['term'])) {
