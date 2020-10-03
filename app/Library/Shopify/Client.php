@@ -79,8 +79,10 @@ class Client
         }
 
         if(!empty($store_id)){
-            $store_website = StoreWebsite::where(['id' => $store_id])->first();
-            $url = 'https://'.$store_website->magento_url . $url;
+            $store_website  = StoreWebsite::where(['id' => $store_id])->first();
+            $magentoUrl     = str_replace(["https://","http://"], "", $store_website->magento_url);
+            $url            = str_replace("//", "/", $magentoUrl.$url);
+            $url = 'https://'.$url;
         }else{
             // Add _shopURL if no key is set
             if (!empty($this->_password) && $this->_key == 'APP' && !stristr($url, $this->_shopUrl)) {
@@ -88,19 +90,16 @@ class Client
             }
         }
 
-
-
         // Set cURL options
-        if (stristr($url, $this->_shopUrl)) {
-            $ch = curl_init($url);
+        $ch = curl_init($url);
+        /*if (stristr($url, $this->_shopUrl)) {
         } else {
             if(!is_null($store_id)){
-
                 $ch = curl_init('https://' . $store_website->api_token . ':' . $store_website->magento_password . '@' . $store_website->magento_url . $url) ;
             }else{
                 $ch = curl_init('https://' . $this->_key . ':' . $this->_password . '@' . $this->_shopUrl . $url);
             }
-        }
+        }*/
 
         curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 30);
         if (!empty($requestType)) {

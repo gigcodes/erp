@@ -124,6 +124,9 @@ var page = {
             page.editRecord($(this));
         });
 
+        page.config.bodyView.on("click",".btn-push-size-template",function(e){
+           page.pushSize($(this));
+        });
     },
     validationRule : function(response) {
         $(document).find("#product-template-from").validate({
@@ -220,6 +223,17 @@ var page = {
             url: (typeof href != "undefined") ? href : this.config.baseUrl + "/size/store",
             method: "post",
             data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "loadFirst");
+    },
+    pushSize : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/size/push-to-store",
+            method: "post",
+            data : {id: ele.data("id")},
             beforeSend : function() {
                 $("#loading-image").show();
             }

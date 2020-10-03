@@ -25,6 +25,7 @@
 			       		<div style="width:126px;">
 	                        <button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template"><img width="15px" title="Edit" src="/images/edit.png"></button>
 	                        <button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template" title="Delete"><i class="fa fa-trash" aria-hidden="true"></i></button>
+	                        <button type="button" data-id="{{>prop.id}}" class="btn btn-push-size-template" title="Push to size"><i class="fa fa-globe" aria-hidden="true"></i></button>
                         </div>
 			        </td>
 			      </tr>

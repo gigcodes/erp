@@ -4,6 +4,7 @@ namespace App;
 
 use App\Customer;
 use App\Helpers\OrderHelper;
+use App\Http\Controllers\GoogleTranslateController;
 use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
 use App\Order;
@@ -13,7 +14,6 @@ use App\StoreWebsiteOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
-use App\Http\Controllers\GoogleTranslateController;
 
 class ShopifyHelper
 {
@@ -38,10 +38,23 @@ class ShopifyHelper
         }
 
         $client = new ShopifyClient();
-        if ($product->shopify_id) {
-            $response = $client->updateProduct($product->shopify_id, $productData, $website->id);
+
+        $shopifyID = \App\StoreWebsiteProduct::where("store_website_id", $website->id)->where("product_id", $product->id)->first();
+        if ($shopifyID) {
+            $response = $client->updateProduct($shopifyID->platform_id, $productData,null, $website->id);
         } else {
             $response = $client->addProduct($productData, $website->id);
+        }
+
+        if (!empty($response->product)) {
+            $storeWebsiteProduct = \App\StoreWebsiteProduct::updateOrCreate([
+                "store_website_id" => $website->id,
+                "product_id"       => $product->id,
+            ], [
+                "store_website_id" => $website->id,
+                "product_id"       => $product->id,
+                "platform_id"      => $response->product->id,
+            ]);
         }
 
         $errors = [];
@@ -62,8 +75,14 @@ class ShopifyHelper
             return false;
         }
 
+        if(empty($response->product)) {
+            \Log::info(json_encode(["code" => 500, "data" => $response, "message" => "Response is missing"]));
+            return false;
+        }
+
+
         GoogleTranslateController::translateProductDetails($product);
-        GraphqlService::sendTranslationByGrapql($product->shopify_id, $product->product_id,$website->magento_url, $website->magento_password);
+        GraphqlService::sendTranslationByGrapql($response->product->id, $product->id, $website->magento_url, $website->magento_password);
 
         return true;
     }

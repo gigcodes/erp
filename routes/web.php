@@ -660,6 +660,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         Route::post('/save', 'SizeController@save')->name('size.save')  ;
         Route::get('/records', 'SizeController@records')->name('size.records');
         Route::post('/store', 'SizeController@store')->name('size.store');
+        Route::post('push-to-store', 'SizeController@pushToStore')->name('size.push.to.store');
         Route::prefix('{id}')->group(function () {
             Route::get('edit', 'SizeController@edit')->name('size.edit');
             Route::get('delete', 'SizeController@delete')->name('size.delete');
