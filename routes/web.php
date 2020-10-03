@@ -2302,3 +2302,6 @@ Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsControl
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
+Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
+Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
+Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
