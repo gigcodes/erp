@@ -39,12 +39,16 @@ class PushSizeToMagento extends Command
     {
         //
         $website = \App\StoreWebsite::where("website_source", "magento")->get();
-        $sizes   = \App\Size::all();
+        $sizes   = \App\Size::limit(10)->get();
 
         if (!$website->isEmpty()) {
             foreach ($website as $web) {
+                echo "Store Started  : ".$web->website;
                 // check we set the size already or not first and then push for store
                 foreach ($sizes as $s) {
+
+                    echo "Size Started  : ".$s->name;
+
                     $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->first();
                     if (!$checkSite) {
                         $id                    = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
