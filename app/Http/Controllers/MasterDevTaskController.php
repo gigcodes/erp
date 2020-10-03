@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Library\Github\GithubClient;
 use Illuminate\Http\Request;
+use ProjectDirectory;
 
 class MasterDevTaskController extends Controller
 {
@@ -43,10 +44,10 @@ class MasterDevTaskController extends Controller
         }
 
         // find the open branches
-        $github     = new GithubClient;
-        $repository = $github->getRepository();
+        //$github     = new GithubClient;
+        //$repository = $github->getRepository();
         $repoArr    = [];
-        if (!empty($repository)) {
+        /*if (!empty($repository)) {
             foreach ($repository as $i => $repo) {
                 $repoId = $repo->full_name;
                 $pulls  = $github->getPulls($repoId, "q=is%3Aopen+is%3Apr");
@@ -62,7 +63,7 @@ class MasterDevTaskController extends Controller
                     }
                 }
             }
-        }
+        }*/
         $cronjobReports = null;
         
         $cronjobReports = \App\CronJob::join("cron_job_reports as cjr", "cron_jobs.signature", "cjr.signature")
@@ -117,9 +118,12 @@ class MasterDevTaskController extends Controller
                 sc.scraper_priority desc
         ';
         $scrapeData = \DB::select($sql);
+		
+		//DB Image size management#3118
+		$projectDirectorySql = "select * FROM `project_file_managers` where size > notification_at";
 
-
-        return view("master-dev-task.index",compact(
-            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports'));
+		$projectDirectoryData = \DB::select($projectDirectorySql);	 
+		return view("master-dev-task.index",compact(
+            'currentSize','sizeBefore','repoArr','cronjobReports','last3HrsMsg','last24HrsMsg','scrapeData','scraper1hrsReports','scraper24hrsReports','projectDirectoryData'));
     }
 }

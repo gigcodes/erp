@@ -117,6 +117,7 @@ use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\ProjectDirectory;
 
 class Kernel extends ConsoleKernel
 {
@@ -228,7 +229,8 @@ class Kernel extends ConsoleKernel
 		RoutesSync::class,
         DeleteChatMessages::class,
         CustomerListToEmailLead::class,
-        WayBillTrackHistories::class
+        WayBillTrackHistories::class,
+        ProjectDirectory::class
     ];
 
     /**
@@ -480,6 +482,9 @@ class Kernel extends ConsoleKernel
 		
         //update order way billtrack histories
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
+       
+		//update directory manager to db
+	    $schedule->command('project_directory:manager')->dailyAt("1:00");
 
 
          // make payment receipt for hourly associates on daily basis.

@@ -539,6 +539,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
+	
+	
+    Route::get('project-file-manager/list', 'ProjectFileManagerController@listTree')->name('project-file-manager.list');
+    Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
+    Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');

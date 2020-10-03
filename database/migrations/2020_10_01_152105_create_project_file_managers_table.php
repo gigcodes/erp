@@ -17,8 +17,9 @@ class CreateProjectFileManagersTable extends Migration
             $table->increments('id');
             $table->String('name')->nullable();
             $table->String('project_name')->nullable();
+            $table->String('size')->nullable();
             $table->dateTime('notification_at')->nullable();
-            $table->Integer('parent_id')->nullable();
+            $table->String('parent')->nullable();
             $table->timestamps();
         });
     }
