@@ -1,3 +1,8 @@
+@php
+$currentRoutes = \Route::current();
+$metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
+@endphp
+
 <!DOCTYPE html>
 
 <html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
@@ -9,19 +14,29 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
 
     <meta name="viewport" content="width=device-width, initial-scale=1">
-
+    <?php 
+        if(isset($metaData->page_title) && $metaData->page_title!='') {
+            $title = $metaData->page_title;
+        }else{
+            $title = trim($__env->yieldContent('title'));
+        }
+    ?>
     @if (trim($__env->yieldContent('favicon')))
         <link rel="shortcut icon" type="image/png" href="/favicon/@yield ('favicon')" />
-    @else
-        <link rel="shortcut icon" href="/generate-favicon?title=@yield ('title', 'ERP')" />
+    @elseif (!\Auth::guest())
+        <link rel="shortcut icon" type="image/png" href="/generate-favicon?title={{$title}}" />
     @endif
-
-
-    <title>@yield ('title', 'ERP') - {{ config('app.name') }}</title>
-
+	<title>{{$title}}</title>
     <!-- CSRF Token -->
 
     <meta name="csrf-token" content="{{ csrf_token() }}">
+	
+	@if(isset($metaData->page_description) && $metaData->page_description!='')
+		<meta name="description" content="{{ $metaData->page_description }}">
+	@else
+		<meta name="description" content="{{ config('app.name') }}">
+	@endif
+	
 
     {{-- <title>{{ config('app.name', 'ERP for Sololuxury') }}</title> --}}
 
@@ -410,6 +425,7 @@
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
@@ -421,7 +437,11 @@
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Quick Sell<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('quicksell.index') }}">Quick Sell</a>
+                                                
                                             </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a class="dropdown-item" href="/drafted-products">Quick Sell List</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a class="dropdown-item" href="{{ route('stock.index') }}">Inward Stock</a>
@@ -602,6 +622,9 @@
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue Approval</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue (Approved)</a>
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
@@ -631,6 +654,7 @@
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -651,6 +675,9 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('livechat.get.chats') }}">Live Chat</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('livechat.get.tickets') }}">Live Chat Tickets</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Missed<span class="caret"></span></a>
@@ -718,6 +745,7 @@
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1086,14 +1114,17 @@
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Chatbot<span class="caret"></span></a>
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
-                                        <li class="nav-item dropdown">
+                                    <!-- <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.keyword.list')}}">Entities</a>
-                                        </li>
+                                        </li> -->
                                         <li class="nav-item dropdown">
-                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents</a>
+                                            <a class="dropdown-item" href="{{route('chatbot.question.list')}}">Intents / Entities</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.dialog.list')}}">Dialog</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('chatbot.dialog-grid.list')}}">Dialog Grid</a>
                                         </li>
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('chatbot.mostUsedWords')}}">Most used words</a>
@@ -1184,6 +1215,9 @@
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('development/list') }}">Tasks</a>
+                                </li>
+                                  <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('development/summarylist') }}">Quick Dev Task</a>
                                 </li>
                                 <li class="nav-item">
                                     <a class="dropdown-item" href="{{url('task?daily_activity_date=&term=&selected_user=&is_statutory_query=3')}}">Discussion tasks</a>
@@ -1322,17 +1356,23 @@
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
                                         </li>
-
-                                    </ul>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
+                                        </li>
+									</ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
                                 </li>
+
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
+                                </li>
+								
                                     <li class="nav-item dropdown">
                                         <a href="{{ route('twilio-call-management') }}">Call Management</a>
                                     </li>
@@ -1503,6 +1543,15 @@
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('activity') }}">Activity</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ url('env-manager') }}">Env Manager</a>
+                                </li>
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
+                                </li>
+                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
                                 </li>
                             </ul>
                         </li>
@@ -1754,7 +1803,7 @@
                             <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
-                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    
                     <li>
                         <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
@@ -1762,7 +1811,7 @@
                            </span>
                         </a>
                     </li>
-                    @endif
+                   
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -1784,7 +1833,7 @@
         @elseif (trim($__env->yieldContent('core_content')))
             @yield('core_content')
         @else
-            <main class="container" style="display: inline-block;">
+            <main class="container container-grow" style="display: inline-block;">
                 <!-- Showing fb like page div to all pages  -->
                 {{-- @if(Auth::check())
                 <div class="fb-page" data-href="https://www.facebook.com/devsofts/" data-small-header="true" data-adapt-container-width="false" data-hide-cover="true" data-show-facepile="false"><blockquote cite="https://www.facebook.com/devsofts/" class="fb-xfbml-parse-ignore"><a href="https://www.facebook.com/devsofts/">Development</a></blockquote></div>
@@ -1798,9 +1847,9 @@
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-    <?php /*
+
     @if(Auth::check())
-    @if($liveChatUsers != '' && $liveChatUsers != null)
+
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
             <button class="chat-button">
@@ -1951,9 +2000,8 @@
             </div>
         </div>
     </div>
+
     @endif
-    @endif
-    */ ?>
 
     <!-- Scripts -->
 
@@ -2408,6 +2456,9 @@
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }
@@ -2516,9 +2567,18 @@
         });
 
 
-
-
-
+        $(document).on('click','.show_sku_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#sku_small_string_'+id).hide();
+            $('#sku_long_string_'+id).css({'display':'block'});
+        });
+        $(document).on('click','.show_prod_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#prod_small_string_'+id).hide();
+            $('#prod_long_string_'+id).css({'display':'block'});
+        });
 
     </script>
 

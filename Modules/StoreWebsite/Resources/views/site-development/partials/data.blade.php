@@ -105,6 +105,7 @@
 				</button>
                 @if(Auth::user()->isAdmin())
                 <button style="padding:3px;" title="create quick task" type="button" class="btn btn-image d-inline create-quick-task pd-5"  data-id="@if($site){{ $site->id }}@endif" data-title="@if($site){{ $site->title }}@endif"><img width="2px;" src="/images/add.png"/></button>
+                <button style="float:right;padding-right:0px;margin-top: -5px;" type="button" class="btn btn-image d-inline count-dev-customer-tasks" title="Show task history" data-id="@if($site){{ $site->id }}@endif"><i class="fa fa-info-circle"></i></button>
                 @endif
               
                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class pd-5" data-id="{{ $category->id }}"><img width="2px;" src="/images/forward.png"/></button>

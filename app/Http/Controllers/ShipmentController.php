@@ -15,6 +15,7 @@ use Mail;
 use Illuminate\Http\Request;
 use Exception;
 use Validator;
+use App\waybillTrackHistories;
 
 class ShipmentController extends Controller
 {
@@ -45,7 +46,7 @@ class ShipmentController extends Controller
            }
            $waybills->whereIn('customer_id',$ids);
         }
-		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer');
+		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer','waybill_track_histories');
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
@@ -165,9 +166,7 @@ class ShipmentController extends Controller
             'customer_city' => 'required|string',
             'customer_country' => 'required|string',
             'customer_phone' => 'required|numeric',
-            'customer_address1' => 'required|string',
-            'customer_address2' => 'required|string',
-            'customer_pincode' => 'required|string',
+            'customer_address1' => 'required|string|min:1|max:40',
             'actual_weight' => 'required|numeric',
             'box_length' => 'required|numeric',
             'box_width' => 'required|numeric',
@@ -175,6 +174,7 @@ class ShipmentController extends Controller
             'amount' => 'required|numeric',
             'currency' => 'required',
             'pickup_time' => 'required',
+            'service_type' => 'required',
         ]);
         if ($validator->fails()) {
             return response()->json([
@@ -184,7 +184,6 @@ class ShipmentController extends Controller
         }
 
         try {
-            $params = $request->all();
             //get customer details
             $customer = Customer::where(['id' => $request->customer_id])->first();
             $rateReq   = new CreateShipmentRequest("soap");
@@ -201,7 +200,7 @@ class ShipmentController extends Controller
                 "street" 		=> $request->customer_address1,
                 "city" 			=> $request->customer_city,
                 "postal_code" 	=> $request->customer_pincode,
-                "country_code" 	=> 'IN',
+                "country_code" 	=> $request->customer_country,
                 "person_name" 	=> $customer->name,
                 "company_name" 	=> $customer->name,
                 "phone" 		=> $request->customer_phone
@@ -209,6 +208,7 @@ class ShipmentController extends Controller
 
             $rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->pickup_time))." GMT+05:30");
             $rateReq->setDeclaredValue($request->amount);
+            $rateReq->setCurrency($request->currency);
             $rateReq->setPackages([
                 [
                     "weight" => (float)$request->actual_weight,
@@ -221,7 +221,7 @@ class ShipmentController extends Controller
 
             $phone = !empty($request->customer_phone) ? $request->customer_phone : '';
             $rateReq->setMobile($phone);
-
+            $rateReq->setServiceType($request->service_type);
             $response = $rateReq->call();
             if(!$response->hasError()) {
                 $receipt = $response->getReceipt();
@@ -229,13 +229,17 @@ class ShipmentController extends Controller
                     if(strtolower($receipt["label_format"]) == "pdf") {
                         Storage::disk('files')->put('waybills/' . $receipt["tracking_number"] . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
                         $waybill = new Waybill;
-                        $waybill->order_id = 0;
+                        $waybill->order_id = null;
                         $waybill->customer_id = $request->customer_id;
                         $waybill->awb = $receipt["tracking_number"];
                         $waybill->box_width = $request->box_width;
                         $waybill->box_height = $request->box_height;
                         $waybill->box_length = $request->box_length;
                         $waybill->actual_weight = (float)$request->get("actual_weight");
+                        $volume_weight = $request->box_width*$request->box_height*$request->box_length/5000;
+                        $waybill->volume_weight = (float)$volume_weight;
+                        $waybill->cost_of_shipment = $request->amount.' '.$request->currency;
+                        $waybill->duty_cost = null; #TODO after discussing
                         $waybill->package_slip = $receipt["tracking_number"] . '_package_slip.pdf';
                         $waybill->pickup_date = $request->pickup_time;
                         $waybill->save();
@@ -244,20 +248,17 @@ class ShipmentController extends Controller
                 return response()->json([
                     'success' => true
                 ]);
-//                return redirect()->back()->with('success', 'Shipment created successfully');
             }else{
                 return response()->json([
                     'success' => false,
                     'globalErrors' => $response->getErrorMessage(),
                 ]);
-//                return redirect()->back()->withErrors($response->getErrorMessage());
             }
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
                 'globalErrors' => $e->getMessage(),
             ]);
-//            return redirect()->back()->withErrors([$e->getMessage()]);
         }
     }
 
@@ -265,6 +266,14 @@ class ShipmentController extends Controller
     {
         $all_templates = MailinglistTemplate::where('name','=',$name)->get();
         return new JsonResponse(['status' => 1, 'data' => $all_templates]);
+    }
+
+    public function viewWaybillTrackHistory(Request $request){
+        $tracks = waybillTrackHistories::where('waybill_id', $request->waybill_id)
+                ->orderBy('id', 'desc')->get();
+
+        return view('shipment.partial.load_waybill_track_histories', ['tracks' => $tracks])->render();
+        
     }
 
 

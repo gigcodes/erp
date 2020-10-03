@@ -34,17 +34,20 @@ class HomeController extends Controller
         $im = imagecreatefrompng(public_path("favicon/favicon-30X30.png"));
         $char = preg_split("/\s+/", $request->get("title","U"));
 
-        $words = explode(" ", $request->get("title","U"));
+        $words = explode(" ", $request->get("title","Home"));
         $acronym = "";
         $i = 1;
         foreach ($words as $w) {
-          $acronym .= $w[0];
-          if($i == 2) {
-            break;
+          if(isset($w[0])) {
+            $acronym .= $w[0];
+            if($i == 2) {
+              break;
+            }
+            $i++;
           }
-          $i++;
         }
-        
+
+
 
         // create Image from file
         $img = \Image::make(public_path("favicon/favicon-30X30.png"));

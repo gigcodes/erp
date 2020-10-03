@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class InstagramThread extends Model
 {
     public function conversation() {
-        return $this->hasMany(InstagramDirectMessages::class, 'instagram_thread_id', 'id');
+        return $this->hasMany(ChatMessage::class, 'unique_id', 'thread_id');
     }
 
     public function lead() {
@@ -25,8 +25,14 @@ class InstagramThread extends Model
     
     }
 
+    public function erpUser()
+    {
+        return $this->hasOne(Customer::class, 'id', 'customer_id');
+    
+    }
+
     public function lastMessage()
     {
-        return $this->hasOne(InstagramDirectMessages::class, 'instagram_thread_id', 'id')->orderBy('id','desc')->where('message_type',1);
+        return $this->hasOne(ChatMessage::class, 'unique_id', 'thread_id')->orderBy('id','desc')->whereNotNull('message');
     }
 }

@@ -93,6 +93,25 @@
     width: 100% !important;
 }
 
+/*.quick-customer .next_action{
+  height: 27px;
+  padding: 4px 12px;
+}*/
+.quick-customer #sno{
+  width: 0.1%;
+}
+
+.quick-customer #new_action_td{
+  height: 100px;
+  min-width: 241px;
+}
+.quick-customer .next_action_div{
+  margin-top: 8px;
+}
+.quick-customer .add_next_action_btn{
+    margin-left: 8px;
+    float: left;
+}
 
 @media (max-width: 480px) {
     .notification-dropdown ul:first-of-type{
@@ -114,9 +133,12 @@
 .notification-table tr.isread{
     background: #ECF2FB;
 }
-
+#title
+{
+    background: darkgray;color:#fff;padding:10px;margin-top:10px;margin-bottom:10px;
+}
 .grid-image{
-  height: 200px !important;
+  /* height: 200px !important; */
   margin: 0 auto;
 }
 
@@ -1622,4 +1644,77 @@ p {
     margin-left: -5px;
     margin-right: 8px;
     display: none;
+}
+.page-heading-title {
+    font-size: 16px;
+    margin: 0px;
+    padding: 15px;
+    font-weight: bold;
+}
+.green_img{
+    width: 20px;
+    height: 20px;
+    background: #2cff00;
+    border: 1px solid #fff;
+    border-radius: 40px;
+}
+.red_img{
+    width: 20px;
+    height: 20px;
+    background: #f00;
+    border: 1px solid #fff;
+    border-radius: 40px;
+}
+label.error{
+    color:red;
+    padding-left: 5px;
+}
+.show_hide_description{
+    text-decoration-line: underline;
+    color: blue;
+}
+
+.tasks_list_tbl table tbody td {
+    vertical-align: middle !important;
+}
+
+.tasks_list_tbl table tbody td .form-group {
+    margin-bottom: 0;
+    padding: 0 !important;
+}
+
+.estimate_minutes {
+    display: flex !important;
+    flex-wrap: inherit !important;
+}
+
+.estimate_minutes input {
+    flex: 1;
+    display: inline-block !important;
+}
+
+.tasks_list_tbl table tbody td label {
+    margin-bottom: 0;
+    /* display: none; */
+}
+
+.tasks_list_tbl table tbody td input {
+    border: 1px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.tasks_list_tbl table tbody td .d-flex {
+    align-items: center;
+}
+.tasks_list_tbl table tbody td .d-flex button {
+    display: flex;
+}
+.tasks_list_tbl table tbody td .d-flex button img {
+    margin: auto !important;
+}
+.show_hide_description {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-decoration: none;
 }

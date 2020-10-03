@@ -42,8 +42,13 @@
 
   <div class="form-group">
     <strong>Currency:</strong>
-    <input type="text" name="currency" class="form-control" value="{{ old('currency') }}" required>
-
+    <!--input type="text" name="currency" class="form-control" value="{{ old('currency') }}" required-->
+    <select name="currency" class="form-control" required>
+      <option value="">Select Currency</option>
+      @foreach($currencies as $currency)  
+        <option @if($currency->code == old('currency')) selected @endif value="{{$currency->code}}">{{$currency->name}}</option>
+      @endforeach
+    </select>
     @if ($errors->has('currency'))
       <div class="alert alert-danger">{{$errors->first('currency')}}</div>
     @endif

@@ -9,17 +9,17 @@
                             <td> <img src="{{ $product->media ? $product->media->getUrl() : '' }}" alt="" onclick="bigImg('{{ $product->media ? $product->media->getUrl() : '' }}')" style="max-width: 150px; max-height: 150px;"></td>
                             <td> 
                             @if($product->newMedia)
-                            <table class="table-striped table-bordered table" id="log-table">
-                                <tbody>
-                                <tr>
-                            @foreach($product->getDifferentWebsiteImage($product->original_media_id) as $images)
-                                <td>{{ $images->getDifferentWebsiteName($images->newMedia->id) }}
-                                <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
-                                </td>
-                            @endforeach
-                                </tr>
-                                </tbody>
-                            </table>
+                                <table class="table-striped table-bordered table" id="log-table">
+                                    <tbody>
+                                    <tr>
+                                @foreach($product->differentWebsiteImages as $images)
+                                    <td>{{ $images->getDifferentWebsiteName($images->newMedia->id) }}
+                                    <img src="{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}" alt="" height="150" width="150" onclick="bigImg('{{ $images->newMedia ? $images->newMedia->getUrl() : '' }}')">
+                                    </td>
+                                @endforeach
+                                    </tr>
+                                    </tbody>
+                                </table>
                             @endif
                             </td>
                             <td>{{ number_format((float)str_replace('0:00:','',$product->speed), 4, '.', '') }} sec</td>

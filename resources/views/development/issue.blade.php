@@ -31,13 +31,17 @@
     tr {
         background-color: #f9f9f9;
     }
+    .mr-t-5 {
+        margin-top:5px !important;
+    }
+ 
 </style>
 
 
 @section('large_content')
     <div class="row">
-        <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ ucfirst($title) }}</h2>
+        <div class="col-lg-12 margin-tb">            
+            <h2 class="page-heading">{{ ucfirst($title) }} ({{$issues->total()}})</h2>
         </div>
     </div>
 
@@ -87,6 +91,10 @@
              @if (auth()->user()->isAdmin())
              <a class="btn btn-secondary" style="color:white;" data-toggle="modal" data-target="#newStatusModal">Create Status</a>
             @endif
+            @if (auth()->user()->isAdmin())
+             <a class="btn btn-secondary" style="color:white;" id="make_delete_button">Delete Tasks</a>
+            @endif
+
         </div>
 
 
@@ -132,10 +140,12 @@
     @include("development.partials.upload-document-modal")
     @include("partials.plain-modal")
     @include("development.partials.time-history-modal")
+    @include("development.partials.meeting-time-modal")
     @include("development.partials.time-tracked-modal")
     @include("development.partials.add-status-modal")
+    @include("development.partials.user_history_modal")
+    @include("development.partials.lead_time-history-modal")
 @endsection
-
 @section('scripts')
     <script src="/js/bootstrap-datetimepicker.min.js"></script>
     <script src="/js/jquery-ui.js"></script>
@@ -228,6 +238,14 @@
             });
 
 
+            $('.assign-team-lead.select2').select2({
+                width: "100%"
+            });
+
+            $('.assign-tester.select2').select2({
+                width: "100%"
+            });
+
             $('.assign-master-user.select2').select2({
                 width: "100%"
             });
@@ -250,6 +268,19 @@
             $('.estimate-time').datetimepicker({
                 format: 'HH:mm'
             });
+
+            $(".estimate-date").each(function() {
+                // ...
+                $(this).datepicker({
+                    dateformat: 'yyyy-mm-dd'
+                });
+            });
+      
+            $('#estimate_date_picker').datepicker({
+                dateformat: 'yyyy-mm-dd'
+            });
+            
+           
         });
 
         function getPriorityTaskList(id) {
@@ -378,7 +409,6 @@
         $(document).on('click', '.send-message-open', function (event) {
             var textBox = $(this).closest(".expand-row").find(".send-message-textbox");
             var sendToStr  = $(this).closest(".expand-row").find(".send-message-number").val();
-
             let issueId = textBox.attr('data-id');
             let message = textBox.val();
             if (message == '') {
@@ -400,7 +430,15 @@
                 dataType: "json",
                 success: function (response) {
                     toastr["success"]("Message sent successfully!", "Message");
-                    $('#message_list_' + issueId).append('<li>' + response.message.created_at + " : " + response.message.message + '</li>');
+                    if(response.message) {
+                        var created_at = response.message.created_at;
+                        var message = response.message.message;
+                    }
+                    else {
+                        var created_at = '';
+                        var message = '';
+                    }
+                    $('#message_list_' + issueId).append('<li>' + created_at + " : " + message + '</li>');
                     $(self).removeAttr('disabled');
                     $(self).val('');
                 },
@@ -589,7 +627,46 @@
                     issue_id: issueId
                 },
                 success: function () {
-                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
+                    toastr["success"]("Estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
+
+        $(document).on('keyup', '.lead-estimate-time-change', function (event) {
+            if (event.keyCode == 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            let lead_estimate_minutes = $("#lead_estimate_minutes_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveLeadEstimateTime')}}",
+                data: {
+                    lead_estimate_minutes: lead_estimate_minutes,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Lead estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
+
+        $(document).on('keyup', '.estimate-date-update', function () {
+            if (event.keyCode != 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            alert(issueId);
+            let estimate_date_ = $("#estimate_date_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveEstimateDate')}}",
+                data: {
+                    estimate_date : estimate_date_,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Estimate Date updated successfully!", "Message");
                 }
             });
 
@@ -617,7 +694,7 @@
                                 '<tr>\
                                     <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
                                     <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
-                                    <td>'+item['new_value']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
                                 </tr>'
                             );
                         });
@@ -625,6 +702,69 @@
                 }
             });
             $('#time_history_modal').modal('show');
+        });
+        $(document).on('click', '.show-lead-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#lead_time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/lead/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+
+                    if(data != 'error') {
+                        $("#lead_developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = '';
+                            }
+                            $('#lead_time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#lead_time-history-modal').modal('show');
+        });
+
+        $(document).on('click', '.show-date-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#date_history_modal table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/date/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    console.log(data);
+                    if(data != 'error') {
+                        $("#developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#date_history_modal table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_date" value="'+item['id']+'" '+checked+' class="approve_date"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#date_history_modal').modal('show');
         });
 
 
@@ -645,6 +785,44 @@
             });
             <?php } ?>
        
+        });
+
+        $(document).on('submit', '#approve-date-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('development/date/history/approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#time_history_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+       
+        });
+
+        $(document).on('submit', '#approve-lead-date-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('development/lead/time/history/approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#lead_time-history-modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+
         });
 
         
@@ -706,7 +884,7 @@
                     toastr['success']('created successfully!');
                     $("#loading-image").hide();
                 },
-                error: function () {
+                error: function (error) {
                     $("#loading-image").hide();
                     toastr["error"](error.responseJSON.message);
                 }
@@ -900,6 +1078,267 @@
             else {
                 $('#no_of_milestone').removeAttr('required');
             }
+        });
+
+        var selected_tasks = [];
+
+        $(document).on('click', '.select_task_checkbox', function () {
+            var checked = $(this).prop('checked');
+            var id = $(this).data('id');
+
+            if (checked) {
+                selected_tasks.push(id);
+            } else {
+                var index = selected_tasks.indexOf(id);
+
+                selected_tasks.splice(index, 1);
+            }
+
+            console.log(selected_tasks);
+        });
+
+        $(document).on("click","#make_delete_button",function() {
+            if (selected_tasks.length > 0) {
+                var x = window.confirm("Are you sure you want to bin these tasks");
+                if(!x) {
+                    return;
+                }
+                $.ajax({
+                    type: "POST",
+                    url: "{{action('DevelopmentController@deleteBulkTasks')}}",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        selected_tasks: selected_tasks
+                    }
+                }).done(function (response) {
+                    location.reload();
+                }).fail(function (response) {
+                    console.log(response);
+
+                    alert('Could not delete tasks');
+                });
+            } else {
+                alert('Please select atleast 1 task!');
+            }
+        });
+
+        $(document).on('change', '.assign-team-lead', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            console.log(id);
+            console.log(userId);
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignTeamlead')}}",
+                data: {
+                    team_lead_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Team lead assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+        });
+
+        $(document).on('change', '.assign-tester', function () {
+            let id = $(this).attr('data-id');
+            let userId = $(this).val();
+            console.log(id);
+            console.log(userId);
+
+            if (userId == '') {
+                return;
+            }
+
+            $.ajax({
+                url: "{{action('DevelopmentController@assignTester')}}",
+                data: {
+                    tester_id: userId,
+                    issue_id: id
+                },
+                success: function () {
+                    toastr["success"]("Tester assigned successfully!", "Message")
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+        });
+        var task_id = 0;
+        $(document).on('click', '.meeting-timing-popup', function () {
+            let id = $(this).attr('data-id');
+            let type = $(this).attr('data-type');
+            $('#meeting_time_div table tbody').html('');
+            $.ajax({
+                url: "{{action('DevelopmentController@getMeetingTimings')}}",
+                data: {
+                    type: type,
+                    issue_id: id
+                },
+                success: function (response) {
+                    task_id = response.issue_id;
+                    var developerTime = response.developerTime;
+                    var master_devTime = response.master_devTime;
+                    var testerTime = response.testerTime;
+                    $("#hidden_issue_id").val(task_id);
+                    $("#developer_task_id").val(task_id);
+                    $("#developer_approved_time").html(developerTime);
+                    $("#master_approved_time").html(master_devTime);
+                    $("#tester_approved_time").html(testerTime);
+
+                    $.each(response.timings, function(i, item) {
+                            if(item['approve'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#meeting_time_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ item['type'] +'</td>\
+                                    <td>'+ item['name'] +'</td>\
+                                    <td>'+ ((item['old_time'] != null) ? item['old_time'] : '-') +'</td>\
+                                    <td>'+ ((item['time'] != null) ? item['time'] : '-') +'</td>\
+                                    <td>'+ item['updated_by'] +'</td>\
+                                    <td>'+ item['note'] +'</td>\
+                                    </td><td><input type="checkbox" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+            $("#meeting_time_modal").modal("show");
+            $("#meeting_hidden_task_id").val(id);
+            $("#hidden_type").val(type);
+        });
+        $(document).on('submit', '#search-time-form', function () {
+            event.preventDefault();
+            var type = $("#user_type_id").val();
+            var timing_type = $("#timing_type_id").val();
+            $('#meeting_time_div table tbody').html('');
+            console.log(task_id);
+            $.ajax({
+                url: "{{action('DevelopmentController@getMeetingTimings')}}",
+                data: {
+                    type: type,
+                    issue_id: task_id,
+                    timing_type : timing_type
+                },
+                success: function (response) {
+                    task_id = response.issue_id;
+                    var developerTime = response.developerTime;
+                    var master_devTime = response.master_devTime;
+                    var testerTime = response.testerTime;
+                    $("#hidden_issue_id").val(task_id);
+                    $("#developer_task_id").val(task_id);
+                    $("#developer_approved_time").val(developerTime);
+                    $("#master_approved_time").val(master_devTime);
+                    $("#tester_approved_time").val(testerTime);
+                    $.each(response.timings, function(i, item) {
+                            if(item['approve'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = ''; 
+                            }
+                            $('#meeting_time_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ item['type'] +'</td>\
+                                    <td>'+ item['name'] +'</td>\
+                                    <td>'+ ((item['old_time'] != null) ? item['old_time'] : '-') +'</td>\
+                                    <td>'+ ((item['time'] != null) ? item['time'] : '-') +'</td>\
+                                    <td>'+ item['updated_by'] +'</td>\
+                                    <td>'+ item['note'] +'</td>\
+                                    </td><td><input type="checkbox" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message")
+                    
+                }
+            });
+            $("#meeting_time_modal").modal("show");
+            $("#hidden_type").val(type);
+        });
+
+        
+
+        $(document).on('submit', '#add-time-form', function(event) {
+            event.preventDefault();
+            $.ajax({
+                url: "{{route('development/time/meeting/store')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully done', 'success');
+                    $('#meeting_time_modal').modal('hide');
+                    $("#add-time-form").trigger('reset');
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+       
+        });
+
+        $(document).on('submit', '#approve-meeting-time-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "/development/time/meeting/approve/"+task_id,
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#meeting_time_modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+        });
+
+
+        $(document).on('click', '.show-user-history', function() {
+            var issueId = $(this).data('id');
+            $('#user_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/user/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+                    
+                    $.each(data.users, function(i, item) {
+                            $('#user_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['user_type'] != null) ? item['user_type'] : '-') +'</td>\
+                                    <td>'+ ((item['old_name'] != null) ? item['old_name'] : '-') +'</td>\
+                                    <td>'+ ((item['new_name'] != null) ? item['new_name'] : '-') +'</td>\
+                                    <td>'+ item['updated_by']  +'</td>\
+                                </tr>'
+                            );
+                        });
+                }
+            });
+            $('#user_history_modal').modal('show');
         });
     </script>
 @endsection

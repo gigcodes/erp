@@ -8,6 +8,7 @@
                 <input type="checkbox" name="selected_issue[]" value="{{$issue->id}}" {{in_array($issue->id, $priority) ? 'checked' : ''}}>	
             @endif	
         </a>
+        <input type="checkbox" title="Select task" class="select_task_checkbox" name="task" data-id="{{ $issue->id }}" value="">	
 
 
         
@@ -35,16 +36,17 @@
     <td style="vertical-align: middle;word-break: break-all;"><p>{{ $issue->subject ?? 'N/A' }}</p> </td>
     <td class="expand-row">
     <!-- class="expand-row" -->
-    <span style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
+    <span class="{{ ($issue->message && $issue->message_status == 0) || $issue->message_is_reminder == 1 || ($issue->sent_to_user_id == Auth::id() && $issue->message_status == 0) ? 'text-danger' : '' }}" style="word-break: break-all;">{{  \Illuminate\Support\Str::limit($issue->message, 150, $end='...') }}</span>
     <input type="text" class="form-control send-message-textbox" data-id="{{$issue->id}}" id="send_message_{{$issue->id}}" name="send_message_{{$issue->id}}" style="margin-bottom:5px"/>
     <?php echo Form::select("send_message_".$issue->id,[
                         "to_developer" => "Send To Developer",
-                        "to_master" => "Send To Master Developer"
-                    ],null,["class" => "form-control send-message-number", "style" => "width:85% !important;display: inline;"]); ?>
+                        "to_master" => "Send To Master Developer",
+                        "to_team_lead" => "Send To Team Lead",
+                        "to_tester" => "Send To Tester"
+                    ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); ?>
     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
 
-  
-        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top: 2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
     <br>
         <div class="td-full-container hidden">
             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
@@ -69,8 +71,53 @@
                     }
                 @endphp
                 @if($est_time)
-                    Approved : {{$est_time}}
+                    <span>Approved : {{$est_time}}</span>
+                    @else 
+                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
                 @endif
+        </div>
+
+     
+
+        @if(auth()->user()->id == $issue->assigned_to)
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="developer">Meeting time</button>
+        @elseif(auth()->user()->id == $issue->master_user_id)
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="lead">Meeting time</button>
+        @elseif(auth()->user()->id == $issue->tester_id) 
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="tester">Meeting time</button>
+        @elseif(auth()->user()->isAdmin())
+        <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="admin">Meeting time</button>
+        @endif
+
+        <div class="form-group mt-2">
+            <span>Lead dev : </span>
+            <div class='input-group estimate_minutes'>
+                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->lead_estimate_time }}" type="text" class="form-control lead-estimate-time-change" name="lead_estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="lead_estimate_minutes_{{$issue->id}}">
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-lead-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+            </div>
+        </div>
+    </td>
+    <td data-id="{{ $issue->id }}">
+        <div class="form-group">
+            <div class='input-group estimate_dates'>
+                <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
+           
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_date = $time_history->new_value;
+                    }
+                    else {
+                        $est_date = '--';
+                    }
+                @endphp
+                @if($est_date) 
+                    <span>Approved : {{$est_date}}</span>
+                @else 
+                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
+                @endif
+            </div>
         </div>
     </td>
     <td>
@@ -85,17 +132,29 @@
         
         <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="lead"><i class="fa fa-info-circle"></i></button>
         @endif
+
+        @if (isset($issue->testertimeSpent) && $issue->testertimeSpent->task_id > 0)
+        Tester : {{ formatDuration($issue->testertimeSpent->tracked) }}
+        
+        <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-tracked-history" title="Show tracked time History" data-id="{{$issue->id}}" data-type="tester"><i class="fa fa-info-circle"></i></button>
+        @endif
+
+
         @if(!$issue->hubstaff_task_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->assigned_to)) 
         <button type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for User" data-id="{{$issue->id}}" data-type="developer">Create D Task</button>
         @endif
         @if(!$issue->lead_hubstaff_task_id && $issue->master_user_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->master_user_id)) 
         <button style="margin-top:10px;" type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for Master user" data-id="{{$issue->id}}" data-type="lead">Create L Task</button>
         @endif
+
+        @if(!$issue->tester_hubstaff_task_id && $issue->tester_id && (auth()->user()->isAdmin() || auth()->user()->id == $issue->tester_id)) 
+        <button style="margin-top:10px;" type="button" class="btn btn-xs create-hubstaff-task" title="Create Hubstaff task for Tester" data-id="{{$issue->id}}" data-type="tester">Create T Task</button>
+        @endif
     </td>
     {{--<td>{{ $issue->submitter ? $issue->submitter->name : 'N/A' }} </td>--}}
     <td>
-        <label for="" style="font-size: 12px;">Assigned To :</label>
-        <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
+      <div>
+      <select class="form-control assign-user select2" data-id="{{$issue->id}}" name="assigned_to" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             <?php $assignedId = isset($issue->assignedUser->id) ? $issue->assignedUser->id : 0; ?>
             @foreach($users as $id => $name)
@@ -106,7 +165,8 @@
                 @endif
             @endforeach
         </select>
-        <label for="" style="font-size: 12px;margin-top:10px;">Lead :</label>
+    </div>
+    <div class="mr-t-5">
         <select class="form-control assign-master-user select2" data-id="{{$issue->id}}" name="master_user_id" id="user_{{$issue->id}}">
             <option value="">Select...</option>
             <?php $masterUser = isset($issue->masterUser->id) ? $issue->masterUser->id : 0; ?>
@@ -118,6 +178,24 @@
                 @endif
             @endforeach
         </select>
+    </div>
+    <div class="mr-t-5">
+        <select class="form-control assign-team-lead select2" data-id="{{$issue->id}}" name="team_lead_id" id="user_{{$issue->id}}">
+            <option value="">Select...</option>
+            @foreach($users as $id=>$name)
+                    <option value="{{$id}}" {{$issue->team_lead_id == $id ? 'selected' : ''}}>{{ $name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <div class="mr-t-5">
+        <select class="form-control assign-tester select2" data-id="{{$issue->id}}" name="tester_id" id="user_{{$issue->id}}">
+            <option value="">Select...</option>
+            @foreach($users as $id=>$name)
+            <option value="{{$id}}" {{$issue->tester_id == $id ? 'selected' : ''}}>{{ $name }}</option>
+            @endforeach
+        </select>
+    </div>
+    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-user-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
     </td>
     <td>
         @if($issue->is_resolved)

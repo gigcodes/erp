@@ -4,9 +4,12 @@ namespace App\Http\Controllers;
 
 use App\LaravelLog;
 use App\Setting;
+use App\User;
 use File;
+use Session;
 use Illuminate\Http\Request;
 use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class LaravelLogController extends Controller
 {
@@ -77,26 +80,55 @@ class LaravelLogController extends Controller
         return view('logging.laravellog', compact('logs'));
     }
 
-    public function liveLogs()
+    public function liveLogs(Request $request)
     {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
-
+        //$filename = '/laravel-2020-09-10.log';
         $path     = storage_path('logs');
         $fullPath = $path . $filename;
         try {
             $content = File::get($fullPath);
-
             preg_match_all("/\[(\d{4})-(\d{2})-(\d{2}) (\d{2}):(\d{2}):(\d{2})\](.*)/", $content, $match);
+			$errorTypeArr = ['ERROR','INFO','WARNING'];
+			$errorTypeSeparated = implode('|', $errorTypeArr);
+			$errSelection = [];
+
+			$defaultSearchTerm = 'ERROR';
+			if($request->get('type'))
+			{
+				$defaultSearchTerm = $request->get('type');
+			}
 
             foreach ($match[0] as $value) {
-                $errors[] = $value;
-            }
-            $errors = array_reverse($errors);
+				foreach($errorTypeArr as $errType)
+				{
+					if(preg_match("/".$errType."/", $value))
+					{
+						$errSelection[] = $errType;
+
+						break;
+					}
+				}
+				if(preg_match("/".$defaultSearchTerm."/", $value))
+				{
+					$errors[] = $value;
+				}
+			}
+		    $errors = array_reverse($errors);
         } catch (\Exception $e) {
             $errors = [];
-        }
 
-        $currentPage = LengthAwarePaginator::resolveCurrentPage();
+        }
+		/* echo "<pre>";
+		print_r($errors);
+		print_r();
+
+		exit;
+ */
+		$allErrorTypes = array_values(array_unique($errSelection));
+
+		$users = User::all();
+		$currentPage = LengthAwarePaginator::resolveCurrentPage();
 
         $perPage = Setting::get('pagination');
 
@@ -106,14 +138,14 @@ class LaravelLogController extends Controller
             'path' => LengthAwarePaginator::resolveCurrentPath(),
         ]);
 
-        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename)]);
+        return view('logging.livelaravellog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename), 'errSelection' => $allErrorTypes, 'users' => $users]);
 
     }
 
     /**
      * to get relelated records for scraper
      *
-     * 
+     *
      */
 
     public function scraperLiveLogs()
@@ -135,6 +167,32 @@ class LaravelLogController extends Controller
 
     }
 
+
+	public function assign(Request $request)
+	{
+		if($request->get('issue') && $request->get('assign_to'))
+		{
+			$error = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
+			$issueName = substr($error, 0, 150);
+			$requestData = new Request();
+			$requestData->setMethod('POST');
+			$requestData->request->add([
+				'priority'    => 1,
+				'issue'       => $error,
+				'status'      => 'Planned',
+				'module'      => 'Cron',
+				'subject'     => $issueName."...",
+				'assigned_to' => $request->get('assign_to'),
+			]);
+
+			app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+
+			return redirect()->route('logging.live.logs');
+		}
+
+        return back()->with('error', '"issue" or "assign_to" not found in request.');
+	}
+
     public static function getErrors($fullPath)
     {
         $errors = [];
@@ -152,5 +210,13 @@ class LaravelLogController extends Controller
 
         return $errors;
 
+    }
+
+    public function liveLogDownloads() {
+        $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+
+        $path     = storage_path('logs');
+        $fullPath = $path . $filename;
+        return response()->download($fullPath,str_replace('/', '', $filename));
     }
 }

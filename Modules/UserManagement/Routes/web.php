@@ -28,6 +28,7 @@ Route::prefix('user-management')->group(function() {
     Route::post('/user/team/{id}', 'UserManagementController@submitTeam')->name("user-management.team.submit");
     Route::get('/user/teams/{id}', 'UserManagementController@getTeam')->name("user-management.team.info");
     Route::post('/user/teams/{id}', 'UserManagementController@editTeam')->name("user-management.team.edit");
+    Route::post('/user/delete-team/{id}', 'UserManagementController@deleteTeam')->name("user-management.team.delete");
     Route::get('/paymentInfo/{id}', 'UserManagementController@paymentInfo')->name("user-management.payment-info");
     Route::get('payments/{id}', 'UserManagementController@userPayments')->name("user-management.payments");
     Route::post('payments/{id}', 'UserManagementController@savePayments')->name("user-management.savePayments");
@@ -42,4 +43,5 @@ Route::prefix('user-management')->group(function() {
     Route::post('/reply/add', 'UserManagementController@addReply')->name('user-management.reply.add');
     Route::get('/reply/delete', 'UserManagementController@deleteReply')->name('user-management.reply.delete');
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
+    Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
 });
