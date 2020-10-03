@@ -36,11 +36,11 @@ class LandingPageProduct extends Model
         $html[] = ($product) ? $product->short_description : $this->description;
 
         if (!empty($landingPageProduct->composition)) {
-            $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
+            //$html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
         }
 
         if (!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)) {
-            $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
+            //$html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
         }
 
         $storeWebsiteId = ($storeWebsiteId) ? $storeWebsiteId : $this->store_website_id;
@@ -51,7 +51,7 @@ class LandingPageProduct extends Model
                 foreach ($sizeCharts as $sizeC) {
                     $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
                     $sizeC  = env("SHOPIFY_CDN").$sizeC;
-                    $html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
+                    //$html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
         }
@@ -66,7 +66,7 @@ class LandingPageProduct extends Model
                     'published_scope' => 'web',
                     'title'           => ($product) ? $product->name : $this->name,
                     'body_html'       => implode("<br>", $html),
-                    'variants'        => [],
+                    //'variants'        => [],
                     'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
                     'tags'            => 'Home Page',
                 ],

@@ -114,4 +114,35 @@ class SizeController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong row id!"]);
     }
+
+    public function pushToStore(Request $request)
+    {
+        $id = $request->get("id", 0);
+
+        if ($id > 0) {
+            $website = \App\StoreWebsite::where("website_source", "magento")->get();
+            $size    = \App\Size::where("id", $id)->first();
+
+            if (!$website->isEmpty()) {
+                foreach ($website as $web) {
+                    // check we set the size already or not first and then push for store
+                    $checkSite = \App\StoreWebsiteSize::where("size_id", $size->id)->where("store_website_id", $web->id)->first();
+                    if (!$checkSite) {
+                        $id                    = \seo2websites\MagentoHelper\MagentoHelper::addSize($size, $web);
+                        $sws                   = new \App\StoreWebsiteSize;
+                        $sws->size_id          = $size->id;
+                        $sws->store_website_id = $web->id;
+                        $sws->platform_id      = $id;
+                        $sws->save();
+                    }
+                }
+            }
+
+            return response()->json(["code" => 200, "data" => $size]);
+
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong row id!"]);
+
+    }
 }
