@@ -56,6 +56,9 @@
         #quick-sidebar {
             padding-top: 35px;
         }
+        #notification_unread{
+            color:#fff;
+        }
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -318,12 +321,26 @@
 
                         @else
 
+                        <?php 
+
+                        //getting count of unreach notification
+                        $unread = 0;
+                        if(!empty($notifications)){
+                            foreach($notifications as $notification)
+                            {
+                                if(!$notification->isread)
+                                {
+                                    $unread++;
+                                }
+
+                            }
+                        }
+                        
 
 
-
-
+                        /* ?>
                         @include('partials.notifications')
-
+                        <?php */ ?>
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                         </li> --}}
@@ -1798,7 +1815,6 @@
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-    <?php /*
     @if(Auth::check())
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
@@ -1806,6 +1822,14 @@
             <button class="chat-button">
                 <img src="/images/chat.png" class="img-responsive"/>
                 <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
+            </button>
+        </div>
+        <div class="notification-badge">
+            <button class="chat-button">
+                <a href="{{route('notifications')}}">
+                <img src="/images/notification-icon.png" class="img-responsive"/>
+                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>
+                </a>
             </button>
         </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
@@ -1953,7 +1977,6 @@
     </div>
     @endif
     @endif
-    */ ?>
 
     <!-- Scripts -->
 
