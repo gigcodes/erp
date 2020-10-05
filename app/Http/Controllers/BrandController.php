@@ -264,8 +264,10 @@ class BrandController extends Controller
     {
         $reference = $request->get("reference");
         $brandId = $request->get("brand_id");
-        $reference = implode(',', $reference);
-        if(!empty($reference) && !empty($brandId)) {
+        if(is_array($reference)){
+            $reference = implode(',', $reference);
+        }
+        if(!empty($brandId)) {
                 $success = Brand::where("id",$brandId)->update(['references'=>$reference]);
                 return response()->json(["code" => 200 , "data" => [], "message" => "Reference updated successfully"]);
         }
