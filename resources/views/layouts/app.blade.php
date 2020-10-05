@@ -1815,6 +1815,7 @@
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
+    
     @if(Auth::check())
     @if($liveChatUsers != '' && $liveChatUsers != null)
     <div class="chat-button-wrapper">
