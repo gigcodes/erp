@@ -117,6 +117,8 @@ use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\LogScraperDelete;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -228,7 +230,8 @@ class Kernel extends ConsoleKernel
 		RoutesSync::class,
         DeleteChatMessages::class,
         CustomerListToEmailLead::class,
-        WayBillTrackHistories::class
+        WayBillTrackHistories::class,
+        LogScraperDelete::class
     ];
 
     /**
