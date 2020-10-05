@@ -35,7 +35,7 @@ class BrandController extends Controller
         $brands = $brands->paginate(Setting::get('pagination'));
 
         $storeWebsite = \App\StoreWebsite::all()->pluck("website","id")->toArray();
-
+        $brandsData = \App\Brand::select("name","references","id")->get()->toArray();
         $attachedBrands = \App\StoreWebsiteBrand::groupBy("store_website_id")->select(
             [\DB::raw("count(brand_id) as total_brand"),"store_website_id"]
         )->get()->toArray();
@@ -99,12 +99,12 @@ class BrandController extends Controller
             'magento_id' => 'required|numeric',
         ]);
 
-        $data = $request->except(['_token', '_method']);
+        $data = $request->except(['_token', '_method','references']);
 
         foreach ($data as $key => $value) {
             $brand->$key = $value;
         }
-
+        $brand->references = $request->references; 
         $brand->update();
 
         $products = Product::where('brand', $brand->id)->get();
@@ -256,6 +256,18 @@ class BrandController extends Controller
              }else{
                 return response()->json(["code" => 500 , "data" => [], "message" => "There is no website selected"]);
              }
+        }
+
+        return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
+    }
+    public function updateReference(Request $request)
+    {
+        $reference = $request->get("reference");
+        $brandId = $request->get("brand_id");
+        $reference = implode(',', $reference);
+        if(!empty($reference) && !empty($brandId)) {
+                $success = Brand::where("id",$brandId)->update(['references'=>$reference]);
+                return response()->json(["code" => 200 , "data" => [], "message" => "Reference updated successfully"]);
         }
 
         return response()->json(["code" => 500 , "data" => [], "message" => "Oops, something went wrong"]);
