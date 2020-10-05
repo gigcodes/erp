@@ -2102,6 +2102,10 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
+Route::prefix( 'googleads')->middleware('auth')->group(function () {
+    Route::get('/', 'GoogleAdsController@index')->name('googleads.index');
+    Route::get('/create', 'GoogleAdsController@create')->name('googleads.create');
+});
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');

@@ -1164,6 +1164,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a class="dropdown-item" href="{{ route('googleads.index') }}">Google AdWords</a>
+                                </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
                                     </a>
