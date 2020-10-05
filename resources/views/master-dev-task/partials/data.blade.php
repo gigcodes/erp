@@ -58,10 +58,12 @@
             <td colspan="6">
               <table style="width: 100%;">
                   <tr>
+                    <th>Last 1 hours</th>
                     <th>Last 24 hours</th>
                   </tr>
                   <tr>
-                      <td>{{ !empty($scraperReports) ? $scraperReports->cnt : 0 }}</td>
+                      <td>{{ !empty($scraper1hrsReports) ? $scraper1hrsReports->cnt : 0 }}</td>
+                      <td>{{ !empty($scraper24hrsReports) ? $scraper24hrsReports->cnt : 0 }}</td>
                   </tr>
               </table>
             </td>

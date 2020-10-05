@@ -36,6 +36,7 @@ class VendorController extends Controller
 
   use githubTrait;
   use hubstaffTrait;
+  CONST DEFAULT_FOR = 2; //For Vendor
 
   /**
    * Display a listing of the resource.
@@ -52,12 +53,15 @@ class VendorController extends Controller
   public function updateReminder(Request $request)
   {
     $vendor = Vendor::find($request->get('vendor_id'));
-    $vendor->frequency            = $request->get('frequency');
+	$vendor->frequency            = $request->get('frequency');
     $vendor->reminder_message     = $request->get('message');
     $vendor->reminder_from        = $request->get('reminder_from',"0000-00-00 00:00");
     $vendor->reminder_last_reply  = $request->get('reminder_last_reply',0);
     $vendor->save();
-
+	
+	$message = "Reminder : ".$request->get('message');
+	app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($vendor->phone, '', $message);
+	
     return response()->json([
       'success'
     ]);
@@ -65,7 +69,7 @@ class VendorController extends Controller
 
   public function index(Request $request)
   {
-
+	
     $term = $request->term ?? '';
     $sortByClause = '';
     $orderby = 'DESC';
@@ -93,7 +97,7 @@ class VendorController extends Controller
       $permittedCategories = Auth::user()->vendorCategoryPermission->pluck('id')->all() + [0];
     }
     //getting request 
-    if ($request->term || $request->name || $request->id || $request->category || $request->phone || 
+    if ($request->term || $request->name || $request->id || $request->category || $request->email || $request->phone ||
         $request->address || $request->email || $request->communication_history || $request->status != null || $request->updated_by != null
     ) {
       //Query Initiate
@@ -162,6 +166,11 @@ class VendorController extends Controller
         $query->whereHas('category', function ($qu) use ($request) {
           $qu->where('category_id', '=', request('category'));
         });
+      }
+  //if email is not nyll
+      if (request('email') != null) {
+        $query->where('email', 'like', '%'.request('email').'%');
+
       }
 
 
@@ -285,7 +294,7 @@ class VendorController extends Controller
     ->groupBy("vendors.updated_by")
     ->select([\DB::raw("count(u.id) as total_records"),"u.name"])
     ->get();
-    
+
     return view('vendors.index', [
       'vendors' => $vendors,
       'vendor_categories' => $vendor_categories,
@@ -415,8 +424,16 @@ class VendorController extends Controller
 
     $data = $request->except(['_token', 'create_user']);
     if(empty($data["whatsapp_number"]))  {
-      $data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+		//$data["whatsapp_number"] = config("apiwha.instances")[0]['number'];
+		//get default whatsapp number for vendor from whatsapp config
+		$task_info = DB::table('whatsapp_configs')
+                    ->select('*')
+                    ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+                    ->first();
+    if(isset($task_info->number) && $task_info->number!=null){
+    $data["whatsapp_number"] = $task_info->number;
     }
+	}
 
     if(empty($data["default_phone"]))  {
       $data["default_phone"] = $data["phone"];
@@ -425,6 +442,7 @@ class VendorController extends Controller
     if(!empty($source)) {
        $data["status"] = 0;
     }  
+
 
     Vendor::create($data);
 
@@ -441,8 +459,9 @@ class VendorController extends Controller
         if ($request->email == null) {
           $email = str_replace(' ', '_', $request->name) . '@solo.com';
         } else {
-          $email = explode('@', $request->email);
-          $email = $email[0] . '@solo.com';
+          // $email = explode('@', $request->email);
+          // $email = $email[0] . '@solo.com';
+          $email = $request->email;
         }
         $password = str_random(10);
         $user->email = $email;
@@ -1036,6 +1055,8 @@ class VendorController extends Controller
         ['reply' => $reply, 'model' => 'Vendor', "category_id" => 1],
         ['reply' => $reply]
       );
+
+
     }
 
     return response()->json(["code" => 200, 'data' => $autoReply]);
@@ -1072,8 +1093,9 @@ class VendorController extends Controller
       if ($vendor->email == null) {
         $email = str_replace(' ', '_', $vendor->name) . '@solo.com';
       } else {
-        $email = explode('@', $vendor->email);
-        $email = $email[0] . '@solo.com';
+        // $email = explode('@', $vendor->email);
+        // $email = $email[0] . '@solo.com';
+        $email = $vendor->email;
       }
       $password = str_random(10);
       $user->email = $email;
@@ -1114,13 +1136,14 @@ class VendorController extends Controller
   {
     $email = $request->get('email');
     if ($email) {
-      if ($this->sendHubstaffInvitation($email)) {
+      $response = $this->sendHubstaffInvitation($email);
+      if ($response['code'] == 200) {
         return response()->json(
           ['message' => 'Invitation sent to ' . $email]
         );
       }
       return response()->json(
-        ['message' => 'Unable to send invitation to ' . $email],
+        ['message' => $response['message']],
         500
       );
     }
@@ -1134,30 +1157,139 @@ class VendorController extends Controller
   {
     return $this->inviteUser($email);
   }
+  public function changeHubstaffUserRole(Request $request) {
+    $id = $request->vendor_id;
+    $role = $request->role;
+    if($id && $role && $role != '') {
+      $vendor = Vendor::find($id);
+      $user = User::where('phone', $vendor->phone)->first();
+      if($user) {
+        $member = \App\Hubstaff\HubstaffMember::where('user_id',$user->id)->first();
+        if($member) {
+          $hubstaff_member_id = $member->hubstaff_user_id;
+          // $hubstaff_member_id = 901839;
+          $response = $this->changeHubstaffUserRoleApi($hubstaff_member_id);
+          if($response['code'] == 200) {
+            return response()->json(['message' => 'Role successfully changed in the hubstaff'],200);
+          }
+          else {
+            return response()->json(['message' => $response['message']],500);
+          }
+        }
 
+      }
+    }
+    return response()->json(['message' => 'User or hubstaff member not found'],500);
+  }
+
+  private function changeHubstaffUserRoleApi($hubstaff_member_id) {
+    try {
+      $tokens = $this->getTokens();
+      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/update_members';
+      $client = new GuzzleHttpClient();
+      $body = array(
+        'members' => array(
+          array(
+            "user_id" => $hubstaff_member_id,
+            "role" => "user"
+          )
+        )
+      );
+      
+      $response = $client->put(
+        $url,
+        [
+          RequestOptions::HEADERS => [
+            'Authorization' => 'Bearer ' . $tokens->access_token,
+            'Content-Type' => 'application/json'
+          ],
+          RequestOptions::BODY => json_encode($body)
+        ]
+      );
+      $message = [
+        'code' => 200,
+        'message' => 'Successful'
+      ];
+      return $message;
+  } catch (\Exception $e) {
+    $exception = (string) $e->getResponse()->getBody();
+    $exception = json_decode($exception);
+      if($e->getCode() != 200) {
+        $message = [
+          'code' => 500,
+          'message' => $exception->error
+        ];
+        return $message;
+      }
+      else {
+        $message = [
+          'code' => 200,
+          'message' => 'Successful'
+        ];
+        return $message;
+      }
+    }
+  }
   private function sendHubstaffInvitation(string $email)
   {
+    // try {
+    //   $this->doHubstaffOperationWithAccessToken(
+    //     function ($accessToken) use ($email) {
+    //       $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+    //       $client = new GuzzleHttpClient;
+    //       return $client->post(
+    //         $url,
+    //         [
+    //           RequestOptions::HEADERS => [
+    //             'Authorization' => 'Bearer ' . $accessToken,
+    //           ],
+    //           RequestOptions::JSON => [
+    //             'email' => $email
+    //           ]
+    //         ]
+    //       );
+    //     }
+    //   );
+    //   return true;
+    // }
     try {
-      $this->doHubstaffOperationWithAccessToken(
-        function ($accessToken) use ($email) {
-          $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
-          $client = new GuzzleHttpClient;
-          return $client->post(
-            $url,
-            [
-              RequestOptions::HEADERS => [
-                'Authorization' => 'Bearer ' . $accessToken,
-              ],
-              RequestOptions::JSON => [
-                'email' => $email
-              ]
-            ]
-          );
-        }
+      $tokens = $this->getTokens();
+      $url = 'https://api.hubstaff.com/v2/organizations/' . getenv('HUBSTAFF_ORG_ID') . '/invites';
+      $client = new GuzzleHttpClient();
+      $response = $client->post(
+        $url,
+        [
+          RequestOptions::HEADERS => [
+            'Authorization' => 'Bearer ' . $tokens->access_token,
+            'Content-Type' => 'application/json'
+          ],
+          RequestOptions::JSON => [
+            'email' => $email
+          ]
+        ]
       );
-      return true;
-    } catch (Exception $e) {
-      return false;
+      $message = [
+        'code' => 200,
+        'message' => 'Successful'
+      ];
+      return $message;
+  } catch (\Exception $e) {
+    $exception = (string) $e->getResponse()->getBody();
+    $exception = json_decode($exception);
+      if($e->getCode() != 200) {
+        $message = [
+          'code' => 500,
+          'message' => $exception->error
+        ];
+        return $message;
+      }
+      else {
+        $message = [
+          'code' => 200,
+          'message' => 'Successful'
+        ];
+        return $message;
+      }
     }
   }
 
@@ -1191,7 +1323,7 @@ class VendorController extends Controller
                     'message' => $request->message,
                     'user_id' => Auth::id(),
                     'status' => 1,
-                    'is_queue' => 2,
+                    'is_queue' => 1,
                 ];
             }
         }
@@ -1199,5 +1331,16 @@ class VendorController extends Controller
         ChatMessage::insert($params);
 
         return response()->json(["code" => 200, "data" => [], "message" => "Message sent successfully"]);
-	}
+  }
+  
+  public function editVendor(Request $request) {
+    if(!$request->vendor_id || $request->vendor_id == "" || !$request->column || $request->column == "" || !$request->value || $request->value == "") {
+        return response()->json(['message' => 'Incomplete data'],500);
+    }
+    $vendor = Vendor::find($request->vendor_id);
+    $column = $request->column;
+    $vendor->$column = $request->value;
+    $vendor->save();
+    return response()->json(['message' => 'Successful'],200);
+  }
 }

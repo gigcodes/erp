@@ -33,9 +33,15 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('question')->group(function () {
         Route::get('/', 'QuestionController@index')->name("chatbot.question.list");
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
+        Route::post('/save_dymanic_task', 'QuestionController@saveDynamicTask')->name("chatbot.question.save_dymanic_task");
+        Route::post('/save_dymanic_reply', 'QuestionController@saveDynamicReply')->name("chatbot.question.save_dymanic_reply");
         Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
+        Route::get('/category', 'QuestionController@getCategories')->name("chatbot.question.category");
         Route::get('/search-category', 'QuestionController@searchCategory')->name("chatbot.question.search-category");
+        Route::post('/change-category', 'QuestionController@changeCategory')->name("chatbot.question.change-category");
+        Route::get('/keyword/search', 'QuestionController@searchKeyword')->name("chatbot.question.keyword.search");
+        Route::post('/reply/update', 'QuestionController@updateReply')->name("chatbot.question.reply.update");
         Route::prefix('annotation')->group(function () {
             Route::post('/save', 'QuestionController@saveAnnotation')->name("chatbot.question.annotation.save");
             Route::get('/delete', 'QuestionController@deleteAnnotation')->name("chatbot.question.annotation.delete");
@@ -50,6 +56,11 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
                 Route::get('/delete', 'QuestionController@destroyValue')->name("chatbot.question-example.delete");
             });
         });
+
+        Route::prefix('autoreply')->group(function () {
+            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");
+        });
+
     });
 
     Route::prefix('dialog')->group(function () {
@@ -70,6 +81,21 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
 
     });
+
+
+    Route::prefix('dialog-grid')->group(function () {
+        Route::get('/', 'DialogController@dialogGrid')->name("chatbot.dialog-grid.list");
+    });
+
+    // Route::prefix('rest/dialog-grid')->group(function () {
+    //     Route::get('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+    //     Route::post('/create', 'DialogController@restCreate')->name("chatbot.rest.dialog.create");
+    //     Route::get('/status', 'DialogController@restStatus')->name("chatbot.rest.dialog.status");
+    //     Route::prefix('{id}')->group(function () {
+    //         Route::get('/', 'DialogGridController@restDetails')->name("chatbot.rest.dialog-grid.detail");
+    //         Route::get('/delete', 'DialogController@restDelete')->name("chatbot.rest.dialog.delete");
+    //     });
+    // });
 
     Route::prefix('analytics')->group(function () {
         Route::get('/', 'AnalyticsController@index')->name("chatbot.analytics.list");

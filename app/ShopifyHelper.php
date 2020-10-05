@@ -3,35 +3,88 @@
 namespace App;
 
 use App\Customer;
-use App\Order;
-use App\StoreWebsiteOrder;
 use App\Helpers\OrderHelper;
-use App\OrderProduct;
-use Illuminate\Support\Facades\DB;
-use Carbon\Carbon;
-use Illuminate\Support\Facades\Log;
-use App\Helpers\ProductHelper;
+use App\Http\Controllers\GoogleTranslateController;
+use App\LandingPageProduct;
 use App\Library\Shopify\Client as ShopifyClient;
+use App\Order;
+use App\Product;
+use App\Services\Products\GraphqlService;
+use App\StoreWebsiteOrder;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
+
 class ShopifyHelper
 {
 
-
-    function __construct()
+    public function __construct()
     {
 
     }
 
-
-
-    public function pushProduct(Product $product)
+    public function pushProduct(Product $product, $website)
     {
         // Check for product and session
         if ($product === null) {
             return false;
         }
-        
-        return false;
+
+        $landingpageProduct = new LandingPageProduct;
+        $productData        = $landingpageProduct->getShopifyPushData($product, $website);
+
+        if ($productData == false) {
+            return false;
+        }
+
+        $client = new ShopifyClient();
+
+        $shopifyID = \App\StoreWebsiteProduct::where("store_website_id", $website->id)->where("product_id", $product->id)->first();
+        if ($shopifyID) {
+            $response = $client->updateProduct($shopifyID->platform_id, $productData,null, $website->id);
+        } else {
+            $response = $client->addProduct($productData, $website->id);
+        }
+
+        if (!empty($response->product)) {
+            $storeWebsiteProduct = \App\StoreWebsiteProduct::updateOrCreate([
+                "store_website_id" => $website->id,
+                "product_id"       => $product->id,
+            ], [
+                "store_website_id" => $website->id,
+                "product_id"       => $product->id,
+                "platform_id"      => $response->product->id,
+            ]);
+        }
+
+        $errors = [];
+        if (!empty($response->errors)) {
+            foreach ((array) $response->errors as $key => $message) {
+                if (is_array($message)) {
+                    foreach ($message as $msg) {
+                        $errors[] = ucwords($key) . " " . $msg;
+                    }
+                } else {
+                    $errors[] = ucwords($key) . " " . $message;
+                }
+            }
+        }
+
+        if (!empty($errors)) {
+            \Log::info(json_encode(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]));
+            return false;
+        }
+
+        if(empty($response->product)) {
+            \Log::info(json_encode(["code" => 500, "data" => $response, "message" => "Response is missing"]));
+            return false;
+        }
+
+
+        GoogleTranslateController::translateProductDetails($product);
+        GraphqlService::sendTranslationByGrapql($response->product->id, $product->id, $website->magento_url, $website->magento_password);
+
+        return true;
     }
 
     /**
@@ -49,7 +102,7 @@ class ShopifyHelper
         // \Log::info(print_r($order,true));
 
         //Checking in order table
-        $shopify_order_id = $order["id"];
+        $shopify_order_id  = $order["id"];
         $checkIfOrderExist = StoreWebsiteOrder::where('platform_order_id', $shopify_order_id)->where('website_id', $store_id)->first();
 
         //Checking in Website Order Table
@@ -60,26 +113,26 @@ class ShopifyHelper
         $balance_amount = 0;
 
         // Check for customer details out of order
-        $firstName      = isset($order["customer"])? (isset($order["customer"]["first_name"]) ? $order["customer"]["first_name"] : "N/A") : "N/A";
-        $lastName       = isset($order["customer"])? (isset($order["customer"]["last_name"]) ? $order["customer"]["last_name"] : "N/A") : "N/A";
+        $firstName = isset($order["customer"]) ? (isset($order["customer"]["first_name"]) ? $order["customer"]["first_name"] : "N/A") : "N/A";
+        $lastName  = isset($order["customer"]) ? (isset($order["customer"]["last_name"]) ? $order["customer"]["last_name"] : "N/A") : "N/A";
 
         $full_name      = $firstName . ' ' . $lastName;
-        $customer_phone = isset($order["customer"])? (isset($order["customer"]["phone"]) ? $order["customer"]["phone"] : '') : '';
+        $customer_phone = isset($order["customer"]) ? (isset($order["customer"]["phone"]) ? $order["customer"]["phone"] : '') : '';
 
-        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id",$store_id)->first();
+        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id", $store_id)->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
             $customer = new Customer;
         }
 
-        $customer->name    = $full_name;
-        $customer->email   = $order["customer"]["email"];
-        $customer->address = $order["billing_address"]["address1"];
-        $customer->city    = $order["billing_address"]["city"];
-        $customer->country = $order["billing_address"]["country"];
-        $customer->pincode = $order["billing_address"]["zip"];
-        $customer->phone   = $order["billing_address"]["phone"];
+        $customer->name             = $full_name;
+        $customer->email            = $order["customer"]["email"];
+        $customer->address          = $order["billing_address"]["address1"];
+        $customer->city             = $order["billing_address"]["city"];
+        $customer->country          = $order["billing_address"]["country"];
+        $customer->pincode          = $order["billing_address"]["zip"];
+        $customer->phone            = $order["billing_address"]["phone"];
         $customer->store_website_id = $store_id;
         $customer->save();
 
@@ -96,7 +149,6 @@ class ShopifyHelper
         } else {
             $order_status = OrderHelper::$pendingPurchase;
         }
-
 
         $id = \DB::table('orders')->insertGetId(
             array(
@@ -144,17 +196,16 @@ class ShopifyHelper
         }
         $orderSaved = Order::find($id);
 
-
         //Store Order Id Website ID and Shopify ID
 
-        $websiteOrder                   = new StoreWebsiteOrder();
-        $websiteOrder->website_id       = $store_id;
-        $websiteOrder->status_id        = $order_status;
-        $websiteOrder->order_id         = $orderSaved->id;
+        $websiteOrder                    = new StoreWebsiteOrder();
+        $websiteOrder->website_id        = $store_id;
+        $websiteOrder->status_id         = $order_status;
+        $websiteOrder->order_id          = $orderSaved->id;
         $websiteOrder->platform_order_id = $shopify_order_id;
         $websiteOrder->save();
 
-        \Log::info("Saved order: ".$orderSaved->id);
+        \Log::info("Saved order: " . $orderSaved->id);
 
     }
 
@@ -167,51 +218,50 @@ class ShopifyHelper
      * @param [type] $customer
      * @return void
      */
-    public static function syncShopifyCustomers($store_id, $store_customer){
+    public static function syncShopifyCustomers($store_id, $store_customer)
+    {
 
         // \Log::info(print_r($store_customer,true));
 
         // Extract customer details from the payload
-        $firstName      = isset($store_customer)? (isset($store_customer["first_name"]) ? $store_customer["first_name"] : "N/A") : "N/A";
-        $lastName       = isset($store_customer)? (isset($store_customer["last_name"]) ? $store_customer["last_name"] : "N/A") : "N/A";
+        $firstName = isset($store_customer) ? (isset($store_customer["first_name"]) ? $store_customer["first_name"] : "N/A") : "N/A";
+        $lastName  = isset($store_customer) ? (isset($store_customer["last_name"]) ? $store_customer["last_name"] : "N/A") : "N/A";
 
-        $full_name      = $firstName . ' ' . $lastName;
-        $customer_phone = isset($store_customer)? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
-        $customer_address = isset($store_customer["addresses"]["address1"])? (isset($store_customer["addresses"]["address1"]) ? $store_customer["phone"] : '') : '';
-        $customer_city = isset($store_customer["address1"])? (isset($store_customer["address1"]["city"]) ? $store_customer["address1"]["city"] : '') : '';
-        $customer_country = isset($store_customer["address1"])? (isset($store_customer["address1"]["country"]) ? $store_customer["address1"]["country"] : '') : '';
-        $customer_zip = isset($store_customer["address1"])? (isset($store_customer["address1"]["zip"]) ? $store_customer["address1"]["zip"] : '') : '';
-        $customer_phone = isset($store_customer)? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
+        $full_name        = $firstName . ' ' . $lastName;
+        $customer_phone   = isset($store_customer) ? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
+        $customer_address = isset($store_customer["addresses"]["address1"]) ? (isset($store_customer["addresses"]["address1"]) ? $store_customer["phone"] : '') : '';
+        $customer_city    = isset($store_customer["address1"]) ? (isset($store_customer["address1"]["city"]) ? $store_customer["address1"]["city"] : '') : '';
+        $customer_country = isset($store_customer["address1"]) ? (isset($store_customer["address1"]["country"]) ? $store_customer["address1"]["country"] : '') : '';
+        $customer_zip     = isset($store_customer["address1"]) ? (isset($store_customer["address1"]["zip"]) ? $store_customer["address1"]["zip"] : '') : '';
+        $customer_phone   = isset($store_customer) ? (isset($store_customer["phone"]) ? $store_customer["phone"] : '') : '';
 
-        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id",$store_id)->first();
+        $customer = Customer::where('email', $store_customer["email"])->where("store_website_id", $store_id)->first();
 
         // Create a customer if doesn't exists
         if (!$customer) {
             $customer = new Customer;
         }
 
-        $customer->name    = $full_name;
-        $customer->email   = $store_customer["email"];
-        $customer->address = $customer_address;
-        $customer->city    = $customer_city;
-        $customer->country = $customer_country;
-        $customer->pincode = $customer_zip;
-        $customer->phone   = $customer_phone;
+        $customer->name             = $full_name;
+        $customer->email            = $store_customer["email"];
+        $customer->address          = $customer_address;
+        $customer->city             = $customer_city;
+        $customer->country          = $customer_country;
+        $customer->pincode          = $customer_zip;
+        $customer->phone            = $customer_phone;
         $customer->store_website_id = $store_id;
         $customer->save();
 
-        \Log::info("Saved customer: ".$customer->id);
+        \Log::info("Saved customer: " . $customer->id);
 
     }
 
-    public static function validateShopifyWebhook($data, $secret, $hmac_header){
+    public static function validateShopifyWebhook($data, $secret, $hmac_header)
+    {
 
         //$calculated_hmac = base64_encode(hash_hmac('sha256', $data, $secret, true));
-        return true;//hash_equals($hmac_header, $calculated_hmac);
+        return true; //hash_equals($hmac_header, $calculated_hmac);
 
     }
-
-
-
 
 }

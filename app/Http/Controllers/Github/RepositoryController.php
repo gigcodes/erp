@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Github;
 
+use App\DeveloperTask;
 use App\Github\GithubBranchState;
 use App\Github\GithubRepository;
 use App\Helpers\githubTrait;
@@ -32,7 +33,7 @@ class RepositoryController extends Controller
 
     private function refreshGithubRepos()
     {
-        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos";
+        $url = "https://api.github.com/orgs/" . getenv('GITHUB_ORG_ID') . "/repos?per_page=100";
         $response = $this->client->get($url);
 
         $repositories = json_decode($response->getBody()->getContents());
@@ -164,9 +165,24 @@ class RepositoryController extends Controller
         );
     }
 
+    private function updateDevTask($branchName){
+        $devTaskId = null;
+        $usIt = explode($branchName, '-');
+
+        if (count($usIt) > 1) {
+            $devTaskId = $usIt[1];
+        }
+
+        $devTask = DeveloperTask::find($devTaskId);
+
+        if ($devTask) {
+            $devTask->status = 'In Review';
+            $devTask->save();
+        }
+    }
+
     public function mergeBranch($id)
     {
-
         $source = Input::get('source');
         $destination = Input::get('destination');
 
@@ -184,11 +200,13 @@ class RepositoryController extends Controller
             );
             echo 'done';
             //Artisan::call('github:load_branch_state');
-            if($source == 'master'){
+            if ($source == 'master') {
                 $this->updateBranchState($id, $destination);
-            }else if($destination == 'master'){
+            } else if ($destination == 'master') {
                 $this->updateBranchState($id, $source);
             }
+
+            $this->updateDevTask($source);
 
             // Deploy branch
             $repository = GithubRepository::find($id);
@@ -285,7 +303,7 @@ class RepositoryController extends Controller
             $pullRequests = array_map(
                 function($pullRequest) use($repository){
                     $pullRequest['repository'] = $repository;
-                    return $pullRequest;    
+                    return $pullRequest;
                 },
                 $pullRequests
             );

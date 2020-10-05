@@ -49,64 +49,73 @@
 		<img src="{{ asset('/images/loading2.gif') }}">
 		</div>
 	</div>
-    <div class="row">
+
+  <div class="row">
         <div class="col-12" style="padding:0px;">
             <h2 class="page-heading">Orders List ({{$totalOrders}})</h2>
-          </div>
-
-          <div class="col-10" style="padding-left:0px;">
-            <div >
-
-                <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                  <div class="form-group col-md-3 pd-3">
-                    <input style="width:100%;" name="term" type="text" class="form-control"
-                           value="{{ isset($term) ? $term : '' }}"
-                           placeholder="Search">
-                  </div>
-
-                  <div class="form-group col-md-2 pd-3 status-select-cls">
-                    <select class="form-control select-multiple" name="status[]" multiple>
-                      <option value="">Select a Status</option>
-
-                      @foreach ($order_status_list as $id => $order_st)
-                        <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
-                      @endforeach
-                    </select>
-                  </div>
-
-                  <!-- <div class="form-group col-md-2 pd-3">
-                    <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
-                  </div> -->
-
-                  <div class="form-group col-md-2 pd-3">
-                    <div class='input-group date' id='order-datetime'>
-                      <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
-
-                      <span class="input-group-addon">
-                        <span class="glyphicon glyphicon-calendar"></span>
-                      </span>
-                    </div>
-                  </div>
-                    <div class="form-group col-md-2 pd-3">
-                        <select class="form-control select2" name="store_website_id">
-                        <option value="">Select Site Name</option>
-                        @forelse ($registerSiteList as $key => $item)
-                            <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
-                        @empty
-                        @endforelse
-                        </select>
-                    </div>
-                    <div class="form-group col-md-1 pd-3">
-                      <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
-                    </div>
-                </form>
-            </div>
         </div>
-        <div class="col-md-2" style="padding:0px;">
-                <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
-                <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-success btn-xs">Download</a>
+           <div class="col-10" style="padding-left:0px;">
+            <div >
+            <form class="form-inline" action="{{ route('order.index') }}" method="GET">
+                
+                <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="term" type="text" class="form-control"
+                         value="{{ isset($term) ? $term : '' }}"
+                         placeholder="Search">
+                </div>
+
+                 <div class="form-group col-md-2 pd-3 status-select-cls">
+                  <select class="form-control select-multiple" name="status[]" multiple>
+                    <option value="">Select a Status</option>
+
+
+                     @foreach ($order_status_list as $id => $order_st)
+                      <option value="{{ $id }}" {{ isset($order_status) && in_array($id, $order_status) ? 'selected' : '' }}>{{ $order_st }}</option>
+                    @endforeach
+                  </select>
+                </div>
+
+
+                 <!-- <div class="form-group col-md-2 pd-3">
+                  <?php echo Form::select("brand_id[]",["" => "-- Select Brands --"]+$brandList,request('brand_id',[]),["class" => "form-control select2"]); ?>
+                </div> -->
+
+
+                 <div class="form-group col-md-2 pd-3">
+                  <div class='input-group date' id='order-datetime'>
+                    <input type='text' class="form-control" name="date" value="{{ isset($date) ? $date : '' }}" />
+
+
+                     <span class="input-group-addon">
+                      <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                  </div>
+                </div>
+
+                   <div class="form-group col-md-2 pd-3">
+                  <div class="form-group ml-3">	
+                      <select class="form-control select2" name="store_website_id">
+                      <option value="">Select Site Name</option>
+                      @forelse ($registerSiteList as $key => $item)
+                          <option value="{{ $key }}" {{ isset($store_site) && $store_site == $key ? 'selected' : '' }}>{{ $item }}</option>
+                      @empty
+                      @endforelse
+                      </select>
+                  </div>
+                  </div>
+
+                   <div class="form-group col-md-1 pd-3">
+                <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
+                  </div>
+              </form>
+               
             </div>
-    </div>
+             </div>
+          <div class="col-md-2" style="padding:0px;">
+                  <a class="btn btn-xs btn-secondary" href="{{ route('order.create') }}">+</a>
+                  <a href="{{ action('OrderController@downloadOrderInPdf', Request::all()) }}" class="btn btn-success btn-xs">Download</a>
+              </div>
+        </div>	
 <div class="row">
 @include('partials.flash_messages')
     <?php if(!empty($statusFilterList)) { ?>
@@ -114,7 +123,7 @@
           <?php foreach($statusFilterList as $listFilter) { ?>
             <div class="card">
                 <div class="card-header">
-                  <?php echo ucwords($listFilter["order_status"]); ?> (<?php echo $listFilter["total"]; ?>)
+                <?php echo ucwords($listFilter["order_status"]); ?> (<?php echo $listFilter["total"]; ?>)
                 </div>
                 <!-- <div class="card-body">
                     <?php echo $listFilter["total"]; ?>
@@ -124,6 +133,7 @@
       </div>
     <?php } ?>  
 </div>
+
 
 <div class="row">
         <div class="col-md-12" style="padding:0px;">
@@ -137,14 +147,12 @@
             </div>
         </div>
     </div>
-
-
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class="table-responsive mt-2">
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important;">
         <thead>
-          <tr>
+        <tr>
             <th width="14%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
@@ -159,7 +167,7 @@
             {{-- <th style="width: 8%">Message Status</th> --}}
             {{-- <th style="width: 20%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=communication{{ ($orderby == 'asc') ? '&orderby=desc' : '' }}">Communication</a></th> --}}
             <th width="10%">Action</th>
-          </tr>
+         </tr>
         </thead>
 
         <tbody>
@@ -206,7 +214,7 @@
                 @php $count = 0; @endphp	               
                 <div class="d-flex">	               
                   <div class="">	                 
-                    @foreach ($order->order_product as $order_product)	                  
+                    @foreach ($order->order_product as $order_product)	                        
                       @if ($order_product->product)	                      
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))	                       
                           <span class="td-mini-container">	                         
@@ -234,7 +242,7 @@
               </td>
               <td>
                 <?php 
-                    $totalBrands = explode(",",$order->brand_name_list);
+                   $totalBrands = explode(",",$order->brand_name_list);
                     if(count($totalBrands) > 1) {
                       $str = 'Multi';
                     }
@@ -246,7 +254,7 @@
               </td>
               <td class="expand-row table-hover-cell">
                 <div class="form-group" style="margin-bottom:0px;">
-                  <select data-placeholder="Order Status" class="form-control order-status-select select2" id="supplier" data-id={{$order->id}} >
+                  <select data-placeholder="Order Status" class="form-control order-status-select" id="supplier" data-id={{$order->id}} >
                             <optgroup label="Order Status">
                               <option value="">Select Order Status</option>
                                 @foreach ($order_status_list as $id => $status)
@@ -287,7 +295,7 @@
                     </a>
                   @endif
                   {{-- @can('order-edit')
-                  <a class="btn btn-image pd-5" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
+                  <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
                   @endcan --}}
 
                   {!! Form::open(['method' => 'DELETE','route' => ['order.destroy', $order->id],'style'=>'display:inline;margin-bottom:0px;height:30px;']) !!}
@@ -312,7 +320,7 @@
                     {!! Form::close() !!}
                   @endif
                   @if(!$order->invoice_id)
-                  <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
+                <a title="Add invoice" class="btn btn-image add-invoice-btn pd-5 btn-ht" data-id='{{$order->id}}'>
                      +
                 </a>
                 @endif
@@ -332,7 +340,7 @@
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
-   
+
    <div id="updateCustomer" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
       <!-- Modal content-->
@@ -427,7 +435,7 @@
 
       $(document).on("change",".order-status-select",function() {
         $.ajax({
-          url: "/order/change-status",
+          url: "/erp/order/change-status",
           type: "GET",
           async : false,
           data : {
@@ -447,6 +455,21 @@
         // buttonWidth: '100%',
         // includeSelectAllOption: true
       });
+	  
+	  
+	  $('ul.pagination').hide();
+		$('.infinite-scroll').jscroll({
+			autoTrigger: true,
+			// debug: true,
+			loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+			padding: 0,
+			nextSelector: '.pagination li.active + li a',
+			contentSelector: 'div.infinite-scroll',
+			callback: function () {
+				$('ul.pagination').first().remove();
+				$('ul.pagination').hide();
+			}
+		});
     });
 
     $(document).on('click', '.change_message_status', function(e) {
@@ -552,36 +575,19 @@
     });
 
 	
-	$('ul.pagination').hide();
-	$('.infinite-scroll').jscroll({
-        autoTrigger: true,
-		// debug: true,
-        loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-        padding: 20,
-        nextSelector: '.pagination li.active + li a',
-        contentSelector: 'div.infinite-scroll',
-        callback: function () {
-            $('ul.pagination').first().remove();
-			$('ul.pagination').hide();
-        }
-    });
+	
 
 
     var selected_orders = [];
-
-        $(document).on('click', '.selectedOrder', function () {
+         $(document).on('click', '.selectedOrder', function () {
             var checked = $(this).prop('checked');
             var id = $(this).val();
-
-            if (checked) {
+             if (checked) {
               selected_orders.push(id);
             } else {
                 var index = selected_orders.indexOf(id);
-
-                selected_orders.splice(index, 1);
+                 selected_orders.splice(index, 1);
             }
-
-            
         });
         $(document).on("click",".delete-orders",function(e){
           e.preventDefault();
@@ -621,8 +627,7 @@
         //     }).fail(function(errObj) {
         //     });
         // });
-
-        $(document).on("click",".update-customer",function(e){
+         $(document).on("click",".update-customer",function(e){
           e.preventDefault();
           if(selected_orders.length < 1) {
             toastr['error']("Select some orders first");
@@ -655,14 +660,11 @@
                     }
                 });
             });
-
-            $(document).on('click', '.quick_return_exchange', function (e) {
+             $(document).on('click', '.quick_return_exchange', function (e) {
             let $this       = $(this),
                 $modelData  = $(document).find(".return-exchange-model-data");
-
-            $('#return-exchange-modal').modal('show');
-
-            $.ajax({
+             $('#return-exchange-modal').modal('show');
+             $.ajax({
                 type: "GET",
                 url: "/return-exchange/getProducts/" + $this.data("id"),
             }).done(function (response) {
@@ -677,10 +679,8 @@
                 $("#return-exchange-form").find(".refund-section").hide();
             }
         });
-
-        $(document).on("click","#btn-return-exchage-request",function(e) {
+         $(document).on("click","#btn-return-exchage-request",function(e) {
             e.preventDefault();
-            alert("aaaa");
             var form = $("#return-exchange-form");
             $.ajax({
                 type: form.attr("method"),
@@ -695,7 +695,5 @@
                 console.log(response);
             });
         });
-
-        
   </script>
 @endsection

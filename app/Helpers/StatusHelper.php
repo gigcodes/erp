@@ -80,6 +80,8 @@ class StatusHelper extends Model
             31 => 'pending verification google text search',
             32 => 'manually rejected google text search',
             33 => 'pending products without category',
+            34 => 'Submit For approval',
+            35 => 'Request For external Scraper'
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)
@@ -184,6 +186,7 @@ class StatusHelper extends Model
     public static function isApproved($statusId)
     {
         // Check if status ID is matching approved product statuses
+
         switch ($statusId) {
             case self::$pushToMagento;
             case self::$inMagento;

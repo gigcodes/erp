@@ -13,6 +13,7 @@ use Crypt;
 use Response;
 use App\Customer;
 use App\Notification;
+use App\StoreWebsite;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class WhatsappConfigController extends Controller
@@ -28,7 +29,10 @@ class WhatsappConfigController extends Controller
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
 
             $query = WhatsappConfig::query();
-
+			
+			//Added store data to put dropdown in form  to add store website id to whatsapp config table
+			$storeData = StoreWebsite::all()->toArray();
+			
             //global search term
             if (request('term') != null) {
                 $query->where('number', 'LIKE', "%{$request->term}%")
@@ -68,7 +72,11 @@ class WhatsappConfigController extends Controller
         } else {
             $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
         }
-
+		
+		//Fetch Store Details
+		
+		
+		
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs'))->render(),
@@ -79,6 +87,7 @@ class WhatsappConfigController extends Controller
 
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
+            'storeData' => $storeData,
         ]);
 
     }
@@ -112,12 +121,14 @@ class WhatsappConfigController extends Controller
             'send_start' => 'required',
             'send_end' => 'required',
         ]);
-
-        $data = $request->except('_token');
+		$requestData = $request->all();
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		$data = $request->except('_token','default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
-
-        WhatsappConfig::create($data);
+		$data['default_for'] = $defaultFor;
+		WhatsappConfig::create($data);
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -153,9 +164,17 @@ class WhatsappConfigController extends Controller
             'send_end' => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+		
+		$requestData = $request->all();
+		
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		
+        $data = $request->except('_token', 'id', 'default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
+        $data['default_for'] = $defaultFor;
+		
         $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
