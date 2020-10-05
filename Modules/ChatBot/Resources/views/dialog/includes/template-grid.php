@@ -337,6 +337,17 @@
 		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
 		  	</div>
 		</div>
+		<h4>Store Website : </h4>
+			<div class="form-row">
+		    <div class="form-group col-md-12">
+		      <select class="form-control" name="store_website_id" placeholder="Enter your keyword">
+		      	{{props data.sites}}
+		      		<option value="{{:prop.id}}" selected>{{:prop.name}}</option>
+		      	{{/props}}
+		      </select>
+		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
+		  	</div>
+		</div>
 		<div class="dialog-editor-section">
 			<input type="hidden" name="id" value="{{:data.id}}"/>
 			<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
@@ -404,16 +415,16 @@
 									<small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 									</div>
 								{{/if}}
-								<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+								<div class="form-group col-md-3 extra_condtions">
 								<select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
-									<option value="">Any</option>
+									<option {{if prop.condition_sign == ''}} selected {{/if}}value="">Any</option>
 									<option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
 									<option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
 									<option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
 									<option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
 								</select>
 								</div>
-								<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+								<div class="form-group col-md-6 extra_condtions ">
 									<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
 								</div>
 								<div class="form-group col-md-9">
