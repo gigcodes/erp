@@ -44,7 +44,7 @@ class GoogleAdsController extends Controller
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile()
             ->build();
-//        var_dump('vvv');
+
         $session = (new AdWordsSessionBuilder())
             ->fromFile()
             ->withOAuth2Credential($oAuth2Credential)
@@ -66,7 +66,7 @@ class GoogleAdsController extends Controller
 
         $this->getCampaign($adWordsServices, $session);
 
-        $this->createCapaign($adWordsServices, $session);
+//        $this->createCampaign($adWordsServices, $session);
 
         return view('googleads.index');
     }
@@ -76,7 +76,7 @@ class GoogleAdsController extends Controller
         return view('googleads.create');
     }
 
-    public function createCapaign(AdWordsServices $adWordsServices, AdWordsSession $session) {
+    public function createCampaign(AdWordsServices $adWordsServices, AdWordsSession $session) {
         $budgetService = $adWordsServices->get($session, BudgetService::class);
 
         // Create the shared budget (required).
