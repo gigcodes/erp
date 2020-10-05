@@ -11,6 +11,14 @@
 		margin-bottom: 5px !important;
 		width:19.5%  !important;
 	}
+	.form-group-extended-fifteen{
+		margin-bottom: 5px !important;
+		width:15%  !important;
+	}
+	.form-group-extended-four{
+		margin-bottom: 5px !important;
+		width:4%  !important;
+	}
 	.form-group-extended input[type=text]{
 		width:99%  !important;
 	}
@@ -36,9 +44,9 @@
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
-    	<div class="row" style="margin-bottom:20px;">
+    	<div class="row" style="margin-bottom:0px;">
 	    	<div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
+		    	<div class="h" style="margin-bottom:0px;">
 		    		<form class="form-inline return-exchange-handler" method="post">
 					  <div class="row">
 				  		<div class="col">
@@ -91,7 +99,10 @@
 									"placeholder" => "Number of records"
 									]) ?>
 						  	</div>
-						  	<div class="form-group form-group-extended">
+							  <div class="form-group form-group-extended-fifteen">
+							  <input style="min-width: 30px;" placeholder="Est Return / Exch. date" value="" type="text" class="form-control search-est-return-exch-date" name="est_completion_date">
+						  	</div>
+						  	<div class="form-group form-group-extended-four">
 						  		<!--<label for="button">&nbsp;</label>-->
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
@@ -164,6 +175,24 @@
 		$('#date_of_dispatched').datetimepicker({
 			format: 'YYYY-MM-DD HH:mm'
 		});
+
+		$('.search-est-return-exch-date').datetimepicker({
+			format: 'YYYY-MM-DD'
+		});
+		
+		$(document).ready(function () {
+		// $(".estimate-date").each(function() {
+        //         $(this).datetimepicker({
+		// 			format: 'YYYY-MM-DD'
+		// 		});
+		// });
+
+		$('body').on('focus',".estimate-date", function(){
+        		$(this).datetimepicker({
+					format: 'YYYY-MM-DD'
+				});
+    	});
+	});
 
 	    $(document).on('click', '.expand-row', function () {
 			var id = $(this).data('id');
@@ -282,6 +311,33 @@
 				}
 			});
 		});
+
+		$(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+		});
+		
+		$(document).on('click', '.estimate-date-submit', function () {
+			let exchange_id = $(this).data('id');
+			let estimate_date = $("#estimate_date_" + exchange_id).val();
+            $.ajax({
+				url: "{{route('return-exchange.update-estimated-date')}}",
+				type: 'POST',
+                data: {
+                    estimate_date : estimate_date,
+					exchange_id: exchange_id,
+					_token: "{{csrf_token()}}"
+                },
+                success: function (response) {
+                    toastr["success"]("Estimated Date updated successfully!", "Message");
+                }
+            });
+
+        });
 		
 	</script>
 @endsection
