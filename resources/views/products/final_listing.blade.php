@@ -697,9 +697,19 @@
                                                 name="Category" data-placeholder="Category"
                                                 data-id="{{ $product->id }}">
                                             <option></option>
-
                                             @foreach ($category_array as $data)
                                                 <option value="{{ $data['id'] }}" {{ $product->category == $data['id'] ? 'selected' : '' }} >{{ $data['title'] }}</option>
+                                                @if(isset($data['child']) && is_array($data['child'])) 
+                                                    @foreach ($data['child'] as $child)
+                                                        <option value="{{ $child['id'] }}" {{ $product->category == $child['id'] ? 'selected' : '' }} >&nbsp;{{ $child['title'] }}</option>
+                                                        @if(isset($child['child']) && is_array($child['child'])) 
+                                                            @foreach ($child['child'] as $smchild)
+                                                                <option value="{{ $smchild['id'] }}" {{ $product->category == $smchild['id'] ? 'selected' : '' }} >&nbsp;&nbsp;{{ $smchild['title'] }}</option>
+                                                            @endforeach
+                                                        @endif
+
+                                                    @endforeach
+                                                @endif
                                             @endforeach
                                         </select>
                                     </div>

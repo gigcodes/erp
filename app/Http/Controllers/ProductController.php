@@ -250,6 +250,8 @@ class ProductController extends Controller
                 $query->where('short_description', 'LIKE', "%" . $term . "%")
                     ->orWhere('color', 'LIKE', "%" . $term . "%")
                     ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.id', 'LIKE', "%" . $term . "%")
                     ->orWhereHas('brands', function($q) use($term){
                         $q->where('name', 'LIKE', "%" . $term . "%");
                 })
