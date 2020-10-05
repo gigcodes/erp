@@ -2123,7 +2123,6 @@ public function createProductOnMagento(Request $request, $id){
 	{
 		$id = $request->get("id");
 		$status = $request->get("status");
-		$status = 20;
 		
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
