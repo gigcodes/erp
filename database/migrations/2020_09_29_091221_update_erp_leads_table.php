@@ -15,7 +15,7 @@ class UpdateErpLeadsTable extends Migration
     public function up()
     {
         Schema::table('erp_leads', function (Blueprint $table) {
-            DB::statement('ALTER TABLE `erp_leads` ADD `deleted_at` TIMESTAMP NULL DEFAULT NULL AFTER `gender`;');
+            //DB::statement('ALTER TABLE `erp_leads` ADD `deleted_at` TIMESTAMP NULL DEFAULT NULL AFTER `gender`;');
         });
     }
 
@@ -27,7 +27,7 @@ class UpdateErpLeadsTable extends Migration
     public function down()
     {
         Schema::table('erp_leads', function (Blueprint $table) {
-            DB::statement('ALTER TABLE `erp_leads` DROP `deleted_at`;');
+            //DB::statement('ALTER TABLE `erp_leads` DROP `deleted_at`;');
         });
     }
 }

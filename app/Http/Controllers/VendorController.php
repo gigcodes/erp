@@ -430,8 +430,9 @@ class VendorController extends Controller
                     ->select('*')
                     ->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
                     ->first();
-	
-		$data["whatsapp_number"] = $task_info->number;
+    if(isset($task_info->number) && $task_info->number!=null){
+    $data["whatsapp_number"] = $task_info->number;
+    }
 	}
 
     if(empty($data["default_phone"]))  {

@@ -219,4 +219,13 @@ class LaravelLogController extends Controller
         $fullPath = $path . $filename;
         return response()->download($fullPath,str_replace('/', '', $filename));
     }
+
+    public function liveMagentoDownloads()
+    {
+        $filename = '/list-magento-' . now()->format('Y-m-d') . '.log';
+
+        $path     = storage_path('logs');
+        $fullPath = $path . $filename;
+        return response()->download($fullPath,str_replace('/', '', $filename));
+    }
 }
