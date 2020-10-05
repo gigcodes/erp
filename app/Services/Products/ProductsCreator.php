@@ -2,6 +2,7 @@
 
 namespace App\Services\Products;
 
+use App\Http\Controllers\ProductController;
 use App\SkuColorReferences;
 use Validator;
 use Illuminate\Support\Facades\Log;
@@ -315,6 +316,8 @@ class ProductsCreator
 
         try {
             $product->save();
+            $setProductDescAndNameLanguages = new ProductController();
+            $setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
             $image->save();
             $product->attachImagesToProduct();
@@ -353,7 +356,8 @@ class ProductsCreator
             $productSupplier->composition = $formattedDetails[ 'composition' ];
             $productSupplier->sku = $image->original_sku;
             $productSupplier->save();
-
+            $image->product_id = $product->id;
+            $image->save();
             /*$product->suppliers()->syncWithoutDetaching([
                 $db_supplier->id => [
                     'title' => $image->title,

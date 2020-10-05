@@ -1227,7 +1227,7 @@
                             <div class="form-group">
                                 <strong> Name of Order Handler :</strong>
                           <?php
-                          $sales_persons = \App\Helpers::getUsersArrayByRole( 'Sales' );
+                          $sales_persons = \App\Helpers::getUsersArrayByRole( 'Admin' );
                           echo Form::select('sales_person',$sales_persons, ( old('sales_person') ? old('sales_person') : $order->sales_person ), ['placeholder' => 'Select a name','class' => 'form-control']);?>
                                 @if ($errors->has('sales_person'))
                                     <div class="alert alert-danger">{{$errors->first('sales_person')}}</div>
@@ -4021,21 +4021,23 @@
       $(document).on('click', '.email-fetch', function(e) {
         e.preventDefault();
 
-        var uid = $(this).data('uid');
+        //var uid = $(this).data('uid');
+        var id = $(this).data('id');
         var type = $(this).data('type');
-        var email_type = 'server';
+        var email_type = type;
         var thiss = $(this);
 
-        if (uid == 'no') {
+        /*if (uid == 'no') {
           uid = $(this).data('id');
           email_type = 'local';
-        }
+        }*/
+		
 
         $.ajax({
           type: "GET",
           url: "{{ route('customer.email.fetch') }}",
           data: {
-            uid: uid,
+            id: id,
             type: type,
             email_type: email_type
           },

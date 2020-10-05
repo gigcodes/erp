@@ -8,6 +8,6 @@ class ChatbotKeywordValueTypes extends Model
 {
     public $timestamps = false;
     protected $fillable = [
-        'type', 'chatbot_keyword_value_id',
+        'type', 'chatbot_keyword_value_id'
     ];
 }

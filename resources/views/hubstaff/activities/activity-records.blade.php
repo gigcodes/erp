@@ -13,11 +13,12 @@
     <div>
         <table class="table table-bordered" style="table-layout:fixed;">
         <tr>
-          <th style="width:40%">Date & time</th>
-          <th style="width:10%">Time tracked</th>
-          <th style="width:10%">Time Approved</th>
-          <th style="width:30%">Task</th>
-          <th style="width:10%" class="text-center">Action</th>
+          <th style="width:20%">Date & time</th>
+          <th style="width:15%">Time tracked</th>
+          <th style="width:15%">Time Approved</th>
+          <th style="width:25%">Task</th>
+          <th style="width:18%">Efficiency</th>
+          <th style="width:7%" class="text-center">Action</th>
         </tr>
           @foreach ($activityrecords as $record)
             <tr>
@@ -26,20 +27,56 @@
               <td>{{ number_format($record->totalApproved / 60,2,".",",") }}</td>
               <td></td>
               <td>
+              <div class="form-group" style="margin:0px;">
+                   @if(isset($member))
+                   <?php
+                    $eficiency = \App\HubstaffTaskEfficiency::where('user_id',$member->user_id)->where('date',$record->OnDate)->where('time',$record->onHour)->first();
+                    $user_input = null;
+                    $admin_input = null;
+                    if($eficiency) {
+                      $user_input = $eficiency->user_input;
+                      $admin_input = $eficiency->admin_input;
+                    }
+                    ?>
+                     <p style="margin:0px;"> <strong>Admin : {{$admin_input}}</strong></p>
+                     <p style="margin:0px;"> <strong>User : {{$user_input}}</strong></p>
+                   @if(Auth::user()->id == $member->user_id) 
+                    <select name="efficiency" class="task_efficiency form-control"  data-type="user" data-date="{{ $record->OnDate }}" data-hour="{{$record->onHour}}" data-user_id="{{$member->user_id}}">
+                        <option value="">Select One</option>
+                        <option value="Excellent" {{$user_input == 'Excellent' ? 'selected' : ''}}>Excellent</option>
+                        <option value="Good" {{$user_input == 'Good' ? 'selected' : ''}}>Good</option>
+                        <option value="Average" {{$user_input == 'Average' ? 'selected' : ''}}>Average </option>
+                        <option value="Poor" {{$user_input == 'Poor' ? 'selected' : ''}}>Poor</option>
+                    </select>
+                    @endif
+                    @if(Auth::user()->isAdmin()) 
+                    <select name="efficiency" class="task_efficiency form-control"  data-type="admin" data-date="{{ $record->OnDate }}" data-hour="{{$record->onHour}}" data-user_id="{{$member->user_id}}">
+                        <option value="">Select One</option>
+                        <option value="Excellent" {{$admin_input == 'Excellent' ? 'selected' : ''}}>Excellent</option>
+                        <option value="Good" {{$admin_input == 'Good' ? 'selected' : ''}}>Good</option>
+                        <option value="Average" {{$admin_input == 'Average' ? 'selected' : ''}}>Average </option>
+                        <option value="Poor" {{$admin_input == 'Poor' ? 'selected' : ''}}>Poor</option>
+                    </select>
+                    @endif
+                    @endif
+                </div>
+              </td>
+              <td>
               &nbsp;<input type="checkbox" name="sample" {{$record->sample ? 'checked' : ''}}  data-id="{{ $record->OnDate }}{{$record->onHour}}" class="selectall"/>
                 <a data-toggle="collapse" href="#collapse_{{ $record->OnDate }}{{$record->onHour}}"><img style="height:15px;" src="/images/forward.png"></a>
               </td>
             </tr>
             <tr style="width:100%;" id="collapse_{{ $record->OnDate }}{{$record->onHour}}" class="panel-collapse collapse">
-            <td colspan="5" style="padding:0px;">
+            <td colspan="6" style="padding:0px;">
               <table style="table-layout:fixed;" class="table table-bordered">
               @foreach ($record->activities as $a)
                 <tr>
-                <td style="width:40%">{{ $a->starts_at}}</td>
-                  <td style="width:10%">{{ number_format($a->tracked / 60,2,".",",") }}</td>
-                  <td style="width:10%">{{ number_format($a->totalApproved / 60,2,".",",") }}</td>
-                  <td style="width:30%">{{ $a->taskSubject}}</td>
-                  <td style="width:10%">
+                <td style="width:18%">{{ $a->starts_at}}</td>
+                  <td style="width:15%">{{ number_format($a->tracked / 60,2,".",",") }}@if($a->is_manual) (Manual time) @endif</td>
+                  <td style="width:15%">{{ number_format($a->totalApproved / 60,2,".",",") }}</td>
+                  <td style="width:25%">{{ $a->taskSubject}}</td>
+                  <td style="width:20%"></td>
+                  <td style="width:7%">
                     <input type="checkbox" class="{{ $record->OnDate }}{{$record->onHour}}" value="{{$a->id}}" name="activities[]" {{$a->status ? 'checked' : ''}}>
                   </td>
                 </tr>

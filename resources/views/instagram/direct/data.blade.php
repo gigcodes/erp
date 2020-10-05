@@ -9,7 +9,8 @@
                                 <tr>
                                     <td>{{ $srno }} @if($thread->account->new_message == 1) <p id="circle"></p> @endif </td>
                                     <td>@if( $thread->account->storeWebsite) {{ $thread->account->storeWebsite->title }} @endif</td>
-                                    <td>{{ $thread->account->last_name }}</td>
+                                    <td><p>Send To : <a href="https:://instagram.com/{{ $thread->instagramUser->username }}" target="_blank">@if($thread->instagramUser->fullname){{ $thread->instagramUser->fullname }}@else {{ $thread->instagramUser->username }} @endif</a></p><p>Sent From : {{ $thread->account->last_name }}</p> <br> </td>
+                                    
                                     <td style="width: 10% !important;">
                                         @php
                                         $path = storage_path('/');
@@ -26,7 +27,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        <div class="typing-indicator" id="typing-indicator" @if($thread->lastMessage->is_send == 1) style="color: green;" @else style="color: red;" @endif>{{ $thread->lastMessage->message }}</div>
+                                        <div class="typing-indicator" id="typing-indicator"@if($thread->lastMessage) @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ $thread->lastMessage->message }}@endif</div>
                                         <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="https://erp.amourint.com/images/chat.png" alt=""></button>
                                         <div class="row">
                                             <div class="col-md-11 cls_remove_rightpadding">
@@ -77,6 +78,16 @@
                                                 @endforeach
                                             @endif
                                         </div>
+                                    </td>
+                                    <td>
+                                        @if($thread->erpUser && !empty($thread->erpUser))
+                                            Existing Customer
+                                        @else
+                                            <button type="button" id="{{ $thread->instagramUser->username }}" class="btn btn-secondary btn-sm instagramHandle" data-toggle="modal"
+                                        data-target="#customerCreate"
+                                        title="Add new Customer"><i class="fa fa-plus"></i> Add new Customer
+                                        </button>
+                                        @endif
                                     </td>
                                    </tr>
                                 <?php $srno++;?>

@@ -66,6 +66,10 @@
             <th>Current Status</th>
             <th>Weight of Shipment</th>
             <th>Dimensions</th>
+            <th>Volume Weight</th>
+            <th>Cost of Shipment</th>
+            <th>Duty Cost</th>
+            <th>Location</th>
             <th>Action</th>
           </tr>
         </thead>
@@ -80,10 +84,17 @@
                     <td>{{ @$item->order->order_status }}</td>
                     <td>{{ @$item->actual_weight }}</td>
                     <td>{{ @$item->dimension }}</td>
+                    <td>{{ @$item->volume_weight??'N/A' }}</td>
+                    <td>{{ @$item->cost_of_shipment?? 'N/A' }}</td>
+                    <td>{{ @$item->duty_cost?? 'N/A' }}</td>
+                    <td>{{ (@$item->waybill_track_histories->count() > 0)? @$item->waybill_track_histories->last()->location : "" }}</td>
                     <td>
                         <button type="button" class="btn btn-image" id="send_email_btn" data-order-id="{{ $item->order_id }}" title="Send Email"><i class="fa fa-paper-plane" aria-hidden="true"></i></button>
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
+                        </a>
+                        <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
+                            <i class="fa fa-list" aria-hidden="true"></i>
                         </a>
                     </td>
                 </tr>
@@ -137,6 +148,19 @@ $(document).on('click', '#view_mail_btn', function() {
     });
 });
 
+$(document).on('click', '#waybill_track_history_btn', function() {
+    var waybillId = $(this).data('waybill-id');
+    $.ajax({
+        url: "{{ route('shipment/view/sent/email') }}",
+        type: 'GET',
+        data: {'waybill_id': waybillId},
+        success: function(data) {
+            $("#view_track_body").html(data);
+            $('#view_waybill_track_histories').modal('show');
+        }
+    });
+});
+
 $(document).on('click', '#send_email_btn', function() {
     var orderId = $(this).data('order-id');
     $("#order_id").val(orderId);
@@ -147,7 +171,6 @@ $(document).on("change","#customer_name",function() {
     var cus_id = $(this).val();
     if(cus_id == ''){
         $('.input_customer_city').val('');
-        $('.input_customer_country').val('');
         $('.input_customer_phone').val('');
         $('.input_customer_address1').val('');
         $('.input_customer_pincode').val('');
@@ -159,7 +182,15 @@ $(document).on("change","#customer_name",function() {
         if(response.status == 1)
         {
             $('.input_customer_city').val(response.data.city);
-            $('.input_customer_country').val(response.data.country);
+            let countryField = $('.input_customer_country');
+            let countryOptionsField = countryField.find('option')
+            if (countryOptionsField && countryOptionsField.length){
+                for (let i in countryOptionsField){
+                    if (countryOptionsField[i].innerText && countryOptionsField[i].innerText.toLowerCase() === response.data.country.toLowerCase()){
+                        countryField.val(countryOptionsField[i].value)
+                    }
+                }
+            }
             $('.input_customer_phone').val(response.data.phone);
             $('.input_customer_address1').val(response.data.address);
             $('.input_customer_pincode').val(response.data.pincode);
@@ -181,6 +212,10 @@ $(document).on("change", '#email_name', function(){
             }
         }
     })
+});
+$(document).on("click", '.add-shipment', function(){
+    $('#generate-shipment-form .form-error').html(''),
+    $('.any-message').html('');
 });
 
 </script>

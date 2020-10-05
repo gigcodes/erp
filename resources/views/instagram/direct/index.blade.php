@@ -70,7 +70,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         <tr>
                             <th style="width: 5%;">Sr. No.</th>
                             <th style="width: 5%;">Site Name</th>
-                            <th style="width: 5%;">UserName</th>
+                            <th style="width: 5%;">User</th>
                             <th style="width: 10%;">Translation Language</th>
                             <th style="width: 50%;">Communication</th>
                             <th style="width: 10%;">Actions</th>
@@ -97,11 +97,19 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         </div>
     </div>
 @endsection
+@include('instagram.partials.customer-form-modals')
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
     <script>
         
+        $(document).on('click', '.instagramHandle', function () {
+            var Values = $(this).attr("id");
+            
+            $('#customerCreate #handled_values').val(Values);
+
+        });
         $(document).on('click', '.load-direct-chat-model', function () {
 
             $.ajax({
@@ -164,8 +172,7 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
             });
 
             function sendMessage(id){
-                alert(id);
-                sendMessage = $('#message'+id).val();
+                message = $('#message'+id).val();
                 if(sendMessage){
                     $.ajax({
                         url: '{{ route('direct.send') }}',
@@ -173,11 +180,12 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
                         dataType: 'json',
                         data: {
                             "_token": "{{ csrf_token() }}", 
-                            "message" : sendMessage,
+                            "message" : message,
                             "thread_id" : id,
                        },
                     })
                     .done(function() {
+                        $('#message'+id).val('');
                         console.log("success");
                     })
                     .fail(function() {

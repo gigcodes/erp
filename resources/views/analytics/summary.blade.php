@@ -78,6 +78,9 @@
                     @php
                     // dd($item['page_path']);
                         $path_array = explode('/', $item['page_path']);
+                        $brand_name = "";
+                        $gender = "";
+                        $cat = "";
                         if (!empty(request()->brand) || !empty(request()->gender)) {
                             $brand_name = $item['brand_name'];   
                         }

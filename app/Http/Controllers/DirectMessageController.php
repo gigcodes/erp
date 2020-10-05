@@ -10,14 +10,21 @@ use \App\InstagramDirectMessages;
 use \App\InstagramUsersList;
 use \App\InstagramThread;
 use Plank\Mediable\Media;
+use App\ChatMessage;
+use App\Brand;
+use DB;
+use App\ReadOnly\SoloNumbers;
 use InstagramAPI\Media\Photo\InstagramPhoto;
+Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class DirectMessageController extends Controller
 {
     public function index()
     {
+     
     	$threads = InstagramThread::whereNotNull('instagram_user_id')->whereNotNull('account_id')->get();
-
+$select_brands = Brand::pluck('name','id');
+$solo_numbers = (new SoloNumbers)->all();
     	// if ($request->ajax()) {
      //        return response()->json([
      //            'tbody' => view('instagram.direct.data', compact('threads'))->render(),
@@ -25,7 +32,7 @@ class DirectMessageController extends Controller
      //        ], 200);
      //    }
 
-    	return view('instagram.direct.index',['threads' => $threads]);
+    	return view('instagram.direct.index',['threads' => $threads,'select_brands' => $select_brands,'solo_numbers' => $solo_numbers]);
     }
 
 
@@ -34,10 +41,11 @@ class DirectMessageController extends Controller
     	$accounts = Account::where('platform','instagram')->whereNotNull('proxy')->get();
 
     	foreach ($accounts as $account) {
+            
     		try {
                 	$instagram = new Instagram();
+                    $instagram->setProxy($account->proxy);
 				    $instagram->login($account->last_name, $account->password);
-				    $instagram->setProxy($account->proxy);
 				    $this->instagram = $instagram;
                 } catch (\Exception $e) {
                     dd($e);
@@ -47,7 +55,7 @@ class DirectMessageController extends Controller
                 //getting inbpx
                 $inbox = $this->instagram->direct->getInbox()->asArray();
                 //getting inbox
-
+                
                 if (isset($inbox['inbox']['threads'])) {
                 	 $incomingThread = $inbox['inbox'];
                 	if($incomingThread['unseen_count'] != 0){
@@ -57,10 +65,11 @@ class DirectMessageController extends Controller
 
 							//check instagram Users
 	                        $userInstagram = InstagramUsersList::where('user_id',$user[0]['pk'])->first();
-	                        
+	                       
 	                        if(!$userInstagram){
 	                        	$info = $user[0];
 	                        	$userInstagram = new InstagramUsersList();
+                                $userInstagram->fullname = $info['full_name'];
 	                        	$userInstagram->username = $info['username'];
 		                        $userInstagram->user_id = $user[0]['pk'];
 		                        $userInstagram->image_url = $info['profile_pic_url'];
@@ -179,11 +188,19 @@ class DirectMessageController extends Controller
     {
     	$thread = $this->instagram->direct->getThread($t['thread_id'])->asArray();
     	$thread = $thread['thread'];
+        $isSeen = 0;
     	foreach ($thread['items'] as $chat) {
+            if($isSeen == 0){
+                $this->instagram->direct->markItemSeen($t['thread_id'],$chat['item_id'])->asArray();
+                $isSeen = 1;
+            }
+            
+
     		if ($chat['item_type'] == 'text') {
     			$type = 1;
                 $text = $chat['text'];
             } else if ($chat['item_type'] == 'like') {
+                continue;
                 $text = $chat['like'];
                 $type = 2;
             } else if ($chat['item_type'] == 'media') {
@@ -195,18 +212,56 @@ class DirectMessageController extends Controller
             }else{
                 $isSent = 0;
             }
-           $directMessage = InstagramDirectMessages::where('instagram_thread_id',$id)->where('message',$text)->first();
-           if(!$directMessage){
-           		$directMessage = new InstagramDirectMessages();
-           		$directMessage->instagram_thread_id = $id;
-           		$directMessage->message = $text;
-           		$directMessage->message_type = $type;
-           		$directMessage->sender_id = $chat['user_id'];
-           		$directMessage->receiver_id = $userId;
-                $directMessage->is_send = $isSent;
-           		$directMessage->status = 1;
-           		$directMessage->save();
-           }
+
+            $thread = InstagramThread::where('thread_id',$t['thread_id'])->first();
+
+            $instagramUser = InstagramUsersList::where('user_id',$thread->instagramUser->user_id)->first();
+
+            if($instagramUser){
+
+                if($type == 1){
+                    $chatMessageCheck = ChatMessage::where('account_id',$thread->account->id)->where('unique_id',$t['thread_id'])->where('instagram_user_id',$instagramUser->id)->where('message',$text)->where('sent',$isSent)->first();
+                }else{
+                    $chatMessageCheck = ChatMessage::where('account_id',$thread->account->id)->where('unique_id',$t['thread_id'])->where('instagram_user_id',$instagramUser->id)->where('media',$text)->where('sent',$isSent)->first();
+                }
+                
+
+
+                if(!$chatMessageCheck){
+
+                    $message = new ChatMessage();
+                    $message->account_id = $thread->account->id;
+                    $message->unique_id = $t['thread_id'];
+                    $message->instagram_user_id = $instagramUser->id;
+                    $message->sent = $isSent;
+                    $message->user_id = \Auth::id();
+                    if($type == 1){
+                        $message->message = $text;
+                    }else{
+                        $message->media = $text;
+                    }
+                    $message->save();
+                }
+                
+            }
+            
+            //Marking seen chat message
+            
+            
+
+
+       //     $directMessage = InstagramDirectMessages::where('instagram_thread_id',$id)->where('message',$text)->first();
+       // if(!$directMessage){
+       //     		$directMessage = new InstagramDirectMessages();
+       //     		$directMessage->instagram_thread_id = $id;
+       //     		$directMessage->message = $text;
+       //     		$directMessage->message_type = $type;
+       //     		$directMessage->sender_id = $chat['user_id'];
+       //     		$directMessage->receiver_id = $userId;
+       //          $directMessage->is_send = $isSent;
+       //     		$directMessage->status = 1;
+       //     		$directMessage->save();
+       //     }
     	}
     }
 
@@ -243,16 +298,29 @@ class DirectMessageController extends Controller
             ], 413);
         }
 
+        $instagramUser = InstagramUsersList::where('user_id',$thread->instagramUser->user_id)->first();
+        if($instagramUser){
+            $message = new ChatMessage();
+            $message->account_id = $thread->account->id;
+            $message->unique_id = $thread->thread_id;
+            $message->instagram_user_id = $instagramUser->id;
+            $message->sent = 1;
+            $message->user_id = \Auth::id();
+            $message->message = $request->message;
+            $message->save();
+        }
         
-        $dm = new InstagramDirectMessages();
-        $dm->instagram_thread_id = $thread->id;
-        $dm->message_type = $messageType;
-        $dm->sender_id = $status[1];
-        $dm->message = $status[2];
-        $dm->receiver_id = $thread->instagramUser->user_id;
-        $dm->status = 1;
-        $dm->is_send = 1;
-        $dm->save();
+
+
+        // $dm = new InstagramDirectMessages();
+        // $dm->instagram_thread_id = $thread->id;
+        // $dm->message_type = $messageType;
+        // $dm->sender_id = $status[1];
+        // $dm->message = $status[2];
+        // $dm->receiver_id = $thread->instagramUser->user_id;
+        // $dm->status = 1;
+        // $dm->is_send = 1;
+        // $dm->save();
 
         //updating account status
 

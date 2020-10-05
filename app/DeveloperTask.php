@@ -13,7 +13,7 @@ class DeveloperTask extends Model
 
     protected $fillable = [
         'user_id', 'module_id', 'priority', 'subject', 'task', 'cost', 'status', 'module', 'completed', 'estimate_time', 'start_time', 'end_time', 'task_type_id', 'parent_id', 'created_by', 'submitted_by',
-        'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id'
+        'responsible_user_id','assigned_to','assigned_by','language','master_user_id', 'hubstaff_task_id','is_milestone','no_of_milestone','milestone_completed','customer_id','lead_hubstaff_task_id','team_lead_id','tester_id','team_lead_hubstaff_task_id','tester_hubstaff_task_id','site_developement_id'
     ];
 
     public function user()
@@ -78,11 +78,41 @@ class DeveloperTask extends Model
         return $this->belongsTo(User::class, 'master_user_id', 'id');
     }
 
+    public function teamLead()
+    {
+        return $this->belongsTo(User::class, 'team_lead_id', 'id');
+    }
+
+    public function tester()
+    {
+        return $this->belongsTo(User::class, 'tester_id', 'id');
+    }
+
     public function timeSpent(){
         return $this->hasOne(
             'App\Hubstaff\HubstaffActivity',
             'task_id',
             'hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
+    }
+
+    public function leadtimeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'lead_hubstaff_task_id'
+        )
+        ->selectRaw('task_id, SUM(tracked) as tracked')
+        ->groupBy('task_id');
+    }
+
+    public function testertimeSpent(){
+        return $this->hasOne(
+            'App\Hubstaff\HubstaffActivity',
+            'task_id',
+            'tester_hubstaff_task_id'
         )
         ->selectRaw('task_id, SUM(tracked) as tracked')
         ->groupBy('task_id');

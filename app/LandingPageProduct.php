@@ -10,46 +10,53 @@ class LandingPageProduct extends Model
     const STATUS = [
         "De-active",
         "Active",
+        "APPROVED" => 2,
+        "USER_UPLOADED" => "User Uploaded"
     ];
 
-    const GALLERY_TAG_NAME = "gallery_";
+    const GALLERY_TAG_NAME = "gallery";
 
-    protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'start_date', 'end_date', 'created_at', 'updated_at'];
+    protected $fillable = ['product_id', 'name', 'description', 'price', 'shopify_id', 'stock_status', 'store_website_id', 'status', 'landing_page_status_id', 'start_date', 'end_date', 'created_at', 'updated_at'];
 
     public function product()
     {
         return $this->hasOne(\App\Product::class, "id", "product_id");
     }
 
-    public function getShopifyPushData()
+    public function getShopifyPushData($product = null, $storeWebsiteId = null)
     {
-        $landingPageProduct = $this->product;
+        $landingPageProduct = ($product) ? $product : $this->product;
 
         if (!StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
-            return false;
+            //return false;
         }
 
         // create a html for submit the file
         $html   = [];
-        $html[] = $this->description;
+        $html[] = ($product) ? $product->short_description : $this->description;
 
         if (!empty($landingPageProduct->composition)) {
-            $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
+            //$html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
         }
 
         if (!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)) {
-            $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
+            //$html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
         }
 
-        if ($this->store_website_id) {
-            $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $this->store_website_id);
+        $storeWebsiteId = ($storeWebsiteId) ? $storeWebsiteId : $this->store_website_id;
+
+        if ($storeWebsiteId) {
+            $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsiteId);
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
-                    $sizeC  = str_replace(env("APP_URL"), env("SHOPIFY_CDN"), $sizeC);
-                    $html[] = "<p><b>Size Chart</b> : <a href='" . $sizeC . "'>Here</a></p>";
+                    $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
+                    $sizeC  = env("SHOPIFY_CDN").$sizeC;
+                    //$html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
         }
+
+        \Log::info(json_encode($html));
 
         if ($landingPageProduct) {
             $productData = [
@@ -57,9 +64,9 @@ class LandingPageProduct extends Model
                     'images'          => [],
                     'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                     'published_scope' => 'web',
-                    'title'           => $this->name,
+                    'title'           => ($product) ? $product->name : $this->name,
                     'body_html'       => implode("<br>", $html),
-                    'variants'        => [],
+                    //'variants'        => [],
                     'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
                     'tags'            => 'Home Page',
                 ],
@@ -83,11 +90,25 @@ class LandingPageProduct extends Model
             'fulfillment_service'  => 'manual',
             'requires_shipping'    => true,
             'sku'                  => $landingPageProduct->sku,
-            'title'                => (string) $this->name,
+            'title'                => ($product) ? $product->name : (string) $this->name,
             'inventory_management' => 'shopify',
             'inventory_policy'     => 'deny',
-            'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
+            //'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
+
+        if($product) {
+            $generalOptions['inventory_quantity'] = $product->stock;
+        }else{
+            $generalOptions['inventory_quantity'] = ($this->stock_status == 1) ? $landingPageProduct->stock : 0;
+        }
+
+        if($this->stock_status != 1) {
+            $productData['product']['published'] = false;
+            $productData['product']['published_scope'] = false;
+        }else{
+            $productData['product']['published'] = true;
+            $productData['product']['published_scope'] = "web";
+        }
 
         if (!empty($landingPageProduct->size)) {
             $productSizes = explode(',', $landingPageProduct->size);
@@ -140,7 +161,7 @@ class LandingPageProduct extends Model
                     $productData['product']['variants'][] = $generalOptions;
                 }
             } else {
-                $generalOptions["option1"]            = $p;
+                $generalOptions["option1"]            = $k;
                 $generalOptions["price"]              = $v;
                 $productData['product']['variants'][] = $generalOptions;
             }
@@ -148,5 +169,10 @@ class LandingPageProduct extends Model
 
         return $productData;
 
+    }
+
+    public function landing_page_status()
+    {
+        return $this->belongsTo(LandingPageStatus::class, 'landing_page_status_id');
     }
 }

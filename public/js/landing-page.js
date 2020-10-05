@@ -1,4 +1,4 @@
-var page = {
+    var page = {
     init: function(settings) {
 
         page.config = {
@@ -279,7 +279,6 @@ var page = {
         }
     },
     pushShopifyProduct : function(ele) {
-        console.log(ele);
         var _z = {
             url: this.config.baseUrl + "/landing-page/"+ele.data("id")+"/push-to-shopify",
             method: "GET",
@@ -345,6 +344,47 @@ $(document).on('click', '.check-product', function() {
 
 $(document).on("click",'.open_images', function(){
     var block_id = $(this).data('attr');
-    $('.hideall').attr('hidden', true);
-    $('#'+block_id).attr('hidden', false);
+    // $('.hideall').hide();
+
+    $('#'+block_id).toggle();
+});
+
+$(document).on("submit",'#formCreateLandingPageStatus', function(e) {
+    e.preventDefault();
+
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
+    $.ajax({
+        type:'POST',
+        url: '/landing-page/create_status',
+        data:{
+            status: $("input[name=landing_page_status]").val()
+        },
+        success:function(data){
+            $("#createStatusModal").modal('hide');
+            alert(data.message);
+        }
+    });
+});
+
+$(document).on("click",'.approveLandingPageStatus', function() {
+    const that = this;
+    $.ajax({
+        type:'GET',
+        url: '/landing-page/approve-status',
+        data:{
+            id: $(this).data('id'),
+            approve: true
+        },
+        success:function(data){
+            $(that).closest('td').find('span').text('Active');
+            $(that).closest('div').hide();
+        },
+        error: function(data) {
+            alert(data.message);
+        }
+    });
 });

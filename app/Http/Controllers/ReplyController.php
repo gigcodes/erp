@@ -6,6 +6,10 @@ use Illuminate\Http\Request;
 use App\Reply;
 use App\Setting;
 use App\ReplyCategory;
+use App\ChatbotQuestion;
+use App\ChatbotQuestionReply;
+use App\WatsonAccount;
+use App\ChatbotQuestionExample;
 
 class ReplyController extends Controller
 {
@@ -16,8 +20,8 @@ class ReplyController extends Controller
     public function index()
     {
       $replies = Reply::oldest()->whereNull('deleted_at')->paginate(Setting::get('pagination'));
-
-  		return view('reply.index',compact('replies'))
+      $reply_categories = ReplyCategory::all();
+  		return view('reply.index',compact('replies','reply_categories'))
   					->with('i', (request()->input('page', 1) - 1) * 10);
     }
 
@@ -136,4 +140,61 @@ class ReplyController extends Controller
       }
   		return redirect()->route('reply.index')->with('success','Quick Reply Deleted successfully');
     }
+
+    public function chatBotQuestion(Request $request)
+    {
+      $this->validate($request,[
+        'intent_name' => 'required',
+        'intent_reply' => 'required',
+        'question' => 'required',
+      ]);
+    
+
+        $ChatbotQuestion = null;
+        $example = ChatbotQuestionExample::where('question',$request->question)->first();
+        if($example) {
+          return response()->json(['message' => 'User intent is already available']);
+        }
+
+        if (is_numeric($request->intent_name)) {
+          $ChatbotQuestion = ChatbotQuestion::where("id", $request->intent_name)->first();
+      }
+      else {
+          if($request->intent_name != '') {
+              $ChatbotQuestion = ChatbotQuestion::create([
+                  "value" => str_replace(" ", "_", preg_replace('/\s+/', ' ', $request->intent_name)),
+              ]);
+          }
+      }
+        $ChatbotQuestion->suggested_reply = $request->intent_reply;
+        $ChatbotQuestion->category_id = $request->intent_category_id;
+        $ChatbotQuestion->keyword_or_question = 'intent';
+        $ChatbotQuestion->is_active = 1;
+        $ChatbotQuestion->erp_or_watson = 'erp';
+        $ChatbotQuestion->auto_approve = 1;
+        $ChatbotQuestion->save();
+
+        $ex = new ChatbotQuestionExample;
+        $ex->question = $request->question;
+        $ex->chatbot_question_id = $ChatbotQuestion->id;
+        $ex->save();
+
+        $wotson_account_website_ids = WatsonAccount::get()->pluck('store_website_id')->toArray();
+
+        $data_to_insert = [];
+
+        foreach($wotson_account_website_ids as $id_){
+            $data_to_insert[] = [
+                'chatbot_question_id' => $ChatbotQuestion->id,
+                'store_website_id' => $id_,
+                'suggested_reply' => $request->intent_reply
+            ];
+        }
+
+        ChatbotQuestionReply::insert($data_to_insert);
+        Reply::where('id',$request->intent_reply_id)->delete();
+
+        return response()->json(['message' => 'Successfully created','code' => 200]);     
+    }
+
 }

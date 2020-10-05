@@ -9,6 +9,8 @@ use App\SiteDevelopmentCategory;
 use App\StoreWebsite;
 use App\User;
 use App\SiteDevelopmentArtowrkHistory;
+use App\DeveloperTask;
+use App\Task;
 use DB;
 use Auth;
 use Illuminate\Http\Request;
@@ -25,7 +27,6 @@ class SiteDevelopmentController extends Controller
         $website = StoreWebsite::find($id);
 
         $categories = SiteDevelopmentCategory::orderBy('id', 'desc');
-
         if ($request->k != null) {
             $categories = $categories->where("title", "like", "%" . $request->k . "%");
         }
@@ -62,16 +63,18 @@ class SiteDevelopmentController extends Controller
         ->select(["sds.name",\DB::raw("count(sds.id) as total")])
         ->get();
 
+        $allUsers = User::select('id', 'name')->get();
+
         $users     = User::select('id', 'name')->whereIn('id', $userIDs)->get();
 
         if ($request->ajax() && $request->pagination == null) {
             return response()->json([
-                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount'))->render(),
+                'tbody' => view('storewebsite::site-development.partials.data', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory', 'statusCount','allUsers'))->render(),
                 'links' => (string) $categories->render(),
             ], 200);
         }
 
-        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount'));
+        return view('storewebsite::site-development.index', compact('categories', 'users', 'website', 'allStatus', 'ignoredCategory','statusCount','allUsers'));
     }
 
     public function addCategory(Request $request)
@@ -102,6 +105,7 @@ class SiteDevelopmentController extends Controller
     public function addSiteDevelopment(Request $request)
     {
 
+
         if ($request->site) {
             $site = SiteDevelopment::find($request->site);
         } else {
@@ -130,6 +134,10 @@ class SiteDevelopmentController extends Controller
 
         if ($request->type == 'html_designer') {
             $site->html_designer = $request->text;
+        }
+
+        if ($request->type == 'tester_id') {
+            $site->tester_id = $request->text;
         }
 
         if ($request->type == 'artwork_status') {
@@ -418,5 +426,28 @@ class SiteDevelopmentController extends Controller
         $title = 'Multi site artwork histories';
         return response()->json(["code" => 200 , "data" => $histories]);
     }
+    public function taskCount($site_developement_id) {
+        $taskStatistics['Devtask'] = DeveloperTask::where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select();
 
+        $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name');
+        $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
+        $taskStatistics = $query->get();
+
+        return response()->json(["code" => 200, "taskStatistics" => $taskStatistics]);
+
+    }
+    public function deleteDevTask(Request $request){
+
+		$id   = $request->input( 'id' );
+		$task = DeveloperTask::find( $id );
+		
+		if($task ) {
+			$task->delete();
+		}
+
+		if ($request->ajax()) {
+			return response()->json(["code" => 200]);
+		}
+
+	}
 }

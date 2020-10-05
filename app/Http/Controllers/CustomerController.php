@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Complaint;
 use Dompdf\Dompdf;
+use Illuminate\Pagination\Paginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
 use App\Imports\CustomerImport;
@@ -43,6 +44,7 @@ use App\InstructionCategory;
 use App\OrderStatus as OrderStatuses;
 use App\ReadOnly\PurchaseStatus;
 use App\ReadOnly\SoloNumbers;
+use App\EmailAddress;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Carbon\Carbon;
 use Webklex\IMAP\Client;
@@ -55,6 +57,8 @@ use Plank\Mediable\Media as PlunkMediable;
 
 class CustomerController extends Controller
 {
+	
+	CONST DEFAULT_FOR = 1; //For Customer
 
     public function __construct()
     {
@@ -1293,7 +1297,19 @@ class CustomerController extends Controller
         $customer->name = $request->name;
         $customer->email = $request->email;
         $customer->phone = $request->phone;
-        $customer->whatsapp_number = $request->whatsapp_number;
+		if(empty($request->whatsapp_number))
+		{
+			//get default whatsapp number for vendor from whatsapp config
+			$task_info = DB::table('whatsapp_configs')
+						->select('*')
+						->whereRaw("find_in_set(".self::DEFAULT_FOR.",default_for)")
+						->first();
+		
+			$data["whatsapp_number"] = $task_info->number;
+        }
+	
+	
+		$customer->whatsapp_number = $request->whatsapp_number;
         $customer->instahandler = $request->instahandler;
         $customer->rating = $request->rating;
         $customer->address = $request->address;
@@ -1356,7 +1372,6 @@ class CustomerController extends Controller
             $facebookMessages = $customer->facebookMessages()->get();
         }
 
-
         return view('customers.show', [
             'customer' => $customer,
             'customers' => $customers,
@@ -1394,7 +1409,11 @@ class CustomerController extends Controller
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
-
+		
+		
+		//$emails = Email::select()->where('to', $customer->email)->paginate(15);
+		
+		
         $searchedMessages = null;
         if ($request->get('sm')) {
             $searchedMessages = ChatMessage::where('customer_id', $id)->where('message', 'LIKE', '%' . $request->get('sm') . '%')->get();
@@ -1436,8 +1455,8 @@ class CustomerController extends Controller
         if ($customer->facebook_id) {
             $facebookMessages = $customer->facebookMessages()->get();
         }
-
-
+		
+		
         return view('customers.show', [
             'customer_ids' => json_encode($customer_ids),
             'previous_customer_id' => $previous_customer_id,
@@ -1472,7 +1491,7 @@ class CustomerController extends Controller
 
     public function emailInbox(Request $request)
     {
-        $imap = new Client([
+        /*$imap = new Client([
             'host' => env('IMAP_HOST'),
             'port' => env('IMAP_PORT'),
             'encryption' => env('IMAP_ENCRYPTION'),
@@ -1525,15 +1544,38 @@ class CustomerController extends Controller
 
         $emails_array = array_values(array_sort($emails_array, function ($value) {
             return $value[ 'date' ];
+        }));*/
+		
+		$inbox = "to";
+		if ($request->type != 'inbox') {
+			$inbox = 'from';
+		}
+		
+		$customer = Customer::find($request->customer_id);
+		
+		$emails = Email::select()->where($inbox,$customer->email)->get();
+		
+		
+		$count = count($emails);
+		foreach ($emails as $key => $email) {
+			$emails_array[ $count + $key ][ 'id' ] = $email->id;
+			$emails_array[ $count + $key ][ 'subject' ] = $email->subject;
+			$emails_array[ $count + $key ][ 'type' ] = $email->type;
+			$emails_array[ $count + $key ][ 'message' ] = $email->message;
+			$emails_array[ $count + $key ][ 'date' ] = $email->created_at;
+		}
+		$emails_array = array_values(array_sort($emails_array, function ($value) {
+            return $value[ 'date' ];
         }));
-
         $emails_array = array_reverse($emails_array);
 
         $currentPage = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
+        $perPage = 5;
         $currentItems = array_slice($emails_array, $perPage * ($currentPage - 1), $perPage);
-        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage);
-
+        $emails = new LengthAwarePaginator($currentItems, count($emails_array), $perPage, $currentPage, ['path' => LengthAwarePaginator::resolveCurrentPath()]);
+		//echo url($request->path());exit;
+		//$emails->setPath($request->path());
+//print_r($emails);
         $view = view('customers.email', [
             'emails' => $emails,
             'type' => $request->type
@@ -1544,7 +1586,7 @@ class CustomerController extends Controller
 
     public function emailFetch(Request $request)
     {
-        $imap = new Client([
+        /*$imap = new Client([
             'host' => env('IMAP_HOST'),
             'port' => env('IMAP_PORT'),
             'encryption' => env('IMAP_ENCRYPTION'),
@@ -1571,11 +1613,13 @@ class CustomerController extends Controller
             } else {
                 $content = $email->getTextBody();
             }
-        } else {
-            $email = Email::find($request->uid);
+        } else {*/
+            //$email = Email::find($request->uid);
+            $email = Email::find($request->id);
+			$content = $email->message;
 
             if ($email->template == 'customer-simple') {
-                $content = (new CustomerEmail($email->subject, $email->message))->render();
+                $content = (new CustomerEmail($email->subject, $email->message, $email->from))->render();
             } else {
                 if ($email->template == 'refund-processed') {
                     $details = json_decode($email->additional_data, true);
@@ -1603,7 +1647,7 @@ class CustomerController extends Controller
                     }
                 }
             }
-        }
+        //}
 
         return response()->json(['email' => $content]);
     }
@@ -1614,19 +1658,22 @@ class CustomerController extends Controller
             'subject' => 'required|min:3|max:255',
             'message' => 'required'
         ]);
+		
+		$customer = Customer::find($request->customer_id);
 
-        $customer = Customer::find($request->customer_id);
-
-        Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message));
-
-        if ($request->order_id != '') {
+		//Store ID Email
+		$emailAddressDetails = EmailAddress::select()->where(['store_website_id'=>$customer->store_website_id])->first();
+		
+        Mail::to($customer->email)->send(new CustomerEmail($request->subject, $request->message, $emailAddressDetails->from_address));
+		if ($request->order_id != '') {
             $order_data = json_encode(['order_id' => $request->order_id]);
         }
 
         $params = [
             'model_id' => $customer->id,
             'model_type' => Customer::class,
-            'from' => 'customercare@sololuxury.co.in',
+            //'from' => 'customercare@sololuxury.co.in',
+            'from' => $emailAddressDetails->from_address,
             'to' => $customer->email,
             'send' => 1,
             'subject' => $request->subject,
@@ -1959,25 +2006,29 @@ class CustomerController extends Controller
     public function sendScraped(Request $request)
     {
         $customer = Customer::find($request->customer_id);
-
+        $products = new Product;
         if ($request->brand[ 0 ] != null) {
-            $products = Product::whereIn('brand', $request->brand);
+            $products = $products->whereIn('brand', $request->brand);
         }
 
 
         if ($request->category[ 0 ] != null && $request->category[ 0 ] != 1) {
-            if ($request->brand[ 0 ] != null) {
-                $products = $products->whereIn('category', $request->category);
-            } else {
-                $products = Product::whereIn('category', $request->category);
-            }
+            // if ($request->brand[ 0 ] != null) {
+            //     $products = $products->whereIn('category', $request->category);
+            // } else {
+            //     $products = Product::whereIn('category', $request->category);
+            // }
+            $products = $products->whereIn('category', $request->category);
         }
 
-        if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
-            $products = (new Product)->newQuery();
+        // if ($request->brand[ 0 ] == null && ($request->category[ 0 ] == 1 || $request->category[ 0 ] == null)) {
+        //     $products = (new Product)->newQuery();
+        // }
+        $total_images = $request->total_images;
+        if(!$total_images) {
+            $total_images = 20;
         }
-
-        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take(20)->get();
+        $products = $products->where('is_scraped', 1)->where('is_without_image', 0)->where('category', '!=', 1)->orderBy(DB::raw('products.created_at'), 'DESC')->take($total_images)->get();
         if (count($products) > 0) {
             $params = [
                 'number' => null,
@@ -2353,7 +2404,7 @@ class CustomerController extends Controller
     public function dispatchBroadSendPrice($customer, $product_ids)
     {
         if (!empty($customer) && is_numeric($customer->phone)) {
-
+            \Log::info("Customer with phone found for customer id : ". $customer->id." and product ids ".json_encode($product_ids));
             if (!empty(array_filter($product_ids))) {
 
                 foreach($product_ids as $pid) {

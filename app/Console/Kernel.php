@@ -93,11 +93,13 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\RunErpLeads;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Console\Kernel as ConsoleKernel;
 use App\Console\Commands\StoreBrands;
+use App\Console\Commands\StoreLiveChats;
 use App\Console\Commands\RunPriorityKeywordSearch;
 use App\Console\Commands\CacheMasterControl;
 use App\Console\Commands\SendEventNotificationBefore24hr;
@@ -110,6 +112,11 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\getLiveChatIncTickets;
+use App\Console\Commands\RoutesSync;
+use App\Console\Commands\DeleteChatMessages;
+use App\Console\Commands\CustomerListToEmailLead;
+use App\Console\Commands\WayBillTrackHistories;
 
 class Kernel extends ConsoleKernel
 {
@@ -189,6 +196,7 @@ class Kernel extends ConsoleKernel
         IncrementFrequencyWhatsappConfig::class,
         UpdateCronSchedule::class,
         RunErpEvents::class,
+        RunErpLeads::class,
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
@@ -201,6 +209,7 @@ class Kernel extends ConsoleKernel
         CheckScrapersLog::class,
         StoreBrands::class,
         MailingListSendMail::class,
+        StoreLiveChats::class,
         RunPriorityKeywordSearch::class,
         CacheMasterControl::class,
         InfluencerDescription::class,
@@ -214,7 +223,12 @@ class Kernel extends ConsoleKernel
         GenerateProductPricingJson::class,
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
-        ScrapLogs::class
+        ScrapLogs::class,
+        getLiveChatIncTickets::class,
+		RoutesSync::class,
+        DeleteChatMessages::class,
+        CustomerListToEmailLead::class,
+        WayBillTrackHistories::class
     ];
 
     /**
@@ -407,6 +421,7 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
         //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
+        // /$schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
@@ -428,6 +443,8 @@ class Kernel extends ConsoleKernel
         //2020-02-17 $schedule->command('sync:erp-magento-customers')->everyFifteenMinutes();
 
         // Github
+        $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -455,11 +472,24 @@ class Kernel extends ConsoleKernel
 
         // If scraper not completed, store alert
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
+		
+		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
+
+		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+
+		
+        //update order way billtrack histories
+        $schedule->command('command:waybilltrack')->dailyAt("1:00");
 
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
+
+        // Get tickets from Live Chat inc and put them as unread messages
+        // $schedule->command('livechat:tickets')->everyMinute();
+        // delate chat message 
+         //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
     }
 
     /**

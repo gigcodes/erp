@@ -17,6 +17,7 @@ use App\ScrapEntries;
 use App\ScrapeQueues;
 use App\Scraper;
 use App\ScraperResult;
+use App\ScrapRequestHistory;
 use App\ScrapStatistics;
 use App\Services\Products\AttachSupplier;
 use App\Services\Products\GnbProductsCreator;
@@ -37,6 +38,8 @@ use PhpOffice\PhpSpreadsheet\Reader\Xlsx;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Storage;
 use Validator;
+use App\User;
+use App\Helpers;
 
 class ScrapController extends Controller
 {
@@ -171,7 +174,7 @@ class ScrapController extends Controller
         }
 
         $request->request->add(["properties" => $requestedProperties]);
-        
+
 
         // remove categories if it is matching with sku
         $propertiesExt = $request->get('properties');
@@ -261,13 +264,41 @@ class ScrapController extends Controller
             $scrapedProduct->save();
         }
 
+        $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
+        $this->saveScrapperRequest($scrap_details, $errorLog);
+
         // Create or update product
         app(ProductsCreator::class)->createProduct($scrapedProduct);
 
         // Return response
         return response()->json([
-            'status' => 'Added items successfuly!'
+            'status' => 'Added items successfully!'
         ]);
+    }
+
+    public function saveScrapperRequest($scrap_details, $errorLog)
+    {
+        try {
+            //check if scraper of same id have records with same day , then only update the end time
+            $check_history = ScrapRequestHistory::where(['scraper_id' => $scrap_details->id , 'start_date' => Carbon::now()])->firstOrFail();
+            //update the request data
+            ScrapRequestHistory::where(['scraper_id' => $scrap_details->id])->update([
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? intval($check_history->request_sent + 1) : intval($check_history->request_sent),
+                'request_failed' => empty($errorLog) ? intval($check_history->request_failed) : intval($check_history->request_failed + 1)
+            ]);
+        }
+        catch (\Exception $e) {
+            ScrapRequestHistory::create([
+                'scraper_id' => $scrap_details->id,
+                'date' => Carbon::now(),
+                'start_time' => Carbon::now(),
+                'end_time' => Carbon::now(),
+                'request_sent' => empty($errorLog) ? 1 : 0,
+                'request_failed' => empty($errorLog) ? 0 : 1
+            ]);
+        }
+        return true;
     }
 
     private function downloadImagesForSites($data, $prefix = 'img'): array
@@ -675,9 +706,9 @@ class ScrapController extends Controller
     {
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
-
-        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns) {
-
+        $users = Helpers::getUserArray(User::role('Developer')->get());
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension || $request->prod_img_filter || $request->prod_error_filter) {
+            //DB::enableQueryLog();
             $query = \App\ScrapedProducts::query();
 
             $dateRange = request("daterange","");
@@ -693,6 +724,17 @@ class ScrapController extends Controller
             }
 
             //global search website
+            if(request('prod_img_filter') != null && request('prod_img_filter') == '0' ){
+                $query->whereRaw('( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }elseif( request('prod_img_filter') != null && request('prod_img_filter') == '1'){
+                $query->whereRaw('not( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }
+
+            if(request('prod_error_filter') != null && request('prod_error_filter') == '0' ){
+                $query->where('validation_result','!=',null);
+            }elseif( request('prod_error_filter') != null && request('prod_error_filter') == '1'){
+                $query->where('validation_result','=',null);
+            }
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
             }
@@ -716,14 +758,35 @@ class ScrapController extends Controller
             if (request('price') != null) {
                 $query->where('price', 'LIKE', "%{$request->price}%");
             }
+            
+            if (request('color') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.color\') like "%'.$request->color.'%"');
+            }
 
+            if (request('category') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.category\') like "%'.$request->category.'%"');
+            }
+
+            if (request('psize') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.sizes\') like "%'.$request->psize.'%" OR JSON_EXTRACT(properties, \'$.size\') like "%'.$request->psize.'%"');
+            }
+
+            if (request('dimension') != null) {
+                $query->whereRaw('JSON_EXTRACT(properties, \'$.dimension\') like "%'.$request->dimension.'%"');
+            }
+
+            if (request('product_id') != null) {
+                $productIds = explode(",", $request->product_id);
+                $query->whereIn('product_id', $productIds);
+            }
+            
             if (request('created') != null) {
-                $query->whereDate('created_at', request('created'));
+                $query->whereDate('created_at', Carbon::parse($request->created)->format('Y-m-d'));
             }
 
             if (request('brand') != null) {
                 $suppliers = request('brand');
-                $query->whereIn('brand', $suppliers);
+                $query->whereIn('brand_id', $suppliers);
             }
 
             if (request('updated') != null) {
@@ -759,8 +822,7 @@ class ScrapController extends Controller
             }
 
             $paginate = (Setting::get('pagination') * 10);
-            $logs = $query->paginate($paginate)->appends(request()->except(['page']));
-
+            $logs = $query->paginate($paginate)->appends(request()->except(['page']));            
             $search = [
                 \DB::raw("count(*) as total_record"),
                 \DB::raw("count(DISTINCT p.sku) as total_u_record")
@@ -769,7 +831,7 @@ class ScrapController extends Controller
 
 
             if(!empty($startDate) && !empty($endDate)) {
-                $search[] = \DB::raw("DATE_FORMAT(created_at, '%Y-%m-%d') as date");
+                $search[] = \DB::raw("DATE_FORMAT(scraped_products.created_at, '%Y-%m-%d') as date");
             }else{
                 $search[] = \DB::raw("'All' as date");
             }
@@ -779,12 +841,12 @@ class ScrapController extends Controller
             });
 
             if(!empty($startDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," >= " , $startDate);
+                $totalUniqueSkuRecords->whereDate('scraped_products.created_at'," >= " , $startDate);
             }
 
             if(!empty($endDate)) {
-                $totalUniqueSkuRecords->whereDate('created_at'," <= " , $endDate);
-                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(created_at, "%Y-%m-%d")'));
+                $totalUniqueSkuRecords->whereDate('scraped_products.created_at'," <= " , $endDate);
+                $totalUniqueSkuRecords->groupBy(\DB::raw('DATE_FORMAT(scraped_products.created_at, "%Y-%m-%d")'));
             }
 
             $totalUniqueSkuRecords->select($search);
@@ -792,9 +854,8 @@ class ScrapController extends Controller
 
             $response = request()->except(['page']);
             if(empty($response['columns'])) {
-                $response['columns'] = [];
-            }
-
+                $response['columns'] = ['color','category','size','dimension'];
+            }            
         } else {
             $response = '';
             $paginate = (Setting::get('pagination') * 10);
@@ -803,16 +864,16 @@ class ScrapController extends Controller
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
-
+        //dd(DB::getQueryLog());
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords'))->render(),
+                'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords','users'))->render(),
                 'links' => (string)$logs->render(),
                 'count' => $logs->total(),
             ], 200);
         }
 
-        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords'));
+        return view('scrap.scraped_url', compact('logs', 'response','summeryRecords','users'));
     }
 
     public function getProductsToScrape()
@@ -1200,6 +1261,21 @@ class ScrapController extends Controller
           
             
         
+    }
+
+    public function assignScrapProductTask(Request $request){
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $requestData->request->add([
+            'priority' => 1,
+            'issue' => $request->message,// issue detail  
+            'status' => "Planned",
+            'module' => "Scraper", 
+            'subject' => $request->subject,// enter issue name  
+            'assigned_to' => 6
+        ]);
+        app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+        return redirect()->back();
     }
 }
 
