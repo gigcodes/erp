@@ -3163,21 +3163,28 @@ class WhatsAppController extends FindByNumberController
                 }
 
             } else {
-                if (!empty($imagesDecoded) && is_array($imagesDecoded)) {
-                    $medias = Media::whereIn("id", array_unique($imagesDecoded))->get();
-                    if (!$medias->isEmpty()) {
-                        foreach ($medias as $iimg => $media) {
-                            try {
-                                if ($iimg != 0) {
+                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
+                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
+                    if(!$medias->isEmpty()) {
+                        foreach($medias as $iimg => $media) {
+                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                            try{
+                                if($iimg != 0) {
                                     $chat_message = ChatMessage::create($data);
                                 }
                                 $chat_message->attachMedia($media, config('constants.media_tags'));
+                                if($mediable) {
+                                    \App\SuggestedProductList::where('customer_id',$request->customer_id)->where('product_id',$mediable->mediable_id)->update(['chat_message_id' => $chat_message->id]);
+                               }
                                 // if this message is not first then send to the client
                                 if ($iimg != 0 && $isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
                                     $myRequest = new Request();
                                     $myRequest->setMethod('POST');
                                     $myRequest->request->add(['messageId' => $chat_message->id]);
                                     $this->approveMessage($context, $myRequest);
+                                    if($mediable) {
+                                        \App\SuggestedProductList::where('customer_id',$request->customer_id)->where('product_id',$mediable->mediable_id)->update(['chat_message_id' => $chat_message->id]);
+                                    }
                                 }
 
                             } catch (\Exception $e) {
@@ -5381,6 +5388,7 @@ class WhatsAppController extends FindByNumberController
             $chatMessage = \App\ChatMessage::where("id", $messageId)->first();
             if ($chatMessage) {
                 $chatMessage->delete();
+                \App\SuggestedProductList::where('chat_message_id',$messageId)->delete();
             }
         }
 

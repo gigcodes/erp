@@ -11,6 +11,7 @@
             <form action="" id="customerSendScrap"  method="GET" enctype="multipart/form-data">
                 @csrf
                 <input type="hidden" name="customer_id" value="">
+                <input type="hidden" name="submit_type" value="">
 
                 <div class="modal-body">
                     <div class="form-group">
@@ -41,8 +42,8 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
                     <!-- <button type="submit" class="btn btn-secondary" id="sendScrapedButton">Send</button> -->
-                    <button  id="attachImages2" class="btn btn-secondary">Send To Image Approval</button>
-                    <button  id="attachImages1" class="btn btn-secondary">Send</button>
+                    <button  id="attachImages2" class="btn btn-secondary send-to-approval-btn">Send To Image Approval</button>
+                    <button  id="attachImages1" class="btn btn-secondary old-send-btn">Send</button>
                 </div>
             </form>
         </div>

@@ -14,9 +14,7 @@
                     <p>Customer Name: {{$suggested->customer->name}}</p>
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
-                    <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
-                    <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button>
-                    <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button>
+                    
                 </div>
 <br>
         @php
@@ -60,26 +58,32 @@
                     </a>
                 </div>
                 <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
-                    <div class="custom-control custom-checkbox">
+                    <!-- <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$sp}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$sp}}"></label>
-                    </div>
+                    </div> -->
 
-                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$suggested->customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
-
+                    <!-- <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$suggested->customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a> -->
                     <!-- @if($model_type != 'landing-page')
                     <a href="javascript:;" class="btn btn-sm btn-image {{ $selected_all ? 'btn-success' : '' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}"><img src="{{asset('images/double-attach.png')}}"></a>
-                    @endif -->
-                        <a href="javascript:;" class="btn btn-sm select_row" title="Select Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
-                        <!-- <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="cc" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a> -->
+                        @endif -->
+                        <!-- <a href="javascript:;" class="btn btn-sm select_row" title="Select Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a> -->
+                        <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="{{$customer->id}}" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
                         <!-- <a href="javascript:;" title="Forward" class="btn btn-sm forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="{{$image_key}}" title="Forward"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a> -->
                         <!-- <a href="javascript:;" title="Resend" data-id="{{$image_key}}" class="btn btn-sm resend-message" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$image_key}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" title="Mark as reviewed" class="btn btn-sm review-btn" data-id="{{$image_key}}" title="Mark as reviewd"><i class="fa fa-check" aria-hidden="true"></i></a> -->
+                        @php
+                        $chat_message = \App\ChatMessage::find($pr->chat_message_id);
+                        @endphp
+                        @if($chat_message)
+                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$pr->chat_message_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                        @if(!$chat_message->is_reviewed)
+                        <a href="javascript:;" title="Mark as reviewed" class="btn btn-sm review-btn" data-id="{{$pr->chat_message_id}}" title="Mark as reviewd"><i class="fa fa-check" aria-hidden="true"></i></a>
+                        @endif
+                        @endif
                         <!--<a title="Dialog" href="javascript:;" class="btn btn-sm create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>-->
                 </div>
             </div>

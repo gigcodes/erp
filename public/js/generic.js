@@ -876,9 +876,7 @@ $(document).on('click', '.create-product-order', function(e) {
     var text = $(this).text();
     var html = $(this).html();
     var thiss = this;
-
     if (selected_product_images.length > 0) {
-
         if ($('#add_order').length > 0) {
             $('#add_order').find('input[name="customer_id"]').val(customer_id);
             $('#add_order').find('input[name="date_of_delivery"]').val('');
@@ -1078,6 +1076,9 @@ $(document).on("click",".create-kyc-customer",function(e) {
     var thiss = $(this);
     var text = $(thiss).text();
     var html = $(thiss).html();
+    console.log(text);
+    console.log(html);
+
     $.ajax({
         type: 'POST',
         url: "/customer/create-kyc",
@@ -1091,6 +1092,11 @@ $(document).on("click",".create-kyc-customer",function(e) {
         },
         success: function(response) {
             toastr["success"]("File added into kyc", 'Message');
+            if (text != '') {
+                $(thiss).text("+ KYC");
+            } else {
+                $(thiss).html(html);
+            }
         }
       }).fail(function(error) {
         if (text != '') {
@@ -1098,6 +1104,6 @@ $(document).on("click",".create-kyc-customer",function(e) {
         } else {
             $(thiss).html(html);
         }
-        toastr["error"]("There was an error creating a order", 'Message');
+        toastr["error"]("There was an error creating KYC", 'Message');
       });
 });
