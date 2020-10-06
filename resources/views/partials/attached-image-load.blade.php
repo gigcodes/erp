@@ -15,6 +15,7 @@
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
                     <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
+                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
                     <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button>
                     <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button>
                 </div>
