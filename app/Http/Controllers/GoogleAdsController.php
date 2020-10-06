@@ -52,23 +52,25 @@ class GoogleAdsController extends Controller
 
         $adWordsServices = new AdWordsServices();
 
-        $campaignService = $adWordsServices->get($session, CampaignService::class);
+
+
+//        $campaignService = $adWordsServices->get($session, CampaignService::class);
 
         // Create selector
-        $selector = new Selector();
-        $selector->setFields(array('Id', 'Name'));
-        $selector->setOrdering(array(new OrderBy('Name', 'ASCENDING')));
+//        $selector = new Selector();
+//        $selector->setFields(array('Id', 'Name'));
+//        $selector->setOrdering(array(new OrderBy('Name', 'ASCENDING')));
 
         // Create paging controls
-        $selector->setPaging(new Paging(0, 100));
+//        $selector->setPaging(new Paging(0, 100));
         // Make the get request
-        $page = $campaignService->get($selector);
+//        $page = $campaignService->get($selector);
 
-        $this->getCampaign($adWordsServices, $session);
+        $campCount = $this->getCampaignsCount($adWordsServices, $session);
 
 //        $this->createCampaign($adWordsServices, $session);
 
-        return view('googleads.index');
+        return view('googleads.index', ['campaignCount' => $campCount]);
     }
 
     public function create(Request $request) {
@@ -200,7 +202,7 @@ class GoogleAdsController extends Controller
         }
     }
 
-    function getCampaign(AdWordsServices $adWordsServices, AdWordsSession $session) {
+    function getCampaignsCount(AdWordsServices $adWordsServices, AdWordsSession $session) {
         $campaignService = $adWordsServices->get($session, CampaignService::class);
 
         // Create selector.
@@ -232,6 +234,7 @@ class GoogleAdsController extends Controller
             );
         } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
 
-        printf("Number of results found: %d\n", $totalNumEntries);
+//        printf("Number of results found: %d\n", $totalNumEntries);
+        return $totalNumEntries;
     }
 }
