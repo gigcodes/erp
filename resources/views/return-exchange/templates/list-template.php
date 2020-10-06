@@ -3,37 +3,55 @@
 		<table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-				<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
-				<th style="width:7%">ID</th>
-		        <th style="width:8%">Customer Name</th>
-		        <th style="width:7%">Product Name</th>
-				<th style="width:10%">Website</th>
-				<th style="width:7%">Type</th>
-				<th style="width:7%">Refund Date</th>
-		        <th style="width:7%">Refund amount</th>
-		        <th style="width:10%">Reason for refund</th>
-		        <th style="width:7%">Status</th>
-		        <th style="width:10%">Pickup Address</th>
+		      	<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
+		        <th style="width:7%">Customer</th>
+		        <th style="width:7%">Product</th>
+				<th style="width:9%">Website</th>
+		        <th style="width:5%">Type</th>
+		        <th style="width:5%">Refund amount</th>
+		        <th style="width:9%">Reason for refund</th>
+		        <th style="width:6%">Status</th>
+		        <th style="width:8%">Pickup Address</th>
 		        <th style="width:10%">Refund details</th>
-		        <th style="width:10%">Remarks</th>
-		        <th style="width:7%">Created At</th>
+		        <th style="width:10%">Est Refund / Exchange date</th>
+		        <th style="width:5%">Remarks</th>
+		        <th style="width:4%">Created At</th>
 		        <th width="10%" align="center">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
-			      <tr>
-			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
-					<td>{{:prop.id}}</td>  
-				    <td>{{:prop.customer_name}}</td>
-			      	<td>{{:prop.name}}</td>
-					<td>{{:prop.website}}</td>
-					<td>{{:prop.type}}</td>
-					<td>{{:prop.date_of_refund}}</td>
+				<tr>
+			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}">&nbsp;{{:prop.id}}</td>
+			      	<td class="expand-row-msg" data-name="customer" data-id="{{:prop.id}}">
+					  <span class="show-short-customer-{{:prop.id}}">{{:~trimlength(prop.customer_name, 10)}}</span>
+					  <span class="show-full-customer-{{:prop.id}} hidden">{{:prop.customer_name}}</span>
+					</td>
+			      	<td class="expand-row-msg" data-name="product" data-id="{{:prop.id}}">
+					  <span class="show-short-product-{{:prop.id}}">{{:~trimlength(prop.name, 4)}}</span>
+					  <span class="show-full-product-{{:prop.id}} hidden">{{:prop.name}}</span>
+					</td>
+					<td class="expand-row-msg" data-name="website" data-id="{{:prop.id}}">
+						<span class="show-short-website-{{:prop.id}}">{{:~trimlength(prop.website, 10)}}</span>
+					   <span class="show-full-website-{{:prop.id}} hidden">{{:prop.website}}</span>
+					</td>
+			        <td>{{:prop.type}}</td>
 			        <td>{{:prop.refund_amount}}</td>
-			        <td><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span> </td>
-			        <td>{{:prop.status_name}}</td>
-			        <td>{{:prop.pickup_address}}</td>
+
+					<td class="expand-row-msg" data-name="reason" data-id="{{:prop.id}}">
+						<span class="show-short-reason-{{:prop.id}}">{{:~trimlength(prop.reason_for_refund, 10)}}</span>
+					   <span class="show-full-reason-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span></span>
+					</td>
+
+					<td class="expand-row-msg" data-name="statusName" data-id="{{:prop.id}}">
+						<span class="show-short-statusName-{{:prop.id}}">{{:~trimlength(prop.status_name, 7)}}</span>
+					   <span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.status_name}}</span></span>
+					</td>
+
+					<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
+						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
+					   <span class="show-full-pickupAdd-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.pickup_address}}</span></span>
+					</td>
 			        <td class="expand-row" data-id="{{>prop.id}}">
 					<div class="td-mini-container-{{>prop.id}}">
 						<p>DOR : {{:prop.date_of_request_formated}}</p>
@@ -45,7 +63,22 @@
 						<p>Credited: {{if prop.credited}} Yes {{else}} No {{/if}}</p>
 					</div>
 					</td>
-			        <td>{{:prop.remarks}}</td>
+					<td style="padding:1px;">
+					<div class="form-group" style="margin-bottom:0px;">
+					<div class="d-flex">
+						<div class='input-group estimate_dates'>
+							<input style="min-width: 30px;" placeholder="E.Date" value="{{>prop.est_completion_date}}" type="text" class="form-control estimate-date" name="estimate_date_{{>prop.id}}" data-id="{{>prop.id}}" id="estimate_date_{{>prop.id}}">
+							
+						</div>
+						<button style="padding: 0px;" class="btn btn-sm btn-image estimate-date-submit" data-id="{{>prop.id}}"><img src="images/filled-sent.png" style="cursor: nwse-resize;"></button>
+						<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{>prop.id}}"><i class="fa fa-info-circle"></i></button>
+					</div>
+					</div>
+					</td>
+					<td class="expand-row-msg" data-name="remarks" data-id="{{:prop.id}}">
+						<span class="show-short-remarks-{{:prop.id}}">{{:~trimlength(prop.remarks, 5)}}</span>
+					   <span class="show-full-remarks-{{:prop.id}} hidden">{{:prop.remarks}}</span>
+					</td>
               		<td>{{:prop.created_at_formated}}</td>
 			        <td class="action" align="center">
 						<div class="cls_action_btn">
@@ -100,6 +133,39 @@
 		</div> 		
 	</div>
 </script>
+
+<script type="text/x-jsrender" id="date-history-block">
+	<div class="modal-content">
+		<div class="modal-body">
+			<div class="col-md-12">
+				<table class="table table-bordered">
+				    <thead>
+				      <tr>
+				      	<th>Id</th>
+				        <th>Old value</th>
+				        <th>New value</th>
+				        <th>Updated By</th>
+				        <th>Created at</th>
+				      </tr>
+				    </thead>
+				    <tbody>
+				    	{{props data}}
+					      <tr>
+					      	<td>{{:prop.id}}</td>
+					      	<td>{{:prop.old_value}}</td>
+					      	<td>{{:prop.new_value}}</td>
+					      	<td>{{:prop.user_name}}</td>
+					      	<td>{{:prop.created_at}}</td>
+					      </tr>
+					    {{/props}}  
+				    </tbody>
+				</table>
+			</div>
+		</div> 		
+	</div>
+</script>
+
+
 <script type="text/x-jsrender" id="template-edit-block">
 	<div class="modal-content">
 	<div class="modal-body">

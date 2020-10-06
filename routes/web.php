@@ -2227,13 +2227,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
 	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
     Route::post('/createRefund', 'ReturnExchangeController@createRefund')->name('return-exchange.createRefund');
-	Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
+    Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
+	Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
 	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
         Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
+        Route::get('/date-history', 'ReturnExchangeController@estimationHistory')->name('return-exchange.date-history');
         Route::get('/product', 'ReturnExchangeController@product')->name('return-exchange.product');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
