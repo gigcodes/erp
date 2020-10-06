@@ -998,7 +998,6 @@ $('body').on('focus',".search_chat_pop_time", function(){
 function exampleFunction(){
     var value = $('.search_chat_pop_time').val();
     $(".filter-message").each(function () {
-        console.log($(this).text());
         if ($(this).text().search(new RegExp(value, "i")) < 0) {
             $(this).hide();
         } else {

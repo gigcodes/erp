@@ -2322,3 +2322,5 @@ Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGr
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
+Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+

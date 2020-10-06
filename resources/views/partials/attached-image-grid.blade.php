@@ -256,6 +256,7 @@
         </div>
     </div>
     @include('partials.modals.category')
+    @include('partials.modals.forward-products')
     <?php $stage = new \App\Stage(); ?>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
@@ -907,6 +908,58 @@
              }
          });
         });
+
+
+        $(document).on("click", ".forward-products", function (event) {
+            var customer_id = $(this).data("id");
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            image_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+            if (productCard.length > 0) {
+                    var image = productCard.data("image");
+                    if ($input.is(":checked") === true) {
+                        image_array.push(image);
+                        image_array = unique(image_array);
+                    }
+                }
+            }
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
+            $('#forward-products-form').find('#forward_type').val('attach');
+            $("#forwardProductsModal").modal('show');
+            $('select.select2').select2({
+                width: "100%"
+            });
+        });
+
+
+        $(document).on("submit", "#forward-products-form", function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/attached-images-grid/forward-products',
+                type: 'POST',
+                dataType: 'json',
+                data: $(this).serialize(),
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    toastr['success'](result.message, 'success');
+
+                     location.reload();
+             }
+            });
+        });
+        
 </script>
 
 @endsection
