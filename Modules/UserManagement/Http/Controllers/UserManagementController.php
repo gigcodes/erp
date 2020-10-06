@@ -104,6 +104,13 @@ class UserManagementController extends Controller
                 $u["isAdmin"] = $u->isAdmin();
                 $u['is_online'] = $u->isOnline();
 
+                if($u->approve_login == date('Y-m-d')) {
+                    $u['already_approved'] = true;
+                }
+                else {
+                    $u['already_approved'] = false;
+                }
+
                 $online_now = $u->lastOnline();
                 if($online_now) {
                     $u["online_now"] =   \Carbon\Carbon::parse($online_now)->format('d-m H:i');
@@ -1034,6 +1041,15 @@ class UserManagementController extends Controller
             "code"       => 200,
             "user"       => 'Success'
         ]);
+    }
+
+    public function approveUser($id) {
+        $user = User::find($id);
+        if($user) {
+            $user->update(['approve_login' => date('Y-m-d')]);
+            return response()->json(['message' => 'Successfully approved','code' => 200]);
+        }
+        return response()->json(['message' => 'User not found','code' => 404]);
     }
 
 
