@@ -123,30 +123,32 @@ class InfluencersController extends Controller
 
     public function getScraperImage(Request $request)
     {
-       $name = $request->name;
+     $name = $request->name;
 
-       $name = str_replace(" ","",$name);
+     $name = str_replace(" ","",$name);
 
-       $cURLConnection = curl_init();
+     $cURLConnection = curl_init();
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-image?'.$name);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+     $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
+     curl_setopt($cURLConnection, CURLOPT_URL, $url);
+     
+     curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+     $phoneList = curl_exec($cURLConnection);
+     curl_close($cURLConnection);
 
-        $jsonArrayResponse = json_decode($phoneList);
+     $jsonArrayResponse = json_decode($phoneList);
 
-        $b64 = $jsonArrayResponse->status;
+     $b64 = $jsonArrayResponse->status;
 
-        if($jsonArrayResponse->status == 'Something Went Wrong'){
-            return \Response::json(array('success' => false,'message' => 'No Image Available')); 
-        } 
-        $content = base64_decode($b64);
+     if($jsonArrayResponse->status == 'Something Went Wrong'){
+        return \Response::json(array('success' => false,'message' => 'No Image Available')); 
+    } 
+    $content = base64_decode($b64);
 
-        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
     
-        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+    return \Response::json(array('success' => true,'message' => $media->getUrl()));
     }
 
     public function checkScraper(Request $request)
@@ -156,8 +158,9 @@ class InfluencersController extends Controller
        $name = str_replace(" ","",$name);
 
        $cURLConnection = curl_init();
-
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-status?'.$name);
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+        
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -179,7 +182,8 @@ class InfluencersController extends Controller
 
        $cURLConnection = curl_init();
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/start-script?'.$name);
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -201,9 +205,8 @@ class InfluencersController extends Controller
 
         $cURLConnection = curl_init();
 
-        $link = 'http://178.62.200.246:8100/send-log?'.$name;
-        //dd($link);
-        curl_setopt($cURLConnection, CURLOPT_URL, $link);
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -232,7 +235,9 @@ class InfluencersController extends Controller
 
        $cURLConnection = curl_init();
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/restart-script?'.$name);
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -253,8 +258,8 @@ class InfluencersController extends Controller
        $name = str_replace(" ","",$name);
 
        $cURLConnection = curl_init();
-
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/stop-script?'.$name);
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
