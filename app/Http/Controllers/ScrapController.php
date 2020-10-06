@@ -268,7 +268,7 @@ class ScrapController extends Controller
         }
         
         //Saving to Log Scrapper
-        $objLogScraper = new LogScraper();      
+        /*$objLogScraper = new LogScraper();      
         
         $objLogScraper->website  = $request->get('website');
         $objLogScraper->url = $request->get('url');
@@ -288,7 +288,7 @@ class ScrapController extends Controller
         $objLogScraper->validated = empty($errorLog) ? 1 : 0;
         $objLogScraper->validation_result = $errorLog["error"].$errorLog["warning"];
         
-        $objLogScraper->save();
+        $objLogScraper->save();*/
 
 
         $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
