@@ -1001,14 +1001,13 @@ class SupplierController extends Controller
 
     public function saveImage(Request $request)
     {
-
         // Only create Product
         if ($request->type == 1) {
 
             // Create Group ID with Product
             $images = explode(",", $request->checkbox1[ 0 ]);
-
             if ($images) {
+                $createdProducts = [];
                 foreach ($images as $image) {
                     if ($image != null) {
                         $product = Product::select('sku')->where('sku', 'LIKE', '%QUICKSELL' . date('yz') . '%')->orderBy('id', 'desc')->first();
@@ -1052,6 +1051,7 @@ class SupplierController extends Controller
                         $product->quick_product = 1;
                         $product->is_pending = 1;
                         $product->save();
+                        $createdProducts[] = $product->id;
                         preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
                         $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
                         if(!empty($image)) {
@@ -1066,15 +1066,26 @@ class SupplierController extends Controller
                         // return redirect()->back()->withSuccess('You have successfully saved product(s)!');
                     }
                 }
-                return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
             }
-            return redirect()->back()->withSuccess('Please Select Image');
+            else {
+                return response()->json(['code' => 500, 'message' => 'No Images selected']);
+            }
         }elseif ($request->type == 3) {
           // Create Group ID with Product
             $images = $request->images;
 
             $images = explode('"',$images);
             if ($images) {
+                $createdProducts = [];
                 foreach ($images as $image) {
 
                     if ($image != null) {
@@ -1103,7 +1114,7 @@ class SupplierController extends Controller
                           $product->stock = 1;
                           $product->purchase_status = 'InStock';
                           $product->save();
-                          dd($product);
+                          $createdProducts[] = $product->id;
                           preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
                           $image = isset($match[ 0 ][ 0 ]) ? $match[ 0 ][ 0 ] : false;
                           if(!empty($image)) {
@@ -1117,7 +1128,18 @@ class SupplierController extends Controller
 
                     }
                 }
-               return response()->json(['success' => 'Product Created'], 200);
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
+        }
+        else {
+            return response()->json(['code' => 500, 'message' => 'No Images selected']);
         }
       }
 
@@ -1161,6 +1183,7 @@ class SupplierController extends Controller
                     $group->save();
                     $group_id = $group->group;
                 }
+                $createdProducts = [];
                 foreach ($images as $image) {
                     //Getting the last created QUICKSELL
                     // MariaDB 10.0.5 and higher: $product = Product::select('sku')->where('sku', 'LIKE', '%QuickSell%')->whereRaw("REGEXP_REPLACE(products.sku, '[a-zA-Z]+', '') > 0")->orderBy('id', 'desc')->first();
@@ -1205,6 +1228,7 @@ class SupplierController extends Controller
                     $product->quick_product = 1;
                     $product->is_pending = 1;
                     $product->save();
+                    $createdProducts[] = $product->id;
                     preg_match_all('#\bhttps?://[^,\s()<>]+(?:\([\w\d]+\)|([^,[:punct:]\s]|/))#', $image, $match);
                     if(isset($match[ 0 ]) && isset($match[ 0 ][ 0 ])) {
                       $image = $match[ 0 ][ 0 ];
@@ -1232,9 +1256,18 @@ class SupplierController extends Controller
                         }
                     }
                 }
-                return redirect()->back()->withSuccess('You have successfully saved product(s)!');
+                if(count($createdProducts) > 0) {
+                    $message = count($createdProducts). ' Product(s) has been created successfully, id\'s are '.json_encode($createdProducts);
+                    $code = 200;
+                }
+                else {
+                    $message = 'No Images selected';
+                    $code = 500;
+                }
+                return response()->json(['code' => $code, 'message' => $message]);
+            } else {
+                return response()->json(['code' => 500, 'message' => 'No Images selected']);
             }
-            return redirect()->back()->withSuccess('Please Select Image');
         }
     }
 
