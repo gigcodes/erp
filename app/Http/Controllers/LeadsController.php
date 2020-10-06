@@ -579,8 +579,11 @@ class LeadsController extends Controller
             'number' => null,
             'user_id' => Auth::id() ?? 6,
             'approved' => 0,
-            'status' => 8,
+            'status' => 8
         ];
+        if($request->lead_id){
+            $params['lead_id']= $request->lead_id;
+        }
         $customer = Customer::find($request->customer_id);
         //$lead = Customer::find($request->lead_id);
         $product_names = '';

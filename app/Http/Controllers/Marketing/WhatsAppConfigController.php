@@ -12,6 +12,7 @@ use Validator;
 use Crypt;
 use Response;
 use App\Customer;
+use App\Notification;
 use App\StoreWebsite;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
@@ -510,4 +511,60 @@ class WhatsappConfigController extends Controller
         return Response::json(array('success' => true,'message' => 'Last 30 Customer disabled')); 
     }
     
+
+
+    public function checkInstanceAuthentication()
+    {
+        //get all providers
+        $allWhatsappInstances = WhatsappConfig::select()->where(['provider'=>"Chat-API"])->get();
+        try
+        {
+            foreach($allWhatsappInstances as $instanceDetails)
+            {
+                $instanceId = $instanceDetails->instance_id;
+                $token = $instanceDetails->token;
+                $sentTo = 6;
+                if($instanceId)
+                {
+                    $curl = curl_init();
+
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/status?token=$token",
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 300,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => array(
+                            "content-type: application/json",
+                            // "token: $wa_token"
+                        ),
+                    ));
+
+                    $response = curl_exec($curl);
+                    if (curl_errno($curl)) {
+                        $error_msg = curl_error($curl);
+                    } else{
+                        $resInArr = json_decode($response, true);
+                        if(isset($resInArr) && $resInArr['accountStatus']!='authenticated')
+                        {
+                            Notification::create( [
+                                'role'       => 'Whatsapp Config Proivders Authentication',
+                                'message'    => "Current Status : ".$resInArr['accountStatus'],
+                                'product_id' => '',
+                                'user_id'    => $instanceDetails->id,
+                                'sale_id'     => '',
+                                'task_id'    => '',
+                                'sent_to'    => $sentTo,
+                            ]);
+                        }
+                    } 
+                    curl_close($curl);                  
+                }
+            }
+        }catch(Exception $e){
+            $e->getMessage();
+        }
+    }
 }

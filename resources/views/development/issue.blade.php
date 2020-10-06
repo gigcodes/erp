@@ -144,6 +144,7 @@
     @include("development.partials.time-tracked-modal")
     @include("development.partials.add-status-modal")
     @include("development.partials.user_history_modal")
+    @include("development.partials.lead_time-history-modal")
 @endsection
 @section('scripts')
     <script src="/js/bootstrap-datetimepicker.min.js"></script>
@@ -632,6 +633,25 @@
 
         });
 
+        $(document).on('keyup', '.lead-estimate-time-change', function (event) {
+            if (event.keyCode == 13) {
+                return;
+            }
+            let issueId = $(this).data('id');
+            let lead_estimate_minutes = $("#lead_estimate_minutes_" + issueId).val();
+            $.ajax({
+                url: "{{action('DevelopmentController@saveLeadEstimateTime')}}",
+                data: {
+                    lead_estimate_minutes: lead_estimate_minutes,
+                    issue_id: issueId
+                },
+                success: function () {
+                    toastr["success"]("Lead estimate Minutes updated successfully!", "Message");
+                }
+            });
+
+        });
+
         $(document).on('keyup', '.estimate-date-update', function () {
             if (event.keyCode != 13) {
                 return;
@@ -682,6 +702,37 @@
                 }
             });
             $('#time_history_modal').modal('show');
+        });
+        $(document).on('click', '.show-lead-time-history', function() {
+            var data = $(this).data('history');
+            var issueId = $(this).data('id');
+            $('#lead_time_history_div table tbody').html('');
+            $.ajax({
+                url: "{{ route('development/lead/time/history') }}",
+                data: {id: issueId},
+                success: function (data) {
+
+                    if(data != 'error') {
+                        $("#lead_developer_task_id").val(issueId);
+                        $.each(data, function(i, item) {
+                            if(item['is_approved'] == 1) {
+                                var checked = 'checked';
+                            }
+                            else {
+                                var checked = '';
+                            }
+                            $('#lead_time_history_div table tbody').append(
+                                '<tr>\
+                                    <td>'+ moment(item['created_at']).format('DD/MM/YYYY') +'</td>\
+                                    <td>'+ ((item['old_value'] != null) ? item['old_value'] : '-') +'</td>\
+                                    <td>'+item['new_value']+'</td>\<td>'+item['name']+'</td><td><input type="radio" name="approve_time" value="'+item['id']+'" '+checked+' class="approve_time"/></td>\
+                                </tr>'
+                            );
+                        });
+                    }
+                }
+            });
+            $('#lead_time-history-modal').modal('show');
         });
 
         $(document).on('click', '.show-date-history', function() {
@@ -753,6 +804,25 @@
             });
             <?php } ?>
        
+        });
+
+        $(document).on('submit', '#approve-lead-date-btn', function(event) {
+            event.preventDefault();
+            <?php if (auth()->user()->isAdmin()) { ?>
+            $.ajax({
+                url: "{{route('development/lead/time/history/approve')}}",
+                type: 'POST',
+                data: $(this).serialize(),
+                success: function (response) {
+                    toastr['success']('Successfully approved', 'success');
+                    $('#lead_time-history-modal').modal('hide');
+                },
+                error: function () {
+                    toastr["error"](error.responseJSON.message);
+                }
+            });
+            <?php } ?>
+
         });
 
         

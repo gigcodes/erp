@@ -11,4 +11,8 @@ class ChatbotDialogResponse extends Model
     protected $fillable = [
         'response_type', 'value', 'message_to_human_agent', 'chatbot_dialog_id',
     ];
+
+    public function dialog(){
+        return $this->belongsTo(ChatbotDialog::class, 'chatbot_dialog_id', 'id');
+    }
 }

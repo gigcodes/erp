@@ -177,24 +177,22 @@ class ProductInventoryController extends Controller
 		$data['term']     = $term;
 
 		$productQuery = ( new Product() )->newQuery();
-		
-		if ($request->brand[0] != null) {
-			$productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
+        if (isset($request->brand) && $request->brand[0] != null) {
+            $productQuery = ( new Product() )->newQuery()->latest()->whereIn('brand', $request->brand);
 
-			$data['brand'] = $request->brand[0];
-		}
+            $data['brand'] = $request->brand[0];
+        }
+        if (isset($request->color) && $request->color[0] != null) {
+            if (isset($request->brand) && $request->brand[0] != null) {
+                $productQuery = $productQuery->whereIn('color', $request->color);
+            } else {
+                $productQuery = (new Product())->newQuery()->latest()->whereIn('color', $request->color);
+            }
 
-		if ($request->color[0] != null) {
-			if ($request->brand[0] != null) {
-				$productQuery = $productQuery->whereIn('color', $request->color);
-			} else {
-				$productQuery = (new Product())->newQuery()->latest()->whereIn('color', $request->color);
-			}
+            $data['color'] = $request->color[0];
+        }
 
-			$data['color'] = $request->color[0];
-		}
-
-		if (isset($request->category) && $request->category[0] != 1) {
+        if (isset($request->category) && $request->category[0] != 1) {
 			$is_parent = Category::isParent($request->category[0]);
 			$category_children = [];
 
@@ -228,6 +226,7 @@ class ProductInventoryController extends Controller
 			$data['category'] = $request->category[0];
 		}
 
+
 		/*if (isset($request->price) && $request->price != null) {
 			$exploded = explode(',', $request->price);
 			$min = $exploded[0];
@@ -246,7 +245,7 @@ class ProductInventoryController extends Controller
 			$data['price'][1] = $max;
 		}*/
 
-		if ($request->location[0] != null) {
+		if (isset($request->location) && $request->location[0] != null) {
 			if ($request->brand[0] != null || $request->color[0] != null || $request->category[0] != 1 || $request->price != "0,10000000") {
 				$productQuery = $productQuery->whereIn('location', $request->location);
 
@@ -295,7 +294,7 @@ class ProductInventoryController extends Controller
 			}
 
 		} else {
-			if ($request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
+			if (isset($request->brand) && $request->brand[0] == null && $request->color[0] == null && (!isset($request->category) || $request->category[0] == 1) && (!isset($request->price) || $request->price == "0,10000000") && $request->location[0] == null && !isset($request->no_locations)) {
 				$productQuery = ( new Product() )->newQuery()
 				                                 ->latest();
 
@@ -331,10 +330,10 @@ class ProductInventoryController extends Controller
 		if ($request->get('shoe_size', false)) {
             $productQuery = $productQuery->where('products.size', 'like', "%".$request->get('shoe_size')."%");
         }
-
         $productQuery->where(function($query){
         	$query->where("purchase_status","!=","Delivered")->orWhereNull("purchase_status");
         });
+
         $stockStatus = $request->get('stock_status', "");
         if (!empty($stockStatus)) {
             $productQuery = $productQuery->where('products.stock_status', $stockStatus);
@@ -345,8 +344,8 @@ class ProductInventoryController extends Controller
         } else {
             $data[ 'products' ] = $productQuery->whereRaw( "(products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id = 11) OR (location IS NOT NULL AND location != ''))" )->paginate( Setting::get( 'pagination' ) );
         }
-        
-		$data['date'] = $request->date ? $request->date : '';
+//        dd($productQuery->get());
+        $data['date'] = $request->date ? $request->date : '';
 		$data['type'] = $request->type ? $request->type : '';
 		$data['customer_id'] = $request->customer_id ? $request->customer_id : '';
 		$data['locations'] = (new \App\ProductLocation())->pluck('name')->toArray() + ["In-Transit" => "In-Transit"];
@@ -1012,7 +1011,7 @@ class ProductInventoryController extends Controller
 	  $urls = [];
       if($product) {
         $medias =  \App\Mediables::getMediasFromProductId($id);
-		 $medias = $product->getMedia(config('constants.media_tags'));
+		 $medias = $product->getMedia(config('constants.attach_image_tag'));
 		 foreach($medias as $media) {
 			$urls[] = $media->getUrl();
 		 }

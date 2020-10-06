@@ -108,7 +108,6 @@ class GraphqlService
     private static function getDataByCurl($query)
     {
         $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
-
         $headers = [];
         $headers[] = 'Content-Type: application/graphql';
         $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
@@ -133,57 +132,6 @@ class GraphqlService
         return $result;
     }
 
-    //check translations exist
-    public static function testGetDataByCurl($shopifyProductId)
-    {
-        $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
-
-        //Retrieve a single translatable resource by its ID
-        $qry = '
-                {
-                  translatableResource(resourceId: "gid://shopify/Product/'."$shopifyProductId".'") {
-                    resourceId
-                    translatableContent {
-                      key
-                      value
-                      digest
-                      locale
-                    }
-                    translations(locale: "ar") {
-                      key
-                      value
-                      locale
-                    }
-                  }
-                }
-            ';
-
-        $headers = [];
-        $headers[] = 'Content-Type: application/graphql';
-        $headers[] = 'X-Shopify-Access-Token: ' . self::$storeWebsitePwd;
-
-        $ch = curl_init();
-
-        curl_setopt($ch, CURLOPT_URL, $endpoint);
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, $qry);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_HTTPHEADER, $headers);
-
-        $result = curl_exec($ch);
-        $result = json_decode($result, true);
-
-        if (curl_errno($ch)) {
-            echo 'Error:' . curl_error($ch);
-        }
-
-        curl_close($ch);
-
-//        dd($result);
-
-        return $result;
-    }
-
     private static function getValidLocales ()
     {
         $data = ['success' => false];
@@ -195,11 +143,12 @@ class GraphqlService
             $localeDiffs = [];
 
             foreach ($shopLocales as &$locale) {
-                if (strpos($locale, '-')) {
+                /*if (strpos($locale, '-')) {
                     $old = $locale;
                     $locale = explode('-', $locale)[0];
                     $localeDiffs[$locale] = $old;
-                }
+                }*/
+                $localeDiffs[$locale] = $locale;
             }
 
             $data = [
@@ -214,16 +163,19 @@ class GraphqlService
 
     private static function generateTranslations ($validLocales, $localeDiffs, $productId, $shopifyProductId)
     {
+
         $translations = [];
 
         $productTranslations = Product_translation::where('product_id', $productId)
             ->whereIn('locale', $validLocales)
+            ->whereNotIn('locale',['en'])
             ->groupBy('locale')->get()->keyBy('locale')->toArray();
 
         if ($productTranslations) {
             $shopifyProduct = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);
             $hashTitle = hash('sha256', $shopifyProduct['data']['product']['title']);
             $hashDesc  = hash('sha256', $shopifyProduct['data']['product']['description']);
+
 
             foreach ($productTranslations as $data)
             {
@@ -246,6 +198,7 @@ class GraphqlService
                 $translations[] = $descData;
             }
         }
+
 
         return $translations;
     }

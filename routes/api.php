@@ -146,3 +146,7 @@ Route::get('scraper-needed-products','ScrapController@scraperNeeded');
 
 Route::post('shopify/customer/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyCustomers');
 Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyController@setShopifyOrders');
+
+Route::get('price_comparision/{type}','PriceComparisionController@index');
+Route::post('price_comparision/store','PriceComparisionController@storeComparision');
+

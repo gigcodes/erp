@@ -28,7 +28,8 @@ class ReturnExchange extends Model
         'details',
         'dispatch_date',
         'date_of_request',
-        'credited'
+        'credited',
+        'est_completion_date'
     ];
 	
     const STATUS = [
@@ -79,6 +80,7 @@ class ReturnExchange extends Model
             "status_id"          => $this->status,
             "user_id"            => \Auth::user()->id,
             "comment"            => $this->remarks,
+            "history_type"       => 'status'
         ]);
 
         return true;

@@ -48,6 +48,11 @@ class MasterDevTaskController extends Controller
         //$repository = $github->getRepository();
         $repoArr    = [];
         /*if (!empty($repository)) {
+        $repoArr    = [];
+		/*$github     = new GithubClient;
+        $repository = $github->getRepository();
+        
+        if (!empty($repository)) {
             foreach ($repository as $i => $repo) {
                 $repoId = $repo->full_name;
                 $pulls  = $github->getPulls($repoId, "q=is%3Aopen+is%3Apr");

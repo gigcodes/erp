@@ -101,8 +101,7 @@ class LandingPageController extends Controller
                 }else{
                     $rec->productStatus = '';
                 }
-            }
-            else {
+            }else {
                 $rec->productStatus = '';
             }
 
@@ -110,7 +109,6 @@ class LandingPageController extends Controller
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 $c = 0;
                 foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
-
                     foreach($medias as $image) {
                         $temp = false;
                         if($c == 0){
@@ -282,7 +280,7 @@ class LandingPageController extends Controller
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
             $productData = $landingPage->getShopifyPushData();
-
+            
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }

@@ -5,6 +5,7 @@
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
 <style>
 .ajax-loader{
     position: fixed;
@@ -39,6 +40,9 @@
 .status-select-cls .btn-group {
   width:100%;
   padding: 0;
+}
+.table.table-bordered.order-table a{
+color:black!important;
 }
 </style>
 @endsection
@@ -150,14 +154,16 @@
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
 	<div class="table-responsive mt-2">
-      <table class="table table-bordered order-table" style="border: 1px solid #ddd !important;">
+      <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
-            <th width="14%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
+            <th width="5%">select</th>
+            <th width="5%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=id{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">ID</a></th>
             <th width="6%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=date{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Date</a></th>
             <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=client_name{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Client</a></th>
             <th width="10%">Site Name</th>
             <th width="10%">Products</th>
+            <th width="10%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=estdeldate{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Est. Delivery Date</a></th>
             <th>Brands</th>
             <th width="14%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=status{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Order Status</a></th>
             <th width="8%"><a href="/order{{ isset($term) ? '?term='.$term.'&' : '?' }}sortby=advance{{ ($orderby == 'DESC') ? '&orderby=ASC' : '' }}">Advance</a></th>
@@ -173,13 +179,17 @@
         <tbody>
 			@foreach ($orders_array as $key => $order)
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
+              <td><span class="td-mini-container">
+                  <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
+                  </span>
+                </td>
               <td class="table-hover-cell">
-                <div class="form-inline">
+              <div class="form-inline">
                   @if ($order->is_priority == 1)
                     <strong class="text-danger mr-1">!!!</strong>
                   @endif
                   <span class="td-mini-container">
-                  <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}"><span style="font-size:14px;">{{ $order->order_id }}</span>
+                  <span style="font-size:14px;">{{ $order->order_id }}</span>
                   </span>
                 </div>
               </td>
@@ -210,6 +220,7 @@
                   @endif
                 @endif
               </td>
+              
               <td class="expand-row table-hover-cell">	              
                 @php $count = 0; @endphp	               
                 <div class="d-flex">	               
@@ -219,13 +230,16 @@
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))	                       
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
-                              <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a>	                     
+                              <!-- <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->	                     
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
                               @php ++$count; @endphp	                        
                             @endif	                     
                           </span>	                        
                           <span class="td-full-container hidden">	                        
-                            @if ($count >= 1)	       
-                              <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a>
+                            @if ($count >= 1)	   
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+    
+                             <!--  <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->
                               @php $count++; @endphp	      
                             @endif	                     
                           </span>	                 
@@ -239,6 +253,13 @@
                     </span>	           
                   @endif	        
                 </div>	        
+              </td>
+              <td>
+                <div>{{($order->estimated_delivery_date)?$order->estimated_delivery_date:'---'}}</div>
+               
+              <i class="fa fa-pencil-square-o show-est-del-date" data-id="{{$order->id}}" data-new-est="{{($order->estimated_delivery_date)?$order->estimated_delivery_date:''}}" aria-hidden="true"></i>
+              <i class="fa fa-info-circle est-del-date-history" data-id="{{$order->id}}"  aria-hidden="true"></i>
+       
               </td>
               <td>
                 <?php 
@@ -363,7 +384,7 @@
                                               <optgroup label="Order Status">
                                                 <option value="">Select Order Status</option>
                                                   @foreach ($order_status_list as $id => $status)
-                                                      <option value="{{ $id }}" {{ $order->order_status_id == $id ? 'selected' : '' }}>{{ $status }}</option>
+                                                      <option value="{{ $id }}" {{ (isset($order->order_status_id) && $order->order_status_id == $id) ? 'selected' : '' }}>{{ $status }}</option>
                                                   @endforeach
                                               </optgroup>
                                       </select>
@@ -403,8 +424,9 @@
       </div>
     </div>
 </div>
+<div id="estdelhistoryresponse"></div>
 @endsection
-
+@include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
 @include("partials.modals.add-invoice-modal")
@@ -414,12 +436,17 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
   <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
         format: 'YYYY-MM-DD'
       });
-
+      $('#newdeldate').datetimepicker({
+        minDate:new Date(),
+        format: 'YYYY-MM-DD'
+      });
+      
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
             if(typeof customer != "undefined" || customer != "") {
@@ -695,5 +722,81 @@
                 console.log(response);
             });
         });
+        $(document).on("click","#btn-return-exchage-request",function(e) {
+            e.preventDefault();
+            var form = $("#return-exchange-form");
+            $.ajax({
+                type: form.attr("method"),
+                url: form.attr("action"),
+                data: form.serialize(),
+                dataType:"json"
+            }).done(function (response) {
+                toastr[(response.code == 200) ?'success' : 'error'](response.message);
+                $('#return-exchange-modal').modal('hide');
+                document.getElementById("return-exchange-form").reset();
+            }).fail(function (response) {
+                console.log(response);
+            });
+        });
+        $(document).on('click','.show-est-del-date',function(e){
+          e.preventDefault();
+          var data_new_est = $(this).data('new-est');
+          var order_id = $(this).data('id');
+          $('#newdeldate').val(data_new_est);
+          $('#orderid').val(order_id);
+          $('#update-del-date-modal').modal('show');
+        })
+        $(document).on('click','.update-del-date',function(e){
+          e.preventDefault();
+          var newdeldate = $('#newdeldate').val();
+          if(!newdeldate){
+            toastr['error']('Estimate delivery date field cannot be empty !');
+            return;
+          }
+            var form = $("#updateDelDateForm");
+            $.ajax({
+                type: form.attr("method"),
+                url: form.attr("action"),
+                data: form.serialize(),
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+                toastr[(response.code == 200) ?'success' : 'error'](response.message);
+                $('#update-del-date-modal').modal('hide');
+                document.getElementById("updateDelDateForm").reset();
+                location.reload();
+            }).fail(function (response) {
+              $('.ajax-loader').hide();
+                console.log(response);
+            });
+        })
+        $(document).on('click','.est-del-date-history',function(e){
+          e.preventDefault();
+          var order_id = $(this).data('id');
+          $.ajax({
+                type: "GET",
+                url: "{{route('order.viewEstDelDateHistory')}}",
+                data: {order_id:order_id},
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+              $('#estdelhistoryresponse').empty().html(response.html);
+              $('#estiate_del-history-modal').modal('show');
+            }).fail(function (response) {
+              $('.ajax-loader').hide();
+                console.log(response);
+            });
+          
+        })
+        
+        $('[data-fancybox="gallery"]').fancybox({
+            // Options will go here
+          });
   </script>
 @endsection

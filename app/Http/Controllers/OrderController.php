@@ -38,6 +38,7 @@ use App\CallBusyMessage;
 use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
+use App\MailinglistTemplate;
 use App\Category;
 use App\Mails\Manual\RefundProcessed;
 use App\Mails\Manual\AdvanceReceipt;
@@ -57,6 +58,7 @@ use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use \SoapClient;
 use App\Mail\OrderInvoice;
 use App\Mail\ViewInvoice;
+use App\Mail\OrderStatusMail;
 use App\Jobs\UpdateOrderStatusMessageTpl;
 use App\Library\DHL\GetRateRequest;
 use App\Library\DHL\CreateShipmentRequest;
@@ -213,6 +215,9 @@ class OrderController extends Controller {
 			case 'date':
 					 $sortby = 'order_date';
 					break;
+			case 'estdeldate':
+					$sortby = 'estimated_delivery_date';
+					   break;
 			case 'order_handler':
 					 $sortby = 'sales_person';
 					break;
@@ -2123,13 +2128,29 @@ public function createProductOnMagento(Request $request, $id){
 	{
 		$id = $request->get("id");
 		$status = $request->get("status");
+		
 		if(!empty($id) && !empty($status)) {
 			$order = \App\Order::where("id", $id)->first();
 			$statuss = OrderStatus::where("id",$status)->first();
+			
 			if($order) {
 				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
+				
+				//Sending Mail on changing of order status
+				$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+				$valToReplace = [$order->customer->name,$statuss->status];
+				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+				
+				$emailData['subject'] = $templateData->subject;
+				$emailData['static_template'] = $bodyText;
+				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+				//Sending Mail on changing of order status
+				
+				
+				
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
@@ -2735,5 +2756,36 @@ public function createProductOnMagento(Request $request, $id){
 			->get();
 	return $orders;
 
+	}
+	public function updateDelDate(request $request){
+		$orderid = $request->input('orderid');
+		$newdeldate = $request->input('newdeldate');
+		$fieldname = $request->input('fieldname');
+		$oldOrderDelData = \App\order::where('id',$orderid);
+		$oldOrderDelDate = $oldOrderDelData->pluck('estimated_delivery_date');
+		$oldOrderDelDate = (isset($oldOrderDelDate[0]) && $oldOrderDelDate[0]!='')?$oldOrderDelDate[0]:'';
+		$userId = Auth::id();
+		$estimated_delivery_histories = new \App\EstimatedDeliveryHistory; 
+		$estimated_delivery_histories->order_id = $orderid;
+		$estimated_delivery_histories->field = $fieldname;
+		$estimated_delivery_histories->updated_by =$userId;
+		$estimated_delivery_histories->old_value = $oldOrderDelDate;
+		$estimated_delivery_histories->new_value = $newdeldate;
+		if($estimated_delivery_histories->save()){
+			$oldOrderDelData->update(['estimated_delivery_date'=>$newdeldate]);
+			return response()->json(["code" => 200 , "data" => [], "message" => "Delivery Date Updated Successfully"]);
+		}
+		return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong"]);
+	}
+	public function viewEstDelDateHistory(request $request){
+		$orderid = $request->input('order_id');
+		$estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
+		->where('order_id',$orderid)
+		->where('estimated_delivery_histories.field','estimated_delivery_date')
+		->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
+		->orderByDesc('estimated_delivery_histories.created_at')
+		->get();
+		$html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
+		return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
 	}
 }

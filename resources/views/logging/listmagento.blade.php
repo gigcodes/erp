@@ -83,6 +83,8 @@
                         <th>Date/Time</th>
                         <th>Website</th>
                         <th>Status</th>
+                        <th>Language Id</th>
+                        <th>Sync Status</th>
                         <th>Action</th>
                     </thead>
                     <tbody>
@@ -103,6 +105,8 @@
                             <td>
                                 {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                             </td>
+                            <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
+                            <td> {{$item->sync_status}} </td>
                             <td>
                                 <button data-toggle="modal" data-target="#update_modal" class="btn btn-primary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
                             </td>

@@ -147,11 +147,12 @@ class UserManagementController extends Controller
                     $u["nextDue"] = date('Y-m-d',strtotime($lastPaidOn . "+30 days"));
                 }
                 $items[] = $u;
+
             }
 
             $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         }
-
+        
         $isAdmin = Auth::user()->isAdmin();
         return response()->json([
             "code"       => 200,
@@ -163,6 +164,58 @@ class UserManagementController extends Controller
             "page"       => $user->currentPage(),
         ]);
 
+    }
+
+    public function getPendingandAvalHour($id)
+    {
+        $u = [];
+        $tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $devTasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        
+        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $pending_tasks = 0;
+        foreach($task_times as $key => $task_time){
+            $pending_tasks += $task_time['approximate_time'];
+        }
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
+        $today = date('Y-m-d');
+
+        /** get total availablity hours */
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        $avaibility_hour = 0;
+        foreach($avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $u['total_avaibility_hour'] = $avaibility_hour;
+
+        /** get today availablity hours */
+        $today_avaibility = UserAvaibility::where('user_id',$id)->where('date','=',$today)->get();
+        $today_avaibility_hour = 0;
+        foreach($today_avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $today_avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $u['today_avaibility_hour'] = $today_avaibility_hour;
+        return response()->json([
+            "code"       => 200,
+            "data"       => $u
+        ]);
+    }
+
+    public function getTimeFormat($time)
+    {
+        $time = explode(".",$time);
+        if (strlen($time[0]) <= 1) {
+            $from_time = '0'.$time[0].':00:00';
+        }else{
+            $from_time = $time[0].':00:00';
+        }
+        return $from_time;
     }
 
     public function edit($id) {
@@ -751,9 +804,9 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-         $tasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
+         $tasks = Task::where('assign_to',$id)->where('is_verified',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
          $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
-         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','end_time as due_date');
+         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','due_date as due_date');
          $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
 
          $taskList = $devTasks->union($tasks)->get();
@@ -762,7 +815,7 @@ class UserManagementController extends Controller
                 "code"       => 200,
                 "user"       => $user,
                 "taskList"       => $taskList
-            ]);
+            ]); 
     }
 
 

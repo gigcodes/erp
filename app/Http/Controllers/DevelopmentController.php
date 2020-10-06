@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Helpers\DevelopmentHelper;
+use App\LeadHubstaffDetail;
 use App\Setting;
 use App\TaskAttachment;
 use File;
@@ -359,12 +360,11 @@ class DevelopmentController extends Controller
     }
     public function issueTaskIndex(Request $request)
     {
-
+        
         //$request->request->add(["order" => $request->get("order","communication_desc")]);
         // Load issues
         $type = $request->tasktype ? $request->tasktype : 'all';
         $estimate_date = "";
-
 
         $title = 'Task List';
 
@@ -430,9 +430,9 @@ class DevelopmentController extends Controller
         if ($request->get('last_communicated', "off") == "on") {
             $issues = $issues->orderBy('chat_messages.id', "desc");
         }
-
+        
         $issues = $issues->select("developer_tasks.*","chat_messages.message","chat_messages.user_id AS message_user_id", "chat_messages.is_reminder AS message_is_reminder", "chat_messages.status as message_status","chat_messages.sent_to_user_id");
-
+        
         // Set variables with modules and users
         $modules = DeveloperModule::all();
         $users = Helpers::getUserArray(User::all());
@@ -515,7 +515,7 @@ class DevelopmentController extends Controller
         if ( request()->ajax() ) {
 			return view("development.partials.load-more", compact('issues', 'users', 'modules', 'request','title','type','countPlanned','countInProgress','statusList','priority'));
         }
-
+        //dd($issues);
         return view('development.issue', [
             'issues' => $issues,
             'users' => $users,
@@ -539,7 +539,6 @@ class DevelopmentController extends Controller
         $title = 'Task List';
 
         $issues = DeveloperTask::with('timeSpent');
-
         if($type == 'issue') {
             $issues = $issues->where('developer_tasks.task_type_id', '3');
         }
@@ -689,7 +688,6 @@ class DevelopmentController extends Controller
 
     public function summaryList1(Request $request)
     {
-
         $modules = DeveloperModule::all();
         print_r($modules);
 
@@ -700,7 +698,6 @@ class DevelopmentController extends Controller
         ], $statusList);
 
         return view('development.summarylist',compact('modules','statusList'));
-
     }
     public function issueIndex(Request $request)
     {
@@ -1659,6 +1656,8 @@ class DevelopmentController extends Controller
         $masterUserId = $request->get("master_user_id");
         $issue = DeveloperTask::find($request->get('issue_id'));
 
+        $old_hubstaff_id = $issue->lead_hubstaff_task_id;
+
         $user = User::find($masterUserId);
 
         if(!$user) {
@@ -1678,8 +1677,8 @@ class DevelopmentController extends Controller
         $hubstaff_project_id = getenv('HUBSTAFF_BULK_IMPORT_PROJECT_ID');
 
         $assignedUser = HubstaffMember::where('user_id', $masterUserId)->first();
-
         $hubstaffUserId = null;
+
         if ($assignedUser) {
             $hubstaffUserId = $assignedUser->hubstaff_user_id;
         }
@@ -1697,6 +1696,7 @@ class DevelopmentController extends Controller
                 $hubstaffUserId,
                 $hubstaff_project_id
             );
+
             if($hubstaffTaskId) {
                 $issue->lead_hubstaff_task_id = $hubstaffTaskId;
                 $issue->save();
@@ -1718,6 +1718,7 @@ class DevelopmentController extends Controller
         $taskUser->old_id = $old_id;
         $taskUser->new_id = $masterUserId;
         $taskUser->user_type = 'leaddeveloper';
+        $taskUser->master_user_hubstaff_task_id = $old_hubstaff_id;
         $taskUser->updated_by = Auth::user()->name;
         $taskUser->save();
 
@@ -1757,6 +1758,7 @@ class DevelopmentController extends Controller
             }
             $issue->team_lead_id = $team_lead_id;
             $issue->save();
+
         }
         return response()->json([
             'status' => 'success'
@@ -1989,6 +1991,26 @@ class DevelopmentController extends Controller
                 ],500);
             }
             DeveloperTaskHistory::where('developer_task_id',$request->developer_task_id)->where('attribute','estimation_minute')->where('model','App\DeveloperTask')->update(['is_approved' => 0]);
+            $history = DeveloperTaskHistory::find($request->approve_time);
+            $history->is_approved = 1;
+            $history->save();
+            return response()->json([
+                'message' => 'Success'
+            ],200);
+        }
+        return response()->json([
+            'message' => 'Only admin can approve'
+        ],500);
+    }
+
+    public function approveLeadTimeHistory(Request $request) {
+        if(Auth::user()->isAdmin) {
+            if(!$request->approve_time || $request->approve_time == "" || !$request->lead_developer_task_id || $request->lead_developer_task_id == '') {
+                return response()->json([
+                    'message' => 'Select one time first'
+                ],500);
+            }
+            DeveloperTaskHistory::where('developer_task_id',$request->lead_developer_task_id)->where('attribute','estimation_minute')->update(['is_approved' => 0]);
             $history = DeveloperTaskHistory::find($request->approve_time);
             $history->is_approved = 1;
             $history->save();
@@ -2631,5 +2653,35 @@ class DevelopmentController extends Controller
             'users' => $users
         ],200);
 
+    }
+
+    public function saveLeadEstimateTime(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
+        if($issue && $request->lead_estimate_minutes) {
+            DeveloperTaskHistory::create([
+                'developer_task_id' => $issue->id,
+                'attribute' => "lead_estimation_minute",
+                'old_value' => $issue->lead_estimate_minutes,
+                'new_value' => $request->lead_estimate_minutes,
+                'user_id' => Auth::id(),
+            ]);
+        }
+
+        $issue->lead_estimate_time = $request->get('lead_estimate_minutes');
+        $issue->save();
+
+        return response()->json(['status' => 'success']);
+    }
+
+    public function getLeadTimeHistory(Request $request)
+    {
+        $id = $request->id;
+        $task_module = DeveloperTaskHistory::join('users','users.id','developer_tasks_history.user_id')->where('developer_task_id', $id)->where('attribute','lead_estimation_minute')->select('developer_tasks_history.*','users.name')->get();
+        if($task_module) {
+            return $task_module;
+        }
+        return 'error';
     }
 }

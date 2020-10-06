@@ -112,12 +112,15 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
 use App\Console\Commands\ProjectDirectory;
+use App\Console\Commands\LogScraperDelete;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -225,12 +228,14 @@ class Kernel extends ConsoleKernel
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
         ScrapLogs::class,
+        AuthenticateWhatsapp::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class,
         CustomerListToEmailLead::class,
         WayBillTrackHistories::class,
-        ProjectDirectory::class
+        ProjectDirectory::class,
+        LogScraperDelete::class
     ];
 
     /**
@@ -491,6 +496,8 @@ class Kernel extends ConsoleKernel
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+
+        $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
         // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message 
