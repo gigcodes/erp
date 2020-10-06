@@ -206,7 +206,7 @@
 
                             <div class="form-group">
                               <label>Update By</label>
-                                <p>{{ $user->name }}</p>
+                                <p>@if(isset($user)) {{ $user->name }} @endif</p>
                             </div>
 
 
@@ -504,7 +504,8 @@
                         <a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="pdf" data-all="1" title="Load PDF"><img src="/images/icon-pdf.svg" alt=""></a>
                         <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message">
                         <div class="load-communication-modal chat-history-load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}"  style="display: none;" data-object="supplier" data-attached="1" data-id="{{ $supplier->id }}"></div>
-                        <div class="col-12" id="chat-history"></div>
+                        <div class="col-12" id="chat-history">
+                        </div>
                     </form>
                 </div>
             </div>
@@ -638,6 +639,25 @@
 
             @include('customers.partials.modal-remark')
 
+        </div>
+    </div>
+
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>&nbsp;&nbsp;
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 50%;">&nbsp;&nbsp;
+                    <!-- <input type="text" name="search_chat_pop_time"  class="form-control search_chat_pop_time" placeholder="Search Time" style="width: 200px;"> -->
+					<input style="min-width: 30px;" placeholder="Search by date" value="" type="text" class="form-control search_chat_pop_time" name="search_chat_pop_time">
+                    
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -1906,9 +1926,35 @@
                 var image = $(v).closest(".show-thumbnail-image").attr("href");
                     images.push(image);
             });
+            if(images.length == 0) {
+                alert("select some images first");
+                return;
+            }
             $("#images_product").val(JSON.stringify(images));
             $("#count_product_images").html(images.length);
             $('#productSingleGroupDetails').modal('show');
+        });
+        $(document).on('submit', '#productSingleGroupDetailsForm', function (e) {
+            e.preventDefault();
+             var url = $(this).attr('action');
+            $.ajax({
+                url: url,
+                method:"POST",
+                data: $(this).serialize(),
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+                else {
+                    toastr['error'](response.message, 'error');
+                }
+                $('#productSingleGroupDetails').modal('hide');
+
+
+            }).fail(function (errObj) {
+                console.log(errObj);
+            });
+           
         });
 
           $(document).on('click', '#createGroup', function (e) {
@@ -1917,12 +1963,37 @@
             $.each($("input[name='checkbox[]']:checked"), function(){
                 images.push($(this).val());
             });
-            console.log(images);
-            console.log(images.length);
-
+            
+            if(images.length == 0) {
+                alert("select some images first");
+                return;
+            }
             $("#images").val(JSON.stringify(images));
             $("#count_images").html(images.length);
             $('#productGroupDetails').modal('show');
+        });
+
+        $(document).on('submit', '#productGroupDetailsForm', function (e) {
+            e.preventDefault();
+             var url = $(this).attr('action');
+            $.ajax({
+                url: url,
+                method:"POST",
+                data: $(this).serialize(),
+            }).done(function (response) {
+                if(response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+                else {
+                    toastr['error'](response.message, 'error');
+                }
+                $('#productGroupDetails').modal('hide');
+
+
+            }).fail(function (errObj) {
+                console.log(errObj);
+            });
+           
         });
 
 
@@ -1932,8 +2003,6 @@
             $.each($("input[name='checkbox[]']:checked"), function(){
                 images.push($(this).val());
             });
-            console.log(images);
-            console.log(images.length);
             if(images.length == 0){
                 alert('Please Select Image');
             }else{
@@ -2058,9 +2127,14 @@
                         category : category,
                         location : location_data,
                     }
-                }).done(function () {
+                }).done(function (response) {
+                    if(response.code == 200) {
+                    toastr['success'](response.message, 'success');
+                }
+                else {
+                    toastr['error'](response.message, 'error');
+                }
                     $('#productModal').modal('hide');
-                    alert('Product Saved successfully!');
                 }).fail(function (response) {
                     console.log(response);
                 });
