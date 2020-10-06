@@ -3,29 +3,33 @@
 		<table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		      	<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
+				<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
+				<th style="width:7%">ID</th>
 		        <th style="width:8%">Customer Name</th>
 		        <th style="width:7%">Product Name</th>
 				<th style="width:10%">Website</th>
-		        <th style="width:5%">Type</th>
-		        <th style="width:5%">Refund amount</th>
+				<th style="width:7%">Type</th>
+				<th style="width:7%">Refund Date</th>
+		        <th style="width:7%">Refund amount</th>
 		        <th style="width:10%">Reason for refund</th>
-		        <th style="width:5%">Status</th>
+		        <th style="width:7%">Status</th>
 		        <th style="width:10%">Pickup Address</th>
 		        <th style="width:10%">Refund details</th>
 		        <th style="width:10%">Remarks</th>
-		        <th style="width:5%">Created At</th>
+		        <th style="width:7%">Created At</th>
 		        <th width="10%" align="center">Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
-			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}">{{:prop.id}}</td>
-			      	<td>{{:prop.customer_name}}</td>
+			      	<td><input class="select-id-input" type="checkbox" name="ids[]" value="{{:prop.id}}"></td>
+					<td>{{:prop.id}}</td>  
+				    <td>{{:prop.customer_name}}</td>
 			      	<td>{{:prop.name}}</td>
 					<td>{{:prop.website}}</td>
-			        <td>{{:prop.type}}</td>
+					<td>{{:prop.type}}</td>
+					<td>{{:prop.date_of_refund}}</td>
 			        <td>{{:prop.refund_amount}}</td>
 			        <td><span style="word-break:break-all;">{{:prop.reason_for_refund}}</span> </td>
 			        <td>{{:prop.status_name}}</td>
@@ -97,7 +101,7 @@
 	</div>
 </script>
 <script type="text/x-jsrender" id="template-edit-block">
-<div class="modal-content">
+	<div class="modal-content">
 	<div class="modal-body">
 	    <form action="/return-exchange/{{:data.return_exchange.id}}/update" method="POST" enctype="multipart/form-data" class="" id="return-exchange-update-form" data-reload='1'>
 		    <?php echo csrf_field(); ?>

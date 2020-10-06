@@ -215,6 +215,9 @@ class OrderController extends Controller {
 			case 'date':
 					 $sortby = 'order_date';
 					break;
+			case 'estdeldate':
+					$sortby = 'estimated_delivery_date';
+					   break;
 			case 'order_handler':
 					 $sortby = 'sales_person';
 					break;
@@ -2754,5 +2757,36 @@ public function createProductOnMagento(Request $request, $id){
 			->get();
 	return $orders;
 
+	}
+	public function updateDelDate(request $request){
+		$orderid = $request->input('orderid');
+		$newdeldate = $request->input('newdeldate');
+		$fieldname = $request->input('fieldname');
+		$oldOrderDelData = \App\order::where('id',$orderid);
+		$oldOrderDelDate = $oldOrderDelData->pluck('estimated_delivery_date');
+		$oldOrderDelDate = (isset($oldOrderDelDate[0]) && $oldOrderDelDate[0]!='')?$oldOrderDelDate[0]:'';
+		$userId = Auth::id();
+		$estimated_delivery_histories = new \App\EstimatedDeliveryHistory; 
+		$estimated_delivery_histories->order_id = $orderid;
+		$estimated_delivery_histories->field = $fieldname;
+		$estimated_delivery_histories->updated_by =$userId;
+		$estimated_delivery_histories->old_value = $oldOrderDelDate;
+		$estimated_delivery_histories->new_value = $newdeldate;
+		if($estimated_delivery_histories->save()){
+			$oldOrderDelData->update(['estimated_delivery_date'=>$newdeldate]);
+			return response()->json(["code" => 200 , "data" => [], "message" => "Delivery Date Updated Successfully"]);
+		}
+		return response()->json(["code" => 500 , "data" => [], "message" => "Something went wrong"]);
+	}
+	public function viewEstDelDateHistory(request $request){
+		$orderid = $request->input('order_id');
+		$estimated_delivery_histories = \App\EstimatedDeliveryHistory::select('estimated_delivery_histories.*','users.name')
+		->where('order_id',$orderid)
+		->where('estimated_delivery_histories.field','estimated_delivery_date')
+		->leftJoin('users','users.id','estimated_delivery_histories.updated_by')
+		->orderByDesc('estimated_delivery_histories.created_at')
+		->get();
+		$html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
+		return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
 	}
 }
