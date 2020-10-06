@@ -271,7 +271,7 @@
                     <div class="col-sm-5  text-right">
                         <div class="form-group">
 
-                            @if(auth()->user()->isReviwerLikeAdmin())
+                            @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
                             @endif
@@ -431,7 +431,7 @@
                                         </p>
                                     </div>
                                     <div class="col-md-4">
-                                        @if(auth()->user()->isReviwerLikeAdmin())
+                                        @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                             <p class="text-right mt-5">
                                                 <button class="btn btn-xs btn-default edit-product-show"
                                                         data-id="{{$product->id}}">Toggle Edit
@@ -685,7 +685,7 @@
                                 <div class="text-center">
                                     {{--                                {{ $product->isUploaded }} {{ $product->isFinal }}--}}
                                 </div>
-                                @if(auth()->user()->isReviwerLikeAdmin())
+                                @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
                                     @if ($product->is_approved == 0)
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="approve">Approve--}}
