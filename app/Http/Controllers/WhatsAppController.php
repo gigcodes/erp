@@ -2767,8 +2767,9 @@ class WhatsAppController extends FindByNumberController
                                         ->where('quicksell_group_id', $group->group)
                                         ->get();
 
+
                                     foreach ($products as $product) {
-                                        $image = $product->media->first();
+                                        $image = $product->media()->whereIn("tag",config('constants.attach_image_tag'))->first();
                                         if ($image) {
                                             array_push($medias, $image);
                                         }

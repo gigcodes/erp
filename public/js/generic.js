@@ -988,6 +988,24 @@ $(document).on("keyup", '.search_chat_pop', function() {
     // });
 });
 
+$('body').on('focus',".search_chat_pop_time", function(){
+    $(this).datetimepicker({
+        format: 'YYYY-MM-DD'
+    }).on('dp.change', function (ev) {
+        exampleFunction() ;//your function call
+    });
+});
+function exampleFunction(){
+    var value = $('.search_chat_pop_time').val();
+    $(".filter-message").each(function () {
+        if ($(this).text().search(new RegExp(value, "i")) < 0) {
+            $(this).hide();
+        } else {
+            $(this).show()
+        }
+    });
+}
+
 $(document).on("click", '.show-product-info', function() {
     if ($('#show_product_info_model').length == 0) {
         var show_product_info_model =   '<div id="show_product_info_model" class="modal fade" role="dialog">'+

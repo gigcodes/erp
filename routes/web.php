@@ -466,6 +466,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
+    Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
+    Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -2324,3 +2326,5 @@ Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGr
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
+Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+

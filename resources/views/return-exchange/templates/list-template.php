@@ -167,7 +167,7 @@
 
 
 <script type="text/x-jsrender" id="template-edit-block">
-<div class="modal-content">
+	<div class="modal-content">
 	<div class="modal-body">
 	    <form action="/return-exchange/{{:data.return_exchange.id}}/update" method="POST" enctype="multipart/form-data" class="" id="return-exchange-update-form" data-reload='1'>
 		    <?php echo csrf_field(); ?>

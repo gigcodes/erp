@@ -14,7 +14,10 @@
                     <p>Customer Name: {{$suggested->customer->name}}</p>
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
-                    
+                    <!-- <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button> -->
+                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
+                    <!-- <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button> -->
+                    <!-- <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button> -->
                 </div>
 <br>
         @php
@@ -58,12 +61,12 @@
                     </a>
                 </div>
                 <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
-                    <!-- <div class="custom-control custom-checkbox">
+                    <div class="custom-control custom-checkbox">
                         <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$sp}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$sp}}"></label>
-                    </div> -->
+                    </div>
 
-                    <!-- <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$suggested->customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a> -->
+                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$suggested->customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
                     <!-- @if($model_type != 'landing-page')
                     <a href="javascript:;" class="btn btn-sm btn-image {{ $selected_all ? 'btn-success' : '' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}"><img src="{{asset('images/double-attach.png')}}"></a>
                         @endif -->
