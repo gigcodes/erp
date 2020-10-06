@@ -2000,7 +2000,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
                     <div class="col-md-3 customer-info">
                         <div class="chat-righbox">
                             <div class="title">General Info</div>
@@ -2031,7 +2031,6 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         </div>
     </div>
 
-    @endif
     @endif
 
 
