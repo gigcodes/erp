@@ -462,7 +462,7 @@ color:black!important;
 
       $(document).on("change",".order-status-select",function() {
         $.ajax({
-          url: "/erp/order/change-status",
+          url: "/order/change-status",
           type: "GET",
           async : false,
           data : {
