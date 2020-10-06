@@ -182,7 +182,7 @@ class User extends Authenticatable
     {
         $roles = $this->roles->pluck('name')->toArray();
 
-        $needToBeCheck = ["Admin","master-developer"];
+        $needToBeCheck = ["Admin","master-developer","Head of Listing"];
 
         foreach($needToBeCheck as $nc) {
             if (in_array($nc, $roles)) {

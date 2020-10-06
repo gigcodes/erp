@@ -168,7 +168,6 @@
 
 
                 <form class="product_filter" action="{{ action('ProductController@approvedListing') }}" method="GET">
-{{--            <form class="product_filter" action="{{ route('products.listing.approved') }}" method="GET">--}}
                 <div class="row">
                     <div class="col-sm-1">
                         <div class="form-group">
@@ -272,7 +271,7 @@
                     <div class="col-sm-5  text-right">
                         <div class="form-group">
 
-                            @if(auth()->user()->isAdmin())
+                            @if(auth()->user()->isReviwerLikeAdmin())
                                 <?php echo Form::checkbox("submit_for_approval", "on", (bool)(request('submit_for_approval') == "on"), ["class" => ""]); ?>
                                 <lable for="submit_for_approval pr-3">Submit For approval ?</lable>
                             @endif
@@ -330,7 +329,6 @@
                                 <div class="row">
 
                                     <div class="col-md-3">
-                                        {{--                                        <strong class="same-color">{{ $product->brands ? $product->brands->name : 'N/A' }}</strong>--}}
                                         <p class="same-color">{{ strtoupper($product->name) }}</p>
                                         <br/>
                                         <p class="same-color" style="font-size: 18px;">
@@ -393,15 +391,6 @@
                                             $hscode =  $product->hsCode($product->category , $product->composition);
 
                                         @endphp
-                                        {{--                                        <p>--}}
-                                        {{--                                            <strong class="same-color"--}}
-                                        {{--                                                    style="text-decoration: underline;">Composition</strong>--}}
-                                        {{--                                            <br/>--}}
-                                        {{--                                            <span class="same-color flex-column">--}}
-                                        {{--                                                {{ strtoupper($composition) }}--}}
-                                        {{--                                            </span>--}}
-                                        {{--                                        </p>--}}
-
                                         <p>
                                             <strong class="same-color"
                                                     style="text-decoration: underline;">HsCode</strong>
@@ -442,129 +431,7 @@
                                         </p>
                                     </div>
                                     <div class="col-md-4">
-                                        {{--                                        <h2 class="page-heading">--}}
-                                        {{--                                            <a target="_new"--}}
-                                        {{--                                               href="{{ action('ProductController@show', $product->id) }}">{{ $product->id }}</a>--}}
-                                        {{--                                        </h2>--}}
-                                        {{--                                        <table class="table table-striped table-bordered">--}}
-                                        {{--                                            <tr>--}}
-                                        {{--                                                <th>Activity</th>--}}
-                                        {{--                                                <th>Date</th>--}}
-                                        {{--                                                <th>User Name</th>--}}
-                                        {{--                                                <th>Status</th>--}}
-                                        {{--                                            </tr>--}}
-                                        {{--                                            <tr>--}}
-                                        {{--                                                <th>Cropping</th>--}}
-                                        {{--                                                <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>--}}
-                                        {{--                                                <td>--}}
-                                        {{--                                                    {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}--}}
-                                        {{--                                                </td>--}}
-                                        {{--                                                <td>--}}
-                                        {{--                                                    <select style="width: 90px !important;" data-id="{{$product->id}}"--}}
-                                        {{--                                                            class="form-control-sm form-control reject-cropping bg-secondary text-light"--}}
-                                        {{--                                                            name="reject_cropping"--}}
-                                        {{--                                                            id="reject_cropping_{{$product->id}}">--}}
-                                        {{--                                                        <option value="0">Select...</option>--}}
-                                        {{--                                                        <option value="Images Not Cropped Correctly">Images Not Cropped--}}
-                                        {{--                                                            Correctly--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="No Images Shown">No Images Shown</option>--}}
-                                        {{--                                                        <option value="Grid Not Shown">Grid Not Shown</option>--}}
-                                        {{--                                                        <option value="Blurry Image">Blurry Image</option>--}}
-                                        {{--                                                        <option value="First Image Not Available">First Image Not--}}
-                                        {{--                                                            Available--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="Dimension Not Available">Dimension Not--}}
-                                        {{--                                                            Available--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="Wrong Grid Showing For Category">Wrong Grid--}}
-                                        {{--                                                            Showing For Category--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="Incorrect Category">Incorrect Category</option>--}}
-                                        {{--                                                        <option value="Only One Image Available">Only One Image--}}
-                                        {{--                                                            Available--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="Image incorrect">Image incorrect</option>--}}
-                                        {{--                                                    </select>--}}
-                                        {{--                                                </td>--}}
-                                        {{--                                            </tr>--}}
-                                        {{--                                            <tr>--}}
-                                        {{--                                                <th>Sequencing</th>--}}
-                                        {{--                                                <td>{{ $product->crop_ordered_at ?? 'N/A' }}</td>--}}
-                                        {{--                                                <td>{{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</td>--}}
-                                        {{--                                                <td>--}}
-                                        {{--                                                    <button style="width: 90px" data-button-type="sequence"--}}
-                                        {{--                                                            data-id="{{$product->id}}"--}}
-                                        {{--                                                            class="btn btn-secondary btn-sm reject-sequence">Reject--}}
-                                        {{--                                                    </button>--}}
-                                        {{--                                                </td>--}}
-                                        {{--                                            </tr>--}}
-                                        {{--                                            <tr>--}}
-                                        {{--                                                <th>Approval</th>--}}
-                                        {{--                                                <td>{{ $product->listing_approved_at ?? 'N/A' }}</td>--}}
-                                        {{--                                                <td>{{ $product->approver ? $product->approver->name : 'N/A' }}</td>--}}
-                                        {{--                                                <td>--}}
-                                        {{--                                                    <select style="width: 90px !important;" data-id="{{$product->id}}"--}}
-                                        {{--                                                            class="form-control-sm form-control reject-listing bg-secondary text-light"--}}
-                                        {{--                                                            name="reject_listing" id="reject_listing_{{$product->id}}">--}}
-                                        {{--                                                        <option value="0">Select Remark</option>--}}
-                                        {{--                                                        <option value="Category Incorrect">Category Incorrect</option>--}}
-                                        {{--                                                        <option value="Price Not Incorrect">Price Not Correct</option>--}}
-                                        {{--                                                        <option value="Price Not Found">Price Not Found</option>--}}
-                                        {{--                                                        <option value="Color Not Found">Color Not Found</option>--}}
-                                        {{--                                                        <option value="Category Not Found">Category Not Found</option>--}}
-                                        {{--                                                        <option value="Description Not Found">Description Not Found--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                        <option value="Details Not Found">Details Not Found</option>--}}
-                                        {{--                                                        <option value="Composition Not Found">Composition Not Found--}}
-                                        {{--                                                        </option>--}}
-                                        {{--                                                    </select>--}}
-                                        {{--                                                </td>--}}
-                                        {{--                                            </tr>--}}
-                                        {{--                                            @php--}}
-                                        {{--                                                // Set opener URL--}}
-                                        {{--                                                $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);--}}
-                                        {{--                                            @endphp--}}
-                                        {{--                                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )--}}
-                                        {{--                                                <tr>--}}
-                                        {{--                                                    <th>AI</th>--}}
-                                        {{--                                                    <td></td>--}}
-                                        {{--                                                    <td></td>--}}
-                                        {{--                                                    <td>--}}
-                                        {{--                                                        <button style="width: 90px" class="btn btn-secondary btn-sm"--}}
-                                        {{--                                                                data-toggle="modal" id="linkAiModal{{ $product->id }}"--}}
-                                        {{--                                                                data-target="#aiModal{{ $product->id }}">AI result--}}
-                                        {{--                                                        </button>--}}
-                                        {{--                                                        <div class="modal fade" id="aiModal{{ $product->id }}"--}}
-                                        {{--                                                             tabindex="-1" role="dialog">--}}
-                                        {{--                                                            <div class="modal-dialog modal-dialog modal-lg"--}}
-                                        {{--                                                                 role="document">--}}
-                                        {{--                                                                <div class="modal-content">--}}
-                                        {{--                                                                    <div class="modal-header">--}}
-                                        {{--                                                                        <h4 class="modal-title">{{ strtoupper($product->name) }}</h4>--}}
-                                        {{--                                                                        <button type="button" class="close"--}}
-                                        {{--                                                                                data-dismiss="modal" aria-label="Close">--}}
-                                        {{--                                                                            <span aria-hidden="true">&times;</span>--}}
-                                        {{--                                                                        </button>--}}
-                                        {{--                                                                    </div>--}}
-                                        {{--                                                                    <div class="modal-body">--}}
-                                        {{--                                                                        <iframe id="aiModalLoad{{ $product->id }}"--}}
-                                        {{--                                                                                frameborder="0" border="0" width="100%"--}}
-                                        {{--                                                                                height="800"></iframe>--}}
-                                        {{--                                                                    </div>--}}
-                                        {{--                                                                </div>--}}
-                                        {{--                                                            </div>--}}
-                                        {{--                                                        </div>--}}
-                                        {{--                                                        <script>--}}
-                                        {{--                                                            $('#linkAiModal{{ $product->id }}').click(function () {--}}
-                                        {{--                                                                $('#aiModalLoad{{ $product->id }}').attr('src', '/log-scraper-vs-ai/{{ $product->id }}?opener={{ $openerUrl }}');--}}
-                                        {{--                                                            });--}}
-                                        {{--                                                        </script>--}}
-                                        {{--                                                    </td>--}}
-                                        {{--                                                </tr>--}}
-                                        {{--                                            @endif--}}
-                                        {{--                                        </table>--}}
-                                        @if(auth()->user()->isAdmin())
+                                        @if(auth()->user()->isReviwerLikeAdmin())
                                             <p class="text-right mt-5">
                                                 <button class="btn btn-xs btn-default edit-product-show"
                                                         data-id="{{$product->id}}">Toggle Edit
@@ -621,67 +488,13 @@
                                 <div>
                                     {{ $product->sku }}
                                 </div>
-                                {{--                                <div>--}}
-                                {{--                                    @php--}}
-                                {{--                                        //getting proper composition and hscode--}}
-                                {{--                                        $composition = $product->commonComposition($product->category , $product->composition);--}}
-
-                                {{--                                        $hscode =  $product->hsCode($product->category , $product->composition);--}}
-
-                                {{--                                    @endphp--}}
-
-
-                                {{--                                    <strong>HsCode: </strong> {{ strtoupper($hscode) }}--}}
-
-                                {{--                                </div>--}}
                             </td>
 
                             <td style="word-break: break-all; word-wrap: break-word">
-                                {{--                                @if (!$imageCropperRole)--}}
-                                {{--                                    @if ($product->is_approved == 1)--}}
-                                {{--                                        <img src="/images/1.png" alt="">--}}
-                                {{--                                    @endif--}}
-
-                                {{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
-                                {{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
-                                {{--                                        <a href="{{ route('products.show', $product->id) }}" target="_blank">--}}
-                                {{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
-                                {{--                                                 class="quick-image-container img-responive" style="width: 70px;" alt=""--}}
-                                {{--                                                 data-toggle="tooltip" data-placement="top"--}}
-                                {{--                                                 title="ID: {{ $product->id }}">--}}
-                                {{--                                        </a>--}}
-                                {{--                                    @else--}}
-                                {{--                                        <img src="" class="quick-image-container img-responive" style="width: 70px;"--}}
-                                {{--                                             alt="">--}}
-                                {{--                                    @endif--}}
-
-                                {{--                                @else--}}
-
-                                {{--                                    @if ($product->is_approved == 1)--}}
-                                {{--                                        <img src="/images/1.png" alt="">--}}
-                                {{--                                    @endif--}}
-
-                                {{--                                    @php $product = \App\Product::find($product->id) @endphp--}}
-                                {{--                                    @if ($product->hasMedia(config('constants.media_tags')))--}}
-                                {{--                                        <a href="{{ route('products.show', $product['id']) }}" target="_blank">--}}
-                                {{--                                            <img src="{{ $product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"--}}
-                                {{--                                                 class="quick-image-container img-responive" style="width: 100px;"--}}
-                                {{--                                                 alt="" data-toggle="tooltip" data-placement="top"--}}
-                                {{--                                                 title="ID: {{ $product['id'] }}">--}}
-                                {{--                                        </a>--}}
-                                {{--                                    @else--}}
-                                {{--                                        <img src="" class="quick-image-container img-responive" style="width: 100px;"--}}
-                                {{--                                             alt="">--}}
-                                {{--                                    @endif--}}
-
-                                {{--                                @endif--}}
-                                {{--                                {{ (new \App\Stage)->getNameById($product->stage) }}--}}
-                                {{--                                <br>--}}
                                 <button type="button" class="btn-link quick-view_image__"
                                         data-id="{{ $product->id }}" data-target="#product_image_{{ $product->id }}"
                                         data-toggle="modal">View
                                 </button>
-
                             </td>
 
                             <td>
@@ -713,23 +526,6 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                    {{--                                    <div class="mt-3">--}}
-                                    {{--                                        <select class="form-control quick-edit-size select-multiple mt-3" name="size[]"--}}
-                                    {{--                                                multiple--}}
-                                    {{--                                                data-placeholder="Sizes" style="width: 80px;">--}}
-                                    {{--                                            <option value="{{$product->size}}">Size</option>--}}
-                                    {{--                                        </select>--}}
-                                    {{--                                    </div>--}}
-
-                                    {{--                                    <select class="form-control category_level_2 mt-1" name="category_level_2">--}}
-                                    {{--                                    </select>--}}
-                                    {{--                                    <select id="quick-edit-category-{{ $product->id }}"--}}
-                                    {{--                                            class="form-control quick-edit-category" name="category" data-id="">--}}
-                                    {{--                                    </select>--}}
-                                    {{--                                    <input type="hidden" name="product_id" value="{{ $product->id }}">--}}
-                                    {{--                                    <input type="hi(en" name="category_id" value="{{ $product->category }}">--}}
-                                    {{--                                    <input type="hidden" name="sizes" value='{{ $product->size }}'>--}}
-
                                     @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
                                         @foreach ( $product->log_scraper_vs_ai as $resultAi )
                                             @php $resultAi = json_decode($resultAi->result_ai); @endphp
@@ -755,10 +551,6 @@
                                     {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
                                     <input name="text" class="form-control quick-edit-name-input hidden"
                                            placeholder="Product Name" value="{{ $product->name }}">
-
-                                    {{--                                    <button type="button" class="btn-link quick-edit-name" data-id="{{ $product->id }}">--}}
-                                    {{--                                        Edit--}}
-                                    {{--                                    </button>--}}
                                 @else
 
                                     <span>{{ $product->name }}</span>
@@ -772,24 +564,9 @@
                                 @if (!$imageCropperRole)
 
                                     <span class="quick-description">{{ $product->short_description}}</span>
-
-                                    {{--                                    <span class="long-description-container hidden">--}}
-                                    {{--                  <span id="span_description_{{ $product->id }}"--}}
-                                    {{--                        class="description-container">{{ $product->short_description }}</span>--}}
-
                                     <textarea name="description" id="textarea_description_{{ $product->id }}"
                                               class="form-control quick-edit-description-textarea hidden" rows="8"
                                               cols="80">{{ $product->short_description }}</textarea>
-                                    {{--                </span>--}}
-
-                                    {{--                                    <button type="button" class="btn-link quick-edit-description"--}}
-                                    {{--                                            data-id="{{ $product->id }}">Edit--}}
-                                    {{--                                    </button>--}}
-
-                                    {{--                                                                        <button type="button" class="btn-link quick-edit-description__"--}}
-                                    {{--                                                                                data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}" data-toggle="modal">more--}}
-                                    {{--                                                                        </button>--}}
-
                                 @else
 
                                     <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
@@ -818,29 +595,8 @@
                                         <option></option>
                                         @foreach ($arrComposition as $compositionValue)
                                             <option value="{{ $compositionValue }}" {{ $product->composition == $compositionValue ? 'selected' : '' }}>{{ $compositionValue }}</option>
-                                            {{--                                        <button id="composition-dd-{{$i}}"--}}
-                                            {{--                                                class="btn btn-default btn-sm mt-2 btn-composition"--}}
-                                            {{--                                                data-id="{{ $product->id }}"--}}
-                                            {{--                                                data-value="{{ $compositionValue }}">{{ $compositionValue }}</button>--}}
-                                            {{--                                        @php--}}
-                                            {{--                                            $i++;--}}
-                                            {{--                                        @endphp--}}
                                         @endforeach
                                     </select>
-                                    {{--                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
-                                    {{--                                            data-id="{{ $product->id }}" data-value="Multi">Multi--}}
-                                    {{--                                    </button>--}}
-
-                                    {{-- <input type="text" name="composition" class="form-control quick-edit-composition-input hidden" placeholder="Composition" value="{{ $product->composition }}"> --}}
-                                    {{--                                    <textarea name="composition"--}}
-                                    {{--                                              class="form-control  mt-3 quick-edit-composition-input hidden"--}}
-                                    {{--                                              placeholder="Composition" rows="8"--}}
-                                    {{--                                              cols="80">{{ $product->composition }}</textarea>--}}
-
-                                    {{--                                    <button type="button" class="btn-link quick-edit-composition"--}}
-                                    {{--                                            data-id="{{ $product->id }}">Edit--}}
-                                    {{--                                    </button>--}}
-
                                 @else
 
                                     <span class="quick-composition">{{ $product->composition }}</span>
@@ -857,23 +613,7 @@
                                         @foreach ($colors as $color)
                                             <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
                                         @endforeach
-                                    </select>
-
-                                    {{--                                    <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
-                                    {{--                                            data-id="{{ $product->id }}" data-value="Multi">Multi--}}
-                                    {{--                                    </button>--}}
-
-                                    {{--                                    @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )--}}
-                                    {{--                                        @foreach ( $product->log_scraper_vs_ai as $resultAi )--}}
-                                    {{--                                            @php $resultAi = json_decode($resultAi->result_ai); @endphp--}}
-                                    {{--                                            @if ( !empty($resultAi->color) )--}}
-                                    {{--                                                <button id="ai-color" class="btn btn-default btn-sm mt-2 ai-btn-color"--}}
-                                    {{--                                                        data-id="{{ $product->id }}"--}}
-                                    {{--                                                        data-value="{{ ucwords($resultAi->color) }}">{{ ucwords($resultAi->color) }}</button>--}}
-                                    {{--                                            @endif--}}
-                                    {{--                                        @endforeach--}}
-                                    {{--                                    @endif--}}
-
+                                    </select>x
                                 @else
 
                                     {{ $product->color }}
@@ -885,34 +625,12 @@
 
                             <td class="table-hover-cell">
 
-                                {{--                                <div>--}}
-                                {{--                                    @if ($product->price != '')--}}
-                                {{--                                        {{ $product->size }}--}}
-                                {{--                                    @else--}}
-                                {{--                                        L-{{ $product->lmeasurement }},--}}
-                                {{--                                        H-{{ $product->hmeasurement }},--}}
-                                {{--                                        D-{{ $product->dmeasurement }}--}}
-                                {{--                                    @endif--}}
-                                {{--                                </div>--}}
-
                                 @if (!$imageCropperRole)
                                     {{-- <input type="text" name="other_size" class="form-control mt-3 hidden" placeholder="Manual Size" value="{{ is_array(explode(',', $product->size)) && count(explode(',', $product->size)) > 1 ? '' : $product->size }}"> --}}
                                     <span class="lmeasurement-container">
                   <input type="text" name="measurement" class="form-control mt-1"
                          value="{{ !empty($product->lmeasurement) ? $product->lmeasurement : '' }}x{{ !empty($product->hmeasurement) ? $product->hmeasurement : ' ' }}x{{ !empty($product->dmeasurement) ? $product->dmeasurement : '' }}">
                 </span>
-
-                                    {{--                                    <span class="hmeasurement-container">--}}
-                                    {{--                  <strong>Height(cm):</strong>--}}
-                                    {{--                  <input type="number" name="hmeasurement" class="form-control mt-1" placeholder="Height" min="0"--}}
-                                    {{--                         max="999" value="{{ $product->hmeasurement }}">--}}
-                                    {{--                </span>--}}
-
-                                    {{--                                    <span class="dmeasurement-container">--}}
-                                    {{--                  <strong>Depth(cm):</strong>--}}
-                                    {{--                  <input type="number" name="dmeasurement" class="form-control mt-1" placeholder="Depth" min="0"--}}
-                                    {{--                         max="999" value="{{ $product->dmeasurement }}">--}}
-                                    {{--                </span>--}}
 
                                 @endif
 
@@ -967,7 +685,7 @@
                                 <div class="text-center">
                                     {{--                                {{ $product->isUploaded }} {{ $product->isFinal }}--}}
                                 </div>
-                                @if(auth()->user()->isAdmin())
+                                @if(auth()->user()->isReviwerLikeAdmin())
                                     @if ($product->is_approved == 0)
                                         {{--                                        <button type="button" class="btn btn-xs btn-secondary upload-magento"--}}
                                         {{--                                                data-id="{{ $product->id }}" data-type="approve">Approve--}}
