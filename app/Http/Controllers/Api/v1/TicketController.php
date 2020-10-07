@@ -39,6 +39,7 @@ class TicketController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:80',
+            'last_name'=>'required|max:80',
             'email' => 'required|email',
             'order_no' => ['required', 'exists:orders,order_id'],
             'type_of_inquiry' => 'required',

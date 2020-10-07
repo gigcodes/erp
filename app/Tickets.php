@@ -10,7 +10,7 @@ class Tickets extends Model {
     protected $table = 'tickets';
     protected $fillable = [
         'customer_id', 'ticket_id', 'subject', 'message', 'assigned_to', 'source_of_ticket', 'status_id', 'date', 'name', 'email','phone_no','order_no',
-        'type_of_inquiry','country',
+        'type_of_inquiry','country','last_name'
     ];
 
     public function getTicketList($params = array()) {

@@ -15,6 +15,7 @@ class AddFieldsToTicketsTable extends Migration
     {
         Schema::table('tickets', function (Blueprint $table) {
             $table->string('type_of_inquiry')->nullable();
+            $table->string('last_name')->nullable();
             $table->string('country')->nullable();
             $table->string('phone_no')->nullable();
             $table->string('order_no')->nullable();
@@ -33,6 +34,7 @@ class AddFieldsToTicketsTable extends Migration
             $table->dropColumn('country');
             $table->dropColumn('phone_no');
             $table->dropColumn('order_no');
+            $table->dropColumn('last_name');
         });
     }
 }
