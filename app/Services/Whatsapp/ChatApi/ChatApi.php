@@ -35,6 +35,7 @@ class ChatApi
         $token = isset($instance["token"]) ? $instance["token"] : 0;
 
         $waiting = 0;
+        $result = null;
 
         if (!empty($instanceId) && !empty($token)) {
             // executing curl
