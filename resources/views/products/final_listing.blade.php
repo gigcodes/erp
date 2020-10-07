@@ -2466,6 +2466,7 @@
 
         $(document).on('click', '.upload-single', function () {
             $(self).hide();
+            $this = $(this);
             var ajaxes = [];
             // for (var i = 0; i < productIds.length; i++) {
             var id = $(this).data('id');
@@ -2475,9 +2476,15 @@
                     url: url,
                     data: {
                         _token: "{{ csrf_token() }}",
+                    },
+                    beforeSend: function () {
+                        // $(thiss).text('Loading...');
+                        $this.removeClass("fa-upload").addClass("fa-spinner");
                     }
                 }).done(function (response) {
                     $('#product' + id).hide();
+                    $this.removeClass("fa-spinner").addClass("fa-upload");
+                    toastr['success']('Request Send successfully', 'Success')
                 }));
             // }
 
