@@ -282,12 +282,10 @@ $solo_numbers = (new SoloNumbers)->all();
     }
 
     public function sendMessage(Request $request) {
-        
         $thread = InstagramThread::find($request->thread_id);
         $agent = $thread->account;
         $messageType = 1;
         if($agent){
-
         	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message);
         	
 		}
@@ -395,7 +393,7 @@ $solo_numbers = (new SoloNumbers)->all();
 
     private function sendMessageToInstagramUser($sender, $password, $proxy, $receiver, $message) {
 
-
+dd($receiver);
         $i = new Instagram();
 
         try {
@@ -468,5 +466,26 @@ $solo_numbers = (new SoloNumbers)->all();
             ]);
             
         }
+    }
+
+
+    public function sendMessageMultiple(Request $request) {
+        if(!$request->message || $request->message == '') {
+            return response()->json(['message' => 'Message field is required.'],500);
+        }
+        $ids = explode(",",$request->selectedInfluencers);
+        foreach($ids as $id) {
+            $thread = InstagramThread::where('scrap_influencer_id',$id)->first();
+            if($thread) {
+                $requestData = new Request();
+                $requestData->setMethod('POST');
+                $params['message'] = $request->message;
+                $params['thread_id'] = $thread->id;
+
+                $requestData->request->add($params);
+                $result = app('App\Http\Controllers\DirectMessageController')->sendMessage($requestData);
+            }
+        }
+        return response()->json(['message' => 'Successfull.'],200);
     }
 }

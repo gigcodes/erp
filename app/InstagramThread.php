@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class InstagramThread extends Model
 {
+    protected $fillable = ['scrap_influencer_id'];
     public function conversation() {
         return $this->hasMany(ChatMessage::class, 'unique_id', 'thread_id');
     }
