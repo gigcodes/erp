@@ -5,19 +5,16 @@ namespace App\Http\Controllers;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSession;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
+use Google\AdsApi\AdWords\v201809\cm\AdGroupService;
 use Google\AdsApi\AdWords\v201809\cm\BudgetService;
 use Google\AdsApi\AdWords\v201809\cm\CampaignService;
 use Google\AdsApi\AdWords\v201809\cm\OrderBy;
 use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\AdsApi\AdWords\v201809\cm\Paging;
 use Google\AdsApi\AdWords\v201809\cm\SortOrder;
-use Google\AdsApi\Common\Util\EnvironmentalVariables;
-use Google\AdsApi\GetCampaigns;
 use Illuminate\Http\Request;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
-
 use Google\AdsApi\AdWords\v201809\cm\Budget;
-
 use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
@@ -36,11 +33,14 @@ use Google\AdsApi\AdWords\v201809\cm\Money;
 use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
 use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
+use Google\AdsApi\AdWords\v201809\cm\Predicate;
+use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
 
 
 class GoogleAdsController extends Controller
 {
-    public function index(Request $request, EnvironmentalVariables $environmentalVariables) {
+    // show campaigns in googleads main page
+    public function index() {
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile()
             ->build();
@@ -52,33 +52,105 @@ class GoogleAdsController extends Controller
 
         $adWordsServices = new AdWordsServices();
 
+        $campInfo = $this->getCampaigns($adWordsServices, $session);
 
-
-//        $campaignService = $adWordsServices->get($session, CampaignService::class);
-
-        // Create selector
-//        $selector = new Selector();
-//        $selector->setFields(array('Id', 'Name'));
-//        $selector->setOrdering(array(new OrderBy('Name', 'ASCENDING')));
-
-        // Create paging controls
-//        $selector->setPaging(new Paging(0, 100));
-        // Make the get request
-//        $page = $campaignService->get($selector);
-
-        $campCount = $this->getCampaignsCount($adWordsServices, $session);
-
-//        $this->createCampaign($adWordsServices, $session);
-
-        return view('googleads.index', ['campaignCount' => $campCount]);
+        return view('googleads.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]);
     }
 
-    public function create(Request $request) {
-        // creating ads
+    // get campaigns and total count
+    public function getCampaigns(AdWordsServices $adWordsServices, AdWordsSession $session) {
+        $campaignService = $adWordsServices->get($session, CampaignService::class);
+
+        // Create selector.
+        $campaignSelector = new Selector();
+        $campaignSelector->setFields(['Id', 'Name', 'Status', 'BudgetId', 'BudgetName', 'Amount']);
+        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
+        $campaignSelector->setPaging(new Paging(0, 10));
+
+        $adGroupService = $adWordsServices->get($session, AdGroupService::class);
+
+        // Create a selector to select all ad groups for the specified campaign.
+        $groupSelector = new Selector();
+        $groupSelector->setFields(['Id', 'Name']);
+        $groupSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
+        $groupSelector->setPaging(new Paging(0, 10));
+
+//        $budgetService = $adWordsServices->get($session, BudgetService::class);
+        $totalNumEntries = 0;
+        $campaigns = [];
+        do {
+            // Make the get request.
+            $page = $campaignService->get($campaignSelector);
+
+            // Display results.
+            if ($page->getEntries() !== null) {
+                $totalNumEntries = $page->getTotalNumEntries();
+                foreach ($page->getEntries() as $campaign) {
+                    // getting campaign's adgroups
+                    $groupSelector->setPredicates(
+                        [new Predicate('CampaignId', PredicateOperator::IN, [$campaign->getId()])]
+                    );
+                    $adGroupPage = $adGroupService->get($groupSelector);
+                    $adGroups = [];
+                    if ($adGroupPage->getEntries() !== null) {
+//                        $totalNumEntries = $page->getTotalNumEntries();
+                        foreach ($adGroupPage->getEntries() as $adGroup) {
+                            $adGroups[] = [
+                                'adGroupId' => $adGroup->getId(),
+                                'adGroupName' => $adGroup->getName()
+                            ];
+                        }
+                    }
+                    // getting budget
+                    $campaignBudget = $campaign->getBudget();
+                    // adding new campaign
+                    $campaigns[] = [
+                        "campaignId" => $campaign->getId(),
+                        "campaignGroups" => $adGroups,
+                        "name" => $campaign->getName(),
+                        "status" => $campaign->getStatus(),
+//                        "budgetId" => $campaignBudget->getBudgetId(),
+//                        "budgetName" => $campaignBudget->getName(),
+//                        "budgetAmount" => $campaignBudget->getAmount()
+                    ];
+                }
+            }
+
+            // Advance the paging index.
+            $campaignSelector->getPaging()->setStartIndex(
+                $campaignSelector->getPaging()->getStartIndex() + 10
+            );
+        } while ($campaignSelector->getPaging()->getStartIndex() < $totalNumEntries);
+
+        return [
+            "totalNumEntries" => $totalNumEntries,
+            "campaigns" => $campaigns
+        ];
+    }
+
+    // go to create page
+    public function createPage() {
+        //
         return view('googleads.create');
     }
 
-    public function createCampaign(AdWordsServices $adWordsServices, AdWordsSession $session) {
+    // create campaign
+    public function createCampaign(Request $request) {
+        $budgetAmount = $request->budgetAmount * 1000000;
+        $campaignName = $request->campaignName;
+        $campaignStatus = strtoupper($request->campaignStatus);
+
+        $oAuth2Credential = (new OAuth2TokenBuilder())
+            ->fromFile()
+            ->build();
+
+        $session = (new AdWordsSessionBuilder())
+            ->fromFile()
+            ->withOAuth2Credential($oAuth2Credential)
+            ->build();
+
+        $adWordsServices = new AdWordsServices();
+
         $budgetService = $adWordsServices->get($session, BudgetService::class);
 
         // Create the shared budget (required).
@@ -86,7 +158,7 @@ class GoogleAdsController extends Controller
         $budget->setName('Interplanetary Cruise Budget #' . uniqid());
 
         $money = new Money();
-        $money->setMicroAmount(50000000);
+        $money->setMicroAmount($budgetAmount);
         $budget->setAmount($money);
         $budget->setDeliveryMethod(BudgetBudgetDeliveryMethod::STANDARD);
 
@@ -109,7 +181,7 @@ class GoogleAdsController extends Controller
 
         // Create a campaign with required and optional settings.
         $campaign = new Campaign();
-        $campaign->setName('Interplanetary Cruise #' . uniqid());
+        $campaign->setName($campaignName . ' #' . uniqid());
         $campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH);
 
         // Set shared budget (required).
@@ -139,7 +211,7 @@ class GoogleAdsController extends Controller
         // Recommendation: Set the campaign to PAUSED when creating it to stop
         // the ads from immediately serving. Set to ENABLED once you've added
         // targeting and the ads are ready to serve.
-        $campaign->setStatus(CampaignStatus::PAUSED);
+        $campaign->setStatus($campaignStatus); //CampaignStatus::ENABLED);
         $campaign->setStartDate(date('Ymd', strtotime('+1 day')));
         $campaign->setEndDate(date('Ymd', strtotime('+1 month')));
 
@@ -166,75 +238,121 @@ class GoogleAdsController extends Controller
         $operation->setOperator(Operator::ADD);
         $operations[] = $operation;
 
-        // Create a campaign with only required settings.
-        $campaign = new Campaign();
-        $campaign->setName('Interplanetary Cruise #' . uniqid());
-        $campaign->setAdvertisingChannelType(AdvertisingChannelType::DISPLAY);
-
-        // Set shared budget (required).
-        $campaign->setBudget(new Budget());
-        $campaign->getBudget()->setBudgetId($budget->getBudgetId());
-
-        // Set bidding strategy (required).
-        $biddingStrategyConfiguration = new BiddingStrategyConfiguration();
-        $biddingStrategyConfiguration->setBiddingStrategyType(
-            BiddingStrategyType::MANUAL_CPC
-        );
-        $campaign->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
-
-        $campaign->setStatus(CampaignStatus::PAUSED);
-
-        // Create a campaign operation and add it to the operations list.
-        $operation = new CampaignOperation();
-        $operation->setOperand($campaign);
-        $operation->setOperator(Operator::ADD);
-        $operations[] = $operation;
-
-        // Create the campaigns on the server and print out some information for
-        // each created campaign.
+        // Create the campaign on the server
         $result = $campaignService->mutate($operations);
-        foreach ($result->getValue() as $campaign) {
-            printf(
-                "Campaign with name '%s' and ID %d was added.\n",
-                $campaign->getName(),
-                $campaign->getId()
-            );
-        }
+
+        return redirect()->route('googleads.index');
     }
 
-    function getCampaignsCount(AdWordsServices $adWordsServices, AdWordsSession $session) {
+    // go to update page
+    public function updatePage(Request $request, $campaignId) {
+        $oAuth2Credential = (new OAuth2TokenBuilder())
+            ->fromFile()
+            ->build();
+
+        $session = (new AdWordsSessionBuilder())
+            ->fromFile()
+            ->withOAuth2Credential($oAuth2Credential)
+            ->build();
+
+        $adWordsServices = new AdWordsServices();
+
         $campaignService = $adWordsServices->get($session, CampaignService::class);
 
         // Create selector.
-        $selector = new Selector();
-        $selector->setFields(['Id', 'Name']);
-        $selector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-        $selector->setPaging(new Paging(0, 10));
+        $campaignSelector = new Selector();
+        $campaignSelector->setFields(['Id', 'Name', 'Status']);
+//        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
+//        $campaignSelector->setPaging(new Paging(0, 10));
+        $campaignSelector->setPredicates(
+            [new Predicate('Id', PredicateOperator::IN, [$campaignId])]
+        );
 
-        $totalNumEntries = 0;
-        do {
-            // Make the get request.
-            $page = $campaignService->get($selector);
+        $page = $campaignService->get($campaignSelector);
+        $pageEntries = $page->getEntries();
 
-            // Display results.
-            if ($page->getEntries() !== null) {
-                $totalNumEntries = $page->getTotalNumEntries();
-                foreach ($page->getEntries() as $campaign) {
-                    printf(
-                        "Campaign with ID %d and name '%s' was found.\n",
-                        $campaign->getId(),
-                        $campaign->getName()
-                    );
-                }
-            }
+        if ($pageEntries !== null) {
+            $campaign = $pageEntries[0];
+        }
+        $campaign = [
+            "campaignId" => $campaign->getId(),
+//            "campaignGroups" => $adGroups,
+            "name" => $campaign->getName(),
+            "status" => $campaign->getStatus(),
+//                        "budgetId" => $campaignBudget->getBudgetId(),
+//                        "budgetName" => $campaignBudget->getName(),
+//                        "budgetAmount" => $campaignBudget->getAmount()
+        ];
+        //
+        return view('googleads.update', ['campaign' => $campaign]);
+    }
 
-            // Advance the paging index.
-            $selector->getPaging()->setStartIndex(
-                $selector->getPaging()->getStartIndex() + 10
-            );
-        } while ($selector->getPaging()->getStartIndex() < $totalNumEntries);
+    // save campaign's changes
+    public function updateCampaign(Request $request) {
+        $campaignId = $request->campaignId;
+        $campaignName = $request->campaignName;
+        $campaignStatus = strtoupper($request->campaignStatus);
 
-//        printf("Number of results found: %d\n", $totalNumEntries);
-        return $totalNumEntries;
+        $oAuth2Credential = (new OAuth2TokenBuilder())
+            ->fromFile()
+            ->build();
+
+        $session = (new AdWordsSessionBuilder())
+            ->fromFile()
+            ->withOAuth2Credential($oAuth2Credential)
+            ->build();
+
+        $adWordsServices = new AdWordsServices();
+
+        $campaignService = $adWordsServices->get($session, CampaignService::class);
+
+        $operations = [];
+        // Create a campaign with ... status.
+        $campaign = new Campaign();
+        $campaign->setId($campaignId);
+        $campaign->setName($campaignName);
+        $campaign->setStatus($campaignStatus);
+
+        // Create a campaign operation and add it to the list.
+        $operation = new CampaignOperation();
+        $operation->setOperand($campaign);
+        $operation->setOperator(Operator::SET);
+        $operations[] = $operation;
+
+        // Update the campaign on the server.
+        $result = $campaignService->mutate($operations);
+
+        return redirect()->route('googleads.index');
+    }
+
+    // delete campaign
+    public function deleteCampaign(Request $request, $campaignId) {
+        // Generate a refreshable OAuth2 credential for authentication.
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+
+        // Construct an API session configured from a properties file and the
+        // OAuth2 credentials above.
+        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+
+        $adWordsServices = new AdWordsServices();
+
+        $campaignService = $adWordsServices->get($session, CampaignService::class);
+
+        $operations = [];
+        // Create a campaign with REMOVED status.
+        $campaign = new Campaign();
+        $campaign->setId($campaignId);
+        $campaign->setStatus(CampaignStatus::REMOVED);
+
+        // Create a campaign operation and add it to the list.
+        $operation = new CampaignOperation();
+        $operation->setOperand($campaign);
+        $operation->setOperator(Operator::SET);
+        $operations[] = $operation;
+
+        // Remove the campaign on the server.
+        $result = $campaignService->mutate($operations);
+
+        return redirect()->route('googleads.index');
     }
 }

@@ -2104,7 +2104,11 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
 
 Route::prefix( 'googleads')->middleware('auth')->group(function () {
     Route::get('/', 'GoogleAdsController@index')->name('googleads.index');
-    Route::get('/create', 'GoogleAdsController@create')->name('googleads.create');
+    Route::get('/create', 'GoogleAdsController@createPage')->name('googleads.createPage');
+    Route::post('/create', 'GoogleAdsController@createCampaign')->name('googleads.createCampaign');
+    Route::get('/update/{id}', 'GoogleAdsController@updatePage')->name('googleads.updatePage');
+    Route::post('/update', 'GoogleAdsController@updateCampaign')->name('googleads.updateCampaign');
+    Route::delete('/delete/{id}', 'GoogleAdsController@deleteCampaign')->name('googleads.deleteCampaign');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
