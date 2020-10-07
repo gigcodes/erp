@@ -221,6 +221,21 @@
         
     </div>
 
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog" style="width: 1000px; max-width: 1000px;">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;" id="direct-modal-chat">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
 
     <div id="directMessageModal" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -570,6 +585,28 @@
                     }
                 });
         });
+
+        $(document).on('click', '.load-direct-chat-model', function () {
+            $.ajax({
+                url: '{{ route('direct.messages') }}',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        id : $(this).data("id")
+                    },
+                beforeSend: function() {
+                    
+                },
+
+                }).done(function (data) {
+                    $('#direct-modal-chat').empty().append(data.messages);
+                    $('#chat-list-history').modal('show');
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    alert('No response from server');
+                });
+
+            });
     </script>
 
 @endsection

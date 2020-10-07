@@ -30,7 +30,9 @@
         $thread =\App\InstagramThread::where('scrap_influencer_id', $influencer->id)->first();
         @endphp
         @if($thread) 
-        <div class="row">
+        <div class="typing-indicator" id="typing-indicator"@if($thread->lastMessage) @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ str_limit($thread->lastMessage->message, 12, '...')}}@endif</div>
+        <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="https://erp.amourint.com/images/chat.png" alt=""></button>
+        <div class="row" style="margin:0px;padding:0px;">
             <div class="col-md-10 cls_remove_rightpadding">
                 <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message{{ $influencer->id }}"></textarea>
                 <input type="hidden" id="message-id" name="message-id" />

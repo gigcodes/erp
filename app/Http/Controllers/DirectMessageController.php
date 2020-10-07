@@ -287,7 +287,6 @@ $solo_numbers = (new SoloNumbers)->all();
         $messageType = 1;
         if($agent){
         	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message);
-        	
 		}
 		
         if ($status === false) {
@@ -393,7 +392,7 @@ $solo_numbers = (new SoloNumbers)->all();
 
     private function sendMessageToInstagramUser($sender, $password, $proxy, $receiver, $message) {
 
-dd($receiver);
+
         $i = new Instagram();
 
         try {
