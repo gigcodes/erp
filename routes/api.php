@@ -150,3 +150,6 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
 
+
+//refer a friend api
+Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
