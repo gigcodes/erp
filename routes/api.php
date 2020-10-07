@@ -150,3 +150,6 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
 
+
+// Ticket api
+Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
