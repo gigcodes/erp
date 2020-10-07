@@ -85,19 +85,28 @@ class ReferaFriend extends Controller
             'minimum_order_amount' => 500,
             'maximum_usage' => 1,
         );
-        $referrer_coupondata =[];
-        $referee_coupondata =[];
+        $referrer_coupondata = [];
+        $referee_coupondata = [];
         if ($data['referrer_email']) {
             $referrer_coupondata = $coupondata;
             $referrer_coupondata['code'] = $referrer_coupon;
             $referrer_coupondata['start'] = date('y-m-d H:i');
             $referrer_coupondata['expiration'] = null;
+            $referrer_coupondata['email'] = $data['referrer_email'];
+            $referrer_coupondata['currency'] = 'INR';
+            $referrer_coupondata['coupon_type'] = 'referafriend';
+            $referrer_coupondata['status'] =0;
+
         }
         if ($data['referee_email']) {
             $referee_coupondata = $coupondata;
             $referee_coupondata['code'] = $referee_coupon;
             $referee_coupondata['start'] =  date('y-m-d H:i');
             $referee_coupondata['expiration'] = null;
+            $referee_coupondata['email'] = $data['referee_email'];
+            $referee_coupondata['currency'] = 'INR';
+            $referee_coupondata['coupon_type'] = 'referafriend';
+            $referee_coupondata['status'] =1;
         }
         //$queryString1 = http_build_query($referrer_coupondata);
         //$queryString2 = http_build_query($referee_coupondata);
@@ -111,6 +120,7 @@ class ReferaFriend extends Controller
             Coupon::create($referrer_coupondata);
             Coupon::create($referee_coupondata);
             return response()->json([
+                'status' => 'success',
                 'message' => 'refferal created successfully',
                 'referrer_code' => $referrer_coupon,
                 'referee_code' => $referee_coupon,
@@ -118,6 +128,7 @@ class ReferaFriend extends Controller
                 'referee_email' => $data['referee_email']
             ], 200);
             /* return response()->json([
+                'status' => 'success',
                 'message' => 'refferal created successfully',
                 'referrer_body' => $response1->getBody(),
                 'referee_body' => $response2->getBody(),
