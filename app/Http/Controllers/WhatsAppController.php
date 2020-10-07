@@ -1029,6 +1029,7 @@ class WhatsAppController extends FindByNumberController
         // Get json object
         $data = $request->json()->all();
         $needToSendLeadPrice = false;
+        $isReplied = false;
         // Log incoming webhook
         \Log::channel('chatapi')->debug('Webhook: ' . json_encode($data));
 
