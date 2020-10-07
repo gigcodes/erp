@@ -1345,7 +1345,21 @@ class ProductController extends Controller
             // If we have a product, push it to Magento
             if ($product !== null) {
                 // Dispatch the job to the queue
-                PushToMagento::dispatch($product)->onQueue('magento');
+                //PushToMagento::dispatch($product)->onQueue('magento');
+                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    $result = MagentoHelper::uploadProduct($product);
+                    if ( !$result ) {
+                        // Log alert
+                        \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+
+                        // Set product to isListed is 0
+                        $product->isListed = 0;
+                        $product->save();
+                    } else {
+                        // Log info
+                        \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                    }
+                }
 
                 // Update the product so it doesn't show up in final listing
                 $product->isUploaded = 1;
