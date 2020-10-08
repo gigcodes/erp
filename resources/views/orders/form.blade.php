@@ -6,9 +6,10 @@
     <div class="row">
         <div class="col-lg-12 margin-tb">
             <div class="pull-left">
-                <h2>{{ $modify ? 'Edit Order' : 'Create Create' }}</h2>
+                <h2>{{ $modify ? 'Edit Order' : 'Create Order' }}</h2>
             </div>
             <div class="pull-right">
+            <br>
                 <a class="btn btn-secondary" href="{{ route('order.index') }}"> Back</a>
             </div>
         </div>
@@ -19,7 +20,7 @@
             <p>{{ $message }}</p>
         </div>
     @endif
-
+<br>
     <form id="createOrderForm" name="createOrderForm" action="{{ $modify ? route('order.update',$id) : route('order.store')  }}" method="POST" enctype="multipart/form-data">
         @csrf
         @if($modify)
@@ -69,6 +70,9 @@
                         if(isset($defaultSelected["order_date"])) {
                             $order_date = $defaultSelected["order_date"];
                         }
+                        else {
+                            $order_date = date('Y-m-d');
+                        }
                     ?>
                     <input type="date" class="form-control datepicker-block" name="order_date" placeholder="Order Date"
                            value="{{ old('order_date') ? old('order_date') : $order_date }}"/>
@@ -91,22 +95,14 @@
                         <div class="alert alert-danger">{{$errors->first('date_of_delivery')}}</div>
                     @endif
                 </div>
-            </div>   
-        </div>
-        <div class="row">
+            </div>
             <div class="col">
                  <div class="form-group">
-                    <strong>Shoe Size:</strong>
-                    <input type="text" class="form-control" name="shoe_size" placeholder="Shoe Size" value="{{ old('shoe_size') ? old('shoe_size') : '' }}"/>
+                    <strong>Size:</strong>
+                    <input type="text" class="form-control" name="shoe_size" placeholder="Size" value="{{ old('shoe_size') ? old('shoe_size') : '' }}"/>
                 </div>
             </div>    
-            <div class="col">
-                 <div class="form-group">
-                    <strong>Clothing Size:</strong>
-                    <input type="text" class="form-control" name="clothing_size" placeholder="Cloth Size" value="{{ old('clothing_size') ? old('clothing_size') : '' }}"/>
-                </div>
-            </div>
-        </div>    
+        </div>  
         <div class="row">
                 {{-- @if($modify == 1) --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
@@ -177,7 +173,7 @@
                 </div>
                 {{-- {{dd($data)}} --}}
                 <div class="col-xs-12 col-sm-12 col-md-12">
-                    <div class="form-group btn-group">
+                    <div class="form-group btn-group pull-right">
                         <a href="{{ route('attachProducts',['order',$id]) }}?key={{$key}}" class="btn btn-image"><img src="/images/attach.png" /></a>
                         <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#productModal">+</button>
                     </div>
@@ -344,7 +340,7 @@
             </div>    
         </div> 
         <div class="row">
-            <div class="col">
+            <!-- <div class="col">
                 <div class="form-group">
                     <strong>Estimated Delivery Date:</strong>
                     <?php
@@ -358,7 +354,7 @@
                         <div class="alert alert-danger">{{$errors->first('estimated_delivery_date')}}</div>
                     @endif
                 </div>
-            </div>
+            </div> -->
             <div class="col">
                 <div class="form-group">
                     <strong>Received By:</strong>
@@ -406,14 +402,22 @@
                         <div class="alert alert-danger">{{$errors->first('note_if_any')}}</div>
                     @endif
                 </div>
+            </div>
+
+            <div class="col"> 
+                <div class="form-group">
+                <br>
+                <input type="hidden" name="hdn_order_mail_status" id="hdn_order_mail_status" value="" />
+                <button type="submit" class="btn btn-secondary" id="btn_saveorder">+</button>
+                </div>
             </div>  
         </div>   
-        <div class="row"> 
+        <!-- <div class="row"> 
             <div class="col-xs-12 col-sm-12 col-md-12 text-center">
                 <input type="hidden" name="hdn_order_mail_status" id="hdn_order_mail_status" value="" />
                 <button type="submit" class="btn btn-secondary" id="btn_saveorder">+</button>
             </div>
-        </div>
+        </div> -->
     </form>
 
     <form action="" method="POST" id="product-remove-form">

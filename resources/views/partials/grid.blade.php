@@ -58,7 +58,7 @@
 
                 <!--attach Product-->
                 @if( isset($doSelection) )
-                    <p><strong> {{ strtoupper($model_type)  }} ID : {{ $model_id }} </strong></p>
+                    <strong> {{ strtoupper($model_type)  }} ID : {{ $model_id }} </strong>
                 @endif
 
                 <!--Product Search Input -->
@@ -468,50 +468,62 @@
 
           Object.keys(groupedByTime).forEach(function (key) {
 
-              let html = '<h4>' + getTodayYesterdayDate(key) + '</h4><div class="row">';
+              let html = '<h4>' + getTodayYesterdayDate(key) + '</h4><div class="row" id="title" >';
+              html+=` <div class="col-md-1 col-xs-6 text-left">Image</div>
+              <div class="col-md-1 col-xs-6 text-left">SKU</div>
+              <div class="col-md-1 col-xs-6 text-left">ID</div>
+              <div class="col-md-1 col-xs-6 text-left">Size</div>
+              <div class="col-md-1 col-xs-6 text-left>Price</div>
+              <div class="col-md-1 col-xs-6 text-cenleftter">Status</div>
+              <div class="col-md-1 col-xs-6 text-left ">Color</div>
+              <div class="col-md-1 col-xs-6 text-left ">Supplier</div>
+              <div class="col-md-1 col-xs-6 text-left ">Suppliers</div>
+              <div class="col-md-1 col-xs-6 text-left">Category History</div>
+              <div class="col-md-1 col-xs-6 text-left">Color History</div>
+              <div class="col-md-1 col-xs-6 text-left"></div></div>
+              `
 
               groupedByTime[key].forEach(function (product) {
-                var is_scraped = product['is_scraped'] == 1 ? '<p><span class="badge">Scraped</span></p>' : '';
-                var is_imported = product['is_imported'] == 1 ? '<p><span class="badge">Imported</span></p>' : '';
+                var is_scraped = product['is_scraped'] == 1 ? '<span class="badge">Scraped</span>' : '';
+                var is_imported = product['is_imported'] == 1 ? '<span class="badge">Imported</span>' : '';
 
-                  html += `
-                      <div class="col-md-3 col-xs-6 text-left mb-5">
-                      <a href="` + product['link'] + `">
-                          <img src="` + product['image'] + `" class="img-responsive grid-image" alt="" />
-                                          <p>Sku : ` + product['sku'] + `</p>
-                                          <p>Id : ` + product['id'] + `</p>
-                                          <p>Size : ` + product['size'] + `</p>
-                                          <p>Price : ` + product['price'] + `</p>
-                                          <!--<p>Brand : ` + product['brand'] + `</p>-->
-                                          <p>Status : ` + product['stage'] + `</p>
-                                          <p>Color : ` + product['color'] + `</p>
+                  html += `<div class="row">
+                      <div class="col-md-1 col-xs-6 text-left mb-5">
+                      <a href="` + product['link'] + `">  <img src="` + product['image'] + `" class="img-responsive grid-image" alt="Image" /></a></div> 
+                          <div class="col-md-1 col-xs-6 text-left mb-5">
+                          <a href="` + product['link'] + `"> ` + product['sku'] + `</a></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['id'] + `</a></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['size'] + `</a></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['price'] + `</a></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['stage'] + `</a></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['color'] + `</a></div>
                                           @if($roletype == 'Inventory')  
-                                          </a>
-                                          <p>Ref. Category : ` + product['reference_category'] + ` </p>
-                                          <p>Category : <select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">
+                                         
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `">` + product['reference_category'] + ` </div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><select class="form-control update-product select-multiple2" id="category_`+product['id']+`" data-id="`+product['id']+`">
                                             @foreach($categoryArray as $category)
                                               <option value="{{ $category['id'] }}">{{ $category['value']}}</option>
                                             @endforeach
-                                          </select></p>
-                                          <p>Ref. Color : ` + product['reference_color'] + ` </p>
-                                          <p>Color : <select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
+                                          </select></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5">` + product['reference_color'] + ` </div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><select class="form-control update-color select-multiple2" id="color_`+product['id']+`" data-id="`+product['id']+`">
                                             <option>Select Color</option
                                             @foreach($sampleColors as $color)
                                             <option value="{{ $color['erp_color'] }}">{{ $color['erp_color'] }}</option>
                                             @endforeach
-                                            </select></p>
+                                            </select></div>
 
-                                          <a href="` + product['link'] + `">
+                                           <div class="col-md-1 col-xs-6 text-left mb-5"><a href="` + product['link'] + `"></div>
                                           @endif
-                                          <p>Supplier : ` + product['supplier'] + `</p>
-                                          <p>Suppliers : ` + product['suppliers'] + `</p>
-                                          <p><span class="badge category-history" data-id=`+ product['id'] +`>Category History</span></p>
-                                          <p><span class="badge color-history" data-id=`+ product['id'] +`>Color History</span></p>
-                                          ` + is_scraped + is_imported + `
-
+                                          <div class="col-md-1 col-xs-6 text-left mb-5">` + product['supplier'] + `</div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5">` + product['suppliers'] + `</div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"> <span class="badge category-history" data-id=`+ product['id'] +`>Category History</span></div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5"><span class="badge color-history" data-id=`+ product['id'] +`>Color History</span>
+                                          ` + is_scraped + is_imported + `</div>
+                                          <div class="col-md-1 col-xs-6 text-left mb-5">
                                           <input type="checkbox" class="select-product-edit" name="product_id" data-id="` + product['id'] + `">
-                                           {{--<p>Status : `+ ( ( product['isApproved'] ===  '1' ) ?
-                                                                  'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`</p>--}}
+                                           {{--Status : `+ ( ( product['isApproved'] ===  '1' ) ?
+                                                                  'Approved' : ( product['isApproved'] ===  '-1' ) ? 'Rejected' : 'Nil') +`--}}
                           {{--@can('supervisor-edit')
                               <button data-id="`+product['id']+`"
                                       class="btn btn-approve btn-secondary `+ ( ( product['isApproved'] ===  '1' ) ? 'btn-success' : '' ) +` ">
@@ -526,13 +538,13 @@
                                                           ` + ((product['isAttached'] === '0') ? 'Attach' : 'Attached') + `
                       </button>
                                           @endif
-                      </div>
+                      </div></div></div>
                   `;
                   
           
               });
 
-              jQuery('#productGrid').append(html + '</div>');
+              jQuery('#productGrid').append(html + '');
           
               groupedByTime[key].forEach(function (product) {
                 console.log(product);

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\EmailAddress;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
 
 class EmailAddressesController extends Controller
@@ -15,8 +16,10 @@ class EmailAddressesController extends Controller
     public function index(Request $request)
     {
         $emailAddress = EmailAddress::paginate(15);
+		$allStores = StoreWebsite::all();
         return view('email-addresses.index', [
-            'emailAddress' => $emailAddress
+            'emailAddress' => $emailAddress,
+			'allStores' => $allStores
         ]);
     }
 

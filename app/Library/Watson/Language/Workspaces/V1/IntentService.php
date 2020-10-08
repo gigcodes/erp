@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Library\Watson\Language\Workspaces\V1;
 
 use App\Library\Watson\Service;
@@ -28,6 +29,11 @@ class IntentService extends Service
     public function __construct($username = null, $password = null)
     {
         parent::__construct($username, $password);
+    }
+
+    public function set_url($url)
+    {
+        return $this->url = $url;
     }
 
     public function create($workspaceId, $params = [], $version = '2019-02-28')

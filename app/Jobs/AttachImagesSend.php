@@ -63,10 +63,13 @@ class AttachImagesSend implements ShouldQueue
             'screenshot_path' => $this->screenshot_path,
             'message'         => $this->message,
             'customer_id'     => $this->customer_id,
-            'status'          => $this->status,
+            'status'          => $this->status
         ]);
 
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
+
+
+
     }
 
 }

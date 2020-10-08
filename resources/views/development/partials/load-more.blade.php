@@ -5,6 +5,7 @@
         <th style="width:12%;">Subject</th>
         <th style="width:22%;">Communication </th>
         <th style="width:7%;">Est Completion Time</th>
+        <th style="width:10%;">Est Completion Date</th>
         <th style="width:5%;">Tracked Time</th>
         <th style="width:15%;">Developers</th>
         <th style="width:12%;">Status</th>

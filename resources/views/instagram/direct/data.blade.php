@@ -79,6 +79,16 @@
                                             @endif
                                         </div>
                                     </td>
+                                    <td>
+                                        @if($thread->erpUser && !empty($thread->erpUser))
+                                            Existing Customer
+                                        @else
+                                            <button type="button" id="{{ $thread->instagramUser->username }}" class="btn btn-secondary btn-sm instagramHandle" data-toggle="modal"
+                                        data-target="#customerCreate"
+                                        title="Add new Customer"><i class="fa fa-plus"></i> Add new Customer
+                                        </button>
+                                        @endif
+                                    </td>
                                    </tr>
                                 <?php $srno++;?>
                             @endforeach

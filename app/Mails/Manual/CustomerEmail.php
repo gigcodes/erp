@@ -17,13 +17,15 @@ class CustomerEmail extends Mailable
      * @return void
      */
 
-    public $subject;
+	public $subject;
     public $message;
+    public $fromEmail;
 
-    public function __construct(string $subject, string $message)
+    public function __construct(string $subject, string $message, string $fromStoreEmail)
     {
       $this->subject = $subject;
       $this->message = $message;
+      $this->fromEmail = $fromStoreEmail;
     }
 
     /**
@@ -33,7 +35,7 @@ class CustomerEmail extends Mailable
      */
     public function build()
     {
-        return $this->from('customercare@sololuxury.co.in')
+        return $this->from($this->fromEmail)
                     ->bcc('customercare@sololuxury.co.in')
                     ->subject($this->subject)
                     ->markdown('emails.customers.email');

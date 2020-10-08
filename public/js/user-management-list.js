@@ -97,6 +97,9 @@ var page = {
         $(".common-modal").on("click",".edit-team",function() {
             page.submitEditTeam($(this));
         });
+        $(".common-modal").on("click",".delete-team",function() {
+            page.submitDeleteTeam($(this));
+        });
 
         $(".common-modal").on("keyup",".search-role",function() {
             page.roleSearch();
@@ -122,6 +125,10 @@ var page = {
             page.timeModalOpen($(this));
         });
 
+        page.config.bodyView.on("click",".load-tasktime-modal",function(e) {
+            page.taskTimeModalOpen($(this));
+        });
+
         $(".common-modal").on("click",".submit-time",function(e) {
             page.saveTime($(this));
         });
@@ -132,6 +139,10 @@ var page = {
 
         $(".common-modal").on("click",".update-avaibility",function() {
             page.updateAvailability($(this));
+        });
+
+        page.config.bodyView.on("click",".approve-user",function(e) {
+            page.approveUser($(this));
         });
         
     },
@@ -331,7 +342,13 @@ var page = {
     },
     saveTeam : function(response) {
         if(response.code  == 200) {
-            toastr['success']('Team created successfully', 'success');
+            $.each(response.data , function(key, val) { 
+                if(val['status'] == "success"){
+                    toastr['success'](val['msg'], 'success');
+                }else{
+                    toastr['error'](val['msg'], 'error');
+                }
+            });
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
@@ -371,7 +388,34 @@ var page = {
     },
     saveEditTeam : function(response) {
         if(response.code  == 200) {
-            toastr['success']('Team updated successfully', 'success');
+            $.each(response.data , function(key, val) { 
+                if(val['status'] == "success"){
+                    toastr['success'](val['msg'], 'success');
+                }else{
+                    toastr['error'](val['msg'], 'error');
+                }
+            });
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.error,"");
+        }
+    },
+    submitDeleteTeam : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user/delete-team/"+ele.data("id"),
+            method: "post",
+            data : ele.closest("form").serialize(),
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "saveDeleteTeam");
+    },
+    saveDeleteTeam : function(response) {
+        if(response.code  == 200) {
+            toastr['success']('Team delete successfully', 'success');
             page.loadFirst();
             $(".common-modal").modal("hide");
         }else {
@@ -563,6 +607,24 @@ var page = {
         $("#time_user_id").val(user_id);
 
     },
+    taskTimeModalOpen : function(ele) {
+        var user_id = ele.data("id");
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/task-hours/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'avaibilityTaskHourResult');
+    },
+    avaibilityTaskHourResult : function(response) {
+        var taskTimeTemplate = $.templates("#template-taskavaibility");
+        var tplHtml = taskTimeTemplate.render(response);
+        console.log(response,"response");
+        console.log(tplHtml,"tplHtml");
+        console.log(taskTimeTemplate,"taskTimeTemplate");
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
+    },
     saveTime : function(ele) {
         var _z = {
             url: (typeof href != "undefined") ? href : this.config.mainUrl + "/user-avaibility/submit-time",
@@ -632,6 +694,27 @@ var page = {
             toastr["error"](response.error,"");
         }
     },
+    approveUser : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/approve-user/"+ele.data("id"),
+            method: "post",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "approveUserResult");
+    },
+    approveUserResult : function(response) {
+        console.log(response);
+        if(response.code  == 200) {
+            toastr['success'](response.message);
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.message,"");
+        }
+    },
   
 }
 
@@ -675,38 +758,38 @@ $.views.helpers({
         }
     });
 
-    $(document).on('keyup', '.estimate-time-change', function () {
-        if (event.keyCode != 13) {
-            return;
-        }
-        let issueId = $(this).data('id');
-        let estimate_minutes = $("#estimate_minutes_" + issueId).val();
-        let type = $(this).data('type');
-        if(type == 'TASK') {
-            $.ajax({
-                type: 'POST',
-                url: "/task/update/approximate",
-                data: {
-                    _token: $('meta[name="csrf-token"]').attr('content'),
-                    approximate: estimate_minutes,
-                    task_id: issueId
-                },
-                success: function () {
-                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
-                }
-            });
-        }
-        else {
-            $.ajax({
-                url: "/development/issue/estimate_minutes/assign",
-                data: {
-                    estimate_minutes: estimate_minutes,
-                    issue_id: issueId
-                },
-                success: function () {
-                    toastr["success"]("Estimate Minutes updated successfully!", "Message")
-                }
-            });
+    $(document).on('keypress', '.estimate-time-change', function (e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            let issueId = $(this).data('id');
+            let estimate_minutes = $("#estimate_minutes_" + issueId).val();
+            let type = $(this).data('type');
+            if(type == 'TASK') {
+                $.ajax({
+                    type: 'POST',
+                    url: "/task/update/approximate",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        approximate: estimate_minutes,
+                        task_id: issueId
+                    },
+                    success: function () {
+                        toastr["success"]("Estimate Minutes updated successfully!", "Message")
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    url: "/development/issue/estimate_minutes/assign",
+                    data: {
+                        estimate_minutes: estimate_minutes,
+                        issue_id: issueId
+                    },
+                    success: function (response) {
+                        toastr["success"]("Estimate Minutes updated successfully!", "Message")
+                    }
+                });
+            }
         }
     });
 
@@ -805,4 +888,49 @@ $.views.helpers({
             });
         }
    
+    });
+    /**
+     * show hide description
+     */
+    $(document).on('click','.show_hide_description',function(){  
+		if($(this).next('.description_content:visible').length){
+			$(this).html("Show Description");
+            $(this).next('.description_content').hide();
+        }
+		else{
+			$(this).html("Hide Description");
+            $(this).next('.description_content').show();  
+        }      
+    });
+    
+    /**
+     * set due date
+     */
+    $(document).on('click', '.set-due-date', function (e) {
+        e.preventDefault();
+        console.log("due date");
+        var thiss = $(this);
+        var task_id = $(this).data('taskid');
+        var date = $(this).siblings().find('.due_date_cls').val();
+        var type = $(this).siblings().find('.due_date_cls').data('type');
+        if (date != '') {
+            $.ajax({
+                    url: '/task/update/due_date',
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                    },
+                    "data": {
+                        task_id : task_id,
+                        date : date,
+                        type : type
+                    }
+                }).done(function (response) {
+                    toastr['success']('Successfully updated');
+                }).fail(function (errObj) {
+                
+                });
+        } else {
+            alert('Please enter a date first');
+        }
     });
