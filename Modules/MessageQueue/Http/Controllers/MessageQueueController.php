@@ -30,12 +30,10 @@ class MessageQueueController extends Controller
         //if(env("APP_ENV") != "local") {
         if (!empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
-                \Log::info("Started ".date("Y-m-d H:i:s")."=>".json_encode([$dataInstance,$no]));
                 $no                   = ($no == 0) ? $dataInstance["number"] : $no;
                 $chatApi              = new ChatApi;
                 $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
-                \Log::info("Ended ".date("Y-m-d H:i:s")."=>".$no);
             }
         }
         //}
