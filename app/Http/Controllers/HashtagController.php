@@ -577,6 +577,7 @@ class HashtagController extends Controller
         }
         $influencers =  $influencers->orderBy('created_at','desc')->paginate(25);
         $keywords = InfluencerKeyword::all();
+        $accounts = Account::where('status',1)->where('platform','instagram')->pluck('last_name','id');
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers','posts','followers','following','term'))->render(),
@@ -585,7 +586,7 @@ class HashtagController extends Controller
             ], 200);
         }
 
-         return view('instagram.hashtags.influencers', compact('influencers','keywords','posts','followers','following','term'));
+         return view('instagram.hashtags.influencers', compact('accounts','influencers','keywords','posts','followers','following','term'));
     }
 
     public function showGridUsers($id = null,Request $request)

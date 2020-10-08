@@ -30,24 +30,68 @@
         $thread =\App\InstagramThread::where('scrap_influencer_id', $influencer->id)->first();
         @endphp
         @if($thread) 
-        <div class="typing-indicator" id="typing-indicator"@if($thread->lastMessage) @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ str_limit($thread->lastMessage->message, 12, '...')}}@endif</div>
-        <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="https://erp.amourint.com/images/chat.png" alt=""></button>
+        @if($thread->lastMessage)
+        <div class="typing-indicator" id="typing-indicator"> 
+                @if($thread->lastMessage->sent == 1) style="color: green;" @else style="color: red;" @endif>{{ str_limit($thread->lastMessage->message, 20, '...')}}
+        </div>
+        @endif
+        @endif
+       <div class="row" style="margin:0px;padding:0px;">
+       <div class="form-group mr-3" style="width: 100%; margin-bottom: 2px;">
+            <select class="form-control account-search-{{$influencer->id}} select2" name="account_id" data-placeholder="Sender...">
+                <option value="">Select sender...</option>
+                  @foreach ($accounts as $key => $account)
+                    <option value="{{ $key }}" {{ isset($thread) && $thread->account_id == $key ? 'selected' : '' }}>{{ $account }}</option>
+                  @endforeach
+            </select>
+        </div>
+       </div>
         <div class="row" style="margin:0px;padding:0px;">
-            <div class="col-md-10 cls_remove_rightpadding">
+            <div class="col-md-9 cls_remove_rightpadding" style="padding:0px;">
                 <textarea name="" class="form-control type_msg message_textarea cls_message_textarea" placeholder="Type your message..." id="message{{ $influencer->id }}"></textarea>
                 <input type="hidden" id="message-id" name="message-id" />
             </div>
-            <div class="col-md-2 cls_remove_padding">
+            <div class="col-md-3 cls_remove_padding" tyle="padding:0px;">
                 <div class="input-group-append">
+                    @if($thread)
                     <a href="{{ route('attachImages', ['direct', @$thread->id, 1]) .'?'.http_build_query(['return_url' => 'instagram/influencers'])}}" class="btn btn-image px-1"><img src="{{asset('images/attach.png')}}"/></a>
-                    <a class="btn btn-image px-1" href="javascript:;"><span class="send_btn" onclick="sendMessage('{{ $thread->id }}')"><i class="fa fa-location-arrow"></i></span></a>
+                    @endif
+                    <a class="btn btn-image px-1" href="javascript:;"><span class="send_btn" data-id="{{$influencer->id}}"><i class="fa fa-location-arrow"></i></span></a>
+                    @if($thread)
+                    <button type="button" class="btn btn-xs btn-image load-direct-chat-model" data-object="direct" data-id="{{ $thread->id }}" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
+                    @endif
                 </div>
             </div>                                          
         </div>
-        @else 
-        <p>No thread created</p>
-        @endif
     </td> 
+    <td>
+    <div class="d-flex">
+    <button title="Retrieve latest post and comment." class="btn btn-image latest-post pd-2" data-id="{{ $influencer->id }}"><img src="{{asset('images/add.png')}}"/></button>
+    <button class="btn btn-image expand-row-btn pd-2" data-id="{{ $influencer->id }}"><img src="/images/forward.png"></button>
+    </div>
+    
+    </td>
+</tr>
+<tr class="dis-none" id="expand-{{ $influencer->id }}">
+@php 
+  $media = json_decode($influencer->post_media_url);
+@endphp
+<td colspan="6">
+@if($media)
+<div class="row">
+@foreach($media as $m)
+  @if($m->media_type == 1)
+  &nbsp;<img style="width:75px;height:75px;" src="{{$m->url}}" alt="">&nbsp;&nbsp;
+  @endif
+@endforeach
+</div>
+@endif
+</td>
+<td colspan="5">
+  @if(isset($influencer->comment))
+  <p>Latest comment : {{$influencer->comment}} by {{$influencer->comment_user_full_name}} on {{date('d-m-Y', strtotime($influencer->comment_posted_at))}}
+  @endif
+</td>
 </tr> 
 @endforeach
 

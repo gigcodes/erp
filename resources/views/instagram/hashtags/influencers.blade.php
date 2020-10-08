@@ -61,6 +61,9 @@
         height: 10px;
         border-radius: 50%;
     }
+    .pd-2 {
+        padding:2px;
+    }
     </style>
 @endsection
 @section('large_content')
@@ -76,7 +79,7 @@
                 <div class="form-group mr-3 mb-3">
                         <input name="term" type="text" class="form-control" id="term"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="name">
+                               placeholder="Search...">
                 </div>
                 <div class="form-group mr-3 mb-3">
                         <select class="form-control" name="posts" id="">
@@ -200,8 +203,9 @@
                         <th style="width:7%">Followers</th>
                         <th style="width:7%">Following</th>
                         <th style="width:7%">Country</th>
-                        <th style="width:16%">Description</th>
+                        <th style="width:10%">Description</th>
                         <th style="width:21%">Communication</th>
+                        <th style="width:6%">Action</th>
                         <!-- <th>Phone</th>
                         <th>Website</th>
                         <th>Twitter</th>
@@ -250,6 +254,22 @@
                     <div class="modal-body">
                             <div class="col-md-12">
                                 <div class="col-md-2">
+                                    <strong>Account:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                    <div class="form-group">
+                                    <select class="form-control account-search select2" name="account_id" data-placeholder="Sender...">
+                                        <option value="">Select sender...</option>
+                                        @foreach ($accounts as $key => $account)
+                                            <option value="{{ $key }}">{{ $account }}</option>
+                                        @endforeach
+                                    </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-md-12">
+                                <div class="col-md-2">
                                     <strong>Message:</strong>
                                 </div>
                                 <div class="col-md-8">
@@ -279,6 +299,11 @@
                 $(this).find('.td-full-container').toggleClass('hidden');
             }
         });
+
+        $('select.select2').select2({
+                tags: true,
+                width: "100%"
+            });
 
          $(document).ready(function() {
         src = "{{ route('influencers.index') }}";
@@ -510,6 +535,32 @@
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
         });
+
+        $(document).on('click', '.send_btn', function () {
+			var id = $(this).data('id');
+            var account_id = $(".account-search-"+id).val();
+            var message = $('#message'+id).val();
+            $.ajax({
+                url: '{{ route('direct.send-message') }}',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                            "_token": "{{ csrf_token() }}", 
+                            "message" : message,
+                            "influencer_id" : id,
+                            "account_id" : account_id,
+                       },
+                    })
+                    .done(function() {
+                        $('#message'+id).val('');
+                        toastr['success']('Successfull', 'success');
+                    })
+                    .fail(function(error) {
+                        toastr['error'](error.responseJSON.message, 'error');
+                    })
+        });
+
+
         
         function sendMessage(id){
                 message = $('#message'+id).val();
@@ -564,6 +615,7 @@
         $(document).on('submit', '#directMessageForm', function (e) {
                 e.preventDefault();
                 var data = $(this).serializeArray();
+                var account_id = $('.account-search').val();
                 data.push({name: 'selectedInfluencers', value: selectedInfluencers});
                 $.ajax({
                     url: "{{route('direct.group-message')}}",
@@ -607,6 +659,35 @@
                 });
 
             });
+            $(document).on('click', '.latest-post', function () {
+            $.ajax({
+                url: '{{ route('direct.latest-posts') }}',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {
+                        '_token': "{{ csrf_token() }}",
+                        id : $(this).data("id")
+                    },
+                beforeSend: function() {
+                    $("#loading-image").show();
+                },
+
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                }).fail(function (error) {
+                    console.log(error);
+                    $("#loading-image").hide();
+                    toastr['error'](error.responseJSON.message);
+                });
+
+            });
+
+            $(document).on('click', '.expand-row-btn', function () {
+            var id = '#expand-'+$(this).data('id');
+            console.log($(this).data('id'));
+            console.log(id);
+            $(id).toggleClass('dis-none');
+        });
     </script>
 
 @endsection
