@@ -1564,6 +1564,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
      Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
+     Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 });
 
 // logScraperVsAiController

@@ -640,7 +640,7 @@
 
         $(document).on('click', '.load-direct-chat-model', function () {
             $.ajax({
-                url: '{{ route('direct.messages') }}',
+                url: '{{ route('direct.infulencers-messages') }}',
                     type: 'POST',
                     dataType: 'json',
                     data: {

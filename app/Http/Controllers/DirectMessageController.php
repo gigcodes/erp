@@ -395,11 +395,9 @@ $solo_numbers = (new SoloNumbers)->all();
         $i = new Instagram();
 
         try {
-        	// $i->setProxy($proxy);
-            // $i->login($sender, $password);
-            $i->login('satyam_t', 'Schoolrocks93');
+        	$i->setProxy($proxy);
+            $i->login($sender, $password);
         } catch (\Exception $exception) {
-            // dd($exception);
             return false;
         }
 
@@ -468,6 +466,48 @@ $solo_numbers = (new SoloNumbers)->all();
         }
     }
 
+
+    public function influencerMessages(Request $request)
+    {
+        $id = $request->id;
+        $thread = InstagramThread::find($id);
+        if($thread){
+            $chats = $thread->influencerConversation;
+            $html = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"><table class="table table-bordered"><tbody><tr class="in-background"><tr>';
+            foreach ($chats as $chat) {
+                if(isset($chat->getRecieverUsername->username)){
+                    $receiver = $chat->getRecieverUsername->username;
+                }else{
+                    $receiver = 'unknown';
+                }
+
+                if(isset($chat->getSenderUsername->last_name)){
+                    $sender = $chat->getSenderUsername->last_name;
+                }else{
+                    $sender = 'unknown';
+                }
+
+
+                if($chat->message_type == 3){
+                    $message = '<img src="'.$chat->message.'" height="200px" width="200px">';
+                }else{
+                    $message = $chat->message;
+                }
+
+
+                $html .= '<td style="width:5%"><input data-id="{{ $chat->id }}" data-message="" type="checkbox" class="click-to-clipboard"></td><td style="width:45%"><div class="speech-wrapper "><div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="">'. $message .'</p></div></div></div></td><td style="width:30%"><a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="505729"><i class="fa fa-trash" aria-hidden="true"></i></a><a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a></td><td style="width:20%"><span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From '. $sender .' to '. $receiver  .' on '.
+                    $chat->created_at.'</span></td></tr><tr class="in-background">';
+            }
+
+            $html .= '</tr></tbody></table></div>';
+
+            return response()->json([
+            'status' => 'success',
+            'messages' => $html
+            ]);
+            
+        }
+    }
 
     public function sendMessageMultiple(Request $request) {
         if(!$request->message || $request->message == '') {
