@@ -79,7 +79,7 @@ class WhatsappConfigController extends Controller
 		
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs'))->render(),
+                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs','storeData'))->render(),
                 'links' => (string)$whatsAppConfigs->render()
             ], 200);
         }
