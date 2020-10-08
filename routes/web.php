@@ -1568,11 +1568,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
      Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
      Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
-
+     Route::post('direct/group-message', 'DirectMessageController@sendMessageMultiple')->name('direct.group-message');
+     Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
+     Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
-
-     
-
+     Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 });
 
 // logScraperVsAiController

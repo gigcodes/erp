@@ -393,4 +393,16 @@ class ChatMessage extends Model
     }
 
 
+    public function getRecieverUsername() {
+        return $this->hasOne(\App\InstagramUsersList::class, 'id', 'instagram_user_id');
+
+    }
+
+    public function getSenderUsername() {
+        return $this->hasOne(\App\Account::class, 'id', 'account_id');
+
+    }
+    
+
+
 }
