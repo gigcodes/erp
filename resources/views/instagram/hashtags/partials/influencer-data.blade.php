@@ -14,6 +14,7 @@
         <span class="td-full-container hidden">
             {{ $influencer->description }}
         </span></td>
+    <td>{{ $influencer->keyword }}</td>    
 </tr> 
 @endforeach
 

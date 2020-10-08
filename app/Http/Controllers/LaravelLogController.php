@@ -92,20 +92,20 @@ class LaravelLogController extends Controller
 			$errorTypeArr = ['ERROR','INFO','WARNING'];
 			$errorTypeSeparated = implode('|', $errorTypeArr);
 			$errSelection = [];
-			
+
 			$defaultSearchTerm = 'ERROR';
 			if($request->get('type'))
 			{
 				$defaultSearchTerm = $request->get('type');
 			}
-			
+
             foreach ($match[0] as $value) {
 				foreach($errorTypeArr as $errType)
 				{
 					if(preg_match("/".$errType."/", $value))
 					{
 						$errSelection[] = $errType;
-						
+
 						break;
 					}
 				}
@@ -117,19 +117,19 @@ class LaravelLogController extends Controller
 		    $errors = array_reverse($errors);
         } catch (\Exception $e) {
             $errors = [];
-			
+
         }
 		/* echo "<pre>";
 		print_r($errors);
 		print_r();
-		
+
 		exit;
  */
 		$allErrorTypes = array_values(array_unique($errSelection));
- 
+
 		$users = User::all();
 		$currentPage = LengthAwarePaginator::resolveCurrentPage();
-		
+
         $perPage = Setting::get('pagination');
 
         $currentItems = array_slice($errors, $perPage * ($currentPage - 1), $perPage);
@@ -166,12 +166,12 @@ class LaravelLogController extends Controller
         return view('logging.scraperlog', ['logs' => $logs, 'filename' => str_replace('/', '', $filename)]);
 
     }
-	
-	
+
+
 	public function assign(Request $request)
 	{
 		if($request->get('issue') && $request->get('assign_to'))
-		{			
+		{
 			$error = html_entity_decode($request->get('issue'), ENT_QUOTES, 'UTF-8');
 			$issueName = substr($error, 0, 150);
 			$requestData = new Request();
@@ -184,11 +184,13 @@ class LaravelLogController extends Controller
 				'subject'     => $issueName."...",
 				'assigned_to' => $request->get('assign_to'),
 			]);
-			
-			
+
 			app('App\Http\Controllers\DevelopmentController')->issueStore($requestData, 'issue');
+
 			return redirect()->route('logging.live.logs');
 		}
+
+        return back()->with('error', '"issue" or "assign_to" not found in request.');
 	}
 
     public static function getErrors($fullPath)
@@ -212,6 +214,15 @@ class LaravelLogController extends Controller
 
     public function liveLogDownloads() {
         $filename = '/laravel-' . now()->format('Y-m-d') . '.log';
+
+        $path     = storage_path('logs');
+        $fullPath = $path . $filename;
+        return response()->download($fullPath,str_replace('/', '', $filename));
+    }
+
+    public function liveMagentoDownloads()
+    {
+        $filename = '/list-magento-' . now()->format('Y-m-d') . '.log';
 
         $path     = storage_path('logs');
         $fullPath = $path . $filename;

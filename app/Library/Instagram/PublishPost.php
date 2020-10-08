@@ -47,7 +47,7 @@ class PublishPost
 
         // Set proxy if exists
         if ($account->proxy) {
-            $instagram->setProxy($account->proxy);
+            //$instagram->setProxy($account->proxy);
         }else{
 
             Log::error('Something went wrong: Proxy Not Set For Account '.$account->last_name);
@@ -65,7 +65,7 @@ class PublishPost
             $instagram->login($account->last_name, $account->password);
 
         } catch (IncorrectPasswordException $e) {
-
+            dd($e->getMessage());
             Log::error('The password you entered is incorrect. Please try again. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -75,7 +75,7 @@ class PublishPost
             return false;
 
         } catch (InvalidUserException $e) {
-
+            dd($e->getMessage());
             Log::error('The username you entered doesn\'t appear to belong to an account. Please check your username and try again. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -85,7 +85,7 @@ class PublishPost
             return false;
 
         } catch (SentryBlockException $e) {
-
+            dd($e->getMessage());
             Log::error('Your account has been banned from Instagram API for spam behaviour or otherwise abusing. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -95,7 +95,7 @@ class PublishPost
             return false;
 
         } catch (AccountDisabledException $e) {
-
+            dd($e->getMessage());
             Log::error('Your account has been disabled for violating Instagram terms. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -105,7 +105,7 @@ class PublishPost
             return false;
 
         } catch (FeedbackRequiredException $e) {
-
+            dd($e->getMessage());
             Log::error('Feedback required. It looks like you were misusing this feature by going too fast. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -115,7 +115,7 @@ class PublishPost
             return false;
 
         } catch (CheckpointRequiredException $e) {
-
+            dd($e->getMessage());
             Log::error('Your account is subject to verification checkpoint. Please go to instagram.com and pass checkpoint. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -125,7 +125,7 @@ class PublishPost
             return false;
 
         } catch (ChallengeRequiredException $e) {
-
+            dd($e->getMessage());
             Log::error('Challenge required. Please re-add your account to confirm it. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -135,7 +135,7 @@ class PublishPost
             return false;
 
         } catch (ConsentRequiredException $e) {
-
+            dd($e->getMessage());
             Log::error('You should verify and agree terms using your mobile device. ' . $e->getMessage());
 
             $post->status  = 2;
@@ -145,7 +145,7 @@ class PublishPost
             return false;
 
         } catch (ServerMessageThrower $e) {
-
+            dd($e->getMessage());
             Log::error('Something went wrong: ' . $e->getMessage());
 
             $post->status  = 2;
@@ -155,7 +155,7 @@ class PublishPost
             return false;
 
         } catch (\Exception $e) {
-
+            dd($e->getMessage());
             Log::error('Something went wrong: ' . $e->getMessage() . ' in file: ' . $e->getFile() . ' on line: ' . $e->getLine());
 
             $post->status  = 2;

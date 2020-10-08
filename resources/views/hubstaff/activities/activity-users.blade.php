@@ -30,6 +30,10 @@
                             <?php echo Form::select("user_id",["" => "-- Select User --"]+$users,$user_id,["class" => "form-control select2"]); ?>
                         </div>
                         <div class="form-group">
+                            <label for="keyword">Task id:</label>
+                            <?php echo Form::number("task_id",$task_id,["class" => "form-control"]); ?>
+                        </div>
+                        <div class="form-group">
                             <strong>Date Range</strong>
                             <input type="text" value="{{$start_date}}" name="start_date" hidden/>
                             <input type="text" value="{{$end_date}}" name="end_date" hidden/>
@@ -38,11 +42,15 @@
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label for="keyword">Task ID:</label>
-                            <input type="text" class="form-control" value="" placeholder="Add Your Task ID Here" name="task_id"/>
-                            
-                        </div>
+                        <!-- <div class="form-group">
+                            <strong>Date Range</strong>
+                            <input type="text" value="{{$start_date}}" name="start_date" hidden/>
+                            <input type="text" value="{{$end_date}}" name="end_date" hidden/>
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+                        </div> -->
                         <div class="form-group">
                             <label for="keyword">Status:</label>
                             <select name="status" id="" class="form-control">
@@ -95,6 +103,13 @@
                     <a class="btn btn-secondary show-activities">+</a>
                 </form>
                 @endif
+                @if(Auth::user()->isAdmin() && $user['final_approval'])
+                <form action="">
+                    <input type="hidden" class="user_id" name="user_id" value="{{$user['user_id']}}">
+                    <input type="hidden" class="date" name="date" value="{{$user['date']}}">
+                    <a class="btn btn-secondary show-activities"><i class="fa fa-check" aria-hidden="true"></i></a>
+                </form>
+                @endif
               </td>
           @endforeach
       </table>
@@ -131,6 +146,10 @@
             <div class="form-group">
                 <label for="">Total time (In minutes)</label>
                 <input type="number" name="total_time" class="form-control" required>
+            </div>
+            <div class="form-group">
+                <label for="">Task Id</label>
+                <input type="number" name="task_id" class="form-control" placeholder="Enter task id, eg. 2997">
             </div>
             <div class="form-group">
                 <label for=""> Notes </label>

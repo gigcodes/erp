@@ -6,6 +6,12 @@ use Illuminate\Database\Migrations\Migration;
 
 class AddSenderReceiverToHubstaffActivitySummariesTable extends Migration
 {
+
+    public function __construct()
+    {
+        \DB::getDoctrineSchemaManager()->getDatabasePlatform()->registerDoctrineTypeMapping('json', 'string');
+    }
+
     /**
      * Run the migrations.
      *

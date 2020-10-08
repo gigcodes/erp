@@ -123,37 +123,44 @@ class InfluencersController extends Controller
 
     public function getScraperImage(Request $request)
     {
-       $name = $request->name;
+     $name = $request->name;
 
-       $cURLConnection = curl_init();
+     $name = str_replace(" ","",$name);
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-image?'.$name);
-        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+     $cURLConnection = curl_init();
 
-        $phoneList = curl_exec($cURLConnection);
-        curl_close($cURLConnection);
+     $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
+     curl_setopt($cURLConnection, CURLOPT_URL, $url);
+     
+     curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
-        $jsonArrayResponse = json_decode($phoneList);
+     $phoneList = curl_exec($cURLConnection);
+     curl_close($cURLConnection);
 
-        $b64 = $jsonArrayResponse->status;
+     $jsonArrayResponse = json_decode($phoneList);
 
-        if($jsonArrayResponse->status == 'Something Went Wrong'){
-            return \Response::json(array('success' => false,'message' => 'No Image Available')); 
-        } 
-        $content = base64_decode($b64);
+     $b64 = $jsonArrayResponse->status;
 
-        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+     if($jsonArrayResponse->status == 'Something Went Wrong'){
+        return \Response::json(array('success' => false,'message' => 'No Image Available')); 
+    } 
+    $content = base64_decode($b64);
+
+    $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
     
-        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+    return \Response::json(array('success' => true,'message' => $media->getUrl()));
     }
 
     public function checkScraper(Request $request)
     {
        $name = $request->name;
 
-       $cURLConnection = curl_init();
+       $name = str_replace(" ","",$name);
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/get-status?'.$name);
+       $cURLConnection = curl_init();
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+        
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -171,9 +178,12 @@ class InfluencersController extends Controller
     {
        $name = $request->name;
 
+       $name = str_replace(" ","",$name);
+
        $cURLConnection = curl_init();
 
-        curl_setopt($cURLConnection, CURLOPT_URL, 'http://178.62.200.246:8100/start-script?'.$name);
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
         $phoneList = curl_exec($cURLConnection);
@@ -186,4 +196,82 @@ class InfluencersController extends Controller
         return \Response::json(array('success' => true,'message' => $b64));
        
     }
+
+    public function getLogFile(Request $request)
+    {
+        $name = $request->name;
+
+        $name = str_replace(" ","",$name);
+
+        $cURLConnection = curl_init();
+
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+        
+        $b64 = $jsonArrayResponse->status;
+        
+        if($jsonArrayResponse->status == 'Something Went Wrong'){
+            return \Response::json(array('success' => false,'message' => 'No Logs Available')); 
+        } 
+        $content = base64_decode($b64);
+
+        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    
+        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+       
+    }
+
+    public function restartScript(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+    public function stopScript(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+
 }

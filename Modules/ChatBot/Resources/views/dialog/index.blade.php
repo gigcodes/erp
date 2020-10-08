@@ -36,7 +36,7 @@
 			      <div class="dialog">
 			         <div class="dialog-tree-container">
 			            <ul id="dialog-tree" class="node-children">
-			               
+
 			            </ul>
 			         </div>
 			      </div>
@@ -70,4 +70,9 @@
 <script src="/js/bootstrap-toggle.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/dialog-build.js"></script>
+<script>
+    $(document).on('click', '#create-dialog-btn-rest', function(){
+        $('#create-dialog').modal("show");
+    })
+</script>
 @endsection

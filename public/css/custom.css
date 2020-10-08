@@ -133,9 +133,12 @@
 .notification-table tr.isread{
     background: #ECF2FB;
 }
-
+#title
+{
+    background: darkgray;color:#fff;padding:10px;margin-top:10px;margin-bottom:10px;
+}
 .grid-image{
-  height: 200px !important;
+  /* height: 200px !important; */
   margin: 0 auto;
 }
 
@@ -1665,4 +1668,53 @@ p {
 label.error{
     color:red;
     padding-left: 5px;
+}
+.show_hide_description{
+    text-decoration-line: underline;
+    color: blue;
+}
+
+.tasks_list_tbl table tbody td {
+    vertical-align: middle !important;
+}
+
+.tasks_list_tbl table tbody td .form-group {
+    margin-bottom: 0;
+    padding: 0 !important;
+}
+
+.estimate_minutes {
+    display: flex !important;
+    flex-wrap: inherit !important;
+}
+
+.estimate_minutes input {
+    flex: 1;
+    display: inline-block !important;
+}
+
+.tasks_list_tbl table tbody td label {
+    margin-bottom: 0;
+    /* display: none; */
+}
+
+.tasks_list_tbl table tbody td input {
+    border: 1px solid #ccc;
+    border-radius: 0;
+    box-shadow: none;
+}
+
+.tasks_list_tbl table tbody td .d-flex {
+    align-items: center;
+}
+.tasks_list_tbl table tbody td .d-flex button {
+    display: flex;
+}
+.tasks_list_tbl table tbody td .d-flex button img {
+    margin: auto !important;
+}
+.show_hide_description {
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-decoration: none;
 }

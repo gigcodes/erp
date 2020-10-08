@@ -19,6 +19,17 @@ class ReturnExchange extends Model
         'status',
         'pickup_address',
         'remarks',
+        'refund_amount_mode',
+        'chq_number',
+        'awb',
+        'payment',
+        'date_of_refund',
+        'date_of_issue',
+        'details',
+        'dispatch_date',
+        'date_of_request',
+        'credited',
+        'est_completion_date'
     ];
 	
     const STATUS = [
@@ -52,6 +63,11 @@ class ReturnExchange extends Model
         return $this->hasOne(\App\ReturnExchangeStatus::class, "status", "id");
     }
 
+    public function customer()
+    {
+        return $this->belongsTo('App\Customer');
+    }
+
     /**
      * Update return exchange history
      *
@@ -64,9 +80,15 @@ class ReturnExchange extends Model
             "status_id"          => $this->status,
             "user_id"            => \Auth::user()->id,
             "comment"            => $this->remarks,
+            "history_type"       => 'status'
         ]);
 
         return true;
+    }
+
+    public function cashFlows()
+    {
+        return $this->morphMany(CashFlow::class, 'cash_flow_able');
     }
 
 }

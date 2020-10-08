@@ -25,6 +25,12 @@ class InstagramThread extends Model
     
     }
 
+    public function erpUser()
+    {
+        return $this->hasOne(Customer::class, 'id', 'customer_id');
+    
+    }
+
     public function lastMessage()
     {
         return $this->hasOne(ChatMessage::class, 'unique_id', 'thread_id')->orderBy('id','desc')->whereNotNull('message');

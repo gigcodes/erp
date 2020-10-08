@@ -7,7 +7,7 @@
                 <button type="button" class="close" data-dismiss="modal">&times;</button>
             </div>
             <div class="modal-body">
-                <form action="<?php echo route('reply.create.chatbot_questions'); ?>" method="post">
+                <form action="<?php echo route('reply.create.chatbot_questions'); ?>" id="auto-reply-popup-form" method="post">
                     <?php echo csrf_field(); ?>
                     <input type="hidden" name="intent_reply_id" id="reply_id_edit">
                     <div class="form-row">
@@ -18,16 +18,22 @@
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-12">
-                            <strong>Suggested Reply</strong>
-                            <input class="form-control question-insert" name="intent_reply" id="intentReply" placeholder="Insert your Reply"></select>
+                            <strong>User Intent</strong>
+                            <input class="form-control question-insert" name="question" id="question" placeholder="Insert user intent"></select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group col-md-12">
+                            <strong>Suggested Reply</strong>
+                            <input class="form-control question-insert" name="intent_reply" id="intentReply" placeholder="Insert your Reply"></select>
+                        </div>
+                    </div>
+                    <!-- <div class="form-row">
+                        <div class="form-group col-md-12">
                             <strong>Intent Model</strong>
                             <input class="form-control question-insert" name="intent_model" id="intentModel" placeholder=""></select>
                         </div>
-                    </div>
+                    </div> -->
                     <div class="form-row">
                         <div class="form-group col-md-12">
                             <strong>Category</strong>
@@ -53,4 +59,3 @@
         </div>
     </div>
 </div>
-@include('autoreplies.partials.modals.intent')

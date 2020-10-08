@@ -1,7 +1,7 @@
 <?php
 
 namespace App;
-
+use App\StoreWebsite;
 use Illuminate\Database\Eloquent\Model;
 
 class EmailAddress extends Model
@@ -16,6 +16,13 @@ class EmailAddress extends Model
     'encryption',
     'username',
     'password',
+    'store_website_id',
   ];
+  
+   public function website()
+    {
+       return $this->hasOne(StoreWebsite::class,'id','store_website_id');
+    }
+
 
 }

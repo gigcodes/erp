@@ -71,6 +71,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         #quick-sidebar {
             padding-top: 35px;
         }
+        #notification_unread{
+            color:#fff;
+        }
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -333,12 +336,26 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
                         @else
 
+                        <?php 
+
+                        //getting count of unreach notification
+                        $unread = 0;
+                        if(!empty($notifications)){
+                            foreach($notifications as $notification)
+                            {
+                                if(!$notification->isread)
+                                {
+                                    $unread++;
+                                }
+
+                            }
+                        }
+                        
 
 
-
-
+                        /* ?>
                         @include('partials.notifications')
-
+                        <?php */ ?>
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                         </li> --}}
@@ -590,6 +607,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Suggested Images</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -622,6 +641,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue Approval</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue (Approved)</a>
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
@@ -1295,6 +1317,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
+                                        <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
                                     </li>
                                     <li class="nav-item">
@@ -1546,6 +1572,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
+                                </li>
+                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
                                 </li>
                             </ul>
                         </li>
@@ -1851,6 +1880,14 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                 <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
             </button>
         </div>
+        <div class="notification-badge">
+            <button class="chat-button">
+                <a href="{{route('notifications')}}">
+                <img src="/images/notification-icon.png" class="img-responsive"/>
+                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>
+                </a>
+            </button>
+        </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
             <div class="help-list well well-lg">
                 <div class="row">
@@ -1964,7 +2001,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
                     <div class="col-md-3 customer-info">
                         <div class="chat-righbox">
                             <div class="title">General Info</div>
@@ -1996,6 +2033,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
     </div>
 
     @endif
+
 
     <!-- Scripts -->
 
@@ -2450,6 +2488,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }

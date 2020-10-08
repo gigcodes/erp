@@ -11,19 +11,27 @@
 		margin-bottom: 5px !important;
 		width:19.5%  !important;
 	}
+	.form-group-extended-fifteen{
+		margin-bottom: 5px !important;
+		width:15%  !important;
+	}
+	.form-group-extended-four{
+		margin-bottom: 5px !important;
+		width:4%  !important;
+	}
 	.form-group-extended input[type=text]{
 		width:99%  !important;
 	}
-	.action{
-		padding: 3px !important;
-	}
-	.action button{
-		padding: 3px !important;
-	}
+
 	.modal-dialog-wide{ 
 		max-width: 100%;
 		width: auto !important;
 		/*display: inline-block;*/
+	}
+	.select2-container {
+		width:100% !important;
+	}.no_pd {
+		padding: 0px !important;
 	}
 	</style>
 @endsection
@@ -36,9 +44,9 @@
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
-    	<div class="row" style="margin-bottom:20px;">
+    	<div class="row" style="margin-bottom:0px;">
 	    	<div class="col">
-		    	<div class="h" style="margin-bottom:10px;">
+		    	<div class="h" style="margin-bottom:0px;">
 		    		<form class="form-inline return-exchange-handler" method="post">
 					  <div class="row">
 				  		<div class="col">
@@ -91,7 +99,10 @@
 									"placeholder" => "Number of records"
 									]) ?>
 						  	</div>
-						  	<div class="form-group form-group-extended">
+							  <div class="form-group form-group-extended-fifteen">
+							  <input style="min-width: 30px;" placeholder="Est Return / Exch. date" value="" type="text" class="form-control search-est-return-exch-date" name="est_completion_date">
+						  	</div>
+						  	<div class="form-group form-group-extended-four">
 						  		<!--<label for="button">&nbsp;</label>-->
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 						  			<img src="/images/search.png" style="cursor: default;">
@@ -115,9 +126,13 @@
 				  <a href="#" class="btn btn-xs update-customer btn-secondary" id="create_status">
 						Create Status
 				  </a>
+				  <a href="#" class="btn btn-xs update-customer btn-secondary" id="create_refund">
+						Create Refund
+				  </a>
 				</div>
 			</div>
 		</div>
+		<!-- a -->
 		<div class="col-md-12 margin-tb infinite-scroll" id="page-view-result">
 
 		</div>
@@ -135,6 +150,9 @@
 @include("return-exchange.templates.modal-emailToCustomer")
 @include("return-exchange.templates.modal-createstatus")
 @include("return-exchange.templates.modal-productDetails")
+@include("return-exchange.templates.create-refund")
+@include("return-exchange.templates.update-refund-modal")
+
 @endsection
 
 @section('scripts')
@@ -150,7 +168,49 @@
 			bodyView : $("#return-exchange-page"),
 			baseUrl : "<?php echo url("/"); ?>"
 		});
+		$('#date_of_request').datetimepicker({
+		format: 'YYYY-MM-DD HH:mm'
+		});
+
+		$('#date_of_dispatched').datetimepicker({
+			format: 'YYYY-MM-DD HH:mm'
+		});
+
+		$('.search-est-return-exch-date').datetimepicker({
+			format: 'YYYY-MM-DD'
+		});
 		
+		$(document).ready(function () {
+		// $(".estimate-date").each(function() {
+        //         $(this).datetimepicker({
+		// 			format: 'YYYY-MM-DD'
+		// 		});
+		// });
+
+		$('body').on('focus',".estimate-date", function(){
+        		$(this).datetimepicker({
+					format: 'YYYY-MM-DD'
+				});
+    	});
+	});
+
+	    $(document).on('click', '.expand-row', function () {
+			var id = $(this).data('id');
+			console.log(id);
+            var full = '.expand-row .td-full-container-'+id;
+            var mini ='.expand-row .td-mini-container-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+
+
+		$(document).on('click', '#dispatch_date', function (e) {
+		if ($(this).prop('checked')) {
+			$('#additional-fields').show();
+		} else {
+			$('#additional-fields').hide();
+		}
+    	});
 		$(document).on('click', '.send-email-to-customer', function () {
             $('#emailToCustomerModal').find('form').find('input[name="customer_id"]').val($(this).data('id'));
             $('#emailToCustomerModal').modal("show");
@@ -183,6 +243,56 @@
 				}
 			});
 		});
+
+
+		$(document).on('submit', '#createRefundForm', function (e) {
+			e.preventDefault();
+			var data = $(this).serializeArray();
+			$.ajax({
+				url: "{{route('return-exchange.createRefund')}}",
+				type: 'POST',
+				data: data,
+				success: function (response) {
+					toastr['success'](response.message, 'success');
+					$('#createRefundModal').modal('hide');
+					$("#createRefundForm").trigger("reset");
+					$("tr").find('.select-id-input').each(function () {
+					  if ($(this).prop("checked") == true) {
+						$(this).prop("checked", false);
+					  }
+					});
+					window.location.reload();
+				},
+				error: function (error) {
+					toastr['error'](error.responseJSON.message, 'error');
+				}
+			});
+		});
+
+
+		$(document).on('submit', '#updateRefundForm', function (e) {
+			e.preventDefault();
+			var data = $(this).serializeArray();
+			$.ajax({
+				url: "{{route('return-exchange.updateRefund')}}",
+				type: 'POST',
+				data: data,
+				success: function (response) {
+					toastr['success'](response.message, 'success');
+					$('#updateRefundModal').modal('hide');
+					$("#updateRefundForm").trigger("reset");
+					$("tr").find('.select-id-input').each(function () {
+					  if ($(this).prop("checked") == true) {
+						$(this).prop("checked", false);
+					  }
+					});
+					// window.location.reload();
+				},
+				error: function (error) {
+					toastr['error'](error.responseJSON.message, 'error');
+				}
+			});
+		});
 		
 		$(document).on('submit', '#createStatusForm', function (e) {
 			e.preventDefault();
@@ -201,6 +311,33 @@
 				}
 			});
 		});
+
+		$(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+		});
+		
+		$(document).on('click', '.estimate-date-submit', function () {
+			let exchange_id = $(this).data('id');
+			let estimate_date = $("#estimate_date_" + exchange_id).val();
+            $.ajax({
+				url: "{{route('return-exchange.update-estimated-date')}}",
+				type: 'POST',
+                data: {
+                    estimate_date : estimate_date,
+					exchange_id: exchange_id,
+					_token: "{{csrf_token()}}"
+                },
+                success: function (response) {
+                    toastr["success"]("Estimated Date updated successfully!", "Message");
+                }
+            });
+
+        });
 		
 	</script>
 @endsection

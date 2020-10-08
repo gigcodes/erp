@@ -112,11 +112,16 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
+use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\ProjectDirectory;
+use App\Console\Commands\LogScraperDelete;
+
 
 
 class Kernel extends ConsoleKernel
@@ -225,11 +230,16 @@ class Kernel extends ConsoleKernel
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
         ScrapLogs::class,
+        AuthenticateWhatsapp::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class,
         PriceComparisonScraperCommand::class,
-        WayBillTrackHistories::class
+        WayBillTrackHistories::class,
+        CustomerListToEmailLead::class,
+        WayBillTrackHistories::class,
+        ProjectDirectory::class,
+        LogScraperDelete::class
     ];
 
     /**
@@ -445,6 +455,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -474,14 +485,23 @@ class Kernel extends ConsoleKernel
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
+
+		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+
 		
         //update order way billtrack histories
         $schedule->command('command:waybilltrack')->dailyAt("1:00");
+       
+		//update directory manager to db
+	    $schedule->command('project_directory:manager')->dailyAt("1:00");
+
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+
+        $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
         // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message 
