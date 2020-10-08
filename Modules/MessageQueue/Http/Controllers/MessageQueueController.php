@@ -16,40 +16,34 @@ class MessageQueueController extends Controller
      */
     public function index()
     {
-        \Log::info("Page Started".date("Y-m-d H:i:s"));
         $groupList = ChatMessage::pendingQueueGroupList([
             "is_queue" => 1,
         ]);
-        \Log::info("Group Finished".date("Y-m-d H:i:s"));
 
         $sendingLimit  = ChatMessage::getQueueLimit();
-        \Log::info("Sending Limited Finished".date("Y-m-d H:i:s"));
         $sendStartTime = ChatMessage::getStartTime();
-        \Log::info("Sending sendStartTime Finished".date("Y-m-d H:i:s"));
         $sendEndTime   = ChatMessage::getEndTime();
-        \Log::info("Sending sendEndTime Finished".date("Y-m-d H:i:s"));
 
         $allWhatsappNo = config("apiwha.instances");
-        \Log::info("Number Limit started".date("Y-m-d H:i:s"));
+
         $waitingMessages = [];
         //if(env("APP_ENV") != "local") {
-        if (!empty($allWhatsappNo)) {
+        /*if (!empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
                 $no                   = ($no == 0) ? $dataInstance["number"] : $no;
                 $chatApi              = new ChatApi;
                 $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
             }
-        }
+        }*/
         //}
 
-        \Log::info("Number Limit ended".date("Y-m-d H:i:s"));
         $countQueue = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->where("is_queue", ">", 0)
             ->where("customer_id", ">", 0)
             ->groupBy("c.whatsapp_number")
             ->select(\DB::raw("count(*) as total_message"), "c.whatsapp_number")->get();
-        \Log::info("Chat queue started".date("Y-m-d H:i:s"));
+
         return view('messagequeue::index', compact('groupList', 'sendingLimit', 'sendStartTime', 'sendEndTime', 'waitingMessages', 'countQueue'));
     }
 
