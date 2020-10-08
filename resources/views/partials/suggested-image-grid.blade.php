@@ -116,7 +116,7 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                    <select class="form-control customer-search" name="customer_id" data-placeholder="Customer...">
+                    <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
