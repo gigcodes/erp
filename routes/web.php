@@ -2109,6 +2109,21 @@ Route::prefix( 'googleads')->middleware('auth')->group(function () {
     Route::get('/update/{id}', 'GoogleAdsController@updatePage')->name('googleads.updatePage');
     Route::post('/update', 'GoogleAdsController@updateCampaign')->name('googleads.updateCampaign');
     Route::delete('/delete/{id}', 'GoogleAdsController@deleteCampaign')->name('googleads.deleteCampaign');
+
+    Route::prefix('{id}')->group(function () {
+        Route::prefix('adgroups')->group(function () {
+            Route::get('/', 'GoogleAdGroupController@index')->name('adgroup.index');
+            Route::get('/create', 'GoogleAdGroupController@createPage')->name('adgroup.createPage');
+            Route::post('/create', 'GoogleAdGroupController@createAdGroup')->name('adgroup.createAdGroup');
+            Route::get('/update/{adGroupId}', 'GoogleAdGroupController@updatePage')->name('adgroup.updatePage');
+            Route::post('/update', 'GoogleAdGroupController@updateAdGroup')->name('adgroup.updateAdGroup');
+            Route::delete('/delete/{adGroupId}', 'GoogleAdGroupController@deleteAdGroup')->name('adgroup.deleteAdGroup');
+        });
+    });
+});
+
+Route::prefix('googleadgroup')->middleware('auth')->group(function () {
+    Route::post('/', 'GoogleAdGroup@index')->name('adgroup.index');
 });
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {

@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
 use Google\AdsApi\AdWords\AdWordsServices;
 use Google\AdsApi\AdWords\AdWordsSession;
 use Google\AdsApi\AdWords\AdWordsSessionBuilder;
@@ -12,7 +13,6 @@ use Google\AdsApi\AdWords\v201809\cm\OrderBy;
 use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\AdsApi\AdWords\v201809\cm\Paging;
 use Google\AdsApi\AdWords\v201809\cm\SortOrder;
-use Illuminate\Http\Request;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Google\AdsApi\AdWords\v201809\cm\Budget;
 use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
@@ -109,9 +109,9 @@ class GoogleAdsController extends Controller
                         "campaignGroups" => $adGroups,
                         "name" => $campaign->getName(),
                         "status" => $campaign->getStatus(),
-//                        "budgetId" => $campaignBudget->getBudgetId(),
-//                        "budgetName" => $campaignBudget->getName(),
-//                        "budgetAmount" => $campaignBudget->getAmount()
+                        "budgetId" => $campaignBudget->getBudgetId(),
+                        "budgetName" => $campaignBudget->getName(),
+                        "budgetAmount" => $campaignBudget->getAmount()->getMicroAmount() / 1000000
                     ];
                 }
             }
@@ -136,9 +136,10 @@ class GoogleAdsController extends Controller
 
     // create campaign
     public function createCampaign(Request $request) {
+        $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $budgetAmount = $request->budgetAmount * 1000000;
         $campaignName = $request->campaignName;
-        $campaignStatus = strtoupper($request->campaignStatus);
+        $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile()
@@ -181,7 +182,7 @@ class GoogleAdsController extends Controller
 
         // Create a campaign with required and optional settings.
         $campaign = new Campaign();
-        $campaign->setName($campaignName . ' #' . uniqid());
+        $campaign->setName($campaignName);
         $campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH);
 
         // Set shared budget (required).
@@ -289,9 +290,10 @@ class GoogleAdsController extends Controller
 
     // save campaign's changes
     public function updateCampaign(Request $request) {
+        $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $campaignId = $request->campaignId;
         $campaignName = $request->campaignName;
-        $campaignStatus = strtoupper($request->campaignStatus);
+        $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile()
