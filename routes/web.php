@@ -2122,10 +2122,6 @@ Route::prefix( 'googleads')->middleware('auth')->group(function () {
     });
 });
 
-Route::prefix('googleadgroup')->middleware('auth')->group(function () {
-    Route::post('/', 'GoogleAdGroup@index')->name('adgroup.index');
-});
-
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');
     Route::get('/records', 'DigitalMarketingController@records')->name('digital-marketing.records');

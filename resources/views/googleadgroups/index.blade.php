@@ -16,11 +16,6 @@
     <div class="container" style="margin-top: 10px">
         @foreach($adGroups as $adGroup)
             <div id="{{$adGroup['adGroupId']}}" class="col-sm-6" style="margin-bottom: 10px; border: 1px solid #ccc!important">
-{{--                <p>Ad group's Ads:--}}
-{{--                    @foreach($campaign['campaignGroups'] as $i => $adGroup)--}}
-{{--                        {{($i>0 ? ", <" : "<")  . $adGroup['adGroupName'] . ">"}}--}}
-{{--                    @endforeach--}}
-{{--                </p>--}}
                 <p>Name: {{$adGroup['name']}}</p>
                 <p>Bid amount: ${{$adGroup['bidAmount']}}</p>
                 <p>Status: {{$adGroup['status']}}</p>
