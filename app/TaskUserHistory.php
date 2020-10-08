@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class TaskUserHistory extends Model
 {
     protected $fillable = [
-        'model','model_id','old_id','new_id','user_type','updated_by'];
+        'model','model_id','old_id','new_id','user_type','updated_by', 'master_user_hubstaff_task_id'];
 }

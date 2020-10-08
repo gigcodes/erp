@@ -68,6 +68,33 @@
     						<div class="alert alert-danger">{{$errors->first('customer_support')}}</div>
     						@endif
     					</div>
+						
+						<div class="form-group">
+    						<strong>Select Store:</strong>
+    						<select class="form-control" name="store_website_id">
+								<option value="">Select</option>
+    							@foreach($storeData as $store)
+									<option value="{{$store['id']}}">{{$store['title']}}</option>
+								@endforeach
+    						</select>
+
+    						@if ($errors->has('customer_support'))
+    						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+    						@endif
+    					</div> 
+						<div class="form-group">
+    						<strong>Default For:</strong>
+    						<select class="form-control" name="default_for[]" multiple>
+    							<option value="1">Customer</option>
+    							<option value="2">Vendor</option>
+    							<option value="3">Supplier</option>
+    							<option value="4">User</option>
+    						</select>
+
+    						@if ($errors->has('customer_support'))
+    						<div class="alert alert-danger">{{$errors->first('default_for')}}</div>
+    						@endif
+    					</div>
 
                         <div class="form-group">
                             <strong>Instance Id:</strong>

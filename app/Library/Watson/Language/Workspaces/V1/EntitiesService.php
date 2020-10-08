@@ -29,9 +29,13 @@ class EntitiesService extends Service
     {
         parent::__construct($username, $password);
     }
-
+    public function set_url($url)
+    {
+        return $this->url = $url;
+    }
     public function create($workspaceId, $params = [], $version = '2019-02-28')
     {
+        dump($this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities');
         return $this->client->request(
             'POST',
             $this->getMountedUrl() . 'workspaces/' . $workspaceId . '/entities',

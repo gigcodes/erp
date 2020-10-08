@@ -45,6 +45,7 @@ td+td {
 					  <div class="row">
 							<div class="col-md-12">
 								<div class="col-md-12 text-primary">
+								    <span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
 										<span>{{:prop.name}}</span><br>
 										<span>{{:prop.email}}</span><br>
 										<span>{{:prop.phone}}</span><br>
@@ -78,6 +79,9 @@ td+td {
 									{{/if}}
 									<?php } ?>
 									<button title="View user avaibility" type="button" class="btn btn-image load-avaibility-modal pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check" aria-hidden="true"></i></button>
+									{{if !prop.already_approved}}
+									<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
+									{{/if}}
 								</div> 
 							</div>   
 						</div>    	  
@@ -85,7 +89,7 @@ td+td {
 			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
 			        <td>{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}</td>
 			        <td>
-						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">Task</a>
+						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
 			        <td>{{:prop.yesterday_hrs}}</td>
 			        <td>{{:prop.online_now}}</td>
@@ -136,6 +140,7 @@ td+td {
 					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
 					<?php } ?>
 					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 					</td>
 			      </tr>
 			    {{/props}}  

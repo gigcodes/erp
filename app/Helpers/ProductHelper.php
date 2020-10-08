@@ -685,7 +685,7 @@ class ProductHelper extends Model
 
     public static function storeWebsite()
     {
-        return \App\storeWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
+        return \App\StoreWebsite::whereNull("deleted_at")->get()->pluck("title","id")->toArray();
 
     }
 
@@ -734,7 +734,7 @@ class ProductHelper extends Model
             // run query
             $imagesQuery = $product->where("stock",">",0)
                 ->join("mediables as m", function($q) {
-                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class);
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class)->whereIn("m.tag",config('constants.attach_image_tag'));
                 })
                 ->select("media_id","products.id")->groupBy("products.id")
                 ->limit($limit)

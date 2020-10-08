@@ -58,6 +58,7 @@
     </td>
     {{-- <td style="word-break: break-all;">{{ $vendor->social_handle }}</td>
     <td style="word-break: break-all;">{{ $vendor->website }}</td> --}}
+
     <td class="table-hover-cell {{ $vendor->message_status == 0 ? 'text-danger' : '' }}" style="word-break: break-all;padding: 5px;">
         <div class="row">
             <div class="col-md-8 form-inline cls_remove_rightpadding">
@@ -83,17 +84,17 @@
                                 //echo Form::select("quickComment",["" => "Auto Reply"]+$replies, null, ["class" => "form-control quickComment select2-quick-reply","style" => "width:100%" ]);
 
                                 ?>
-                                <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;">
-                                    <option value="">Auto Reply</option>
+                                <select class="form-control quickComment select2-quick-reply" name="quickComment" style="width: 100%;" >
+                                    <option  data-vendorid="{{ $vendor->id }}"  value="">Auto Reply</option>
                                     <?php
                                     foreach ($replies as $key_r => $value_r) { ?>
                                         <option title="<?php echo $value_r;?>" data-vendorid="{{ $vendor->id }}" value="<?php echo $key_r;?>">
-                                            <?php 
+                                            <?php
                                             $reply_msg = strlen($value_r) > 12 ? substr($value_r, 0, 12) : $value_r;
                                             echo $reply_msg;
                                             ?>
                                         </option>
-                                    <?php } 
+                                    <?php }
                                     ?>
                                 </select>
                                 <a class="btn btn-image delete_quick_comment"><img src="<?php echo $base_url;?>/images/delete.png" style="cursor: default; width: 16px;"></a>
@@ -106,15 +107,15 @@
         <div class="row cls_mesg_box">
             <div class="col-md-12">
                 <div class="col-md-12 expand-row" style="padding: 3px;">
-                @if(isset($vendor->chat_messages[0])) 
-                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">    
+                @if(isset($vendor->chat_messages[0]))
+                    <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
                     {{ strlen($vendor->chat_messages[0]->message) > 30 ? substr($vendor->chat_messages[0]->message, 0, 30) . '...' : $vendor->chat_messages[0]->message }}
                     </span>
                     <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}">
                       {{ $vendor->chat_messages[0]->message }}
                     </span>
-                @endif    
-                @if(isset($vendor->message)) 
+                @endif
+                @if(isset($vendor->message))
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}">
                     {{ strlen($vendor->message) > 30 ? substr($vendor->message, 0, 30) . '...' : $vendor->message }}
                     </span>
@@ -123,16 +124,27 @@
                     </span>
                 @else
                     <span class="td-mini-container message-chat-txt" id="message-chat-txt-{{ $vendor->id }}"></span>
-                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>    
+                    <span class="td-full-container hidden" id="message-chat-fulltxt-{{ $vendor->id }}"></span>
                 @endif
                 </div>
             </div>
         </div>
     </td>
-    <td>
-        <div class="cls_action_btn" style="width: 233px;">
-            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
 
+
+
+    <td>
+        <div class="cls_action_btn">
+            <a href="{{ route('vendors.show', $vendor->id) }}" class="btn btn-image" href=""><img src="<?php echo $base_url;?>/images/view.png"/></a>
+			
+			@php 
+			$iconReminderColor = '';
+			if($vendor->frequency)
+			{
+				$iconReminderColor = 'red';
+			}
+			
+			@endphp
             <button data-toggle="modal" data-target="#reminderModal" class="btn btn-image set-reminder"
              data-id="{{ $vendor->id }}"
              data-frequency="{{ $vendor->frequency ?? '0' }}"
@@ -140,12 +152,13 @@
              data-reminder_from="{{ $vendor->reminder_from }}"
              data-reminder_last_reply="{{ $vendor->reminder_last_reply }}"
              >
-                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px;">
+                <img src="{{ asset('images/alarm.png') }}" alt="" style="width: 18px; background-color:{{$iconReminderColor}};">
+				
             </button>
 
             <button type="button" class="btn btn-image edit-vendor" data-toggle="modal" data-target="#vendorEditModal" data-vendor="{{ json_encode($vendor) }}"><img src="<?php echo $base_url;?>/images/edit.png"/></button>
             <a href="{{route('vendors.payments', $vendor->id)}}" class="btn btn-sm" title="Vendor Payments" target="_blank"><i class="fa fa-money"></i> </a>
-            <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/remark.png"/></a>
+            <button type="button" class="btn btn-image make-remark" data-toggle="modal" data-target="#makeRemarkModal" data-id="{{ $vendor->id }}"><img src="<?php echo $base_url;?>/images/remark.png"/></button>
                 <button data-toggle="modal" data-target="#zoomModal" class="btn btn-image set-meetings" data-title="Meeting with {{ $vendor->name }}" data-id="{{ $vendor->id }}" data-type="vendor"><i class="fa fa-video-camera" aria-hidden="true"></i></button>
                 {!! Form::open(['method' => 'DELETE','route' => ['vendors.destroy', $vendor->id],'style'=>'display:inline']) !!}
                 <button type="submit" class="btn btn-image"><img src="<?php echo $base_url;?>/images/delete.png"/></button>
@@ -155,7 +168,10 @@
             </span>
             
             <button type="button" class="btn send-email-to-vender" data-id="{{$vendor->id}}"><i class="fa fa-envelope-square"></i></button>
-            <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor({{ $vendor->id }}, '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
+            <button type="button" class="btn create-user-from-vender" onclick="createUserFromVendor('{{ $vendor->id }}', '{{ $vendor->email }}')"><i class="fa fa-user"></i></button>
+            <button type="button" class="btn add-vendor-info" title="Add vendor info" data-id="{{$vendor->id}}"><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+
+            <button type="button" style="cursor:pointer" class="btn btn-image change-hubstaff-role" title="Change Hubstaff user role" data-id="{{$vendor->id}}"><img src="/images/role.png" alt="" style="cursor: nwse-resize;"></button>
         </div>
     </td>
 </tr>
