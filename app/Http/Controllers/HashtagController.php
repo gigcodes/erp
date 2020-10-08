@@ -20,6 +20,7 @@ use App\ScrapInfluencer;
 use App\InstagramPostsComments;
 use App\InstagramUsersList;
 use App\InstagramCommentQueue;
+use App\InfluencerKeyword;
 
 
 
@@ -554,7 +555,7 @@ class HashtagController extends Controller
         }else{
           $influencers =  ScrapInfluencer::paginate(25);
         }
-        
+        $keywords = InfluencerKeyword::all();
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers'))->render(),
@@ -563,7 +564,7 @@ class HashtagController extends Controller
             ], 200);
             }
 
-         return view('instagram.hashtags.influencers', compact('influencers'));
+         return view('instagram.hashtags.influencers', compact('influencers','keywords'));
     }
 
     public function showGridUsers($id = null,Request $request)

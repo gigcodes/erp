@@ -11,5 +11,8 @@ class ReturnExchangeHistory extends Model
         'status_id',
         'user_id',
         'comment',
+        'history_type',
+        'new_value',
+        'old_value'
     ];
 }

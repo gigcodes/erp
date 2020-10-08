@@ -36,7 +36,7 @@
 			      <div class="dialog">
 			         <div class="dialog-tree-container">
 			            <ul id="dialog-tree" class="node-children">
-			               
+
 			            </ul>
 			         </div>
 			      </div>
@@ -60,7 +60,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary save-dialog-btn">Save changes</button>
+        <button type="button" class="btn btn-secondary save-dialog-btn">Save changes</button>
       </div>
     </div>
   </div>
@@ -70,4 +70,9 @@
 <script src="/js/bootstrap-toggle.min.js"></script>
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/dialog-build.js"></script>
+<script>
+    $(document).on('click', '#create-dialog-btn-rest', function(){
+        $('#create-dialog').modal("show");
+    })
+</script>
 @endsection

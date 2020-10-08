@@ -43,11 +43,10 @@
                         "to_master" => "Send To Master Developer",
                         "to_team_lead" => "Send To Team Lead",
                         "to_tester" => "Send To Tester"
-                    ],null,["class" => "form-control send-message-number", "style" => "width:85% !important;display: inline;"]); ?>
+                    ],null,["class" => "form-control send-message-number", "style" => "width:30% !important;display: inline;"]); ?>
     <button style="display: inline-block;width: 10%" class="btn btn-sm btn-image send-message-open" type="submit" id="submit_message"  data-id="{{$issue->id}}" ><img src="/images/filled-sent.png"/></button>
 
-  
-        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top: 2%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
+        <button type="button" class="btn btn-xs btn-image load-communication-modal" data-object='developer_task' data-id="{{ $issue->id }}" style="margin-top:-0%;margin-left: -3%;" title="Load messages"><img src="/images/chat.png" alt=""></button>
     <br>
         <div class="td-full-container hidden">
             <button class="btn btn-secondary btn-xs" onclick="sendImage({{ $issue->id }} )">Send Attachment</button>
@@ -78,7 +77,7 @@
                 @endif
         </div>
 
-        
+     
 
         @if(auth()->user()->id == $issue->assigned_to)
         <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="developer">Meeting time</button>
@@ -89,6 +88,37 @@
         @elseif(auth()->user()->isAdmin())
         <button type="button" class="btn btn-xs meeting-timing-popup" title="Add Meeting timings" data-id="{{$issue->id}}" data-type="admin">Meeting time</button>
         @endif
+
+        <div class="form-group mt-2">
+            <span>Lead dev : </span>
+            <div class='input-group estimate_minutes'>
+                <input style="min-width: 30px;" placeholder="E.minutes" value="{{ $issue->lead_estimate_time }}" type="text" class="form-control lead-estimate-time-change" name="lead_estimate_minutes_{{$issue->id}}" data-id="{{$issue->id}}" id="lead_estimate_minutes_{{$issue->id}}">
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-lead-time-history" title="Show History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+            </div>
+        </div>
+    </td>
+    <td data-id="{{ $issue->id }}">
+        <div class="form-group">
+            <div class='input-group estimate_dates'>
+                <input style="min-width: 30px;" placeholder="E.Date" value="{{ $issue->estimate_date }}" type="text" class="form-control estimate-date estimate-date-update" name="estimate_date_{{$issue->id}}" data-id="{{$issue->id}}" id="estimate_date_{{$issue->id}}">
+           
+                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-date-history" title="Show Date History" data-id="{{$issue->id}}"><i class="fa fa-info-circle"></i></button>
+                @php
+                    $time_history = \App\DeveloperTaskHistory::where('developer_task_id',$issue->id)->where('attribute','estimate_date')->where('is_approved',1)->first();
+                    if($time_history) {
+                        $est_date = $time_history->new_value;
+                    }
+                    else {
+                        $est_date = '--';
+                    }
+                @endphp
+                @if($est_date) 
+                    <span>Approved : {{$est_date}}</span>
+                @else 
+                    <p style="color:#337ab7"><strong>Unapproved</strong> </p>
+                @endif
+            </div>
+        </div>
     </td>
     <td>
         @if (isset($issue->timeSpent) && $issue->timeSpent->task_id > 0)

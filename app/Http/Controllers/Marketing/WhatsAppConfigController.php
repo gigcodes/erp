@@ -12,6 +12,8 @@ use Validator;
 use Crypt;
 use Response;
 use App\Customer;
+use App\Notification;
+use App\StoreWebsite;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class WhatsappConfigController extends Controller
@@ -27,7 +29,10 @@ class WhatsappConfigController extends Controller
         if ($request->number || $request->username || $request->provider || $request->customer_support || $request->customer_support == 0 || $request->term || $request->date) {
 
             $query = WhatsappConfig::query();
-
+			
+			//Added store data to put dropdown in form  to add store website id to whatsapp config table
+			$storeData = StoreWebsite::all()->toArray();
+			
             //global search term
             if (request('term') != null) {
                 $query->where('number', 'LIKE', "%{$request->term}%")
@@ -67,10 +72,14 @@ class WhatsappConfigController extends Controller
         } else {
             $whatsAppConfigs = WhatsappConfig::latest()->paginate(Setting::get('pagination'));
         }
-
+		
+		//Fetch Store Details
+		
+		
+		
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs'))->render(),
+                'tbody' => view('marketing.whatsapp-configs.partials.data', compact('whatsAppConfigs','storeData'))->render(),
                 'links' => (string)$whatsAppConfigs->render()
             ], 200);
         }
@@ -78,6 +87,7 @@ class WhatsappConfigController extends Controller
 
         return view('marketing.whatsapp-configs.index', [
             'whatsAppConfigs' => $whatsAppConfigs,
+            'storeData' => $storeData,
         ]);
 
     }
@@ -111,12 +121,14 @@ class WhatsappConfigController extends Controller
             'send_start' => 'required',
             'send_end' => 'required',
         ]);
-
-        $data = $request->except('_token');
+		$requestData = $request->all();
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		$data = $request->except('_token','default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
-
-        WhatsappConfig::create($data);
+		$data['default_for'] = $defaultFor;
+		WhatsappConfig::create($data);
 
         return redirect()->back()->withSuccess('You have successfully stored Whats App Config');
     }
@@ -152,9 +164,17 @@ class WhatsappConfigController extends Controller
             'send_end' => 'required',
         ]);
         $config = WhatsappConfig::findorfail($request->id);
-        $data = $request->except('_token', 'id');
+		
+		$requestData = $request->all();
+		
+		$defaultFor = implode(",",$requestData['default_for']);
+		
+		
+        $data = $request->except('_token', 'id', 'default_for');
         $data['password'] = Crypt::encrypt($request->password);
         $data['is_customer_support'] = $request->customer_support;
+        $data['default_for'] = $defaultFor;
+		
         $config->update($data);
 
         return redirect()->back()->withSuccess('You have successfully changed Whats App Config');
@@ -491,4 +511,60 @@ class WhatsappConfigController extends Controller
         return Response::json(array('success' => true,'message' => 'Last 30 Customer disabled')); 
     }
     
+
+
+    public function checkInstanceAuthentication()
+    {
+        //get all providers
+        $allWhatsappInstances = WhatsappConfig::select()->where(['provider'=>"Chat-API"])->get();
+        try
+        {
+            foreach($allWhatsappInstances as $instanceDetails)
+            {
+                $instanceId = $instanceDetails->instance_id;
+                $token = $instanceDetails->token;
+                $sentTo = 6;
+                if($instanceId)
+                {
+                    $curl = curl_init();
+
+                    curl_setopt_array($curl, array(
+                        CURLOPT_URL => "https://api.chat-api.com/instance$instanceId/status?token=$token",
+                        CURLOPT_RETURNTRANSFER => true,
+                        CURLOPT_ENCODING => "",
+                        CURLOPT_MAXREDIRS => 10,
+                        CURLOPT_TIMEOUT => 300,
+                        CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+                        CURLOPT_CUSTOMREQUEST => "GET",
+                        CURLOPT_HTTPHEADER => array(
+                            "content-type: application/json",
+                            // "token: $wa_token"
+                        ),
+                    ));
+
+                    $response = curl_exec($curl);
+                    if (curl_errno($curl)) {
+                        $error_msg = curl_error($curl);
+                    } else{
+                        $resInArr = json_decode($response, true);
+                        if(isset($resInArr) && $resInArr['accountStatus']!='authenticated')
+                        {
+                            Notification::create( [
+                                'role'       => 'Whatsapp Config Proivders Authentication',
+                                'message'    => "Current Status : ".$resInArr['accountStatus'],
+                                'product_id' => '',
+                                'user_id'    => $instanceDetails->id,
+                                'sale_id'     => '',
+                                'task_id'    => '',
+                                'sent_to'    => $sentTo,
+                            ]);
+                        }
+                    } 
+                    curl_close($curl);                  
+                }
+            }
+        }catch(Exception $e){
+            $e->getMessage();
+        }
+    }
 }

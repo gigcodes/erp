@@ -13,5 +13,6 @@ class DatabaseSeeder extends Seeder
         $this->call(CustomerTableSeeder::class);
         $this->call(ChatMessageSeeder::class);
         $this->call(LandingPageStatusSeeder::class);
+        $this->call(EmailLeadsSeeder::class);
     }
 }

@@ -47,10 +47,17 @@
                             </button>
                         </form>
                     </div>
-                    <button type="button" class="btn btn-primary float-right create-new-template-btn" data-toggle="modal"
+                    <button type="button" class="btn btn-primary float-right create-new-template-btn"
+                            data-toggle="modal"
                             data-target="#exampleModalCenter">
                         Create a new email template
                     </button>
+
+                    <button type="button" class="btn btn-primary float-right mr-3" data-toggle="modal"
+                            data-target="#addMailingListCategoryModal">
+                        Add Category
+                    </button>
+
                 </div>
             </div>
         </div>
@@ -58,8 +65,7 @@
     </div>
 
 
-    <div class="modal fade template-modal" id="exampleModalCenter" tabindex="-1" role="dialog"
-         aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal fade template-modal" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -77,11 +83,35 @@
                                    aria-describedby="NameHelp" placeholder="Enter Name">
                             <span class="text-danger"></span>
                         </div>
-                        <div class="form-group">
-                            <label for="mail_tpl">Email Template</label>
-                            <?php echo Form::select("mail_tpl",["-- None --"] + $rViewMail,null,["class" => "form-control select2" , "required" => true,"id" => "form_mail_tpl"]); ?>
+						<div class="form-group">
+                            <label for="form_subject">Subject</label>
+                            <input required type="text" name="subject" class="form-control" id="form_subject" placeholder="Enter Subject">
                             <span class="text-danger"></span>
                         </div>
+						<div class="form-group">
+                            <label for="form_static_template">Static Template</label>
+                            <textarea required name="static_template" id="form_static_template" class="form-control" placeholder="Enter Static Template" rows='8'></textarea>
+                            <span class="text-danger"></span>
+                        </div>
+						
+                        <div class="form-group">
+                            <label for="mail_tpl">Email Template</label>
+                            <?php echo Form::select("mail_tpl", ["-- None --"] + $rViewMail, null, ["class" => "form-control select2", "required" => true, "id" => "form_mail_tpl"]); ?>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mail_tpl">Category</label>
+                            <?php echo Form::select("category", ["-- None --"] + $MailingListCategory, null, ["class" => "form-control select2", "required" => true, "id" => "template_category"]); ?>
+                            <span class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="mail_tpl">Store Website</label>
+                            <?php echo Form::select("store_website", ["-- None --"] + $storeWebSites, null, ["class" => "form-control select2", "required" => true, "id" => "store_website"]); ?>
+                            <span class="text-danger"></span>
+                        </div>
+
                         <!-- <div class="form-group">
                             <label for="exampleInputImageCount">Image Count</label>
                             <input required type="text" name="image_count" class="form-control"
@@ -114,6 +144,26 @@
         </div>
     </div>
 
+    <!-- Model Add Mailinglist category START -->
+    <div id="addMailingListCategoryModal" class="modal fade in" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content" style="padding: 0 10px 10px">
+                <div class="modal-header">
+                    <h3>Add new category</h3>
+                    <button type="button" class="close" data-dismiss="modal">×</button>
+                </div>
+                <form name="add-mailing-list-category" style="padding:10px;"
+                      action="{{ route('mailingList.category.store') }}" method="POST">
+                    {{ csrf_field() }}
+                    <div class="form-group mt-3">
+                        <input type="text" class="form-control" name="name" placeholder="Name" value="" required="">
+                    </div>
+                    <button type="submit" class="btn btn-secondary">Add Category</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- Model Add Mailinglist category END -->
 
     <div class="table-responsive mt-3">
         <table class="table table-bordered" id="passwords-table">
@@ -122,6 +172,10 @@
                 <!-- <th style="">ID</th> -->
                 <th style="">Name</th>
                 <th style="">Mail Tpl</th>
+                <th style="">Subject</th>
+                <th style="">Static Template</th>
+                <th style="">Category</th>
+                <th style="">Store Website</th>
                 <!-- <th style="">Image Count</th>
                 <th style="">Text Count</th> -->
                 <th style="">Template Example</th>
@@ -134,8 +188,12 @@
                 <tr>
                     <td>{{$value["name"]}}</td>
                     <td>{{$value["mail_tpl"]}}</td>
-                    <!-- <td>{{$value["image_count"]}}</td> -->
-                    <!-- <td>{{$value["text_count"]}}</td> -->
+                    <td>{{$value["subject"]}}</td>
+                    <td>{{$value["static_template"]}}</td>
+                    <td>{{$value->category !== null ? $value->category->title : '-' }}</td>
+                    <td>{{$value->storeWebsite !== null ? $value->storeWebsite->title : '-' }}</td>
+                <!-- <td>{{$value["image_count"]}}</td> -->
+                <!-- <td>{{$value["text_count"]}}</td> -->
                     <td>
                         @if($value['example_image'])
                             <img style="width: 100px" src="{{ asset($value['example_image']) }}">
@@ -145,7 +203,8 @@
                         <a data-id="{{ $value['id'] }}" class="delete-template-act" href="javascript:;">
                             <i class="fa fa-trash"></i>
                         </a>
-                        | <a data-id="{{ $value['id'] }}" data-storage="{{ $value }}" class="edit-template-act" href="javascript:;">
+                        | <a data-id="{{ $value['id'] }}" data-storage="{{ $value }}" class="edit-template-act"
+                             href="javascript:;">
                             <i class="fa fa-edit"></i>
                         </a>
                     </td>
@@ -207,68 +266,68 @@
 
         $('#filter').on('click', function (e) {
             e.preventDefault();
-        var term = $('#term').val();
-        var date = $('#date').val();
-        $.ajax({
-            url: "/marketing/mailinglist-ajax",
-            headers: {
-                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
-            },
-            type: 'GET',
-            data: {
-                term: term,
-                date: date
-            }
-        }).done(function (response) {
-            $('tbody').html('');
-            $('tbody').html(response.mailings);
-        }).fail(function (errObj) {
-            console.log(errObj);
-        });
+            var term = $('#term').val();
+            var date = $('#date').val();
+            $.ajax({
+                url: "/marketing/mailinglist-ajax",
+                headers: {
+                    'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+                },
+                type: 'GET',
+                data: {
+                    term: term,
+                    date: date
+                }
+            }).done(function (response) {
+                $('tbody').html('');
+                $('tbody').html(response.mailings);
+            }).fail(function (errObj) {
+                console.log(errObj);
+            });
         })
 
 
-        var deleteAct = function(ele) {
+        var deleteAct = function (ele) {
             var id = ele.data("id");
             $.ajax({
                 type: 'GET',
                 url: "/marketing/mailinglist-templates/" + id + '/delete'
-            }).done(function(response) {
-               if(response.code == 200) {
-                  ele.closest("tr").remove();
-                  toastr['success'](response.message, 'success');
-               }else{
-                  toastr['error'](response.message, 'error');
-               }
-            }).fail(function(response) {
+            }).done(function (response) {
+                if (response.code == 200) {
+                    ele.closest("tr").remove();
+                    toastr['success'](response.message, 'success');
+                } else {
+                    toastr['error'](response.message, 'error');
+                }
+            }).fail(function (response) {
                 console.log(response);
             });
         };
 
-        $(document).on("click",".delete-template-act",function(e) {
+        $(document).on("click", ".delete-template-act", function (e) {
             e.preventDefault();
             var c = confirm("Are you sure you want to delete this?");
-            if(c === true) {
+            if (c === true) {
                 deleteAct($(this));
             }
         });
 
-        $(document).on("click",".edit-template-act",function(e) {
+        $(document).on("click", ".edit-template-act", function (e) {
             e.preventDefault();
             let storage = $(this).data("storage");
             var findForm = $("#form-store");
-            $.each(storage,function(k,v){
-                var formField = findForm.find("#form_"+k);
-                if(formField.length > 0) {
+            $.each(storage, function (k, v) {
+                var formField = findForm.find("#form_" + k);
+                if (formField.length > 0) {
                     var tagName = formField.prop("tagName").toLowerCase();
-                    if(tagName == "input" || tagName == "hidden") {
+                    if(tagName == "input" || tagName == "hidden" || tagName == "textarea") {
                         formField.val(v);
-                    }else if(tagName == "select") {
+                    } else if (tagName == "select") {
                         var options = formField.find("option");
-                        if(options.length > 0) {
-                            $.each(options,function(k,r) {
-                                if($(r).val() == v) {
-                                   $(r).prop("selected",true);
+                        if (options.length > 0) {
+                            $.each(options, function (k, r) {
+                                if ($(r).val() == v) {
+                                    $(r).prop("selected", true);
                                 }
                             });
                         }
@@ -276,15 +335,80 @@
                 }
             });
 
+            /**
+             * Make Category and storeWebsite Selected
+             * */
+
+            findForm.find('select[name=category]').find('option[value="'+ storage.category_id +'"]').val(storage.category_id).prop('selected', true)
+            findForm.find('select[name=store_website]').find('option[value="'+ storage.store_website_id +'"]').val(storage.store_website_id).prop('selected', true)
+
+
             $(".template-modal").modal("show");
         });
 
-        $(document).on("click",".create-new-template-btn",function(){
+        $(document).on("click", ".create-new-template-btn", function () {
             document.getElementById("form-store").reset();
             $(".template-modal").modal("show");
         });
 
-        
+
+        /**
+         * Create mailingList Template Category and error notification.
+         */
+
+        function error_notification(form, path) {
+
+            if (form !== null) {
+
+                if (form.find('label.error').length > 0) {
+                    form.find('label.error').remove();
+                }
+
+                $.each(path, function (index, element) {
+
+                    const html = '<label class="error" for="' + index + '">' + element[0] + '</label>';
+                    $(html).insertAfter(form.find('[name="' + index + '"]'));
+                })
+            }
+        }
+
+        $('form[name="add-mailing-list-category"]').submit(function (e) {
+
+            e.preventDefault();
+            let form = $(this);
+
+            $(this).find('[type="submit"]').html('Please wait...').prop('disabled', true);
+
+            $.ajax({
+                type: 'POST',
+                url: '{{ route('mailingList.category.store') }}',
+                data : new FormData($(this)[0]),
+                contentType: false,
+                processData: false,
+            }).done(function (response) {
+
+                if(response.status){
+                    form[0].reset();
+                    toastr['success'](' Mailinglist category has been successfully created.', 'success');
+
+                    form.parents('#addMailingListCategoryModal').modal('hide');
+
+                }
+
+                form.find('[type="submit"]').html('Add Category').prop('disabled', false);
+
+            }).fail(function (response) {
+
+                if(response.responseJSON.errors) {
+                    error_notification(form, response.responseJSON.errors)
+                }
+
+                form.find('[type="submit"]').html('Add Category').prop('disabled', false);
+            });
+
+            return false;
+
+        });
 
     </script>
 @endsection

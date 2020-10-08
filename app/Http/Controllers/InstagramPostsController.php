@@ -163,6 +163,9 @@ class InstagramPostsController extends Controller
                         $influencer->following = $postJson['Following'];
                         $influencer->posts = $postJson['Posts'];
                         $influencer->description = $postJson['Bio'];
+                        if(isset($postJson['keyword'])){
+                            $influencer->keyword = $postJson['keyword'];
+                        }
                         $influencer->save();
                     }
                 }else{
@@ -444,26 +447,24 @@ class InstagramPostsController extends Controller
         imagecopyresampled($image2,$image, 0, 0, 0, 0, $new_w, $new_h, $w, $h);
 
         //check to see if cropping needs to happen
-        if (($new_h != $height) || ($new_w != $width)) {
-            $image3 = imagecreatetruecolor($width, $height);
-            if ($new_h > $height) { //crop vertically
-                $extra = $new_h - $height;
-                $x = 0; //source x
-                $y = round($extra / 2); //source y
-                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
-            }
-            else {
-                $extra = $new_w - $width;
-                $x = round($extra / 2); //source x
-                $y = 0; //source y
-                imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
-            }
-            imagedestroy($image2);
-            imagejpeg($image3,$newImage->getAbsolutePath());
-            return $image3;
+
+        $image3 = imagecreatetruecolor($width, $height);
+        if ($new_h > $height) { //crop vertically
+            $extra = $new_h - $height;
+            $x = 0; //source x
+            $y = round($extra / 2); //source y
+            imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
         }
         else {
-            return $image2;
+            $extra = $new_w - $width;
+            $x = round($extra / 2); //source x
+            $y = 0; //source y
+            imagecopyresampled($image3,$image2, 0, 0, $x, $y, $width, $height, $width, $height);
         }
+        imagedestroy($image2);
+        imagejpeg($image3,$newImage->getAbsolutePath());
+        return $image3;
+     
+
     }
 }

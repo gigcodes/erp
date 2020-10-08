@@ -71,6 +71,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         #quick-sidebar {
             padding-top: 35px;
         }
+        #notification_unread{
+            color:#fff;
+        }
 
     </style>
     {{-- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>--}}
@@ -333,12 +336,26 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
                         @else
 
+                        <?php 
+
+                        //getting count of unreach notification
+                        $unread = 0;
+                        if(!empty($notifications)){
+                            foreach($notifications as $notification)
+                            {
+                                if(!$notification->isread)
+                                {
+                                    $unread++;
+                                }
+
+                            }
+                        }
+                        
 
 
-
-
+                        /* ?>
                         @include('partials.notifications')
-
+                        <?php */ ?>
                         {{-- <li class="nav-item">
                             <a class="nav-link" href="{{ route('pushNotification.index') }}">New Notifications</a>
                         </li> --}}
@@ -425,6 +442,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <a class="dropdown-item" href="{{ route('productinventory.index') }}">Inventory Grid</a>
                                                 <a class="dropdown-item" href="{{ route('productinventory.list') }}">Inventory List</a>
+                                                <a class="dropdown-item" href="{{ route('productinventory.inventory-list') }}">Inventory Data</a>
                                                 <a class="dropdown-item" href="{{ route('product-inventory.new') }}">New Inventory List</a>
                                                 <a class="dropdown-item" href="{{ route('listing.history.index') }}">Product Listing history</a>
                                                 <a class="dropdown-item" href="{{ route('product.category.index.list') }}">Product Category</a>
@@ -589,6 +607,8 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=unapproved">Customers - unapproved</a>
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Suggested Images</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -621,6 +641,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                     <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                         <a class="dropdown-item" href="{{ route('leads.index') }}">Leads</a>
                                         <a class="dropdown-item" href="{{ action('LeadsController@erpLeads') }}">Leads (new)</a>
+                                        <a class="dropdown-item" href="{{ action('LeadsController@erpLeadsHistory') }}">Leads History</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.approve') }}">Leads Queue Approval</a>
+                                        <a class="dropdown-item" href="{{ route('lead-queue.index') }}">Leads Queue (Approved)</a>
                                         <a class="dropdown-item" href="{{ route('leads.create') }}">Add new lead</a>
                                         <a class="dropdown-item" href="{{ route('leads.image.grid') }}">Leads Image grid</a>
                                     </ul>
@@ -650,6 +673,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="{{ route('order.index') }}">Orders</a>
                                                 <a class="dropdown-item" href="{{ route('order.create') }}">Add Order</a>
                                                 <a class="dropdown-item" href="{{ route('order.products') }}">Order Product List</a>
+                                                <a class="dropdown-item" href="{{ route('return-exchange.list') }}">Return-Exchange</a>
                                             </ul>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
@@ -740,6 +764,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('mailingList') }}">Mailinglist</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-template') }}">Mailinglist Templates</a>
                                             <a class="dropdown-item" href="{{ route('mailingList-emails') }}">Mailinglist Emails</a>
+                                            <a class="dropdown-item" href="{{ route('emailleads') }}">Email Leads</a>
                                         </li>
                                     </ul>
                                 </li>
@@ -1295,6 +1320,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
                                     </li>
                                     <li class="nav-item">
@@ -1353,15 +1381,21 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{ url('page-notes-categories') }}">Page Notes Categories</a>
                                         </li>
-
                                         <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="/totem">Cron Package</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ route('charity') }}">Charity</a>
                                         </li>
 									</ul>
                                 </li>
                                 @if(auth()->user()->isAdmin())
                                 <li class="nav-item dropdown">
                                     <a href="{{ route('twilio-manage-accounts') }}">Twilio Account Management</a>
+                                </li>
+
+                                <li class="nav-item dropdown">
+                                    <a href="{{ route('watson-accounts') }}">Watson Account Management</a>
                                 </li>
 								
                                     <li class="nav-item dropdown">
@@ -1540,6 +1574,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('routes.index') }}">Routes</a>
+                                </li>
+                                 <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
                                 </li>
                             </ul>
                         </li>
@@ -1791,7 +1828,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                             <span><i class="fa fa-calendar-check-o fa-2x" aria-hidden="true"></i></span>
                         </a>
                     </li>
-                    @if($liveChatUsers != '' && $liveChatUsers != null)
+                    
                     <li>
                         <a id="message-chat-data-box" class="quick-icon">
                            <span class="p1 fa-stack has-badge" id="new_message" data-count="@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif">
@@ -1799,7 +1836,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                            </span>
                         </a>
                     </li>
-                    @endif
+                   
                     <li>
                         <a class="create-zoom-meeting quick-icon" data-toggle="modal" data-target="#quick-zoomModal">
                             <span><i class="fa fa-video-camera fa-2x" aria-hidden="true"></i></span>
@@ -1835,14 +1872,22 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
 
          <a id="back-to-top" href="javascript:;" class="btn btn-light btn-lg back-to-top" role="button"><i class="fa fa-chevron-up"></i></a>
     </div>
-    <?php /*
+
     @if(Auth::check())
-    @if($liveChatUsers != '' && $liveChatUsers != null)
+
     <div class="chat-button-wrapper">
         <div class="chat-button-float">
             <button class="chat-button">
                 <img src="/images/chat.png" class="img-responsive"/>
                 <span id="new_message_count">@if(isset($newMessageCount)) {{ $newMessageCount }} @else 0 @endif</span>
+            </button>
+        </div>
+        <div class="notification-badge">
+            <button class="chat-button">
+                <a href="{{route('notifications')}}">
+                <img src="/images/notification-icon.png" class="img-responsive"/>
+                <span id="notification_unread">@if(isset($unread)) {{ $unread }} @else 0 @endif</span>
+                </a>
             </button>
         </div>
         <div class="col-md-12 page-chat-list-rt dis-none">
@@ -1958,7 +2003,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </div>
                             </div>
                         </div>
-                    </div>
+                        </div>
                     <div class="col-md-3 customer-info">
                         <div class="chat-righbox">
                             <div class="title">General Info</div>
@@ -1988,9 +2033,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
             </div>
         </div>
     </div>
+
     @endif
-    @endif
-    */ ?>
+
 
     <!-- Scripts -->
 
@@ -2445,6 +2490,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                         form[0].reset();
                         toastr['success'](response.message);
                         $("#quick-create-task").modal("hide");
+                        $("#auto-reply-popup").modal("hide");
+                        $("#auto-reply-popup-form").trigger('reset');
+                        location.reload();
                     }else{
                         toastr['error'](response.message);
                     }
@@ -2553,9 +2601,18 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
 
-
-
-
+        $(document).on('click','.show_sku_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#sku_small_string_'+id).hide();
+            $('#sku_long_string_'+id).css({'display':'block'});
+        });
+        $(document).on('click','.show_prod_long',function(){
+            $(this).hide();
+            var id=$(this).attr('data-id');
+            $('#prod_small_string_'+id).hide();
+            $('#prod_long_string_'+id).css({'display':'block'});
+        });
 
     </script>
 

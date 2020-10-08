@@ -23,15 +23,15 @@
 <script id="dialog-leaf" type="text/x-jsrender">
     
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td class="word-wrap">{{:data.response_type}}</td>
-				      <td class="word-wrap">{{:data.total_response}}</td>
-				      <td class="word-wrap">{{:data.name}}</td>
-				      <td class="word-wrap">{{:data.title}}</td>
-				      <td class="word-wrap">{{:data.match_condition}}</td>
-				      <td class="word-wrap">{{:data.metadata}}</td>
-				      <td class="word-wrap">{{:data.dialog_type}}</td>
-				      <td class="word-wrap">{{:data.parent_id}}</td>
-				      <td>
+				      <td style="width:7%" class="word-wrap">{{:data.response_type}}</td>
+				      <td style="width:7%" class="word-wrap">{{:data.total_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
+				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
+				      <td style="width:10%">
                         <div class="d-flex">
                         <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">
@@ -58,15 +58,15 @@
 
 <script id="dialog-folder-leaf" type="text/x-jsrender">
     <tr class="node-child node_child_{{:data.id}}" data-id="{{:data.id}}" data-parent-id="{{:data.parent_id}}">
-				      <td class="word-wrap">{{:data.response_type}}</td>
-				      <td class="word-wrap">{{:data.total_response}}</td>
-				      <td class="word-wrap">{{:data.name}}</td>
-				      <td class="word-wrap">{{:data.title}}</td>
-				      <td class="word-wrap">{{:data.match_condition}}</td>
-				      <td class="word-wrap">{{:data.metadata}}</td>
-				      <td class="word-wrap">{{:data.dialog_type}}</td>
-				      <td class="word-wrap">{{:data.parent_id}}</td>
-				      <td>
+				      <td style="width:7%" class="word-wrap">{{:data.response_type}}</td>
+				      <td style="width:7%" class="word-wrap">{{:data.total_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
+				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
+				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
+				      <td style="width:10%">
                       <div class="d-flex">
                       <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">
@@ -293,8 +293,8 @@
 				<div class="form-group col-md-6">
 			      	<select class="form-control search-category" name="intent[category_id]" placeholder="Select Category"></select>
 				</div>
-				</div>
-				<div class="form-row">
+			</div>
+			<div class="form-row">
 		    	<div class="form-group col-md-6">
 			      	<input class="form-control question-insert" name="intent[question]" value="{{if data.intent.question}} {{:data.intent.question}} {{/if}}" placeholder="Insert your question"></select>
 			    </div>
@@ -307,17 +307,22 @@
 			</div>
 		{{else}}
 			<div class="form-row">
-		    	<div class="form-group col-md-3">
-			      	<input class="form-control example-insert" name="" value="" placeholder="Intent Name"/>
+		    	<div class="form-group col-md-6">
+			      	<select class="form-control search-intent" name="" placeholder="Select Intent"></select>
+			    </div>
+				<div class="form-group col-md-6">
+			      	<select class="form-control search-category" name="" placeholder="Select Category"></select>
+				</div>
+			</div>
+			<div class="form-row">
+		    	<div class="form-group col-md-6">
+			      	<input class="form-control question-insert" name="" value="" placeholder="Insert your question"></select>
 			    </div>
 				<div class="form-group col-md-3">
-					<input class="form-control question-insert" name="" value="" Placeholder="User Intent"/>
+			      	<input class="form-control reply-insert" name="intent" value="" placeholder="Insert Suggested reply"/>
 			    </div>
 				<div class="form-group col-md-3">
-					<input class="form-control reply-insert" name="" value="" Placeholder="Suggested reply"/>
-			    </div>
-		    	<div class="form-group col-md-3">
-					<button class="btn btn-secondary save-example">Save</button>
+					<button class="btn btn-secondary save-intent">Save</button>
 				</div>
 			</div>
 		{{/if}}
@@ -329,6 +334,17 @@
 		      		<option value="{{:prop.name}}" selected>{{:prop.name}}</option>
 		      	{{/props}}
 		      </select>					    
+		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
+		  	</div>
+		</div>
+		<h4>Store Website : </h4>
+			<div class="form-row">
+		    <div class="form-group col-md-12">
+		      <select class="form-control" name="store_website_id" placeholder="Enter your keyword">
+		      	{{props data.sites}}
+		      		<option value="{{:prop.id}}" selected>{{:prop.name}}</option>
+		      	{{/props}}
+		      </select>
 		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
 		  	</div>
 		</div>
@@ -399,16 +415,16 @@
 									<small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 									</div>
 								{{/if}}
-								<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+								<div class="form-group col-md-3 extra_condtions">
 								<select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
-									<option value="">Any</option>
+									<option {{if prop.condition_sign == ''}} selected {{/if}}value="">Any</option>
 									<option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
 									<option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
 									<option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
 									<option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
 								</select>
 								</div>
-								<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
+								<div class="form-group col-md-6 extra_condtions ">
 									<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
 								</div>
 								<div class="form-group col-md-9">

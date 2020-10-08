@@ -97,11 +97,19 @@ $newMessageCount = \App\CustomerLiveChat::where('seen',0)->count();
         </div>
     </div>
 @endsection
+@include('instagram.partials.customer-form-modals')
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/js/bootstrap-multiselect.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
+
     <script>
         
+        $(document).on('click', '.instagramHandle', function () {
+            var Values = $(this).attr("id");
+            
+            $('#customerCreate #handled_values').val(Values);
+
+        });
         $(document).on('click', '.load-direct-chat-model', function () {
 
             $.ajax({

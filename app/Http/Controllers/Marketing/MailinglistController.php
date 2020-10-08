@@ -21,7 +21,7 @@ class MailinglistController extends Controller
      */
     public function index()
     {
-        $services = Service::all();
+		$services = Service::all();
         $list = Mailinglist::paginate(15);
         $websites = StoreWebsite::select('id','title')->orderBy('id','desc')->get();
         return view('marketing.mailinglist.index', compact('services', 'list','websites'));
@@ -33,7 +33,7 @@ class MailinglistController extends Controller
      */
     public function create(Request $request)
     {
-        $website_id = $request->websites_id;
+		$website_id = $request->websites_id;
         //FInd Service 
         $service = Service::find($request->service_id);
         

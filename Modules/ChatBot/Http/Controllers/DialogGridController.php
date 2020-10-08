@@ -412,7 +412,7 @@
         public function restStatus(Request $request)
         {
             $parentId = $request->get("parent_id", 0);
-    
+
             $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
                 ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
                 ->where("chatbot_dialogs.response_type", "standard")
