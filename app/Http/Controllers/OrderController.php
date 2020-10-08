@@ -2455,7 +2455,6 @@ public function createProductOnMagento(Request $request, $id){
 
 	public function viewInvoice($id)
 	{
-
 		$invoice = Invoice::where("id",$id)->first();
 		if($invoice) {
             $data["invoice"]      = $invoice;
@@ -2500,7 +2499,6 @@ public function createProductOnMagento(Request $request, $id){
 
 	public function mailInvoice(Request $request, $id)
 	{
-
 		$invoice = Invoice::where("id",$id)->first();
 
 		if($invoice) {
