@@ -28,14 +28,14 @@ class MessageQueueController extends Controller
 
         $waitingMessages = [];
         //if(env("APP_ENV") != "local") {
-        if (!empty($allWhatsappNo)) {
+        /*if (!empty($allWhatsappNo)) {
             foreach ($allWhatsappNo as $no => $dataInstance) {
                 $no                   = ($no == 0) ? $dataInstance["number"] : $no;
                 $chatApi              = new ChatApi;
                 $waitingMessage       = $chatApi->waitingLimit($no);
                 $waitingMessages[$no] = $waitingMessage;
             }
-        }
+        }*/
         //}
 
         $countQueue = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
