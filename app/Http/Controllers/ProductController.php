@@ -3189,7 +3189,7 @@ class ProductController extends Controller
         $json = request()->get("json", false);
 
         if ($json) {
-            return response()->json(["code" => 200]);
+            return response()->json(["code" => 200,'message' => 'Images attached to queue successfully.']);
         }
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
