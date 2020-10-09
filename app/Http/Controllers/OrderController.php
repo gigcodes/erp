@@ -2789,7 +2789,10 @@ public function createProductOnMagento(Request $request, $id){
 		return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
 	}
 
-	public function customerOrderDetails() {
-		dd("here");
+	public function customerOrderDetails(Request $request) {
+		if($request->customer_id) {
+			$orders = Order::where('customer_id',$request->customer_id)->get();
+			dd($orders);
+		}
 	}
 }
