@@ -1339,7 +1339,7 @@ class ProductController extends Controller
         $product = Product::find($id);
         //check for hscode
         $hsCode = $product->hsCode($product->category, $product->composition);
-        // $hsCode = true;
+        $hsCode = true;
         if ($hsCode) {
             // If we have a product, push it to Magento
             if ($product !== null) {
