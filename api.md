@@ -13,7 +13,7 @@ This API uses `POST` request to communicate and HTTP [response codes](https://en
 50X: Server Error
 ```
 
-## Login
+## Ticket Create For Store
 
 **Request:**
 
