@@ -140,7 +140,7 @@ class GoogleAdGroupController extends Controller
         // Create the ad groups on the server
         $result = $adGroupService->mutate($operations);
 
-        return redirect('googleads/' . $campaignId . '/adgroups');
+        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
     }
 
     // go to update page
@@ -224,7 +224,7 @@ class GoogleAdGroupController extends Controller
         // Update the ad group on the server.
         $result = $adGroupService->mutate($operations);
 
-        return redirect('googleads/' . $campaignId . '/adgroups');
+        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
     }
 
     // delete ad group
@@ -257,6 +257,6 @@ class GoogleAdGroupController extends Controller
 
         $adGroup = $result->getValue()[0];
 
-        return redirect('googleads/' . $campaignId . '/adgroups');
+        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
     }
 }

@@ -3,33 +3,27 @@
 
 @section('content')
     <div class="container">
-        <h2>Google AdWords</h2>
-        <h2>Campaigns ({{$totalNumEntries}})</h2>
+        <button class="btn btn-image" onclick="window.location.href='/googlecampaigns';">Campaigns</button>
+        <button class="btn btn-image" onclick="window.location.href='/googlecampaigns/{{$campaignId}}/adgroups';">Ad groups</button>
+    </div>
+    <div class="container">
+        <h2>Google Ads ({{$totalNumEntries}})</h2>
     </div>
     <div class="container" style="margin-top: 10px">
-        <form method="get" action="/googleads/create">
-            <button type="submit">New Campaign</button>
+        <form method="get" action="/googlecampaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">
+            <button type="submit">New Ads</button>
         </form>
     </div>
     <div class="container" style="margin-top: 10px">
-        @foreach($campaigns as $campaign)
-            <div id="{{$campaign['campaignId']}}" class="col-sm-6" style="margin-bottom: 10px; border: 1px solid #ccc!important">
-                <p>Campaign's groups:
-                    @foreach($campaign['campaignGroups'] as $i => $adGroup)
-                        {{($i>0 ? ", <" : "<")  . $adGroup['adGroupName'] . ">"}}
-                    @endforeach
-                </p>
-                <p>Name: {{$campaign['name']}}</p>
-                <p>Status: {{$campaign['status']}}</p>
-                <p id="{{$campaign['budgetId']}}">Budget ({{$campaign['budgetName']}}): ${{$campaign['budgetAmount']}}</p>
-                <form method="GET" action="/googleads/{{$campaign['campaignId']}}/adgroups">
-                    <button type="submit" class="btn btn-image">Ad Groups</button>
-                </form>
-                {!! Form::open(['method' => 'DELETE','route' => ['googleads.deleteCampaign',$campaign['campaignId']],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image">Delete</button>
-                {!! Form::close() !!}
-                {!! Form::open(['method' => 'GET','route' => ['googleads.updatePage',$campaign['campaignId']],'style'=>'display:inline']) !!}
-                <button type="submit" class="btn btn-image">Update</button>
+        @foreach($ads as $ad)
+            <div id="{{$ad['adId']}}" class="col-sm-6" style="margin-bottom: 10px; border: 1px solid #ccc!important">
+                <p>Type: {{$ad['type']}}</p>
+                <p>Status: {{$ad['status']}}</p>
+                <p>Headline part 1: {{$ad['headlinePart1']}}</p>
+                <p>Headline part 2: {{$ad['headlinePart2']}}</p>
+                <p>Description: {{$ad['description']}}</p>
+                {!! Form::open(['method' => 'DELETE','route' => ['ads.deleteAd',$campaignId,$adGroupId,$ad['adId']],'style'=>'display:inline']) !!}
+                <button type="submit" class="btn btn-image">Delete</button>
                 {!! Form::close() !!}
             </div>
         @endforeach

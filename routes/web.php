@@ -2188,13 +2188,13 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
-Route::prefix( 'googleads')->middleware('auth')->group(function () {
-    Route::get('/', 'GoogleAdsController@index')->name('googleads.index');
-    Route::get('/create', 'GoogleAdsController@createPage')->name('googleads.createPage');
-    Route::post('/create', 'GoogleAdsController@createCampaign')->name('googleads.createCampaign');
-    Route::get('/update/{id}', 'GoogleAdsController@updatePage')->name('googleads.updatePage');
-    Route::post('/update', 'GoogleAdsController@updateCampaign')->name('googleads.updateCampaign');
-    Route::delete('/delete/{id}', 'GoogleAdsController@deleteCampaign')->name('googleads.deleteCampaign');
+Route::prefix( 'googlecampaigns')->middleware('auth')->group(function () {
+    Route::get('/', 'GoogleCampaignsController@index')->name('googlecampaigns.index');
+    Route::get('/create', 'GoogleCampaignsController@createPage')->name('googlecampaigns.createPage');
+    Route::post('/create', 'GoogleCampaignsController@createCampaign')->name('googlecampaigns.createCampaign');
+    Route::get('/update/{id}', 'GoogleCampaignsController@updatePage')->name('googlecampaigns.updatePage');
+    Route::post('/update', 'GoogleCampaignsController@updateCampaign')->name('googlecampaigns.updateCampaign');
+    Route::delete('/delete/{id}', 'GoogleCampaignsController@deleteCampaign')->name('googlecampaigns.deleteCampaign');
 
     Route::prefix('{id}')->group(function () {
         Route::prefix('adgroups')->group(function () {
@@ -2204,6 +2204,15 @@ Route::prefix( 'googleads')->middleware('auth')->group(function () {
             Route::get('/update/{adGroupId}', 'GoogleAdGroupController@updatePage')->name('adgroup.updatePage');
             Route::post('/update', 'GoogleAdGroupController@updateAdGroup')->name('adgroup.updateAdGroup');
             Route::delete('/delete/{adGroupId}', 'GoogleAdGroupController@deleteAdGroup')->name('adgroup.deleteAdGroup');
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('ads')->group(function () {
+                    Route::get('/', 'GoogleAdsController@index')->name('ads.index');
+                    Route::get('/create', 'GoogleAdsController@createPage')->name('ads.createPage');
+                    Route::post('/create', 'GoogleAdsController@createAd')->name('ads.craeteAd');
+                    Route::delete('/delete/{adId}', 'GoogleAdsController@deleteAd')->name('ads.deleteAd');
+                });
+            });
         });
     });
 });
