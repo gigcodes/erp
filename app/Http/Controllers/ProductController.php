@@ -265,6 +265,8 @@ class ProductController extends Controller
                 $query->where('short_description', 'LIKE', "%" . $term . "%")
                     ->orWhere('color', 'LIKE', "%" . $term . "%")
                     ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.id', 'LIKE', "%" . $term . "%")
                     ->orWhereHas('brands', function($q) use($term){
                         $q->where('name', 'LIKE', "%" . $term . "%");
                 })
@@ -1360,7 +1362,21 @@ class ProductController extends Controller
             // If we have a product, push it to Magento
             if ($product !== null) {
                 // Dispatch the job to the queue
-                PushToMagento::dispatch($product)->onQueue('magento');
+                //PushToMagento::dispatch($product)->onQueue('magento');
+                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                    $result = MagentoHelper::uploadProduct($product);
+                    if ( !$result ) {
+                        // Log alert
+                        \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+
+                        // Set product to isListed is 0
+                        $product->isListed = 0;
+                        $product->save();
+                    } else {
+                        // Log info
+                        \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                    }
+                }
 
                 // Update the product so it doesn't show up in final listing
                 $product->isUploaded = 1;
@@ -2160,6 +2176,7 @@ class ProductController extends Controller
         if($request->submit_type == 'send-to-approval') {
             $products_ids_cloned = clone($products);
             $product_ids = $products_ids_cloned->pluck('id');
+            $inserted = 0;
             if(count($product_ids) > 0 && $customerId) {
                 $json_brands = json_encode($request->brand);
                 $json_categories = json_encode($request->category);
@@ -2200,7 +2217,8 @@ class ProductController extends Controller
                         }
                     }
                 }
-                if(count($data_to_insert) > 0) {
+                $inserted = count($data_to_insert);
+                if($inserted > 0) {
                     \App\SuggestedProductList::insert($data_to_insert);
                 } 
             }
@@ -2215,8 +2233,10 @@ class ProductController extends Controller
             // return view('partials.attached-image-grid', compact(
             //                 'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term'
             // ));
-            $route = '/attached-images-grid/customer?customer_id='.$customerId;
-            return redirect($route);
+            // $route = '/attached-images-grid/customer?customer_id='.$customerId;
+            // return redirect($route);
+            $msg = $inserted.' Products attached successfully';
+            return response()->json(['code' => 200, 'message' => $msg]);
         }
         if ($request->ajax()) {
             $html = view('partials.image-load', [
@@ -3198,7 +3218,7 @@ class ProductController extends Controller
         $json = request()->get("json", false);
 
         if ($json) {
-            return response()->json(["code" => 200]);
+            return response()->json(["code" => 200,'message' => 'Images attached to queue successfully.']);
         }
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
@@ -3931,7 +3951,7 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->groupBy('customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
         foreach($suggestedProducts as $suggestion) {
             $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id);
             if (isset($request->brand[0])) {
@@ -4339,6 +4359,65 @@ class ProductController extends Controller
                 }
             }
             return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+
+    public function forwardProducts(Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $request->customer_id)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $total = count($products);
+                if($suggestedProducts) {
+                    $suggestedProducts->touch();
+                }
+                else {
+                    $suggestedProducts = new \App\SuggestedProduct;
+                    $suggestedProducts->customer_id = $request->customer_id;
+                    $suggestedProducts->total = $total;
+                    $suggestedProducts->save();
+                }
+                
+                $data_to_insert = [];
+                $imagesDecoded = json_decode($request->products, true);
+                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
+                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
+                    if(!$medias->isEmpty()) {
+                        foreach($medias as $iimg => $media) {
+                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                            if($mediable) {
+                                $exists = \App\SuggestedProductList::where('customer_id',$request->customer_id)->where('product_id',$mediable->mediable_id)->first();
+                                if(!$exists) {
+                                    $pr = Product::find($mediable->mediable_id);
+                                    if($pr->hasMedia(config('constants.attach_image_tag'))) {
+                                        $data_to_insert[] = [
+                                            'customer_id' => $request->customer_id,
+                                            'product_id' => $mediable->mediable_id
+                                        ];
+                                    }
+                                }
+                           }
+                        }
+
+                        if($request->type == 'forward') {
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $request->customer_id;
+                            $data['status'] = 2;
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                        }
+                    }
+                }
+
+                $inserted = count($data_to_insert);
+                if($inserted > 0) {
+                    \App\SuggestedProductList::insert($data_to_insert);
+                }
+                $msg = $inserted. ' Products added successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
     }
 
 }

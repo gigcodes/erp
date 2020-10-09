@@ -15,6 +15,7 @@
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
                     <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
+                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
                     <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button>
                     <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button>
                 </div>
@@ -70,7 +71,8 @@
                     <!-- @if($model_type != 'landing-page')
                     <a href="javascript:;" class="btn btn-sm btn-image {{ $selected_all ? 'btn-success' : '' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}"><img src="{{asset('images/double-attach.png')}}"></a>
                     @endif -->
-                        <a href="javascript:;" class="btn btn-sm select_row" title="Select Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
                         <!-- <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a> -->
                         <!-- <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a> -->
                         <!-- <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a> -->

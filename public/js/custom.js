@@ -700,7 +700,7 @@ var customerSearch = function() {
   }
 
   let checkQueueIsStucked = () => {
-    fetch("/message-queue/status", { headers: { "Content-Type": "application/json; charset=utf-8" }}
+    /*fetch("/message-queue/status", { headers: { "Content-Type": "application/json; charset=utf-8" }}
     )
     .then(res => res.json()) // parse response as JSON (can be res.text() for plain response)
     .then(response => {
@@ -711,9 +711,9 @@ var customerSearch = function() {
     })
     .catch(err => {
         console.log(err)
-    });
+    });*/
   };
 
   $( document ).ready(function() {
-    checkQueueIsStucked();
+    //checkQueueIsStucked();
   });

@@ -21,7 +21,6 @@ Route::prefix('store-website')->group(function () {
         Route::get('/delete', 'StoreWebsiteController@delete')->name("store-website.delete");
         Route::get('/child-categories', 'CategoryController@getChildCategories')->name("store-website.child-categories");
         Route::post('/submit-social-remarks', 'StoreWebsiteController@updateSocialRemarks')->name("store-website.update.social-remarks");
-        
 
         Route::prefix('social-strategy')->group(function () {
     		Route::get('/', 'StoreWebsiteController@socialStrategy')->name("store-website.social-strategy");   
@@ -38,22 +37,24 @@ Route::prefix('store-website')->group(function () {
             Route::post('/edit-subject', 'StoreWebsiteController@submitSubjectChange')->name("store-website.social-strategy.submit-edit-subject"); 
     	});
 
-
         Route::prefix('attached-category')->group(function () {
     		Route::get('/', 'CategoryController@index')->name("store-website.attached-category.index");
     		Route::post('/', 'CategoryController@store')->name("store-website.attached-category.store");
             Route::prefix('{store_category_id}')->group(function () {
                 Route::get('/delete', 'CategoryController@delete')->name("store-website.attached-category.delete");
-            });    
+            });
     	});
-        
-         
+
+        Route::prefix('attached-categories')->group(function () {
+            Route::post('/', 'CategoryController@storeMultipleCategories')->name("store-website.attached-categories.store");
+        });
+
         Route::prefix('attached-brand')->group(function () {
             Route::get('/', 'BrandController@index')->name("store-website.attached-brand.index");
             Route::post('/', 'BrandController@store')->name("store-website.attached-brand.store");
             Route::prefix('{store_brand_id}')->group(function () {
                 Route::get('/delete', 'BrandController@delete')->name("store-website.attached-brand.delete");
-            });    
+            });
         });
 
         Route::prefix('goal')->group(function () {
@@ -67,7 +68,7 @@ Route::prefix('store-website')->group(function () {
                 Route::post('remarks', 'GoalController@storeRemarks')->name("store-website.goal.remarks.store");
             });
         });
-    });    
+    });
 
     Route::prefix('brand')->group(function () {
         Route::get('/', 'BrandController@list')->name("store-website.brand.list");
@@ -89,6 +90,13 @@ Route::prefix('store-website')->group(function () {
     Route::prefix('category')->group(function () {
         Route::get('/', 'CategoryController@list')->name("store-website.category.list");
         Route::post('save/store/category', 'CategoryController@saveStoreCategory')->name("store-website.save.store.category");
+    });
+
+    Route::prefix('color')->group(function () {
+        Route::get('/', 'ColorController@index')->name("store-website.color.list");
+        Route::post('save', 'ColorController@store')->name("store-website.color.save");
+        Route::put('/{id}', 'ColorController@update')->name("store-website.color.edit");
+        Route::delete('/{id}', 'ColorController@destroy')->name("store-website.color.destroy");
     });
 
 });

@@ -140,6 +140,10 @@ var page = {
         $(".common-modal").on("click",".update-avaibility",function() {
             page.updateAvailability($(this));
         });
+
+        page.config.bodyView.on("click",".approve-user",function(e) {
+            page.approveUser($(this));
+        });
         
     },
     validationRule : function(response) {
@@ -688,6 +692,27 @@ var page = {
         }else {
             $("#loading-image").hide();
             toastr["error"](response.error,"");
+        }
+    },
+    approveUser : function(ele) {
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.mainUrl + "/approve-user/"+ele.data("id"),
+            method: "post",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "approveUserResult");
+    },
+    approveUserResult : function(response) {
+        console.log(response);
+        if(response.code  == 200) {
+            toastr['success'](response.message);
+            page.loadFirst();
+            $(".common-modal").modal("hide");
+        }else {
+            $("#loading-image").hide();
+            toastr["error"](response.message,"");
         }
     },
   

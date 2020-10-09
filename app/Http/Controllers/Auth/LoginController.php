@@ -62,6 +62,21 @@ class LoginController extends Controller
                     ->withErrors(['email'=>'Your account is inactive. You are not authorized to access this erp']);
 
             }
+            if(!auth()->user()->isAdmin()) {
+                $date =  date('Y-m-d', strtotime('-2 days'));
+                $hubstaff_activities = \App\Hubstaff\HubstaffActivity::join('hubstaff_members', 'hubstaff_members.hubstaff_user_id', '=', 'hubstaff_activities.user_id')->whereDate('hubstaff_activities.starts_at',$date)->where('hubstaff_members.user_id',auth()->user()->id)->count();
+                if($hubstaff_activities) {
+                    $activity = \App\Hubstaff\HubstaffActivitySummary::where('user_id',auth()->user()->id)->where('date',$date)->first();
+                    if(!$activity) {
+                        if(auth()->user()->approve_login != date('Y-m-d')) {
+                            $this->logout($request);
+                            return back()
+                                ->withInput()
+                                ->withErrors(['message'=>'You haven\'t approved your last hubstaff activities, Please ask admin for login approval']);
+                        }
+                    }
+                }
+            }
             return $this->sendLoginResponse($request);
         }
         // If the login attempt was unsuccessful we will increment the number of attempts

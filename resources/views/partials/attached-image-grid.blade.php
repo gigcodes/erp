@@ -119,7 +119,7 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                        <select class="form-control customer-search" name="customer_id" data-placeholder="Customer...">
+                        <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
@@ -222,6 +222,8 @@
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
         <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
+        <input type="hidden" name="json" value="0" id="hidden-json">
+
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}" id="hidden-customer-id">
@@ -256,6 +258,7 @@
         </div>
     </div>
     @include('partials.modals.category')
+    @include('partials.modals.forward-products')
     <?php $stage = new \App\Stage(); ?>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
@@ -667,9 +670,9 @@
                 if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                     $("#hidden-customer-id").val(customer_id);
-                    if(modelType == "customer") {
-                        $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
-                    }
+                    // if(modelType == "customer") {
+                    //     $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
+                    // }
                     
                 }else{
                     $('#attachImageForm').submit();
@@ -681,6 +684,7 @@
             $("#send_pdf").val("1");
             $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
+            $("#hidden-json").val(true);
             $('#attachImageForm').submit();
         });
 
@@ -688,9 +692,37 @@
             $("#send_pdf").val("0");
             $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
+            $("#hidden-json").val(true);
             $('#attachImageForm').submit();
         });
         // });
+
+        $("#attachImageForm").on("submit",function(e) {
+            e.preventDefault();
+            var url = $('#attachImageForm').attr('action');
+            var data = $(this).serialize();
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    beforeSend: function (success) {
+                        console.log(success);
+                                $("#loading-image").show();
+                            },
+                    success: function(result){
+                        $("#loading-image").hide();
+                        $("#confirmPdf").modal('hide');
+                    toastr['success'](result.message, 'success');
+                    $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                },
+                error: function(error){
+                        $("#loading-image").hide();
+                }
+            });
+        });
+
+       
 
         $('#attachAllButton').on('click', function () {
             var url = "{{ route('customer.attach.all') }}";
@@ -811,6 +843,15 @@
            var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
            checkBox.prop("checked", true).trigger('change');
         });
+
+        $('body').on("click",'.select_multiple_row', function (event) {
+        // $(".select-pr-list-chk").prop("checked", false).trigger('change');
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+        
     </script>
 
 @endsection
@@ -907,6 +948,58 @@
              }
          });
         });
+
+
+        $(document).on("click", ".forward-products", function (event) {
+            var customer_id = $(this).data("id");
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            image_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+            if (productCard.length > 0) {
+                    var image = productCard.data("image");
+                    if ($input.is(":checked") === true) {
+                        image_array.push(image);
+                        image_array = unique(image_array);
+                    }
+                }
+            }
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
+            $('#forward-products-form').find('#forward_type').val('attach');
+            $("#forwardProductsModal").modal('show');
+            $('select.select2').select2({
+                width: "100%"
+            });
+        });
+
+
+        $(document).on("submit", "#forward-products-form", function (e) {
+            e.preventDefault();
+
+            $.ajax({
+                url: '/attached-images-grid/forward-products',
+                type: 'POST',
+                dataType: 'json',
+                data: $(this).serialize(),
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    toastr['success'](result.message, 'success');
+
+                     location.reload();
+             }
+            });
+        });
+        
 </script>
 
 @endsection

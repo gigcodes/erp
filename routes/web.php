@@ -250,6 +250,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
+    Route::post('brand/update-reference', 'BrandController@updateReference');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
     
@@ -467,6 +468,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('order/submit-invoice', 'OrderController@submitInvoice')->name('order.submit.invoice');
     Route::get('order/view-invoice/{id}', 'OrderController@viewInvoice')->name('order.view.invoice');
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
+    Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
+    Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
@@ -544,6 +547,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Route::get('/', 'TaskModuleController@index')->name('home');
     Route::get('/', 'MasterControlController@index')->name('home');
     Route::get('/master-dev-task', 'MasterDevTaskController@index')->name('master.dev.task');
+	
+	
+    Route::get('project-file-manager/list', 'ProjectFileManagerController@listTree')->name('project-file-manager.list');
+    Route::get('project-file-manager', 'ProjectFileManagerController@index')->name('project-file-manager.index');
+    Route::post('project-file-manager/update', 'ProjectFileManagerController@update')->name('project-file-manager.update');
 
     // Daily Planner
     Route::post('dailyplanner/complete', 'DailyPlannerController@complete')->name('dailyplanner.complete');
@@ -1561,11 +1569,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
      Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
      Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
-
+     Route::post('direct/group-message', 'DirectMessageController@sendMessageMultiple')->name('direct.group-message');
+     Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
+     Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
-
-     
-
+     Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 });
 
 // logScraperVsAiController
@@ -2225,13 +2233,15 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function()
     Route::post('/model/{id}/save', 'ReturnExchangeController@save')->name('return-exchange.save');
 	Route::post('/updateCustomers', 'ReturnExchangeController@updateCustomer')->name('return-exchange.updateCusromer');
     Route::post('/createRefund', 'ReturnExchangeController@createRefund')->name('return-exchange.createRefund');
-	Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
+    Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
+	Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
 	Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
         Route::get('/delete', 'ReturnExchangeController@delete')->name('return-exchange.delete');
         Route::get('/history', 'ReturnExchangeController@history')->name('return-exchange.history');
+        Route::get('/date-history', 'ReturnExchangeController@estimationHistory')->name('return-exchange.date-history');
         Route::get('/product', 'ReturnExchangeController@product')->name('return-exchange.product');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
     });
@@ -2323,3 +2333,5 @@ Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGr
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
+Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+

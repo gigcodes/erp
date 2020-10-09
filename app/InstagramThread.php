@@ -6,10 +6,13 @@ use Illuminate\Database\Eloquent\Model;
 
 class InstagramThread extends Model
 {
+    protected $fillable = ['scrap_influencer_id'];
     public function conversation() {
         return $this->hasMany(ChatMessage::class, 'unique_id', 'thread_id');
     }
-
+    public function influencerConversation() {
+        return $this->hasMany(ChatMessage::class, 'instagram_user_id', 'instagram_user_id');
+    }
     public function lead() {
         return $this->belongsTo(ColdLeads::class, 'cold_lead_id', 'id');
     }
@@ -35,4 +38,5 @@ class InstagramThread extends Model
     {
         return $this->hasOne(ChatMessage::class, 'unique_id', 'thread_id')->orderBy('id','desc')->whereNotNull('message');
     }
+    
 }
