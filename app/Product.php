@@ -638,6 +638,15 @@ class Product extends Model
         return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
     }
 
+    public function croppedImages()
+    {
+        return $this->hasMany(SiteCroppedImages::class, 'product_id', 'id');
+    }
+    public function mediables()
+    {
+        return $this->hasMany(Mediable::class, 'mediable_id', 'id');
+    }
+
     public function attachImagesToProduct($arrImages = null)
     {
 

@@ -13,9 +13,11 @@ use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
+use App\RejectedImages;
 use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
+use App\SiteCroppedImages;
 use App\Sizes;
 use App\Sop;
 use App\Stage;
@@ -161,9 +163,14 @@ class ProductController extends Controller
         //     }
         // }
         if (auth()->user()->isReviwerLikeAdmin()) {
-            $newProducts = Product::query();
+            $newProducts = Product::with('croppedImages')
+                ->leftJoin('mediables', 'mediables.mediable_id', 'products.id')
+                ->leftJoin('rejected_images', 'rejected_images.product_id', 'products.id');
         } else {
-            $newProducts = Product::where('assigned_to', auth()->user()->id);
+            $newProducts = Product::with('croppedImages')
+                ->leftJoin('mediables', 'mediables.mediable_id', 'products.id')
+                ->leftJoin('rejected_images', 'rejected_images.product_id', 'products.id')
+                ->where('assigned_to', auth()->user()->id);
         }
 
         if ((int)$request->get('status_id') > 0) {
@@ -244,6 +251,14 @@ class ProductController extends Controller
             $type = $request->get('type');
         }
 
+        if($request->crop_status == "Not Matched"){
+            $newProducts = $newProducts->whereDoesntHave('croppedImages');
+        }
+        if($request->crop_status == "Matched"){
+            $newProducts = $newProducts->whereHas('croppedImages');
+        }
+
+
         if (trim($term) != '') {
 
             $newProducts->where(function ($query) use ($term) {
@@ -297,7 +312,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->with(['media', 'brands', 'log_scraper_vs_ai'])->withCount('croppedImages')->paginate(100);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
@@ -340,6 +355,8 @@ class ProductController extends Controller
 //            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
+            'store_websites' => StoreWebsite::all(),
+            'store_website_count' => StoreWebsite::count(),
         ]);
     }
 
@@ -2557,6 +2574,18 @@ class ProductController extends Controller
                 $rgbarr = explode(",", $colorCode, 3);
                 $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
                 $tag = 'gallery_' . $hex;
+                $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                if ($store_websites !== null) {
+
+                    $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                        ->where('product_id', $product->id)->exists();
+                    if (!$exist) {
+                        SiteCroppedImages::create([
+                            'website_id' => $store_websites->id,
+                            'product_id' => $product->id
+                        ]);
+                    }
+                }
             } else {
                 $tag = config('constants.media_gallery_tag');
             }
@@ -4027,6 +4056,15 @@ class ProductController extends Controller
         return view('partials.attached-image-grid', compact(
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
+    }
+    public function crop_rejected_status(Request $request)
+    {
+
+        RejectedImages::updateOrCreate(
+            ['website_id' => $request->site_id, 'product_id' => $request->product_id],
+            ['status' => $request->status = "approve" ? 1 : 0]
+        );
+        return response()->json(true);
     }
     
     public function attachMoreProducts($customerId)
