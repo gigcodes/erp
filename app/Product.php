@@ -1093,4 +1093,9 @@ class Product extends Model
     {
         return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];
     }
+
+    public static function getProductBySKU($sku)
+    {
+         return Product::where('sku',$sku)->first();
+    }
 }
