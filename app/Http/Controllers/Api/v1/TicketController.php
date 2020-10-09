@@ -41,20 +41,23 @@ class TicketController extends Controller
             'name' => 'required|max:80',
             'last_name'=>'required|max:80',
             'email' => 'required|email',
-            'order_no' => ['required', 'exists:orders,order_id'],
+            //'order_no' => ['required', 'exists:orders,order_id'],
             'type_of_inquiry' => 'required',
-            'country' => 'required',
+            //'country' => 'required',
             'subject' => 'required|max:80',
-            'message' => 'required',
-            'source_of_ticket' => 'in:live_chat,customer',
+            'message' => 'required'
+            //'source_of_ticket' => 'in:live_chat,customer',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 'failed', 'message' => 'Please check the errors in validation!', 'errors' => $validator->errors()], 400);
         }
-        $success = Tickets::create($request->all());
+
+        $data = $request->all();
+        $data['ticket_id'] = "T".date("YmdHis");
+        $success = Tickets::create($data);
         if (!is_null($success)) {
-            return response()->json(['status' => 'success', 'message' => 'Ticket created successfully'], 200);
+            return response()->json(['status' => 'success','data' => ["id" => $data['ticket_id']], 'message' => 'Ticket #'.$data['ticket_id'].' created successfully'], 200);
         }
         return response()->json(['status' => 'success', 'message' => 'Unable to create ticket'], 500);
     }
