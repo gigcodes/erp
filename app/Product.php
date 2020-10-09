@@ -55,7 +55,14 @@ class Product extends Model
         'scrap_priority',
         'assigned_to',
         'quick_product',
-        'approved_by'
+        'approved_by',
+        'supplier_link',
+        'composition',
+        'lmeasurement',
+        'hmeasurement',
+        'dmeasurement',
+        'size',
+        'color'
     ];
 
     protected $dates = ['deleted_at'];
