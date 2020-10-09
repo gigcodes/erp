@@ -60,6 +60,8 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
+    Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
+
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
