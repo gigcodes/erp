@@ -52,9 +52,15 @@
                 <th>Name</th>
                 <th>Brand</th>
                 <th>Category</th>
+                <th>Composition</th>
+                <th>Dimension</th>
+                <th>Size</th>
+                <th>Color</th>
                 <th>Status</th>
                 <th>All images</th>
                 <th>Supplier</th>
+                <th>Link</th>
+                <th>Created At</th>
                 <th>Action</th>
             </tr>
             @foreach ($products as $product)
@@ -66,13 +72,17 @@
                     <td>{{ $product->product_name }}</td>
                     <td>{{ $product->brand_name }}</td>
                     <td>{{ $product->category_name }}</td>
+                    <td>{{ $product->composition }}</td>
+                    <td>{{ $product->lmeasurement }} X  {{ $product->hmeasurement }} X {{ $product->dmeasurement }}</td>
+                    <td>{{ $product->size }}</td>
+                    <td>{{ $product->color }}</td>
                     <td>{{ $product->getStatusName() }}</td>
                     <td>
                         @php $extraImages = [] @endphp    
                         @if ($images = $product->getMedia(config('constants.attach_image_tag')))
                             @foreach ($images as $i => $image)
                                 @if($i == 0)
-                                    <img class="more-list-btn" src="{{ $image->getUrl() }}" class="img-responsive" width="50px">
+                                    <img class="more-list-btn" src="{{ $image->getUrl() }}" class="img-responsive" width="20px">
                                     @php $extraImages[] = $image->getUrl() @endphp    
                                 @else
                                     @php $extraImages[] = $image->getUrl() @endphp    
@@ -84,6 +94,8 @@
                         @endif
                     </td>
                     <td>{{ $product->supplier }}</td>
+                    <td>@if($product->supplier_link) <a href="{{ $product->supplier_link }}" target="__blank">Go To Website</a> @endif</td>
+                    <td>{{ date("Y-m-d",strtotime($product->created_at)) }}</td>
                     <td>
                         <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-product="{{ $product->id }}"><img width="3px" src="/images/edit.png" /></a>
                         <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
@@ -183,12 +195,19 @@
             let formData = {
                 id: $(this).data("id"),
                 name: form.find('input[name="name"]').val(),
-                brand:  form.find('select[name="brand_id"] option:selected').val(),
+                brand_id:  form.find('select[name="brand_id"] option:selected').val(),
                 category: form.find('select[name=category] option:selected').val(),
                 short_description: form.find('input[name=short_description]').val(),
                 price: form.find('input[name=price]').val(),
                 status_id: form.find('select[name=status_id] option:selected').val(),
-                quick_product: form.find('select[name=quick_product] option:selected').val()
+                quick_product: form.find('select[name=quick_product] option:selected').val(),
+                supplier_link: form.find('input[name=supplier_link]').val(),
+                composition: form.find('input[name=composition]').val(),
+                size: form.find('input[name=size]').val(),
+                lmeasurement: form.find('input[name=lmeasurement]').val(),
+                hmeasurement: form.find('input[name=hmeasurement]').val(),
+                dmeasurement: form.find('input[name=dmeasurement]').val(),
+                color: form.find('input[name=color]').val()
             }
             $.ajax({
                 url: "/drafted-products/edit",

@@ -3788,6 +3788,14 @@ class ProductController extends Controller
                 "c.title as category_name",
                 "products.supplier",
                 "products.status_id",
+                "products.created_at",
+                "products.supplier_link",
+                "products.composition",
+                "products.size",
+                "products.lmeasurement",
+                "products.hmeasurement",
+                "products.dmeasurement",
+                "products.color",
             ]);
 
         if ($request->category != null && $request->category != 1) {
@@ -3834,17 +3842,10 @@ class ProductController extends Controller
     public function editDraftedProducts(Request $request)
     {
         $draftedProduct = Product::where("id", $request->id)->first();
-        if ($draftedProduct) {
-            $draftedProduct->update([
-                'name' => $request->name,
-                'brand' => $request->brand_id,
-                'category' => $request->category,
-                'short_description' => $request->short_description,
-                'price' => $request->price,
-                'status_id' => $request->status_id,
-                'quick_product' => $request->quick_product
-            ]);
 
+        if ($draftedProduct) {
+            $draftedProduct->fill($request->all());
+            $draftedProduct->save();
             return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
         }
 
