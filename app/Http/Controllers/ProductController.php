@@ -1337,7 +1337,6 @@ class ProductController extends Controller
     {
         // Get product by ID
         $product = Product::find($id);
-
         //check for hscode
         $hsCode = $product->hsCode($product->category, $product->composition);
         $hsCode = true;
@@ -1403,6 +1402,11 @@ class ProductController extends Controller
                 ]);
             }
         }
+        
+        $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+        \App\ProductPushErrorLog::log($id, $msg, 'error');
+		\App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
@@ -3189,7 +3193,7 @@ class ProductController extends Controller
         $json = request()->get("json", false);
 
         if ($json) {
-            return response()->json(["code" => 200,'message' => 'Images attached to queue successfully.']);
+            return response()->json(["code" => 200]);
         }
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));

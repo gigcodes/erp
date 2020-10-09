@@ -11,7 +11,7 @@ use App\Loggers\LogListMagento;
 use App\Product;
 use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
-
+use App\ProductPushErrorLog;
 
 
         
@@ -619,7 +619,7 @@ class ProductHelper extends Model
         if (empty($product->name)) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency', $storeWebsiteId);
-
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'error',$storeWebsiteId);
             // Return false
             return false;
         }
@@ -627,7 +627,7 @@ class ProductHelper extends Model
         if (empty($product->short_description)) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
-
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'error',$storeWebsiteId);
             // Return false
             return false;
         }
@@ -636,6 +636,7 @@ class ProductHelper extends Model
         if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId);
 
             // Return false
             return false;
