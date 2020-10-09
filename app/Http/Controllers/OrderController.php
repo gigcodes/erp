@@ -2790,7 +2790,20 @@ public function createProductOnMagento(Request $request, $id){
 	}
 
 	public function customerOrderDetails(Request $request) {
-		if($request->customer_id) {
+		$token = $request->token;
+		$email = $request->email;
+		$store_url = $request->store_url;
+		dd($request->all());
+		if(!$token || trim($token) == '') {
+			return response()->json(['message' => 'Token is absent in your request','code' => 413]);
+		}
+		if(!$email || trim($email) == '') {
+			return response()->json(['message' => 'Email is absent in your request','code' => 413]);
+		}
+		if(!$store_url || trim($store_url) == '') {
+			return response()->json(['message' => 'Store Url is absent in your request','code' => 413]);
+		}
+		if($request->email) {
 			$orders = Order::where('customer_id',$request->customer_id)->get();
 			dd($orders);
 		}
