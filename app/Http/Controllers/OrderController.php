@@ -2788,4 +2788,8 @@ public function createProductOnMagento(Request $request, $id){
 		$html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
 		return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
 	}
+
+	public function customerOrderDetails() {
+		dd("here");
+	}
 }
