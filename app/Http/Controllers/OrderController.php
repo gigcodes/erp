@@ -2793,19 +2793,42 @@ public function createProductOnMagento(Request $request, $id){
 		$token = $request->token;
 		$email = $request->email;
 		$store_url = $request->store_url;
-		dd($request->all());
-		if(!$token || trim($token) == '') {
-			return response()->json(['message' => 'Token is absent in your request','code' => 413]);
-		}
+		// if(!$token || trim($token) == '') {
+		// 	return response()->json(['message' => 'Token is absent in your request','code' => 413]);
+		// }
+
+		$token = $request->bearerToken();
 		if(!$email || trim($email) == '') {
 			return response()->json(['message' => 'Email is absent in your request','code' => 413]);
 		}
 		if(!$store_url || trim($store_url) == '') {
 			return response()->json(['message' => 'Store Url is absent in your request','code' => 413]);
 		}
-		if($request->email) {
-			$orders = Order::where('customer_id',$request->customer_id)->get();
-			dd($orders);
+		$store_website = StoreWebsite::where('website', $store_url)->first();
+		if(!$store_website) {
+			return response()->json(['message' => 'Store not found with this url','code' => 404]);
 		}
+		if($store_website->api_token != $token) {
+			return response()->json(['message' => 'Token mismatched','code' => 413]);
+		}
+		$customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
+		if(!$customer) {
+			return response()->json(['message' => 'Customer not found in this store for the requested email','code' => 404]);
+		}
+		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+					->where('orders.customer_id',$customer->id)
+					->where('store_website_orders.website_id',$store_website->id)
+					->get();
+		if(count($orders) == 0) {
+			return response()->json(['message' => 'No orders found against this customer','code' => 200]);
+		}
+		foreach($orders as $order) {
+			$order->waybill;
+			$order->invoice;
+		}
+		$orders = $orders->toArray();
+		$orders = json_encode($orders);
+		return response()->json(['message' => 'Orders Fetched successfully','code' => 200, 'data' => $orders]);
+
 	}
 }
