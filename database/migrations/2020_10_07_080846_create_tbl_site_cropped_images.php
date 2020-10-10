@@ -13,11 +13,15 @@ class CreateTblSiteCroppedImages extends Migration
      */
     public function up()
     {
-        Schema::create('site_cropped_images', function (Blueprint $table) {
-            $table->unsignedBigInteger('website_id');
-            $table->unsignedBigInteger('product_id');
-            $table->primary(['website_id', 'product_id']);
-        });
+
+        if(!Schema::hasTable('site_cropped_images')) {
+
+            Schema::create('site_cropped_images', function (Blueprint $table) {
+                $table->unsignedBigInteger('website_id');
+                $table->unsignedBigInteger('product_id');
+                $table->primary(['website_id', 'product_id']);
+            });
+        }
 
         DB::statement("ALTER TABLE `products` DROP `cropped_image_site_ids`;");
     }
