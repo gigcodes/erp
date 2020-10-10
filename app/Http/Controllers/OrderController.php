@@ -67,8 +67,8 @@ use App\StoreWebsite;
 use App\Invoice;
 use App\StoreWebsiteOrder;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-
-
+use App\OrderStatusHistory;
+use App\waybillTrackHistories;
 class OrderController extends Controller {
 
 
@@ -2134,10 +2134,17 @@ public function createProductOnMagento(Request $request, $id){
 			$statuss = OrderStatus::where("id",$status)->first();
 			
 			if($order) {
+				$old_status = $order->order_status_id;
 				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
-				
+
+				$history = new OrderStatusHistory;
+				$history->order_id = $order->id;
+				$history->old_status = $old_status;
+				$history->new_status = $status;
+				$history->user_id = Auth::user()->id;
+				$history->save();
 				//Sending Mail on changing of order status
 				$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
 				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
@@ -2163,7 +2170,6 @@ public function createProductOnMagento(Request $request, $id){
 							if($magento_status) {
 								$magentoHelper = new MagentoHelperv2;
 								$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
-								// dd($result);
 							}
 						}
 					}
@@ -2818,13 +2824,38 @@ public function createProductOnMagento(Request $request, $id){
 		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
 					->where('orders.customer_id',$customer->id)
 					->where('store_website_orders.website_id',$store_website->id)
+					->select('orders.*')
+					->orderBy('created_at','desc')
 					->get();
 		if(count($orders) == 0) {
 			return response()->json(['message' => 'No orders found against this customer','code' => 200]);
 		}
 		foreach($orders as $order) {
+			$histories  = OrderStatusHistory::
+										join('order_statuses','order_statuses.id','order_status_histories.new_status')
+										->where('order_status_histories.order_id', $order->id)
+										->select('order_statuses.*')
+										->orderBy('order_status_histories.created_at','asc')
+										->get();
+			if(count($histories) > 0){
+				$order->status_histories = $histories->toArray();
+			}
+			else {
+				$order->status_histories = null;
+			}
 			$order->waybill;
-			$order->invoice;
+			$waybill_history  = waybillTrackHistories::
+										join('waybills','waybills.id','waybill_track_histories.waybill_id')
+										->where('waybills.order_id', $order->id)
+										->select('waybill_track_histories.*')
+										->orderBy('waybill_track_histories.created_at','asc')
+										->get();
+			if(count($waybill_history) > 0){
+				$order->waybill_histories = $waybill_history->toArray();
+			}
+			else {
+				$order->waybill_histories = null;
+			}
 		}
 		$orders = $orders->toArray();
 		$orders = json_encode($orders);
