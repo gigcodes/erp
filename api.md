@@ -18,7 +18,7 @@ This API uses `POST` request to communicate and HTTP [response codes](https://en
 **Request:**
 
 ```json
-POST http://erp.amourint.com/api/ticket/create
+POST https://erp.amourint.com/api/ticket/create
 Accept: application/json
 Content-Type: application/json
 {
