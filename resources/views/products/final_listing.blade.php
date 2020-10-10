@@ -251,7 +251,7 @@
                         </div>
                     </div>
 
-                    <div class="col-sm-5  text-right">
+                    <div class="col-sm-4  text-right">
                         <div class="form-group">
 
                             @if(auth()->user()->isReviwerLikeAdmin('final_listing'))
@@ -475,7 +475,7 @@
 
                             <td class="table-hover-cell">
                                 {{ $product->id }}
-                                @if($product->cropped_images_count == $websiteArraysForProduct)
+                                @if($product->cropped_images_count == count($websiteArraysForProduct))
                                     <span class="badge badge-success" >&nbsp;</span>
                                 @else
                                     <span class="badge badge-warning" >&nbsp;</span>
