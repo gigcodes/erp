@@ -163,14 +163,9 @@ class ProductController extends Controller
         //     }
         // }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
-            $newProducts = Product::with('croppedImages')
-                ->leftJoin('mediables', 'mediables.mediable_id', 'products.id')
-                ->leftJoin('rejected_images', 'rejected_images.product_id', 'products.id');
+            $newProducts = Product::query();
         } else {
-            $newProducts = Product::with('croppedImages')
-                ->leftJoin('mediables', 'mediables.mediable_id', 'products.id')
-                ->leftJoin('rejected_images', 'rejected_images.product_id', 'products.id')
-                ->where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ((int)$request->get('status_id') > 0) {
@@ -314,7 +309,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->paginate(20);
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
