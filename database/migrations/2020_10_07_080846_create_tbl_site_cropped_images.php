@@ -23,7 +23,15 @@ class CreateTblSiteCroppedImages extends Migration
             });
         }
 
-        DB::statement("ALTER TABLE `products` DROP `cropped_image_site_ids`;");
+        if(Schema::hasColumn('products', 'cropped_image_site_ids')){
+
+            Schema::table('products', function (Blueprint $table) {
+                    $table->dropColumn('cropped_image_site_ids');
+            });
+
+        }
+
+
     }
 
     /**
