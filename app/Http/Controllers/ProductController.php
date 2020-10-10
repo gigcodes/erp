@@ -357,8 +357,7 @@ class ProductController extends Controller
 //            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
-            'store_websites' => StoreWebsite::all(),
-            'store_website_count' => StoreWebsite::count(),
+            'store_websites' => StoreWebsite::all()
         ]);
     }
 

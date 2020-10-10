@@ -468,10 +468,17 @@
                                 <input type="checkbox" class="affected_checkbox" name="products_to_update[]"
                                        data-id="{{$product->id}}">
                             </td>
+
+                            @php
+                                $websiteArraysForProduct = \App\Helpers\ProductHelper::getStoreWebsiteName($product->id);
+                            @endphp
+
                             <td class="table-hover-cell">
                                 {{ $product->id }}
-                                @if($product->cropped_images_count == $store_website_count)
+                                @if($product->cropped_images_count == $websiteArraysForProduct)
                                     <span class="badge badge-success" >&nbsp;</span>
+                                @else
+                                    <span class="badge badge-warning" >&nbsp;</span>
                                 @endif
                                 <div>
                                     {{ $product->sku }}
