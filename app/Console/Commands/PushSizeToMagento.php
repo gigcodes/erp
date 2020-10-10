@@ -52,6 +52,7 @@ class PushSizeToMagento extends Command
                     if (!$checkSite) {
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
                         if (!empty($id)) {
+                            \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->delete();
                             $sws                   = new \App\StoreWebsiteSize;
                             $sws->size_id          = $s->id;
                             $sws->store_website_id = $web->id;

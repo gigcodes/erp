@@ -128,6 +128,7 @@ class SizeController extends Controller
                     // check we set the size already or not first and then push for store
                     $checkSite = \App\StoreWebsiteSize::where("size_id", $size->id)->where("store_website_id", $web->id)->where("platform_id",">",0)->first();
                     if (!$checkSite) {
+                        \App\StoreWebsiteSize::where("size_id", $size->id)->where("store_website_id", $web->id)->delete();
                         $id                    = \seo2websites\MagentoHelper\MagentoHelper::addSize($size, $web);
                         $sws                   = new \App\StoreWebsiteSize;
                         $sws->size_id          = $size->id;
