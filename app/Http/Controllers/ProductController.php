@@ -314,7 +314,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->with(['media', 'brands', 'log_scraper_vs_ai'])->withCount('croppedImages')->paginate(100);
+        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->with(['media', 'brands', 'log_scraper_vs_ai'])->withCount('croppedImages')->paginate(20);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
@@ -332,6 +332,31 @@ class ProductController extends Controller
                     }
                 }
             }
+        }
+
+        if($request->ajax()) {
+            return view('products.final_listing_ajax', [
+                'products' => $newProducts,
+                'products_count' => $newProducts->total(),
+                'colors' => $colors,
+                'brands' => $brands,
+                'suppliers' => $suppliers,
+                'categories' => $categories,
+                'category_tree' => $category_tree,
+                'categories_array' => $categories_array,
+                'term' => $term,
+                'brand' => $brand,
+                'category' => $category,
+                'color' => $color,
+                'supplier' => $supplier,
+                'type' => $type,
+                'users' => $users,
+                'assigned_to_users' => $assigned_to_users,
+                'cropped' => $cropped,
+                'category_array' => $category_array,
+                'selected_categories' => $selected_categories,
+                'store_websites' => StoreWebsite::all(),
+            ]);
         }
 
         return view('products.final_listing', [
