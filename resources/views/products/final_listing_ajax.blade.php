@@ -188,7 +188,7 @@
 
                             <td class="table-hover-cell">
                                 {{ $product->id }}
-                                @if($product->cropped_images_count == count($websiteArraysForProduct))
+                                @if($product->croppedImages()->count() == count($websiteArraysForProduct))
                                     <span class="badge badge-success" >&nbsp;</span>
                                 @else
                                     <span class="badge badge-warning" >&nbsp;</span>

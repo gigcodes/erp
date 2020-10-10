@@ -314,7 +314,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->with(['media', 'brands', 'log_scraper_vs_ai'])->withCount('croppedImages')->paginate(20);
+        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
