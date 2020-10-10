@@ -162,7 +162,7 @@ class ProductController extends Controller
         //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
         //     }
         // }
-        if (auth()->user()->isReviwerLikeAdmin()) {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::with('croppedImages')
                 ->leftJoin('mediables', 'mediables.mediable_id', 'products.id')
                 ->leftJoin('rejected_images', 'rejected_images.product_id', 'products.id');
