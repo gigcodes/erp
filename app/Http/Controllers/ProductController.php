@@ -310,12 +310,18 @@ class ProductController extends Controller
             $join->on("pvu.product_id", "products.id");
             $join->where("pvu.user_id", "!=", auth()->user()->id);
         });
+
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])->with(['media', 'brands', 'log_scraper_vs_ai'])->withCount('croppedImages')->paginate(100);
+        $newProducts = $newProducts->select(["products.*", "mediables.*", "rejected_images.status as cropped_image_status","rejected_images.website_id"])
+            ->with(['media', 'brands', 'log_scraper_vs_ai'])
+            ->withCount('croppedImages')
+            ->paginate(100);
+        
         if (!auth()->user()->isAdmin()) {
+
             if (!$newProducts->isEmpty()) {
                 $i = 1;
                 foreach ($newProducts as $product) {
