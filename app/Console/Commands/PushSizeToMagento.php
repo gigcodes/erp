@@ -48,7 +48,7 @@ class PushSizeToMagento extends Command
 
                     echo "Size Started  : " . $s->name;
 
-                    $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->first();
+                    $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->where("platform_id",">",0)->first();
                     if (!$checkSite) {
                         $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
                         if (!empty($id)) {
