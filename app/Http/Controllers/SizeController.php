@@ -120,13 +120,13 @@ class SizeController extends Controller
         $id = $request->get("id", 0);
 
         if ($id > 0) {
-            $website = \App\StoreWebsite::where("website_source", "magento")->get();
+            $website = \App\StoreWebsite::where("website_source", "magento")->where("api_token", "!=", "")->get();
             $size    = \App\Size::where("id", $id)->first();
 
             if (!$website->isEmpty()) {
                 foreach ($website as $web) {
                     // check we set the size already or not first and then push for store
-                    $checkSite = \App\StoreWebsiteSize::where("size_id", $size->id)->where("store_website_id", $web->id)->first();
+                    $checkSite = \App\StoreWebsiteSize::where("size_id", $size->id)->where("store_website_id", $web->id)->where("platform_id",">",0)->first();
                     if (!$checkSite) {
                         $id                    = \seo2websites\MagentoHelper\MagentoHelper::addSize($size, $web);
                         $sws                   = new \App\StoreWebsiteSize;
