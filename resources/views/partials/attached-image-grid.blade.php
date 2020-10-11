@@ -901,7 +901,8 @@
                 success: function(result){
                      $("#loading-image").hide();
                      console.log(result.url);
-                     window.location.href = result.url;
+                     location.reload();
+                    //  window.location.href = result.url;
              }
          });
         });
@@ -945,6 +946,30 @@
                 success: function(result){
                      $("#loading-image").hide();
                      location.reload();
+             }
+         });
+        });
+
+        $(document).on("click", ".delete-message", function (event) {
+            var product_id = $(this).data("id");
+            var customer_id = $(this).data("customer");
+            $.ajax({
+                url: '/attached-images-grid/remove-single-product/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    product_id: product_id
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     toastr['success']("Successfull", 'success');
+                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     $(cls).hide();
+                    //  location.reload();
              }
          });
         });
@@ -999,6 +1024,30 @@
              }
             });
         });
+
+        $(document).on("click", ".expand-row-btn", function (e) {
+            var id = $(this).data('id');
+            console.log(id);
+            console.log($('.toggle-div-'+id).length);
+            $('.toggle-div-'+id).toggleClass('hidden');
+        });
+
+    
+        var selectAllCustomerProductBtn = $(".select-customer-all-products");
+        selectAllCustomerProductBtn.on("click", function (e) {
+                    var customer_id = $(this).data('id');
+                    var $this = $(this);
+                    var custCls = '.customer-'+customer_id;
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        $this.removeClass("has-all-selected");
+                    }
+            })
         
 </script>
 

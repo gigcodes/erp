@@ -4262,7 +4262,6 @@ class ProductController extends Controller
                     $products = $products->whereIn('products.brand', $request->brand);
                 }
             }
-
             if (isset($request->category[0])) {
                 if ($request->category[0] != null && $request->category[0] != 1) {
 
@@ -4383,13 +4382,24 @@ class ProductController extends Controller
             $products = json_decode($request->products,true);
             foreach($products as $product_id) {
                 \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->delete();
-                $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->count();
+            }
+            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
                 if(!$remains) {
                     \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
                 }
-            }
             return response()->json(['code' => 200, 'message' => 'Successfull']);
     }
+
+    public function removeSingleProduct($customer_id, Request $request) {
+        \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->delete();
+        $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+            if(!$remains) {
+                \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+            }
+        return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+    
 
 
     public function forwardProducts(Request $request) {
@@ -4427,6 +4437,11 @@ class ProductController extends Controller
                            }
                         }
 
+                        $inserted = count($data_to_insert);
+                        if($inserted > 0) {
+                            \App\SuggestedProductList::insert($data_to_insert);
+                        }
+
                         if($request->type == 'forward') {
                             $data['_token'] = $request->_token;
                             $data['send_pdf'] = 0;
@@ -4441,12 +4456,28 @@ class ProductController extends Controller
                         }
                     }
                 }
-
-                $inserted = count($data_to_insert);
-                if($inserted > 0) {
-                    \App\SuggestedProductList::insert($data_to_insert);
-                }
                 $msg = $inserted. ' Products added successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
+    }
+
+
+    public function resendProducts($customer_id, Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $suggestedProducts->touch();
+                
+
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $customer_id;
+                            $data['status'] = 2;
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                $msg = ' Images Resend successfully';
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
