@@ -211,5 +211,4 @@ class TemplatesController extends Controller
         
         return response()->json(["message" => "Sucess"],200);
     }
-
 }
