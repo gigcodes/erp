@@ -152,3 +152,6 @@ Route::post('price_comparision/store','PriceComparisionController@storeComparisi
 
 //order details api for a customer
 Route::get('customer/order-details','OrderController@customerOrderDetails');
+
+// Ticket api
+Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');

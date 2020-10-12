@@ -97,7 +97,8 @@ class LogListMagentoController extends Controller
             'categories.title as category_title',
             'log_list_magentos.id as log_list_magento_id',
             'log_list_magentos.created_at as log_created_at',
-            'sw.website as website'
+            'sw.website as website',
+            'sw.title as website_title'
         );
         $logListMagentos = $logListMagentos->paginate(25);
 
@@ -159,5 +160,14 @@ class LogListMagentoController extends Controller
                 'id' => $id
             ]
         );
+    }
+
+    public function showErrorLogs($product_id, $website_id = null)  {
+        $productErrorLogs = \App\ProductPushErrorLog::where('product_id',$product_id);
+        if($website_id) {
+            $productErrorLogs = $productErrorLogs->where('store_website_id',$website_id);
+        }
+        $productErrorLogs = $productErrorLogs->get();
+        return view('logging.partials.magento_error_data',compact('productErrorLogs'));
     }
 }

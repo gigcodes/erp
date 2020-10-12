@@ -40,28 +40,23 @@ class PushSizeToMagento extends Command
         //
         $website = \App\StoreWebsite::where("website_source", "magento")->where("api_token", "!=", "")->get();
         $sizes   = \App\Size::all();
-        if (!$website->isEmpty()) {
-            foreach ($website as $web) {
+        foreach ($sizes as $s) {
+            echo "Size Started  : " . $s->name;
+            foreach($website as $web) {
                 echo "Store Started  : " . $web->website;
-                // check we set the size already or not first and then push for store
-                foreach ($sizes as $s) {
-
-                    echo "Size Started  : " . $s->name;
-
-                    $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->first();
-                    if (!$checkSite) {
-                        $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
-                        if (!empty($id)) {
-                            $sws                   = new \App\StoreWebsiteSize;
-                            $sws->size_id          = $s->id;
-                            $sws->store_website_id = $web->id;
-                            $sws->platform_id      = $id;
-                            $sws->save();
-                        }
+                $checkSite = \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->where("platform_id",">",0)->first();
+                if (!$checkSite) {
+                    $id = \seo2websites\MagentoHelper\MagentoHelper::addSize($s, $web);
+                    if (!empty($id)) {
+                        \App\StoreWebsiteSize::where("size_id", $s->id)->where("store_website_id", $web->id)->delete();
+                        $sws                   = new \App\StoreWebsiteSize;
+                        $sws->size_id          = $s->id;
+                        $sws->store_website_id = $web->id;
+                        $sws->platform_id      = $id;
+                        $sws->save();
                     }
                 }
             }
         }
-
     }
 }
