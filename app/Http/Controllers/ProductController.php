@@ -3108,7 +3108,6 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-
         $params = request()->all();
         $params["user_id"] = \Auth::id();
         //$params["is_queue"] = 1;
