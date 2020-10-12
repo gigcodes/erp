@@ -14,10 +14,12 @@
                     <p>Customer Name: {{$suggested->customer->name}}</p>
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
-                    <!-- <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button> -->
+                    <button type="button" class="btn btn-xs btn-secondary select-customer-all-products" data-id="{{$suggested->customer_id}}">Select all</button>
+                    <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
                     <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
-                    <!-- <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button> -->
-                    <!-- <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button> -->
+                    <button type="button" class="btn btn-xs btn-secondary resend-products" data-id="{{$suggested->customer_id}}">Resend</button>
+                    <button class="btn btn-image expand-row-btn" data-id="{{$suggested->customer->id}}"><img src="/images/forward.png" style="cursor: default;"></button>
+
                 </div>
 <br>
         @php
@@ -47,11 +49,12 @@
         if($count == 6){
             $count = 0;
         }
-        if($count == 0){
-                echo '<div class="row parent-row">';
-        }
         @endphp
-        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4" style="padding:0px 5px;">
+
+        @if($count == 0)
+        <div class="row parent-row toggle-div-{{$suggested->customer->id}} hidden">
+        @endif
+        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$suggested->customer_id}}-{{$product->id}}" style="padding:0px 5px;">
             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                 <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
                     <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
@@ -77,16 +80,21 @@
                         <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="{{$customer->id}}" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
                         <!-- <a href="javascript:;" title="Forward" class="btn btn-sm forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="{{$image_key}}" title="Forward"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a> -->
-                        <!-- <a href="javascript:;" title="Resend" data-id="{{$image_key}}" class="btn btn-sm resend-message" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a> -->
+                        <a href="javascript:;" title="Resend" data-id="{{$image_key}}" data-customer="{{$customer->id}}" class="btn btn-sm resend-single-image" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                       
                         @php
                         $chat_message = \App\ChatMessage::find($pr->chat_message_id);
                         @endphp
                         @if($chat_message)
-                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$pr->chat_message_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
                         @if(!$chat_message->is_reviewed)
-                        <a href="javascript:;" title="Mark as reviewed" class="btn btn-sm review-btn" data-id="{{$pr->chat_message_id}}" title="Mark as reviewd"><i class="fa fa-check" aria-hidden="true"></i></a>
+                        <a href="javascript:;" title="Mark as reviewed" class="btn btn-sm btn-image review-btn" data-id="{{$pr->chat_message_id}}" title="Mark as reviewd"><img src="/images/icons-checkmark.png" /></a>
                         @endif
+                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$product->id}}" data-customer="{{$suggested->customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
+                        <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
                         @endif
+                        
+                        
                         <!--<a title="Dialog" href="javascript:;" class="btn btn-sm create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>-->
                 </div>
             </div>

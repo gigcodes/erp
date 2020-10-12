@@ -2141,6 +2141,7 @@ public function createProductOnMagento(Request $request, $id){
 				$order->save();
 				
 				//Sending Mail on changing of order status
+
 				$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
 				$templateData = MailinglistTemplate::where('store_website_id',$order->customer->store_website_id)->where('category_id', $mailingListCategory->id )->first();
 				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
@@ -2155,9 +2156,8 @@ public function createProductOnMagento(Request $request, $id){
 				
 
 				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+
 				//Sending Mail on changing of order status
-				
-				
 				
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
