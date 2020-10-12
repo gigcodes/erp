@@ -48,7 +48,10 @@ class Handler extends ExceptionHandler
     {
 	    if ($exception instanceof \Spatie\Permission\Exceptions\UnauthorizedException) {
 		    return response()->json(['User have not permission for this page access.']);
-	    }
+        }
+        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException) {
+            return response()->json(['status' => 'failed','message' => 'Method not allowed'], 405);
+         }
 
 	    return parent::render($request, $exception);
     }

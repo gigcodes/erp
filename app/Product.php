@@ -55,7 +55,14 @@ class Product extends Model
         'scrap_priority',
         'assigned_to',
         'quick_product',
-        'approved_by'
+        'approved_by',
+        'supplier_link',
+        'composition',
+        'lmeasurement',
+        'hmeasurement',
+        'dmeasurement',
+        'size',
+        'color'
     ];
 
     protected $dates = ['deleted_at'];
@@ -636,6 +643,15 @@ class Product extends Model
     public function groups()
     {
         return $this->hasMany(ProductQuicksellGroup::class, 'product_id', 'id');
+    }
+
+    public function croppedImages()
+    {
+        return $this->hasMany(SiteCroppedImages::class, 'product_id', 'id');
+    }
+    public function mediables()
+    {
+        return $this->hasMany(Mediable::class, 'mediable_id', 'id');
     }
 
     public function attachImagesToProduct($arrImages = null)
