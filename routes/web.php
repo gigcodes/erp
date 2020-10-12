@@ -2334,6 +2334,8 @@ Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
+Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
 
