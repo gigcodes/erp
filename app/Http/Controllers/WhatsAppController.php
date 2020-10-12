@@ -1142,7 +1142,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            if (!empty($supplier)) {
+            if (!empty($supplier) && $contentType !== 'image') {
                 $supplierDetails = is_object($supplier) ? Supplier::find($supplier->id) : $supplier;
                 $language = $supplierDetails->language;
                 if ($language != null) {
@@ -1219,7 +1219,22 @@ class WhatsAppController extends FindByNumberController
                         //
                     }
                 } else {
-                    $params['message'] = $text;
+                    try {
+                        $extension = preg_replace("#\?.*#", "", pathinfo($text, PATHINFO_EXTENSION)) . "\n";
+                        // Set tmp file
+                        $filePath = public_path() . '/uploads/tmp_' . rand(0, 100000) . '.' . $extension;
+                        // Copy URL to file path
+                        copy($text, $filePath);
+                        // Upload media
+                        $media = MediaUploader::fromSource($filePath)->useFilename(uniqid(true, true))->toDisk('uploads')->toDirectory('chat-messages/' . $numberPath)->upload();
+                        // Delete the file
+                        unlink($filePath);
+                        // Update media URL
+                        $params['media_url'] = $media->getUrl();
+                        $params['message'] = isset($chatapiMessage['caption']) ? $chatapiMessage['caption'] : '';
+                    } catch (\Exception $exception) {
+                        $params['message'] = $text;
+                    }
                 }
             } else {
                 $params['message'] = $text;

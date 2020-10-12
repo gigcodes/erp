@@ -13,9 +13,11 @@ use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
+use App\RejectedImages;
 use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
+use App\SiteCroppedImages;
 use App\Sizes;
 use App\Sop;
 use App\Stage;
@@ -163,7 +165,7 @@ class ProductController extends Controller
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::query();
         } else {
-            $newProducts = Product::where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ((int)$request->get('status_id') > 0) {
@@ -244,6 +246,14 @@ class ProductController extends Controller
             $type = $request->get('type');
         }
 
+        if($request->crop_status == "Not Matched"){
+            $newProducts = $newProducts->whereDoesntHave('croppedImages');
+        }
+        if($request->crop_status == "Matched"){
+            $newProducts = $newProducts->whereHas('croppedImages');
+        }
+
+
         if (trim($term) != '') {
 
             $newProducts->where(function ($query) use ($term) {
@@ -299,7 +309,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
@@ -317,6 +327,31 @@ class ProductController extends Controller
                     }
                 }
             }
+        }
+
+        if($request->ajax()) {
+            return view('products.final_listing_ajax', [
+                'products' => $newProducts,
+                'products_count' => $newProducts->total(),
+                'colors' => $colors,
+                'brands' => $brands,
+                'suppliers' => $suppliers,
+                'categories' => $categories,
+                'category_tree' => $category_tree,
+                'categories_array' => $categories_array,
+                'term' => $term,
+                'brand' => $brand,
+                'category' => $category,
+                'color' => $color,
+                'supplier' => $supplier,
+                'type' => $type,
+                'users' => $users,
+                'assigned_to_users' => $assigned_to_users,
+                'cropped' => $cropped,
+                'category_array' => $category_array,
+                'selected_categories' => $selected_categories,
+                'store_websites' => StoreWebsite::all(),
+            ]);
         }
 
         return view('products.final_listing', [
@@ -342,6 +377,8 @@ class ProductController extends Controller
 //            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
+            'store_websites' => StoreWebsite::all(),
+            //'store_website_count' => StoreWebsite::count(),
         ]);
     }
 
@@ -1337,7 +1374,6 @@ class ProductController extends Controller
     {
         // Get product by ID
         $product = Product::find($id);
-
         //check for hscode
         $hsCode = $product->hsCode($product->category, $product->composition);
         $hsCode = true;
@@ -1403,6 +1439,11 @@ class ProductController extends Controller
                 ]);
             }
         }
+        
+        $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+        \App\ProductPushErrorLog::log($id, $msg, 'error');
+		\App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
@@ -2577,6 +2618,18 @@ class ProductController extends Controller
                 $rgbarr = explode(",", $colorCode, 3);
                 $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
                 $tag = 'gallery_' . $hex;
+                $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                if ($store_websites !== null) {
+
+                    $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                        ->where('product_id', $product->id)->exists();
+                    if (!$exist) {
+                        SiteCroppedImages::create([
+                            'website_id' => $store_websites->id,
+                            'product_id' => $product->id
+                        ]);
+                    }
+                }
             } else {
                 $tag = config('constants.media_gallery_tag');
             }
@@ -3189,7 +3242,7 @@ class ProductController extends Controller
         $json = request()->get("json", false);
 
         if ($json) {
-            return response()->json(["code" => 200,'message' => 'Images attached to queue successfully.']);
+            return response()->json(["code" => 200]);
         }
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
@@ -3788,6 +3841,14 @@ class ProductController extends Controller
                 "c.title as category_name",
                 "products.supplier",
                 "products.status_id",
+                "products.created_at",
+                "products.supplier_link",
+                "products.composition",
+                "products.size",
+                "products.lmeasurement",
+                "products.hmeasurement",
+                "products.dmeasurement",
+                "products.color",
             ]);
 
         if ($request->category != null && $request->category != 1) {
@@ -3834,17 +3895,10 @@ class ProductController extends Controller
     public function editDraftedProducts(Request $request)
     {
         $draftedProduct = Product::where("id", $request->id)->first();
-        if ($draftedProduct) {
-            $draftedProduct->update([
-                'name' => $request->name,
-                'brand' => $request->brand_id,
-                'category' => $request->category,
-                'short_description' => $request->short_description,
-                'price' => $request->price,
-                'status_id' => $request->status_id,
-                'quick_product' => $request->quick_product
-            ]);
 
+        if ($draftedProduct) {
+            $draftedProduct->fill($request->all());
+            $draftedProduct->save();
             return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
         }
 
@@ -4047,6 +4101,15 @@ class ProductController extends Controller
         return view('partials.attached-image-grid', compact(
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
+    }
+    public function crop_rejected_status(Request $request)
+    {
+
+        RejectedImages::updateOrCreate(
+            ['website_id' => $request->site_id, 'product_id' => $request->product_id],
+            ['status' => $request->status = "approve" ? 1 : 0]
+        );
+        return response()->json(true);
     }
     
     public function attachMoreProducts($customerId)
