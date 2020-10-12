@@ -148,7 +148,7 @@ class PriceComparisionController extends Controller
     	
     }
 
-    public function sendDetailsToMagento(Request $request)
+    public function sendDetails(Request $request)
     {
         //checking if we getting proper request 
 
