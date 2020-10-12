@@ -39,6 +39,8 @@ use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
 use App\MailinglistTemplate;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
 use App\Category;
 use App\Mails\Manual\RefundProcessed;
 use App\Mails\Manual\AdvanceReceipt;
@@ -2139,13 +2141,19 @@ public function createProductOnMagento(Request $request, $id){
 				$order->save();
 				
 				//Sending Mail on changing of order status
-				$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+				$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+				$templateData = MailinglistTemplate::where('store_website_id',$order->customer->store_website_id)->where('category_id', $mailingListCategory->id )->first();
 				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
 				$valToReplace = [$order->customer->name,$statuss->status];
 				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
 				
+				$storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+
 				$emailData['subject'] = $templateData->subject;
 				$emailData['static_template'] = $bodyText;
+				$emailData['from'] = $storeEmailAddress->from_address;
+				
+
 				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
 				//Sending Mail on changing of order status
 				
