@@ -2803,7 +2803,7 @@ public function createProductOnMagento(Request $request, $id){
 	public function customerOrderDetails(Request $request) {
 		$token = $request->token;
 		$email = $request->email;
-		$store_url = $request->store_url;
+		$store_url = $request->website;
 		// if(!$token || trim($token) == '') {
 		// 	return response()->json(['message' => 'Token is absent in your request','code' => 413]);
 		// }
