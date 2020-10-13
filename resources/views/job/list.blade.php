@@ -4,7 +4,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <h2 class="page-heading">Jobs / Queues</h2>
+            <h2 class="page-heading">Jobs / Queues({{$count}})</h2>
         </div>
     </div>
 
@@ -12,11 +12,17 @@
         <div class="panel panel-default">
 
             <div class="panel-body p-0">
-                <form action="{{ route('jobs.list') }}" method="GET">
+               
                     <div class="row p-3">
+                    <div class ="col-md-10">
+                    <form action="{{ route('jobs.list') }}" method="GET">
                         <div class="col-md-3">
                             <label for="start_date">Queue Type</label>
                             <input type="text" class="form-control" id="queue" name="queue" value="{{ old('queue') }}">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="start_date">Payload</label>
+                            <input type="text" class="form-control" id="payload" name="payload" value="{{ old('payload') }}">
                         </div>
                         <div class="col-md-3">
                             <label for="start_date">Reserved Date</label>
@@ -29,14 +35,26 @@
                         <button class="btn btn-light" id="submit">
                             <span class="fa fa-filter"></span> Filter Results
                         </button>
+                        </form>  
                     </div>
-                </form>
+                    <div class="col-md-2">
+                    <form action="" method="Post">
+                    @csrf
+                        <button  style="margin: 14px;background-color: #ffc9c9;" class="btn btn-light" id="checkboxsubmit">
+                            <span class="fa fa-trash"></span> Delete All 
+                        </button>
+                       </form> 
+                    </div>
+                    </div>
+                
+                
                 <div class="row">
-                    <div class="col-md-12">
+                    <div class="col-md-2">
                         <button class="btn btn-secondary" id="delete-selected">
                             <span class="fa fa-trash"></span> Delete Selected
                         </button>
                     </div>
+                   
                 </div>
 
                 <div class="table-responsive">
@@ -76,7 +94,7 @@
                                     <td>
                                         <button data-toggle="modal" data-target="#detail_modal" class="btn btn-primary job-details" data-id="{{ $item}}"><i class="fa fa-eye"></i></button>
                                         <a onclick="return confirm('Are you sure you want to delete job ?')" href="{{ route('jobs.delete',[$item->id]) }}">
-                                            <button class="btn btn-primary"><i class="fa fa-trash"></i></button>
+                                            <button class="btn btn-danger"><i class="fa fa-trash"></i></button>
                                         </a>
                                     </td>
                                 </tr>
@@ -117,7 +135,29 @@
 @section('scripts')
     <script src="https://cdn.datatables.net/1.10.19/js/jquery.dataTables.min.js"></script>
     <script>
-
+   
+    $(document).on("click","#checkboxsubmit",function() {
+        var yes = confirm("Are you sure you want to delete all jobs ?");
+        if(yes) {
+      var data = {{$checkbox}};
+      $.ajax({
+                        type: 'POST',
+                        url: "/jobs/alldelete/{{$checkbox}}",
+                        data: {
+                          _token: "{{ csrf_token() }}",
+                          data: data,
+                        }
+                    }).done(function(response) {
+                        alert('Job Deleted');
+                        if(response.code == 200) {
+                            window.location.href = '/jobs';
+                        }
+                    }).fail(function(response) {
+                        alert('Sorry , we can not delete the jobs due to some internal error.');
+                       
+                    });
+        }
+    });
         $(document).on("click","#delete-selected",function() {
                 var yes = confirm("Are you sure you want to delete selected jobs ?");
                 if(yes) {
@@ -126,7 +166,6 @@
                     $('.check-jobs:checkbox:checked').each(function (k,v) {
                         jobIds.push($(v).val());
                     });
-
                     $.ajax({
                         type: 'POST',
                         url: "/jobs/delete-multiple",
@@ -154,6 +193,7 @@
                 json=JSON.parse(payload);
                 type= typeof json;
                 if (type == "object")
+                
                 {
                     var html="<b> Display Name </b>"+json['displayName']+"<br><b>Job</b> "+json['job']+"<br><b>maxTries</b> "+json['maxTries']+"<br><b>timeout</b> "+json['timeout']+"<br><b>timeoutAt</b> "+json['timeoutAt']+"<br><b>Data</b> "+JSON.stringify(json['data']);
                     $("#payload-detail").html( html);
