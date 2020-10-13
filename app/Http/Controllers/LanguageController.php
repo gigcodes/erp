@@ -39,6 +39,7 @@ class LanguageController extends Controller {
         $language->locale = $request->locale;
         $language->code = $request->code;
         $language->store_view = $request->store_view;
+        $language->status = $request->status;
         $language->update();
 
         return response()->json(['success'], 200);
