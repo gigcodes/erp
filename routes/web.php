@@ -1595,6 +1595,10 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * from Facebook API
  */
 
+Route::prefix('facebook')->middleware('auth')->group(function () {
+    Route::get('/influencers', 'ScrappedFacebookUserController@index');
+});
+
 Route::prefix('comments')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
     Route::post('/facebook', 'SocialController@postComment');
