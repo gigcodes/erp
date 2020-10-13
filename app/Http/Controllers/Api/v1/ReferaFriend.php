@@ -50,7 +50,7 @@ class ReferaFriend extends Controller
             'referee_last_name' => 'required|max:30',
             'referee_email' => 'required|email|unique:refer_friend,referee_email',
             'referee_phone' => 'required|max:20',
-            'domain_name' => 'required|max:50',
+            'website' => 'required|max:50',
         ]);
         if ($validator->fails()) {
             return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
@@ -93,7 +93,7 @@ class ReferaFriend extends Controller
             $referrer_coupondata['start'] = date('y-m-d H:i');
             $referrer_coupondata['expiration'] = null;
             $referrer_coupondata['email'] = $data['referrer_email'];
-            $referrer_coupondata['currency'] = 'INR';
+            $referrer_coupondata['currency'] = 'EURO';
             $referrer_coupondata['coupon_type'] = 'referafriend';
             $referrer_coupondata['status'] =0;
 
@@ -104,7 +104,7 @@ class ReferaFriend extends Controller
             $referee_coupondata['start'] =  date('y-m-d H:i');
             $referee_coupondata['expiration'] = null;
             $referee_coupondata['email'] = $data['referee_email'];
-            $referee_coupondata['currency'] = 'INR';
+            $referee_coupondata['currency'] = 'EURO';
             $referee_coupondata['coupon_type'] = 'referafriend';
             $referee_coupondata['status'] =1;
         }

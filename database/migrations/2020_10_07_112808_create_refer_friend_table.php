@@ -23,7 +23,7 @@ class CreateReferFriendTable extends Migration
             $table->string('referee_last_name')->nullable();
             $table->string('referee_email')->nullable();
             $table->string('referee_phone')->nullable();
-            $table->string('domain_name')->nullable();
+            $table->string('website')->nullable();
             $table->timestamps();
         });
     }

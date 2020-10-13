@@ -15,6 +15,6 @@ class ReferFriend extends Model
     'referee_last_name',
     'referee_email',
     'referee_phone',
-    'domain_name'];
+    'website'];
     protected $table='refer_friend';
 }
