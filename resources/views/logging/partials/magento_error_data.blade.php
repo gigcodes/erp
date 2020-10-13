@@ -6,12 +6,14 @@
     @endif
     </td>
     <td>
-    {{ $log->created_at->format('d-m-y') }}
+    {{ $log->created_at->format('d-m-y H:i:s') }}
     </td>
     <td> 
         @if($log->store_website_id)
             {{$log->store_website->title}}
         @endif
+        <br>
+        <a title="{{$log->url}}" href="{{$log->url}}">{{ str_limit($log->url, 30, '...')}}</a>
     </td>
     <td class="expand-row-msg" data-name="message" data-id="{{$log->id}}">
         <span class="show-short-message-{{$log->id}}">{{ str_limit($log->message, 30, '...')}}</span>

@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ProductPushErrorLog extends Model
 {
     protected $fillable = [
+        'url',
         'product_id',
         'message',
         'request_data',
@@ -15,10 +16,11 @@ class ProductPushErrorLog extends Model
         'store_website_id'
     ];
 
-    public static function log($productId, $message, $status = null, $storeWebsiteId = null, $request_data = null, $response_data = null)
+    public static function log($url = null, $productId, $message, $status = null, $storeWebsiteId = null, $request_data = null, $response_data = null)
     {
         // Write to database
         $logListMagento = new ProductPushErrorLog();
+        $logListMagento->url = $url;
         $logListMagento->product_id = $productId;
         $logListMagento->message = $message;
         $logListMagento->store_website_id = $storeWebsiteId;
