@@ -13,10 +13,12 @@ class AddFieldtochatmsgTable extends Migration
      */
     public function up()
     {
-        Schema::table('chat_messages', function (Blueprint $table) {
-            $table->integer('ticket_id')->unsigned()->nullable()->after('sent_to_user_id');
-            $table->foreign('ticket_id')->references('id')->on('tickets');
-        });
+        if (!Schema::hasColumn('chat_messages', 'ticket_id')) {
+            Schema::table('chat_messages', function (Blueprint $table) {
+                $table->integer('ticket_id')->unsigned()->nullable()->after('sent_to_user_id');
+                $table->foreign('ticket_id')->references('id')->on('tickets');
+            });
+        }
     }
 
     /**
