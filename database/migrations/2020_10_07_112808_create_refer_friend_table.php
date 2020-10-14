@@ -24,6 +24,8 @@ class CreateReferFriendTable extends Migration
             $table->string('referee_email')->nullable();
             $table->string('referee_phone')->nullable();
             $table->string('website')->nullable();
+            $table->integer('store_website_id')->unsigned();;
+            $table->foreign('store_website_id')->references('id')->on('store_website');
             $table->timestamps();
         });
     }

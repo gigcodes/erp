@@ -14,9 +14,11 @@ class AddFieldsToCouponsTable extends Migration
     public function up()
     {
         Schema::table('coupons', function (Blueprint $table) {
-            $table->string('email')->nullable();
-            $table->string('coupon_type')->nullable();
-            $table->tinyInteger('status')->nullable();
+            $table->double('initial_amount', 15, 8)->nullable()->index();
+            $table->string('uuid')->nullable();
+            $table->string('email')->nullable()->index();
+            $table->string('coupon_type')->nullable()->index();
+            $table->tinyInteger('status')->nullable()->index();
         });
     }
 

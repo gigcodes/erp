@@ -13,7 +13,7 @@ class Coupon extends Model
      * @var array
      */
     protected $fillable = [
-        'magento_id', 'code', 'description', 'start', 'expiration', 'details', 'currency', 'discount_fixed', 'discount_percentage', 'minimum_order_amount', 'maximum_usage', 'usage_count','coupon_type','email','status'
+        'magento_id', 'code', 'description', 'start', 'expiration', 'details', 'currency', 'discount_fixed', 'discount_percentage', 'minimum_order_amount', 'maximum_usage', 'usage_count','coupon_type','email','status','initial_amount','uuid'
     ];
     /**
      * The attributes that should be hidden for arrays.
