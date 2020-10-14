@@ -2219,7 +2219,6 @@ class ProductController extends Controller
             $products = $products->paginate($perPageLimit);
         }
         $brand = $request->brand;
-
         $products_count = $products->total();
         $all_product_ids = [];
         $from = request("from", "");
@@ -3949,6 +3948,7 @@ class ProductController extends Controller
     }
     
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
+
         $model_type = 'customer';
         if ($model_type == 'customer') {
             $customerId = $model_id;
@@ -3956,7 +3956,10 @@ class ProductController extends Controller
             $customerId = null;
         }
         if($request->customer_id) {
-            $customerId = $request->customer_id;
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
         }
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
@@ -4092,10 +4095,12 @@ class ProductController extends Controller
         $from = '';
         $products_count = 0;
         $selected_products = [];
+        $brand = $request->brand;
         if ($request->ajax()) {
             $html = view('partials.attached-image-load', [
                 'suggestedProducts' => $suggestedProducts,
                 'all_product_ids' => $all_product_ids,
+                'brand' => $brand,
                 'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
                 'model_type' => $model_type,
                 'countBrands' => $countBrands,
@@ -4122,7 +4127,6 @@ class ProductController extends Controller
         //\Log::info(print_r(\DB::getQueryLog(),true));
 
         $customers = \App\Customer::pluck('name','id');
-
         return view('partials.attached-image-grid', compact(
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
@@ -4254,11 +4258,12 @@ class ProductController extends Controller
     public function suggestedProducts($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request)
     {
         $model_type = 'customer';
+        $customerId = null;
         if($request->customer_id) {
-            $customerId = $request->customer_id;
-        }
-        else {
-            $customerId = null;
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
         }
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -4364,6 +4369,7 @@ class ProductController extends Controller
         $from = '';
         $products_count = 0;
         $selected_products = [];
+        $brand =$request->brand;
         if ($request->ajax()) {
             $html = view('partials.suggested-image-load', [
                 'suggestedProducts' => $suggestedProducts,
@@ -4375,6 +4381,7 @@ class ProductController extends Controller
                 'countSuppliers' => $countSuppliers,
                 'customerId' => $customerId,
                 'categoryArray' => $categoryArray,
+                'brand' => $brand
                 ])->render();
 
             if (!empty($from) && $from == "attach-image") {
@@ -4423,7 +4430,19 @@ class ProductController extends Controller
 
 
     public function forwardProducts(Request $request) {
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $request->customer_id)->orderBy('created_at','desc')->first();
+        $customerId = 0;
+
+        if($request->customer_id) {
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
+        }
+        if(!$customerId) {
+            $msg = ' Customer not found';
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
                 $products = json_decode($request->products, true);
                 $total = count($products);
                 if($suggestedProducts) {
@@ -4431,7 +4450,7 @@ class ProductController extends Controller
                 }
                 else {
                     $suggestedProducts = new \App\SuggestedProduct;
-                    $suggestedProducts->customer_id = $request->customer_id;
+                    $suggestedProducts->customer_id = $customerId;
                     $suggestedProducts->total = $total;
                     $suggestedProducts->save();
                 }
@@ -4444,12 +4463,12 @@ class ProductController extends Controller
                         foreach($medias as $iimg => $media) {
                             $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
                             if($mediable) {
-                                $exists = \App\SuggestedProductList::where('customer_id',$request->customer_id)->where('product_id',$mediable->mediable_id)->first();
+                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->first();
                                 if(!$exists) {
                                     $pr = Product::find($mediable->mediable_id);
                                     if($pr->hasMedia(config('constants.attach_image_tag'))) {
                                         $data_to_insert[] = [
-                                            'customer_id' => $request->customer_id,
+                                            'customer_id' => $customerId,
                                             'product_id' => $mediable->mediable_id
                                         ];
                                     }
@@ -4470,7 +4489,7 @@ class ProductController extends Controller
                             $data['image'] = null;
                             $data['screenshot_path'] = null;
                             $data['message'] = null;
-                            $data['customer_id'] = $request->customer_id;
+                            $data['customer_id'] = $customerId;
                             $data['status'] = 2;
                             \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
                         }
