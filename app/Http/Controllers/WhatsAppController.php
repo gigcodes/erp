@@ -82,6 +82,7 @@ use GuzzleHttp\Exception\ClientException;
 use GuzzleHttp\RequestOptions;
 use App\Hubstaff\HubstaffMember;
 use App\Helpers\HubstaffTrait;
+use Tickets;
 
 class WhatsAppController extends FindByNumberController
 {
@@ -2265,6 +2266,18 @@ class WhatsAppController extends FindByNumberController
                 // if ($data['erp_user'] != Auth::id()) {
                 //   $data['status'] = 0;
                 // }
+            }elseif($context == 'ticket'){
+                $data['ticket_id'] = $request->ticket_id;
+                $module_id = $request->ticket_id;
+                $ticket = \App\Tickets::find($request->ticket_id);
+                $params['message'] = $request->get('message');
+                $params['ticket_id'] = $request->ticket_id; 
+                $params['approved'] = 1;
+                $params['status'] = 2; 
+                $this->sendWithThirdApi($ticket->phone_no, null, $params['message']); 
+                $chat_message = ChatMessage::create($params); 
+                return response()->json(['message' => $chat_message]);
+
             } else {
                 if ($context == 'priority') {
                     $params = [];
@@ -3049,6 +3062,7 @@ class WhatsAppController extends FindByNumberController
                 'last_communicated_message_id' => ($chat_message) ? $chat_message->id : null,
             ]);
         }
+
         if ($context == 'task_lead') {
             ChatMessagesQuickData::updateOrCreate([
                 'model' => \App\Task::class,
