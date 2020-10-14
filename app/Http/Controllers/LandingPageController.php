@@ -17,6 +17,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
+use App\Loggers\LogListMagento;
+use App\ProductPushErrorLog;
 
 class LandingPageController extends Controller
 {
@@ -280,14 +282,16 @@ class LandingPageController extends Controller
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
             $productData = $landingPage->getShopifyPushData();
+            LogListMagento::log($landingPageProduct->id, "Product started to push" . $landingPageProduct->id, 'info', $landingPage->store_website_id, "started");
             
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
 
+
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
-                $response = $client->updateProduct($landingPage->shopify_id, $productData, $landingPage->store_website_id);
+                $response = $client->updateProduct($landingPage->shopify_id, $productData,null, $landingPage->store_website_id);
             } else {
                 $response = $client->addProduct($productData, $landingPage->store_website_id);
             }
@@ -306,10 +310,12 @@ class LandingPageController extends Controller
             }
 
             if (!empty($errors)) {
+                LogListMagento::log($landingPageProduct->id, "error " . $landingPageProduct->id, 'info', $landingPage->store_website_id, "error");
                 return response()->json(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]);
             }
 
             if (!empty($response->product)) {
+                LogListMagento::log($landingPageProduct->id, "success " . $landingPageProduct->id, 'info', $landingPage->store_website_id, "success");
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
 
@@ -320,8 +326,7 @@ class LandingPageController extends Controller
 
                     if ($storeWebsiteUrl) {
                         GoogleTranslateController::translateProductDetails($selfProduct);
-                        GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,
-                            $storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password);
+                        GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,$storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password,$storeWebsiteUrl);
 //                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
                     }
 
