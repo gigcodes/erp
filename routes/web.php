@@ -1595,6 +1595,10 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * from Facebook API
  */
 
+Route::prefix('facebook')->middleware('auth')->group(function () {
+    Route::get('/influencers', 'ScrappedFacebookUserController@index');
+});
+
 Route::prefix('comments')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
     Route::post('/facebook', 'SocialController@postComment');
@@ -2107,10 +2111,10 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
     Route::get('/affiliate/scrap', 'GoogleAffiliateController@callScraper')->name('google.affiliate.keyword.scrap');
 });
-
-Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+Route::any('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', 'JobController@delete')->middleware('auth')->name('jobs.delete');
 Route::post('/jobs/delete-multiple', 'JobController@deleteMultiple')->middleware('auth')->name('jobs.delete.multiple');
+Route::any('/jobs/alldelete/{id}', 'JobController@alldelete')->middleware('auth')->name('jobs.alldelete');
 
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
@@ -2280,7 +2284,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('watson/account', 'WatsonController@store')->name('watson-accounts.add');
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
-    Route::get('watson/account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
+    Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
 
 
 

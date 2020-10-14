@@ -529,6 +529,40 @@ $(document).on("change", ".search-alias", function() {
         $(this).closest(".form-row").find(".extra_condtions").addClass("dis-none");
     }
 });
+
+$(document).on('change', '.store_on_change', function() {
+    var store_website_id = $(this).val();
+    var dialog_id = $(this).data('dialog');
+    $.ajax({
+        type: 'GET',
+        url: '/chatbot/dialog/get-response-only',
+        data: {
+            store_website_id : store_website_id,
+            dialog_id : dialog_id
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log(response);
+            var myTmpl = $.templates("#add-dialog-form");
+            var html = myTmpl.render({
+                "data": response.data
+            });
+            $("#leaf-editor-model").find(".modal-body").html(html);
+            $("[data-toggle='toggle']").bootstrapToggle('destroy')
+            $("[data-toggle='toggle']").bootstrapToggle();
+            $(".search-alias").select2();
+            searchForDialog($("#leaf-editor-model"));
+            var eleLeaf = $("#leaf-editor-model");
+            searchForIntent(eleLeaf);
+            searchForCategory(eleLeaf);
+            previousDialog(eleLeaf);
+            parentDialog(eleLeaf);
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+})
 // $(document).on("click", ".bx--overflow-menu-options > li", function() {
 //     var buttonRole = $(this).find("button").attr("role");
 //     if (buttonRole == "add_child") {

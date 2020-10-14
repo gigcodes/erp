@@ -8,6 +8,7 @@ use Pagination;
 class JobController extends Controller
 {
     public function index(Request $request){
+        
         $validator = \Validator::make($request->all(),
             [
                 'queue' => 'nullable|exists:jobs,queue',
@@ -29,6 +30,9 @@ class JobController extends Controller
         if($request->queue!=''){
             $jobs->where('queue','=',$request->queue);
         }
+        if($request->payload!=''){
+        $jobs->Where('payload', 'LIKE', '%'.$request->payload.'%');
+        }
         if($request->reserved_date!=''){
             $reserved_start=\Carbon\Carbon::Parse($request->reserved_date)->startOfDay()->getTimeStamp();
             $reserved_end=\Carbon\Carbon::Parse($request->reserved_date)->endOfDay()->getTimeStamp();
@@ -42,9 +46,10 @@ class JobController extends Controller
             $jobs->where('available_at','>=',$request->available_start);
             $jobs->where('available_at','<=',$request->available_end);
         }
+        $checkbox =$jobs->pluck('id');
         $jobs=$jobs->paginate();
-
-        return view('job.list',compact('jobs','filters'))
+        $count = $jobs->count();
+        return view('job.list',compact('jobs','filters','count','checkbox'))
                             ->withInput($request->all());
     }
 
@@ -64,5 +69,14 @@ class JobController extends Controller
         $jobs = \App\Job::whereIn("id",$request->get("jobIds"))->delete();
 
         return response()->json(["code" => 200, "data" => []]);
+    }
+
+    public function alldelete(Request $request,$id)
+    {
+       $trim=trim($id,"[]");
+       $myArray = explode(',', $trim);
+       $jobs = \App\Job::whereIn("id",$myArray)->delete();
+        return response()->json(["code" => 200, "data" => []]);
+      
     }
 }

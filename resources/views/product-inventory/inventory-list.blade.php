@@ -237,7 +237,7 @@
         let url = "";
         page++;
 
-        @if(!empty(request() - > input()))
+        @if(!empty(request()->input()))
         url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."&page=") }}' + page, "text/html");
         @else
         url = new DOMParser().parseFromString('{{ url(request()->getRequestUri()."?page=") }}' + page, "text/html");

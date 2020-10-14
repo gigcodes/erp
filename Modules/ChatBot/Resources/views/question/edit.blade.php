@@ -407,9 +407,10 @@
 				</table>
 
 				@endif
+					
 		</div>
 
-
+		
 
 <div class="col-md-12" style="margin-bottom:15px;">
 <form action="<?php echo route("chatbot.question.edit",[$chatbotQuestion->id]); ?>">
@@ -467,6 +468,58 @@
 			</table>
 		</div>
 	</div>
+</div>
+
+
+<div class="col-lg-12 margin-tb" style="padding:0px;">
+			@if($chatbotQuestion->keyword_or_question == 'intent' || $chatbotQuestion->keyword_or_question == 'entity')
+			<p>Chatbot Error logs</p>
+
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+			  <thead>
+			    <tr>
+			      <th class="th-sm">Website</th>
+			      <th class="th-sm">Message</th>
+			      <th class="th-sm">Status</th>
+			      <th class="th-sm">Action</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <?php foreach ($chatbotQuestion->chatbotErrorLogs as $value) {?>
+				    <tr>
+				      <td class="text-question">
+				      	<?php echo $value->storeWebsite->title; ?>
+				     </td>
+				     <td>
+				     	{{$value->response}}
+				     </td>	
+				      <td>
+					  @if($value->status)
+					  <span>Success</span>
+					  @else 
+					  <span style="color:red;">Error</span>
+					  @endif
+				      </td>
+					  <td>
+					  @if(!$value->status)
+					  	<a class="btn btn-image edit-data-button" data-id="{{$value->id}}">
+                        	<img src="/images/edit.png" style="cursor: nwse-resize;">
+                    	</a>
+					@endif
+					  </td>
+				    </tr>
+				<?php }?>
+			  </tbody>
+			  <tfoot>
+			    <tr>
+				<th class="th-sm">Website</th>
+			      <th class="th-sm">Message</th>
+			      <th class="th-sm">Status</th>
+			      <th class="th-sm">Action</th>
+			    </tr>
+			  </tfoot>
+			</table>
+			@endif
 </div>
 
 @include('chatbot::partial.create_question_annotation')
@@ -602,7 +655,29 @@
 	            }
 	        });
 		});
-		
+
+		$(document).on("click",".edit-data-button",function() {
+			var id = $(this).data("id");
+			$.ajax({
+				type: 'POST',
+	            url: '/chatbot/question/online-update/'+id,
+	            dataType : "json",
+				data: {
+                        _token: "{{ csrf_token() }}"
+                },
+	            success: function (response) {
+	               if(response.code == 200) {
+	               	  toastr['success'](response.message);
+	               	  location.reload();
+	               }else{
+	               	  toastr['error'](response.message);
+	               } 
+	            },
+	            error: function () {
+	               toastr['error']('Could not save correctly!');
+	            }
+	        });
+		});
 		$(document).on("click",".delete-annotation",function() {
 			var $this = $(this);
 			var anntid = $this.data("id");

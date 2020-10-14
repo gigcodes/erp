@@ -1382,20 +1382,46 @@ class ProductController extends Controller
             if ($product !== null) {
                 // Dispatch the job to the queue
                 //PushToMagento::dispatch($product)->onQueue('magento');
-                if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
-                    $result = MagentoHelper::uploadProduct($product);
-                    if ( !$result ) {
-                        // Log alert
-                        \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
-
-                        // Set product to isListed is 0
-                        $product->isListed = 0;
-                        $product->save();
-                    } else {
-                        // Log info
-                        \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                $category = $product->category;
+                $brand = $product->brand;
+                //website search
+                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                if(count($websiteArrays) == 0){
+                    \Log::info("Product started ".$product->id." No website found");
+                    $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
+                    ProductPushErrorLog::log($product->id, $msg, 'error');
+                    LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                }else{
+                    $i = 1;
+                    foreach ($websiteArrays as $websiteArray) {
+                        $website = StoreWebsite::find($websiteArray);
+                        if($website){
+                            \Log::info("Product started website found For website".$website->website);
+                            LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                            //currently we have 3 queues assigned for this task.
+                            if($i > 3) {
+                                $i = 1;
+                            }
+                            $queueName = 'push_product_'.$i;
+                            PushToMagento::dispatch($product,$website)->onQueue($queueName);
+                            $i++;
+                        }
                     }
                 }
+                // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                //     $result = MagentoHelper::uploadProduct($product);
+                //     if ( !$result ) {
+                //         // Log alert
+                //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+
+                //         // Set product to isListed is 0
+                //         $product->isListed = 0;
+                //         $product->save();
+                //     } else {
+                //         // Log info
+                //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                //     }
+                // }
 
                 // Update the product so it doesn't show up in final listing
                 $product->isUploaded = 1;
@@ -3108,7 +3134,6 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-
         $params = request()->all();
         $params["user_id"] = \Auth::id();
         //$params["is_queue"] = 1;

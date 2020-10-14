@@ -13,7 +13,7 @@ class GoogleTranslateController extends Controller
     public static function translateProductDetails($product)
     {
         $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
-        $languages = Language::pluck('locale')->toArray();
+        $languages = Language::pluck('locale')->where("status",1)->toArray();
         if(!$isDefaultAvailable) {
             $product_translation = new Product_translation();
             $product_translation->title = $product->name;

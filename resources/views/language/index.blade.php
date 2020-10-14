@@ -73,6 +73,7 @@
             <th>Locale</th>
             <th>Magneto Code</th>
             <th>Store View</th>
+            <th>Status</th>
             <th>Action</th>
             
           </tr>
@@ -162,6 +163,7 @@
     code = $('#code'+id).val();
     locale = $('#locale'+id).val();
     store_view = $('#store_view'+id).val();
+    status = $('#status'+id).val();
     
     $.ajax({
         url: "{{ route('language.update') }}",
@@ -172,6 +174,7 @@
              locale : locale,
              code : code,
              store_view:store_view,
+             status:status,
              _token: "{{ csrf_token() }}",
         },
         beforeSend: function () {
