@@ -15,7 +15,9 @@ class QuickCustomerController extends Controller
 
         $reply_categories = \App\ReplyCategory::orderby('id', 'DESC')->get();
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
-        return view("quick-customer.index", compact('title', 'nextActionArr','reply_categories', 'groups'));
+        $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
+        $brands = \App\Brand::all()->toArray();
+        return view("quick-customer.index", compact('title', 'category_suggestion', 'brands', 'nextActionArr','reply_categories', 'groups'));
     }
 
     public function records(Request $request)

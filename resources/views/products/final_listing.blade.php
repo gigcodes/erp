@@ -284,7 +284,7 @@
 
     <div class="row">
         <div class="col-md-12">
-            <div class="infinite-scroll table-responsive mt-5">
+            <div class="infinite-scroll table-responsive mt-5 infinite-scroll-data">
 
                 @php
                     $imageCropperRole = Auth::user()->hasRole('ImageCropers');
@@ -310,6 +310,7 @@
                         <th style="width:120px">User</th>
                     </tr>
                     </thead>
+                    <tbody>
                     @foreach ($products as $key => $product)
                         <tr style="display: none" id="product{{ $product->id }}">
                             <td colspan="15">
@@ -475,7 +476,7 @@
 
                             <td class="table-hover-cell">
                                 {{ $product->id }}
-                                @if($product->cropped_images_count == count($websiteArraysForProduct))
+                                @if($product->croppedImages()->count() == count($websiteArraysForProduct))
                                     <span class="badge badge-success" >&nbsp;</span>
                                 @else
                                     <span class="badge badge-warning" >&nbsp;</span>
@@ -794,17 +795,19 @@
                             </td>
                         </tr>
                     @endforeach
+                    </tbody>
                 </table>
                 <div class="mb-5">
                     <button class="btn btn-secondary text-left mass_action delete_checked_products">DELETE</button>
                     <button class="btn btn-secondary text-left mass_action approve_checked_products">APPROVE</button>
                     <button style="float: right" class="btn btn-secondary text-right">UPLOAD ALL</button>
                 </div>
-
                 <p class="mb-5">
                     &nbsp;
                 </p>
             </div>
+            <?php echo $products->appends(request()->except("page"))->links(); ?>
+            <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
 
         </div>
     </div>
@@ -1342,18 +1345,20 @@
         {{--        }--}}
         {{--    });--}}
         {{--});--}}
+        var page = 1;
+        var isLoadingProducts;
         $(document).ready(function () {
-            $('ul.pagination').hide();
-            $(function () {
-                $('.infinite-scroll').jscroll({
-                    autoTrigger: true,
-                    loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                    padding: 2500,
-                    nextSelector: '.pagination li.active + li a',
-                    contentSelector: 'div.infinite-scroll',
-                    callback: function () {
+            // $('ul.pagination').hide();
+            // $(function () {
+                // $('.infinite-scroll').jscroll({
+                //     autoTrigger: true,
+                //     loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+                //     padding: 2500,
+                //     nextSelector: '.pagination li.active + li a',
+                //     contentSelector: 'div.infinite-scroll',
+                //     callback: function () {
                         // $('ul.pagination').remove();
-                        $('.dropify').dropify();
+                        // $('.dropify').dropify();
                         // $('.quick-edit-category').each(function (item) {
                         //     product_id = $(this).siblings('input[name="product_id"]').val();
                         //     category_id = $(this).siblings('input[name="category_id"]').val();
@@ -1397,9 +1402,47 @@
                         //         $(this).closest('tr').find(".quick-edit-size option[value='" + selected_sizes[i] + "']").attr('selected', 'selected');
                         //     }
                         // });
-                    }
-                });
+                    // }
+                // });
+            // });
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMoreProducts();
+                }
             });
+
+            function loadMoreProducts() {
+                if (isLoadingProducts)
+                    return;
+                isLoadingProducts = true;
+                if(!$('.pagination li.active + li a').attr('href'))
+                return;
+
+                var $loader = $('.infinite-scroll-products-loader');
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    if('' === data.trim())
+                        return;
+
+                    $loader.hide();
+
+                    $('.infinite-scroll-data').append(data);
+
+                    isLoadingProducts = false;
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    console.error('something went wrong');
+
+                    isLoadingProducts = false;
+                });
+            }
             $('.dropify').dropify();
             // $(".select-multiple").multiselect();
             $(".select-multiple").select2({

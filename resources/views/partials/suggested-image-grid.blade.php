@@ -54,6 +54,7 @@
         }
         .select2-container {
             width:100% !important;
+            min-width:200px !important;   
         }
     </style>
 @endsection
@@ -67,7 +68,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Suggested Images</h2>
+                <h2 class="page-heading">Sent Images</h2>
 
                 <!--pending products count-->
                 @if(auth()->user()->isAdmin())
@@ -116,11 +117,18 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                    <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
+                    <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
                                 @endforeach
+                        </select> -->
+                        <select name="customer_id" type="text" class="form-control" placeholder="Search" id="customer-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('customer_id')) {
+                                    echo '<option value="'.request()->get('customer_id').'" selected>'.request()->get('customer_id').'</option>';
+                                }
+                            ?>
                         </select>
                     </div>
 
@@ -799,12 +807,7 @@
          });
         }
         
-        $('body').on("click",'.select_row', function (event) {
-        $(".select-pr-list-chk").prop("checked", false).trigger('change');
-           var $input = $(this);
-           var checkBox = $input.parent().parent().parent().find(".select-pr-list-chk");
-           checkBox.prop("checked", true).trigger('change');
-        });
+
     </script>
 
 @endsection
@@ -859,6 +862,71 @@
          });
         });
 
+
+        $(document).on("click", ".resend-products", function (event) {
+            customer_id = $(this).data('id');
+
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            image_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+            if (productCard.length > 0) {
+                    var image = productCard.data("image");
+                    if ($input.is(":checked") === true) {
+                        image_array.push(image);
+                        image_array = unique(image_array);
+                    }
+                }
+            }
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            $.ajax({
+                url: '/attached-images-grid/resend-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(image_array)
+                },
+                beforeSend: function () {  
+                              $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    //  window.location.href = result.url;
+                    toastr['success'](result.message, 'success');
+             }
+         });
+        });
+
+        $(document).on("click", ".resend-single-image", function (event) {
+            var image = $(this).data('id');
+            var customer_id = $(this).data('customer');
+            image_array = [];
+            image_array.push(image);
+            $.ajax({
+                url: '/attached-images-grid/resend-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(image_array)
+                },
+                beforeSend: function () {  
+                              $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    //  window.location.href = result.url;
+                    toastr['success'](result.message, 'success');
+             }
+         });
+        });
 
         $('.erp_lead_frm').on('submit', function(e) {
           e.preventDefault();
@@ -966,6 +1034,160 @@
                      location.reload();
              }
             });
+        });
+
+
+        $(document).on("click", ".remove-products", function (event) {
+            var customer_id = $(this).data("id");
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            product_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+                if (productCard.length > 0) {
+                    var product = productCard.data("product");
+                    if ($input.is(":checked") === true) {
+                        product_array.push(product);
+                    }
+                }
+            }
+            if (product_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            console.log(product_array);
+            var confirm = window.confirm('Are you sure ?');
+            if(!confirm) {
+                return;
+            }
+            $.ajax({
+                url: '/attached-images-grid/remove-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(product_array)
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     location.reload();
+             }
+         });
+        });
+
+
+        $(document).on("click", ".delete-message", function (event) {
+            var product_id = $(this).data("id");
+            var customer_id = $(this).data("customer");
+            var cls = '.single-image-'+customer_id+'-'+product_id;
+            $.ajax({
+                url: '/attached-images-grid/remove-single-product/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    product_id: product_id
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     toastr['success']("Successfull", 'success');
+                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     $(cls).hide();
+                    //  location.reload();
+             }
+         });
+        });
+
+        $(document).on("click", ".expand-row-btn", function (e) {
+            var id = $(this).data('id');
+            console.log(id);
+            $('.toggle-div-'+id).toggleClass('hidden');
+        });
+
+        var selectAllCustomerProductBtn = $(".select-customer-all-products");
+        selectAllCustomerProductBtn.on("click", function (e) {
+                    var customer_id = $(this).data('id');
+                    var $this = $(this);
+                    var custCls = '.customer-'+customer_id;
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        $this.removeClass("has-all-selected");
+                    }
+            })
+
+
+            $('body').on("click",'.select_row', function (event) {
+        $(".select-pr-list-chk").prop("checked", false).trigger('change');
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+        $('body').on("click",'.select_multiple_row', function (event) {
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+
+        $('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        if(data[i].name) {
+                            var combo = data[i].name+'/'+data[i].id;
+                        }
+                        else {
+                            var combo = data[i].text;
+                        }
+                        data[i].id = combo;
+                    }
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
         });
 
 

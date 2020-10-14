@@ -60,6 +60,8 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
+    Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
+
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
@@ -1593,6 +1595,10 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * from Facebook API
  */
 
+Route::prefix('facebook')->middleware('auth')->group(function () {
+    Route::get('/influencers', 'ScrappedFacebookUserController@index');
+});
+
 Route::prefix('comments')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
     Route::post('/facebook', 'SocialController@postComment');
@@ -2105,10 +2111,10 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
     Route::get('/affiliate/scrap', 'GoogleAffiliateController@callScraper')->name('google.affiliate.keyword.scrap');
 });
-
-Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+Route::any('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', 'JobController@delete')->middleware('auth')->name('jobs.delete');
 Route::post('/jobs/delete-multiple', 'JobController@deleteMultiple')->middleware('auth')->name('jobs.delete.multiple');
+Route::any('/jobs/alldelete/{id}', 'JobController@alldelete')->middleware('auth')->name('jobs.alldelete');
 
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
@@ -2278,7 +2284,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('watson/account', 'WatsonController@store')->name('watson-accounts.add');
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
-    Route::get('watson/account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
+    Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
 
 
 
@@ -2332,6 +2338,26 @@ Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
+Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
+
+//referfriend
+Route::prefix('referfriend')->middleware('auth')->group(static function () {
+    Route::get('/list', 'ReferFriendController@index')->name('referfriend.list');
+    Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
+});
+
+//ReferralProgram
+Route::prefix('referralprograms')->middleware('auth')->group(static function () {
+    Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
+    Route::DELETE('/delete/{id?}', 'ReferralProgramController@destroy')->name('referralprograms.destroy');
+    Route::get('/add', 'ReferralProgramController@create')->name('referralprograms.add');
+    Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
+    Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
+    Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    
+    
+});
 

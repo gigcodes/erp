@@ -14,10 +14,12 @@
                     <p>Customer Name: {{$suggested->customer->name}}</p>
                     <p>Customer Number: {{$suggested->customer->phone}}</p>
                     <p>Customer Id: {{$suggested->customer->id}}</p>
+                    <button type="button" class="btn btn-xs btn-secondary select-customer-all-products" data-id="{{$suggested->customer_id}}">Select all</button>
                     <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
-                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
+                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Attach to new Customer</button>
                     <button type="button" class="btn btn-xs btn-secondary add-more-products" data-id="{{$suggested->customer_id}}">Add More</button>
                     <button type="button" class="btn btn-image sendImageMessage my-3" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button>
+                    <button class="btn btn-image expand-row-btn" data-id="{{$suggested->customer->id}}"><img src="/images/forward.png" style="cursor: default;"></button>
                 </div>
 <br>
         @php
@@ -47,11 +49,11 @@
         if($count == 6){
             $count = 0;
         }
-        if($count == 0){
-                echo '<div class="row parent-row">';
-        }
         @endphp
-        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4" style="padding:0px 5px;">
+        @if($count == 0)
+        <div class="row parent-row toggle-div-{{$suggested->customer->id}} hidden">
+        @endif
+        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$suggested->customer->id}}-{{$product->id}}" style="padding:0px 5px;margin-bottom:2px !important;">
             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                 <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
                     <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
@@ -73,6 +75,8 @@
                     @endif -->
                         <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
+                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$product->id}}" data-customer="{{$suggested->customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+
                         <!-- <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a> -->
                         <!-- <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a> -->
                         <!-- <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a> -->
@@ -96,6 +100,13 @@
            echo '</div>';
          }
         @endphp
+        @if($count == 6)
+        <div class="row toggle-div-{{$suggested->customer->id}} hidden">
+        <div class="col-md-12"> 
+        <button type="button" class="btn btn-image sendImageMessage pull-right" data-id="{{$suggested->customer_id}}" style="padding:0px;margin:0px;"><img src="/images/filled-sent.png" /></button>
+        </div>
+        </div>
+         @endif
         @else
         <div class="col-md-3 col-xs-6 text-center mb-5">
             <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" title="{{ 'Nothing to show' }}">

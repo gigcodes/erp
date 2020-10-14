@@ -213,6 +213,7 @@
 
 @include("quick-customer.templates.list-template")
 @include("partials.customer-new-ticket")
+@include('customers.partials.modal-category-brand')
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
 <script type="text/javascript" src="/js/jquery.validate.min.js"></script>
 <script src="/js/jquery-ui.js"></script>
@@ -232,7 +233,7 @@
 
 <script type="text/javascript">
 	
-
+    $('.select-multiple').select2({width: '100%'});
 	$(document).on("click",".add_next_action",function() {
         siteHelpers.addNextAction($(this));
     });
@@ -1508,6 +1509,12 @@
         // $("#addPhrases").find(".question").val($(this).data("message"));
         $("#addPhrases").modal("show");
     });
+
+    $(document).on('click', '.latest-scraped-shortcut', function () {
+            var id = $(this).data('id');
+            $('#categoryBrandModal').find('input[name="customer_id"]').val(id);
+});
+        
     $('.select-phrase-group').select2({
         tags : true,
         allowClear: true,
@@ -1571,6 +1578,46 @@
         parentDialog(eleLeaf);
 
     });
+
+
+    $(document).on('click', '.send-to-approval-btn', function (e) {
+            e.preventDefault();
+            var id = $('#categoryBrandModal').find('input[name="customer_id"]').val();
+            $('#categoryBrandModal').find('input[name="submit_type"]').val('send-to-approval');
+            $('#customerSendScrap').attr('action', '/attachImages/customer/' + id);
+            $("#customerSendScrap").submit();
+        });
+
+        $("#customerSendScrap").on('submit', function(e) {
+                e.preventDefault();
+                var url = $('#customerSendScrap').attr('action');
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    data: $(this).serialize(),
+                    beforeSend: function () {
+                    $("#loading-image").show();
+                    },
+                    success: function (response) {
+                        $("#loading-image").hide();
+                        $("#categoryBrandModal").modal('hide');
+                        toastr["success"](response.message);
+                    },
+                    error: function (error) {
+                        toastr["error"](error.responseJSON.message);
+                        $("#loading-image").hide();
+                    }
+                }); 
+                
+        });
+
+        $(document).on('click', '.old-send-btn', function (e) {
+            e.preventDefault();
+            var id = $('#categoryBrandModal').find('input[name="customer_id"]').val();
+            $('#categoryBrandModal').find('input[name="submit_type"]').val('old-submit');
+            $('#customerSendScrap').attr('action', '/attachImages/customer/' + id);
+            $("#customerSendScrap").submit();
+        });
 </script>
 
 @endsection

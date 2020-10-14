@@ -55,7 +55,14 @@ class Product extends Model
         'scrap_priority',
         'assigned_to',
         'quick_product',
-        'approved_by'
+        'approved_by',
+        'supplier_link',
+        'composition',
+        'lmeasurement',
+        'hmeasurement',
+        'dmeasurement',
+        'size',
+        'color'
     ];
 
     protected $dates = ['deleted_at'];
@@ -1101,5 +1108,10 @@ class Product extends Model
     public function getStatusName()
     {
         return @\App\Helpers\StatusHelper::getStatus()[$this->status_id];
+    }
+
+    public static function getProductBySKU($sku)
+    {
+         return Product::where('sku',$sku)->first();
     }
 }

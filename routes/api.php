@@ -78,6 +78,10 @@ Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor');
 
 Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor');
 
+//Scrapped facebook users
+Route::post('facebook/scrape-user','FacebookController@apiPost');
+
+
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
 Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
@@ -149,4 +153,11 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
+
+
+//refer a friend api
+Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
+Route::post('price_comparision/details','PriceComparisionController@sendDetails');
+
+Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
 
