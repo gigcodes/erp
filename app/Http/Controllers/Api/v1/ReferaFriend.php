@@ -52,7 +52,7 @@ class ReferaFriend extends Controller
             'referrer_phone' => 'required|max:20',
             'referee_first_name' => 'required|max:30',
             'referee_last_name' => 'required|max:30',
-            'referee_email' => 'required|email|unique:refer_friend,referee_email',
+            'referee_email' => 'required|email',
             'referee_phone' => 'required|max:20',
             'website' => 'required|exists:store_websites,website',
         ]);
