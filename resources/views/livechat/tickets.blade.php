@@ -46,6 +46,31 @@
                                 value="{{ isset($term) ? $term : '' }}"
                                 placeholder="Name of User" id="term">
                     </div>
+                    <div class="col-md-2">
+                        <input name="serach_inquiry_type" type="text" class="form-control"
+                                value="{{ isset($serach_inquiry_type) ? $serach_inquiry_type : '' }}"
+                                placeholder="Inquiry Type" id="serach_inquiry_type">
+                    </div>
+                    <div class="col-md-2">
+                        <input name="search_country" type="text" class="form-control"
+                                value="{{ isset($search_country) ? $search_country : '' }}"
+                                placeholder="Country" id="search_country">
+                    </div>
+                    <div class="col-md-2">
+                        <input name="search_order_no" type="text" class="form-control"
+                                value="{{ isset($search_order_no) ? $search_order_no : '' }}"
+                                placeholder="Order No." id="search_order_no">
+                    </div>
+                    <div class="col-md-2">
+                        <input name="search_phone_no" type="text" class="form-control"
+                                value="{{ isset($search_phone_no) ? $search_phone_no : '' }}"
+                                placeholder="Phone No." id="search_phone_no">
+                    </div>
+                    <!-- <div class="col-md-2">
+                        <input name="search_category" type="text" class="form-control"
+                                value="{{ isset($search_category) ? $search_category : '' }}"
+                                placeholder="Category" id="search_category">
+                    </div> -->
                     <div class="col-md-1">
                         <button type="button" class="btn btn-image" onclick="submitSearch()"><img src="{{ asset('images/filter.png')}}"/></button>
                     </div>
@@ -81,10 +106,13 @@
             <th>Subject</th>
             <th>Message</th>
             <th>Assigned To</th>
+            <th>Inquiry Type</th>
+            <th>Country</th>
+            <th>Order No.</th>
+            <th>Phone</th>
+            <th>Communication</th>
             <th>Status</th>
             <th>Action</th>
-            
-           
           </tr>
         </thead>
 
@@ -131,6 +159,20 @@
         </div>
     </div>
 
+    <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     
 
 @endsection
@@ -165,6 +207,11 @@
     function submitSearch(){
         src = "{{url('livechat/tickets')}}";
         term = $('#term').val();
+        serach_inquiry_type = $('#serach_inquiry_type').val();
+        search_country = $('#search_country').val();
+        search_order_no = $('#search_order_no').val();
+        search_phone_no = $('#search_phone_no').val();
+        //search_category = $('#search_category').val();
         ticket_id = $('#ticket').val();
         status_id = $('#status_id').val();
         date = $('#date').val();
@@ -174,6 +221,11 @@
             dataType: "json",
             data: {
                 term : term,
+                serach_inquiry_type : serach_inquiry_type,
+                search_country : search_country,
+                search_order_no : search_order_no,
+                search_phone_no : search_phone_no,
+                //search_category : search_category,
                 ticket_id : ticket_id,
                 status_id : status_id,
                 date : date,
@@ -218,6 +270,11 @@
         }).done(function (data) {
             $("#loading-image").hide();
             $('#term').val('')
+            $('#serach_inquiry_type').val('')
+            $('#search_country').val('')
+            $('#search_order_no').val('')
+            $('#search_phone_no').val('')
+            //$('#search_category').val()
             $('#ticket').val('')
             $("#list-table tbody").empty().html(data.tbody);
             $("#list_count").text(data.count);
@@ -331,6 +388,56 @@
                 }
             });
         }
+
+        $(document).on('click', '.send-message1', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var ticket_id = $(this).data('ticketid');
+            var message = $("#messageid_"+ticket_id).val();
+            data.append("ticket_id", ticket_id);
+            data.append("message", message);
+            data.append("status", 1);
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: BASE_URL+'/whatsapp/sendMessage/ticket',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        //thiss.closest('tr').find('.message-chat-txt').html(thiss.siblings('textarea').val());
+                        if(message.length > 30)
+                        {
+                            var res_msg = message.substr(0, 27)+"..."; 
+                            $("#message-chat-txt-"+ticket_id).html(res_msg);
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);    
+                        }
+                        else
+                        {
+                            $("#message-chat-txt-"+ticket_id).html(message); 
+                            $("#message-chat-fulltxt-"+ticket_id).html(message);      
+                        }
+                        
+                        $("#messageid_"+ticket_id).val('');
+                        
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+        });
 </script>
 
 @endsection
