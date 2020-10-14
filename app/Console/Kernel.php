@@ -116,10 +116,12 @@ use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
 use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
 use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\LogScraperDelete;
+
 
 
 class Kernel extends ConsoleKernel
@@ -232,6 +234,8 @@ class Kernel extends ConsoleKernel
         getLiveChatIncTickets::class,
 		RoutesSync::class,
         DeleteChatMessages::class,
+        PriceComparisonScraperCommand::class,
+        WayBillTrackHistories::class,
         CustomerListToEmailLead::class,
         WayBillTrackHistories::class,
         ProjectDirectory::class,

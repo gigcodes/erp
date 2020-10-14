@@ -21,6 +21,7 @@
     <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
         <div class="pull-right">
             <div class="form-inline">
+                <button type="button" class="btn btn-secondary ml-3"><a href="{{route('chatbot.dialog.local-error-log')}}" style="text-decoration:none;color:white;">Error log</a> </button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-rest">Create</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-folder-btn-rest">Create Folder</button>
         	  </div>

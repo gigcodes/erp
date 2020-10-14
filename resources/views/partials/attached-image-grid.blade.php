@@ -119,7 +119,7 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                        <select class="form-control customer-search" name="customer_id" data-placeholder="Customer...">
+                        <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
@@ -222,6 +222,8 @@
         <input type="hidden" name="images" id="images" value="">
         <input type="hidden" name="image" value="">
         <input type="hidden" name="is_queue" value="0" id="is_queue_setting">
+        <input type="hidden" name="json" value="0" id="hidden-json">
+
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}" id="hidden-customer-id">
@@ -668,9 +670,9 @@
                 if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                     $("#hidden-customer-id").val(customer_id);
-                    if(modelType == "customer") {
-                        $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
-                    }
+                    // if(modelType == "customer") {
+                    //     $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
+                    // }
                     
                 }else{
                     $('#attachImageForm').submit();
@@ -682,6 +684,7 @@
             $("#send_pdf").val("1");
             $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
+            $("#hidden-json").val(true);
             $('#attachImageForm').submit();
         });
 
@@ -689,9 +692,37 @@
             $("#send_pdf").val("0");
             $("#is_queue_setting").val($("#is_queue_option").val());
             $("#pdf_file_name").val($("#pdf-file-name").val());
+            $("#hidden-json").val(true);
             $('#attachImageForm').submit();
         });
         // });
+
+        $("#attachImageForm").on("submit",function(e) {
+            e.preventDefault();
+            var url = $('#attachImageForm').attr('action');
+            var data = $(this).serialize();
+                $.ajax({
+                    url: url,
+                    type: 'POST',
+                    dataType: 'json',
+                    data: data,
+                    beforeSend: function (success) {
+                        console.log(success);
+                                $("#loading-image").show();
+                            },
+                    success: function(result){
+                        $("#loading-image").hide();
+                        $("#confirmPdf").modal('hide');
+                    toastr['success'](result.message, 'success');
+                    $(".select-pr-list-chk").prop("checked", false).trigger('change');
+                },
+                error: function(error){
+                        $("#loading-image").hide();
+                }
+            });
+        });
+
+       
 
         $('#attachAllButton').on('click', function () {
             var url = "{{ route('customer.attach.all') }}";
@@ -812,6 +843,15 @@
            var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
            checkBox.prop("checked", true).trigger('change');
         });
+
+        $('body').on("click",'.select_multiple_row', function (event) {
+        // $(".select-pr-list-chk").prop("checked", false).trigger('change');
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+        
     </script>
 
 @endsection
@@ -861,7 +901,8 @@
                 success: function(result){
                      $("#loading-image").hide();
                      console.log(result.url);
-                     window.location.href = result.url;
+                     location.reload();
+                    //  window.location.href = result.url;
              }
          });
         });
@@ -905,6 +946,30 @@
                 success: function(result){
                      $("#loading-image").hide();
                      location.reload();
+             }
+         });
+        });
+
+        $(document).on("click", ".delete-message", function (event) {
+            var product_id = $(this).data("id");
+            var customer_id = $(this).data("customer");
+            $.ajax({
+                url: '/attached-images-grid/remove-single-product/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    product_id: product_id
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     toastr['success']("Successfull", 'success');
+                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     $(cls).hide();
+                    //  location.reload();
              }
          });
         });
@@ -959,6 +1024,30 @@
              }
             });
         });
+
+        $(document).on("click", ".expand-row-btn", function (e) {
+            var id = $(this).data('id');
+            console.log(id);
+            console.log($('.toggle-div-'+id).length);
+            $('.toggle-div-'+id).toggleClass('hidden');
+        });
+
+    
+        var selectAllCustomerProductBtn = $(".select-customer-all-products");
+        selectAllCustomerProductBtn.on("click", function (e) {
+                    var customer_id = $(this).data('id');
+                    var $this = $(this);
+                    var custCls = '.customer-'+customer_id;
+                    if ($this.hasClass("has-all-selected") === false) {
+                        $this.html("Deselect all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        $this.addClass("has-all-selected");
+                    }else {
+                        $this.html("Select all");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        $this.removeClass("has-all-selected");
+                    }
+            })
         
 </script>
 

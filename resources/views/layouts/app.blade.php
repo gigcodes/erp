@@ -608,7 +608,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{ route('customer.index') }}?type=Refund+to+be+processed">Customers - refund</a>
                                             <a class="dropdown-item" href="{{ action('VisitorController@index') }}">Livechat Visitor Logs</a>
                                             <a class="dropdown-item" href="{{ action('ProductController@attachedImageGrid') }}">Attach Images</a>
-                                            <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Suggested Images</a>
+                                            <a class="dropdown-item" href="{{ action('ProductController@suggestedProducts') }}">Sent Images</a>
                                         </li>
                                         <li class="nav-item dropdown dropdown-submenu">
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Cold Leads<span class="caret"></span></a>
@@ -1335,6 +1335,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('store-website.category.list') }}">Store Category</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('store-website.color.list') }}">Store Color</a>
                                         <a class="dropdown-item" href="{{ route('size.index') }}">Size</a>
                                     </li>
                                     <li class="nav-item">

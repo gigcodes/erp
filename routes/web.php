@@ -60,6 +60,8 @@ Route::prefix('product')->middleware('auth')->group(static function () {
 Route::prefix('logging')->middleware('auth')->group(static function () {
     Route::get('list-magento', 'Logging\LogListMagentoController@index')->name('list.magento.logging');
     Route::post('list-magento/{id}', 'Logging\LogListMagentoController@updateMagentoStatus');
+    Route::get('show-error-logs/{product_id}/{website_id?}', 'Logging\LogListMagentoController@showErrorLogs')->name('list.magento.show-error-logs');
+
     Route::get('list-laravel-logs', 'LaravelLogController@index')->name('logging.laravel.log');
     Route::get('live-laravel-logs', 'LaravelLogController@liveLogs')->name('logging.live.logs');
     Route::post('assign', 'LaravelLogController@assign')->name('logging.assign');
@@ -160,6 +162,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
+    Route::post('product/crop_rejected_status', 'ProductController@crop_rejected_status');
 
     // Added Mass Action
     Route::get('product/delete-product', 'ProductController@deleteProduct')->name('products.mass.delete');
@@ -1568,11 +1571,11 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
      Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
      Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
      Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
-
+     Route::post('direct/group-message', 'DirectMessageController@sendMessageMultiple')->name('direct.group-message');
+     Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
+     Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
      Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
-
-     
-
+     Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 });
 
 // logScraperVsAiController
@@ -1591,6 +1594,10 @@ Route::prefix('social-media')->middleware('auth')->group(function () {
  * This is route API for getting/replying comments
  * from Facebook API
  */
+
+Route::prefix('facebook')->middleware('auth')->group(function () {
+    Route::get('/influencers', 'ScrappedFacebookUserController@index');
+});
 
 Route::prefix('comments')->group(function () {
     Route::get('/facebook', 'SocialController@getComments');
@@ -2104,10 +2111,10 @@ Route::prefix('google')->middleware('auth')->group(function () {
     Route::post('affiliate/email/send', 'GoogleAffiliateController@emailSend')->name('affiliate.email.send');
     Route::get('/affiliate/scrap', 'GoogleAffiliateController@callScraper')->name('google.affiliate.keyword.scrap');
 });
-
-Route::get('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
+Route::any('/jobs', 'JobController@index')->middleware('auth')->name('jobs.list');
 Route::get('/jobs/{id}/delete', 'JobController@delete')->middleware('auth')->name('jobs.delete');
 Route::post('/jobs/delete-multiple', 'JobController@deleteMultiple')->middleware('auth')->name('jobs.delete.multiple');
+Route::any('/jobs/alldelete/{id}', 'JobController@alldelete')->middleware('auth')->name('jobs.alldelete');
 
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
@@ -2277,7 +2284,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('watson/account', 'WatsonController@store')->name('watson-accounts.add');
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
-    Route::get('watson/account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
+    Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
 
 
 
@@ -2331,8 +2338,10 @@ Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
 Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
 Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
+Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
+Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
 
 //referfriend
 Route::prefix('referfriend')->middleware('auth')->group(static function () {

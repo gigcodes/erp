@@ -7,7 +7,7 @@
         @csrf
 
         <div class="modal-header">
-          <h4 class="modal-title">Forward products</h4>
+          <h4 class="modal-title">Attach to a customer</h4>
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
