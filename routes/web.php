@@ -2343,3 +2343,21 @@ Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedPr
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
 Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
 
+//referfriend
+Route::prefix('referfriend')->middleware('auth')->group(static function () {
+    Route::get('/list', 'ReferFriendController@index')->name('referfriend.list');
+    Route::DELETE('/delete/{id?}', 'ReferFriendController@destroy')->name('referfriend.destroy');
+});
+
+//ReferralProgram
+Route::prefix('referralprograms')->middleware('auth')->group(static function () {
+    Route::get('/list', 'ReferralProgramController@index')->name('referralprograms.list');
+    Route::DELETE('/delete/{id?}', 'ReferralProgramController@destroy')->name('referralprograms.destroy');
+    Route::get('/add', 'ReferralProgramController@create')->name('referralprograms.add');
+    Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
+    Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
+    Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
+    
+    
+});
+

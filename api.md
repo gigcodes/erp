@@ -55,3 +55,45 @@ Content-Type: application/json
     "message": "Unable to create ticket"
 }
 ``` 
+## Friend Referral API
+//referrer => person refering other person
+//referee=> person being reffered by referrer.
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/friend/referral/create
+Accept: application/json
+Content-Type: application/json
+{
+    "referrer_first_name": "Pravin", //required, length maxminum 30
+    "referrer_last_name": "Solanki", //required, length maxminum 30
+    "referrer_email": "abc@example.com", //required, must be a customer registered with this email
+    "referrer_phone" : "7777777777", //required,length maxminum 20
+    "referee_first_name": "karamjit",//required,length maxminum 30
+    "referee_last_name": "Singh", //required,length maxminum 30
+    "referee_email": "Singh.karamjit1689@gmail.com", //required,length maxminum 20
+    "referee_phone": "9999999999", //required,email
+    "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
+}
+```
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "refferal created successfully",
+    "referrer_code": "o4kx9LzcrbYCMFj",
+    "referrer_email": "abc@example.com",
+    "referee_email": "Singh.karamjit1689@gmail.com"
+}
+```
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+
+{
+    "status" : "failed",
+    "message" : "Unable to create coupon",
+}
+``` 

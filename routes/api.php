@@ -155,6 +155,8 @@ Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
 
 
+//refer a friend api
+Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
 Route::post('price_comparision/details','PriceComparisionController@sendDetails');
 
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
