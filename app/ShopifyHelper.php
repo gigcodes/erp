@@ -14,6 +14,8 @@ use App\StoreWebsiteOrder;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use seo2websites\MagentoHelper\MagentoHelperv2 as MagentoHelper;
+use App\Loggers\LogListMagento;
+use App\ProductPushErrorLog;
 
 class ShopifyHelper
 {
@@ -32,7 +34,9 @@ class ShopifyHelper
 
         $landingpageProduct = new LandingPageProduct;
         $productData        = $landingpageProduct->getShopifyPushData($product, $website);
-
+        LogListMagento::log($product->id, "Product started to push" . $product->id, 'info', $website->store_website_id, "success");
+        
+        ProductPushErrorLog::log(null,$product->id, "Product push data not found", 'error',$website->id);
         if ($productData == false) {
             return false;
         }
@@ -55,6 +59,9 @@ class ShopifyHelper
                 "product_id"       => $product->id,
                 "platform_id"      => $response->product->id,
             ]);
+            LogListMagento::log($product->id, "success " . $product->id, 'info', $website->id, "success");
+        }else{
+            LogListMagento::log($product->id, "error " . $product->id, 'info', $website->id, "error");
         }
 
         $errors = [];
@@ -82,7 +89,7 @@ class ShopifyHelper
 
 
         GoogleTranslateController::translateProductDetails($product);
-        GraphqlService::sendTranslationByGrapql($response->product->id, $product->id, $website->magento_url, $website->magento_password);
+        GraphqlService::sendTranslationByGrapql($response->product->id, $product->id, $website->magento_url, $website->magento_password , $website);
 
         return true;
     }
