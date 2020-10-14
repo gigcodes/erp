@@ -20,6 +20,7 @@ use App\WatsonAccount;
 use App\DeveloperModule;
 use App\Github\GithubRepository;
 use App\MailinglistTemplate;
+use App\ChatbotErrorLog;
 class QuestionController extends Controller
 {
     /**
@@ -184,6 +185,18 @@ class QuestionController extends Controller
         }
 
 
+        $wotson_account_ids = WatsonAccount::all();
+
+        foreach($wotson_account_ids as $id){
+            $data_to_insert[] = [
+                'suggested_reply' => $params["suggested_reply"],
+                'store_website_id' => $id->store_website_id,
+                'chatbot_question_id' => $chatbotQuestion->id
+            ];
+        }
+
+        ChatbotQuestionReply::insert($data_to_insert);
+
         if($request->erp_or_watson == 'watson') {
             if($request->keyword_or_question == 'intent' || $request->keyword_or_question == 'simple' || $request->keyword_or_question == 'priority-customer') {
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
@@ -192,13 +205,9 @@ class QuestionController extends Controller
             if($request->keyword_or_question == 'entity') {
                 $result = json_decode(WatsonManager::pushQuestion($chatbotQuestion->id));
             }
-
-           // if (property_exists($result, 'error')) {
-                //ChatbotQuestion::where("id", $chatbotQuestion->id)->delete();
-                //return response()->json(["code" => $result->code, "error" => $result->error]);
-           // }
         }
-        return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => route("chatbot.question.edit", [$chatbotQuestion->id])]);
+        $route = route("chatbot.question.edit", [$chatbotQuestion->id]);
+        return response()->json(["code" => 200, "data" => $chatbotQuestion, "redirect" => $route]);
     }
 
     public function destroy(Request $request, $id)
@@ -260,8 +269,8 @@ class QuestionController extends Controller
 
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
 
-       
         if ($chatbotQuestion) {
+            $oldvalue = $chatbotQuestion->value;
             if($chatbotQuestion->keyword_or_question == 'intent') {
                 $validator = Validator::make($params, [
                     'question' => 'required|unique:chatbot_question_examples',
@@ -295,7 +304,7 @@ class QuestionController extends Controller
                     $chatbotQuestionExample->save();
                 }
                 if($chatbotQuestion->erp_or_watson == 'watson') {
-                    WatsonManager::pushQuestion($chatbotQuestion->id);
+                    WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
                 }
                 
             }
@@ -349,8 +358,7 @@ class QuestionController extends Controller
                     }
                 }
                 if($chatbotQuestion->erp_or_watson == 'watson') {
-//                    WatsonManager::pushKeyword($chatbotQuestion->id);
-                    WatsonManager::pushQuestion($chatbotQuestion->id);
+                    WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
                 }
             }
             if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer') {
@@ -372,8 +380,7 @@ class QuestionController extends Controller
                     $chatbotQuestionExample->chatbot_question_id = $chatbotQuestion->id;
                     $chatbotQuestionExample->save();
                     if($chatbotQuestion->erp_or_watson == 'watson') {
-                        WatsonManager::pushQuestion($chatbotQuestion->id);
-//                        WatsonManager::pushKeyword($chatbotQuestion->id);
+                        WatsonManager::pushQuestion($chatbotQuestion->id, $oldvalue);
                     }
             }
         }
@@ -382,16 +389,16 @@ class QuestionController extends Controller
 
     public function destroyValue(Request $request, $id, $valueId)
     {
+        $chQuestion = ChatbotQuestion::where("id", $id)->first();
         $cbValue = ChatbotQuestionExample::where("chatbot_question_id", $id)->where("id", $valueId)->first();
         $chatbotQuestion = ChatbotQuestion::where("id", $id)->first();
         if ($cbValue) {
             $cbValue->delete();
             if($chatbotQuestion->keyword_or_question == 'intent' && $chatbotQuestion->erp_or_watson == 'watson') {
-            WatsonManager::pushQuestion($id);
+            WatsonManager::pushQuestion($id, $chQuestion->value);
             }
             if($chatbotQuestion->keyword_or_question == 'entity' && $chatbotQuestion->erp_or_watson == 'watson') {
-//                WatsonManager::pushKeyword($id);
-                WatsonManager::pushQuestion($id);
+                WatsonManager::pushQuestion($id, $chQuestion->value);
             }
         }
         return redirect()->back();
@@ -481,6 +488,7 @@ class QuestionController extends Controller
             }
         }
         if ($chQuestion) {
+            $oldvalue = $chQuestion->value;
             if (!empty($category_id)) {
                 if (is_numeric($category_id)) {
                     $chQuestion->category_id = $category_id;
@@ -518,7 +526,7 @@ class QuestionController extends Controller
             }
     
             if ($groupId > 0 && $erp_or_watson == 'watson') {
-                WatsonManager::pushQuestion($groupId);
+                WatsonManager::pushQuestion($groupId, $oldvalue);
             }
             $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
             $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
@@ -816,4 +824,16 @@ class QuestionController extends Controller
         return response()->json(['suggested_reply' => $request->suggested_reply,'code' => 200]);
     }
 
+    public function onlineUpdate($id) {
+        $errorLog = ChatbotErrorLog::find($id);
+        $result = WatsonManager::pushQuestionSingleWebsite($errorLog->chatbot_question_id,$errorLog->store_website_id);
+        if($result) {
+            return response()->json(['message' => 'Created successfully','code' => 200]);
+        }
+        else {
+            return response()->json(['message' => 'Something went wrong, check error log','code' => 500]);
+        }
+        
+    }
+    
 }
