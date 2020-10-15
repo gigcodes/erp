@@ -37,6 +37,9 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: *');
+        header('Access-Control-Allow-Headers: *');
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:80',
             'last_name'=>'required|max:80',
