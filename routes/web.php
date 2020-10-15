@@ -2361,3 +2361,14 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
     
 });
 
+//Google file translator
+Route::prefix('googlefiletranslator')->middleware('auth')->group(static function () {
+    Route::get('/list', 'GoogleFileTranslator@index')->name('googlefiletranslator.list');
+    Route::DELETE('/delete/{id?}', 'GoogleFileTranslator@destroy')->name('googlefiletranslator.destroy');
+    Route::get('/add', 'GoogleFileTranslator@create')->name('googlefiletranslator.add');
+    Route::get('/{id?}/edit', 'GoogleFileTranslator@edit')->name('googlefiletranslator.edit');
+    Route::get('/{id?}/download', 'GoogleFileTranslator@download')->name('googlefiletranslator.download');
+    Route::post('/store', 'GoogleFileTranslator@store')->name('googlefiletranslator.store');
+    Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
+
+});
