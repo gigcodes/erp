@@ -66,13 +66,13 @@ Accept: application/json
 Content-Type: application/json
 {
     "referrer_first_name": "Pravin", //required, length maxminum 30
-    "referrer_last_name": "Solanki", //required, length maxminum 30
+    "referrer_last_name": "Solanki", //length maxminum 30
     "referrer_email": "abc@example.com", //required, must be a customer registered with this email
-    "referrer_phone" : "7777777777", //required,length maxminum 20
+    "referrer_phone" : "7777777777", //length maxminum 20
     "referee_first_name": "karamjit",//required,length maxminum 30
     "referee_last_name": "Singh", //required,length maxminum 30
-    "referee_email": "Singh.karamjit1689@gmail.com", //required,length maxminum 20
-    "referee_phone": "9999999999", //required,email
+    "referee_email": "Singh.karamjit1689@gmail.com", //required,email,length maxminum 20
+    "referee_phone": "9999999999", //length maxminum 20
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
 }
 ```

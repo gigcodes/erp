@@ -47,13 +47,13 @@ class ReferaFriend extends Controller
     {
         $validator = Validator::make($request->all(), [
             'referrer_first_name' => 'required|max:30',
-            'referrer_last_name' => 'required|max:30',
+            'referrer_last_name' => 'max:30',
             'referrer_email' => 'required|email|exists:customers,email',
-            'referrer_phone' => 'required|max:20',
+            'referrer_phone' => 'max:20',
             'referee_first_name' => 'required|max:30',
-            'referee_last_name' => 'required|max:30',
+            'referee_last_name' => 'max:30',
             'referee_email' => 'required|email',
-            'referee_phone' => 'required|max:20',
+            'referee_phone' => 'max:20',
             'website' => 'required|exists:store_websites,website',
         ]);
         if ($validator->fails()) {
