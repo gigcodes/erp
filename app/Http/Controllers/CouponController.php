@@ -59,9 +59,11 @@ class CouponController extends Controller
             array('db' => 'minimum_order_amount',   'dt' => 4),
             array('db' => 'maximum_usage',   'dt' => 5),
             array('db' => 'usage_count',   'dt' => 6),
+            array('db' => 'initial_amount',   'dt' => 7),
+            array('db' => 'email',   'dt' => 8),
             array(
                 'db' => 'id',
-                'dt' => 7,
+                'dt' => 9,
                 'formatter' => function ($d, $row) {
 
                     $id = $row['id'];
@@ -78,7 +80,8 @@ class CouponController extends Controller
                     $discountPercentage = $row['discount_percentage'];
                     $minimumOrderAmount = $row['minimum_order_amount'];
                     $maximumUsage = $row['maximum_usage'];
-
+                    $initialAmount = $row['initial_amount'];
+                    $email = $row['email'];
 
                     $functionCall = "(
                         '$id',
@@ -87,10 +90,12 @@ class CouponController extends Controller
                         '$start',
                         '$expiration',
                         '$currency',
-                        $discountFixed,
-                        $discountPercentage,
-                        $minimumOrderAmount,
-                        $maximumUsage
+                        '$discountFixed',
+                        '$discountPercentage',
+                        '$minimumOrderAmount',
+                        '$maximumUsage',
+                        '$initialAmount',
+                        '$email'
                     )";
 
                     return '<button title="edit" onclick="editCoupon' . $functionCall . '" class="btn btn-default">
@@ -182,7 +187,8 @@ class CouponController extends Controller
             'fixed_discount' => $request->get('discount_fixed'),
             'percentage_discount' => $request->get('discount_percentage'),
             'minimum_order' => $request->get('minimum_order_amount'),
-            'maximum_usage' => $request->get('maximum_usage'),
+            'maximum_usage' => $request->get('maximum_usage')
+
         );
         $queryString = http_build_query($data);
 
@@ -268,6 +274,8 @@ class CouponController extends Controller
             $coupon->discount_percentage = $validated['discount_percentage'];
             $coupon->minimum_order_amount = $validated['minimum_order_amount'];
             $coupon->maximum_usage = $validated['maximum_usage'];
+            $coupon->initial_amount = $validated['initialAmount'];
+            $coupon->email = $validated['email'];
             $coupon->save();
 
             return response(
