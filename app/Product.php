@@ -1114,4 +1114,14 @@ class Product extends Model
     {
          return Product::where('sku',$sku)->first();
     }
+
+
+    public function more_suppliers() {
+        $more_suppliers = DB::select('SELECT sp.url as link,s.supplier as name
+                            FROM `scraped_products` sp
+                            JOIN scrapers sc on sc.scraper_name=sp.website
+                            JOIN suppliers s ON s.id=sc.supplier_id
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $this->sku]);
+        return $more_suppliers;
+    }
 }

@@ -163,7 +163,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
     Route::post('product/crop_rejected_status', 'ProductController@crop_rejected_status');
-
+    Route::post('product/all_crop_rejected_status', 'ProductController@all_crop_rejected_status');
+    
     // Added Mass Action
     Route::get('product/delete-product', 'ProductController@deleteProduct')->name('products.mass.delete');
     Route::get('products/approveProduct', 'ProductController@approveProduct')->name('products.mass.approve');;
