@@ -83,6 +83,7 @@ class ReferaFriend extends Controller
             $refferal_data['referee_email'] = $request->input('referee_email');
             $refferal_data['website'] = $request->input('website');
             $refferal_data['uuid'] = $uuid;
+            $refferal_data['store_website_id'] = $storeweb->id;
             return $this->createCoupon($refferal_data);
         }
         return response()->json(['status' => 'failed', 'message' => 'Unable to create referral at the moment. Please try later !'], 500);
@@ -102,7 +103,16 @@ class ReferaFriend extends Controller
         //$httpClient = new Client;
         $referrer_coupon = Str::random(15);
         $referee_coupon = Str::random(15);
-        $refferal_program = ReferralProgram::where('name','signup_referral')->first();
+        $refferal_program = ReferralProgram::where(['name'=>'signup_referral','store_website_id'=>$data['store_website_id']])->first();
+        if(!$refferal_program){
+            return response()->json(
+                [
+                    'status' => 'failed',
+                    'message' => 'refferal program for website does not exists !',
+                ],
+                404
+            );
+        }
         $coupondata = array(
             'description' => 'Coupon generated from refer a friend scheme',
             //'discount_fixed' => 100,
