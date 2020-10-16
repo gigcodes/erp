@@ -69,6 +69,5 @@ class Kernel extends HttpKernel
         'role_or_permission' => \Spatie\Permission\Middlewares\RoleOrPermissionMiddleware::class,
         'optimizeImages' => \Spatie\LaravelImageOptimizer\Middlewares\OptimizeImages::class,
         'affiliates' => AffiliateMiddleware::class,
-        'cors' => \App\Http\Middleware\Cors::class,
     ];
 }
