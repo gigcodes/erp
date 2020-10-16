@@ -38,7 +38,6 @@ class EmailController extends Controller
         $query = (new Email())->newQuery();
         $trash_query = false;
 
-
         // If type is bin, check for status only
         if($type == "bin"){
             $trash_query = true;
@@ -46,7 +45,6 @@ class EmailController extends Controller
         }else{
             $query = $query->where('type',$type);
         }
-
         if($date) {
             $query = $query->whereDate('created_at',$date);
         }
@@ -112,7 +110,7 @@ class EmailController extends Controller
         $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search', compact('emails','date','term','type','email_categories','email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string)$emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails
@@ -213,10 +211,9 @@ class EmailController extends Controller
         return response()->json(['message' => $message]);
     }
 
-    public function resendMail($id) {
+    public function resendMail($id, Request $request) {
         $email = Email::find($id);
         $attachment = [];
-
         $imap = new Client([
             'host' => env('IMAP_HOST_PURCHASE'),
             'port' => env('IMAP_PORT_PURCHASE'),
@@ -243,6 +240,9 @@ class EmailController extends Controller
             'from' =>  $email->from,
         ];
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
+        if($type == 'approve') {
+            $email->update(['approve_mail' => 0]);
+        }
         return response()->json(['message' => 'Mail resent successfully']);
    }
 

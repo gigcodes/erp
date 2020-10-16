@@ -150,7 +150,6 @@
             <th>Action</th>
           </tr>
         </thead>
-
         <tbody>
           <!-- @foreach ($emails as $key => $email)
             <tr>
@@ -389,12 +388,16 @@
     $(document).on('click', '.resend-email-btn', function(e) {
       e.preventDefault();
       var $this = $(this);
+      var type = $(this).data('type');
         $.ajax({
           headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
           },
           url: '/email/resendMail/'+$this.data("id"),
           type: 'post',
+          data: {
+            type:type
+          },
             beforeSend: function () {
                 $("#loading-image").show();
             },
