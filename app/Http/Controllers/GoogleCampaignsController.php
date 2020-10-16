@@ -42,11 +42,11 @@ class GoogleCampaignsController extends Controller
     // show campaigns in main page
     public function index() {
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
