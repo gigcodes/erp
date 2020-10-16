@@ -153,7 +153,8 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
-
+//order details api for a customer
+Route::get('customer/order-details','OrderController@customerOrderDetails');
 
 //refer a friend api
 Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');

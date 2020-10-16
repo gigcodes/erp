@@ -182,13 +182,94 @@ Content-Type: application/json
 
 **Failed Response:**
 
-```json
-HTTP/1.1 500
-Content-Type: application/json
-
-{
+```
     "status" : "failed",
     "message" : "coupon does not exists in record !",
 }
 ```
 
+## Order status for a customer 
+
+**Request:**
+
+```json
+GET https://erp.amourint.com/api/customer/order-details?email=solanki7492@gmail.com&website=www.veralusso.com
+Accept: application/json
+Content-Type: application/json
+'Authorization: Bearer (Requested_website_token)'
+```
+**Successful Response:**
+```json
+Content-Type: application/json
+
+{
+    "message":"Orders Fetched successfully",
+    "status":200,
+    "data":[
+        {
+            "id":6,
+            "customer_id":2001,
+            "order_id":"OFF-1000005",
+            "order_type":"offline",
+            "order_date":"2019-11-03",
+            "price":null,
+            "awb":null,
+            "client_name":"Pravin Solanki",
+            "city":null,
+            "contact_detail":"919016398686",
+            "clothing_size":null,
+            "shoe_size":null,
+            "advance_detail":null,
+            "advance_date":null,
+            "balance_amount":null,
+            "sales_person":null,
+            "office_phone_number":null,
+            "order_status":"product shipped to client",
+            "order_status_id":9,
+            "date_of_delivery":null,
+            "estimated_delivery_date":null,
+            "note_if_any":null,
+            "payment_mode":null,
+            "received_by":null,
+            "assign_status":null,
+            "user_id":49,
+            "refund_answer":null,
+            "refund_answer_date":null,
+            "auto_messaged":0,
+            "auto_messaged_date":null,
+            "auto_emailed":0,
+            "auto_emailed_date":null,
+            "remark":null,
+            "is_priority":0,
+            "coupon_id":null,
+            "deleted_at":null,
+            "created_at":"2019-11-03 23:10:23",
+            "updated_at":"2020-10-10 11:05:24",
+            "whatsapp_number":null,
+            "currency":null,
+            "invoice_id":2,
+            "status_histories":[
+                {
+                    "status":"advance recieved",
+                    "created_at":"2020-10-10 11:05:24"
+                },
+                {
+                    "status":"proceed without advance",
+                    "created_at":"2020-10-10 11:00:24"
+                }
+            ],
+            "action":null
+        },
+    ]
+}
+```
+**Failed Response:**
+
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "400",
+    "message": "Email is absent in your request"
+}
+```
