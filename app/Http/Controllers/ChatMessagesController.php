@@ -8,6 +8,7 @@ use App\User;
 use App\Vendor;
 use App\Supplier;
 use App\Task;
+use App\Tickets;
 use App\Old;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -44,6 +45,9 @@ class ChatMessagesController extends Controller
                 break;
             case 'task':
                 $object = Task::find($request->object_id);
+                break;
+            case 'ticket':
+                $object = Tickets::find($request->object_id);
                 break;
             case 'developer_task':
                 $object = DeveloperTask::find($request->object_id);
@@ -96,6 +100,7 @@ class ChatMessagesController extends Controller
         }
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
+
         switch ($loadType) {
             case 'text':
                 $chatMessages = $chatMessages->whereNotNull("message")
@@ -140,13 +145,13 @@ class ChatMessagesController extends Controller
                                                 ->whereNull("media_url")
                                                 ->whereRaw('id not in (select mediable_id from mediables WHERE mediable_type LIKE "App%ChatMessage")');
                                             });
-                    });                    
+                    });
                 break;
         }
+
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
-        
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
 

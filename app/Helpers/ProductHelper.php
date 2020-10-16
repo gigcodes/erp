@@ -11,7 +11,7 @@ use App\Loggers\LogListMagento;
 use App\Product;
 use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
-
+use App\ProductPushErrorLog;
 
 
         
@@ -619,7 +619,7 @@ class ProductHelper extends Model
         if (empty($product->name)) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'emergency', $storeWebsiteId);
-
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO PRODUCT NAME)", 'error',$storeWebsiteId);
             // Return false
             return false;
         }
@@ -627,7 +627,7 @@ class ProductHelper extends Model
         if (empty($product->short_description)) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'emergency', $storeWebsiteId);
-
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (NO SHORT DESCRIPTION)", 'error',$storeWebsiteId);
             // Return false
             return false;
         }
@@ -636,6 +636,7 @@ class ProductHelper extends Model
         if ((int)$product->price < 62.5 || (int)$product->price > 5000) {
             // Log info
             LogListMagento::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'emergency', $storeWebsiteId);
+            ProductPushErrorLog::log($product->id, "Product (" . $product->id . ") with SKU " . $product->sku . " failed (PRICE RANGE)", 'error',$storeWebsiteId);
 
             // Return false
             return false;
@@ -702,6 +703,8 @@ class ProductHelper extends Model
         $category          = !empty($params["category"]) ? $params["category"] : null;
         $numberOfProduts   = !empty($params["number_of_products"]) ? $params["number_of_products"] : 10;
         $quick_sell_groups = !empty($params["quick_sell_groups"]) ? $params["quick_sell_groups"] : [];
+        $product_ids = !empty($params["product_ids"]) ? explode(",",$params["product_ids"]) : [];
+        $skus = !empty($params["skus"]) ? explode(",",$params["skus"]) : [];
 
         $product = new Product;
         $toBeRun = false;
@@ -716,6 +719,18 @@ class ProductHelper extends Model
         if (!empty($category) && $category != 1) {
             $toBeRun = true;
             $product = $product->where("category", $category);
+        }
+
+        // search by product ids
+        if(!empty($product_ids)) {
+            $toBeRun = true;
+            $product = $product->whereIn("products.id", $product_ids);
+        }
+
+        // search by sku
+        if(!empty($skus)) {
+            $toBeRun = true;
+            $product = $product->whereIn("products.sku", $skus);
         }
 
         // search by quicksell groups
@@ -734,7 +749,7 @@ class ProductHelper extends Model
             // run query
             $imagesQuery = $product->where("stock",">",0)
                 ->join("mediables as m", function($q) {
-                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class);
+                    $q->on("m.mediable_id","products.id")->where("m.mediable_type",Product::class)->whereIn("m.tag",config('constants.attach_image_tag'));
                 })
                 ->select("media_id","products.id")->groupBy("products.id")
                 ->limit($limit)

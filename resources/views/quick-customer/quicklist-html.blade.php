@@ -225,6 +225,8 @@
 			                            </a>
 			                            <button type="button" class="btn btn-xs btn-image create-customer-ticket-modal" title="Create Ticket" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#create-customer-ticket-modal"><img src="/images/new.png" alt=""></button>
 										<button type="button" class="btn btn-xs btn-image show-customer-tickets-modal" title="Show Tickets" data-toggle="modal" data-customer_id="{{$item->id}}" data-target="#show-customer-tickets-modal"><img src="/images/show-ticket.png" alt=""></button>
+										<a href="javascript:;" class="btn btn-xs btn-image add-chat-phrases" title="Create Question"><img src="/images/add.png" alt=""></a>
+										<a href="javascript:;" class="btn btn-xs btn-image latest-scraped-shortcut" data-toggle="modal" data-target="#categoryBrandModal" data-id="{{$item->id}}" title="Send Latest Scrapped"><i class="fa fa-paper-plane" aria-hidden="true"></i></a></div>
 					            </div>
 					         </div>
 					      </div>
@@ -243,5 +245,5 @@
 				@endforeach
 		    </tbody>
 		</table>
-		
-	
+
+

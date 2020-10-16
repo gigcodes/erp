@@ -9,6 +9,13 @@ use App\Product;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Events\RefundDispatched;
+use App\ReturnExchangeHistory;
+use App\ReturnExchangeStatus;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
+use App\MailinglistTemplate;
+
+use Auth;
 class ReturnExchangeController extends Controller
 {
     public function getOrders($id)
@@ -33,7 +40,7 @@ class ReturnExchangeController extends Controller
             }
         }
 
-        $status   = ReturnExchange::STATUS;
+        $status   = ReturnExchangeStatus::pluck('status_name','id');
         $response = (string) view("partials.return-exchange", compact('id', 'orderData', 'status'));
 
         return response()->json(["code" => 200, "html" => $response]);
@@ -102,7 +109,6 @@ class ReturnExchangeController extends Controller
 			->leftJoin("store_websites as w", "w.id", "wo.website_id")
 			->leftJoin("return_exchange_statuses as stat", "stat.id", "return_exchanges.status")
             ->latest('return_exchanges.created_at');
-
         if (!empty($params["customer_name"])) {
             $returnExchange = $returnExchange->where("c.name", "like", "%" . $params["customer_name"] . "%");
         }
@@ -131,6 +137,10 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("return_exchanges.type", $params["type"]);
         }
 
+        if (!empty($params["est_completion_date"])) {
+            $returnExchange = $returnExchange->where("return_exchanges.est_completion_date",'<=', $params["est_completion_date"]);
+        }
+
         if (!empty($params["product"])) {
             $returnExchange = $returnExchange->where(function ($q) use ($params) {
                 $q->orWhere("p.name", "like", "%" . $params["product"] . "%")
@@ -154,13 +164,13 @@ class ReturnExchangeController extends Controller
         // update items for status
         $items = $returnExchange->items();
         foreach ($items as &$item) {
-			$item["created_at_formated"] = date('d-m-Y', strtotime($item->created_at));
+			$item["created_at_formated"] = date('d-m', strtotime($item->created_at));
 			$item["date_of_refund_formated"] = date('d-m-Y', strtotime($item->date_of_refund));
             $item["dispatch_date_formated"] = date('d-m-Y', strtotime($item->dispatch_date));
             $item["date_of_request_formated"] = date('d-m-Y', strtotime($item->date_of_request));
 			$item["date_of_issue_formated"] = date('d-m-Y', strtotime($item->date_of_issue));
             
-            //$item["status_name"] = @ReturnExchange::STATUS[$item->status];
+          
         }
 
         return response()->json([
@@ -178,7 +188,7 @@ class ReturnExchangeController extends Controller
         //check error return exist
         if (!empty($returnExchange)) {
             $data["return_exchange"] = $returnExchange;
-            $data["status"]          = ReturnExchange::STATUS;
+            $data["status"]          = ReturnExchangeStatus::pluck('status_name','id');
             if($request->from == 'erp-customer') {
                 return view('ErpCustomer::partials.edit-return-summery', compact('data'));
             }
@@ -221,7 +231,7 @@ class ReturnExchangeController extends Controller
 
     public function history(Request $request, $id)
     {
-        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->leftJoin("users as u","u.id","return_exchange_histories.user_id")
+        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->where("history_type",'status')->leftJoin("users as u","u.id","return_exchange_histories.user_id")
         ->select(["return_exchange_histories.*","u.name as user_name"])
         ->orderby("return_exchange_histories.created_at","desc")
         ->get();
@@ -229,7 +239,7 @@ class ReturnExchangeController extends Controller
         $history = [];
         if(!empty($result)) {
             foreach($result as $res) {
-                $res["status"] = @ReturnExchange::STATUS[$res->status_id];
+                $res["status"] = ReturnExchangeStatus::where('id', $res->status_id)->first()->status_name;
                 $history[] = $res;
             }
         }
@@ -386,7 +396,18 @@ class ReturnExchangeController extends Controller
             $data['credited'] = 1;
         }
         ReturnExchange::create($data);
-        
+        //create entry in table cash_flows
+        \DB::table('cash_flows')->insert(
+            [
+                'cash_flow_able_id'=>$request->input('user_id'),
+                'description'=>'Vendor paid',
+                'date'=>('Y-m-d'),
+                'amount'=>$request->input('refund_amount'),
+                'type'=>'paid',
+                'cash_flow_able_type'=>'App\ReturnExchange',
+
+            ]
+        );
         return response()->json(['message' => 'You have successfully added refund!'],200);
     }
 
@@ -414,6 +435,26 @@ class ReturnExchangeController extends Controller
         if($returnExchange) {
             $returnExchange->update($data);
         }
+
+
+        //Sending Mail on edit of return and exchange
+        $mailingListCategory = MailinglistTemplateCategory::where('title','Refund and Exchange')->first();
+        $templateData = MailinglistTemplate::where('store_website_id',$returnExchange->customer->store_website_id)->where('category_id', $mailingListCategory->id )->first();
+        
+        $arrToReplace = ['{FIRST_NAME}','{REFUND_TYPE}','{CHQ_NUMBER}','{REFUND_AMOUNT}','{DATE_OF_REFUND}','{DETAILS}'];
+
+        $valToReplace = [$returnExchange->customer->name,$returnExchange->type,$returnExchange->chq_number,$returnExchange->amount,$returnExchange->date_of_request,$returnExchange->details];
+        $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+        
+
+        $storeEmailAddress = EmailAddress::where('store_website_id',$returnExchange->customer->store_website_id)->first();
+
+        $emailData['subject'] = $templateData->subject;
+        $emailData['static_template'] = $bodyText;
+        $emailData['from'] = $storeEmailAddress->from_address;
+        Mail::to($returnExchange->customer->email)->send(new ReturnExchangeEmail($emailData));
+        //Sending Mail on edit of return and exchange
+
         $updateOrder =0;
 		if (!$request->dispatched) {
 			$data['dispatch_date'] = $returnExchange->dispatch_date;
@@ -448,5 +489,47 @@ class ReturnExchangeController extends Controller
             }
         }
         return response()->json(['message' => 'You have successfully added refund!'],200);
+    }
+
+    public function updateEstmatedDate(Request $request) {
+        
+        $returnExchange = ReturnExchange::find($request->exchange_id);
+        if($returnExchange) {
+            if($request->estimate_date && $request->estimate_date != "") {
+                $oldDate = $returnExchange->est_completion_date;
+                $returnExchange->est_completion_date = $request->estimate_date;
+                $returnExchange->save();
+    
+                ReturnExchangeHistory::create([
+                    "return_exchange_id" => $request->exchange_id,
+                    "status_id"          => 0,
+                    "user_id"            => Auth::user()->id,
+                    "history_type"       => 'est_date',
+                    "old_value"          => $oldDate,
+                    "new_value"          => $request->estimate_date
+                ]);
+    
+    
+                return response()->json(['code' => 200, 'message' => 'Successfull']);
+            }
+        }
+        return response()->json(['code' => 500, 'message' => 'Return/exchange not found']);
+    }
+
+
+    public function estimationHistory(Request $request, $id)
+    {
+        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->where("history_type",'est_date')->leftJoin("users as u","u.id","return_exchange_histories.user_id")
+        ->select(["return_exchange_histories.*","u.name as user_name"])
+        ->get();
+
+        $history = [];
+        if(!empty($result)) {
+            foreach($result as $res) {
+                $history[] = $res;
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
     }
 }

@@ -72,39 +72,60 @@
             </form>
 
             <div class="table-responsive">
-                <table class="table table-bordered table-hover">
+                <table class="table table-bordered table-hover" style="table-layout:fixed;">
                     <thead>
-                        <th>Product ID</th>
-                        <th>SKU</th>
-                        <th>Brand</th>
-                        <th>Category</th>
-                        <th>Price</th>
-                        <th>Message</th>
-                        <th>Date/Time</th>
-                        <th>Website</th>
-                        <th>Status</th>
-                        <th>Action</th>
+                        <th style="width:7%">Product ID</th>
+                        <th style="width:10%">SKU</th>
+                        <th style="width:9%">Brand</th>
+                        <th style="width:8%">Category</th>
+                        <th style="width:7%">Price</th>
+                        <th style="width:11%">Message</th>
+                        <th style="width:8%">Date/Time</th>
+                        <th style="width:9%">Website</th>
+                        <th style="width:8%">Status</th>
+                        <th style="width:8%">Language Id</th>
+                        <th style="width:7%">Sync Status</th>
+                        <th style="width:8%">Action</th>
                     </thead>
                     <tbody>
                         @foreach($logListMagentos as $item)
                         <tr>
                             <td> {{ $item->product_id }} </td>
-                            <td> {{$item->sku}} </td>
-                            <td> {{ $item->brand_name }} </td>
-                            <td> {{$item->category_title}} </td>
+
+                            <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
+                                <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 15 ,'...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden">{{$item->sku}}</span>
+                            </td>
+                            <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
+                                <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->brand_name}}</span>
+                            </td>
+                            <td class="expand-row-msg" data-name="category_title" data-id="{{$item->id}}">
+                                <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_title, 10, '...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_title}}</span>
+                            </td>
                             <td> {{$item->price}} </td>
-                            <td> {{$item->message}} </td>
+                            <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">
+                                <span class="show-short-message-{{$item->id}}">{{ str_limit($item->message, 20, '...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-message-{{$item->id}} hidden">{{$item->message}}</span>
+                            </td>
                             <td>
                                 @if(isset($item->log_created_at))
                                 {{ date('M d, Y',strtotime($item->log_created_at))}}
                                 @endif
                             </td>
-                            <td> {{$item->website}} </td>
+                            <td class="expand-row-msg" data-name="website_title" data-id="{{$item->id}}">
+                                <span class="show-short-website_title-{{$item->id}}">{{ str_limit($item->website_title, 10, '...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-website_title-{{$item->id}} hidden">{{$item->website_title}}</span>
+                            </td>
                             <td>
                                 {{ (isset($item->stock) && $item->stock > 0) ? 'Available' : 'Out of Stock' }}
                             </td>
+                            <td> {{(!empty($item->languages)) ? implode(", ",json_decode($item->languages)) : ''}} </td>
+                            <td> {{$item->sync_status}} </td>
                             <td>
-                                <button data-toggle="modal" data-target="#update_modal" class="btn btn-primary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
+                                <button data-toggle="modal" data-target="#update_modal" class="btn btn-xs btn-secondary update_modal" data-id="{{ $item}}"><i class="fa fa-edit"></i></button>
+                                <button class="btn btn-xs btn-secondary show_error_logs" data-id="{{ $item->product_id}}" data-website="{{ $item->store_website_id}}"><i class="fa fa-eye"></i></button>
                             </td>
                         </tr>
                         @endforeach()
@@ -117,6 +138,38 @@
             </div>
         </div>
     </div>
+</div>
+
+<div id="ErrorLogModal" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg" style="padding: 0px;width: 90%;max-width: 90%;">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">magento push error log</h4>
+            </div>
+                <div class="modal-body">
+                <table class="table table-bordered table-hover" style="table-layout:fixed;">
+                    <thead>
+                        <th style="width:7%">Product ID</th>
+                        <th style="width:6%">Date</th>
+                        <th style="width:11%">Website</th>
+                        <th style="width:20%">Message</th>
+                        <th style="width:25%">Request data</th>
+                        <th style="width:25%">Response Data</th>
+                        <th style="width:6%">Status</th>
+                    </thead>
+                    <tbody class="error-log-data">
+                
+                    </tbody>
+                </table>
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default pull-left" data-dismiss="modal">Close</button>
+                </div>
+        </div>
+        <!-- /.modal-content -->
+    </div>
+    <!-- /.modal-dialog -->
 </div>
 
 <div id="update_modal" class="modal fade" role="dialog">
@@ -234,11 +287,29 @@
     <!-- /.modal-dialog -->
 </div>
 
-
 @endsection
 
 @section('scripts')
 <script type="text/javascript">
+
+$(document).on("click", ".show_error_logs", function() {
+        var product_id = $(this).data('id');
+        var store_website_id = $(this).data('website');
+        $.ajax({
+                method: "GET",
+                url: "/logging/show-error-logs/" + product_id+'/'+store_website_id,
+                data: {
+                    "_token": "{{ csrf_token() }}"
+                },
+                dataType: 'html'
+            })
+            .done(function(result) {
+                console.log(result);
+                $('#ErrorLogModal').modal('show');
+                $('.error-log-data').html(result);
+            });
+        
+});
     $(document).on("click", ".update_modal", function() {
         var data = $(this).data('id');
 
@@ -270,6 +341,15 @@
         $("#update_supplier_link").val(detail['supplier_link']);
         $("#update_product_link").val(detail['product_link']);
     });
+
+    $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
 
     function changeMagentoStatus(logId, newStatus) {
         if (!newStatus) {

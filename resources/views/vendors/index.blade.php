@@ -699,6 +699,11 @@
                 type: 'POST',
                 success: function () {
                     toastr['success']('Reminder updated successfully!');
+					$(".set-reminder img").css("background-color", "");
+					if(frequency > 0)
+					{
+						$(".set-reminder img").css("background-color", "red");
+					}
                 },
                 data: {
                     vendor_id: vendorToRemind,

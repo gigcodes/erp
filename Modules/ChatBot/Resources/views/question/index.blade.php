@@ -52,6 +52,14 @@
 					  <option value="priority-customer" {{request()->get('keyword_or_question') == 'priority-customer' ? 'selected' : ''}}>Priority Customer</option>
 					  </select>
 				    </div>
+					<div class="col">
+				      <select name="store_website_id" class="form-control">
+						<option value="">Select Website</option>
+						@foreach($watson_accounts as $acc)
+						<option value="{{$acc->store_website_id}}" {{request()->get('store_website_id') == $acc->store_website_id ? 'selected' : ''}}>{{$acc->storeWebsite->title}}</option>
+						@endforeach
+					  </select>
+				    </div>
 				    <div class="col">
 				      <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
 				    </div>
@@ -60,6 +68,8 @@
         </div>
         <div class="col-md-5">
             <div class="form-inline pull-right">
+                <button type="button" class="btn btn-secondary ml-3" id="create-reply-btn">Dynamic Reply</button>
+                <button type="button" class="btn btn-secondary ml-3" id="create-task-btn">Dynamic Task</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-keyword-btn">Create</button>
         	</div>
         </div>
@@ -88,7 +98,18 @@
 				      <td><?php echo $chatQuestion->keyword_or_question; ?></td>
 					  <td><?php echo $chatQuestion->questions; ?></td>
                       <td>
-					  		{{$chatQuestion->suggested_reply}}
+					  @if(request('store_website_id'))
+					  <?php 
+						$reply = \App\ChatbotQuestionReply::where('store_website_id',request('store_website_id'))->where('chatbot_question_id',$chatQuestion->id)->first();
+						if($reply) {
+							$r = $reply->suggested_reply;
+						}
+						else {
+							$r = '';
+						}
+					  ?>
+						{{$r}}
+						@endif
 					  </td>
 				      <td>
 					  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatQuestion->id}}">
@@ -128,11 +149,19 @@
 	</div>
 </div>
 @include('chatbot::partial.create_question')
+@include('chatbot::partial.create_dynamic_task')
+@include('chatbot::partial.create_dynamic_reply')
 @include('chatbot::partial.autoreply-create-modal')
 @include('partials.chat-history')
 <script type="text/javascript">
 	$("#create-keyword-btn").on("click",function() {
 		$("#create-question").modal("show");
+	});
+	$("#create-task-btn").on("click",function() {
+		$("#create-dynamic-task").modal("show");
+	});
+	$("#create-reply-btn").on("click",function() {
+		$("#create-dynamic-reply").modal("show");
 	});
 	$(".form-save-btn").on("click",function(e) {
 		e.preventDefault();
@@ -147,6 +176,32 @@
                if(response.code == 200) {
                	  toastr['success']('data updated successfully!');
                	  window.location.replace(response.redirect);
+               }else{
+				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
+               	toastr['error'](errorMessage);
+               } 
+            },
+            error: function (error) {
+				console.log(error);
+               toastr['error']('Could not change module!');
+            }
+        });
+	});
+
+	$(".form-task-btn").on("click",function(e) {
+		e.preventDefault();
+		var form = $(this).closest("form");
+		$.ajax({
+			type: form.attr("method"),
+            url: form.attr("action"),
+            data: form.serialize(),
+            dataType : "json",
+            success: function (response) {
+				console.log(response);
+               if(response.code == 200) {
+               	  toastr['success']('data updated successfully!');
+               location.reload();
+
                }else{
 				errorMessage = response.error ? response.error : 'data is not correct or duplicate!';
                	toastr['error'](errorMessage);
@@ -217,6 +272,16 @@
 				$('#intent_details').show();
 				$('#entity_details').hide();
 				$('#erp_details').hide();
+			}
+        });
+		$('#repo-details').hide();
+		$(document).on('change', '.change-task-type', function () {
+            var type = $(this).val();
+			if(type =='task') {
+				$('#repo-details').hide();
+			}
+			else if(type =='devtask') {
+				$('#repo-details').show();
 			}
         });
 

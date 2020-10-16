@@ -13,9 +13,11 @@ use App\ListingHistory;
 use App\Order;
 use App\OrderProduct;
 use App\Product;
+use App\RejectedImages;
 use App\ScrapedProducts;
 use App\Sale;
 use App\Setting;
+use App\SiteCroppedImages;
 use App\Sizes;
 use App\Sop;
 use App\Stage;
@@ -61,6 +63,8 @@ use App\StoreWebsite;
 use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
+use App\Translations;
+
 
 class ProductController extends Controller
 {
@@ -158,10 +162,10 @@ class ProductController extends Controller
         //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
         //     }
         // }
-        if (auth()->user()->isReviwerLikeAdmin()) {
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::query();
         } else {
-            $newProducts = Product::where('assigned_to', auth()->user()->id);
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
         if ((int)$request->get('status_id') > 0) {
@@ -242,12 +246,22 @@ class ProductController extends Controller
             $type = $request->get('type');
         }
 
+        if($request->crop_status == "Not Matched"){
+            $newProducts = $newProducts->whereDoesntHave('croppedImages');
+        }
+        if($request->crop_status == "Matched"){
+            $newProducts = $newProducts->whereHas('croppedImages');
+        }
+
+
         if (trim($term) != '') {
 
             $newProducts->where(function ($query) use ($term) {
                 $query->where('short_description', 'LIKE', "%" . $term . "%")
                     ->orWhere('color', 'LIKE', "%" . $term . "%")
                     ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.id', 'LIKE', "%" . $term . "%")
                     ->orWhereHas('brands', function($q) use($term){
                         $q->where('name', 'LIKE', "%" . $term . "%");
                 })
@@ -295,7 +309,7 @@ class ProductController extends Controller
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
-        $newProducts = $newProducts->select(["products.*"])->with(['media', 'brands', 'log_scraper_vs_ai'])->paginate(100);
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
             if (!$newProducts->isEmpty()) {
                 $i = 1;
@@ -313,6 +327,31 @@ class ProductController extends Controller
                     }
                 }
             }
+        }
+
+        if($request->ajax()) {
+            return view('products.final_listing_ajax', [
+                'products' => $newProducts,
+                'products_count' => $newProducts->total(),
+                'colors' => $colors,
+                'brands' => $brands,
+                'suppliers' => $suppliers,
+                'categories' => $categories,
+                'category_tree' => $category_tree,
+                'categories_array' => $categories_array,
+                'term' => $term,
+                'brand' => $brand,
+                'category' => $category,
+                'color' => $color,
+                'supplier' => $supplier,
+                'type' => $type,
+                'users' => $users,
+                'assigned_to_users' => $assigned_to_users,
+                'cropped' => $cropped,
+                'category_array' => $category_array,
+                'selected_categories' => $selected_categories,
+                'store_websites' => StoreWebsite::all(),
+            ]);
         }
 
         return view('products.final_listing', [
@@ -338,6 +377,8 @@ class ProductController extends Controller
 //            'left_for_users'  => $left_for_users,
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
+            'store_websites' => StoreWebsite::all(),
+            //'store_website_count' => StoreWebsite::count(),
         ]);
     }
 
@@ -1333,7 +1374,6 @@ class ProductController extends Controller
     {
         // Get product by ID
         $product = Product::find($id);
-
         //check for hscode
         $hsCode = $product->hsCode($product->category, $product->composition);
         $hsCode = true;
@@ -1341,7 +1381,47 @@ class ProductController extends Controller
             // If we have a product, push it to Magento
             if ($product !== null) {
                 // Dispatch the job to the queue
-                PushToMagento::dispatch($product)->onQueue('magento');
+                //PushToMagento::dispatch($product)->onQueue('magento');
+                $category = $product->category;
+                $brand = $product->brand;
+                //website search
+                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+                if(count($websiteArrays) == 0){
+                    \Log::info("Product started ".$product->id." No website found");
+                    $msg = 'No website found for  Brand: '. $product->brand. ' and Category: '. $product->category;
+                    ProductPushErrorLog::log($product->id, $msg, 'error');
+                    LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+                }else{
+                    $i = 1;
+                    foreach ($websiteArrays as $websiteArray) {
+                        $website = StoreWebsite::find($websiteArray);
+                        if($website){
+                            \Log::info("Product started website found For website".$website->website);
+                            LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                            //currently we have 3 queues assigned for this task.
+                            if($i > 3) {
+                                $i = 1;
+                            }
+                            $queueName = 'push_product_'.$i;
+                            PushToMagento::dispatch($product,$website)->onQueue($queueName);
+                            $i++;
+                        }
+                    }
+                }
+                // if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
+                //     $result = MagentoHelper::uploadProduct($product);
+                //     if ( !$result ) {
+                //         // Log alert
+                //         \Log::channel('listMagento')->alert( "[Queued job result] Pushing product with ID " . $product->id . " to Magento failed" );
+
+                //         // Set product to isListed is 0
+                //         $product->isListed = 0;
+                //         $product->save();
+                //     } else {
+                //         // Log info
+                //         \Log::channel('listMagento')->info( "[Queued job result] Successfully pushed product with ID " . $product->id . " to Magento" );
+                //     }
+                // }
 
                 // Update the product so it doesn't show up in final listing
                 $product->isUploaded = 1;
@@ -1349,7 +1429,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = Language::get()->pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -1384,9 +1464,12 @@ class ProductController extends Controller
                     'status' => 'listed'
                 ]);
             }
-
-
         }
+        
+        $msg = 'Hs Code not found of product id '.$id.'. Parameters where category_id: '. $product->category. ' and composition: '. $product->composition;
+        \App\ProductPushErrorLog::log($id, $msg, 'error');
+		\App\Loggers\LogListMagento::log($product->id, $msg, 'info');
+
         // Return error response by default
         return response()->json([
             'result' => 'productNotFound',
@@ -1816,7 +1899,6 @@ class ProductController extends Controller
         } else {
             $customerId = null;
         }
-
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -1832,7 +1914,6 @@ class ProductController extends Controller
         } else {
             $selected_products = [];
         }
-
         if (empty($perPageLimit)) {
             $perPageLimit = Setting::get('pagination');
         }
@@ -2137,10 +2218,75 @@ class ProductController extends Controller
         } else {
             $products = $products->paginate($perPageLimit);
         }
-
+        $brand = $request->brand;
         $products_count = $products->total();
         $all_product_ids = [];
         $from = request("from", "");
+        if($request->submit_type == 'send-to-approval') {
+            $products_ids_cloned = clone($products);
+            $product_ids = $products_ids_cloned->pluck('id');
+            $inserted = 0;
+            if(count($product_ids) > 0 && $customerId) {
+                $json_brands = json_encode($request->brand);
+                $json_categories = json_encode($request->category);
+                $json_supplier = json_encode($request->supplier);
+                $json_color = json_encode($request->color);
+                $json_location = json_encode($request->location);
+                $size = $request->size;
+                $suggestedProducts = new \App\SuggestedProduct;
+                $suggestedProducts->customer_id = $customerId;
+                if($json_brands != 'null' && $json_brands != '') {
+                    $suggestedProducts->brands = $json_brands;
+                }
+                if($json_categories != 'null' && $json_categories != '') {
+                    $suggestedProducts->categories = $json_categories;
+                }
+                if($json_color != 'null' && $json_color != '') {
+                    $suggestedProducts->color = $json_color;
+                }
+                if($json_supplier != 'null' && $json_supplier != '') {
+                    $suggestedProducts->supplier = $json_supplier;
+                }
+                if($json_location != 'null' && $json_location != '') {
+                    $suggestedProducts->location = $json_location;
+                }                
+                $suggestedProducts->size = $size;
+                $suggestedProducts->total = $perPageLimit;
+                $suggestedProducts->save();
+                $data_to_insert = [];
+                foreach($product_ids as $id){
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->first();
+                    if(!$exists) {
+                        $pr = Product::find($id);
+                        if($pr->hasMedia(config('constants.attach_image_tag'))) {
+                            $data_to_insert[] = [
+                                'customer_id' => $customerId,
+                                'product_id' => $id
+                            ];
+                        }
+                    }
+                }
+                $inserted = count($data_to_insert);
+                if($inserted > 0) {
+                    \App\SuggestedProductList::insert($data_to_insert);
+                } 
+            }
+
+            // $message_body = '';
+            // $sending_time = '';
+    
+            // $locations = \App\ProductLocation::pluck("name", "name");
+            // $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+    
+            // $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get(); 
+            // return view('partials.attached-image-grid', compact(
+            //                 'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term'
+            // ));
+            // $route = '/attached-images-grid/customer?customer_id='.$customerId;
+            // return redirect($route);
+            $msg = $inserted.' Products attached successfully';
+            return response()->json(['code' => 200, 'message' => $msg]);
+        }
         if ($request->ajax()) {
             $html = view('partials.image-load', [
                 'products' => $products,
@@ -2161,7 +2307,6 @@ class ProductController extends Controller
             return response()->json(['html' => $html, 'products_count' => $products_count]);
         }
 
-        $brand = $request->brand;
         $message_body = $request->message ? $request->message : '';
         $sending_time = $request->sending_time ?? '';
 
@@ -2498,6 +2643,18 @@ class ProductController extends Controller
                 $rgbarr = explode(",", $colorCode, 3);
                 $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
                 $tag = 'gallery_' . $hex;
+                $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                if ($store_websites !== null) {
+
+                    $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                        ->where('product_id', $product->id)->exists();
+                    if (!$exist) {
+                        SiteCroppedImages::create([
+                            'website_id' => $store_websites->id,
+                            'product_id' => $product->id
+                        ]);
+                    }
+                }
             } else {
                 $tag = config('constants.media_gallery_tag');
             }
@@ -2528,7 +2685,7 @@ class ProductController extends Controller
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
                 } else {
-                    $multi = count($websiteArray);
+                    $multi = count($websiteArrays);
                 }
             } catch (\Exception $e) {
                 $multi = 1;
@@ -2976,7 +3133,6 @@ class ProductController extends Controller
 
     public function sendMessageSelectedCustomer(Request $request)
     {
-
         $params = request()->all();
         $params["user_id"] = \Auth::id();
         //$params["is_queue"] = 1;
@@ -3105,7 +3261,6 @@ class ProductController extends Controller
         $data['message'] = $request->message;
         $data['customer_id'] = $request->customer_id;
         $data['status'] = $request->status;
-
         \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
@@ -3113,7 +3268,6 @@ class ProductController extends Controller
         if ($json) {
             return response()->json(["code" => 200]);
         }
-
         if ($request->get('return_url')) {
             return redirect($request->get('return_url'));
         }
@@ -3711,6 +3865,14 @@ class ProductController extends Controller
                 "c.title as category_name",
                 "products.supplier",
                 "products.status_id",
+                "products.created_at",
+                "products.supplier_link",
+                "products.composition",
+                "products.size",
+                "products.lmeasurement",
+                "products.hmeasurement",
+                "products.dmeasurement",
+                "products.color",
             ]);
 
         if ($request->category != null && $request->category != 1) {
@@ -3757,17 +3919,10 @@ class ProductController extends Controller
     public function editDraftedProducts(Request $request)
     {
         $draftedProduct = Product::where("id", $request->id)->first();
-        if ($draftedProduct) {
-            $draftedProduct->update([
-                'name' => $request->name,
-                'brand' => $request->brand_id,
-                'category' => $request->category,
-                'short_description' => $request->short_description,
-                'price' => $request->price,
-                'status_id' => $request->status_id,
-                'quick_product' => $request->quick_product
-            ]);
 
+        if ($draftedProduct) {
+            $draftedProduct->fill($request->all());
+            $draftedProduct->save();
             return response()->json(["code" => 200, "data" => $draftedProduct, "message" => 'Successfully edited!']);
         }
 
@@ -3791,5 +3946,580 @@ class ProductController extends Controller
         ]);
 
     }
+    
+    public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
+
+        $model_type = 'customer';
+        if ($model_type == 'customer') {
+            $customerId = $model_id;
+        } else {
+            $customerId = null;
+        }
+        if($request->customer_id) {
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
+        }
+        //\DB::enableQueryLog();
+        $roletype = $request->input('roletype') ?? 'Sale';
+        $term = $request->input('term');
+        if ($request->total_images) {
+            $perPageLimit = $request->total_images;
+        } else {
+            $perPageLimit = $request->get("per_page");
+        }
+
+
+        // if (Order::find($model_id)) {
+        //     $selected_products = self::getSelectedProducts($model_type, $model_id);
+        // } else {
+        //     $selected_products = [];
+        // }
+
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
+
+        // $sourceOfSearch = $request->get("source_of_search", "na");
+
+        // start add fixing for the price range since the one request from price is in range
+        // price  = 0 , 100
+
+        // $priceRange = $request->get("price", null);
+
+        // if ($priceRange && !empty($priceRange)) {
+        //     @list($minPrice, $maxPrice) = explode(",", $priceRange);
+        //     // adding min price
+        //     if (isset($minPrice)) {
+        //         $request->request->add(['price_min' => $minPrice]);
+        //     }
+        //     // addin max price
+        //     if (isset($maxPrice)) {
+        //         $request->request->add(['price_max' => $maxPrice]);
+        //     }
+        // }
+        $suggestedProducts = new \App\SuggestedProduct;
+        if($customerId) {
+            $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
+        }
+        // $perPageLimit
+        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        foreach($suggestedProducts as $suggestion) {
+            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id);
+            if (isset($request->brand[0])) {
+                if ($request->brand[0] != null) {
+                    $products = $products->whereIn('products.brand', $request->brand);
+                }
+            }
+
+            if (isset($request->category[0])) {
+                if ($request->category[0] != null && $request->category[0] != 1) {
+
+                    $category_children = [];
+
+                    foreach ($request->category as $category) {
+
+                        $is_parent = Category::isParent($category);
+
+                        if ($is_parent) {
+                            $childs = Category::find($category)->childs()->get();
+
+                            foreach ($childs as $child) {
+                                $is_parent = Category::isParent($child->id);
+
+                                if ($is_parent) {
+                                    $children = Category::find($child->id)->childs()->get();
+
+                                    foreach ($children as $chili) {
+                                        array_push($category_children, $chili->id);
+                                    }
+                                } else {
+                                    array_push($category_children, $child->id);
+                                }
+                            }
+                        } else {
+                            array_push($category_children, $category);
+                        }
+                    }
+                    $products = $products->whereIn('category', $category_children);
+                }
+            }
+
+            if (trim($term) != '') {
+                $products = $products->where(function ($query) use ($term) {
+                    $query->where('sku', 'LIKE', "%$term%")
+                            ->orWhere('products.id', 'LIKE', "%$term%")
+                            ->orWhere('name', 'LIKE', "%$term%")
+                            ->orWhere('short_description', 'LIKE', "%$term%");
+                    if ($term == -1) {
+                        $query = $query->orWhere('isApproved', -1);
+                    }
+
+                    $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                    if ($brand_id) {
+                        $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
+                    }
+
+                    $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                    if ($category_id) {
+                        $query = $query->orWhere('category', $category_id);
+                    }
+                });
+            }
+
+             $suggestion->products = $products->get();
+        }
+
+        if ($request->category) {
+            try {
+                $filtered_category = $request->category;
+            } catch (\Exception $e) {
+                $filtered_category = [1];
+            }
+        } else {
+            $filtered_category = [1];
+        }
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
+                ->selected($filtered_category)
+                ->renderAsDropdown();
+
+
+        $all_product_ids = [];
+        $model_type = 'customer';
+        $countBrands = 0;
+        $countCategory = 0;
+        $countSuppliers = 0;
+        $categoryArray = [];
+        $from = '';
+        $products_count = 0;
+        $selected_products = [];
+        $brand = $request->brand;
+        if ($request->ajax()) {
+            $html = view('partials.attached-image-load', [
+                'suggestedProducts' => $suggestedProducts,
+                'all_product_ids' => $all_product_ids,
+                'brand' => $brand,
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
+                'model_type' => $model_type,
+                'countBrands' => $countBrands,
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
+                    ])->render();
+
+            if (!empty($from) && $from == "attach-image") {
+                return $html;
+            }
+
+            return response()->json(['html' => $html, 'products_count' => $products_count]);
+        }
+
+        $message_body = $request->message ? $request->message : '';
+        $sending_time = $request->sending_time ?? '';
+
+        $locations = \App\ProductLocation::pluck("name", "name");
+        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        //\Log::info(print_r(\DB::getQueryLog(),true));
+
+        $customers = \App\Customer::pluck('name','id');
+        return view('partials.attached-image-grid', compact(
+                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
+        ));
+    }
+    public function crop_rejected_status(Request $request)
+    {
+
+        RejectedImages::updateOrCreate(
+            ['website_id' => $request->site_id, 'product_id' => $request->product_id],
+            ['status' => $request->status = "approve" ? 1 : 0]
+        );
+        return response()->json(true);
+    }
+    
+    public function attachMoreProducts($customerId)
+    {
+       
+        $lastSuggestion = \App\SuggestedProduct::where('customer_id',$customerId)->orderBy('created_at','desc')->first();
+
+        $brands = [];
+        $categories = [];
+        $term = '';
+        $limit = 10;
+        if($lastSuggestion) {
+            if($lastSuggestion->brands) {
+                $brands = json_decode($lastSuggestion->brands);
+            }
+            if($lastSuggestion->categories) {
+                $categories = json_decode($lastSuggestion->categories);
+            }
+            $term = $lastSuggestion->keyword;
+            $limit = $lastSuggestion->total;
+        }
+        $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id');
+
+        $products = (new Product())->newQuery()->latest();
+
+        if (count($brands) > 0) {
+            $products = $products->whereIn('brand', $brands);
+        }
+
+        if (count($categories) > 0) {
+
+                $category_children = [];
+
+                foreach ($categories as $category) {
+
+                    $is_parent = Category::isParent($category);
+
+                    if ($is_parent) {
+                        $childs = Category::find($category)->childs()->get();
+
+                        foreach ($childs as $child) {
+                            $is_parent = Category::isParent($child->id);
+
+                            if ($is_parent) {
+                                $children = Category::find($child->id)->childs()->get();
+
+                                foreach ($children as $chili) {
+                                    array_push($category_children, $chili->id);
+                                }
+                            } else {
+                                array_push($category_children, $child->id);
+                            }
+                        }
+                    } else {
+                        array_push($category_children, $category);
+                    }
+                }
+
+                $products = $products->whereIn('category', $category_children);
+        }
+
+        if (trim($term) != '') {
+            $products = $products->where(function ($query) use ($term) {
+                $query->where('sku', 'LIKE', "%$term%")
+                    ->orWhere('id', 'LIKE', "%$term%")
+                    ->orWhere('name', 'LIKE', "%$term%")
+                    ->orWhere('short_description', 'LIKE', "%$term%");
+                if ($term == -1) {
+                    $query = $query->orWhere('isApproved', -1);
+                }
+
+                $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                if ($brand_id) {
+                    $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
+                }
+
+                $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                if ($category_id) {
+                    $query = $query->orWhere('category', $category_id);
+                }
+
+            });
+        }
+        if(count($remove_ids) > 0) {
+            $products = $products->whereNotIn("products.id", $remove_ids);
+        }
+        
+        // select fields..
+        $products = $products->select(['products.id', 'name', 'short_description', 'color', 'sku', 'products.category', 'products.size', 'price_eur_special', 'price_inr_special', 'supplier', 'purchase_status', 'products.created_at']);
+
+
+        $products = $products->paginate($limit);
+
+            if(count($products) > 0) {
+                $data_to_insert = [];
+                foreach($products as $product){
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->first();
+                    if(!$exists) {
+                        $pr = Product::find($product->id);
+                        if($pr->hasMedia(config('constants.attach_image_tag'))) {
+                        $data_to_insert[] = [
+                            'customer_id' => $customerId,
+                            'product_id' => $product->id
+                        ];
+                    }
+                    }
+                }
+                if(count($data_to_insert) > 0) {
+                    \App\SuggestedProductList::insert($data_to_insert);
+                } 
+            }
+            $url = '/attached-images-grid/customer?customer_id='.$customerId;
+        return response()->json(['message' => 'Successfull','url' => $url, 'code' => 200]);
+    }
+
+    
+    public function suggestedProducts($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request)
+    {
+        $model_type = 'customer';
+        $customerId = null;
+        if($request->customer_id) {
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
+        }
+        $roletype = $request->input('roletype') ?? 'Sale';
+        $term = $request->input('term');
+        if ($request->total_images) {
+            $perPageLimit = $request->total_images;
+        } else {
+            $perPageLimit = $request->get("per_page");
+        }
+        if (empty($perPageLimit)) {
+            $perPageLimit = Setting::get('pagination');
+        }
+        $suggestedProducts = \App\SuggestedProduct::join('suggested_product_lists','suggested_products.customer_id','suggested_product_lists.customer_id')->where('chat_message_id','!=',NULL);
+        if($customerId) {
+            $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
+        }
+        $suggestedProducts = $suggestedProducts->groupBy('suggested_products.customer_id')->select('suggested_products.*')->paginate($perPageLimit);
+        foreach($suggestedProducts as $suggestion) {
+            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('chat_message_id','!=',NULL);
+            if (isset($request->brand[0])) {
+                if ($request->brand[0] != null) {
+                    $products = $products->whereIn('products.brand', $request->brand);
+                }
+            }
+            if (isset($request->category[0])) {
+                if ($request->category[0] != null && $request->category[0] != 1) {
+
+                    $category_children = [];
+
+                    foreach ($request->category as $category) {
+
+                        $is_parent = Category::isParent($category);
+
+                        if ($is_parent) {
+                            $childs = Category::find($category)->childs()->get();
+
+                            foreach ($childs as $child) {
+                                $is_parent = Category::isParent($child->id);
+
+                                if ($is_parent) {
+                                    $children = Category::find($child->id)->childs()->get();
+
+                                    foreach ($children as $chili) {
+                                        array_push($category_children, $chili->id);
+                                    }
+                                } else {
+                                    array_push($category_children, $child->id);
+                                }
+                            }
+                        } else {
+                            array_push($category_children, $category);
+                        }
+                    }
+                    $products = $products->whereIn('category', $category_children);
+                }
+            }
+
+            if (trim($term) != '') {
+                $products = $products->where(function ($query) use ($term) {
+                    $query->where('sku', 'LIKE', "%$term%")
+                            ->orWhere('products.id', 'LIKE', "%$term%")
+                            ->orWhere('name', 'LIKE', "%$term%")
+                            ->orWhere('short_description', 'LIKE', "%$term%");
+                    if ($term == -1) {
+                        $query = $query->orWhere('isApproved', -1);
+                    }
+
+                    $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
+                    if ($brand_id) {
+                        $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
+                    }
+
+                    $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
+                    if ($category_id) {
+                        $query = $query->orWhere('category', $category_id);
+                    }
+                });
+            }
+
+             $suggestion->products = $products->get();
+        }
+
+        if ($request->category) {
+            try {
+                $filtered_category = $request->category;
+            } catch (\Exception $e) {
+                $filtered_category = [1];
+            }
+        } else {
+            $filtered_category = [1];
+        }
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
+                ->selected($filtered_category)
+                ->renderAsDropdown();
+
+
+        $all_product_ids = [];
+        $model_type = 'customer';
+        $countBrands = 0;
+        $countCategory = 0;
+        $countSuppliers = 0;
+        $categoryArray = [];
+        $from = '';
+        $products_count = 0;
+        $selected_products = [];
+        $brand =$request->brand;
+        if ($request->ajax()) {
+            $html = view('partials.suggested-image-load', [
+                'suggestedProducts' => $suggestedProducts,
+                'all_product_ids' => $all_product_ids,
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
+                'model_type' => $model_type,
+                'countBrands' => $countBrands,
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
+                'brand' => $brand
+                ])->render();
+
+            if (!empty($from) && $from == "attach-image") {
+                return $html;
+            }
+
+            return response()->json(['html' => $html, 'products_count' => $products_count]);
+        }
+
+        $message_body = $request->message ? $request->message : '';
+        $sending_time = $request->sending_time ?? '';
+
+        $locations = \App\ProductLocation::pluck("name", "name");
+        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        //\Log::info(print_r(\DB::getQueryLog(),true));
+
+        $customers = \App\Customer::pluck('name','id');
+        return view('partials.suggested-image-grid', compact(
+                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
+        ));
+    }
+    public function removeProducts($customer_id, Request $request) {
+            $products = json_decode($request->products,true);
+            foreach($products as $product_id) {
+                \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->delete();
+            }
+            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+                if(!$remains) {
+                    \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+                }
+            return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+    public function removeSingleProduct($customer_id, Request $request) {
+        \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->delete();
+        $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+            if(!$remains) {
+                \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+            }
+        return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+    
+
+
+    public function forwardProducts(Request $request) {
+        $customerId = 0;
+
+        if($request->customer_id) {
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
+        }
+        if(!$customerId) {
+            $msg = ' Customer not found';
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $total = count($products);
+                if($suggestedProducts) {
+                    $suggestedProducts->touch();
+                }
+                else {
+                    $suggestedProducts = new \App\SuggestedProduct;
+                    $suggestedProducts->customer_id = $customerId;
+                    $suggestedProducts->total = $total;
+                    $suggestedProducts->save();
+                }
+                
+                $data_to_insert = [];
+                $imagesDecoded = json_decode($request->products, true);
+                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
+                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
+                    if(!$medias->isEmpty()) {
+                        foreach($medias as $iimg => $media) {
+                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                            if($mediable) {
+                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->first();
+                                if(!$exists) {
+                                    $pr = Product::find($mediable->mediable_id);
+                                    if($pr->hasMedia(config('constants.attach_image_tag'))) {
+                                        $data_to_insert[] = [
+                                            'customer_id' => $customerId,
+                                            'product_id' => $mediable->mediable_id
+                                        ];
+                                    }
+                                }
+                           }
+                        }
+
+                        $inserted = count($data_to_insert);
+                        if($inserted > 0) {
+                            \App\SuggestedProductList::insert($data_to_insert);
+                        }
+
+                        if($request->type == 'forward') {
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $customerId;
+                            $data['status'] = 2;
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                        }
+                    }
+                }
+                $msg = $inserted. ' Products added successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
+    }
+
+
+    public function resendProducts($customer_id, Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $suggestedProducts->touch();
+                
+
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $customer_id;
+                            $data['status'] = 2;
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                $msg = ' Images Resend successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
+    }
 
 }
+
+

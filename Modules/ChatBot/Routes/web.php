@@ -33,12 +33,17 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
     Route::prefix('question')->group(function () {
         Route::get('/', 'QuestionController@index')->name("chatbot.question.list");
         Route::post('/', 'QuestionController@save')->name("chatbot.question.save");
+        Route::post('/save_dymanic_task', 'QuestionController@saveDynamicTask')->name("chatbot.question.save_dymanic_task");
+        Route::post('/save_dymanic_reply', 'QuestionController@saveDynamicReply')->name("chatbot.question.save_dymanic_reply");
         Route::post('/submit', 'QuestionController@saveAjax')->name("chatbot.question.saveAjax");
         Route::get('/search', 'QuestionController@search')->name("chatbot.question.search");
         Route::get('/category', 'QuestionController@getCategories')->name("chatbot.question.category");
         Route::get('/search-category', 'QuestionController@searchCategory')->name("chatbot.question.search-category");
         Route::post('/change-category', 'QuestionController@changeCategory')->name("chatbot.question.change-category");
         Route::get('/keyword/search', 'QuestionController@searchKeyword')->name("chatbot.question.keyword.search");
+        Route::post('/reply/update', 'QuestionController@updateReply')->name("chatbot.question.reply.update");
+        Route::post('/online-update/{id}', 'QuestionController@onlineUpdate')->name("chatbot.question.online-update");
+
         Route::prefix('annotation')->group(function () {
             Route::post('/save', 'QuestionController@saveAnnotation')->name("chatbot.question.annotation.save");
             Route::get('/delete', 'QuestionController@deleteAnnotation')->name("chatbot.question.annotation.delete");
@@ -55,8 +60,9 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         });
 
         Route::prefix('autoreply')->group(function () {
-            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");            
+            Route::post('/save', 'QuestionController@saveAutoreply')->name("chatbot.question.autoreply.save");
         });
+
     });
 
     Route::prefix('dialog')->group(function () {
@@ -72,6 +78,8 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
             });
         });
         Route::get('/log', 'DialogController@log')->name("chatbot.dialog.log");
+        Route::get('/local-error-log', 'DialogController@localErrorLog')->name("chatbot.dialog.local-error-log");
+        Route::get('/get-response-only', 'DialogController@getWebsiteResponse')->name("chatbot.dialog.get-response-only");
 
         // store dialog via save response
         Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");

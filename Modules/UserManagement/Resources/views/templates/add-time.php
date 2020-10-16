@@ -22,11 +22,11 @@
                  </select>
 			</div>
             <div class="form-group">
-                  <strong>From</strong>
+                  <strong>Available From (eg. 10) <small>24 Hours format</small> </strong>
                   <input type="number" step=0.1 class="form-control" name="from">
 			</div>
             <div class="form-group">
-                  <strong>To</strong>
+                  <strong>Available To (eg. 18) <small>24 Hours format</small></strong>
                   <input type="number" step=0.1 class="form-control" name="to">
 			</div>
             <div class="form-group">

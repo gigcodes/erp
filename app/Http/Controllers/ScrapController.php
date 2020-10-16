@@ -120,7 +120,9 @@ class ScrapController extends Controller
 
     public function syncProductsFromNodeApp(Request $request)
     {
+
         \Log::channel('scraper')->debug("##!!##".json_encode($request->all())."##!!##");
+
         // Update request data with common mistakes
         $request = ProductHelper::fixCommonMistakesInRequest($request);
 
@@ -196,7 +198,7 @@ class ScrapController extends Controller
         $scrapedProduct = ScrapedProducts::where('sku', $sku)->where('website', $request->get('website'))->first();
         $images = $request->get('images') ?? [];
 
-        if ($scrapedProduct) {
+       if ($scrapedProduct) {
             // Add scrape statistics
             // $scrapStatistics = new ScrapStatistics();
             // $scrapStatistics->supplier = $request->get('website');
@@ -237,6 +239,7 @@ class ScrapController extends Controller
             // $scrapStatistics->description = $request->get('sku');
             // $scrapStatistics->save();
 
+            
             // Create new scraped product
             $scrapedProduct = new ScrapedProducts();
             
@@ -263,6 +266,30 @@ class ScrapController extends Controller
             $scrapedProduct->validation_result = $errorLog["error"].$errorLog["warning"];
             $scrapedProduct->save();
         }
+        
+        //Saving to Log Scrapper
+        /*$objLogScraper = new LogScraper();      
+        
+        $objLogScraper->website  = $request->get('website');
+        $objLogScraper->url = $request->get('url');
+        $objLogScraper->sku = $sku;
+        $objLogScraper->original_sku = trim($request->get('sku'));
+        
+        $objLogScraper->brand = $brand->id;
+        $objLogScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;;
+        $objLogScraper->title = ProductHelper::getRedactedText($request->get('title') ?? 'N/A', 'name');
+        $objLogScraper->description = ProductHelper::getRedactedText($request->get('description'), 'short_description');
+        $objLogScraper->properties = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+        $objLogScraper->images = isset($images) ? serialize($images) : null;
+        $objLogScraper->currency = ProductHelper::getCurrency($request->get('currency'));
+        $objLogScraper->price = (float)$request->get('price');
+        $objLogScraper->discounted_price = $request->get('discounted_price');
+        $objLogScraper->is_sale = $request->get('is_sale') ?? 0;
+        $objLogScraper->validated = empty($errorLog) ? 1 : 0;
+        $objLogScraper->validation_result = $errorLog["error"].$errorLog["warning"];
+        
+        $objLogScraper->save();*/
+
 
         $scrap_details = Scraper::where(['scraper_name' => $request->get('website')])->first();
         $this->saveScrapperRequest($scrap_details, $errorLog);
@@ -707,8 +734,8 @@ class ScrapController extends Controller
         $totalSkuRecords       = 0;
         $totalUniqueSkuRecords = 0;
         $users = Helpers::getUserArray(User::role('Developer')->get());
-        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension) {
-
+        if ($request->website || $request->url || $request->sku || $request->title || $request->price || $request->created || $request->brand || $request->updated || $request->currency == 0 || $request->orderCreated || $request->orderUpdated || $request->columns || $request->color || $request->psize || $request->category || $request->product_id || $request->dimension || $request->prod_img_filter || $request->prod_error_filter) {
+            //DB::enableQueryLog();
             $query = \App\ScrapedProducts::query();
 
             $dateRange = request("daterange","");
@@ -724,6 +751,17 @@ class ScrapController extends Controller
             }
 
             //global search website
+            if(request('prod_img_filter') != null && request('prod_img_filter') == '0' ){
+                $query->whereRaw('( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }elseif( request('prod_img_filter') != null && request('prod_img_filter') == '1'){
+                $query->whereRaw('not( JSON_EXTRACT(images, "$")  like "%.jpg%" or  JSON_EXTRACT(images, "$")  like "%.png%" or JSON_EXTRACT(images, "$") like "%.jpeg%" or JSON_EXTRACT(images, "$") like "%.gif%")');
+            }
+
+            if(request('prod_error_filter') != null && request('prod_error_filter') == '0' ){
+                $query->where('validation_result','!=',null);
+            }elseif( request('prod_error_filter') != null && request('prod_error_filter') == '1'){
+                $query->where('validation_result','=',null);
+            }
             if (request('website') != null) {
                 $query->whereIn('website', $request->website);
             }
@@ -853,7 +891,7 @@ class ScrapController extends Controller
             $logs = LogScraper::orderby('updated_at', 'desc')->paginate($paginate);
 
         }
-        
+        //dd(DB::getQueryLog());
         if ($request->ajax()) {
             return response()->json([
                 'tbody' => view('scrap.partials.scraped_url_data', compact('logs', 'response','summeryRecords','users'))->render(),

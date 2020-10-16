@@ -72,6 +72,8 @@
           <tr>
             <th>Locale</th>
             <th>Magneto Code</th>
+            <th>Store View</th>
+            <th>Status</th>
             <th>Action</th>
             
           </tr>
@@ -117,6 +119,15 @@
                   <div class="alert alert-danger">{{$errors->first('code')}}</div>
                 @endif
               </div>
+                
+                <div class="form-group">
+                <strong>Store View:</strong>
+                <input type="text" name="store_view" class="form-control" value="{{ old('store_view') }}" required>
+
+                @if ($errors->has('store_view'))
+                  <div class="alert alert-danger">{{$errors->first('store_view')}}</div>
+                @endif
+              </div>
 
               
 
@@ -151,6 +162,8 @@
   function updateDetails(id){
     code = $('#code'+id).val();
     locale = $('#locale'+id).val();
+    store_view = $('#store_view'+id).val();
+    status = $('#status'+id).val();
     
     $.ajax({
         url: "{{ route('language.update') }}",
@@ -160,6 +173,8 @@
              id: id,
              locale : locale,
              code : code,
+             store_view:store_view,
+             status:status,
              _token: "{{ csrf_token() }}",
         },
         beforeSend: function () {

@@ -179,7 +179,20 @@
         </div>
     </div>
 </div>
-
+<div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
 @include("usermanagement::templates.load-communication-history")
@@ -190,6 +203,7 @@
 @include("usermanagement::templates.edit-team")
 @include("usermanagement::templates.add-time")
 @include("usermanagement::templates.user-avaibility")
+@include("usermanagement::templates.show-task-hours")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>

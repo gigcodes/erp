@@ -112,7 +112,7 @@
 	      </select>
 	  	</div>
 	  	<div class="form-group col-md-6">
-	     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:identifier}}][condition_value]" type="text">
+	     	<input class="form-control" id="condition_value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:identifier}}][condition_value]" type="text">
 	  	</div>
 	  	<div class="form-group col-md-9">
 	      <input class="form-control" id="value_{{:identifier}}" placeholder="Enter a response" name="response_condition[{{:identifier}}][value]" type="text">
@@ -337,6 +337,18 @@
 		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
 		  	</div>
 		</div>
+		<h4>Store Website : </h4>
+			<div class="form-row">
+		    <div class="form-group col-md-12">
+		      <select class="form-control store_on_change" data-dialog={{:data.id}} name="store_website_id" placeholder="Enter your keyword">
+			  	<option value="">Select Website</option>
+				  {{props data.sites ~selectedCondition = data.store_website_id}}
+		      		<option value="{{:prop.id}}" {{if ~selectedCondition == prop.id}} selected {{/if}}>{{:prop.name}}</option>
+		      	{{/props}}
+		      </select>
+		      <small class="form-text text-muted">Node name will be shown to customers for disambiguation so use something descriptive</small>
+		  	</div>
+		</div>
 		<div class="dialog-editor-section">
 			<input type="hidden" name="id" value="{{:data.id}}"/>
 			<input type="hidden" id="parent_id_form" name="parent_id" value="{{:data.parent_id}}"/>
@@ -392,32 +404,32 @@
 				</div>	
 				<div class="assistant-response-based">
 					{{if data.assistant_report && data.assistant_report.length}}
-						{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions}}
+						{{props data.assistant_report ~allSuggestedOptions = data.allSuggestedOptions }}
 							<div class="form-row">
 								{{if prop.condition != ''}}
 									<div class="form-group col-md-3">
 									<select class="form-control search-alias" name="response_condition[{{:prop.id}}][condition]">
-										{{props ~allSuggestedOptions ~selectedValue=prop.condition }}
+										{{props ~allSuggestedOptions  ~selectedValue=prop.condition}}
 											<option {{if ~selectedValue == prop}} selected {{/if}} value="{{:prop}}">{{:prop}}</option>
 										{{/props}}
 									</select>
 									<small id="emailHelp_{{>key}}" class="form-text text-muted">IF ASSISTANT RECOGNIZES</small>
 									</div>
 								{{/if}}
-								<div class="form-group col-md-3 extra_condtions {{if prop.condition_sign == ''}} dis-none {{/if}}">
+								<div class="form-group col-md-3 extra_condtions">
 								<select class="form-control" name="response_condition[{{:prop.id}}][condition_sign]">
-									<option value="">Any</option>
+									<option {{if prop.condition_sign == ''}} selected {{/if}}value="">Any</option>
 									<option {{if prop.condition_sign == ':'}} selected {{/if}} value=":">Is</option>
 									<option {{if prop.condition_sign == '!='}} selected {{/if}} value="!=">Is Not</option>
 									<option {{if prop.condition_sign == '>'}} selected {{/if}} value=">">Greater than</option>
 									<option {{if prop.condition_sign == '<'}} selected {{/if}} value="<">Less than</option>
 								</select>
 								</div>
-								<div class="form-group col-md-6 extra_condtions {{if prop.condition_value == ''}} dis-none {{/if}}">
-									<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
+								<div class="form-group col-md-6 extra_condtions ">
+									<input class="form-control response-value" id="condition_value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][condition_value]" value="{{:prop.condition_value}}" type="text">
 								</div>
 								<div class="form-group col-md-9">
-									<input class="form-control response-value" id="value_{{>key}}" placeholder="Enter a value" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
+									<input class="form-control response-value" id="value_{{>key}}" placeholder="Enter a response" name="response_condition[{{:prop.id}}][value]" value="{{:prop.response}}" type="text">
 								</div>
 								<div class="form-group col-md-3">
 									<button type="button" data-id="{{:prop.id}}" class="btn btn-image btn-delete-mul-response"><img src="/images/delete.png"></button>

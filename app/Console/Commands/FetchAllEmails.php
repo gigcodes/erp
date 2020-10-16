@@ -161,7 +161,16 @@ class FetchAllEmails extends Command
                              * @var $model_id
                              * @var $model_type
                              */
-
+                                $email_subject=$email->getSubject();
+                                $subject=explode("#",$email_subject);
+                                if(isset($subject[1]) && !empty($subject[1])){
+                                    $findTicket=\App\Tickets::where('ticket_id',$subject[1])->first();
+                                    if($findTicket){
+                                        $model_id=$findTicket->id;
+                                        $model_type=\App\Tickets::class;
+                                    }
+                                }
+                            
                             $params = [
                                 'model_id' => $model_id,
                                 'model_type' => $model_type,

@@ -23,9 +23,9 @@ class LandingPageProduct extends Model
         return $this->hasOne(\App\Product::class, "id", "product_id");
     }
 
-    public function getShopifyPushData()
+    public function getShopifyPushData($product = null, $storeWebsiteId = null)
     {
-        $landingPageProduct = $this->product;
+        $landingPageProduct = ($product) ? $product : $this->product;
 
         if (!StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
             return false;
@@ -33,28 +33,28 @@ class LandingPageProduct extends Model
 
         // create a html for submit the file
         $html   = [];
-        $html[] = $this->description;
+        $html[] = ($product) ? $product->short_description : $this->description;
 
         if (!empty($landingPageProduct->composition)) {
-            $html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
+            //$html[] = "<p><b>Composition</b> : {$landingPageProduct->composition}</p>";
         }
 
         if (!empty($landingPageProduct->lmeasurement) || !empty($landingPageProduct->hmeasurement) || !empty($landingPageProduct->dmeasurement)) {
-            $html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
+            //$html[] = "<p><b>Dimensions</b> : L - {$landingPageProduct->lmeasurement} , H - {$landingPageProduct->hmeasurement} , D - {$landingPageProduct->dmeasurement}   </p>";
         }
 
-        if ($this->store_website_id) {
-            $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $this->store_website_id);
+        $storeWebsiteId = ($storeWebsiteId) ? $storeWebsiteId : $this->store_website_id;
+
+        if ($storeWebsiteId) {
+            $sizeCharts = \App\BrandCategorySizeChart::getSizeChat($landingPageProduct->brand, $landingPageProduct->category, $storeWebsiteId);
             if (!empty($sizeCharts)) {
                 foreach ($sizeCharts as $sizeC) {
                     $sizeC  = str_replace(env("APP_URL"), "", $sizeC);
                     $sizeC  = env("SHOPIFY_CDN").$sizeC;
-                    $html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
+                    //$html[] = '<p><b>Size Chart</b> : <a href="' . $sizeC . '">Here</a></p>';
                 }
             }
         }
-
-        \Log::info(json_encode($html));
 
         if ($landingPageProduct) {
             $productData = [
@@ -62,11 +62,12 @@ class LandingPageProduct extends Model
                     'images'          => [],
                     'product_type'    => ($landingPageProduct->product_category && $landingPageProduct->category > 1) ? $landingPageProduct->product_category->title : "",
                     'published_scope' => 'web',
-                    'title'           => $this->name,
+                    'title'           => ($product) ? $product->name : $this->name,
                     'body_html'       => implode("<br>", $html),
-                    'variants'        => [],
+                    //'variants'        => [],
                     'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
                     'tags'            => 'Home Page',
+                    'barcode'         =>  $landingPageProduct->id
                 ],
             ];
         }
@@ -84,15 +85,21 @@ class LandingPageProduct extends Model
         }
 
         $generalOptions = [
-            'barcode'              => (string) $this->product_id,
+            'barcode'              => (string) ($product) ? $product->id : $this->product_id,
             'fulfillment_service'  => 'manual',
             'requires_shipping'    => true,
             'sku'                  => $landingPageProduct->sku,
-            'title'                => (string) $this->name,
+            'title'                => ($product) ? $product->name : (string) $this->name,
             'inventory_management' => 'shopify',
             'inventory_policy'     => 'deny',
-            'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
+            //'inventory_quantity'   => ($this->stock_status == 1) ? $landingPageProduct->stock : 0,
         ];
+
+        if($product) {
+            $generalOptions['inventory_quantity'] = $product->stock;
+        }else{
+            $generalOptions['inventory_quantity'] = ($this->stock_status == 1) ? $landingPageProduct->stock : 0;
+        }
 
         if($this->stock_status != 1) {
             $productData['product']['published'] = false;
@@ -153,7 +160,7 @@ class LandingPageProduct extends Model
                     $productData['product']['variants'][] = $generalOptions;
                 }
             } else {
-                $generalOptions["option1"]            = $p;
+                $generalOptions["option1"]            = $k;
                 $generalOptions["price"]              = $v;
                 $productData['product']['variants'][] = $generalOptions;
             }

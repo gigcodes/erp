@@ -1130,6 +1130,31 @@ if(isset($request->messageId)){
 
 			$query = $query->where('tickets.name', 'LIKE','%'.$request->term.'%')->orWhere('tickets.email', 'LIKE', '%'.$request->term.'%');
         }
+
+        if($request->search_country !=""){
+
+			$query = $query->where('tickets.country', 'LIKE','%'.$request->search_country.'%');
+        }
+
+        if($request->search_order_no !=""){
+
+			$query = $query->where('tickets.order_no', 'LIKE','%'.$request->search_order_no.'%');
+        }
+
+        if($request->search_phone_no !=""){
+
+			$query = $query->where('tickets.phone_no', 'LIKE','%'.$request->search_phone_no.'%');
+        }
+        
+        /* if($request->search_category !=""){
+
+			$query = $query->where('tickets.category', 'LIKE','%'.$request->search_category.'%');
+        } */
+
+        if($request->serach_inquiry_type !=""){
+
+			$query = $query->where('tickets.type_of_inquiry', 'LIKE','%'.$request->serach_inquiry_type.'%');
+        }
         
         if($request->status_id !='')
         {
@@ -1152,8 +1177,7 @@ if(isset($request->messageId)){
                 'count' => $data->total(),
             ], 200);
         }
-       
-		return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
+       return view('livechat.tickets', compact('data'))->with('i', ($request->input('page', 1) - 1) * $pageSize);
         
     }
 
@@ -1173,7 +1197,7 @@ if(isset($request->messageId)){
         {
            // return false;
         }
-
+        $ticketIdString='#'.$tickets->ticket_id;
         $fromEmail = 'buying@amourint.com';
         $fromName  =  "buying";
 
@@ -1241,7 +1265,7 @@ if(isset($request->messageId)){
                 $mail->bcc($bcc);
                 }
 
-                $mail->send(new PurchaseEmail($request->subject, $request->message, $file_paths, ["from" => $fromEmail]));
+                $mail->send(new PurchaseEmail($request->subject.$ticketIdString, $request->message, $file_paths, ["from" => $fromEmail]));
             } else {
                 return redirect()->back()->withErrors('Please select an email');
             }
@@ -1252,7 +1276,7 @@ if(isset($request->messageId)){
                 'from' => $fromEmail,
                 'to' => $tickets->email,
                 'seen' => 1,
-                'subject' => $request->subject,
+                'subject' => $request->subject.$ticketIdString,
                 'message' => $request->message,
                 'template' => 'customer-simple',
                 'additional_data' => json_encode(['attachment' => $file_paths]),

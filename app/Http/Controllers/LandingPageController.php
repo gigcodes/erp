@@ -6,7 +6,10 @@ use App\Brand;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\LandingPageStatus;
+use App\Language;
 use App\Library\Shopify\Client as ShopifyClient;
+use App\Product;
+use App\Services\Products\GraphqlService;
 use App\StoreWebsite;
 use App\StoreWiseLandingPageProducts;
 use Illuminate\Http\Request;
@@ -14,6 +17,8 @@ use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
+use App\Loggers\LogListMagento;
+use App\ProductPushErrorLog;
 
 class LandingPageController extends Controller
 {
@@ -98,8 +103,7 @@ class LandingPageController extends Controller
                 }else{
                     $rec->productStatus = '';
                 }
-            }
-            else {
+            }else {
                 $rec->productStatus = '';
             }
 
@@ -107,7 +111,6 @@ class LandingPageController extends Controller
             if ($landingPageProduct->hasMedia(config('constants.attach_image_tag'))) {
                 $c = 0;
                 foreach ($landingPageProduct->getAllMediaByTag() as $medias) {
-
                     foreach($medias as $image) {
                         $temp = false;
                         if($c == 0){
@@ -269,49 +272,68 @@ class LandingPageController extends Controller
             // if stock status exist then store it
             if ($request->stock_status != null) {
                 $landingPage->stock_status = $request->stock_status;
-                if($landingPage->stock_status == 1) {
+                if ($landingPage->stock_status == 1) {
                     $landingPage->start_date = date("Y-m-d H:i:s");
-                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date. ' + 1 days'));
+                    $landingPage->end_date   = date("Y-m-d H:i:s", strtotime($landingPage->start_date . ' + 1 days'));
                 }
                 $landingPage->save();
             }
 
             // Set data for Shopify
             $landingPageProduct = $landingPage->product;
-            $productData  = $landingPage->getShopifyPushData();
-
+            $productData = $landingPage->getShopifyPushData();
+            LogListMagento::log($landingPageProduct->id, "Product started to push" . $landingPageProduct->id, 'info', $landingPage->store_website_id, "started");
+            
             if ($productData == false) {
                 return response()->json(["code" => 500, "data" => "", "message" => "Pushing Failed: product is not approved"]);
             }
 
+
             $client = new ShopifyClient();
             if ($landingPage->shopify_id) {
-                $response = $client->updateProduct($landingPage->shopify_id, $productData,$landingPage->store_website_id);
+                $response = $client->updateProduct($landingPage->shopify_id, $productData,null, $landingPage->store_website_id);
             } else {
-                $response = $client->addProduct($productData,$landingPage->store_website_id);
+                $response = $client->addProduct($productData, $landingPage->store_website_id);
             }
 
             $errors = [];
             if (!empty($response->errors)) {
                 foreach ((array)$response->errors as $key => $message) {
-                    if(is_array($message)) {
+                    if (is_array($message)) {
                         foreach ($message as $msg) {
                             $errors[] = ucwords($key) . " " . $msg;
                         }
-                    }else{
+                    } else {
                         $errors[] = ucwords($key) . " " . $message;
                     }
                 }
             }
 
             if (!empty($errors)) {
+                LogListMagento::log($landingPageProduct->id, "error " . $landingPageProduct->id, 'info', $landingPage->store_website_id, "error");
                 return response()->json(["code" => 500, "data" => $response, "message" => implode("<br>", $errors)]);
             }
 
             if (!empty($response->product)) {
+                LogListMagento::log($landingPageProduct->id, "success " . $landingPageProduct->id, 'info', $landingPage->store_website_id, "success");
                 $landingPage->shopify_id = $response->product->id;
                 $landingPage->save();
-                return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+
+                $selfProduct = Product::find($landingPage->product_id);
+
+                if ($selfProduct) {
+                    $storeWebsiteUrl = StoreWebsite::find($landingPage->store_website_id);
+
+                    if ($storeWebsiteUrl) {
+                        GoogleTranslateController::translateProductDetails($selfProduct);
+                        GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,$storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password,$storeWebsiteUrl);
+//                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
+                    }
+
+                    return response()->json(["code" => 200, "data" => $response->product, "message" => "Success!"]);
+                } else {
+                    return response()->json(["code" => 500, "data" => [], "message" => "Product not found."]);
+                }
             }
 
         }
@@ -342,7 +364,7 @@ class LandingPageController extends Controller
     public function changeStore(Request $request, $id)
     {
         $landing = \App\LandingPageProduct::find($id);
-        
+
         if($landing && $request->get("store_website_id") != null) {
             $landing->store_website_id = $request->get("store_website_id");
             $landing->shopify_id = null;
