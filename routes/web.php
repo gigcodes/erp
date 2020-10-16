@@ -2294,7 +2294,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
     Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
-
+    Route::post('watson/add-intents/{id}', 'WatsonController@addIntentsToWatson')->name('watson-accounts.add-intents');
+    
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
