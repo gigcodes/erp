@@ -1484,7 +1484,15 @@ Route::prefix('database')->middleware('auth')->group(function () {
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
+
+Route::get('instagram/get/hashtag/{word}', 'InstagramPostsController@hashtag');
+
 Route::prefix('instagram')->middleware('auth')->group(function () {
+
+    
+
+
+
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
     Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
@@ -1560,6 +1568,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
+    
 
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
      Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
@@ -2285,7 +2294,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
     Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
-
+    Route::post('watson/add-intents/{id}', 'WatsonController@addIntentsToWatson')->name('watson-accounts.add-intents');
+    
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
@@ -2357,11 +2367,22 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
-    
-    
+
 });
 
 
 //CommonMailPopup
 Route::post('/common/sendEmail', 'CommonController@sendCommonEmail')->name('common.send.email');
 Route::get('/common/getmailtemplate', 'CommonController@getMailTemplate')->name('common.getmailtemplate');
+
+//Google file translator
+Route::prefix('googlefiletranslator')->middleware('auth')->group(static function () {
+    Route::get('/list', 'GoogleFileTranslator@index')->name('googlefiletranslator.list');
+    Route::DELETE('/delete/{id?}', 'GoogleFileTranslator@destroy')->name('googlefiletranslator.destroy');
+    Route::get('/add', 'GoogleFileTranslator@create')->name('googlefiletranslator.add');
+    Route::get('/{id?}/edit', 'GoogleFileTranslator@edit')->name('googlefiletranslator.edit');
+    Route::get('/{id?}/download', 'GoogleFileTranslator@download')->name('googlefiletranslator.download');
+    Route::post('/store', 'GoogleFileTranslator@store')->name('googlefiletranslator.store');
+    Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
+
+});

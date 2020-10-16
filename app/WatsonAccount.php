@@ -12,7 +12,8 @@ class WatsonAccount extends Model
         'work_space_id',
         'assistant_id',
         'url',
-        'is_active'
+        'is_active',
+        'watson_push'
     ];
 
     public function storeWebsite()

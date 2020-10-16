@@ -908,7 +908,6 @@ $.views.helpers({
      */
     $(document).on('click', '.set-due-date', function (e) {
         e.preventDefault();
-        console.log("due date");
         var thiss = $(this);
         var task_id = $(this).data('taskid');
         var date = $(this).siblings().find('.due_date_cls').val();
@@ -934,3 +933,10 @@ $.views.helpers({
             alert('Please enter a date first');
         }
     });
+
+
+$('body').on('focus',".due_date_cls", function(){
+        $(this).datetimepicker({
+                format: 'YYYY-MM-DD HH:mm'
+            }); 
+});

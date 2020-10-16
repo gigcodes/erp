@@ -153,11 +153,15 @@ Route::post('shopify/order/create','\App\Http\Controllers\Shopify\ShopifyControl
 
 Route::get('price_comparision/{type}','PriceComparisionController@index');
 Route::post('price_comparision/store','PriceComparisionController@storeComparision');
-
+//order details api for a customer
+Route::get('customer/order-details','OrderController@customerOrderDetails');
 
 //refer a friend api
 Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
 Route::post('price_comparision/details','PriceComparisionController@sendDetails');
 
-//Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
+Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
 
+//gift cards api
+Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
+Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');

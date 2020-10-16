@@ -1594,6 +1594,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                  <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
                                 </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
+                                </li>
                             </ul>
                         </li>
                         @endif
