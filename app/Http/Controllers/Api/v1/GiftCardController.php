@@ -144,7 +144,7 @@ class GiftCardController extends Controller
             return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
         }
         $couponData = GiftCard::select('gift_card_amount', 'gift_card_coupon_code', 'updated_at')->where('gift_card_coupon_code', $request->coupon_code)->first();
-        if(count($couponData)==0){
+        if(!$couponData){
             return response()->json(['status' => 'failed', 'message' => 'coupon does not exists in record !'], 500);
         }
         return response()->json([
