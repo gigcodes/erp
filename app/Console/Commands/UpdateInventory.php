@@ -53,11 +53,10 @@ class UpdateInventory extends Command
                 ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime")
                 ->get()->groupBy("sku")->toArray();
 
-            if (!empty($products)) {
+            if (!empty($products)) {                
                 foreach ($products as $sku => $skuRecords) {
                     $hasInventory = false;
                     foreach ($skuRecords as $records) {
-
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
@@ -72,7 +71,18 @@ class UpdateInventory extends Command
 
                         $hasInventory = true;
                     }
-
+                    $today = date('Y-m-d');
+                    $history = \App\InventoryStatusHistory::where('date', $today)->where('sku',$sku)->first();
+                    if($history) {
+                        $history->update(['in_stock' => $hasInventory]);
+                    }
+                    else {
+                        $history = new \App\InventoryStatusHistory;
+                        $history->sku  = $sku;
+                        $history->date  = $today;
+                        $history->in_stock  = $hasInventory;
+                        $history->save();
+                    }
                     if (!$hasInventory) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
                     }

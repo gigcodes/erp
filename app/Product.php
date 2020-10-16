@@ -1025,11 +1025,11 @@ class Product extends Model
             'c.title as category_name',
             'category',
             'supplier',
-            'sku',
+            'products.sku',
             'status_id',
-            'products.created_at'
+            'products.created_at',
+            'inventory_status_histories.date as history_date'
         );
-
         $query =  \App\Product::leftJoin("brands as b",function($q){
                 $q->on("b.id","products.brand");
             })
@@ -1042,16 +1042,25 @@ class Product extends Model
 
         if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
 
-
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
-        if(isset($filter_data['in_stock']) && !empty($filter_data['in_stock'])) {
-            $query = $query->where(function ($q) {
-                $q->where("stock", ">", 0)->orWhere("supplier", "in-stock");
-            });
+        if(isset($filter_data['in_stock'])) {
+            if($filter_data['in_stock'] == 1) {
+                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku')
+                ->where('inventory_status_histories.in_stock',1);
+            }
+            else {
+                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku')
+                                ->where('inventory_status_histories.in_stock',0);
+            }
         }
-        // if(isset($filter_data['product_sku']))        $query = $query->whereIn('sku',$filter_data['product_sku']);
-        if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
+        else {
+            $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku');
+        }
+        if(isset($filter_data['date'])) {
+            $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+        }
+        // if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
         if(isset($filter_data['term'])) {
             $term = $filter_data['term'];
             $query = $query->where(function($q) use ($term) {

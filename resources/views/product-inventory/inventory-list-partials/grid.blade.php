@@ -23,7 +23,7 @@
         @endif
       @endforeach
      </td>
-    <td>{{ $data['created_at'] }}</td>
+    <td>{{ isset($data['history_date']) ? $data['history_date'] : $data['created_at'] }}</td>
     <td>
       <a  title="show medias" class="btn btn-image show-medias-modal" data-id="{{ $data['id'] }}" aria-expanded="false"><i class="fa fa-picture-o" aria-hidden="true"></i></a>
       <a  title="show status history" class="btn btn-image show-status-history-modal"><i class="fa fa-clock-o" aria-hidden="true"></i></a>

@@ -35,7 +35,6 @@ use App\SupplierSize;
 use App\SupplierSubCategory;
 use Auth;
 use Validator;
-
 class SupplierController extends Controller
 {
 	
