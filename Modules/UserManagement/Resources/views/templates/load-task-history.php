@@ -103,7 +103,8 @@
             var data = new FormData();
             var task_id = $(this).data('id');
             var type = $(this).data('type');
-            var message = $(this).siblings('input').val();
+            var message = $(this).parent().siblings('input').val();
+            var msgInput = $(this).parent().siblings('input');
             data.append("task_id", task_id);
             data.append("message", message);
             data.append("status", 1);
@@ -119,15 +120,16 @@
                             dataType: "json",
                             success: function (response) {
                                 toastr["success"]("Message sent successfully!", "Message");
-                                $(self).removeAttr('disabled');
-                                $(self).val('');
+                                msgInput.val('');
+                                msgInput.removeAttr('disabled');
+                                
                             },
                             beforeSend: function () {
-                                $(self).attr('disabled', true);
+                                msgInput.attr('disabled', true);
                             },
                             error: function () {
                                 alert('There was an error sending the message...');
-                                $(self).removeAttr('disabled', true);
+                                msgInput.removeAttr('disabled', true);
                             }
                         });
             }
@@ -143,40 +145,15 @@
                                     "processData": false,
                                     "data": data,
                                     beforeSend: function () {
-                                        $(thiss).attr('disabled', true);
+                                        msgInput.attr('disabled', true);
                                     }
                                 }).done(function (response) {
-                                    $(thiss).siblings('input').val('');
-
-                                    if (cached_suggestions) {
-                                        suggestions = JSON.parse(cached_suggestions);
-
-                                        if (suggestions.length == 10) {
-                                            suggestions.push(message);
-                                            suggestions.splice(0, 1);
-                                        } else {
-                                            suggestions.push(message);
-                                        }
-                                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                                        cached_suggestions = localStorage['message_suggestions'];
-
-                                        console.log('EXISTING');
-                                        console.log(suggestions);
-                                    } else {
-                                        suggestions.push(message);
-                                        localStorage['message_suggestions'] = JSON.stringify(suggestions);
-                                        cached_suggestions = localStorage['message_suggestions'];
-
-                                        console.log('NOT');
-                                        console.log(suggestions);
-                                    }
-
-                                    $(thiss).attr('disabled', false);
+                                    msgInput.val('');
+                                    msgInput.attr('disabled', false);
                                 }).fail(function (errObj) {
-                                    $(thiss).attr('disabled', false);
+                                    msgInput.attr('disabled', false);
 
                                     alert("Could not send message");
-                                    console.log(errObj);
                                 });
                             }
                         } else {
