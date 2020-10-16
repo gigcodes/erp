@@ -706,6 +706,70 @@ class Model
 
     }
 
+
+
+
+    public static function createInstantSession(AssistantService $assistant, $assistantID)
+    {
+        if (env("PUSH_WATSON", true) == false) {
+            return true;
+        }
+        $session = $assistant->createSession($assistantID);
+        $status = $session->getStatusCode();
+        $result = json_decode($session->getContent());
+        if($status == 201 || $status == 200) {
+            if($result->session_id) {
+                return $result->session_id;
+            }
+            else {
+                return false;
+            }
+        }
+       
+
+        return false;
+
+    }
+
+    public static function getWatsonReply($message, $account_id) {
+        if (env("PUSH_WATSON", true) == false) {
+            return true;
+        }
+
+        $account = WatsonAccount::find($account_id);
+        $assistantID = $account->assistant_id;
+        $assistant = new AssistantService(
+            "apiKey",
+            $account->api_key
+        );
+        $assistant->set_url($account->url);
+        $session_id = self::createInstantSession($assistant, $assistantID);
+        if(!$session_id) {
+            return false;
+        }
+    
+        $params = [
+            "input" => [
+                "text" => $message,
+                "options" => [
+                    "return_context" => true,
+                ],
+            ],
+        ];
+        $result = $assistant->sendMessage($assistantID, $session_id, $params);
+        $result = json_decode($result->getContent());
+        $chatResponse = new ResponsePurify($result);
+        if ($chatResponse->isValid()) {
+            $responseData = $chatResponse->assignAction();
+            if (!empty($responseData)) {
+                if (!empty($responseData['reply_text'])) {
+                    return $responseData['reply_text'];
+                }
+            }
+        }
+        return false;
+    }
+
     public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {

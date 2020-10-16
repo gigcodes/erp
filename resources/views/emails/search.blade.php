@@ -23,7 +23,7 @@
 			</td>
 			<td>
 				
-                <a title="Resend" class="btn-image resend-email-btn" data-id="{{ $email->id }}" >
+                <a title="Resend" class="btn-image resend-email-btn" data-type="resend" data-id="{{ $email->id }}" >
                     <i class="fa fa-repeat"></i>
                 </a>
                 <a title="Reply" class="btn-image reply-email-btn" data-toggle="modal" data-target="#replyMail" data-id="{{ $email->id }}" >
@@ -39,6 +39,10 @@
                 <button style="padding:3px;" type="button" class="btn-image make-remark d-inline mailupdate" data-toggle="modal" data-status="{{ $email->status }}" data-category="{{ $email->email_category_id}}" data-target="#UpdateMail" data-id="{{ $email->id }}"><img width="2px;" src="images/edit.png"/></button>           
                 @if($email->email_excel_importer == 1)
                   <a href="javascript:void(0);">  <i class="fa fa-check"></i></a>
+                @endif
+
+                @if($email->approve_mail == 1)
+                  <a title="Approve and send watson reply" class="btn-image resend-email-btn" data-id="{{ $email->id }}" data-type="approve" href="javascript:void(0);">  <i class="fa fa-check-circle"></i></a>
                 @endif
             </td>
         </tr>
