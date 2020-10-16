@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class InventoryStatusHistory extends Model
 {
-    protected $fillable = ['sku','date','in_stock'];
+    protected $fillable = ['product_id','date','in_stock'];
 }

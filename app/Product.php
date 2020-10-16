@@ -1046,16 +1046,16 @@ class Product extends Model
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
         if(isset($filter_data['in_stock'])) {
             if($filter_data['in_stock'] == 1) {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku')
+                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
                 ->where('inventory_status_histories.in_stock',1);
             }
             else {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku')
+                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
                                 ->where('inventory_status_histories.in_stock',0);
             }
         }
         else {
-            $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.sku','products.sku');
+            $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         }
         if(isset($filter_data['date'])) {
             $query = $query->where('inventory_status_histories.date',$filter_data['date']);
