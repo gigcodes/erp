@@ -2357,7 +2357,6 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
-    
-    
+
 });
 
