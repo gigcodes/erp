@@ -2147,9 +2147,9 @@ public function createProductOnMagento(Request $request, $id){
 				$history->save();
 				//Sending Mail on changing of order status
 				if($order->storeWebsiteOrder) {
-                    $templateData = MailinglistTemplate::where("category",'order_status_change')->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+                    $templateData = MailinglistTemplate::where("name",'Order Status Change')->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
                 }else{
-                    $templateData = MailinglistTemplate::where("category",'order_status_change')->first();
+                    $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
                 }
                 // @todo put the function to send mail from specific store emails
                 if($templateData) {
@@ -2836,28 +2836,44 @@ public function createProductOnMagento(Request $request, $id){
 			$histories  = OrderStatusHistory::
 										join('order_statuses','order_statuses.id','order_status_histories.new_status')
 										->where('order_status_histories.order_id', $order->id)
-										->select('order_statuses.*')
+										->select(['order_statuses.*','order_status_histories.created_at as created_at_time'])
 										->orderBy('order_status_histories.created_at','asc')
 										->get();
+			/*$order->status_histories = $histories->toArray();*/
+            $return_histories = [];
 			if(count($histories) > 0){
-				$order->status_histories = $histories->toArray();
+                foreach($histories->toArray() as $h)  {
+                    $return_histories[] = [
+                        "status" => $h['status'],
+                        "created_at" => $h['created_at_time'],
+                    ];
+                }
 			}
-			else {
-				$order->status_histories = null;
-			}
-			$order->waybill;
+            //$order->waybill;
 			$waybill_history  = waybillTrackHistories::
 										join('waybills','waybills.id','waybill_track_histories.waybill_id')
 										->where('waybills.order_id', $order->id)
-										->select('waybill_track_histories.*')
+										->select(['waybill_track_histories.*','waybill_track_histories.created_at  as created_at_time'])
 										->orderBy('waybill_track_histories.created_at','asc')
 										->get();
-			if(count($waybill_history) > 0){
-				$order->waybill_histories = $waybill_history->toArray();
+
+
+            if(count($waybill_history) > 0){
+            	foreach($waybill_history->toArray() as $h)  {
+                    $return_histories[] = [
+                        "status" => $h['comment'],
+                        "created_at" => $h['created_at_time'],
+                    ];
+                }
 			}
-			else {
-				$order->waybill_histories = null;
-			}
+
+            if(!empty($return_histories)) {
+                usort($return_histories, function($a, $b) {
+                    return strtotime($a['created_at']) - strtotime($b['created_at']);
+                });
+            }
+
+            $order->status_histories = array_reverse($return_histories);
 		}
 		$orders = $orders->toArray();
 		// $orders = json_encode($orders);
