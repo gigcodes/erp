@@ -5,8 +5,8 @@ $(function() {
         var id = $(this).data('id');
         var toemail = $(this).data('toemail');
         $('#commonEmailModal').find('form').find('input[name="id"]').val(id);
-        $('#commonEmailModal').find('form').find('input[name="mailtype"]').val(mailtype);
         $('#commonEmailModal').find('form').find('input[name="sendto"]').val(toemail);
+        $('#commonEmailModal').find('form').find('input[name="object"]').val(mailtype);
         $('#commonEmailModal').modal("show");
     });
 

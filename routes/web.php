@@ -2363,7 +2363,5 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
 
 
 //CommonMailPopup
-
-
 Route::post('/common/sendEmail', 'CommonController@sendCommonEmail')->name('common.send.email');
 Route::get('/common/getmailtemplate', 'CommonController@getMailTemplate')->name('common.getmailtemplate');
