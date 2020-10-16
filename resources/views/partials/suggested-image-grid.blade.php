@@ -54,6 +54,7 @@
         }
         .select2-container {
             width:100% !important;
+            min-width:200px !important;   
         }
     </style>
 @endsection
@@ -116,11 +117,18 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                    <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
+                    <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
                                 @endforeach
+                        </select> -->
+                        <select name="customer_id" type="text" class="form-control" placeholder="Search" id="customer-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('customer_id')) {
+                                    echo '<option value="'.request()->get('customer_id').'" selected>'.request()->get('customer_id').'</option>';
+                                }
+                            ?>
                         </select>
                     </div>
 
@@ -1132,6 +1140,54 @@
            var $input = $(this);
            var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
            checkBox.prop("checked", true).trigger('change');
+        });
+
+
+        $('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        if(data[i].name) {
+                            var combo = data[i].name+'/'+data[i].id;
+                        }
+                        else {
+                            var combo = data[i].text;
+                        }
+                        data[i].id = combo;
+                    }
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
         });
 
 

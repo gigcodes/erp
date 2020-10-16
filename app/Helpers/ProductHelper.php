@@ -703,6 +703,8 @@ class ProductHelper extends Model
         $category          = !empty($params["category"]) ? $params["category"] : null;
         $numberOfProduts   = !empty($params["number_of_products"]) ? $params["number_of_products"] : 10;
         $quick_sell_groups = !empty($params["quick_sell_groups"]) ? $params["quick_sell_groups"] : [];
+        $product_ids = !empty($params["product_ids"]) ? explode(",",$params["product_ids"]) : [];
+        $skus = !empty($params["skus"]) ? explode(",",$params["skus"]) : [];
 
         $product = new Product;
         $toBeRun = false;
@@ -717,6 +719,18 @@ class ProductHelper extends Model
         if (!empty($category) && $category != 1) {
             $toBeRun = true;
             $product = $product->where("category", $category);
+        }
+
+        // search by product ids
+        if(!empty($product_ids)) {
+            $toBeRun = true;
+            $product = $product->whereIn("products.id", $product_ids);
+        }
+
+        // search by sku
+        if(!empty($skus)) {
+            $toBeRun = true;
+            $product = $product->whereIn("products.sku", $skus);
         }
 
         // search by quicksell groups

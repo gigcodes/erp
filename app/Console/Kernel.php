@@ -121,7 +121,7 @@ use App\Console\Commands\CustomerListToEmailLead;
 use App\Console\Commands\WayBillTrackHistories;
 use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\LogScraperDelete;
-
+use App\Console\Commands\AssetsManagerPaymentCron;
 
 
 class Kernel extends ConsoleKernel
@@ -239,7 +239,8 @@ class Kernel extends ConsoleKernel
         CustomerListToEmailLead::class,
         WayBillTrackHistories::class,
         ProjectDirectory::class,
-        LogScraperDelete::class
+        LogScraperDelete::class,
+        AssetsManagerPaymentCron::class,
     ];
 
     /**
@@ -506,6 +507,13 @@ class Kernel extends ConsoleKernel
         // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message 
          //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
+
+
+        $schedule->command("assetsmanagerpayment:cron Daily")->daily();
+        $schedule->command("assetsmanagerpayment:cron Weekly")->weekly();
+        $schedule->command("assetsmanagerpayment:cron Yearly")->yearly();
+        $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
+        $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');;
     }
 
     /**

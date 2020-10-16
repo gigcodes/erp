@@ -78,6 +78,10 @@ Route::get('{client}/{numberFrom}/competitor','FacebookController@competitor');
 
 Route::post('{client}/{numberFrom}/competitor','FacebookController@saveCompetitor');
 
+//Scrapped facebook users
+Route::post('facebook/scrape-user','FacebookController@apiPost');
+
+
 Route::get('duty/v1/get-currencies', 'SimplyDutyCurrencyController@sendCurrencyJson');
 Route::get('duty/v1/get-countries', 'SimplyDutyCountryController@sendCountryJson');
 Route::post('duty/v1/calculate', 'SimplyDutyCalculationController@calculate');
@@ -152,5 +156,12 @@ Route::post('price_comparision/store','PriceComparisionController@storeComparisi
 //order details api for a customer
 Route::get('customer/order-details','OrderController@customerOrderDetails');
 
-// Ticket api
+//refer a friend api
+Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
+Route::post('price_comparision/details','PriceComparisionController@sendDetails');
+
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
+
+//gift cards api
+Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
+Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');

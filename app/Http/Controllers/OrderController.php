@@ -39,6 +39,8 @@ use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
 use App\MailinglistTemplate;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
 use App\Category;
 use App\Mails\Manual\RefundProcessed;
 use App\Mails\Manual\AdvanceReceipt;
@@ -2146,21 +2148,30 @@ public function createProductOnMagento(Request $request, $id){
 				$history->user_id = Auth::user()->id;
 				$history->save();
 				//Sending Mail on changing of order status
-				if($order->storeWebsiteOrder) {
-                    $templateData = MailinglistTemplate::where("name",'Order Status Change')->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
-                }else{
-                    $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                if($mailingListCategory){
+                    if($order->storeWebsiteOrder) {
+                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+                    }else{
+                        $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                    }
+                    // @todo put the function to send mail from specific store emails
+                    if($templateData) {
+        				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+        				$valToReplace = [$order->customer->name,$statuss->status];
+        				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+        				
+        				$storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+                        if($storeEmailAddress) {
+                            $emailData['subject'] = $templateData->subject;
+                            $emailData['static_template'] = $bodyText;
+                            $emailData['from'] = $storeEmailAddress->from_address;
+                        
+            				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                        }
+                    }
                 }
-                // @todo put the function to send mail from specific store emails
-                if($templateData) {
-    				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
-    				$valToReplace = [$order->customer->name,$statuss->status];
-    				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
-    				
-    				$emailData['subject'] = $templateData->subject;
-    				$emailData['static_template'] = $bodyText;
-    				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
-                }
+
 				//Sending Mail on changing of order status
 				
 				//sending order message to the customer	

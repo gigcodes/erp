@@ -28,7 +28,7 @@ class LandingPageProduct extends Model
         $landingPageProduct = ($product) ? $product : $this->product;
 
         if (!StatusHelper::isApproved($landingPageProduct->status_id) && $landingPageProduct->status_id != StatusHelper::$finalApproval) {
-            //return false;
+            return false;
         }
 
         // create a html for submit the file
@@ -56,8 +56,6 @@ class LandingPageProduct extends Model
             }
         }
 
-        \Log::info(json_encode($html));
-
         if ($landingPageProduct) {
             $productData = [
                 'product' => [
@@ -69,6 +67,7 @@ class LandingPageProduct extends Model
                     //'variants'        => [],
                     'vendor'          => ($landingPageProduct->brands) ? $landingPageProduct->brands->name : "",
                     'tags'            => 'Home Page',
+                    'barcode'         =>  $landingPageProduct->id
                 ],
             ];
         }
@@ -86,7 +85,7 @@ class LandingPageProduct extends Model
         }
 
         $generalOptions = [
-            'barcode'              => (string) $this->product_id,
+            'barcode'              => (string) ($product) ? $product->id : $this->product_id,
             'fulfillment_service'  => 'manual',
             'requires_shipping'    => true,
             'sku'                  => $landingPageProduct->sku,

@@ -3,7 +3,10 @@
 namespace App\Jobs;
 
 use App\ChatbotQuestion;
+use App\ChatbotQuestionReply;
 use App\WatsonAccount;
+use App\ChatbotErrorLog;
+use App\ChatbotDialogErrorLog;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -25,13 +28,14 @@ class ManageWatson implements ShouldQueue
     protected $type;
     protected $old_example;
     protected $service;
+    protected $oldValue;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($service, $question, array $storeParams, $method, $type = 'value', $old_example = false)
+    public function __construct($service, $question, array $storeParams, $method, $type = 'value', $old_example = false, $oldValue = null)
     {
         $this->question = $question;
         $this->method = $method;
@@ -39,6 +43,7 @@ class ManageWatson implements ShouldQueue
         $this->type = $type;
         $this->old_example = $old_example;
         $this->service = $service;
+        $this->oldValue = $oldValue;
     }
 
     /**
@@ -48,13 +53,11 @@ class ManageWatson implements ShouldQueue
      */
     public function handle()
     {
-
+// dd($this->storeParams);
         $all_watson_accounts = WatsonAccount::get();
-
         if ($this->type) {
             $value = $this->question->{$this->type};
         }
-
         $serviceClass = 'IntentService';
 
         if ($this->service === 'dialog') {
@@ -62,11 +65,7 @@ class ManageWatson implements ShouldQueue
         } elseif ($this->service === 'entity') {
             $serviceClass = 'EntitiesService';
         }
-
         foreach ($all_watson_accounts as $account) {
-//            dump($account);
-
-
             if ($this->service === 'dialog') {
                 $watson = new DialogService(
                     "apiKey",
@@ -77,27 +76,47 @@ class ManageWatson implements ShouldQueue
                     "apiKey",
                     $account->api_key
                 );
+                $value = $this->oldValue;
             }else{
                 $watson = new IntentService(
                     "apiKey",
                     $account->api_key
                 );
+                $value = $this->oldValue;
             }
-
             $watson->set_url($account->url);
-
             if ($this->method === 'create') {
-                $watson->create($account->work_space_id, $this->storeParams);
+                $result = $watson->create($account->work_space_id, $this->storeParams);
             } else if ($this->method === 'update') {
-                $watson->update($account->work_space_id, $value, $this->storeParams);
+                $result = $watson->update($account->work_space_id, $value, $this->storeParams);
             } else if ($this->method === 'delete') {
-                $watson->delete($account->work_space_id, $value);
+                $result = $watson->delete($account->work_space_id, $value);
             } else if ($this->method === 'update_example') {
-                $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
+                $result = $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
             }
-
+            $status = $result->getStatusCode();
+            if($status == 201 || $status == 200) {
+                $success = 1;
+            }
+            else {
+                $success = 0;
+            }
+            if ($this->service === 'dialog') {
+                $errorlog = new ChatbotDialogErrorLog;
+                $errorlog->chatbot_dialog_id = $this->question->id;
+                $errorlog->store_website_id = $account->store_website_id;
+                $errorlog->status = $success;
+                $errorlog->response = $result->getContent();
+                $errorlog->save();
+            } else {
+                $errorlog = new ChatbotErrorLog;
+                $errorlog->chatbot_question_id = $this->question->id;
+                $errorlog->store_website_id = $account->store_website_id;
+                $errorlog->status = $success;
+                $errorlog->response = $result->getContent();
+                $errorlog->save();
+            }
         }
-
     }
 
     public function fail($exception = null)
