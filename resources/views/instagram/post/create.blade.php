@@ -6,150 +6,222 @@
 <style>
     .imagecheck-image{
         height: 100px !important;
-        width: 100px !important;
+        width: 100px !important
     }
+    .light-blue.lighten-2 {
+        background-color: #4fc3f7 !important;
+        margin: 0px 4px;
+    }   
+    .light-blue.lighten-2 a {
+        color: #fff;
+        
+    }
+    div#auto {
+        padding: 15px 0px;
+    }
+    #loading-image {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        margin: -50px 0px 0px -50px;
+        z-index: 60;
+    }
+   
 </style>
-     <link rel="stylesheet" href="{{ asset('/css/instagram.css') }}?v={{ config('pilot.version') }}">
-     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">   
-    @includeWhen($accounts->count() == 0, 'partials.no-accounts')
+<link rel="stylesheet" href="{{ asset('/css/instagram.css') }}?v={{ config('pilot.version') }}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">   
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
+<link href="https://gitcdn.github.io/bootstrap-toggle/2.2.2/css/bootstrap-toggle.min.css" rel="stylesheet">
 
-    @if($accounts->count())
-        <body class="post-create">
-        <form role="form" method="post" action="{{ route('post.store') }}" name="post-create" autocomplete="off" style="margin-top: 30px;">
-            @csrf
+@includeWhen($accounts->count() == 0, 'partials.no-accounts')
 
-            <div class="row">
-                <div class="col-md-4 col-lg-4 col-xs-12">
-                    <div class="card media-manager">
-                        <div class="card-header pl-3">
-                            <h3 class="card-title">@lang('Media')</h3>
-                            <small class="ml-3 text-gray">{{ $used_space }} / {{ $storage_limit }}</small>
-                            <div class="card-options">
-                                <button type="button" class="btn btn-secondary btn-sm btn-delete mr-3" disabled>
-                                    <i class="fa fa-trash"></i>
-                                </button>
-                                <span class="btn btn-primary btn-sm btn-upload">
-                                    <i class="fa fa-upload"></i> <span class="d-none d-md-inline">@lang('Upload')</span>
-                                    <input type="file" name="files[]" data-url="{{ route('media.upload') }}" multiple />
-                                </span>
-                            </div>
-                        </div>
-                        <div class="p-3">
-                            <div class="dimmer active">
-                                <div class="loader"></div>
-                                <div class="dimmer-content">
-                                    <div class="d-flex flex-wrap align-content-start media-files-container"></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+
+<div class = "row">
+    <div class="col-lg-12 margin-tb">
+        <h2 class="page-heading">Instagram Posts</h2>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-lg-12 margin-tb">
+        <div class="panel-group" style="margin-bottom: 5px;">
+            <div class="panel mt-3 panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                       Posts
+                    </h4>
                 </div>
-                <div class="col-md-4 col-lg-4">
-                    <small style="color: red;">Please Maintain aspect ratios between 0.800 and 1.910 for Photos</small>
-                    <div class="card">
-                        <div class="card-header pl-3">
-                            <h3 class="card-title">@lang('New post')</h3>
-                            <div class="card-options">
-                                <select name="account" class="form-control form-control-sm target-account">
-                                    @foreach($accounts as $account)
-                                    <option value="{{ $account->id }}">{{ $account->last_name }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-                        </div>
-                        <div class="p-3">
-
-                            <div class="form-group">
-                                <div class="selectgroup w-100">
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="type" value="post" class="selectgroup-input post-type" checked="">
-                                        <span class="selectgroup-button">@lang('Post')</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="type" value="album" class="selectgroup-input post-type">
-                                        <span class="selectgroup-button">@lang('Album')</span>
-                                    </label>
-                                    <label class="selectgroup-item">
-                                        <input type="radio" name="type" value="story" class="selectgroup-input post-type">
-                                        <span class="selectgroup-button">@lang('Story')</span>
-                                    </label>
-                                </div>
-                            </div>
-                            <br class="hidden-sm hidden-xs">
-                            <br class="hidden-sm hidden-xs">
-                            <br class="hidden-sm hidden-xs">
-                            <br class="hidden-sm hidden-xs">
-                            <br class="hidden-sm hidden-xs">
-                            <div class="form-group">
-                                <label class="form-label">@lang('Location')</label>
-                                <select name="location" class="form-control location-lookup"></select>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="form-label">@lang('Caption')</label>
-                                <textarea rows="3" name="caption" class="form-control caption-text" placeholder="@lang('Compose a post caption')" data-emojiable="true"></textarea>
-                            </div>
-
-                            <div class="form-group">
-                                <label class="custom-control custom-checkbox">
-                                    <input type="checkbox" class="custom-control-input is-scheduled" name="scheduled" value="1">
-                                    <span class="custom-control-label">@lang('Schedule')</span>
-                                </label>
-                            </div>
-
-                            <div class="form-group">
-                                <div class="input-icon">
-                                    <span class="input-icon-addon"><i class="fe fe-calendar"></i></span>
-                                    <input type="text" name="scheduled_at" class="form-control dm-date-time-picker scheduled-at" placeholder="@lang('Schedule at')" disabled="">
-                                </div>
-                            </div>
-
-                        </div>
-                        <div class="card-footer p-3">
-                            <button type="submit" class="btn btn-primary btn-block btn-schedule d-none">
-                                <i class="fe fe-clock"></i> @lang('Schedule post')
-                            </button>
-                            <button type="submit" class="btn btn-success btn-block btn-publish mt-0">
-                                <i class="fe fe-check"></i> @lang('Publish now')
-                            </button>
-                        </div>
-                    </div>
-                </div>
-                <div class="col-md-4 col-lg-4">
-                    <div class="card preview-story d-none"></div>
-                    <div class="card preview-timeline">
-                        <div class="pt-5 pb-2 text-center">
-                            <img src="{{ asset('/images/ig-logo.png') }}" alt="Instagram">
-                        </div>
-                        <div class="p-3 d-flex align-items-center px-2">
-                            <div class="avatar avatar-md mr-3"></div>
-                            <div>
-                                <div class="preview-username active"></div>
-                                <small class="d-block text-muted preview-location active"></small>
-                            </div>
-                        </div>
-                        <div class="image-preview">
-                            <div id="carousel" class="carousel slide">
-                                <ol class="carousel-indicators"></ol>
-                                <div class="carousel-inner"></div>
-                            </div>
-                        </div>
-                        <div class="card-body">
-                            <div class="preview-caption active">
-                                <span></span>
-                                <span></span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="panel-body">
+                    <table class="table table-bordered table-striped">
+                        <tr>
+                            <th>Account</th>
+                            <th>Type</th>
+                            <th>IG</th>
+                            <th>Caption</th>
+                            <th>Action</th>
+                        </tr>
+                        @foreach ($posts as $post)
+                            @php $accountName = ''; @endphp
+                            @foreach($accounts as $account)
+                                @if($account->id == $post->account_id)
+                                    @php
+                                    $accountName = $account->first_name;
+                                    break;
+                                    @endphp
+                                @endif
+                            @endforeach
+                            <tr>
+                                <td>{{$accountName}}
+                                    <br/><a href="/attachImages/customer/961/1?return_url=/erp-customer?type=last_received&do_not_disturb=0&page=2">Attachments</a>
+                                </td>
+                                <td>{{$post->type}}</td>
+                                <td>{{$post->ig}}</td>
+                                <td>{{$post->caption}}</td>
+                                <td>
+                                    <button type="button" class="btn" data-toggle="modal" data-target="#add-vendor-info-modal" title="" data-id="{{$post->id}}"><i class="fa fa-eye" aria-hidden="true"></i></button>
+                                    <button type="button" class="btn" data-toggle="modal" data-target="#add-insta-feed-model" title="" data-id="{{$post->id}}"><i class="fa fa-info-circle" aria-hidden="true"></i></button>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </table>
+                    {{ $posts->links() }}
                 </div>
             </div>
+        </div>
+    </div>
+</div>
 
-        </form>
-    </body>
-    @endif
-        <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
+@include('instagram.partials.publish-post')
+
+<div id="add-insta-feed-model" class="modal fade" role="dialog">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <body class="post-create">
+                <div class="modal-header">
+                </div>
+                <div class="modal-body">
+                    <div class="post-create">
+                        <div class="col-md-12">
+                            <div class="card preview-story d-none"></div>
+                            <div class="card preview-timeline">
+                                <div class="pt-5 pb-2 text-center">
+                                    <img src="{{ asset('/images/ig-logo.png') }}" alt="Instagram">
+                                </div>
+                                <div class="p-3 d-flex align-items-center px-2">
+                                    <div class="avatar avatar-md mr-3"></div>
+                                    <div>
+                                        <div class="preview-username active"></div>
+                                        <small class="d-block text-muted preview-location active"></small>
+                                    </div>
+                                </div>
+                                <div class="image-preview">
+                                    <div id="carousel" class="carousel slide">
+                                        <ol class="carousel-indicators"></ol>
+                                        <div class="carousel-inner"></div>
+                                    </div>
+                                </div>
+                                <div class="card-body">
+                                    <div class="preview-caption active">
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </body>
+        </div>
+    </div>
+</div>
+
+@endsection
+    
+@section('scripts')
+<script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script src="{{ asset('/js/instagram.js') }}?v={{ config('pilot.version') }}" type="text/javascript"></script>
 <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
- <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
- <script src="{{ asset('js/bootstrap-notify.js') }}"></script>
-@stop
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/select2/4.0.5/js/select2.min.js"></script>
+<script src="{{ asset('js/bootstrap-notify.js') }}"></script>
+
+<script>
+$(document).ready(function(){
+    //alert("Hello");
+    /*$('.add-vendor-info').on('click', function () {
+        alert("Add");
+        $("#add-vendor-info-modal").modal("show");
+    });*/
+
+    $(".caption-text .emojionearea-editor").keyup(function(){
+        console.log($(this).val());
+    });
+
+
+    var el = $("#caption_ig").emojioneArea();
+    el[0].emojioneArea.on("keyup", function(val, event) {
+
+        var text = val[0].innerText;
+
+        var n = text.split(" ");
+        var lastWord = n[n.length - 1];
+
+        //Checking if string starts with hash to send ajax
+        var startWith = lastWord.charAt(0);
+        //console.log("Starts With: "+startWith);
+        //console.log("last word: "+lastWord);
+        if(startWith=="#")
+        {
+            console.log("last word: "+lastWord);
+            var wordToSearch = lastWord.substring(1);
+            if(wordToSearch)
+            {
+                $.ajax({
+                    type: "get",
+                    url: "/instagram/get/hashtag/"+wordToSearch,
+                    async: true,
+                    dataType: 'json',
+                    beforeSend: function () {
+                        $(".emojionearea-editor").attr('contenteditable','false');
+                        $("#loading-image").show();
+                    },
+                    success: function(data){
+                        $("#loading-image").hide();
+                        $(".emojionearea-editor").attr('contenteditable','true');
+                        //console.log(data.length);
+                        //console.log(data[2]);
+                        $('#auto').html('');
+
+                        for(x = 0; x < data.length; x++)
+                        {
+                            $('#auto').append("<div class=chip light-blue lighten-2 white-text waves-effect'><a href='#' data-hashtag='"+data[x]+"' data-caption ='"+text+"' >"+data[x]+"</a></div>"); //Fills the #auto div with the options
+                        }
+                    }
+                });
+            }else{
+                console.log("No Hashtag work entered");
+            }
+        }else{
+            console.log("Typing normal caption");
+        }
+
+
+        $(document).on('click',"#auto a", function(){
+            var hashtag= $(this).data('hashtag');
+            var caption = $(this).data('caption');
+            
+            var lastIndex = caption.lastIndexOf(" ");
+            var stringWithoutLastHashtag = caption.substring(0, lastIndex);
+
+            //var stringWithoutLastHashtag = caption.substring(0, caption.lastIndexOf(" "));
+            var finalString = stringWithoutLastHashtag.concat(" #"+hashtag);
+            console.log("\n "+finalString);
+            $(".emojionearea-editor").html(finalString);
+            $('#auto').html('');
+        });
+    });  
+    
+});
+
+
+</script>
+@endsection

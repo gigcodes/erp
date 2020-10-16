@@ -40,12 +40,18 @@ class InstagramPostsController extends Controller
     }
 
 
-    public function post()
+    public function post(Request $request)
     {
-        $accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
+        //$accounts = \App\Account::where('platform','instagram')->whereNotNull('proxy')->where('status',1)->get();
+        $accounts = \App\Account::where('platform','instagram')->where('status',1)->get();
+
+        //$posts = Post::where('status', 1)->get();
+        $query = Post::query();
+        $posts = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
+
         $used_space = 0;
         $storage_limit = 0;
-        return view('instagram.post.create' , compact('accounts','used_space','storage_limit'));   
+        return view('instagram.post.create' , compact('accounts','used_space','storage_limit', 'posts'))->with('i', ($request->input('page', 1) - 1) * 5);;   
     }
 
     public function createPost(Request $request){
@@ -467,4 +473,111 @@ class InstagramPostsController extends Controller
      
 
     }
+
+    public function hashtag(Request $request, $word)
+    {
+        //$arr = array("hashtag","Hashtag","HASHTAG","HashTag","haShtag","HASHtag");
+        //echo json_encode(array_values($arr),JSON_FORCE_OBJECT);exit; 
+
+        if($word)
+        {
+            $response = $this->getHastagifyApiToken();
+
+            if(isset($response['access_token']))
+            {
+                $json = $this->getHashTashSuggestions($response['access_token'], $word);
+
+                $arr = json_decode($json, true);
+                $instaTags = [];
+                if(isset($arr['code']) && $arr['code']=='404')
+                {
+                    //handle for error
+                }else{
+                    if(isset($arr['hashtag']))
+                    {
+                        $relatedTags = $arr['hashtag']['variants'];
+                        
+                        foreach($relatedTags as $tag)
+                        {
+                            if(ctype_digit($tag) && (int) $tag > 0)
+                            {
+                                continue;
+                            }
+                            $instaTags[] = $tag;
+                        }
+                    }
+                }
+                echo json_encode(array_values($instaTags));
+            }
+        }
+    }
+
+
+    public function getHastagifyApiToken()
+    {
+        //Update Parameters
+        $clientCredentials = '';
+        $consumerKey = '';
+        $consumerSecret = '';
+        
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.hashtagify.me/oauth/token",
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "POST",
+          CURLOPT_POSTFIELDS => "grant_type=".$clientCredentials."&client_id=".$consumerKey."&client_secret=".$consumerSecret,
+          CURLOPT_HTTPHEADER => array(
+            "cache-control: no-cache",
+            "content-type: application/x-www-form-urlencoded"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+          //echo "cURL Error #:" . $err;
+        } else {
+          return $response;
+        }
+    }
+
+
+    public function getHashTashSuggestions($token, $word)
+    {
+        $curl = curl_init();
+
+        curl_setopt_array($curl, array(
+          CURLOPT_URL => "https://api.hashtagify.me/1.0/tag/".$word,
+          CURLOPT_RETURNTRANSFER => true,
+          CURLOPT_ENCODING => "",
+          CURLOPT_MAXREDIRS => 10,
+          CURLOPT_TIMEOUT => 30,
+          CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
+          CURLOPT_CUSTOMREQUEST => "GET",
+          CURLOPT_HTTPHEADER => array(
+            "authorization: Bearer ".$ACCESS_TOKEN,
+            "cache-control: no-cache"
+          ),
+        ));
+
+        $response = curl_exec($curl);
+        $err = curl_error($curl);
+
+        curl_close($curl);
+
+        if ($err) {
+          //echo "cURL Error #:" . $err;
+        } else {
+          echo $response;
+        }
+    }
+
 }
