@@ -76,7 +76,7 @@ Content-Type: application/json
 {
     "referrer_first_name": "Pravin", //required, length maxminum 30
     "referrer_last_name": "Solanki", //length maxminum 30
-    "referrer_email": "abc@example.com", //required, must be a customer registered with this email
+    "referrer_email": "abc@example.com",
     "referrer_phone" : "7777777777", //length maxminum 20
     "referee_first_name": "karamjit",//required,length maxminum 30
     "referee_last_name": "Singh", //required,length maxminum 30
@@ -120,7 +120,7 @@ POST https://erp.amourint.com/api/giftcards/add
 Accept: application/json
 Content-Type: application/json
 {   "sender_name" : "sender", //required, length maxminum 30
-    "sender_email" : "sender@example.com", //required, must be a customer registered with this email
+    "sender_email" : "sender@example.com",
     "receiver_name" : "reciever", //required, length maxminum 30
     "receiver_email" : "reciever@example.com", //required, email
     "gift_card_coupon_code" : "A1A22A111FFF333", //required, unique, upto 50 chars
