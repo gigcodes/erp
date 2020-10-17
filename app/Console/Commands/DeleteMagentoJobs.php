@@ -38,6 +38,9 @@ class DeleteMagentoJobs extends Command
     public function handle()
     {
         //
-        \DB::statement("delete from jobs where queue='magento'");
+        $job = \App\Job::where("queue","magento")->limit(1000)->get();
+        foreach($job as $j) {
+            $j->delete();
+        }
     }
 }
