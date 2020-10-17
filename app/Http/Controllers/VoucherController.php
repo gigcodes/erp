@@ -394,8 +394,8 @@ class VoucherController extends Controller
         $message['vendor_id'] = $request->user_id;
         Payment::create($input);
         $request1 = new \Illuminate\Http\Request();
-        //$request1->replace($message);        
-        $sendMessage = WhatsAppController::sendMessage($request1,'vendor');
+        $request1->replace($message);    
+        $sendMessage = app('App\Http\Controllers\WhatsAppController')->sendMessage($request1,'vendor');
         $cashData = [
             'user_id'=>$request->user_id,
             'description'=>'Vendor paid',

@@ -43,7 +43,7 @@ class GiftCardController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'sender_name' => 'required|max:30',
-            'sender_email' => 'required|email|exists:customers,email',
+            'sender_email' => 'required|email',
             'receiver_name' => 'required|max:30',
             'receiver_email' => 'required|email',
             'gift_card_coupon_code' => 'required|max:50|unique:gift_cards,gift_card_coupon_code',

@@ -48,7 +48,7 @@ class ReferaFriend extends Controller
         $validator = Validator::make($request->all(), [
             'referrer_first_name' => 'required|max:30',
             'referrer_last_name' => 'max:30',
-            'referrer_email' => 'required|email|exists:customers,email',
+            'referrer_email' => 'required|email',
             'referrer_phone' => 'max:20',
             'referee_first_name' => 'required|max:30',
             'referee_last_name' => 'max:30',

@@ -2139,9 +2139,9 @@ class WhatsAppController extends FindByNumberController
      * @return \Illuminate\Http\Response
      * @throws \Plank\Mediable\Exceptions\MediaUrlException
      */
-    public static function sendMessage(Request $request, $context, $ajaxNeeded = false)
+    public function sendMessage(Request $request, $context, $ajaxNeeded = false)
     {
-        $request->validate($request->all(), [
+        $this->validate($request, [
             'customer_id' => 'sometimes|nullable|numeric',
             'supplier_id' => 'sometimes|nullable|numeric',
             'task_id' => 'sometimes|nullable|numeric',

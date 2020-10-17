@@ -112,6 +112,11 @@ class Order extends Model
         return $this->hasOne('App\Waybill');
     }
 
+    public function invoice()
+    {
+        return $this->belongsTo('App\Invoice');
+    }
+
     public function is_sent_initial_advance()
     {
         $count = $this->hasMany('App\CommunicationHistory', 'model_id')->where('model_type', 'App\Order')->where('type', 'initial-advance')->count();
