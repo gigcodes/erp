@@ -42,7 +42,7 @@ class PushBrandToStore extends Command
         $limit = $this->ask('Limit of brands need to push ?');
 
         $brands = \App\Product::join("brands as b","b.id","products.brand")->groupBy("b.id")->select(["b.*"])->limit($limit)->get();
-        $storeWebsites = \App\StoreWebsite::where("api_token","!=","")->get();
+        $storeWebsites = \App\StoreWebsite::where("api_token","!=","")->where("website_source","magento")->get();
 
         if(!$brands->isEmpty()) {
             foreach($brands as $brand) {
