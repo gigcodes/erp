@@ -3745,8 +3745,30 @@ class ProductController extends Controller
             ->groupBy("brand", "category")
             ->get();
 
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+
         foreach ($products as $key => $product) {
-            PushToMagento::dispatch($product)->onQueue('magento');
+            $i = 1;
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            if(!empty($websiteArrays)) {
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if($website){
+                        \Log::info("Product started website found For website".$website->website);
+                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                        //currently we have 3 queues assigned for this task.
+                        if($i > 3) {
+                           $i = 1;
+                        }
+                        PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                        $i++;
+                    }
+                }
+            }
         }
         return response()->json(["code" => 200, "message" => "Push product successfully"]);
 
