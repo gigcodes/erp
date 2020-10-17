@@ -48,7 +48,8 @@ class PushStoreWebsiteCategory extends Command
             foreach ($categories as $category) {
                 echo "$category->title started to push\n";
                 if (!$storeWebsites->isEmpty()) {
-                    foreach ($storeWebsites as $swi) {
+                    foreach ($storeWebsites as $store) {
+                        $swi = $store->id;
                         if ($category->parent_id == 0) {
                             $case = 'single';
                         } elseif ($category->parent->parent_id == 0) {
@@ -56,7 +57,7 @@ class PushStoreWebsiteCategory extends Command
                         } else {
                             $case = 'third';
                         }
-                        echo "$swi->website started to $case push\n";
+                        echo "$store->website started to $case push\n";
                         // start to push category on site
                         if ($case == 'single') {
                             $data['id']       = $category->id;
