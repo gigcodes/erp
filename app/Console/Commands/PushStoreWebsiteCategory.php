@@ -56,7 +56,7 @@ class PushStoreWebsiteCategory extends Command
                         } else {
                             $case = 'third';
                         }
-                        echo "$storeWebsites->website started to $case push\n";
+                        echo "$swi->website started to $case push\n";
                         // start to push category on site
                         if ($case == 'single') {
                             $data['id']       = $category->id;
