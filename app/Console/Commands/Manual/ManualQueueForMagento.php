@@ -40,6 +40,7 @@ class ManualQueueForMagento extends Command
      */
     public function handle()
     {
+        return false;
         // Set memory limit
         ini_set('memory_limit', '2048M');
         try {
