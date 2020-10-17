@@ -54,12 +54,14 @@ class GoogleCampaignsController extends Controller
 
         $campInfo = $this->getCampaigns($adWordsServices, $session);
 
+
         return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]);
     }
 
     // get campaigns and total count
     public function getCampaigns(AdWordsServices $adWordsServices, AdWordsSession $session) {
         $campaignService = $adWordsServices->get($session, CampaignService::class);
+
 
         // Create selector.
         $campaignSelector = new Selector();
@@ -68,6 +70,7 @@ class GoogleCampaignsController extends Controller
         $campaignSelector->setPaging(new Paging(0, 10));
 
         $adGroupService = $adWordsServices->get($session, AdGroupService::class);
+
 
         // Create a selector to select all ad groups for the specified campaign.
         $groupSelector = new Selector();
@@ -81,7 +84,6 @@ class GoogleCampaignsController extends Controller
         do {
             // Make the get request.
             $page = $campaignService->get($campaignSelector);
-
             // Display results.
             if ($page->getEntries() !== null) {
                 $totalNumEntries = $page->getTotalNumEntries();
@@ -142,11 +144,11 @@ class GoogleCampaignsController extends Controller
         $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
@@ -248,11 +250,11 @@ class GoogleCampaignsController extends Controller
     // go to update page
     public function updatePage(Request $request, $campaignId) {
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
@@ -296,11 +298,11 @@ class GoogleCampaignsController extends Controller
         $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile()
+            ->fromFile(storage_path('adsapi_php.ini'))
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
@@ -330,11 +332,11 @@ class GoogleCampaignsController extends Controller
     // delete campaign
     public function deleteCampaign(Request $request, $campaignId) {
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adWordsServices = new AdWordsServices();
 
