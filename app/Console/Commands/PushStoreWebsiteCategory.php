@@ -46,6 +46,7 @@ class PushStoreWebsiteCategory extends Command
 
         if (!$categories->isEmpty()) {
             foreach ($categories as $category) {
+                echo "$category->title started to push\n";
                 if (!$storeWebsites->isEmpty()) {
                     foreach ($storeWebsites as $swi) {
                         if ($category->parent_id == 0) {
@@ -55,6 +56,7 @@ class PushStoreWebsiteCategory extends Command
                         } else {
                             $case = 'third';
                         }
+                        echo "$storeWebsites->website started to $case push\n";
                         // start to push category on site
                         if ($case == 'single') {
                             $data['id']       = $category->id;
@@ -65,7 +67,10 @@ class PushStoreWebsiteCategory extends Command
 
                             $categ = MagentoHelper::createCategory($parentId, $data, $swi);
                             if ($category) {
-                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id', $categ)->first();
+                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
+                                ->where('category_id', $category->id)
+                                ->where('remote_id', $categ)
+                                ->first();
                                 if (empty($checkIfExist)) {
                                     $storeWebsiteCategory                   = new StoreWebsiteCategory();
                                     $storeWebsiteCategory->category_id      = $category->id;
