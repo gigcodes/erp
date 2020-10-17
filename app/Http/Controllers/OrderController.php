@@ -203,6 +203,15 @@ class OrderController extends Controller {
 		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
 		$brandIds = array_filter($request->get("brand_id",[]));
 		$registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
+		$fromdatadefault=array(
+			"street" 		=> config("dhl.shipper.street"),
+			"city" 			=> config("dhl.shipper.city"),
+			"postal_code" 	=> config("dhl.shipper.postal_code"),
+			"country_code"	=> config("dhl.shipper.country_code"),
+			"person_name" 	=> config("dhl.shipper.person_name"),
+			"company_name" 	=> "Solo Luxury",
+			"phone" 		=> config("dhl.shipper.phone")
+		);
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -307,7 +316,7 @@ class OrderController extends Controller {
 		$totalOrders = sizeOf($orders->get());
 		$orders_array = $orders->paginate(10);
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','fromdatadefault') );
 	}
 
 	public function products(Request $request)

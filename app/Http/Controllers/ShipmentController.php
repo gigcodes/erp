@@ -50,10 +50,19 @@ class ShipmentController extends Controller
 		$waybills = $waybills->orderBy('id', 'desc')->with('order', 'order.customer', 'customer','waybill_track_histories');
         $waybills_array = $waybills->paginate(20);
         $customers = Customer::all();
+        $fromdatadefault=array(
+           "street" 		=> config("dhl.shipper.street"),
+           "city" 			=> config("dhl.shipper.city"),
+           "postal_code" 	=> config("dhl.shipper.postal_code"),
+           "country_code"	=> config("dhl.shipper.country_code"),
+           "person_name" 	=> config("dhl.shipper.person_name"),
+           "company_name" 	=> "Solo Luxury",
+           "phone" 		=> config("dhl.shipper.phone")
+       );
         $mailinglist_templates = MailinglistTemplate::groupBy('name')->get();
 		return view( 'shipment.index', ['waybills_array' => $waybills_array,
             'customers' => $customers, 'template_names' => $mailinglist_templates,
-            'countries' => config('countries')
+            'countries' => config('countries'),'fromdatadefault'=>$fromdatadefault
         ]);
     }
 
@@ -163,7 +172,13 @@ class ShipmentController extends Controller
     {
         $inputs = $request->all();
         $validator = Validator::make($inputs, [
-            'customer_id' => 'required|numeric',
+            //'customer_id' => 'required|numeric',
+            'from_customer_id' => 'required',
+            'from_customer_city' => 'required|string',
+            'from_customer_country' => 'required|string',
+            'from_customer_phone' => 'required|numeric',
+            'from_customer_address1' => 'required|string|min:1|max:40',
+            'customer_id' => 'required',
             'customer_city' => 'required|string',
             'customer_country' => 'required|string',
             'customer_phone' => 'required|numeric',
@@ -184,11 +199,22 @@ class ShipmentController extends Controller
             ]);
         }
 
+        
+            
         try {
+            
             //get customer details
-            $customer = Customer::where('id',$request->customer_id)->first();
+            if($request->from_customer_id>0){
+                $from_customer = Customer::where('id',$request->from_customer_id)->first();
+                $from_customer_id=$request->from_customer_id;
+                $from_customer_name=$from_customer->name;
+            }else{
+                $from_customer_id=null;
+                $from_customer_name=$request->from_customer_id;
+            }
+
             $rateReq   = new CreateShipmentRequest("soap");
-            $rateReq->setShipper([
+            /* $rateReq->setShipper([
                 "street" 		=> config("dhl.shipper.street"),
                 "city" 			=> config("dhl.shipper.city"),
                 "postal_code" 	=> config("dhl.shipper.postal_code"),
@@ -196,14 +222,34 @@ class ShipmentController extends Controller
                 "person_name" 	=> config("dhl.shipper.person_name"),
                 "company_name" 	=> "Solo Luxury",
                 "phone" 		=> config("dhl.shipper.phone")
+            ]); */
+
+            $rateReq->setShipper([
+                "street" 		=> $request->from_customer_address1,
+                "city" 			=> $request->from_customer_city,
+                "postal_code" 	=> $request->from_customer_pincode,
+                "country_code"	=> $request->from_customer_country,
+                "person_name" 	=> $from_customer_name,
+                "company_name" 	=> $request->company_name,
+                "phone" 		=> $request->from_customer_phone
             ]);
+            
+            if($request->customer_id>0){
+                $customer = Customer::where('id',$request->customer_id)->first();
+                $customer_id=$request->customer_id;
+                $customer_name=$customer->name;
+            }else{
+                $customer_id=null;
+                $customer_name=$request->customer_id;
+            }
+            
             $rateReq->setRecipient([
                 "street" 		=> $request->customer_address1,
                 "city" 			=> $request->customer_city,
                 "postal_code" 	=> $request->customer_pincode,
                 "country_code" 	=> $request->customer_country,
-                "person_name" 	=> $customer->name,
-                "company_name" 	=> $customer->name,
+                "person_name" 	=> $customer_name,
+                "company_name" 	=> $customer_name,
                 "phone" 		=> $request->customer_phone
             ]);
 
@@ -224,6 +270,7 @@ class ShipmentController extends Controller
             $rateReq->setMobile($phone);
             $rateReq->setServiceType($request->service_type);
             $response = $rateReq->call();
+            
             if(!$response->hasError()) {
                 $receipt = $response->getReceipt();
                 if(!empty($receipt["label_format"])){
@@ -243,6 +290,25 @@ class ShipmentController extends Controller
                         $waybill->duty_cost = null; #TODO after discussing
                         $waybill->package_slip = $receipt["tracking_number"] . '_package_slip.pdf';
                         $waybill->pickup_date = $request->pickup_time;
+                        //newly added
+                        $waybill->from_customer_id=$from_customer_id;
+                        $waybill->from_customer_name=$from_customer_name;
+                        $waybill->from_city=$request->from_customer_city;
+                        $waybill->from_country_code=$request->from_customer_country;
+                        $waybill->from_customer_phone=$request->from_customer_phone;
+                        $waybill->from_customer_address_1=$request->from_customer_address1;
+                        $waybill->from_customer_address_2=$request->from_customer_address2;
+                        $waybill->from_customer_pincode=$request->from_customer_pincode;
+                        $waybill->from_company_name=$request->from_company_name;
+                        $waybill->to_customer_id=$customer_id;
+                        $waybill->to_customer_name=$customer_name;
+                        $waybill->to_city=$request->customer_city;
+                        $waybill->to_country_code=$request->customer_country;
+                        $waybill->to_customer_phone=$request->customer_phone;
+                        $waybill->to_customer_address_1=$request->customer_address1;
+                        $waybill->to_customer_address_2=$request->customer_address2;
+                        $waybill->to_customer_pincode=$request->customer_pincode;
+                        $waybill->to_company_name=$request->company_name;
                         $waybill->save();
                     }
                 }
@@ -322,7 +388,7 @@ class ShipmentController extends Controller
 
             $phone = !empty($waybill->order->customer->phone) ? $waybill->order->customer->phone : '';
             $rateReq->setMobile($phone);
-            //$rateReq->setServiceType($request->service_type);
+            $rateReq->setServiceType($request->service_type);
             $response = $rateReq->call();
             if(!$response->hasError()) {
                 $receipt = $response->getReceipt();
