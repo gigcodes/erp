@@ -64,6 +64,7 @@ use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
 use App\Translations;
+use App\ProductPushErrorLog;
 
 
 class ProductController extends Controller
@@ -1372,6 +1373,11 @@ class ProductController extends Controller
 
     public function listMagento(Request $request, $id)
     {
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
         // Get product by ID
         $product = Product::find($id);
         //check for hscode
@@ -1400,10 +1406,9 @@ class ProductController extends Controller
                             LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
                             //currently we have 3 queues assigned for this task.
                             if($i > 3) {
-                                $i = 1;
+                               $i = 1;
                             }
-                            $queueName = 'push_product_'.$i;
-                            PushToMagento::dispatch($product,$website)->onQueue($queueName);
+                            PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
                             $i++;
                         }
                     }
