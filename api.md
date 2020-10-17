@@ -193,7 +193,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-GET https://erp.amourint.com/api/customer/order-details?email=solanki7492@gmail.com&website=www.veralusso.com
+GET https://erp.amourint.com/api/customer/order-details?email=solanki7492@gmail.com&website=www.veralusso.com&order_no=000000001
 Accept: application/json
 Content-Type: application/json
 'Authorization: Bearer (Requested_website_token)'
