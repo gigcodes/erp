@@ -273,3 +273,72 @@ Content-Type: application/json
     "message": "Email is absent in your request"
 }
 ```
+## Buyback Check Product API
+
+**Request:**
+
+```json
+GET https://erp.amourint.com/api/check-products-for-buyback
+Accept: application/json
+Content-Type: application/json
+{   "customer_email" : "abc@example.com", //required, email
+}
+```
+
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "orderData": [
+        {
+            "product_name": "Dr. Osborne Harber",
+            "product_price": "0",
+            "sku": "6493033100078",
+            "order_id": 2023,
+            "product_id": 296568,
+        }
+    ]
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Customer not found with this email !"
+}
+```
+## Create buyback request API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/buyback/create
+Accept: application/json
+Content-Type: application/json
+{   "customer_email" : "abc@example.com", //required, email
+    "product_id" : "2965688"
+}
+```
+
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "buyback request created successfully"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Unable to create buyback request!"
+}
+```
