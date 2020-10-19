@@ -597,6 +597,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
+                                    <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
