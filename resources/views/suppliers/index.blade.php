@@ -426,6 +426,8 @@
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
                         @endif
+                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="vendor" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
+
 				</td>
 				</tr>
           @endforeach
@@ -573,6 +575,7 @@
             </div>
         </div>
     </div>
+@include('common.commonEmailModal')
 @include('customers.zoomMeeting');
 @endsection
 
@@ -581,6 +584,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
   <script src="{{asset('js/zoom-meetings.js')}}"></script>
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script type="text/javascript">
 
       var supplierToRemind = null;
