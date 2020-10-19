@@ -57,6 +57,9 @@
             width:100% !important;
             min-width:200px !important;   
         }
+        .no-pd {
+            padding:0px;
+        }
     </style>
 @endsection
 
@@ -147,9 +150,7 @@
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
                 </form>
   
-            <div class="row mt-3">
-                <div class="col-1">
-                </div>
+            <!-- <div class="row mt-3">
                 <div class="col-11 btn-group-actions">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" id="select-all-product" data-count="<?php echo (isset($products_count)) ? $products_count : 0; ?>">Select All</button>
@@ -158,22 +159,9 @@
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="30">Select 30</button>
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="50">Select 50</button>
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="100">Select 100</button>
-                        <!-- <button type="button" class="btn btn-xs btn-secondary select-all-same-page-btn" data-count="100">Select All Current Page</button> -->
-                        <!-- <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#brandFilterCount" role="button" aria-expanded="false" aria-controls="brandFilterCount">
-                            Show Brand(s) count 
-                        </a>
-                        <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#categoryFilterCount" role="button" aria-expanded="false" aria-controls="categoryFilterCount">
-                            Show Categories count
-                        </a>
-                        <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#suppliersFilterCount" role="button" aria-expanded="false" aria-controls="suppliersFilterCount">
-                            Show suppliers count
-                        </a> -->
                     </div>
                 </div>
-            </div>
+            </div> -->
             
             </div>
         </div>
@@ -186,18 +174,39 @@
       $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
     ?>
 
-<div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
-        Goto :
-        <select onchange="location.href = this.value;" class="form-control" id="page-goto">
-            @for($i = 1 ; $i <= $suggestedProducts->lastPage() ; $i++ )
-                <option data-value="{{ $i }}" value="{{ $query.$i }}" {{ ($i == $suggestedProducts->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-            @endfor
-        </select>
+
+    
+    <div>
     </div>
+
+
+    <div class="col-md-12 margin-tb">
+        <div class="table-responsive">
+            <table class="table table-bordered" style="table-layout:fixed;">
+                <th style="width:7%">Date</th>
+                <th style="width:8%">Id</th>
+                <th style="width:15%">Name</th>
+                <th style="width:10%">Phone</th>
+                <th style="width:20%">Brand</th>
+                <th style="width:20%">Category</th>
+                <th style="width:20%">Action</th>
+                <tbody class="infinite-scroll-data">
+                    @include('partials.attached-image-load')
+                </tbody>
+            </table>
+        </div>
+        {{$suggestedProducts->appends(request()->except("page"))->links()}}
+    </div>
+
+
+
+
+
+
     @include('partials.image-load-category-count')
-    <div class="productGrid" id="productGrid">
+    <!-- <div class="productGrid" id="productGrid">
         @include('partials.attached-image-load')
-    </div>
+    </div> -->
     @php
         $action = url('whatsapp/updateAndCreate/');
 
@@ -531,6 +540,16 @@
             $(this).toggleClass('btn-secondary');
 
             console.log(image_array);
+        });
+
+
+        $(document).on('click', '.preview-attached-img-btn', function (e) {
+            e.preventDefault();
+            var customer_id = $(this).data('id');
+            var expand = $('.expand-'+customer_id);
+            console.log(expand);
+            $(expand).toggleClass('hidden');
+
         });
 
         $(document).on('click', '.attach-photo-all', function (e) {
@@ -1051,11 +1070,13 @@
                     var $this = $(this);
                     var custCls = '.customer-'+customer_id;
                     if ($this.hasClass("has-all-selected") === false) {
-                        $this.html("Deselect all");
+                        // $this.html("Deselect all");
+                        $(this).find('img').attr("src", "/images/completed-green.png");
                         $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
                         $this.addClass("has-all-selected");
                     }else {
-                        $this.html("Select all");
+                        // $this.html("Select all");
+                        $(this).find('img').attr("src", "/images/completed.png");
                         $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
                         $this.removeClass("has-all-selected");
                     }

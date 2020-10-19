@@ -4031,9 +4031,27 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate(5);
         foreach($suggestedProducts as $suggestion) {
-            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id);
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            if(count($brandIds) > 0) {
+                $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
+            }
+            else {
+                $suggestion->brdNames = []; 
+            }
+
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            if(count($catIds) > 0) {
+                $suggestion->catNames = Category::whereIn('id',$catIds)->get();
+            }
+            else {
+                $suggestion->catNames = []; 
+            }
+
+            
+            
+            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('remove_attachment',0);
             if (isset($request->brand[0])) {
                 if ($request->brand[0] != null) {
                     $products = $products->whereIn('products.brand', $request->brand);
@@ -4095,7 +4113,7 @@ class ProductController extends Controller
                 });
             }
 
-             $suggestion->products = $products->get();
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort')->orderBy('sort')->get();
         }
 
         if ($request->category) {
@@ -4435,7 +4453,16 @@ class ProductController extends Controller
     public function removeProducts($customer_id, Request $request) {
             $products = json_decode($request->products,true);
             foreach($products as $product_id) {
-                \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->delete();
+                $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->first();
+                if($suggested) {
+                    if($suggested->chat_message_id) {
+                     $suggested->remove_attachment = 1;
+                     $suggested->save();
+                     }
+                    else {
+                     $suggested->delete();
+                    }
+                }
             }
             $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
                 if(!$remains) {
@@ -4445,11 +4472,21 @@ class ProductController extends Controller
     }
 
     public function removeSingleProduct($customer_id, Request $request) {
-        \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->delete();
-        $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+       $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->first();
+       if($suggested) {
+           if($suggested->chat_message_id) {
+            $suggested->remove_attachment = 1;
+            $suggested->save();
+            }
+           else {
+            $suggested->delete(); 
+
+            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
             if(!$remains) {
                 \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
             }
+           }
+       }
         return response()->json(['code' => 200, 'message' => 'Successfull']);
     }
 
