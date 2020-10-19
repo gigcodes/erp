@@ -34,11 +34,11 @@ class GoogleAdGroupController extends Controller
 
     public function index(Request $request, $campaignId) {
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroups = $this->getAdGroups(new AdWordsServices(), $session, $campaignId);
 
@@ -106,9 +106,9 @@ class GoogleAdGroupController extends Controller
 //        $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
 //        $adRotationMode = $adRotationModes[$request->adRotationMode];
 
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
 
@@ -145,11 +145,11 @@ class GoogleAdGroupController extends Controller
 
     // go to update page
     public function updatePage(Request $request, $campaignId, $adGroupId) {
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
 
@@ -189,11 +189,11 @@ class GoogleAdGroupController extends Controller
         $cpcBidMicroAmount = $request->cpcBidMicroAmount * 1000000;
         $adGroupStatus = $adGroupStatusArr[$request->adGroupStatus];
 
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupService = (new AdWordsServices())->get($session, AdGroupService::class);
 
@@ -230,11 +230,11 @@ class GoogleAdGroupController extends Controller
     // delete ad group
     public function deleteAdGroup(Request $request, $campaignId, $adGroupId) {
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile()->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile()->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
 
         $adWordsServices = new AdWordsServices();
 
