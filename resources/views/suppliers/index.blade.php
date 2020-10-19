@@ -426,7 +426,7 @@
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
                         @endif
-                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="vendor" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
+                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
 
 				</td>
 				</tr>

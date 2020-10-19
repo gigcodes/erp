@@ -830,6 +830,8 @@
                             <button type="submit" class="btn btn-image"><img src="/images/delete.png"/></button>
                             {!! Form::close() !!}
                             <input type="checkbox" name="customer_message[]" class="d-inline customer_message" value="{{$customer->id}}">
+                            <button type="button" class="btn send-email-common-btn" data-toemail="{{$customer->email}}" data-object="customer" data-id="{{$customer->id}}"><i class="fa fa-envelope-square"></i></button>
+
                         </td>
                     </tr>
                 @endforeach
