@@ -41,8 +41,21 @@ class PushStoreWebsiteCategory extends Command
     public function handle()
     {
         //
-        $categories    = Category::query()->orderBy("parent_id", "asc")->get();
-        $storeWebsites = \App\StoreWebsite::where("api_token", "!=", "")->where("website_source", "magento")->get();
+        $limitOfCat = $this->ask('Which category need to push ?');
+        $limit      = $this->ask('Which website you need to push');
+        if(!empty($limitOfCat)) {
+            $catIds = explode(",", $limitOfCat);
+            $categories    = Category::query()->whereIn("id",$catIds)->orderBy("parent_id", "asc")->get();
+        }else{
+            $categories    = Category::query()->orderBy("parent_id", "asc")->get();
+        }
+        
+        if(!empty($limit)) {
+            $limit = explode(",", $limit);
+            $storeWebsites = \App\StoreWebsite::whereIn("id",$limit)->where("api_token", "!=", "")->where("website_source", "magento")->get();
+        }else{
+            $storeWebsites = \App\StoreWebsite::where("api_token", "!=", "")->where("website_source", "magento")->get();
+        }
 
         if (!$categories->isEmpty()) {
             foreach ($categories as $category) {
