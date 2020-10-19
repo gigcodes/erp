@@ -290,27 +290,70 @@
                 width: "100%"
             });
 
-        var infinteScroll = function() {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                   $('.lazy').Lazy({
-                        effect: 'fadeIn'
-                   });
-                   $('ul.pagination:visible:first').remove();
-                    var next_page = $('.pagination li.active + li a');
-                    var page_number = next_page.attr('href').split('page=');
-                    var current_page = page_number[1] - 1;
-                    $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
-                    categoryChange();
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
                 }
             });
 
-        };
+
+
+            var isLoading;
+            function loadMore() {
+                console.log($('.pagination li.active + li a').attr('href'));
+                console.log("aaaaaaaaaaaaaaaa");
+                if (isLoading)
+                    return;
+                    isLoading = true;
+                if(!$('.pagination li.active + li a').attr('href'))
+                return;
+
+                var $loader = $('.infinite-scroll-products-loader');
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    console.log(data);
+                    // if('' === data.trim())
+                    //     return;
+
+                    $loader.hide();
+
+                    $('.infinite-scroll-data').append(data);
+
+                    isLoading = false;
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    isLoading = false;
+                });
+            }
+
+        // var infinteScroll = function() {
+        //     $('.infinite-scroll').jscroll({
+        //         autoTrigger: true,
+        //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //         padding: 2500,
+        //         nextSelector: '.pagination li.active + li a',
+        //         contentSelector: 'div.infinite-scroll',
+        //         callback: function () {
+        //            $('.lazy').Lazy({
+        //                 effect: 'fadeIn'
+        //            });
+        //            $('ul.pagination:visible:first').remove();
+        //             var next_page = $('.pagination li.active + li a');
+        //             var page_number = next_page.attr('href').split('page=');
+        //             var current_page = page_number[1] - 1;
+        //             $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+        //             categoryChange();
+        //         }
+        //     });
+
+        // };
 
         var categoryChange = function() 
         {   
@@ -335,7 +378,7 @@
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
             
-            infinteScroll();
+            // infinteScroll();
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -631,7 +674,7 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
-                infinteScroll();
+                // infinteScroll();
             }).fail(function () {
                 alert('Error searching for products');
             });

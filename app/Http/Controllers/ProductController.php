@@ -4031,7 +4031,7 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate(5);
+        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate(3);
         foreach($suggestedProducts as $suggestion) {
             $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
@@ -4159,7 +4159,11 @@ class ProductController extends Controller
                 return $html;
             }
 
-            return response()->json(['html' => $html, 'products_count' => $products_count]);
+            // return response()->json(['html' => $html, 'products_count' => $products_count]);
+
+            $selected_products = $request->selected_products ? json_decode($request->selected_products) : [];
+            return view('partials.attached-image-load', compact(
+                'suggestedProducts','all_product_ids','brand','selected_products','model_type','countBrands','countCategory','countSuppliers','customerId','categoryArray'));
         }
 
         $message_body = $request->message ? $request->message : '';
