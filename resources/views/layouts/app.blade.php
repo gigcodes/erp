@@ -1072,6 +1072,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             </ul>
 
                                         </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{ action('FacebookPostController@index') }}">Facebook Posts</a>
+                                        </li>
 
                                     </ul>
                                 </li>
