@@ -1,18 +1,31 @@
 @foreach ($suggestedProducts as $sp => $suggested)
     <tr>
-    <td>{{$suggested->created_at}}</td>
+    <td>{{ \Carbon\Carbon::parse($suggested->last_attached)->format('d-m-y') }} </td>
     <td>{{$suggested->customer->id}}</td>
     <td>{{$suggested->customer->name}}</td>
     <td>{{$suggested->customer->phone}}</td>
-    <td>
-        @foreach($suggested->brdNames as $br)
-        {{$br->name}},
-        @endforeach
+    <td class="expand-row-msg" data-name="brand" data-id="{{$suggested->id}}">
+    @php 
+     $brandList = '';
+     foreach($suggested->brdNames as $br) {
+        $brandList = $brandList. ' '. $br->name.',';
+     }
+     @endphp
+
+        <span class="show-short-brand-{{$suggested->id}}">{{ str_limit($brandList, 30, '...')}}</span>
+            <span style="word-break:break-all;" class="show-full-brand-{{$suggested->id}} hidden">{{$brandList}},</span>
     </td>
-    <td>
-        @foreach($suggested->catNames as $cat)
-        {{$cat->title}},
-        @endforeach
+
+    <td class="expand-row-msg" data-name="category" data-id="{{$suggested->id}}">
+    @php 
+     $catList = '';
+     foreach($suggested->catNames as $cat) {
+        $catList = $catList. ' '. $cat->title.',';
+     }
+     @endphp
+
+        <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
+            <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
     <td>
 
