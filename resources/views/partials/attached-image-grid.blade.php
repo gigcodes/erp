@@ -300,8 +300,6 @@
 
             var isLoading;
             function loadMore() {
-                console.log($('.pagination li.active + li a').attr('href'));
-                console.log("aaaaaaaaaaaaaaaa");
                 if (isLoading)
                     return;
                     isLoading = true;
