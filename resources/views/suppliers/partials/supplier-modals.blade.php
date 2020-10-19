@@ -87,8 +87,10 @@
 
           </div>
 
-
-
+          <div class="form-group">
+            <strong>Estimate Delivery Time:</strong>
+            <input type="number" name="est_delivery_time" class="form-control" value="{{ old('est_delivery_time') }}">
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -187,6 +189,11 @@
           <div class="form-group">
             <strong>Inventory LifeTime:</strong>
             <input type="text" name="inventory_lifetime" class="form-control" value="{{ old('inventory_lifetime') }}" id="inventory_lifetime">
+          </div>
+
+          <div class="form-group">
+            <strong>Estimate Delivery Time:</strong>
+            <input type="number" name="est_delivery_time" class="form-control" value="{{ old('est_delivery_time') }}" id="est_delivery_time">
           </div>
 
         </div>

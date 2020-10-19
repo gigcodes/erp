@@ -364,6 +364,7 @@
 					{{-- <td>{{ $supplier->updated_at }}</td> --}}
 					<td>
           <input class="inventory_lifetime" style="width:50px;"  type="text" data-supplier-id="{{ $supplier->id }}" value="{{ $supplier->inventory_lifetime }}" data-width="10">
+          <span>Est. Delivery : {{ $supplier->est_delivery_time }} </span>
           </td>
 				<td>
 					<div class="form-group">
@@ -716,6 +717,7 @@
       $('#supplier_category_id').val(supplier.supplier_category_id);
       $('#scraper_name').val(supplier.scraper_name);
       $('#inventory_lifetime').val(supplier.inventory_lifetime);
+      $('#est_delivery_time').val(supplier.est_delivery_time);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

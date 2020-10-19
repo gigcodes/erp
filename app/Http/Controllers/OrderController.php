@@ -2814,32 +2814,51 @@ public function createProductOnMagento(Request $request, $id){
 	public function customerOrderDetails(Request $request) {
 		$token = $request->token;
 		$email = $request->email;
+        $order_no = $request->order_no;
 		$store_url = $request->website;
 
 		$token = $request->bearerToken();
-		if(!$email || trim($email) == '') {
+		if((!$email || trim($email) == '') && empty($order_no)) {
 			return response()->json(['message' => 'Email is absent in your request','status' => 400]);
 		}
+
+        if((!$order_no || trim($order_no) == '') && empty($email)) {
+            return response()->json(['message' => 'Order reference no is absent in your request','status' => 400]);
+        }
+
+
 		if(!$store_url || trim($store_url) == '') {
 			return response()->json(['message' => 'Store Url is absent in your request','status' => 400]);
 		}
-		$store_website = StoreWebsite::where('website', $store_url)->first();
-		if(!$store_website) {
+		$store_website = StoreWebsite::where('website',"like", $store_url)->first();
+    	if(!$store_website) {
 			return response()->json(['message' => 'Store not found with this url','status' => 404]);
 		}
 		if($store_website->api_token != $token) {
 			return response()->json(['message' => 'Token mismatched','status' => 401]);
 		}
-		$customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
-		if(!$customer) {
-			return response()->json(['message' => 'Customer not found in this store for the requested email','status' => 404]);
-		}
-		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
-					->where('orders.customer_id',$customer->id)
-					->where('store_website_orders.website_id',$store_website->id)
-					->select('orders.*')
-					->orderBy('created_at','desc')
-					->get();
+
+		if(!empty($email)) {
+            $customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
+    		if(!$customer) {
+    			return response()->json(['message' => 'Customer not found in this store for the requested email','status' => 404]);
+    		}
+    		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+    					->where('orders.customer_id',$customer->id)
+    					->where('store_website_orders.website_id',$store_website->id)
+    					->select('orders.*')
+    					->orderBy('created_at','desc')
+    					->get();
+        }else{
+            $orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+                        ->where('store_website_orders.website_id',$store_website->id)
+                        ->where('store_website_orders.platform_order_id',$order_no)
+                        ->select('orders.*')
+                        ->orderBy('created_at','desc')
+                        ->get();
+        }
+
+
 		if(count($orders) == 0) {
 			return response()->json(['message' => 'No orders found against this customer','status' => 200]);
 		}
