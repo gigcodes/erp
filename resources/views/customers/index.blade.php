@@ -1006,7 +1006,7 @@
     </div>
 
 @endsection
-
+@include('common.commonEmailModal')
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
@@ -1016,6 +1016,7 @@
     <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js" type="text/javascript"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
+    <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
     <script type="text/javascript">
         $(document).on('click', '.quick_category_add', function () {
             var textBox = $(this).closest("div").find(".quick_category");
