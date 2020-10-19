@@ -71,6 +71,8 @@ use App\StoreWebsiteOrder;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\OrderStatusHistory;
 use App\waybillTrackHistories;
+use stdClass;
+
 class OrderController extends Controller {
 
 
@@ -2333,10 +2335,9 @@ public function createProductOnMagento(Request $request, $id){
 	public function generateAWBDHL(Request $request)
 	{
 		$params = $request->all();
-
+				
 		// find order and customer
 		$order = Order::find($request->order_id);
-
 		if(!empty($order)) {
 			$order->customer->name = $request->customer_name;
 			$order->customer->address = $request->customer_address1;
@@ -2344,8 +2345,7 @@ public function createProductOnMagento(Request $request, $id){
 			$order->customer->pincode = $request->customer_pincode;
 			$order->customer->save();
 		}
-
-
+		
 		$rateReq   = new CreateShipmentRequest("soap");
 		$rateReq->setShipper([
 			"street" 		=> config("dhl.shipper.street"),
@@ -2397,7 +2397,26 @@ public function createProductOnMagento(Request $request, $id){
 					$waybill->actual_weight = (float)$request->get("actual_weight");
 					$waybill->package_slip = $order->id . '_package_slip.pdf';
 					$waybill->pickup_date = $request->pickup_time;
-					$waybill->save();
+					//newly added
+						$waybill->from_customer_id=null;
+                        $waybill->from_customer_name=$request->from_customer_name;
+                        $waybill->from_city=$request->from_customer_city;
+                        $waybill->from_country_code=$request->from_customer_country;
+                        $waybill->from_customer_phone=$request->from_customer_phone;
+                        $waybill->from_customer_address_1=$request->from_customer_address1;
+                        $waybill->from_customer_address_2=$request->from_customer_address2;
+                        $waybill->from_customer_pincode=$request->from_customer_pincode;
+                        $waybill->from_company_name=$request->from_company_name;
+                        $waybill->to_customer_id=null;
+                        $waybill->to_customer_name=$request->customer_name;
+                        $waybill->to_city=$request->customer_city;
+                        $waybill->to_country_code=$request->customer_country;
+                        $waybill->to_customer_phone=$request->customer_phone;
+                        $waybill->to_customer_address_1=$request->customer_address1;
+                        $waybill->to_customer_address_2=$request->customer_address2;
+                        $waybill->to_customer_pincode=$request->customer_pincode;
+                        $waybill->to_company_name=$request->company_name;
+						$waybill->save();
 				}				
 			}
 
