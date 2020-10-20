@@ -223,6 +223,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
+    
+    Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
+    Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
+    Route::resource('facebook-posts', 'FacebookPostController');
+    
 
 
     Route::resource('sales', 'SaleController');
