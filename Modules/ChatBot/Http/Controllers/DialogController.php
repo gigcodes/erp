@@ -757,4 +757,33 @@ class DialogController extends Controller
         }
         return response()->json(["code" => 200, "data" => $details]);
     }
+
+    public function getAllResponse($id) {
+        $dialogResponses = ChatbotDialogResponse::where("chatbot_dialog_id", $id)->get();
+        foreach($dialogResponses as $response) {
+            $response->storeWebsite;
+        }
+        return view('chatbot::dialog.includes.all-response', compact('dialogResponses'));
+    }
+
+    public function submitResponse($id, Request $request) {
+
+
+        $dialogResponse = ChatbotDialogResponse::find($id);
+        if($dialogResponse) {
+            $current = ChatbotDialog::where("id",$dialogResponse->chatbot_dialog_id)->first();
+            if($current && $dialogResponse->store_website_id) {
+                $dialogResponse->value = $request->responseData;
+                $dialogResponse->save();
+                $error = WatsonManager::newPushDialogSingle($current->id,$dialogResponse->store_website_id);
+                if($error['code'] != 200) {
+                    return response()->json(['message' => 'Not updated in live watson','code' => 500]);
+                }
+            }
+            else {
+                return response()->json(['message' => 'Store not found','code' => 500]);
+            }
+        } 
+        return response()->json(['message' => 'Success','code' => 200]);
+    }
 }
