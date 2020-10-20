@@ -4611,6 +4611,35 @@ class ProductController extends Controller
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
+    public function test(Request $request){
+
+        $product = Product::where('id', $request->productid)->first();
+        if($product !== null){
+            $image = $product->getMedia(config('constants.attach_image_tag'))->first();
+
+//        $data = [
+//            "title" => "PRODUCT TITLE",
+//            "url" => "https://picsum.photos/200/300",
+//            "amount" => "25.25 $",
+//            "description" => "Nishit You have done it!"
+//        ];
+            $data = [
+                "title" => $product->name,
+                "url" => $image->getUrl(),
+                "amount" => $product->price,
+                "description" => $product->short_description
+            ];
+        }else{
+            $data = [
+                "status" => false,
+
+            ];
+        }
+
+
+        return response()->json($data);
+    }
+
 }
 
 
