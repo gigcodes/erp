@@ -688,7 +688,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
     Route::get('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
     Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
-
+    Route::get('quickSell/quick-sell-group-list', 'QuickSellController@quickSellGroupProductsList');
+    Route::post('quickSell/quicksell-product-delete', 'QuickSellController@quickSellGroupProductDelete');
+    
 
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
@@ -1340,6 +1342,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/drafted-products/edit', 'ProductController@editDraftedProduct');
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
+    Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+    
 });
 
 
@@ -2277,6 +2281,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
     Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
+    Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
+
 
     /**
      * Twilio account management
