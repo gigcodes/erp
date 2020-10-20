@@ -2386,3 +2386,14 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(static function
     Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
 
 });
+
+//ReferralProgram
+Route::prefix('translation')->middleware('auth')->group(static function () {
+    Route::get('/list', 'TranslationController@index')->name('translation.list');
+    Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
+    Route::get('/add', 'TranslationController@create')->name('translation.add');
+    Route::get('/{id?}/edit', 'TranslationController@edit')->name('translation.edit');
+    Route::post('/store', 'TranslationController@store')->name('translation.store');
+    Route::post('/update', 'TranslationController@update')->name('translation.update');
+
+});
