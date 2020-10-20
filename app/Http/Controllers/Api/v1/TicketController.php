@@ -37,6 +37,9 @@ class TicketController extends Controller
      */
     public function store(Request $request)
     {
+        header('Access-Control-Allow-Origin: *');
+        header('Access-Control-Allow-Methods: *');
+        header('Access-Control-Allow-Headers: *');
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:80',
             'last_name'=>'required|max:80',
@@ -55,6 +58,7 @@ class TicketController extends Controller
 
         $data = $request->all();
         $data['ticket_id'] = "T".date("YmdHis");
+        $data['status_id']=1;
         $success = Tickets::create($data);
         if (!is_null($success)) {
             return response()->json(['status' => 'success','data' => ["id" => $data['ticket_id']], 'message' => 'Ticket #'.$data['ticket_id'].' created successfully'], 200);

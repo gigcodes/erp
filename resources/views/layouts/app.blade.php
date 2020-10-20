@@ -597,6 +597,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 {{-- Sub Menu Product --}}
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
+                                    <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
@@ -632,6 +633,24 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                                 <a class="dropdown-item" href="/instruction/quick-instruction">Quick instructions</a>
                                                 <a class="dropdown-item" href="/instruction/quick-instruction?type=price">Quick instructions (price)</a>
                                                 <a class="dropdown-item" href="/instruction/quick-instruction?type=image">Quick instructions (attach)</a>
+                                            </ul>
+                                        </li>
+                                    </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Referral System<span class="caret"></span></a>
+                                    <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Referral Programs<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('referralprograms.list') }}">List Referral Programs</a>
+                                                <a class="dropdown-item" href="{{ route('referralprograms.add') }}">Add Referral Programs</a>
+                                            </ul>
+                                        </li>
+                                        <li class="nav-item dropdown dropdown-submenu">
+                                            <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Friend Referral<span class="caret"></span></a>
+                                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
+                                                <a class="dropdown-item" href="{{ route('referfriend.list') }}">List Friend Referral</a>
                                             </ul>
                                         </li>
                                     </ul>
@@ -1575,6 +1594,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
                                  <li class="nav-item">
                                     <a class="dropdown-item" href="{{ url('/store-website-analytics/index') }}">Store Website Analytics</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="dropdown-item" href="{{ route('googlefiletranslator.list') }}">Google File Translator</a>
                                 </li>
                             </ul>
                         </li>

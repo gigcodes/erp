@@ -21,11 +21,13 @@
                     <thead>
                     <tr>
                         <th style="width:5%;" class="text-center">Sl no</th>
-                        <th style="width:20%;" class="text-center">Website</th>
-                        <th style="width:30%;" class="text-center">Api Key</th>
-                        <th style="width:30%;" class="text-center">Instance URL</th>
+                        <th style="width:15%;" class="text-center">Website</th>
+                        <th style="width:20%;" class="text-center">Api Key</th>
+                        <th style="width:20%;" class="text-center">Instance URL</th>
+                        <th style="width:20%;" class="text-center">Workspace id</th>
+                        <th style="width:10%;" class="text-center">Assistant id</th>
                         <th style="width:5%;" class="text-center">Active</th>
-                        <th style="width:10%;" class="text-center">Action</th>
+                        <th style="width:5%;" class="text-center">Action</th>
                     </tr>
                     </thead>
                     <tbody class="text-center">
@@ -33,18 +35,42 @@
                         <tr>
                             <td>{{$key+1}}</td>
                             <td>{{ $account->storeWebsite->title }}</td>
-                            <td style="word-break:break-all;">{{ $account->api_key }}</td>
-                            <td style="word-break:break-all;">{{ $account->url }}</td>
+                            <td class="expand-row-msg" data-name="api_key" data-id="{{$account->id}}">
+                            <span class="show-short-api_key-{{$account->id}}">{{ str_limit($account->api_key, 30, '...')}}</span>
+                            <span style="word-break:break-all;" class="show-full-api_key-{{$account->id}} hidden">{{ $account->api_key }}</span>
+                            </td>
+                            <td class="expand-row-msg" data-name="url" data-id="{{$account->id}}">
+                            <span class="show-short-url-{{$account->id}}">{{ str_limit($account->url, 30, '...')}}</span>
+                            <span style="word-break:break-all;" class="show-full-url-{{$account->id}} hidden">{{ $account->url }}</span>
+                            </td>
+                            <td class="expand-row-msg" data-name="work_space_id" data-id="{{$account->id}}">
+                            <span class="show-short-work_space_id-{{$account->id}}">{{ str_limit($account->work_space_id, 30, '...')}}</span>
+                            <span style="word-break:break-all;" class="show-full-work_space_id-{{$account->id}} hidden">{{ $account->work_space_id }}</span>
+                            </td>
+                            <td class="expand-row-msg" data-name="assistant_id" data-id="{{$account->id}}">
+                            <span class="show-short-assistant_id-{{$account->id}}">{{ str_limit($account->assistant_id, 30, '...')}}</span>
+                            <span style="word-break:break-all;" class="show-full-assistant_id-{{$account->id}} hidden">{{ $account->assistant_id }}</span>
+                            </td>
                             <td>{{ $account->is_active ? 'Yes' : 'No' }}</td>
                             <td>
-                                <a data-id="{{ $account->id }}" class="btn btn-sm edit_account">
+                               <div class="d-flex">
+                               <a data-id="{{ $account->id }}" class="btn btn-sm edit_account" style="padding:3px;">
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </a>
+                               
                                 <a href="{{ route('watson-accounts.delete', $account->id) }}" data-id="1"
                                    class="btn btn-delete-template"
-                                   onclick="return confirm('Are you sure you want to delete this account ?');">
+                                   onclick="return confirm('Are you sure you want to delete this account ?');" style="padding:3px;">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </a>
+                                @if(!$account->watson_push)
+                                <a data-id="{{ $account->id }}"
+                                   class="btn upload-data-watson"
+                                    style="padding:3px;">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </a>
+                                @endif
+                                </div>
                             </td>
                         </tr>
                     @endforeach
@@ -210,6 +236,8 @@
                     $('#api_key').val(response.account.api_key);
                     $('#instance_url').val(response.account.url);
                     $('#account_id').val(response.account.id);
+                    $('#work_space_id').val(response.account.work_space_id);
+                    $('#assistant_id').val(response.account.assistant_id);
                     if (response.account.is_active) {
                         $("#is_active").prop("checked", true);
                     } else {
@@ -237,6 +265,38 @@
                     if (response.code == 200) {
                         toastr["success"]("Status updated!", "Message")
                         $("#updateAccount").modal("hide");
+                    } else {
+                        toastr["error"](response.message, "Message");
+                    }
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message");
+                }
+            });
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
+
+        $(document).on('click', '.upload-data-watson', function () {
+			var id = $(this).data('id');
+            $.ajax({
+                method: "post",
+                url: "/watson/add-intents/" + id,
+                data: {
+                    _token: "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    if (response.code == 200) {
+                        toastr["success"](response.message, "Message")
+                        location.reload();
                     } else {
                         toastr["error"](response.message, "Message");
                     }

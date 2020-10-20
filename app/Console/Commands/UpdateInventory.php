@@ -50,14 +50,12 @@ class UpdateInventory extends Command
             $products = \App\Supplier::join("scrapers as sc", "sc.supplier_id", "suppliers.id")
                 ->join("scraped_products as sp", "sp.website", "sc.scraper_name")
                 ->where("suppliers.supplier_status_id", 1)
-                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime")
+                ->select("sp.last_inventory_at", "sp.sku", "sc.inventory_lifetime","sp.product_id")
                 ->get()->groupBy("sku")->toArray();
-
-            if (!empty($products)) {
+            if (!empty($products)) {                
                 foreach ($products as $sku => $skuRecords) {
                     $hasInventory = false;
                     foreach ($skuRecords as $records) {
-
                         $inventoryLifeTime = isset($records["inventory_lifetime"]) && is_numeric($records["inventory_lifetime"])
                         ? $records["inventory_lifetime"]
                         : 0;
@@ -72,7 +70,20 @@ class UpdateInventory extends Command
 
                         $hasInventory = true;
                     }
-
+                    $today = date('Y-m-d');
+                    if(isset($records["product_id"])) {
+                        $history = \App\InventoryStatusHistory::where('date', $today)->where('product_id',$records["product_id"])->first();
+                        if($history) {
+                            $history->update(['in_stock' => $hasInventory]);
+                        }
+                        else {
+                            $history = new \App\InventoryStatusHistory;
+                            $history->product_id  = $records["product_id"];
+                            $history->date  = $today;
+                            $history->in_stock  = $hasInventory;
+                            $history->save();
+                        }
+                    }
                     if (!$hasInventory) {
                         \DB::statement("update `products` set `stock` = 0, `updated_at` = '" . date("Y-m-d H:i:s") . "' where `sku` = '" . $sku . "' and `products`.`deleted_at` is null");
                     }
@@ -113,6 +124,7 @@ class UpdateInventory extends Command
             // TODO: Update stock in Magento
             $report->update(['end_time' => Carbon::now()]);
         } catch (\Exception $e) {
+            dd($e);
             \App\CronJob::insertLastError($this->signature, $e->getMessage());
         }
     }

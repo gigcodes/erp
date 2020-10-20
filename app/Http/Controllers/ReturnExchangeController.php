@@ -11,6 +11,10 @@ use Carbon\Carbon;
 use App\Events\RefundDispatched;
 use App\ReturnExchangeHistory;
 use App\ReturnExchangeStatus;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
+use App\MailinglistTemplate;
+
 use Auth;
 class ReturnExchangeController extends Controller
 {
@@ -392,7 +396,18 @@ class ReturnExchangeController extends Controller
             $data['credited'] = 1;
         }
         ReturnExchange::create($data);
-        
+        //create entry in table cash_flows
+        \DB::table('cash_flows')->insert(
+            [
+                'cash_flow_able_id'=>$request->input('user_id'),
+                'description'=>'Vendor paid',
+                'date'=>('Y-m-d'),
+                'amount'=>$request->input('refund_amount'),
+                'type'=>'paid',
+                'cash_flow_able_type'=>'App\ReturnExchange',
+
+            ]
+        );
         return response()->json(['message' => 'You have successfully added refund!'],200);
     }
 
@@ -420,6 +435,26 @@ class ReturnExchangeController extends Controller
         if($returnExchange) {
             $returnExchange->update($data);
         }
+
+
+        //Sending Mail on edit of return and exchange
+        $mailingListCategory = MailinglistTemplateCategory::where('title','Refund and Exchange')->first();
+        $templateData = MailinglistTemplate::where('store_website_id',$returnExchange->customer->store_website_id)->where('category_id', $mailingListCategory->id )->first();
+        
+        $arrToReplace = ['{FIRST_NAME}','{REFUND_TYPE}','{CHQ_NUMBER}','{REFUND_AMOUNT}','{DATE_OF_REFUND}','{DETAILS}'];
+
+        $valToReplace = [$returnExchange->customer->name,$returnExchange->type,$returnExchange->chq_number,$returnExchange->amount,$returnExchange->date_of_request,$returnExchange->details];
+        $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+        
+
+        $storeEmailAddress = EmailAddress::where('store_website_id',$returnExchange->customer->store_website_id)->first();
+
+        $emailData['subject'] = $templateData->subject;
+        $emailData['static_template'] = $bodyText;
+        $emailData['from'] = $storeEmailAddress->from_address;
+        Mail::to($returnExchange->customer->email)->send(new ReturnExchangeEmail($emailData));
+        //Sending Mail on edit of return and exchange
+
         $updateOrder =0;
 		if (!$request->dispatched) {
 			$data['dispatch_date'] = $returnExchange->dispatch_date;

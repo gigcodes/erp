@@ -56,7 +56,6 @@ class FetchAllEmails extends Command
         ]);
 
         $emailAddresses = EmailAddress::where("driver","imap")->orderBy('id', 'asc')->get();
-
         foreach($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
@@ -112,7 +111,6 @@ class FetchAllEmails extends Command
                     // dump($inbox->messages()->where([
                     //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
                     //     ])->get());
-
                     foreach ($emails as $email) {
 
                         $reference_id = $email->references;
@@ -161,7 +159,18 @@ class FetchAllEmails extends Command
                              * @var $model_id
                              * @var $model_type
                              */
+                                $email_subject=$email->getSubject();
+                                $subject=explode("#",$email_subject);
+                                if(isset($subject[1]) && !empty($subject[1])){
+                                    $findTicket=\App\Tickets::where('ticket_id',$subject[1])->first();
+                                    if($findTicket){
+                                        $model_id=$findTicket->id;
+                                        $model_type=\App\Tickets::class;
+                                    }
+                                }
 
+                               
+                            
                             $params = [
                                 'model_id' => $model_id,
                                 'model_type' => $model_type,
@@ -179,6 +188,30 @@ class FetchAllEmails extends Command
                             ];
 //                            dump("Received from: ". $email->getFrom()[0]->mail);
                             Email::create($params);
+
+                            if ($type['type'] == 'incoming') {
+                                $message = trim($content);
+                                $reply = \App\WatsonAccount::getReply($message);
+                                if($reply) {
+                                    $params = [
+                                        'model_id' => $model_id,
+                                        'model_type' => $model_type,
+                                        'origin_id' => $origin_id,
+                                        'reference_id' => $reference_id,
+                                        'type' => 'outgoing',
+                                        'seen' => $email->getFlags()['seen'],
+                                        'from' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'to' => $email->getFrom()[0]->mail,
+                                        'subject' => $email->getSubject(),
+                                        'message' => $reply,
+                                        'template' => 'customer-simple',
+                                        'additional_data' => json_encode(['attachment' => []]),
+                                        'created_at' => $email->getDate(),
+                                        'approve_mail' => 1,
+                                    ];
+                                    Email::create($params);
+                                }
+                            }
                         }
                     }
                 }

@@ -2,6 +2,7 @@
 
 
 namespace App\Http\Composers;
+
 use App\Helpers\PermissionCheck;
 use Illuminate\Contracts\View\View;
 use Illuminate\Support\Facades\Auth;
@@ -16,13 +17,13 @@ class GlobalComposer
     public function compose(View $view)
     {
 
-        if(auth()->check() == true){
-           $currentPath= Route::getFacadeRoot()->current()->uri();
+        if (auth()->check() == true) {
+            $currentPath = Route::getFacadeRoot()->current()->uri();
             $permission = new PermissionCheck();
             $per = $permission->checkUser($currentPath);
-            if($per == true){
+            if ($per == true) {
                 $view->with('currentUser', Auth::user());
-            }else{
+            } else {
                 $url = explode('/', $currentPath);
                 $model = $url[0];
                 $actions = end($url);
@@ -33,7 +34,7 @@ class GlobalComposer
                         $genUrl = $model . '-' . $actions;
                     }
                 }
-                if(!isset($genUrl)){
+                if (!isset($genUrl)) {
                     $genUrl = '';
                 }
                 $permission = Permission::where('route', $genUrl)->first();
@@ -42,7 +43,7 @@ class GlobalComposer
                 die();
                 }
             }
-        }else{
+        } else {
             $view->with('currentUser', Auth::user());
         }
     }

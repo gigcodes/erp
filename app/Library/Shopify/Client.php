@@ -3,6 +3,8 @@
 namespace App\Library\Shopify;
 
 use App\StoreWebsite;
+use App\Loggers\LogListMagento;
+use App\ProductPushErrorLog;
 
 class Client
 {
@@ -139,6 +141,10 @@ class Client
 
         // Close cURL
         curl_close($ch);
+
+        if(isset($postData['product']['barcode'])) {
+            ProductPushErrorLog::log($url,$postData['product']['barcode'], "Product request send to Shopify", 'success',$store_website->id,$postData,$response);
+        }
 
         // Return data
         return json_decode($response);

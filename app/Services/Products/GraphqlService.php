@@ -6,6 +6,7 @@ use App\Http\Controllers\GoogleTranslateController;
 use App\Language;
 use App\Product_translation;
 use Illuminate\Support\Facades\Log;
+use App\ProductPushErrorLog;
 
 class GraphqlService
 {
@@ -13,7 +14,7 @@ class GraphqlService
     private static $storeWebsitePwd;
 
     //register multiple translations by one call
-    public static function sendTranslationByGrapql($shopifyProductId, $productId, $url, $pwd)
+    public static function sendTranslationByGrapql($shopifyProductId, $productId, $url, $pwd, $website = null)
     {
         self::$storeWebsiteUrl = $url;
         self::$storeWebsitePwd = $pwd;
@@ -27,7 +28,6 @@ class GraphqlService
             $endpoint = self::$storeWebsiteUrl . "admin/api/2020-07/graphql.json";//this is provided by graphcms
 
             $translations = self::generateTranslations($validLocales, $localeDiffs, $productId, $shopifyProductId);
-
             if (!count($translations)) {
                 $message = 'missing_product_translations: No translations found in product_translations 
                 table for product with id: ' . $productId;
@@ -81,6 +81,10 @@ class GraphqlService
                 echo 'Error:' . curl_error($ch);
             }
 
+            if(isset($website->id)) {
+               ProductPushErrorLog::log($endpoint,$productId, "mutation translationsRegister Shopify", 'success',$website->id,$data,$response);
+            }
+
             $userErrors = isset($response['data']['translationsRegister']['userErrors']);
             if ($userErrors) {
                 foreach ($response['data']['translationsRegister']['userErrors'] as $error) {
@@ -100,6 +104,9 @@ class GraphqlService
             $message = 'no_locales: No locales enabled in shopify store. Please visit:
              '.self::$storeWebsiteUrl.'/admin/apps/content-translation and select "CONFIGURE LANGUAGES"';
             self::addLogs($message);
+            if(isset($website->id)) {
+               ProductPushErrorLog::log(null,$productId, $message, 'error',$website->id);
+            }
         }
 
         return $result;
@@ -170,6 +177,7 @@ class GraphqlService
             ->whereIn('locale', $validLocales)
             ->whereNotIn('locale',['en'])
             ->groupBy('locale')->get()->keyBy('locale')->toArray();
+
 
         if ($productTranslations) {
             $shopifyProduct = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);

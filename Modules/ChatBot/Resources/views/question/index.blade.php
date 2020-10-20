@@ -181,7 +181,8 @@
                	toastr['error'](errorMessage);
                } 
             },
-            error: function () {
+            error: function (error) {
+				console.log(error);
                toastr['error']('Could not change module!');
             }
         });
