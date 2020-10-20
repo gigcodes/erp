@@ -201,6 +201,8 @@ class CommonController extends Controller
                     $params['model_type'] = "Supplier::class";
                 }elseif($request->object == 'customer'){
                     $params['model_type'] = "Customer::class";
+                }elseif($request->object == 'order'){
+                  $params['model_type'] = "Order::class";
                 }
             }
             Email::create($params);      
@@ -209,10 +211,11 @@ class CommonController extends Controller
     }
     public function getMailTemplate(request $request){
         if(isset($request->mailtemplateid)){
-            $data = MailinglistTemplate::select('static_template')->where('id',$request->mailtemplateid)->first();
+            $data = MailinglistTemplate::select('static_template','subject')->where('id',$request->mailtemplateid)->first();
             $static_template = $data->static_template;
+            $subject = $data->subject;
             if(!$static_template){ return response()->json(['error'=>'unable to get template','success'=>false]); }
-            return response()->json(['template'=>$static_template,'success'=>true]);
+            return response()->json(['template'=>$static_template,'subject'=>$subject,'success'=>true]);
         }
         return response()->json(['error'=>'unable to get template','success'=>false]);
     }

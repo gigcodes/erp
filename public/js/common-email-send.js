@@ -17,6 +17,7 @@ $(function() {
         var action = ele.find('.action').val();
         if(mailtemplateid==''){
             ele.find('textarea[name="message"]').val('');
+            ele.find('input[name="subject"]').val('');
             return;
         }
         $.ajax({
@@ -27,6 +28,7 @@ $(function() {
             success:function(response){
                 if(typeof response!=='undefined' && response.success==true){
                     ele.find('textarea[name="message"]').val(response.template);
+                    ele.find('input[name="subject"]').val(response.subject);
                 }else{
                     console.log(response.error);
                 }
