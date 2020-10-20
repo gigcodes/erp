@@ -1486,6 +1486,10 @@ Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
 
 Route::get('instagram/get/hashtag/{word}', 'InstagramPostsController@hashtag');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::get('instagram/post/publish-post/{id}', 'InstagramPostsController@publishPost');
+
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
 
