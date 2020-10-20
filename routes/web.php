@@ -2385,6 +2385,11 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
 
 });
 
+
+//CommonMailPopup
+Route::post('/common/sendEmail', 'CommonController@sendCommonEmail')->name('common.send.email');
+Route::get('/common/getmailtemplate', 'CommonController@getMailTemplate')->name('common.getmailtemplate');
+
 //Google file translator
 Route::prefix('googlefiletranslator')->middleware('auth')->group(static function () {
     Route::get('/list', 'GoogleFileTranslator@index')->name('googlefiletranslator.list');
