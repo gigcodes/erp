@@ -102,7 +102,7 @@ class PushStoreWebsiteCategory extends Command
                                 ->whereNotNull('remote_id')
                                 ->first();
                             //if parent remote null then send to magento first
-                            if (empty($parentCategory)) {
+                            if (empty($parentCategory) || 1 == 1) {
 
                                 $data['id']       = $category->parent->id;
                                 $data['level']    = 1;
@@ -161,7 +161,7 @@ class PushStoreWebsiteCategory extends Command
                             $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
 
                             //Check if parent had remote id
-                            if (empty($parentCategory)) {
+                            if (empty($parentCategory)  || 1 == 1) {
 
                                 //check for grandparent
                                 $grandCategory       = Category::find($category->parent->id);
@@ -170,7 +170,7 @@ class PushStoreWebsiteCategory extends Command
                                     ->whereNotNull('remote_id')
                                     ->first();
 
-                                if (empty($grandCategoryDetail)) {
+                                if (empty($grandCategoryDetail)  || 1 == 1) {
 
                                     $data['id']       = $grandCategory->parent->id;
                                     $data['level']    = 1;
