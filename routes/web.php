@@ -2396,3 +2396,5 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::post('/update', 'TranslationController@update')->name('translation.update');
 
 });
+//for email templates page
+Route::get('getTemplateProduct', 'TemplatesController@getTemplateProduct')->name('getTemplateProduct');
