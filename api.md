@@ -278,7 +278,7 @@ Content-Type: application/json
 **Request:**
 
 ```json
-GET https://erp.amourint.com/api/check-products-for-buyback
+GET https://erp.amourint.com/api/orders/products
 Accept: application/json
 Content-Type: application/json
 {   "customer_email" : "abc@example.com", //required, email
@@ -287,18 +287,35 @@ Content-Type: application/json
 
 **Successful Response:**
 ```json
-Content-Type: application/json
 {
     "status": "success",
-    "orderData": [
-        {
-            "product_name": "Dr. Osborne Harber",
-            "product_price": "0",
-            "sku": "6493033100078",
-            "order_id": 2023,
-            "product_id": 296568,
-        }
-    ]
+    "orders": {
+        "1": [
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100078",
+                "product_id": 296561,
+                "order_id": "1"
+            },
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100079",
+                "product_id": 296560,
+                "order_id": "1"
+            }
+        ],
+        "2": [
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100080",
+                "product_id": 296569,
+                "order_id": "2"
+            }
+        ]
+    }
 }
 ```
 
@@ -319,8 +336,8 @@ Content-Type: application/json
 POST https://erp.amourint.com/api/buyback/create
 Accept: application/json
 Content-Type: application/json
-{   "customer_email" : "abc@example.com", //required, email
-    "product_id" : "2965688"
+{   "order_id" : "225544", //platform_id in store_website_orders table
+    "product_sku" : "2965688"
 }
 ```
 
