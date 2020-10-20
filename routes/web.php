@@ -387,6 +387,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
             });
         });
+
+
+        Route::prefix('contents')->group(function () {
+            Route::get('/', 'ContentManagementController@viewAllContents')->name("content-management.contents");
+        });
     });
 
     Route::prefix('content-management-status')->group(function () {

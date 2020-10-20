@@ -642,4 +642,37 @@ class ContentManagementController extends Controller
             'message' => 'Successful'
         ],200);
     }
+
+    public function viewAllContents() {
+        $contents = StoreSocialContent::all();
+        $records = [];
+        foreach($contents as $site) {
+            if ($site) {
+                $userList = [];
+
+                if ($site->publisher_id) {
+                    $userList[$site->publisher->id] = $site->publisher->name;
+                }
+
+                if ($site->creator_id) {
+                    $userList[$site->creator->id] = $site->creator->name;
+                }
+                $userList = array_filter($userList);
+
+                
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+                                'site_id'   => $site->id,
+                                'user_list' => $userList,
+                            ];
+                        }
+                    }
+                    $site->records = $records;
+            }
+        }
+        return 'Task pending';
+    }
 }
