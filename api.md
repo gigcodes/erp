@@ -273,3 +273,36 @@ Content-Type: application/json
     "message": "Email is absent in your request"
 }
 ```
+## Affilates Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/affilate/add
+Accept: application/json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Please check the request data !"
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "affiliate added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add affiliate !"
+}
+```

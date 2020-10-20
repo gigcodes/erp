@@ -165,3 +165,6 @@ Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store
 //gift cards api
 Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
 Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
+
+//Affiliate Api
+Route::post('affilate/add','\App\Http\Controllers\Api\v1\AffiliateController@store');

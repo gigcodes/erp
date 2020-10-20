@@ -2396,3 +2396,9 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::post('/update', 'TranslationController@update')->name('translation.update');
 
 });
+
+//Affiliates
+Route::prefix('affiliates')->middleware('auth')->group(static function () {
+    Route::get('/', 'AffiliateResultController@index')->name('affiliates.list');
+    Route::POST('/delete', 'AffiliateResultController@destroy')->name('affiliates.destroy');
+});
