@@ -93,6 +93,7 @@ use Carbon\Carbon;
 use App\CronJobReport;
 use App\Console\Commands\UpdateCronSchedule;
 use App\Console\Commands\RunErpEvents;
+use App\Console\Commands\RunErpLeads;
 use App\Console\Commands\GetOrdersFromnMagento;
 use App\Console\Commands\NumberOfImageCroppedCheck;
 use Illuminate\Console\Scheduling\Schedule;
@@ -111,9 +112,17 @@ use seo2websites\ErpExcelImporter\Console\Commands\EmailExcelImporter;
 use App\Console\Commands\FetchStoreWebsiteOrder;
 use App\Console\Commands\UserPayment;
 use App\Console\Commands\ScrapLogs;
+use App\Console\Commands\AuthenticateWhatsapp;
 use App\Console\Commands\getLiveChatIncTickets;
 use App\Console\Commands\RoutesSync;
 use App\Console\Commands\DeleteChatMessages;
+use seo2websites\PriceComparisonScraper\PriceComparisonScraperCommand;
+use App\Console\Commands\CustomerListToEmailLead;
+use App\Console\Commands\WayBillTrackHistories;
+use App\Console\Commands\ProjectDirectory;
+use App\Console\Commands\LogScraperDelete;
+use App\Console\Commands\AssetsManagerPaymentCron;
+
 
 class Kernel extends ConsoleKernel
 {
@@ -193,6 +202,7 @@ class Kernel extends ConsoleKernel
         IncrementFrequencyWhatsappConfig::class,
         UpdateCronSchedule::class,
         RunErpEvents::class,
+        RunErpLeads::class,
         ParseLog::class,
         SkuErrorCount::class,
         VisitorLogs::class,
@@ -220,9 +230,17 @@ class Kernel extends ConsoleKernel
         FetchStoreWebsiteOrder::class,
         UserPayment::class,
         ScrapLogs::class,
+        AuthenticateWhatsapp::class,
         getLiveChatIncTickets::class,
 		RoutesSync::class,
-        DeleteChatMessages::class
+        DeleteChatMessages::class,
+        PriceComparisonScraperCommand::class,
+        WayBillTrackHistories::class,
+        CustomerListToEmailLead::class,
+        WayBillTrackHistories::class,
+        ProjectDirectory::class,
+        LogScraperDelete::class,
+        AssetsManagerPaymentCron::class,
     ];
 
     /**
@@ -415,6 +433,7 @@ class Kernel extends ConsoleKernel
         // need to run this both cron every minutes
         //2020-02-17 $schedule->command('cronschedule:update')->everyMinute();
         //2020-02-17 $schedule->command('erpevents:run')->everyMinute();
+        // /$schedule->command('erpleads:run')->everyMinute();
 
 //        $schedule->command('barcode-generator-product:run')->everyFiveMinutes()->between('23:00', '7:00')->withoutOverlapping();
 //        $schedule->command('barcode-generator-product:update')->everyFiveMinutes()->withoutOverlapping();
@@ -437,6 +456,7 @@ class Kernel extends ConsoleKernel
 
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
+        $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
@@ -466,16 +486,34 @@ class Kernel extends ConsoleKernel
         // $schedule->command('scraper:not-completed-alert')->dailyAt('00:00');
 		
 		$schedule->command('routes:sync')->hourly()->withoutOverlapping();
+
+		$schedule->command('command:assign_incomplete_products')->dailyAt('01:30');
+
 		
+        //update order way billtrack histories
+        $schedule->command('command:waybilltrack')->dailyAt("1:00");
+       
+		//update directory manager to db
+	    $schedule->command('project_directory:manager')->dailyAt("1:00");
+
 
          // make payment receipt for hourly associates on daily basis.
         //  $schedule->command('users:payment')->dailyAt('12:00')->timezone('Asia/Kolkata');
         // $schedule->command('check:landing-page')->everyMinute();
 
+
+        $schedule->command('AuthenticateWhatsapp:instance')->hourly();
         // Get tickets from Live Chat inc and put them as unread messages
         // $schedule->command('livechat:tickets')->everyMinute();
         // delate chat message 
          //$schedule->command('delete:chat-messages')->dailyAt('00:00')->timezone('Asia/Kolkata');
+
+
+        $schedule->command("assetsmanagerpayment:cron Daily")->daily();
+        $schedule->command("assetsmanagerpayment:cron Weekly")->weekly();
+        $schedule->command("assetsmanagerpayment:cron Yearly")->yearly();
+        $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
+        $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');;
     }
 
     /**

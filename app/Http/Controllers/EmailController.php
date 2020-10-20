@@ -9,6 +9,7 @@ use Webklex\IMAP\Client;
 use App\Mails\Manual\PurchaseEmail;
 use Mail;
 use Auth;
+use DB;
 use App\Mails\Manual\ReplyToEmail;
 use App\Mails\Manual\ForwardEmail;
 use Illuminate\Support\Facades\Validator;
@@ -24,14 +25,18 @@ class EmailController extends Controller
     {
         // Set default type as incoming
         $type = "incoming";
-
+		$seen = '1';
+		
         $term = $request->term ?? '';
+        $sender = $request->sender ?? '';
+        $receiver = $request->receiver ?? '';
+        $status = $request->status ?? '';
+        $category = $request->category ?? '';
         $date = $request->date ?? '';
         $type = $request->type ?? $type;
-        $seen = $request->seen ?? '';
+        $seen = $request->seen ?? $seen;
         $query = (new Email())->newQuery();
         $trash_query = false;
-
 
         // If type is bin, check for status only
         if($type == "bin"){
@@ -40,7 +45,6 @@ class EmailController extends Controller
         }else{
             $query = $query->where('type',$type);
         }
-
         if($date) {
             $query = $query->whereDate('created_at',$date);
         }
@@ -52,8 +56,37 @@ class EmailController extends Controller
                 ->orWhere('message','like','%'.$term.'%');
             });
         }
+		
+		if(!$term)
+		{
+			if($sender)
+			{
+				$query = $query->where(function ($query) use ($sender) {
+					$query->orWhere('from','like','%'.$sender.'%');
+				});
+			}
+			if($receiver)
+			{
+				$query = $query->where(function ($query) use ($receiver) {
+					$query->orWhere('to','like','%'.$receiver.'%');
+				});
+			}
+			if($status)
+			{
+				$query = $query->where(function ($query) use ($status) {
+					$query->orWhere('status',$status);
+				});
+			}
+			if($category)
+			{
+				$query = $query->where(function ($query) use ($category) {
+					$query->orWhere('email_category_id',$category);
+				});
+			}
+			
+		}
 
-        if(isset($request->seen)){
+        if(isset($seen)){
             if($seen != 'both'){
                 $query = $query->where('seen',$seen);
             }
@@ -63,11 +96,21 @@ class EmailController extends Controller
         if(!$trash_query){
             $query = $query->where(function($query){ return $query->where('status','<>',"bin")->orWhereNull('status');});
         }
-
-        $emails = $query->paginate(25)->appends(request()->except(['page']));
+		
+		$query = $query->orderByDesc('created_at');
+		
+		
+		
+		//Get All Category
+		$email_status = DB::table('email_status')->get();
+		
+		//Get All Status
+		$email_categories = DB::table('email_category')->get();
+		
+        $emails = $query->paginate(30)->appends(request()->except(['page']));
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('emails.search', compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'tbody' => view('emails.search', compact('emails','date','term','type','email_categories','email_status'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                 'links' => (string)$emails->links(),
                 'count' => $emails->total(),
                 'emails' => $emails
@@ -85,7 +128,7 @@ class EmailController extends Controller
 
         // dont load any data, data will be loaded by tabs based on ajax
         // return view('emails.index',compact('emails','date','term','type'))->with('i', ($request->input('page', 1) - 1) * 5);
-        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions ])->with('i', ($request->input('page', 1) - 1) * 5);
+        return view('emails.index',['emails'=>$emails,'type'=>'email' ,'search_suggestions'=>$search_suggestions,'email_categories'=>$email_categories,'email_status'=>$email_status ])->with('i', ($request->input('page', 1) - 1) * 5);
 
     }
 
@@ -168,10 +211,9 @@ class EmailController extends Controller
         return response()->json(['message' => $message]);
     }
 
-    public function resendMail($id) {
+    public function resendMail($id, Request $request) {
         $email = Email::find($id);
         $attachment = [];
-
         $imap = new Client([
             'host' => env('IMAP_HOST_PURCHASE'),
             'port' => env('IMAP_PORT_PURCHASE'),
@@ -198,6 +240,9 @@ class EmailController extends Controller
             'from' =>  $email->from,
         ];
         Mail::to($email->to)->send(new PurchaseEmail($email->subject, $email->message, $attachment));
+        if($type == 'approve') {
+            $email->update(['approve_mail' => 0]);
+        }
         return response()->json(['message' => 'Mail resent successfully']);
    }
 
@@ -312,6 +357,40 @@ class EmailController extends Controller
         // dd($email_list);
         return array_values(array_unique($email_list));
     }
+	
+	
+	public function category(Request $request){
+		$values = array('category_name' => $request->input('category_name'));
+		DB::table('email_category')->insert($values);
+		
+		session()->flash('success', 'Category added successfully');
+		return redirect('email');
 
-
+	}
+	
+	public function status(Request $request){
+		$email_id = $request->input('status');
+		$values = array('email_status' => $request->input('email_status'));
+		DB::table('email_status')->insert($values);
+		
+		session()->flash('success', 'Status added successfully');
+		return redirect('email');
+		
+	}
+	
+	
+	public function updateEmail(Request $request){
+		$email_id = $request->input('email_id');
+		$category = $request->input('category');
+		$status = $request->input('status');
+		
+		$email = Email::find($email_id);
+        $email->status = $status;
+        $email->email_category_id = $category;
+		
+        $email->update();
+		
+		session()->flash('success', 'Data updated successfully');
+		return redirect('email');
+	}
 }

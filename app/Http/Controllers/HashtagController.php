@@ -20,6 +20,7 @@ use App\ScrapInfluencer;
 use App\InstagramPostsComments;
 use App\InstagramUsersList;
 use App\InstagramCommentQueue;
+use App\InfluencerKeyword;
 
 
 
@@ -538,32 +539,54 @@ class HashtagController extends Controller
 
     public function influencer(Request $request)
     {
-        
-        if($request->term != null){
-
-                 $influencers  = ScrapInfluencer::query()
-                        ->where('name', 'LIKE', "%{$request->term}%")
-                        ->orWhere('phone', 'LIKE', "%{$request->term}%")
-                        ->orWhere('website', 'LIKE', "%{$request->term}%")
-                        ->orWhere('twitter', 'LIKE', "%{$request->term}%")
-                        ->orWhere('facebook', 'LIKE', "%{$request->term}%")
-                        ->orWhere('country', 'LIKE', "%{$request->term}%")
-                        ->orWhere('email', 'LIKE', "%{$request->term}%")
-                        ->paginate(25);
-               
-        }else{
-          $influencers =  ScrapInfluencer::paginate(25);
+        $request->posts ? $posts = $request->posts : $posts = null;
+        $request->followers ? $followers = $request->followers : $followers = null;
+        $request->following ? $following = $request->following : $following = null;
+        $request->term ? $term = $request->term : $term = null;
+        $influencers  = ScrapInfluencer::query();
+        if($posts) {
+            $influencers = $influencers->where('posts', '>=', $posts);
         }
-        
+        if($followers) {
+            $influencers = $influencers->where('followers', '>=', $followers);
+        }
+        if($following) {
+            $influencers = $influencers->where('following', '>=', $following);
+        }
+        if($term != null){
+
+            $influencers  = $influencers->where(function($query) use ($term)
+            {
+                $query->where('name', 'LIKE', "%{$term}%")
+                ->orWhere('phone', 'LIKE', "%{$term}%")
+                ->orWhere('website', 'LIKE', "%{$term}%")
+                ->orWhere('twitter', 'LIKE', "%{$term}%")
+                ->orWhere('facebook', 'LIKE', "%{$term}%")
+                ->orWhere('country', 'LIKE', "%{$term}%")
+                ->orWhere('email', 'LIKE', "%{$term}%");
+            });
+
+                //  $influencers  = $influencers->where('name', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('phone', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('website', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('twitter', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('facebook', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('country', 'LIKE', "%{$request->term}%")
+                //         ->orWhere('email', 'LIKE', "%{$request->term}%");
+               
+        }
+        $influencers =  $influencers->orderBy('created_at','desc')->paginate(25);
+        $keywords = InfluencerKeyword::all();
+        $accounts = Account::where('status',1)->where('platform','instagram')->pluck('last_name','id');
         if ($request->ajax()) {
             return response()->json([
-                'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers'))->render(),
+                'tbody' => view('instagram.hashtags.partials.influencer-data', compact('influencers','posts','followers','following','term'))->render(),
                 'links' => (string)$influencers->render(),
                 'total' => $influencers->total(),
             ], 200);
-            }
+        }
 
-         return view('instagram.hashtags.influencers', compact('influencers'));
+         return view('instagram.hashtags.influencers', compact('accounts','influencers','keywords','posts','followers','following','term'));
     }
 
     public function showGridUsers($id = null,Request $request)

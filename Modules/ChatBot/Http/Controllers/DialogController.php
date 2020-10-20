@@ -3,6 +3,7 @@
 namespace Modules\ChatBot\Http\Controllers;
 
 use App\Library\Watson\Model as WatsonManager;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controller;
@@ -11,7 +12,8 @@ use \App\ChatbotDialog;
 use \App\ChatbotDialogResponse;
 use \App\ChatbotKeyword;
 use \App\ChatbotQuestion;
-
+use App\WatsonAccount;
+use App\ChatbotDialogErrorLog;
 class DialogController extends Controller
 {
     /**
@@ -23,6 +25,12 @@ class DialogController extends Controller
         $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
         return view('chatbot::dialog.index', compact('allSuggestedOptions'));
     }
+    public function dialogGrid()
+    {
+        $allSuggestedOptions = ChatbotDialog::allSuggestedOptions();
+        return view('chatbot::dialog-grid.index', compact('allSuggestedOptions'));
+    }
+    
 
     public function create()
     {
@@ -89,8 +97,11 @@ class DialogController extends Controller
     public function edit(Request $request, $id)
     {
         $chatbotDialog       = ChatbotDialog::where("id", $id)->first();
-        $question            = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords            = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        // $question            = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        // $keywords            = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
         $allSuggestedOptions = $keywords + $question;
 
         return view("chatbot::dialog.edit", compact('chatbotDialog', 'allSuggestedOptions'));
@@ -146,20 +157,16 @@ class DialogController extends Controller
         $responseType    = $request->get("response_type", false);
         $previousSibling = $request->get("previous_sibling",false);
         $parentId = $request->get("parent_id",0);
-        
-
         $matchCondition = implode(" ", $request->get("conditions"));
 
         $id               = $request->get("id", 0);
         $multipleResponse = $request->get("response_condition", []);
         $notToDelete      = [];
-
         if (!empty($multipleResponse)) {
             foreach ($multipleResponse as $k => $idStore) {
                 $notToDelete[] = $k;
             }
         }
-
         $chatbotDialog = ChatbotDialog::find($id);
         if (empty($chatbotDialog)) {
 
@@ -180,8 +187,17 @@ class DialogController extends Controller
                     }
                 }
             }
-            $chatbotDialog->response()->delete();
+            if(isset($params["store_website_id"])){
+                $chatbotDialog->response()->where('store_website_id', $params["store_website_id"] )->delete();
+            }
+            else {
+                $chatbotDialog->response()->delete();
+            }
             // delete old values and send new again end
+        }
+
+        if(isset($params["store_website_id"])){
+            $chatbotDialog->store_website_id  = $params['store_website_id'];
         }
 
         $chatbotDialog->metadata        = '';
@@ -200,14 +216,13 @@ class DialogController extends Controller
             $chatbotDialog->save();
 
             foreach ($multipleResponse as $k => $mResponse) {
-
                 $chatbotDialogE = ChatbotDialog::where("id", $k)->first();
                 if (!$chatbotDialogE) {
                     $chatbotDialogE       = new ChatbotDialog;
                     $chatbotDialogE->name = "response_" . time()."_".rand();
                 }
-
                 $condition = $mResponse["condition"];
+
                 if (!empty($mResponse["condition"]) && !empty($mResponse["condition_value"])) {
                     switch ($mResponse["condition_sign"]) {
                         case ':':
@@ -224,29 +239,75 @@ class DialogController extends Controller
                             break;
                     }
                 }
-
                 $chatbotDialogE->response_type   = "response_condition";
                 $chatbotDialogE->title           = $params["title"];
                 $chatbotDialogE->parent_id       = $chatbotDialog->id;
                 $chatbotDialogE->match_condition = $condition;
                 $chatbotDialogE->save();
 
-                $chatbotDialogResponse                         = new ChatbotDialogResponse;
-                $chatbotDialogResponse->response_type          = "text";
-                $chatbotDialogResponse->value                  = !empty($mResponse["value"]) ? $mResponse["value"] : "";
-                $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialogE->id;
-                $chatbotDialogResponse->message_to_human_agent = 1;
-                $chatbotDialogResponse->save();
+
+                if(isset($params["store_website_id"])){
+                     $chatbotDialogResponse = ChatbotDialogResponse::where('chatbot_dialog_id', $chatbotDialogE->id)->where('store_website_id', $params["store_website_id"])->first();
+                     if(!$chatbotDialogResponse) {
+                        $chatbotDialogResponse                         = new ChatbotDialogResponse;
+                     }
+                     $chatbotDialogResponse->response_type          = "text";
+                     $chatbotDialogResponse->value                  = !empty($mResponse["value"]) ? $mResponse["value"] : "";
+                     $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialogE->id;
+                     $chatbotDialogResponse->message_to_human_agent = 1;
+                     $chatbotDialogResponse->condition_sign = $mResponse["condition_sign"];
+                     $chatbotDialogResponse->store_website_id = $params["store_website_id"];
+                     $chatbotDialogResponse->save();
+                }
+                else {
+                    $wotson_account_ids = WatsonAccount::all();
+                    foreach($wotson_account_ids as $acc){
+                        $chatbotDialogResponse = ChatbotDialogResponse::where('chatbot_dialog_id', $chatbotDialogE->id)->where('store_website_id', $acc->store_website_id)->first();
+                        if(!$chatbotDialogResponse) {
+                            $chatbotDialogResponse                         = new ChatbotDialogResponse;
+                        }
+                        
+                        $chatbotDialogResponse->response_type          = "text";
+                        $chatbotDialogResponse->value                  = !empty($mResponse["value"]) ? $mResponse["value"] : "";
+                        $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialogE->id;
+                        $chatbotDialogResponse->message_to_human_agent = 1;
+                        $chatbotDialogResponse->condition_sign = $mResponse["condition_sign"];
+                        $chatbotDialogResponse->store_website_id = $acc->store_website_id;
+                        $chatbotDialogResponse->save();
+                    }   
+                }
             }
         } else {
-            $response                                      = reset($multipleResponse);
-            $chatbotDialogResponse                         = new ChatbotDialogResponse;
-            $chatbotDialogResponse->response_type          = "text";
-            $chatbotDialogResponse->value                  = isset($response["value"]) ? $response["value"] : "";
-            $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialog->id;
-            $chatbotDialogResponse->message_to_human_agent = 1;
-            $chatbotDialogResponse->save();
+            if(isset($params["store_website_id"])) {
+                $chatbotDialogResponse = ChatbotDialogResponse::where('chatbot_dialog_id', $chatbotDialog->id)->where('store_website_id', $params["store_website_id"])->first();
+                        if(!$chatbotDialogResponse) {
+                            $chatbotDialogResponse                         = new ChatbotDialogResponse;
+                        }
 
+                $response  = reset($multipleResponse);
+                $chatbotDialogResponse->response_type          = "text";
+                $chatbotDialogResponse->value = isset($response["value"]) ? $response["value"] : "";
+                $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialog->id;
+                $chatbotDialogResponse->message_to_human_agent = 1;
+                $chatbotDialogResponse->store_website_id = $params["store_website_id"];
+                $chatbotDialogResponse->save();
+            }
+            else {
+                $wotson_account_ids = WatsonAccount::all();
+                foreach($wotson_account_ids as $acc){
+                    $chatbotDialogResponse = ChatbotDialogResponse::where('chatbot_dialog_id', $chatbotDialog->id)->where('store_website_id', $acc->store_website_id)->first();
+                        if(!$chatbotDialogResponse) {
+                            $chatbotDialogResponse                         = new ChatbotDialogResponse;
+                        }
+                    $response                                      = reset($multipleResponse);
+                    $chatbotDialogResponse->response_type          = "text";
+                    $chatbotDialogResponse->value                  = isset($response["value"]) ? $response["value"] : "";
+                    $chatbotDialogResponse->chatbot_dialog_id      = $chatbotDialog->id;
+                    $chatbotDialogResponse->message_to_human_agent = 1;
+                    $chatbotDialogResponse->store_website_id = $acc->store_website_id;
+                    $chatbotDialogResponse->save();
+                }
+            }
         }
 
         if(!empty($previousSibling)) {
@@ -255,18 +316,35 @@ class DialogController extends Controller
             if($current) {
                 $current->previous_sibling = $chatbotDialog->id;
                 $current->save();
-                $error = WatsonManager::newPushDialog($current->id);
+                if(isset($params["store_website_id"])) {
+                    $error = WatsonManager::newPushDialogSingle($current->id,$params["store_website_id"]);
+                }
+                else {
+                    $error = WatsonManager::newPushDialog($current->id);
+                }
 
             }
             $chatbotDialog->previous_sibling = $previousSibling;
             $chatbotDialog->save();
-            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($params["store_website_id"])) {
+                $response = WatsonManager::newPushDialogSingle($chatbotDialog->id, $params["store_website_id"]);
+            }
+            else {
+                $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            }
+            
             if(isset($response["code"]) && $response["code"] != 200) {
                 return response()->json(["code" => 500, "error" => $response["error"]]);
             }
 
         }else {
-            $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            if(isset($params["store_website_id"])) {
+                $response = WatsonManager::newPushDialogSingle($chatbotDialog->id, $params["store_website_id"]);
+            }
+            else {
+                $response = WatsonManager::newPushDialog($chatbotDialog->id);
+            }
+            
             if(isset($response["code"]) && $response["code"] != 200) {
                 return response()->json(["code" => 500, "error" => $response["error"]]);
             }
@@ -280,10 +358,22 @@ class DialogController extends Controller
     {
         $details                        = [];
         $dialog                         = ChatbotDialog::find($id);
-        $question                       = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords                       = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        $store_website                         = StoreWebsite::all();
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
         $details["allSuggestedOptions"] = $keywords + $question;
 
+        if (!empty($store_website)) {
+
+            foreach($store_website as $site){
+
+                $details["sites"][] = [
+                    "id" => $site->id,
+                    "name" => $site->title
+                ];
+            }
+
+        }
         if (!empty($dialog)) {
 
             $details["dialog"][] = [
@@ -296,6 +386,7 @@ class DialogController extends Controller
             $details["name"]               = $dialog->name;
             $details["title"]              = $dialog->title;
             $details["dialog_type"]        = $dialog->dialog_type;
+            $details["store_website_id"]        = '';
             $details["response_condition"] = !empty($dialog->metadata) ? true : false;
 
             $matchCondition = explode(" ", $dialog->match_condition);
@@ -320,7 +411,6 @@ class DialogController extends Controller
                 $parentResponse = $dialog->parentResponse;
                 if (!$parentResponse->isEmpty()) {
                     foreach ($parentResponse as $pResponse) {
-                        
                         $findMatch = false;
                         $explodeMatchCnd = [];
                         if(strpos($pResponse->match_condition,":") !== false) {
@@ -332,21 +422,21 @@ class DialogController extends Controller
                         }elseif(strpos($pResponse->match_condition,">") !== false) {
                            $findMatch = ">"; 
                         }
-
                         if($findMatch) {
-                            $hasString   = explode(":", str_replace(['"',"(",")"], '', $pResponse->match_condition));
+                            // $hasString   = explode($findMatch, str_replace(['"',"(",")"], '', $pResponse->match_condition));
+                            $hasString   = explode($findMatch, str_replace(['"',"(",")"], '', $pResponse->match_condition));
                             $explodeMatchCnd = [
                                !empty($hasString[0]) ? $hasString[0] : "",
-                               ":",
+                               $findMatch,
                                !empty($hasString[1]) ? $hasString[1] : "", 
                             ];
                         }
                         //$explodeMatchCnd   = explode(" ", str_replace('"', '', $pResponse->match_condition));
                         $assistantReport[] = [
                             "id"              => $pResponse->id,
-                            "condition"       => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : "",
+                            "condition"       => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : "any",
                             "condition_sign"  => isset($explodeMatchCnd[1]) ? $explodeMatchCnd[1] : "",
-                            "condition_value" => isset($explodeMatchCnd[2]) ? $explodeMatchCnd[2] : "",
+                            "condition_value" => isset($explodeMatchCnd[2]) ? $explodeMatchCnd[2] : $pResponse->singleResponse->value,
                             "response"        => ($pResponse->singleResponse) ? $pResponse->singleResponse->value : "",
                         ];
                     }
@@ -365,7 +455,6 @@ class DialogController extends Controller
             $details["assistant_report"] = $assistantReport;
 
         }
-
         return response()->json(["code" => 200, "data" => $details]);
 
     }
@@ -377,7 +466,6 @@ class DialogController extends Controller
             "parent_id" => $request->get("parent_id", 0),
             "dialog_type" => $request->get("dialog_type", 'node')
         ];
-
         $previousNode = $request->get("previous_node", 0);
         if ($previousNode > 0) {
             $params["previous_sibling"] = $previousNode;
@@ -412,37 +500,60 @@ class DialogController extends Controller
 
     public function restStatus(Request $request)
     {
+//        dd('jhkj');
         $parentId = $request->get("parent_id", 0);
-
         $chatDialog = ChatbotDialog::leftJoin("chatbot_dialog_responses as cdr", "cdr.chatbot_dialog_id", "chatbot_dialogs.id")
-            ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"))
-            ->where("chatbot_dialogs.response_type", "standard")
+            ->select("chatbot_dialogs.*", \DB::raw("count(cdr.chatbot_dialog_id) as `total_response`"), "cdr.value as dialog_response")
+            // ->where("chatbot_dialogs.response_type", "standard")
             ->groupBy("chatbot_dialogs.id")
+            ->orderBy("chatbot_dialogs.dialog_type", "folder")
             ->orderBy("chatbot_dialogs.previous_sibling", "asc");
 
         $chatDialog = $chatDialog->where("parent_id", $parentId);
 
         $chatDialog      = $chatDialog->get();
-        $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
-
+        // $chatDialogArray = array_column($chatDialog->toArray(), null, 'previous_sibling');
+        $chatDialogArray = $chatDialog->toArray();
         $chatDialog = [];
         if (!empty($chatDialogArray)) {
             foreach ($chatDialogArray as $k => $chatDlg) {
-                if ($k == 0) {
+                // if ($k == 0) {
                     $chatDialog[] = $chatDlg;
-                    $branch = [];
-                    $more = previous_sibling($chatDialogArray,$chatDlg["id"],$branch);
-                    $chatDialog = array_merge($chatDialog,$more);
-                    break;
+                    // $branch = [];
+                    // $more = previous_sibling($chatDialogArray,$chatDlg["id"],$branch);
+                    // $chatDialog = array_merge($chatDialog,$more);
+                    // break;
+                if($chatDlg['parent_id'] == 0 && $chatDlg['dialog_response'] == null){
+//                    $response = ChatbotDialogResponse::whereHas('dialog', function ($q) use ($chatDlg){
+//                        $q->where('parent_id', $chatDlg['id']);
+//                    })->pluck('value')->toArray();
+
+                    $response = ChatbotDialog::with('singleResponse')->where('parent_id', $chatDlg['id'])->pluck('match_condition')->toArray();
+                    $str = '';
+                    foreach ($response as $r){
+                        $str .=  '<hr>' . $r ;
+                    }
+
+//dd($response, $str);
+                    if(!empty($response)){
+                        $chatDialog[$k]['dialog_response'] = $str;
+                    }
                 }
+
+                // }
             }
         }
 
-        $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
-        $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+        // $question = ChatbotQuestion::select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        // $keywords = ChatbotKeyword::select(\DB::raw("concat('@','',keyword) as keyword"))->get()->pluck("keyword", "keyword")->toArray();
+
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
+
+
 
         $allSuggestedOptions = $keywords + $question;
-
+//dd($chatDialog);
         foreach ($chatDialog as $k => $dialogNode) {         
             $childNodeCount = ChatbotDialog::where("parent_id", $dialogNode["id"])->get(); 
             $chatDialog[$k]["childCount"] =  count($childNodeCount );
@@ -520,5 +631,130 @@ class DialogController extends Controller
     {
         $log = WatsonManager::getLog();
         return view('chatbot::dialog.log', compact('log'));
+    }
+
+    public function localErrorLog(Request $request)
+    {
+        // dd($request->all());
+        $watson_accounts = WatsonAccount::all();
+        $logs = ChatbotDialogErrorLog::query();
+        if($request->store_website_id) {
+            $logs = $logs->where('store_website_id', $request->store_website_id);
+        }
+        $logs = $logs->paginate(20);
+        
+        return view('chatbot::dialog-grid.local-logs', compact('logs','watson_accounts'));
+    }
+
+    
+
+    public function getWebsiteResponse(Request $request) {
+
+
+
+        $details                        = [];
+        $dialog                         = ChatbotDialog::find($request->dialog_id);
+        $store_website                         = StoreWebsite::all();
+        $question = ChatbotQuestion::where('keyword_or_question','intent')->select(\DB::raw("concat('#','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $keywords = ChatbotQuestion::where('keyword_or_question','entity')->select(\DB::raw("concat('@','',value) as value"))->get()->pluck("value", "value")->toArray();
+        $details["allSuggestedOptions"] = $keywords + $question;
+
+        if (!empty($store_website)) {
+
+            foreach($store_website as $site){
+
+                $details["sites"][] = [
+                    "id" => $site->id,
+                    "name" => $site->title
+                ];
+            }
+
+        }
+        if (!empty($dialog)) {
+
+            $details["dialog"][] = [
+                "id" => $dialog->id,
+                "name" => $dialog->name
+            ];
+
+            $details["id"]                 = $dialog->id;
+            $details["parent_id"]          = $dialog->parent_id;
+            $details["name"]               = $dialog->name;
+            $details["title"]              = $dialog->title;
+            $details["dialog_type"]        = $dialog->dialog_type;
+            $details["store_website_id"]        = $request->store_website_id;
+            $details["response_condition"] = !empty($dialog->metadata) ? true : false;
+
+            $matchCondition = explode(" ", $dialog->match_condition);
+
+            $details["first_condition"] = isset($matchCondition[0]) ? $matchCondition[0] : null;
+            if (count($matchCondition) > 1) {
+                unset($matchCondition[0]);
+                $extraConditions = [];
+                $i               = 0;
+                foreach ($matchCondition as $key => $condition) {
+                    if (isset($extraConditions[$i]) && count($extraConditions[$i]) == 2) {
+                        $i++;
+                    }
+                    $extraConditions[$i][] = $condition;
+                }
+            }
+            $details["extra_condition"] = !empty($extraConditions) ? $extraConditions : [];
+
+            // now need to get data of response
+            $assistantReport = [];
+            if (!empty($dialog->metadata)) {
+                $parentResponse = $dialog->parentResponse;
+                if (!$parentResponse->isEmpty()) {
+                    foreach ($parentResponse as $pResponse) {
+                        $findMatch = false;
+                        $explodeMatchCnd = [];
+                        if(strpos($pResponse->match_condition,":") !== false) {
+                           $findMatch = ":"; 
+                        }elseif(strpos($pResponse->match_condition,"!=") !== false) {
+                           $findMatch = "!="; 
+                        }elseif(strpos($pResponse->match_condition,"<") !== false) {
+                           $findMatch = "<"; 
+                        }elseif(strpos($pResponse->match_condition,">") !== false) {
+                           $findMatch = ">"; 
+                        }
+                        if($findMatch) {
+                            $hasString   = explode($findMatch, str_replace(['"',"(",")"], '', $pResponse->match_condition));
+                            $explodeMatchCnd = [
+                               !empty($hasString[0]) ? $hasString[0] : "",
+                               $findMatch,
+                               !empty($hasString[1]) ? $hasString[1] : "", 
+                            ];
+                        }
+                        $websiteResponse =  ChatbotDialogResponse::where('store_website_id',$request->store_website_id)->where('chatbot_dialog_id', $pResponse->id)
+                        ->first();
+                        $webResponse = $websiteResponse ? $websiteResponse->value : '';
+
+                        $assistantReport[] = [
+                            "id"              => $pResponse->id,
+                            "condition"       => isset($explodeMatchCnd[0]) ? $explodeMatchCnd[0] : "any",
+                            "condition_sign"  => isset($explodeMatchCnd[1]) ? $explodeMatchCnd[1] : "",
+                            "condition_value" => isset($explodeMatchCnd[2]) ? $explodeMatchCnd[2] : $webResponse,
+                            "response"        => $webResponse ? $webResponse : "",
+                        ];
+                    }
+                }
+
+            } else {
+                $websiteResponse =  ChatbotDialogResponse::where('store_website_id',$request->store_website_id)->where('chatbot_dialog_id', $request->dialog_id)
+                ->first();
+                $webResponse = $websiteResponse ? $websiteResponse->value : '';
+                $assistantReport[] = [
+                    "id"              => $dialog->id,
+                    "condition"       => "",
+                    "condition_sign"  => "",
+                    "condition_value" => "",
+                    "response"        => $webResponse ? $webResponse : "",
+                ];
+            }
+            $details["assistant_report"] = $assistantReport;
+
+        }
+        return response()->json(["code" => 200, "data" => $details]);
     }
 }

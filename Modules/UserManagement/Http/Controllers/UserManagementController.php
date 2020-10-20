@@ -80,6 +80,16 @@ class UserManagementController extends Controller
                     $u["team"] = $team;
                     $user_in_team = 1;
                 }
+
+                $pending_tasks = Task::where('is_statutory', 0)
+            ->whereNull('is_completed')
+            ->Where('assign_to', $u->id)->count();
+
+            $total_tasks = Task::where('is_statutory', 0)
+            ->Where('assign_to', $u->id)->count();
+                $u["pending_tasks"] = $pending_tasks;
+                $u["total_tasks"] = $total_tasks;
+
                 $isMember = $u->teams()->first();
                 if($isMember) {
                     $user_in_team = 1;
@@ -93,6 +103,13 @@ class UserManagementController extends Controller
                 $u["yesterday_hrs"] = $u->yesterdayHrs();
                 $u["isAdmin"] = $u->isAdmin();
                 $u['is_online'] = $u->isOnline();
+
+                if($u->approve_login == date('Y-m-d')) {
+                    $u['already_approved'] = true;
+                }
+                else {
+                    $u['already_approved'] = false;
+                }
 
                 $online_now = $u->lastOnline();
                 if($online_now) {
@@ -137,11 +154,12 @@ class UserManagementController extends Controller
                     $u["nextDue"] = date('Y-m-d',strtotime($lastPaidOn . "+30 days"));
                 }
                 $items[] = $u;
+
             }
 
             $replies = \App\Reply::where("model", "User")->whereNull("deleted_at")->pluck("reply", "id")->toArray();
         }
-
+        
         $isAdmin = Auth::user()->isAdmin();
         return response()->json([
             "code"       => 200,
@@ -153,6 +171,58 @@ class UserManagementController extends Controller
             "page"       => $user->currentPage(),
         ]);
 
+    }
+
+    public function getPendingandAvalHour($id)
+    {
+        $u = [];
+        $tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $devTasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        
+        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $pending_tasks = 0;
+        foreach($task_times as $key => $task_time){
+            $pending_tasks += $task_time['approximate_time'];
+        }
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
+        $today = date('Y-m-d');
+
+        /** get total availablity hours */
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        $avaibility_hour = 0;
+        foreach($avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $u['total_avaibility_hour'] = $avaibility_hour;
+
+        /** get today availablity hours */
+        $today_avaibility = UserAvaibility::where('user_id',$id)->where('date','=',$today)->get();
+        $today_avaibility_hour = 0;
+        foreach($today_avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $today_avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $u['today_avaibility_hour'] = $today_avaibility_hour;
+        return response()->json([
+            "code"       => 200,
+            "data"       => $u
+        ]);
+    }
+
+    public function getTimeFormat($time)
+    {
+        $time = explode(".",$time);
+        if (strlen($time[0]) <= 1) {
+            $from_time = '0'.$time[0].':00:00';
+        }else{
+            $from_time = $time[0].':00:00';
+        }
+        return $from_time;
     }
 
     public function edit($id) {
@@ -741,18 +811,82 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-         $tasks = Task::where('assign_to',$id)->where('is_completed',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
-         $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
-         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','end_time as due_date');
-         $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
 
-         $taskList = $devTasks->union($tasks)->get();
-       
+
+        
+
+            $taskList = DB::select('
+            select * from (
+                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type  FROM tasks
+                          LEFT JOIN (
+                              SELECT  chat_messages.id as message_id,  chat_messages.task_id,  chat_messages.message,  chat_messages.status as message_status, 
+                              chat_messages.sent as message_type,  chat_messages.created_at as message_created_at,  chat_messages.is_reminder AS message_is_reminder, chat_messages.user_id AS message_user_id,
+                              chat_messages.created_at
+                              FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\Task"
+                          ) as chat_messages  ON chat_messages.task_id = tasks.id WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
+                
+                union 
+                
+                (
+                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                    
+                    ) 
+                ) as c order by c.orderBytime desc
+            ');
+
+
+        //  $tasks = Task::where('assign_to',$id)->where('is_verified',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
+        //  $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
+        //  $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','due_date as due_date');
+        //  $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
+
+        //  $taskList = $devTasks->union($tasks)->get();
+
+
+
+        $u = [];
+        $tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $devTasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        
+        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $pending_tasks = 0;
+        foreach($task_times as $key => $task_time){
+            $pending_tasks += $task_time['approximate_time'];
+        }
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
+        $today = date('Y-m-d');
+
+        /** get total availablity hours */
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        $avaibility_hour = 0;
+        foreach($avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $u['total_avaibility_hour'] = $avaibility_hour;
+
+        /** get today availablity hours */
+        $today_avaibility = UserAvaibility::where('user_id',$id)->where('date','=',$today)->get();
+        $today_avaibility_hour = 0;
+        foreach($today_avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $today_avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $u['today_avaibility_hour'] = $today_avaibility_hour;
+
+
+
+
             return response()->json([
                 "code"       => 200,
                 "user"       => $user,
-                "taskList"       => $taskList
-            ]);
+                "taskList"       => $taskList,
+                'userTiming'  => $u
+            ]); 
     }
 
 
@@ -791,20 +925,28 @@ class UserManagementController extends Controller
         if(Auth::user()->hasRole('Admin')) {
             $members = $request->input('members');
             if($members) {
-                foreach($members as $mem) {
+                foreach($members as $key => $mem) {
                     $u = User::find($mem);
                     if($u) {
                         $isMember = $u->teams()->first();
                         $isLeader = Team::where('user_id',$mem)->first();
                         if(!$isMember && !$isLeader) {
                             $team->users()->attach($mem); 
+                            $response[$key]["msg"] = $u->name." added in team successfully";
+                            $response[$key]["status"] = 'success';
+                        }else if($isMember){
+                            $response[$key]["msg"] = $u->name." is already team member";
+                            $response[$key]["status"] = 'error';
+                        }else{
+                            $response[$key]["msg"] = $u->name." is already team leader";
+                            $response[$key]["status"] = 'error';
                         }
                     }
                 }
             }
             return response()->json([
                 "code"       => 200,
-                "message"       => 'Team created successfully'
+                "data"       => $response
             ]);
         }
         return response()->json([
@@ -829,6 +971,24 @@ class UserManagementController extends Controller
         ]);
     }
 
+    public function deleteTeam($id, Request $request)
+    {
+        $team = Team::find($id);
+        if($team){
+            $team->users()->detach();
+            $team->delete();
+            return response()->json([
+                "code"       => 200,
+                "data"       => "Team deleted successfully"
+            ]);
+        }else{
+            return response()->json([
+                "code"       => 200,
+                "message"       => 'Unauthorized access'
+            ]);
+        }
+    }
+
 
     public function editTeam($id, Request $request) {
         $team = Team::find($id);
@@ -838,20 +998,28 @@ class UserManagementController extends Controller
             $members = $request->input('members');
             if($members) {
                 $team->users()->detach();
-                foreach($members as $mem) {
+                foreach($members as $key => $mem) {
                     $u = User::find($mem);
                     if($u) {
                         $isMember = $u->teams()->first();
                         $isLeader = Team::where('user_id',$mem)->first();
                         if(!$isMember && !$isLeader) {
                             $team->users()->attach($mem); 
+                            $response[$key]["msg"] = $u->name." added in team successfully";
+                            $response[$key]["status"] = 'success';
+                        }else if($isMember){
+                            $response[$key]["msg"] = $u->name." is already team member";
+                            $response[$key]["status"] = 'error';
+                        }else{
+                            $response[$key]["msg"] = $u->name." is already team leader";
+                            $response[$key]["status"] = 'error';
                         }
                     }
                 }
             }
             return response()->json([
                 "code"       => 200,
-                "message"       => 'Team updated successfully'
+                "data"       => $response
             ]);
         }
         return response()->json([
@@ -937,6 +1105,15 @@ class UserManagementController extends Controller
             "code"       => 200,
             "user"       => 'Success'
         ]);
+    }
+
+    public function approveUser($id) {
+        $user = User::find($id);
+        if($user) {
+            $user->update(['approve_login' => date('Y-m-d')]);
+            return response()->json(['message' => 'Successfully approved','code' => 200]);
+        }
+        return response()->json(['message' => 'User not found','code' => 404]);
     }
 
 

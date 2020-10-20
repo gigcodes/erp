@@ -44,7 +44,8 @@ class User extends Authenticatable
         'amount_assigned',
         'auth_token_hubstaff',
         'payment_frequency',
-        'fixed_price_user_or_job'
+        'fixed_price_user_or_job',
+        'approve_login'
     ];
 
     public function getIsAdminAttribute()
@@ -166,11 +167,9 @@ class User extends Authenticatable
     public function isAdmin()
     {
         $roles = $this->roles->pluck('name')->toArray();
-
         if (in_array('Admin', $roles)) {
             return true;
         }
-
         return false;
     }
 
@@ -178,11 +177,14 @@ class User extends Authenticatable
     * We can use this function to give same page rights like admin
     *
     */
-    public function isReviwerLikeAdmin()
+    public function isReviwerLikeAdmin($page = "")
     {
         $roles = $this->roles->pluck('name')->toArray();
 
         $needToBeCheck = ["Admin","master-developer"];
+        if(in_array($page,['final_listing'])) {
+            $needToBeCheck[] = "Head of Listing";
+        }
 
         foreach($needToBeCheck as $nc) {
             if (in_array($nc, $roles)) {

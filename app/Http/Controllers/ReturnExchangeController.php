@@ -4,8 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Customer;
 use App\ReturnExchange;
+use App\Order;
+use App\Product;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
+use App\Events\RefundDispatched;
+use App\ReturnExchangeHistory;
+use App\ReturnExchangeStatus;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
+use App\MailinglistTemplate;
 
+use Auth;
 class ReturnExchangeController extends Controller
 {
     public function getOrders($id)
@@ -30,7 +40,7 @@ class ReturnExchangeController extends Controller
             }
         }
 
-        $status   = ReturnExchange::STATUS;
+        $status   = ReturnExchangeStatus::pluck('status_name','id');
         $response = (string) view("partials.return-exchange", compact('id', 'orderData', 'status'));
 
         return response()->json(["code" => 200, "html" => $response]);
@@ -82,9 +92,8 @@ class ReturnExchangeController extends Controller
     public function index(Request $request)
     {
 
-        //$returnExchange = ReturnExchange::latest('created_at')->paginate(10);
-
-        return view("return-exchange.index");
+        $returnExchange = ReturnExchange::latest('created_at')->paginate(10);
+        return view("return-exchange.index",$returnExchange);
     }
 
     public function records(Request $request)
@@ -92,12 +101,32 @@ class ReturnExchangeController extends Controller
         $params         = $request->all();
         $limit          = !empty($params["limit"]) ? $params["limit"] : 10;
         $returnExchange = ReturnExchange::leftJoin("return_exchange_products as rep", "rep.return_exchange_id", "return_exchanges.id")
+                ->leftJoin("order_products as op", "op.id", "rep.order_product_id")
             ->leftJoin("customers as c", "c.id", "return_exchanges.customer_id")
             ->leftJoin("products as p", "p.id", "rep.product_id")
+			->leftJoin("orders as o", "o.id", "rep.order_product_id")
+			->leftJoin("store_website_orders as wo", "wo.id", "o.order_id")
+			->leftJoin("store_websites as w", "w.id", "wo.website_id")
+			->leftJoin("return_exchange_statuses as stat", "stat.id", "return_exchanges.status")
             ->latest('return_exchanges.created_at');
-
         if (!empty($params["customer_name"])) {
             $returnExchange = $returnExchange->where("c.name", "like", "%" . $params["customer_name"] . "%");
+        }
+		
+		if (!empty($params["customer_email"])) {
+            $returnExchange = $returnExchange->where("c.email", "like", "%" . $params["customer_email"] . "%");
+        }
+		
+		if (!empty($params["customer_id"])) {
+            $returnExchange = $returnExchange->where("c.id", $params["customer_id"]);
+        }
+		
+		if (!empty($params["order_id"])) {
+            $returnExchange = $returnExchange->where("o.order_id", $params["order_id"]);
+        }
+
+        if (!empty($params["order_number"])) {
+            $returnExchange = $returnExchange->where("o.order_id", $params["order_number"]);
         }
 
         if (!empty($params["status"])) {
@@ -108,6 +137,10 @@ class ReturnExchangeController extends Controller
             $returnExchange = $returnExchange->where("return_exchanges.type", $params["type"]);
         }
 
+        if (!empty($params["est_completion_date"])) {
+            $returnExchange = $returnExchange->where("return_exchanges.est_completion_date",'<=', $params["est_completion_date"]);
+        }
+
         if (!empty($params["product"])) {
             $returnExchange = $returnExchange->where(function ($q) use ($params) {
                 $q->orWhere("p.name", "like", "%" . $params["product"] . "%")
@@ -115,17 +148,29 @@ class ReturnExchangeController extends Controller
                     ->orWhere("p.sku", "like", "%" . $params["product"] . "%");
             });
         }
+		
+		if (!empty($params["website"])) {
+            $returnExchange = $returnExchange->where("w.title", "like", "%" . $params["website"] . "%");
+        }
 
         $returnExchange = $returnExchange->select([
             "return_exchanges.*",
             "c.name as customer_name",
             "rep.product_id", "rep.name",
+			"stat.status_name as status_name",
+			"w.title as website"
         ])->paginate($limit);
 
         // update items for status
         $items = $returnExchange->items();
         foreach ($items as &$item) {
-            $item["status_name"] = @ReturnExchange::STATUS[$item->status];
+			$item["created_at_formated"] = date('d-m', strtotime($item->created_at));
+			$item["date_of_refund_formated"] = date('d-m-Y', strtotime($item->date_of_refund));
+            $item["dispatch_date_formated"] = date('d-m-Y', strtotime($item->dispatch_date));
+            $item["date_of_request_formated"] = date('d-m-Y', strtotime($item->date_of_request));
+			$item["date_of_issue_formated"] = date('d-m-Y', strtotime($item->date_of_issue));
+            
+          
         }
 
         return response()->json([
@@ -143,7 +188,7 @@ class ReturnExchangeController extends Controller
         //check error return exist
         if (!empty($returnExchange)) {
             $data["return_exchange"] = $returnExchange;
-            $data["status"]          = ReturnExchange::STATUS;
+            $data["status"]          = ReturnExchangeStatus::pluck('status_name','id');
             if($request->from == 'erp-customer') {
                 return view('ErpCustomer::partials.edit-return-summery', compact('data'));
             }
@@ -170,19 +215,23 @@ class ReturnExchangeController extends Controller
 
     public function delete(Request $request, $id)
     {
-        $returnExchange = \App\ReturnExchange::find($id);
-        if (!empty($returnExchange)) {
-            // start to delete from here
-            $returnExchange->returnExchangeProducts()->delete();
-            $returnExchange->returnExchangeHistory()->delete();
-            $returnExchange->delete();
-        }
+        $ids = explode(",",$id);
+		foreach($ids as $id)
+		{
+			$returnExchange = \App\ReturnExchange::find($id);
+			if (!empty($returnExchange)) {
+				// start to delete from here
+				$returnExchange->returnExchangeProducts()->delete();
+				$returnExchange->returnExchangeHistory()->delete();
+				$returnExchange->delete();
+			}
+		}
         return response()->json(["code" => 200, "data" => [], "message" => "Request deleted succesfully!!"]);
     }
 
     public function history(Request $request, $id)
     {
-        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->leftJoin("users as u","u.id","return_exchange_histories.user_id")
+        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->where("history_type",'status')->leftJoin("users as u","u.id","return_exchange_histories.user_id")
         ->select(["return_exchange_histories.*","u.name as user_name"])
         ->orderby("return_exchange_histories.created_at","desc")
         ->get();
@@ -190,7 +239,7 @@ class ReturnExchangeController extends Controller
         $history = [];
         if(!empty($result)) {
             foreach($result as $res) {
-                $res["status"] = @ReturnExchange::STATUS[$res->status_id];
+                $res["status"] = ReturnExchangeStatus::where('id', $res->status_id)->first()->status_name;
                 $history[] = $res;
             }
         }
@@ -201,24 +250,286 @@ class ReturnExchangeController extends Controller
     public function getProducts($id)
     {
         if (!empty($id)) {
-            $order  = \App\Order::find($id);
-            $orderData = [];
+            $product  = \App\Product::find($id);
+            if (!empty($product)) {
+				
+				$data[ 'dnf' ] = $product->dnf;
+				$data[ 'id' ] = $product->id;
+				$data[ 'name' ] = $product->name;
+				$data[ 'short_description' ] = $product->short_description;
+				$data[ 'activities' ] = $product->activities;
+				$data[ 'scraped' ] = $product->scraped_products;
+				
+				$data[ 'measurement_size_type' ] = $product->measurement_size_type;
+				$data[ 'lmeasurement' ] = $product->lmeasurement;
+				$data[ 'hmeasurement' ] = $product->hmeasurement;
+				$data[ 'dmeasurement' ] = $product->dmeasurement;
+				
+				$data[ 'size' ] = $product->size;
+				$data[ 'size_value' ] = $product->size_value;
+				
+				$data[ 'composition' ] = $product->composition;
+				$data[ 'sku' ] = $product->sku;
+				$data[ 'made_in' ] = $product->made_in;
+				$data[ 'brand' ] = $product->brand;
+				$data[ 'color' ] = $product->color;
+				$data[ 'price' ] = $product->price;
+				$data[ 'status' ] = $product->status_id;
+				
+				$data[ 'euro_to_inr' ] = $product->euro_to_inr;
+				$data[ 'price_inr' ] = $product->price_inr;
+				$data[ 'price_inr_special' ] = $product->price_inr_special;
+				
+				$data[ 'isApproved' ] = $product->isApproved;
+				$data[ 'rejected_note' ] = $product->rejected_note;
+				$data[ 'isUploaded' ] = $product->isUploaded;
+				$data[ 'isFinal' ] = $product->isFinal;
+				$data[ 'stock' ] = $product->stock;
+				$data[ 'reason' ] = $product->rejected_note;
+				
+				$data[ 'product_link' ] = $product->product_link;
+				$data[ 'supplier' ] = $product->supplier;
+				$data[ 'supplier_link' ] = $product->supplier_link;
+				$data[ 'description_link' ] = $product->description_link;
+				$data[ 'location' ] = $product->location;
+				
+				$data[ 'suppliers' ] = '';
+				$data[ 'more_suppliers' ] = [];
+				
+				foreach ($product->suppliers as $key => $supplier) {
+					if ($key == 0) {
+						$data[ 'suppliers' ] .= $supplier->supplier;
+					} else {
+						$data[ 'suppliers' ] .= ", $supplier->supplier";
+					}
+				}
+				
+				$image = $product->getMedia(config('constants.media_tags'))->first();
+				
+				if($image !== NULL)
+				{			
+					$data[ 'images' ] = $image->getUrl();	
+				}
+				else
+				{
+					$data[ 'images' ] = "#";	
+				}
+							
+				$data[ 'categories' ] = $product->category ? CategoryController::getCategoryTree($product->category) : '';	
+				$data[ 'product' ] = $product;
+			
+                $response = (string) view("return-exchange.templates.productview", $data);
+            }
+        }       
+        return response()->json(["code" => 200, "html" => $response]);
+    }
 
-            if (!empty($order)) {
-                $products = $order->order_product;
-                if (!empty($products)) {
-                    foreach ($products as $product) {
-                        $pr = \App\Product::find($product->product_id);
-                        if($pr) {
-                        $orderData[] = ['id' => $product->id, 'name' => $pr->name];
-                        }
-                    }
+    public function product(Request $request, $id) {
+        if (!empty($id)) {
+            $product = \App\Product::where("products.id", $id)
+            ->leftJoin("order_products as op", "op.product_id", "products.id")
+            ->leftJoin("orders", "orders.id", "op.order_id")
+            ->leftJoin("brands", "brands.id", "products.brand")
+            ->select(["orders.order_id as order_number", "brands.name as product_brand", "products.name as product_name",
+                    "products.image as product_image", "products.price as product_price",
+                    "products.supplier as product_supplier", "products.short_description as about_product"])
+            ->get();
+        }
+        return response()->json(["code" => 200, "data" => $product, "message" => ""]);
+    }
+	
+	public function updateCustomer(Request $request) {
+		if($request->update_type == 1) {
+			$ids = explode(",",$request->selected_ids);
+			foreach($ids as $id) {
+				$return = \App\ReturnExchange::where("id", $id)->first();
+				if($return && $request->customer_message && $request->customer_message != "") {
+					\App\Jobs\UpdateReturnExchangeStatusTpl::dispatch($return->id, $request->customer_message);
+				}
+			}
+		}
+		else {
+			$ids = explode(",",$request->selected_ids);
+			foreach($ids as $id) {
+				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->status) {
+					$return = \App\ReturnExchange::where("id", $id)->first();
+					$statuss = \App\ReturnExchangeStatus::where("id",$request->status)->first();
+					if($return) {
+						$return->status 	= $request->status;
+						$return->save();
+						\App\Jobs\UpdateReturnExchangeStatusTpl::dispatch($return->id,$request->customer_message);
+					}
+				}
+			}
+		}
+		return response()->json(['message' => 'Successful'],200);
+	}
+	
+	public function createStatus(Request $request) {
+		$this->validate( $request, [
+			'status_name' => 'required',
+		] );
+		$input = $request->except('_token');
+		$isExist = \App\ReturnExchangeStatus::where('status_name',$request->status_name)->first();
+		if(!$isExist) {
+			\App\ReturnExchangeStatus::create([
+    						'status_name'		=> $request->status_name
+    					]);
+			return response()->json(['message' => 'Successful'],200);
+		}
+		else {
+			return response()->json(['message' => 'Fail'],401);
+		}
+    }
+    
+    public function createRefund(Request $request) {
+        $this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'refund_amount'		=> 'required',
+            'refund_amount_mode' => 'required|string'            
+		]);
+
+        $data = $request->except('_token');
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+
+		if ($request->credited) {
+            $data['credited'] = 1;
+        }
+        ReturnExchange::create($data);
+        //create entry in table cash_flows
+        \DB::table('cash_flows')->insert(
+            [
+                'cash_flow_able_id'=>$request->input('user_id'),
+                'description'=>'Vendor paid',
+                'date'=>('Y-m-d'),
+                'amount'=>$request->input('refund_amount'),
+                'type'=>'paid',
+                'cash_flow_able_type'=>'App\ReturnExchange',
+
+            ]
+        );
+        return response()->json(['message' => 'You have successfully added refund!'],200);
+    }
+
+    public function getRefundInfo($id) {
+        $returnExchange = ReturnExchange::find($id);
+        $response = (string) view("return-exchange.templates.update-refund", compact('returnExchange','id'));
+
+        return response()->json(["code" => 200, "html" => $response]);
+        // return view('',compact('returnExchange'));
+    }
+
+    public function updateRefund(Request $request) {
+        $this->validate($request, [
+			'customer_id'	=> 'required|integer',
+			'refund_amount'		=> 'required',
+			'id'		=> 'required',
+            'refund_amount_mode' => 'required|string'            
+		]);
+     
+        $data = $request->except('_token','id','customer_id');
+        $returnExchange = ReturnExchange::find($request->id);
+        if(!$returnExchange->date_of_issue) {
+            $data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+        }
+        if($returnExchange) {
+            $returnExchange->update($data);
+        }
+
+
+        //Sending Mail on edit of return and exchange
+        $mailingListCategory = MailinglistTemplateCategory::where('title','Refund and Exchange')->first();
+        $templateData = MailinglistTemplate::where('store_website_id',$returnExchange->customer->store_website_id)->where('category_id', $mailingListCategory->id )->first();
+        
+        $arrToReplace = ['{FIRST_NAME}','{REFUND_TYPE}','{CHQ_NUMBER}','{REFUND_AMOUNT}','{DATE_OF_REFUND}','{DETAILS}'];
+
+        $valToReplace = [$returnExchange->customer->name,$returnExchange->type,$returnExchange->chq_number,$returnExchange->amount,$returnExchange->date_of_request,$returnExchange->details];
+        $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+        
+
+        $storeEmailAddress = EmailAddress::where('store_website_id',$returnExchange->customer->store_website_id)->first();
+
+        $emailData['subject'] = $templateData->subject;
+        $emailData['static_template'] = $bodyText;
+        $emailData['from'] = $storeEmailAddress->from_address;
+        Mail::to($returnExchange->customer->email)->send(new ReturnExchangeEmail($emailData));
+        //Sending Mail on edit of return and exchange
+
+        $updateOrder =0;
+		if (!$request->dispatched) {
+			$data['dispatch_date'] = $returnExchange->dispatch_date;
+			$data['awb'] = $returnExchange->awb;
+		} else {
+            $order_products = ReturnExchange::join('return_exchange_products','return_exchanges.id','return_exchange_products.return_exchange_id')
+            ->join('order_products','order_products.id','return_exchange_products.order_product_id')->select('order_products.*')->first();
+            if($order_products) {
+                $order = Order::find($order_products->order_id);
+                if($order) {
+                    $updateOrder =1;
+                    $order->order_status = 'Refund Dispatched';
+                    $order->order_status_id = \App\Helpers\OrderHelper::$refundDispatched;
+                    event(new RefundDispatched($returnExchange));
                 }
             }
+		}
+
+		if ($request->credited) {
+            $data['credited'] = 1;
+            if($updateOrder == 1) {
+                $order->order_status = 'Refund Credited';
+			    $order->order_status_id = \App\Helpers\OrderHelper::$refundCredited;
+            }
         }
-        $status   = ReturnExchange::STATUS;
-        $id = $order->customer_id;
-        $response = (string) view("partials.order-return-exchange", compact('id', 'orderData', 'status'));
-        return response()->json(["code" => 200, "html" => $response]);
+       
+
+		$data['date_of_issue'] = Carbon::parse($request->date_of_request)->addDays(10);
+        if($returnExchange) {
+            if($updateOrder == 1) {
+                $order->save();
+            }
+        }
+        return response()->json(['message' => 'You have successfully added refund!'],200);
+    }
+
+    public function updateEstmatedDate(Request $request) {
+        
+        $returnExchange = ReturnExchange::find($request->exchange_id);
+        if($returnExchange) {
+            if($request->estimate_date && $request->estimate_date != "") {
+                $oldDate = $returnExchange->est_completion_date;
+                $returnExchange->est_completion_date = $request->estimate_date;
+                $returnExchange->save();
+    
+                ReturnExchangeHistory::create([
+                    "return_exchange_id" => $request->exchange_id,
+                    "status_id"          => 0,
+                    "user_id"            => Auth::user()->id,
+                    "history_type"       => 'est_date',
+                    "old_value"          => $oldDate,
+                    "new_value"          => $request->estimate_date
+                ]);
+    
+    
+                return response()->json(['code' => 200, 'message' => 'Successfull']);
+            }
+        }
+        return response()->json(['code' => 500, 'message' => 'Return/exchange not found']);
+    }
+
+
+    public function estimationHistory(Request $request, $id)
+    {
+        $result = \App\ReturnExchangeHistory::where("return_exchange_id",$id)->where("history_type",'est_date')->leftJoin("users as u","u.id","return_exchange_histories.user_id")
+        ->select(["return_exchange_histories.*","u.name as user_name"])
+        ->get();
+
+        $history = [];
+        if(!empty($result)) {
+            foreach($result as $res) {
+                $history[] = $res;
+            }
+        }
+
+        return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
     }
 }

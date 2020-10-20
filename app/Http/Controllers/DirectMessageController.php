@@ -11,15 +11,21 @@ use \App\InstagramUsersList;
 use \App\InstagramThread;
 use Plank\Mediable\Media;
 use App\ChatMessage;
+use App\Brand;
+use DB;
+use App\ReadOnly\SoloNumbers;
 use InstagramAPI\Media\Photo\InstagramPhoto;
+use App\ScrapInfluencer;
 Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
 
 class DirectMessageController extends Controller
 {
     public function index()
     {
+     
     	$threads = InstagramThread::whereNotNull('instagram_user_id')->whereNotNull('account_id')->get();
-
+$select_brands = Brand::pluck('name','id');
+$solo_numbers = (new SoloNumbers)->all();
     	// if ($request->ajax()) {
      //        return response()->json([
      //            'tbody' => view('instagram.direct.data', compact('threads'))->render(),
@@ -27,7 +33,7 @@ class DirectMessageController extends Controller
      //        ], 200);
      //    }
 
-    	return view('instagram.direct.index',['threads' => $threads]);
+    	return view('instagram.direct.index',['threads' => $threads,'select_brands' => $select_brands,'solo_numbers' => $solo_numbers]);
     }
 
 
@@ -277,19 +283,16 @@ class DirectMessageController extends Controller
     }
 
     public function sendMessage(Request $request) {
-        
         $thread = InstagramThread::find($request->thread_id);
         $agent = $thread->account;
         $messageType = 1;
         if($agent){
-
         	$status = $this->sendMessageToInstagramUser($thread->account->last_name, $thread->account->password, $thread->account->proxy, $thread->instagramUser->username, $request->message);
-        	
 		}
 		
         if ($status === false) {
             return response()->json([
-                'error'
+                'status' => 'error', 'code' => 413
             ], 413);
         }
 
@@ -389,8 +392,6 @@ class DirectMessageController extends Controller
     }
 
     private function sendMessageToInstagramUser($sender, $password, $proxy, $receiver, $message) {
-
-
         $i = new Instagram();
 
         try {
@@ -463,5 +464,302 @@ class DirectMessageController extends Controller
             ]);
             
         }
+    }
+
+
+    public function influencerMessages(Request $request)
+    {
+        $id = $request->id;
+        $thread = InstagramThread::find($id);
+        if($thread){
+            $chats = $thread->influencerConversation;
+            $html = '<div style="overflow-x:auto;"><input type="text" id="click-to-clipboard-message" class="link" style="position: absolute; left: -5000px;"><table class="table table-bordered"><tbody><tr class="in-background"><tr>';
+            foreach ($chats as $chat) {
+                if(isset($chat->getRecieverUsername->username)){
+                    $receiver = $chat->getRecieverUsername->username;
+                }else{
+                    $receiver = 'unknown';
+                }
+
+                if(isset($chat->getSenderUsername->last_name)){
+                    $sender = $chat->getSenderUsername->last_name;
+                }else{
+                    $sender = 'unknown';
+                }
+
+
+                if($chat->message_type == 3){
+                    $message = '<img src="'.$chat->message.'" height="200px" width="200px">';
+                }else{
+                    $message = $chat->message;
+                }
+
+
+                $html .= '<td style="width:5%"><input data-id="{{ $chat->id }}" data-message="" type="checkbox" class="click-to-clipboard"></td><td style="width:45%"><div class="speech-wrapper "><div class="bubble"><div class="txt"><p class="name"></p><p class="message" data-message="">'. $message .'</p></div></div></div></td><td style="width:30%"><a title="Remove" href="javascript:;" class="btn btn-xs btn-secondary ml-1 delete-message" data-id="505729"><i class="fa fa-trash" aria-hidden="true"></i></a><a title="Dialog" href="javascript:;" class="btn btn-xs btn-secondary ml-1 create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a></td><td style="width:20%"><span class="timestamp" style="color:black; text-transform: capitalize;font-size: 14px;">From '. $sender .' to '. $receiver  .' on '.
+                    $chat->created_at.'</span></td></tr><tr class="in-background">';
+            }
+
+            $html .= '</tr></tbody></table></div>';
+
+            return response()->json([
+            'status' => 'success',
+            'messages' => $html
+            ]);
+            
+        }
+    }
+
+    public function sendMessageMultiple(Request $request) {
+        if(!$request->message || $request->message == '') {
+            return response()->json(['message' => 'Message field is required.'],500);
+        }
+        if(!$request->account_id || $request->account_id == '') {
+            return response()->json(['message' => 'account id is required.'],500);
+        }
+        $ids = explode(",",$request->selectedInfluencers);
+        foreach($ids as $id) {
+            $thread = InstagramThread::where('scrap_influencer_id',$id)->first();
+            if($thread) {
+                $thread->account_id = $request->account_id;
+            }
+            else {
+                $thread = new InstagramThread;
+                $thread->account_id = $request->account_id;
+                $thread->scrap_influencer_id = $request->influencer_id;
+            }
+            $influencer  = ScrapInfluencer::find($id);
+
+            $userInstagram = InstagramUsersList::where('username',$influencer->name)->first();
+            if(!$userInstagram) {
+                $ig = new \InstagramAPI\Instagram();
+    
+                try {
+                    $ig->login('satyam_t', 'Schoolrocks93');
+                } catch (\Exception $e) {
+                    $msg = 'Instagram login failed: '.$e->getMessage();
+                    return response()->json(['message' => $msg, 'code' => 413],413);
+                }
+                try {
+                    $instaInfo = $ig->people->getInfoByName($influencer->name);
+                } catch (\Exception $e) {
+                    $msg = 'Something went wrong: '.$e->getMessage();
+                    return response()->json(['message' => $msg, 'code' => 413],413);
+                }
+                $instaInfo = $instaInfo->asArray();
+    
+                if(is_array($instaInfo) && array_key_exists("user",$instaInfo)) {
+                    $info = $instaInfo['user'];
+                    $userInstagram = new InstagramUsersList();
+                    $userInstagram->fullname = $info['full_name'];
+                    $userInstagram->username = $info['username'];
+                    $userInstagram->user_id = $info['pk'];
+                    $userInstagram->image_url = $info['profile_pic_url'];
+                    $userInstagram->bio = $info['biography'];
+                    $userInstagram->rating = 0;
+                    $userInstagram->location_id = 0;
+                    $userInstagram->because_of = 'instagram_dm';
+                    $userInstagram->posts = 0;
+                    $userInstagram->followers = 0;
+                    $userInstagram->following = 0;
+                    $userInstagram->location = '';
+                    $userInstagram->save();
+                }
+                else {
+                    $msg = 'Instagram user info not found for '.$influencer->name;
+                    return response()->json(['message' => $msg, 'code' => 413],413); 
+                }
+            }
+            $thread->instagram_user_id = $userInstagram->id;
+            $thread->save();
+
+            $requestData = new Request();
+            $requestData->setMethod('POST');
+            $params['message'] = $request->message;
+            $params['thread_id'] = $thread->id;
+            $params['to'] = 'scrap_influencer';
+            $params['receiver'] = $influencer->name;
+            $requestData->request->add($params);
+            $result = app('App\Http\Controllers\DirectMessageController')->sendMessage($requestData);
+        }
+        return response()->json(['message' => 'Successfull.'],200);
+    }
+
+    public function prepareAndSendMessage(Request $request) {
+        if(!$request->message || $request->message == '') {
+            return response()->json(['message' => 'Message field is required.'],500);
+        }
+        if(!$request->account_id || $request->account_id == '') {
+            return response()->json(['message' => 'Select account.'],500);
+        }
+        if(!$request->influencer_id || $request->influencer_id == '') {
+            return response()->json(['message' => 'No influencer available with that id.'],500);
+        }
+        $thread = InstagramThread::where('scrap_influencer_id',$request->influencer_id)->first();
+        if($thread) {
+            $thread->account_id = $request->account_id;
+        }
+        else {
+            $thread = new InstagramThread;
+            $thread->account_id = $request->account_id;
+            $thread->scrap_influencer_id = $request->influencer_id;
+        }
+        $influencer  = ScrapInfluencer::find($request->influencer_id);
+
+        $userInstagram = InstagramUsersList::where('username',$influencer->name)->first();
+        if(!$userInstagram) {
+            $ig = new \InstagramAPI\Instagram();
+
+            try {
+                $ig->login('satyam_t', 'Schoolrocks93');
+            } catch (\Exception $e) {
+                $msg = 'Instagram login failed: '.$e->getMessage();
+                return response()->json(['message' => $msg, 'code' => 413],413);
+            }
+            try {
+                $instaInfo = $ig->people->getInfoByName($influencer->name);
+            } catch (\Exception $e) {
+                $msg = 'Something went wrong: '.$e->getMessage();
+                return response()->json(['message' => $msg, 'code' => 413],413);
+            }
+            $instaInfo = $instaInfo->asArray();
+
+            if(is_array($instaInfo) && array_key_exists("user",$instaInfo)) {
+                $info = $instaInfo['user'];
+                $userInstagram = new InstagramUsersList();
+                $userInstagram->fullname = $info['full_name'];
+                $userInstagram->username = $info['username'];
+                $userInstagram->user_id = $info['pk'];
+                $userInstagram->image_url = $info['profile_pic_url'];
+                $userInstagram->bio = $info['biography'];
+                $userInstagram->rating = 0;
+                $userInstagram->location_id = 0;
+                $userInstagram->because_of = 'instagram_dm';
+                $userInstagram->posts = 0;
+                $userInstagram->followers = 0;
+                $userInstagram->following = 0;
+                $userInstagram->location = '';
+                $userInstagram->save();
+            }
+            else {
+                $msg = 'Instagram user info not found for '.$influencer->name;
+                return response()->json(['message' => $msg, 'code' => 413],413);  
+            }
+        }
+        $thread->instagram_user_id = $userInstagram->id;
+        $thread->save();
+
+        $requestData = new Request();
+        $requestData->setMethod('POST');
+        $params['message'] = $request->message;
+        $params['thread_id'] = $thread->id;
+        $requestData->request->add($params);
+        $result = app('App\Http\Controllers\DirectMessageController')->sendMessage($requestData);
+        $data = $result->getData();
+        if($data->status == 'error') {
+            return response()->json(['message' => 'Message sending failed.'],500);
+        }
+        return response()->json(['message' => 'Successfull.'],200);
+    }
+
+    public function latestPosts(Request $request) {
+        $influencer  = ScrapInfluencer::find($request->id);
+
+        $ig = new \InstagramAPI\Instagram();
+
+        try {
+            $ig->login('satyam_t', 'Schoolrocks93');
+        } catch (\Exception $e) {
+            $msg = 'Instagram login failed: '.$e->getMessage();
+        	return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+        try {
+        	$user_id = $ig->people->getUserIdForName($influencer->name);
+        } catch (\Exception $e) {
+        	$msg = 'Something went wrong: '.$e->getMessage();
+        	return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+
+        try {
+            $feed = $ig->timeline->getUserFeed($user_id);
+        } catch (\Exception $e) {
+            $msg = 'Something went wrong: '.$e->getMessage();
+        	return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+
+        $medias = $feed->asArray();
+        $medias = $medias['items'];
+        
+        
+        foreach ($medias as $media) {
+            $postId = $media['id'];
+            $caption = $media['caption']['text'];
+            $user_id = $user_id;
+            $mediaDetail = [];
+            if ($media['media_type'] === 1) {
+                $mediaDetail[] = [
+                    'media_type' => 1,
+                    'url' => $media['image_versions2']['candidates'][1]['url']
+                ];
+            } else if ($media['media_type'] === 2) {
+                $mediaDetail[] = [
+                    'media_type' => 2,
+                    'url' => $media['video_versions'][0]['url']
+                ];
+            } else if ($media['media_type'] === 8) {
+                $crousal = $media['carousel_media'];
+                $mediaDetail = [];
+                foreach ($crousal as $cro) {
+                    if ($cro['media_type'] === 1) {
+                        $mediaDetail[] = [
+                            'media_type' => 1,
+                            'url' => $cro['image_versions2']['candidates'][0]['url']
+                        ];
+                    } else if ($cro['media_type'] === 2) {
+                        $mediaDetail[] = [
+                            'media_type' => 2,
+                            'url' => $cro['video_versions'][0]['url']
+                        ];
+                    }
+                }
+            }
+            $mediaType = $media['media_type'];
+            $comment_count = $media['comment_count'];
+            $likes = $media['like_count'];
+            $code = $media['code'];
+            if(!$caption) {
+                $caption = '';
+            }
+            $influencer->post_id    = $postId;
+            $influencer->post_caption    = $caption;
+            $influencer->instagram_user_id    = $user_id;
+            $influencer->post_media_type = $mediaType;
+            $influencer->post_code       = $code;
+            $influencer->post_location   = '';
+            $influencer->post_hashtag_id = 0;
+            $influencer->post_likes = $likes;
+            $influencer->post_comments_count = $comment_count;
+            $influencer->post_media_url = json_encode($mediaDetail);
+            $influencer->posted_at = '';
+
+
+            $comments = $ig->media->getComments($postId)->asArray();
+                    
+                    if(isset($comments['comments'])){
+                        foreach ($comments['comments'] as $comment) {
+                            $influencer->comment_user_id = $comment['user']['pk'];
+                            $influencer->comment_user_full_name = $comment['user']['full_name'];
+                            $influencer->comment_username = $comment['user']['username'];
+                            $influencer->instagram_post_id = '';
+                            $influencer->comment_id = $comment['pk'];
+                            $influencer->comment = $comment['text'];
+                            $influencer->comment_profile_pic_url = $comment['user']['profile_pic_url'];
+                            $influencer->comment_posted_at = \Carbon\Carbon::createFromTimestamp($comment['created_at'])->toDateTimeString();
+                        break;
+                        }
+            }
+            $influencer->save(); 
+            break;
+        }
+        return response()->json(['message' => 'Successfull', 'code' => 200],200);
     }
 }

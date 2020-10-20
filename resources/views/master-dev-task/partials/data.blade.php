@@ -109,7 +109,28 @@
               </table>
             </td>
           </tr>
-
+			
+			<tr>
+				<td>Project Directory Size Management</td>
+				<td colspan="6">
+					<table style="width: 100%;">
+						<tr>
+							<th>Directory Name</th>
+							<th>Parent</th>
+							<th>Size (In MB)</th>
+							<th>Expected (In MB)</th>
+						</tr>
+						<tr>
+							@foreach($projectDirectoryData as $val)
+								<td>{{ isset($val->name) ? $val->name : "" }}</td>
+								<td>{{ isset($val->parent) ? $val->parent : "" }}</td>
+								<td>{{ isset($val->size) ? number_format($val->size/1048576,0) : "" }}</td>
+								<td>{{ isset($val->notification_at) ? number_format($val->notification_at/1048576,0) : "" }}</td>
+							@endforeach
+						</tr>
+					</table>
+				</td>
+			</tr>
        </tbody>
     </table>
 </div>

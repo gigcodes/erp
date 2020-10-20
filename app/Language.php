@@ -4,9 +4,10 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Language extends Model
-{
- 	protected $fillable = [
-    'locale', 'code'
-  ];   
+class Language extends Model {
+
+    protected $fillable = [
+        'locale', 'code', 'store_view','status'
+    ];
+
 }

@@ -26,8 +26,9 @@
             <th>Host</th>
             <th>Port</th>
             <th>Encryption</th>
-            <th>Username</th>
-            <th>Password</th>
+            <th>Store Website</th>
+            <!--th>Username</th-->
+            <!--th>Password</th-->
             <th>Action</th>
           </tr>
         </thead>
@@ -54,11 +55,14 @@
               <td>
                   {{ $server->encryption }}
               </td>
-              <td>
+              <!--td>
                   {{ $server->username }}
-              </td>
-              <td>
+              </td-->
+              <!--td>
                   {{ $server->password }}
+              </td-->
+			  <td>
+                  @if($server->website){{ $server->website->title }} @endif
               </td>
               <td>
                   <button type="button" class="btn btn-image edit-email-addresses d-inline" data-toggle="modal" data-target="#emailAddressEditModal" data-email-addresses="{{ json_encode($server) }}"><img src="/images/edit.png" /></button>
@@ -103,6 +107,18 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+			<div class="form-group">
+            	<strong>Store Website:</strong>
+				<Select name="store_website_id" class="form-control">
+					<option value>None</option>
+					@foreach ($allStores as $key => $val)
+						<option value="{{ $val->id }}">{{ $val->title }}</option>
+					@endforeach
+				</Select>
+				@if ($errors->has('store_website_id'))
+						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+				@endif
+			</div>
           <div class="form-group">
             <strong>Driver:</strong>
             <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
@@ -192,6 +208,18 @@
               <div class="alert alert-danger">{{$errors->first('from_address')}}</div>
             @endif
           </div>
+		  <div class="form-group">
+            	<strong>Store Website:</strong>
+				<Select name="store_website_id" id="edit_store_website_id" class="form-control">
+					<option value = ''>None</option>
+					@foreach ($allStores as $key => $val)
+						<option value="{{ $val->id }}">{{ $val->title }}</option>
+					@endforeach
+				</Select>
+				@if ($errors->has('store_website_id'))
+						<div class="alert alert-danger">{{$errors->first('store_website_id')}}</div>
+				@endif
+			</div>
           <div class="form-group">
             <strong>Driver:</strong>
             <input type="text" name="driver" class="form-control" value="{{ old('driver') }}" required>
@@ -269,6 +297,8 @@
       $('#emailAddressEditModal').find('input[name="encryption"]').val(emailAddress.encryption);
       $('#emailAddressEditModal').find('input[name="username"]').val(emailAddress.username);
       $('#emailAddressEditModal').find('input[name="password"]').val(emailAddress.password);
+	  
+	  $('#edit_store_website_id').val(emailAddress.store_website_id).trigger('change');
       
     });
   </script>

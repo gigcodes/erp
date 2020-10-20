@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use App\Influencers;
 use App\InfluencersDM;
+use App\InfluencerKeyword;
 use Illuminate\Http\Request;
+use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class InfluencersController extends Controller
 {
@@ -18,7 +20,7 @@ class InfluencersController extends Controller
     public function index()
     {
         $hashtags = Influencers::all();
-
+        $keywords = InfluencerKeyword::all();
         return view('instagram.influencers.index', compact('hashtags'));
     }
 
@@ -101,4 +103,184 @@ class InfluencersController extends Controller
     {
         //
     }
+
+    public function saveKeyword(Request $request)
+    {
+        $name = $request->name;
+        
+        $keywordCheck = InfluencerKeyword::where('name',$name)->first();
+        
+        if(!$keywordCheck){
+            $keyword = new InfluencerKeyword();
+            $keyword->name = $name;
+            $keyword->save();
+            return response()->json(['message' => 'Influencer Keyword Saved']); 
+        }
+        
+        return response()->json(['message' => 'Influencer Keyword Exist']);
+        
+    }
+
+    public function getScraperImage(Request $request)
+    {
+     $name = $request->name;
+
+     $name = str_replace(" ","",$name);
+
+     $cURLConnection = curl_init();
+
+     $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
+     curl_setopt($cURLConnection, CURLOPT_URL, $url);
+     
+     curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+     $phoneList = curl_exec($cURLConnection);
+     curl_close($cURLConnection);
+
+     $jsonArrayResponse = json_decode($phoneList);
+
+     $b64 = $jsonArrayResponse->status;
+
+     if($jsonArrayResponse->status == 'Something Went Wrong'){
+        return \Response::json(array('success' => false,'message' => 'No Image Available')); 
+    } 
+    $content = base64_decode($b64);
+
+    $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    
+    return \Response::json(array('success' => true,'message' => $media->getUrl()));
+    }
+
+    public function checkScraper(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-status?'.$name;
+        
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+    public function startScraper(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+    public function getLogFile(Request $request)
+    {
+        $name = $request->name;
+
+        $name = str_replace(" ","",$name);
+
+        $cURLConnection = curl_init();
+
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+        // echo $url;
+        // die();
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+        
+        $b64 = $jsonArrayResponse->status;
+        
+        if($jsonArrayResponse->status == 'Something Went Wrong'){
+            return \Response::json(array('success' => false,'message' => 'No Logs Available')); 
+        } 
+        $content = base64_decode($b64);
+
+        $media = MediaUploader::fromString($content)->toDirectory('/influencer')->useFilename($name)->upload();
+    
+        return \Response::json(array('success' => true,'message' => $media->getUrl()));
+       
+    }
+
+    public function restartScript(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+
+        // echo $url;
+        // die();
+
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+    public function stopScript(Request $request)
+    {
+       $name = $request->name;
+
+       $name = str_replace(" ","",$name);
+
+       $cURLConnection = curl_init();
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        // echo $url;
+        // die();
+        curl_setopt($cURLConnection, CURLOPT_URL, $url);
+        curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
+
+        $phoneList = curl_exec($cURLConnection);
+        curl_close($cURLConnection);
+
+        $jsonArrayResponse = json_decode($phoneList);
+
+        $b64 = $jsonArrayResponse->status;
+
+        return \Response::json(array('success' => true,'message' => $b64));
+       
+    }
+
+
 }

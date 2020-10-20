@@ -60,14 +60,17 @@ class TaskModuleController extends Controller {
 		$category = '';
 		$request->category = $request->category ? $request->category : 1;
 		if ($request->category != '') {
-			if($request->category != 1) {
+			if ($request->category != 1) {
 				$categoryWhereClause = "AND category = $request->category";
 				$category = $request->category;
-			}
-			else {
+			} else {
 				$category_condition  = implode(',', $activeCategories);
-				$category_condition = '( '.$category_condition.' )';
-				$categoryWhereClause = "AND category in ".$category_condition;
+				if ($category_condition != '' || $category_condition != null) {
+					$category_condition = '( ' . $category_condition . ' )';
+					$categoryWhereClause = "AND category in " . $category_condition;
+				} else {
+					$categoryWhereClause = "";
+				}
 			}
 		}
 
@@ -1537,7 +1540,7 @@ class TaskModuleController extends Controller {
 		$pending_tasks = Task::where('is_statutory', 0)->whereNull('is_completed')->where('assign_from', Auth::id());
 		$completed_tasks = Task::where('is_statutory', 0)->whereNotNull('is_completed')->where('assign_from', Auth::id());
 
-		if ($request->user[0] != null) {
+		if (is_array($request->user) && $request->user[0] != null) {
 			$pending_tasks = $pending_tasks->whereIn('assign_to', $request->user);
 			$completed_tasks = $completed_tasks->whereIn('assign_to', $request->user);
 		}
@@ -1921,6 +1924,7 @@ class TaskModuleController extends Controller {
 		$message = '';
 		$assignedUserId = 0;
 		$data = $request->except( '_token' );
+		//print_r($data); die;
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
@@ -1930,7 +1934,7 @@ class TaskModuleController extends Controller {
 		
 		$taskType = $request->get("task_type");
 
-
+			
 
 		if($taskType == "4" || $taskType == "5" || $taskType == "6") {
 			$data = [];
@@ -1945,9 +1949,10 @@ class TaskModuleController extends Controller {
 			$data["subject"] 		= $request->get("task_subject");
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
-			$data["customer_id"]	= $request->get("customer_id");
+			$data["site_developement_id"]	= $request->get("site_id");
+			$data["status"]	= 'In Progress';
 			$data["created_by"]	= Auth::id();
-			
+			//echo $data["site_developement_id"]; die;
 			
 			if($taskType == 5 || $taskType == 6) {
 				$data["task_type_id"]	= 3;
@@ -2389,10 +2394,20 @@ class TaskModuleController extends Controller {
 	}
 	
 	public function updateTaskDueDate(Request $request) {
-		$task = Task::find($request->task_id);
-		if($request->date) {
-			$task->update(['due_date' => $request->date]);
+		
+		
+		if($request->type == 'TASK'){
+			$task = Task::find($request->task_id);
+			if($request->date) {
+				$task->update(['due_date' => $request->date]);
+			}
+		}else{
+			if($request->date) {
+				DeveloperTask::where('id',$request->task_id)
+					->update(['due_date' => $request->date]);
+			}
 		}
+		
 		return response()->json([
             'message' => 'Successfully updated'
         ],200);
