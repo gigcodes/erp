@@ -1,5 +1,5 @@
 @extends('layouts.app')
-@section('title', "Drafted Products")
+@section('title', "QuickSell Group List")
 @section('content')
 <style type="text/css">
     .cls_commu_his {
@@ -17,7 +17,7 @@
 </style>
 <div class="row">
     <div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Drafted Products ({{ $products->total() }})</h2>
+        <h2 class="page-heading">Quick Sell Group ({{isset($current_group['name'])?$current_group['name']:'-'}}) Products ({{ (count($products)>0)?$products->total():'0' }})</h2>
         <div class="pull-left cls_filter_box">
             <form class="form-inline" action="?" method="GET">
                 <div class="form-group ml-3 " style="margin-left: 10px;">
@@ -40,10 +40,21 @@
                     <label for="brand_id">Status</label>
                     <?php echo Form::select("status_id", \App\Helpers::selectStatusList(), request('status_id'), ["class" => "form-control-sm form-control select2", 'style' => 'width:150px']); ?>
                 </div>
+
+                <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
+                    <label for="brand_id">Quick Sell Group</label>
+                    @php
+                    if(isset($_GET['group_id']) && !empty($_GET['group_id'])){
+                        $group_id=$_GET['group_id'];
+                    }else{
+                        $group_id=$current_group['group_id'];
+                    }
+                    @endphp
+                    <?php echo Form::select("group_id", \App\Helpers::quickSellGroupList(), $group_id, ["class" => "form-control-sm form-control select2", 'style' => 'width:200px']); ?>
+                </div>
                 <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="/images/filter.png" /></button>
                 <button type="button" onclick="return confirm('Are you sure you want to delete ?')" style="margin-top: 20px;padding: 5px;" class="btn btn-image btn-delete-multiple"><img src="/images/delete.png" /></button>
                 
-                <a href="javascript:;" style="margin-top: 20px;padding: 5px;" data-toggle="modal" data-target="#createQuickSellModal" class="btn btn-sm btn-primary">Quick Sell</a>
             </form>
         </div>
     </div>
@@ -68,7 +79,10 @@
             <th>Action</th>
         </tr>
         @foreach ($products as $product)
-        <tr>
+        @php
+        $trID='tr_'.$group_id.'_'.$product->id;
+        @endphp
+        <tr id="{{$trID}}">
             <td>
                 <input type="checkbox" class="product-delete" id="" name="product_id_delete" data-id="{{$product->id}}" value="">
             </td>
@@ -101,14 +115,13 @@
             <td>@if($product->supplier_link) <a href="{{ $product->supplier_link }}" target="__blank">Go To Website</a> @endif</td>
             <td>{{ date("Y-m-d",strtotime($product->created_at)) }}</td>
             <td>
-                <a href class="btn btn-image edit-modal-button" data-toggle="modal" data-product="{{ $product->id }}"><img width="3px" src="/images/edit.png" /></a>
-                <form action="{{ route('products.destroy',$product->id) }}" method="POST" style="display:inline">
+                
                     @csrf
                     @method('DELETE')
                     @if(auth()->user()->checkPermission('products-delete'))
-                    <button onclick="return confirm('Are you sure you want to delete ?')" type="submit" class="btn btn-image"><img width="3px" src="/images/delete.png" /></button>
+                    <button onclick="group_product_delete({{$group_id}},{{$product->id}})" type="button" id="btn_group_product_delete" class="btn btn-image"><img width="3px" src="/images/delete.png" /></button>
                     @endif
-                </form>
+                
             </td>
         </tr>
         @endforeach
@@ -140,31 +153,6 @@
 
 </div>
 
-<div class="modal" role="dialog" id="createQuickSellModal">
-    <div class="modal-dialog" role="document">
-        <div class="modal-content">
-          <div class="modal-header">
-          <h4 class="modal-title">Create Group</h4>
-            <button type="button" class="close" data-dismiss="modal">&times;</button>
-            </div>
-            <div class="edit-drafted" role="document">
-                <div class="row">
-                    <div class="col-xs-12 col-sm-12 col-md-6 ml-3 mt-3">
-                        <div class="form-group">
-                            <strong>Name:</strong>
-                            <?php echo Form::text("groupName", '', ["class" => "form-control-sm form-control", 'id' => 'groupName']); ?>
-                        </div>
-                    </div>
-                    <div class="col-xs-12 col-sm-12 col-md-6 ml-3 mt-3">
-                        <div class="form-group">
-                        <button type="button" style="margin-top: 20px;padding: 5px;" id="btn-quick-sell" class="btn btn-sm btn-primary">Quick Sell</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
 
 <script type="text/javascript">
     $(".select2").select2({});
@@ -222,7 +210,27 @@
             }
         });
     });
-
+        function group_product_delete(group_id,product_id){
+            if(confirm('Are you sure you want to delete ?')){
+            $.ajax({
+            url: "/quickSell/quicksell-product-delete",
+            type: 'post',
+            data: {
+                group_id: group_id,
+                product_id:product_id
+            },
+            success: function(response) {
+                alert(response.message);
+                if(response.status==1){
+                   $('#tr_'+group_id+'_'+product_id).remove();
+                }
+            },
+            error: function() {
+                alert('Oops, Something went wrong!!');
+            }
+            });
+        }   
+        }
 
     $(document).on("click", ".more-list-btn", function() {
         var row = $(this).closest("td").find(".more-list-btn-row");

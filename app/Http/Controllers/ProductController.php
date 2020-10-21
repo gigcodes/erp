@@ -4583,6 +4583,33 @@ class ProductController extends Controller
         }
     }
 
+    public function addDraftProductsToQuickSell(Request $request){
+        $post=$request->all();
+        
+        $group = \App\QuickSellGroup::orderBy('id', 'desc')->first();
+            if ($group != null) {
+                $group_create =  new \App\QuickSellGroup();
+                $incrementId = ($group->group+1);
+                $group_create->group = $incrementId;
+                $group_create->name = $post['groupName'];
+                $group_create->save();
+                $group_id = $group_create->group;
+            } else {
+                $group =  new \App\QuickSellGroup();
+                $group->group = 1;
+                $group->name = $post['groupName'];
+                $group->save();
+                $group_id = $group->group;
+            }
+            foreach ($request->products as $id){
+                $group = new \App\ProductQuicksellGroup();
+                $group->product_id = $id;
+                $group->quicksell_group_id = $group_id;
+                $group->save();
+            }
+            $msg = 'Products are added into group successfully';
+            return response()->json(['code' => 200, 'message' => $msg]);
+     }
 
 }
 
