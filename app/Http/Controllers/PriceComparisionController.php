@@ -209,7 +209,7 @@ class PriceComparisionController extends Controller
 
                     //if we dont get any local price
                     if(count($idArray) == 0){
-                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->groupBy('price_comparison_site_id')->take(5)->get();
+                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->where('currency','EUR')->groupBy('price_comparison_site_id')->take(5)->get();
                     }else{
                         //exclude the price and site which are already included
                         $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
