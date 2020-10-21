@@ -273,7 +273,7 @@ Content-Type: application/json
     "message": "Email is absent in your request"
 }
 ```
-## Buyback Check Product API
+## Buyback | Return | Exchange | Refund Check Product API
 
 **Request:**
 
@@ -331,7 +331,7 @@ Content-Type: application/json
     "message": "Customer not found with this email !"
 }
 ```
-## Create buyback request API
+## Create Buyback | Return | Exchange | Refund request API
 
 **Request:**
 
