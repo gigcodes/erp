@@ -13,7 +13,7 @@ class UpdateColumnInReturnExchangesTable extends Migration
      */
     public function up()
     {
-        Schema::table('return_exchanges', function (Blueprint $table) {
+        /*Schema::table('return_exchanges', function (Blueprint $table) {
                 DB::statement("ALTER TABLE
                     `return_exchanges`
                 MODIFY COLUMN
@@ -23,7 +23,7 @@ class UpdateColumnInReturnExchangesTable extends Migration
                         'buyback'
                     )
                 NOT NULL");
-        });
+        });*/
     }
 
     /**
@@ -33,8 +33,8 @@ class UpdateColumnInReturnExchangesTable extends Migration
      */
     public function down()
     {
-        Schema::table('return_exchanges', function (Blueprint $table) {
+        /*Schema::table('return_exchanges', function (Blueprint $table) {
             $table->dropColumn('type');
-        });
+        });*/
     }
 }
