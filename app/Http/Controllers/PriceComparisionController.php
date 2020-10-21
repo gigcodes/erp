@@ -188,6 +188,7 @@ class PriceComparisionController extends Controller
                     //getting local data
                     $resultWithCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
                     ->where('country_code',$request->country)
+                    ->where('currency','EUR')
                     ->groupBy('price_comparison_site_id')
                     ->take(3)
                     ->get();
@@ -196,7 +197,7 @@ class PriceComparisionController extends Controller
                     foreach ($resultWithCountries as $resultWithCountry) {
                         $percentage = $resultWithCountry->getTheDiffrence();
                         $priceComparisonId[] = $resultWithCountry->price_comparison_site_id;
-                        $data['name'] = ($resultWithCountry->scraper_site) ? $resultWithCountry->scraper_site : "N/A";
+                        $data['name'] = ($resultWithCountry->price_comparison_site) ? $resultWithCountry->price_comparison_site->name : "N/A";
                         $data['currency'] = $resultWithCountry->currency;
                         $data['price'] = $resultWithCountry->addPrice($product->price,$percentage);
                         $data['country_code'] = $resultWithCountry->country_code;
@@ -213,6 +214,7 @@ class PriceComparisionController extends Controller
                         //exclude the price and site which are already included
                         $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
                         ->whereNotIn('id',$idArray)
+                        ->where('currency','EUR')
                         ->whereNotIn('price_comparison_site_id',$priceComparisonId)
                         ->groupBy('price_comparison_site_id')
                         ->take($internationCountriesCount)
@@ -222,7 +224,7 @@ class PriceComparisionController extends Controller
                     //getting international results
                     foreach ($resultWithoutCountries as $resultWithoutCountry) {
                         $percentage = $resultWithoutCountry->getTheDiffrence();
-                        $data['name'] = ($resultWithoutCountry->scraper_site) ? $resultWithoutCountry->scraper_site->name : "N/A";
+                        $data['name'] = ($resultWithoutCountry->price_comparison_site) ? $resultWithoutCountry->price_comparison_site->name : "N/A";
                         $data['currency'] = $resultWithoutCountry->currency;
                         $data['price'] = $resultWithoutCountry->addPrice($product->price,$percentage);
                         $data['country_code'] = $resultWithoutCountry->country_code;
