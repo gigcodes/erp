@@ -282,9 +282,9 @@ GET https://erp.amourint.com/api/orders/products
 Accept: application/json
 Content-Type: application/json
 {
-    "customer_email" : "roni_cost@example.com",
-    "website" : "https://www.farfetch.com/",
-    "order_id" : "000000001" // not mandatory
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012"
 }
 ```
 
@@ -340,10 +340,10 @@ POST https://erp.amourint.com/api/return-exchange-buyback/create
 Accept: application/json
 Content-Type: application/json
 {
-    "customer_email" : "solanki7492@gmail.com",
-    "website" : "https://www.farfetch.com/",
-    "order_id" : "000000001",
-    "product_sku" : "C14WS0319446H7",
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012",
+    "product_sku" : "Test01",
     "type":"exchange"
 }
 ```
