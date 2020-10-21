@@ -16,6 +16,7 @@ use App\Library\Watson\Language\Workspaces\V1\IntentService;
 use App\Library\Watson\Language\Workspaces\V1\LogService;
 use App\ChatbotErrorLog;
 use App\WatsonAccount;
+use App\ChatbotQuestionReply;
 class PushToWatson implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
@@ -132,6 +133,19 @@ class PushToWatson implements ShouldQueue
                     $errorlog->status = $success;
                     $errorlog->response = $result->getContent();
                     $errorlog->save();
+                if($success) {
+                    $reply = ChatbotQuestionReply::where('store_website_id',$account->store_website_id)->where('chatbot_question_id', $question->id)->first();
+                    if(!$reply) {
+                        $anyReply = ChatbotQuestionReply::where('chatbot_question_id', $question->id)->first();
+                        if($anyReply) {
+                            $reply = new ChatbotQuestionReply;
+                            $reply->store_website_id = $account->store_website_id;
+                            $reply->chatbot_question_id = $question->id;
+                            $reply->suggested_reply = $anyReply->suggested_reply;
+                            $reply->save();
+                        } 
+                    }
+                }
         }
     }
 }

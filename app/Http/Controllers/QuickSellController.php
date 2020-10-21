@@ -733,5 +733,87 @@ class QuickSellController extends Controller
     }
 
 
+    public function quickSellGroupProductsList(Request $request){
+      $current_group=array();
+     $productArray=array();
+      $list=QuickSellGroup::query();
+      $list->with('getProductsIds');
+      $list->whereHas('getProductsIds');
+      if($request->group_id){
+        $list->where('group',$request->group_id);
+      } 
+      $productsList=$list->orderBy('id','desc')->first();
+      if($productsList){
+      $current_group=array(
+        'group_id'=>$productsList->group,
+        'name'=>$productsList->name,
+      );
+    }
+      $product_list=array();
+      if($productsList && $productsList->getProductsIds){
+        foreach($productsList->getProductsIds as $pl){
+          $product_list[]=$pl->product_id;
+        }
+      }
+      
+      $products = Product::where('quick_product', 1)
+          ->leftJoin("brands as b", "b.id", "products.brand")
+          ->leftJoin("categories as c", "c.id", "products.category")
+          ->select([
+              "products.id",
+              "products.name as product_name",
+              "b.name as brand_name",
+              "c.title as category_name",
+              "products.supplier",
+              "products.status_id",
+              "products.created_at",
+              "products.supplier_link",
+              "products.composition",
+              "products.size",
+              "products.lmeasurement",
+              "products.hmeasurement",
+              "products.dmeasurement",
+              "products.color",
+          ]);
+      
+      $products->whereIn('products.id',$product_list);
+
+      if ($request->category != null && $request->category != 1) {
+          $products = $products->where("products.category", $request->category);
+      }
+
+      if ($request->brand_id != null) {
+          $products = $products->where("products.brand", $request->brand_id);
+      }
+
+      if ($request->supplier_id != null) {
+          $products = $products->where("products.supplier", $request->supplier_id);
+      }
+
+      if ($request->status_id != null) {
+          $products = $products->where("products.status_id", $request->status_id);
+      }
+
+      $products = $products->orderby("products.created_at", "desc")->paginate()->appends(request()->except(['page']));
+
+      return view('quicksell.quick-sell-list', compact('products','current_group'));      
+   }
+
+   public function quickSellGroupProductDelete(Request $request){
+      $group_id=$request->group_id;
+      $product_id=$request->product_id;
+      $delete=ProductQuicksellGroup::where('quicksell_group_id',$group_id)->where('product_id',$product_id)->delete();
+      if($delete){
+        return response()->json([
+          'status' => 1,
+          'message' => 'Products deleted from group successfully!'
+        ]);
+      }else{
+        return response()->json([
+          'status' => 0,
+          'message' => 'Invalid group id or product id'
+        ]);    
+      }
+   }  
 
 }

@@ -15,6 +15,11 @@ use App\Jobs\ProcessPodcast;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use App\Helpers\ProductHelper;
+use App\Loggers\LogListMagento;
+use App\StoreWebsite;
+use seo2websites\MagentoHelper\MagentoHelper;
+use App\ProductPushErrorLog;
 
 class ProductListerController extends Controller
 {
@@ -86,6 +91,30 @@ class ProductListerController extends Controller
 
         // Queue the task
         PushToMagento::dispatch( $product );
+
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+
+        $i = 1;
+        $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+        if(!empty($websiteArrays)) {
+            foreach ($websiteArrays as $websiteArray) {
+                $website = StoreWebsite::find($websiteArray);
+                if($website){
+                    \Log::info("Product started website found For website".$website->website);
+                    LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                    //currently we have 3 queues assigned for this task.
+                    if($i > 3) {
+                       $i = 1;
+                    }
+                    PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                    $i++;
+                }
+            }
+        }
 
         // Return 'ok'
         return 'ok';

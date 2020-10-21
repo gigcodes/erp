@@ -30,12 +30,21 @@ class WatsonAccount extends Model
         else {
             $account = self::where('store_website_id',$store_website_id)->where('is_active',1)->first();
         }
-
-        $replies = ChatbotQuestion::
+        if($account) {
+            $replies = ChatbotQuestion::
         join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
             ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
             ->where('chatbot_questions_reply.store_website_id', $account->store_website_id)
             ->select('chatbot_questions.*', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')->get();
+        }
+        else {
+            $replies = ChatbotQuestion::
+        join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
+            ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
+            ->select('chatbot_questions.*', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')->get();
+        }
+
+        
         $result = false;
         foreach ($replies as $reply) {
             if($message != ''){
@@ -46,7 +55,12 @@ class WatsonAccount extends Model
             }
         }
         if(!$result) {
-            $result = WatsonManager::getWatsonReply($message, $account->id);
+            if($account) {
+                $result = WatsonManager::getWatsonReply($message, $account->id);
+            }
+            else {
+                $result = false;  
+            }
         }
         return $result;
     }

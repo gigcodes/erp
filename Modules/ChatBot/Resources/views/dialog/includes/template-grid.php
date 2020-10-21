@@ -28,27 +28,32 @@
 				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
 				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
 				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
-				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}
+					  {{if data.dialog_response}}
+					  <button data-id="{{:data.id}}" class="btn btn-xs btn-secondary pull-right view-all-response">View</button>
+					 {{/if}} 
+					  
+					  </td>
 				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
 				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
 				      <td style="width:10%">
                         <div class="d-flex">
-                        <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
+                        <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node pd-3">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">
                       </a>&nbsp;
-                      <a title="Add child node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_child" class="create-new-node">
+                      <a title="Add child node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_child" class="create-new-node pd-3">
                         <i class="fa fa-plus-circle"></i>
                       </a>&nbsp;
-                      <a title="Add node above" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_above" class="create-new-node">
+                      <a title="Add node above" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_above" class="create-new-node pd-3">
                         <i class="fa fa fa-arrow-circle-up"></i>
                       </a>&nbsp;
-                      <a title="Add node below" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_below" class="create-new-node">
+                      <a title="Add node below" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_below" class="create-new-node pd-3">
                         <i class="fa fa fa-arrow-circle-down"></i>
                       </a>&nbsp;
-                      <a title="Delete node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="delete" class="create-new-node">
+                      <a title="Delete node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="delete" class="create-new-node pd-3">
                         <i class="fa fa-trash"></i>
                       </a>&nbsp;
-                      <a style="padding:0px;" title="Edit node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="edit" class="node__contents">
+                      <a style="padding:0px;" title="Edit node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="edit" class="node__contents pd-3">
                         <i class="fa fa-pencil"></i>
                       </a>
                         </div>
@@ -63,27 +68,31 @@
 				      <td style="width:15%" class="word-wrap">{{:data.name}}</td>
 				      <td style="width:15%" class="word-wrap">{{:data.title}}</td>
 				      <td style="width:21%" class="word-wrap">{{:data.match_condition}}</td>
-				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}</td>
+				      <td style="width:15%" class="word-wrap">{{:data.dialog_response}}
+					  {{if data.dialog_response}}
+					  <button data-id="{{:data.id}}" class="btn btn-xs btn-secondary pull-right view-all-response">View</button>
+					 {{/if}}
+					  </td>
 				      <td style="width:5%" class="word-wrap">{{:data.dialog_type}}</td>
 				      <td style="width:5%" class="word-wrap">{{:data.parent_id}}</td>
 				      <td style="width:10%">
                       <div class="d-flex">
-                      <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node">
+                      <a data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" class="call_child_node pd-3">
                         <img style="height: 15px; cursor: nwse-resize;" src="/images/forward.png">
                       </a>&nbsp;
-                      <a title="Add child node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_child" class="create-new-node">
+                      <a title="Add child node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_child" class="create-new-node pd-3">
                         <i class="fa fa-plus-circle"></i>
                       </a>&nbsp;
-                      <a title="Add node above" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_above" class="create-new-node">
+                      <a title="Add node above" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_above" class="create-new-node pd-3">
                         <i class="fa fa fa-arrow-circle-up"></i>
                       </a>&nbsp;
-                      <a title="Add node below" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_below" class="create-new-node">
+                      <a title="Add node below" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="add_below" class="create-new-node pd-3">
                         <i class="fa fa fa-arrow-circle-down"></i>
                       </a>&nbsp;
-                      <a title="Delete node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="delete" class="create-new-node">
+                      <a title="Delete node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="delete" class="create-new-node pd-3">
                         <i class="fa fa-trash"></i>
                       </a>&nbsp;
-                      <a style="padding:0px;" title="Edit node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="edit" class="node__contents">
+                      <a style="padding:0px;" title="Edit node" data-id="{{:data.id}}" data-parent_id="{{:data.parent_id}}" data-role="edit" class="node__contents pd-3">
                         <i class="fa fa-pencil"></i>
                       </a>
                         </div>
@@ -283,7 +292,6 @@
 <script id="add-dialog-form" type="text/x-jsrender">
 	<form action="<?php echo route('chatbot.dialog.saveajax'); ?>" method="post" id="dialog-save-response-form">
 		<?php echo csrf_field(); ?>
-
 		{{if data.create_type == "intents_create"}}
 				<h4>Intent Section : <small>{{if data.intent.question}} {{:data.intent.question}} {{/if}}</small></h4>
 			<div class="form-row">

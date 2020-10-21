@@ -273,3 +273,97 @@ Content-Type: application/json
     "message": "Email is absent in your request"
 }
 ```
+## Buyback | Return | Exchange | Refund Check Product API
+
+**Request:**
+
+```json
+GET https://erp.amourint.com/api/orders/products
+Accept: application/json
+Content-Type: application/json
+{
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012"
+}
+```
+
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "orders": {
+        "1": [
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100078",
+                "product_id": 296561,
+                "order_id": "1"
+            },
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100079",
+                "product_id": 296560,
+                "order_id": "1"
+            }
+        ],
+        "2": [
+            {
+                "product_name": "Dr. Osborne Harber",
+                "product_price": "0",
+                "sku": "6493033100080",
+                "product_id": 296569,
+                "order_id": "2"
+            }
+        ]
+    }
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Customer not found with this email !"
+}
+```
+## Create Buyback | Return | Exchange | Refund request API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/return-exchange-buyback/create
+Accept: application/json
+Content-Type: application/json
+{
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012",
+    "product_sku" : "Test01",
+    "type":"exchange"
+}
+```
+For type expected value will be "return","exchange","buyback","refund"
+
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "Exchange request created successfully"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Unable to create Exchange request!"
+}
+```

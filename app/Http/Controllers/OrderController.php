@@ -282,6 +282,7 @@ class OrderController extends Controller {
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
+		->leftJoin("customers as cs","cs.id","orders.customer_id")
 		->leftJoin("products as p","p.id","op.product_id")
         ->leftJoin("brands as b","b.id","p.brand");
 
@@ -290,9 +291,8 @@ class OrderController extends Controller {
 		}
 
 		$orders = $orders->groupBy("orders.id");
-		$orders = $orders->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
-
-
+		$orders = $orders->select(["orders.*","cs.email as cust_email",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
+	
 		$users  = Helpers::getUserArray( User::all() );
 		$order_status_list = OrderHelper::getStatus();
 
