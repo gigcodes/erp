@@ -376,8 +376,6 @@ Content-Type: application/json
     "country" : "IN"
 }
 ```
-For type expected value will be "return","exchange","buyback","refund"
-
 **Successful Response:**
 ```json
 Content-Type: application/json
