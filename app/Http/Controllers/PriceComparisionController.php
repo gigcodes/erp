@@ -188,6 +188,7 @@ class PriceComparisionController extends Controller
                     //getting local data
                     $resultWithCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
                     ->where('country_code',$request->country)
+                    ->where('currency','EUR')
                     ->groupBy('price_comparison_site_id')
                     ->take(3)
                     ->get();
@@ -213,6 +214,7 @@ class PriceComparisionController extends Controller
                         //exclude the price and site which are already included
                         $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
                         ->whereNotIn('id',$idArray)
+                        ->where('currency','EUR')
                         ->whereNotIn('price_comparison_site_id',$priceComparisonId)
                         ->groupBy('price_comparison_site_id')
                         ->take($internationCountriesCount)
