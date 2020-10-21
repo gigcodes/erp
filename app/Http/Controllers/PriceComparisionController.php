@@ -158,6 +158,7 @@ class PriceComparisionController extends Controller
                 'message' => 'Please Send Both SKU and Country',
             ]);
         }
+        $internationCountriesCount = 5;
         
         //getting product
         $product = Product::getProductBySKU($request->sku);
@@ -200,6 +201,7 @@ class PriceComparisionController extends Controller
                         $data['price'] = $resultWithCountry->addPrice($product->price,$percentage);
                         $data['country_code'] = $resultWithCountry->country_code;
                         $outputArray[] = $data;
+                        $idArray[] = $resultWithCountry->id;
                     }
 
                     $resultWithCountriesCount = $resultWithCountries->count();
