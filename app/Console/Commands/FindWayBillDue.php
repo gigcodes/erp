@@ -58,7 +58,7 @@ class FindWayBillDue extends Command
             'start_time' => Carbon::now(),
         ]);
 
-        Waybillinvoice::whereDate('due_date','<',Carbon::today())->update(['status'=>'due']);
+        Waybillinvoice::where("status","!=","paid")->whereDate('due_date','<',Carbon::today())->update(['status'=>'due']);
     }
 
     /**
