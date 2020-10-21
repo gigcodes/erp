@@ -239,7 +239,7 @@ class PriceComparisionController extends Controller
 
                     }else{
                         return response()->json([
-                            'status' => 'sucess',
+                            'status' => 'success',
                             'results' => $outputArray,
                         ]);
                     }

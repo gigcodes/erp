@@ -54,7 +54,6 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 
 {
@@ -145,7 +144,6 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 
 {
@@ -266,7 +264,6 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "400",
@@ -324,7 +321,6 @@ Content-Type: application/json
 
 **Failed Response:**
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "failed",
@@ -360,10 +356,49 @@ Content-Type: application/json
 
 **Failed Response:**
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "failed",
     "message": "Unable to create Exchange request!"
+}
+```
+
+## Price comparison API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/price_comparision/details
+Accept: application/json
+Content-Type: application/json
+{
+    "sku" : "565655VT0406512FW2019",
+    "country" : "IN"
+}
+```
+For type expected value will be "return","exchange","buyback","refund"
+
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "sucess",
+    "results": [
+        {
+            "name": "N/A",
+            "currency": "USD",
+            "price": "631.99",
+            "country_code": "in"
+        }
+    ]
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "No Category Found"
 }
 ```
