@@ -41,6 +41,7 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
         Route::get('/search-category', 'QuestionController@searchCategory')->name("chatbot.question.search-category");
         Route::post('/change-category', 'QuestionController@changeCategory')->name("chatbot.question.change-category");
         Route::get('/keyword/search', 'QuestionController@searchKeyword')->name("chatbot.question.keyword.search");
+        Route::post('/reply/add', 'QuestionController@addReply')->name("chatbot.question.reply.add");
         Route::post('/reply/update', 'QuestionController@updateReply')->name("chatbot.question.reply.update");
         Route::post('/online-update/{id}', 'QuestionController@onlineUpdate')->name("chatbot.question.online-update");
 
@@ -83,7 +84,9 @@ Route::prefix('chatbot')->middleware('auth')->group(function () {
 
         // store dialog via save response
         Route::post("dialog-save","DialogController@saveAjax")->name("chatbot.dialog.saveajax");
-
+        Route::get("all-reponses/{id}","DialogController@getAllResponse")->name("chatbot.dialog.all-responses");
+        Route::post("submit-reponse/{id}","DialogController@submitResponse")->name("chatbot.dialog.submit-reponse");
+        
     });
 
 

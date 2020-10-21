@@ -935,3 +935,52 @@ $(document).on("click",".call_child_node",function(e) {
     console.log(parent_id);
     updateBoxEvent(parent_id);
 });
+
+$(document).on("click", ".view-all-response", function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    $.ajax({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    type: "get",
+    url: '/chatbot/dialog/all-reponses/'+id,
+    dataType: "html",
+    success: function(response) {
+        $('#all-response-modal').modal("show");
+        $('#all-response-data').html(response);
+    },
+    error: function() {
+        toastr['error']('Can not store intent name please review!');
+    }
+});
+});
+
+
+$(document).on("click", ".update-response", function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    var responseData = $('#response-'+id).val();
+    $.ajax({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    type: "post",
+    url: '/chatbot/dialog/submit-reponse/'+id,
+    dataType: "json",
+    data: {
+        responseData:responseData
+    },
+    success: function(response) {
+        if(response.code == 200) {
+            toastr['success'](response.message);
+        }
+        else {
+            toastr['error'](response.message);
+        }
+    },
+    error: function() {
+        toastr['error']('Can not store intent name please review!');
+    }
+});
+});

@@ -15,4 +15,7 @@ class ChatbotDialogResponse extends Model
     public function dialog(){
         return $this->belongsTo(ChatbotDialog::class, 'chatbot_dialog_id', 'id');
     }
+    public function storeWebsite(){
+        return $this->belongsTo(StoreWebsite::class, 'store_website_id', 'id');
+    }
 }

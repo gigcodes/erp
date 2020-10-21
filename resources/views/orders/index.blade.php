@@ -348,6 +348,7 @@ color:black!important;
                 <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
                      <i class="fa fa-product-hunt" aria-hidden="true"></i>
                 </a>
+                <button type="button" class="btn send-email-common-btn" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
                 </div>
               </td>
             </tr>
@@ -426,6 +427,7 @@ color:black!important;
 </div>
 <div id="estdelhistoryresponse"></div>
 @endsection
+@include('common.commonEmailModal')
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
@@ -437,6 +439,7 @@ color:black!important;
   <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({

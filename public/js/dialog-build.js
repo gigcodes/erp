@@ -354,7 +354,6 @@ var updateBoxEvent = function(parentId) {
 };
 updateBoxEvent(0);
 $(document).on("click", "#create-dialog-btn-open", function() {
-    console.log("open");
     $("#leaf-editor-model").modal("show");
     var myTmpl = $.templates("#add-dialog-form");
     var json = {

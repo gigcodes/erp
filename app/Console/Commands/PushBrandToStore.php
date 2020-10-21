@@ -39,10 +39,17 @@ class PushBrandToStore extends Command
     public function handle()
     {
         //
-        $limit = $this->ask('Limit of brands need to push ?');
+        $limit      = $this->ask('Limit of brands need to push ?');
+        $webLimit   = $this->ask('Which website you need to push ?');
 
         $brands = \App\Product::join("brands as b","b.id","products.brand")->groupBy("b.id")->select(["b.*"])->limit($limit)->get();
-        $storeWebsites = \App\StoreWebsite::where("api_token","!=","")->where("website_source","magento")->get();
+
+        if(!empty($webLimit)) {
+            $webLimit = explode(",", $webLimit);
+            $storeWebsites = \App\StoreWebsite::whereIn("id",$webLimit)->where("api_token", "!=", "")->where("website_source", "magento")->get();
+        }else{
+            $storeWebsites = \App\StoreWebsite::where("api_token","!=","")->where("website_source","magento")->get();
+        }
 
         if(!$brands->isEmpty()) {
             foreach($brands as $brand) {

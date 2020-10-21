@@ -1,27 +1,54 @@
 
-<!-- <div class="row">
+@foreach ($suggestedProducts as $sp => $suggested)
+    <tr>
+    <td>
     
-</div> -->
+    {{ \Carbon\Carbon::parse($suggested->last_attached)->format('d-m-y') }} 
+    </td>
+    <td>{{$suggested->customer->id}}</td>
+    <td>{{$suggested->customer->name}}</td>
+    <td>{{$suggested->customer->phone}}</td>
+    <td class="expand-row-msg" data-name="brand" data-id="{{$suggested->id}}">
+    @php 
+     $brandList = '';
+     foreach($suggested->brdNames as $br) {
+        $brandList = $brandList. ' '. $br->name.',';
+     }
+     @endphp
 
-<div class="infinite-scroll">
-    <div class="container-fluid">
+        <span class="show-short-brand-{{$suggested->id}}">{{ str_limit($brandList, 30, '...')}}</span>
+            <span style="word-break:break-all;" class="show-full-brand-{{$suggested->id}} hidden">{{$brandList}},</span>
+    </td>
+
+    <td class="expand-row-msg" data-name="category" data-id="{{$suggested->id}}">
+    @php 
+     $catList = '';
+     foreach($suggested->catNames as $cat) {
+        $catList = $catList. ' '. $cat->title.',';
+     }
+     @endphp
+
+        <span class="show-short-category-{{$suggested->id}}">{{ str_limit($catList, 30, '...')}}</span>
+            <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
+    </td>
+    <td>
+    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$suggested->customer_id}}">
+	{{count($suggested->products)}}<img src="/images/forward.png" style="cursor: default;">
+	</button>
+    <button title="Select all products" type="button" class="btn btn-xs btn-secondary btn-image no-pd select-customer-all-products" data-id="{{$suggested->customer_id}}"> <img src="/images/completed.png" style="cursor: default;"></button>
+    <button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+    <button type="button" title="Forward multiple products" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}"><i class="fa fa-forward" aria-hidden="true"></i></button>
+    <button type="button" title="Resent Multiple products" class="btn btn-xs btn-secondary resend-products" data-id="{{$suggested->customer_id}}"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+    
+    </td>
+    </tr>
+    <tr class="expand-{{$suggested->customer->id}} hidden">
+    <td colspan="7">
+    <div class="customer-count customer-list-{{$sp}} customer-{{$suggested->customer_id}}" style="padding: 0px 10px;">
+
         @php
         $count = 0;
         @endphp
-        @foreach ($suggestedProducts as $sp => $suggested)
-        <div class="customer-count customer-list-{{$sp}} customer-{{$suggested->customer_id}}">
-                <div class="text-right">
-                    <p>Customer Name: {{$suggested->customer->name}}</p>
-                    <p>Customer Number: {{$suggested->customer->phone}}</p>
-                    <p>Customer Id: {{$suggested->customer->id}}</p>
-                    <button type="button" class="btn btn-xs btn-secondary select-customer-all-products" data-id="{{$suggested->customer_id}}">Select all</button>
-                    <button type="button" class="btn btn-xs btn-secondary remove-products" data-id="{{$suggested->customer_id}}">Remove Products</button>
-                    <button type="button" class="btn btn-xs btn-secondary forward-products" data-id="{{$suggested->customer_id}}">Forward</button>
-                    <button type="button" class="btn btn-xs btn-secondary resend-products" data-id="{{$suggested->customer_id}}">Resend</button>
-                    <button class="btn btn-image expand-row-btn" data-id="{{$suggested->customer->id}}"><img src="/images/forward.png" style="cursor: default;"></button>
-
-                </div>
-<br>
         @php
         $left = count($suggested->products);
         @endphp
@@ -52,7 +79,7 @@
         @endphp
 
         @if($count == 0)
-        <div class="row parent-row toggle-div-{{$suggested->customer->id}} hidden">
+        <div class="row parent-row">
         @endif
         <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$suggested->customer_id}}-{{$product->id}}" style="padding:0px 5px;">
             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
@@ -70,16 +97,11 @@
                     </div>
 
                     <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$suggested->customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
-                    <!-- @if($model_type != 'landing-page')
-                    <a href="javascript:;" class="btn btn-sm btn-image {{ $selected_all ? 'btn-success' : '' }} attach-photo-all" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-attached="{{ $selected_all ? 1 : 0 }}"><img src="{{asset('images/double-attach.png')}}"></a>
-                        @endif -->
-                        <!-- <a href="javascript:;" class="btn btn-sm select_row" title="Select Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a> -->
                         <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="{{$customer->id}}" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
-                        <!-- <a href="javascript:;" title="Forward" class="btn btn-sm forward-btn" data-toggle="modal" data-target="#forwardModal" data-id="{{$image_key}}" title="Forward"><i class="fa fa-angle-double-right" aria-hidden="true"></i></a> -->
                         <a href="javascript:;" title="Resend" data-id="{{$image_key}}" data-customer="{{$customer->id}}" class="btn btn-sm resend-single-image" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                        
                         @php
@@ -93,9 +115,6 @@
                         <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
                         @endif
-                        
-                        
-                        <!--<a title="Dialog" href="javascript:;" class="btn btn-sm create-dialog"><i class="fa fa-plus" aria-hidden="true"></i></a>-->
                 </div>
             </div>
         </div>
@@ -136,13 +155,9 @@
         @endforeach
         <br>
         </div>
-        @endforeach
-    <!-- <div class="row">
-        <div class="col text-center">
-            <button type="button" class="btn btn-image my-3" id="sendImageMessage"><img src="/images/filled-sent.png" /></button>
-        </div>
-    </div> -->
-    {{ request()->request->add(["from"=>"attach-image"]) }}
-    {!! $suggestedProducts->appends(Request::except('page'))->links() !!}
-</div>
+    </td>
+    </tr>
+@endforeach
+
+{{$suggestedProducts->appends(request()->except("page"))->links()}}
 
