@@ -20,6 +20,11 @@ class GoogleTranslateController extends Controller
             $product_translation->description = $product->short_description;
             $product_translation->product_id = $product->id;
             $product_translation->locale = 'en';
+            $product_translation->composition = $product->composition;
+            $product_translation->color = $product->color;
+            $product_translation->size = $product->size;
+            $product_translation->country_of_manufacture = $product->country_of_manufacture;
+            $product_translation->dimension = $product->dimension;
             $product_translation->save();
         }
         foreach($languages as $language) {
@@ -28,16 +33,31 @@ class GoogleTranslateController extends Controller
                 $product_translation = new Product_translation();
                 $titleFromTable = Product_translation::select('title')->where('locale',$language)->where('title',$product->name)->first();
                 $descriptionFromTable = Product_translation::select('description')->where('locale',$language)->where('description',$product->short_description)->first();
+                $compositionfromtable = Product_translation::select('composition')->where('locale',$language)->where('composition',$product->composition)->first();
+                $colorfromtable = Product_translation::select('color')->where('locale',$language)->where('color',$product->color)->first(); 
+                $sizefromtable = Product_translation::select('size')->where('locale',$language)->where('size',$product->size)->first();
+                $country_of_manufacturefromtable = Product_translation::select('country_of_manufacture')->where('locale',$language)->where('country_of_manufacture',$product->country_of_manufacture)->first();
+                $dimensionfromtable = Product_translation::select('description')->where('locale',$language)->where('dimension',$product->dimension)->first();
                 $googleTranslate = new GoogleTranslate();
                 $productNames = splitTextIntoSentences($product->name);
                 $productShortDescription =  splitTextIntoSentences($product->short_description);
                 $title = $titleFromTable ? $titleFromTable->title : self::translateProducts($googleTranslate, $language, $productNames);
                 $description = $descriptionFromTable ? $descriptionFromTable->description : self::translateProducts($googleTranslate, $language, $productShortDescription);
+                $composition = $compositionfromtable ? $compositionfromtable->composition : self::translateProducts($googleTranslate, $language, $product->composition);
+                $color = $colorfromtable ? $colorfromtable->color : self::translateProducts($googleTranslate, $language, $product->color);
+                $size = $sizefromtable ? $sizefromtable->size : self::translateProducts($googleTranslate, $language, $product->size);
+                $country_of_manufacture = $country_of_manufacturefromtable ? $titleFromTable->country : self::translateProducts($googleTranslate, $language, $product->country_of_manufacture);
+                $dimension = $dimensionfromtable ? $dimensionfromtable->dimension : self::translateProducts($googleTranslate, $language, $product->dimension);
                 if($title && $description) {
                     $product_translation->title = $title;
                     $product_translation->description = $description;
                     $product_translation->product_id = $product->id;
                     $product_translation->locale = $language;
+                    $product_translation->composition = $composition;
+                    $product_translation->color = $color;
+                    $product_translation->size = $size;
+                    $product_translation->country_of_manufacture = $country_of_manufacture;
+                    $product_translation->dimension = $dimension;
                     $product_translation->save();
                 }
             }
