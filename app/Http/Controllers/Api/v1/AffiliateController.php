@@ -5,6 +5,8 @@ namespace App\Http\Controllers\Api\v1;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 use App\Affiliates;
+use Illuminate\Support\Facades\Validator;
+use App\StoreWebsite;
 class AffiliateController extends Controller
 {
     /**
@@ -35,13 +37,15 @@ class AffiliateController extends Controller
      */
     public function store(Request $request)
     {
-        if(empty($request->input())){
-            return response()->json([
-                'status'=>'failed',
-                'message'=>'Please check the request data !'
-            ],400);
+        $validator = Validator::make($request->all(), [
+            'website' => 'required|exists:store_websites,website'
+        ]);
+        if($validator->fails()){
+            return response()->json(['status'=>'failed','message'=>'please check validation errors !','errors'=>$validator->errors()],400);
         }
+        $storeweb = StoreWebsite::where('website', $request->website)->first();
         $affiliates = new Affiliates;
+        $affiliates->store_website_id = $storeweb->id;
         $affiliates->first_name = isset($request->first_name)?$request->first_name:'';
         $affiliates->last_name = isset($request->last_name)?$request->last_name:'';
         $affiliates->phone = isset($request->phone)?$request->phone:'';

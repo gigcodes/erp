@@ -407,12 +407,11 @@ Content-Type: application/json
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/affilate/add
+POST https://erp.amourint.com/api/affiliate/add
 Accept: application/json
 Content-Type: application/json
 {
-    "status": "failed",
-    "message": "Please check the request data !"
+    "website" : "www.brands-labels.com", //existing website
 }
 ```
 
