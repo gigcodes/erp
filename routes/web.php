@@ -817,8 +817,21 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Master Plan
     Route::get('mastercontrol/clearAlert', 'MasterControlController@clearAlert')->name('mastercontrol.clear.alert');
     Route::resource('mastercontrol', 'MasterControlController');
-
-
+    
+    
+    
+    
+    Route::post('purchase-product/submit-status', 'PurchaseProductController@createStatus');
+    Route::get('purchase-product/send-products/{type}/{supplier_id}', 'PurchaseProductController@sendProducts');
+    Route::get('purchase-product/get-products/{type}/{supplier_id}', 'PurchaseProductController@getProducts');
+    Route::get('purchase-product/get-suppliers', 'PurchaseProductController@getSuppliers');
+    Route::post('purchase-product/saveDefaultSupplier', 'PurchaseProductController@saveDefaultSupplier');
+    Route::post('purchase-product/saveFixedPrice', 'PurchaseProductController@saveFixedPrice');
+    Route::post('purchase-product/saveDiscount', 'PurchaseProductController@saveDiscount');
+    Route::get('purchase-product/supplier-details/{order_id}', 'PurchaseProductController@getSupplierDetails');
+    Route::get('purchase-product/customer-details/{type}/{order_id}', 'PurchaseProductController@getCustomerDetails');
+    Route::resource('purchase-product', 'PurchaseProductController');
+    
     // Cash Vouchers
     Route::get('/voucher/payment/request', 'VoucherController@paymentRequest')->name("voucher.payment.request");
     Route::post('/voucher/payment/request', 'VoucherController@createPaymentRequest')->name('voucher.payment.request-submit');
