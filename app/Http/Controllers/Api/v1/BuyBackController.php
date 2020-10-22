@@ -11,6 +11,8 @@ use App\OrderProduct;
 use App\ReturnExchangeProduct;
 use App\ReturnExchange;
 use App\StoreWebsiteOrder;
+use Illuminate\Validation\Rule;
+
 
 class BuyBackController extends Controller
 {
@@ -45,41 +47,53 @@ class BuyBackController extends Controller
         $validator = Validator::make($request->all(), [
             'order_id' => 'required|exists:order_products,order_id',
             'product_sku' => 'required|exists:order_products,sku',
+            'website' => 'required',
+            'type' => 'required|in:refund,exchange,buyback,return'
         ]);
+
         if ($validator->fails()) {
             return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
         }
-        $getCustomerOrderData = StoreWebsiteOrder::Where('platform_order_id', $request->order_id)
-            ->where('op.sku', $request->product_sku)
-            ->join('orders as od', 'od.id', 'store_website_orders.order_id')
-            ->join('order_products as op', 'op.order_id', 'od.id')
-            ->join('products as p', 'p.sku', 'op.sku')
-            ->select('p.name as product_name', 'op.product_price', 'op.sku', 'op.order_id', 'op.product_id','od.customer_id')
-            ->first();
-        if (!isset($getCustomerOrderData) || empty($getCustomerOrderData)) {
-            return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
-        }
-        $return_exchange_products_data = [
-            "status_id" => 1, //Return request received from customer 
-            "product_id" => $getCustomerOrderData->product_id,
-            "order_product_id" => $getCustomerOrderData->product_id,
-            "name" => $getCustomerOrderData->product_name
-        ];
-        $return_exchanges_data = [
-            'customer_id' => $getCustomerOrderData->customer_id,
-            'type' => 'buyback',
-            'reason_for_refund' => 'buyback of product from order_products',
-            'refund_amount' => $getCustomerOrderData->product_price,
-            'status' => 1,
-            'date_of_request' => date('Y-m-d H:i:s')
-        ];
 
-        $success = ReturnExchange::create($return_exchanges_data);
-        if (!$success) {
-            return response()->json(['status' => 'failed', 'message' => 'Unable to create buyback request!'], 500);
+        $storeWebsite = \App\StoreWebsite::where("website","like",$request->website)->first();
+        if($storeWebsite) {
+            $getCustomerOrderData = StoreWebsiteOrder::Where('platform_order_id', $request->order_id)
+                ->where('op.sku', $request->product_sku)->where('store_website_orders.website_id', $storeWebsite->id)
+                ->join('orders as od', 'od.id', 'store_website_orders.order_id')
+                ->join('order_products as op', 'op.order_id', 'od.id')
+                ->join('products as p', 'p.id', 'op.product_id')
+                ->select('p.name as product_name', 'op.product_price', 'op.sku', 'op.order_id','op.id as order_product_id', 'op.product_id','od.customer_id')
+                ->first();
+
+            if (!isset($getCustomerOrderData) || empty($getCustomerOrderData)) {
+                return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+            }
+            
+            $return_exchange_products_data = [
+                "status_id" => 1, //Return request received from customer 
+                "product_id" => $getCustomerOrderData->product_id,
+                "order_product_id" => $getCustomerOrderData->order_product_id,
+                "name" => $getCustomerOrderData->product_name
+            ];
+            $return_exchanges_data = [
+                'customer_id' => $getCustomerOrderData->customer_id,
+                'type' => $request->type,
+                'reason_for_refund' => $request->get('reason',''.ucwords($request->type).' of product from '.$storeWebsite->website),
+                'refund_amount' => $getCustomerOrderData->product_price,
+                'status' => 1,
+                'date_of_request' => date('Y-m-d H:i:s')
+            ];
+
+            $success = ReturnExchange::create($return_exchanges_data);
+            if (!$success) {
+                return response()->json(['status' => 'failed', 'message' => 'Unable to create '.ucwords($request->type).' request!'], 500);
+            }
+            ReturnExchangeProduct::create($return_exchange_products_data);
+
+            return response()->json(['status' => 'success', 'message' => ucwords($request->type).' request created successfully'], 200);
+        }else{
+            return response()->json(['status' => 'failed', 'message' => 'Please check website is not exist'], 404);
         }
-        ReturnExchangeProduct::create($return_exchange_products_data);
-        return response()->json(['status' => 'success', 'message' => 'buyback request created successfully'], 200);
     }
 
     /**
@@ -130,28 +144,46 @@ class BuyBackController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'customer_email' => 'required|email',
+            'website' => 'required'
         ]);
         if ($validator->fails()) {
             return response()->json(['status' => 'failed', 'message' => 'Please check validation errors !', 'errors' => $validator->errors()], 400);
         }
-        $checkCustomer = Customer::where('email', $request->customer_email)->first();
-        if (!isset($checkCustomer->email)) {
-            return response()->json(['status' => 'failed', 'message' => 'Customer not found with this email !'], 404);
-        }
-        $customer_id = $checkCustomer->id;
-        $getCustomerOrderData = Order::Where('customer_id', $customer_id)
-            ->join('order_products as op', 'op.order_id', 'orders.id')
-            ->join('products as p', 'p.id', 'op.product_id')
-            ->join('store_website_orders as swo', 'swo.order_id', 'op.order_id')
-            ->select('p.name as product_name', 'op.product_price', 'op.sku', 'op.product_id','swo.platform_order_id as order_id')
-            ->get()->makeHidden(['action']);
-        if (count($getCustomerOrderData) == 0) {
-            return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
-        }
+
         $responseData = [];
-        foreach($getCustomerOrderData as $getCustomerOrder){
-            $responseData[$getCustomerOrder->order_id][] = $getCustomerOrder;
+
+        $storeWebsite = \App\StoreWebsite::where("website","like",$request->website)->first();
+        if($storeWebsite) {
+            $checkCustomer = Customer::where('email', $request->customer_email)
+            ->where('store_website_id',$storeWebsite->id)
+            ->first();
+
+            if (!$checkCustomer) {
+                return response()->json(['status' => 'failed', 'message' => 'Customer not found with this email !'], 404);
+            }
+
+            $customer_id = $checkCustomer->id;
+            $getCustomerOrderData = Order::Where('customer_id', $customer_id)->where('swo.website_id',$storeWebsite->id)
+                ->join('order_products as op', 'op.order_id', 'orders.id')
+                ->join('products as p', 'p.id', 'op.product_id')
+                ->join('store_website_orders as swo', 'swo.order_id', 'op.order_id');
+                
+            if($request->order_id !=  null) {
+               $getCustomerOrderData = $getCustomerOrderData->where("swo.platform_order_id",$request->order_id);
+            }
+
+            $getCustomerOrderData = $getCustomerOrderData->select('p.name as product_name', 'op.product_price', 'op.sku',"op.id as order_product_id", 'op.product_id','swo.platform_order_id as order_id')
+                ->get()->makeHidden(['action']);
+
+            if (count($getCustomerOrderData) == 0) {
+                return response()->json(['status' => 'failed', 'message' => 'No order found for the customer!'], 404);
+            }
+            $responseData = [];
+            foreach($getCustomerOrderData as $getCustomerOrder){
+                $responseData[$getCustomerOrder->order_id][] = $getCustomerOrder;
+            }
         }
+
 
         return response()->json(['status' => 'success', 'orders' => $responseData], 200);
     }

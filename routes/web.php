@@ -392,6 +392,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
             });
         });
+
+
+        Route::prefix('contents')->group(function () {
+            Route::get('/', 'ContentManagementController@viewAllContents')->name("content-management.contents");
+        });
     });
 
     Route::prefix('content-management-status')->group(function () {
@@ -2367,6 +2372,7 @@ Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'Produc
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
 Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
+Route::get('/attached-images-grid/get-products/{type}/{customer_id}', 'ProductController@getCustomerProducts');
 
 //referfriend
 Route::prefix('referfriend')->middleware('auth')->group(static function () {
