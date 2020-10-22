@@ -173,4 +173,3 @@ Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');
-
