@@ -400,3 +400,77 @@ Content-Type: application/json
     "message": "No Category Found"
 }
 ```
+## Tickets API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
+    "ticket_id":"PWTCR", //optional if email is set
+}
+```
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "success",
+    "tickets": [
+        {
+            "id": 3,
+            "customer_id": 3008,
+            "name": "Bardambek Yusupov",
+            "last_name": null,
+            "email": "bardam.yus@gmail.com",
+            "ticket_id": "PWTCR",
+            "subject": "Task test",
+            "message": "Message: Hi",
+            "assigned_to": null,
+            "source_of_ticket": "live_chat",
+            "status_id": 1,
+            "date": "2020-08-25 01:26:31",
+            "created_at": "2020-09-11 11:48:23",
+            "updated_at": "2020-09-11 12:08:33",
+            "type_of_inquiry": null,
+            "country": null,
+            "phone_no": null,
+            "order_no": null,
+            "status": "open"
+        },
+        {
+            "id": 4,
+            "customer_id": 3008,
+            "name": "Bardambek Yusupov",
+            "last_name": null,
+            "email": "bardam.yus@gmail.com",
+            "ticket_id": "J7XPB",
+            "subject": "About new Products",
+            "message": "Message: Hi",
+            "assigned_to": null,
+            "source_of_ticket": "live_chat",
+            "status_id": 1,
+            "date": "2020-08-25 01:25:30",
+            "created_at": "2020-09-11 11:48:23",
+            "updated_at": "2020-09-11 11:48:23",
+            "type_of_inquiry": null,
+            "country": null,
+            "phone_no": null,
+            "order_no": null,
+            "status": "open"
+        }
+    ]
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
+}
+```
