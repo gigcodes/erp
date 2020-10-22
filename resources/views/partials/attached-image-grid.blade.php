@@ -58,7 +58,10 @@
             min-width:200px !important;   
         }
         .no-pd {
-            padding:0px;
+            padding:3px;
+        }
+        .mr-3 {
+            margin:3px;
         }
     </style>
 @endsection
@@ -169,10 +172,6 @@
 
     @include('partials.flash_messages')
 
-    <?php
-      $query = http_build_query( Request::except( 'page' ) );
-      $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
-    ?>
 
 
     
@@ -183,6 +182,7 @@
     <div class="col-md-12 margin-tb">
         <div class="table-responsive">
             <table class="table table-bordered" style="table-layout:fixed;">
+                <thead>
                 <th style="width:7%">Date</th>
                 <th style="width:8%">Id</th>
                 <th style="width:15%">Name</th>
@@ -190,6 +190,7 @@
                 <th style="width:20%">Brand</th>
                 <th style="width:20%">Category</th>
                 <th style="width:20%">Action</th>
+                </thead>
                 <tbody class="infinite-scroll-data">
                     @include('partials.attached-image-load')
                 </tbody>
@@ -303,8 +304,10 @@
                 if (isLoading)
                     return;
                     isLoading = true;
-                if(!$('.pagination li.active + li a').attr('href'))
-                return;
+                if(!$('.pagination li.active + li a').attr('href')) {
+                    return;
+                }
+                
 
                 var $loader = $('.infinite-scroll-products-loader');
                 $.ajax({
@@ -316,15 +319,15 @@
                     }
                 })
                 .done(function(data) {
-                    console.log(data);
+                    isLoading = false;
+
                     // if('' === data.trim())
                     //     return;
 
-                    $loader.hide();
+                    // $loader.hide();
 
                     $('.infinite-scroll-data').append(data);
 
-                    isLoading = false;
                 })
                 .fail(function(jqXHR, ajaxOptions, thrownError) {
                     isLoading = false;
@@ -587,6 +590,16 @@
         $(document).on('click', '.preview-attached-img-btn', function (e) {
             e.preventDefault();
             var customer_id = $(this).data('id');
+            $.ajax({
+                url: '/attached-images-grid/get-products/attach/'+customer_id,
+                data: $('#searchForm').serialize(),
+                dataType: 'html',
+            }).done(function (data) {
+                $('#attach-image-list-'+customer_id).html(data);
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+            
             var expand = $('.expand-'+customer_id);
             console.log(expand);
             $(expand).toggleClass('hidden');

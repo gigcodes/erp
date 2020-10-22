@@ -223,6 +223,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
+    
+    Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
+    Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
+    Route::resource('facebook-posts', 'FacebookPostController');
+    
 
 
     Route::resource('sales', 'SaleController');
@@ -688,7 +693,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
     Route::get('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
     Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
-
+    Route::get('quickSell/quick-sell-group-list', 'QuickSellController@quickSellGroupProductsList');
+    Route::post('quickSell/quicksell-product-delete', 'QuickSellController@quickSellGroupProductDelete');
+    
 
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
@@ -1340,6 +1347,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/drafted-products/edit', 'ProductController@editDraftedProduct');
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
+    Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+    
 });
 
 
@@ -1486,6 +1495,10 @@ Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
 
 Route::get('instagram/get/hashtag/{word}', 'InstagramPostsController@hashtag');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::get('instagram/post/publish-post/{id}', 'InstagramPostsController@publishPost');
+
 
 Route::prefix('instagram')->middleware('auth')->group(function () {
 
@@ -2273,6 +2286,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
     Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
+    Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
+
 
     /**
      * Twilio account management
@@ -2352,6 +2367,7 @@ Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'Produc
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
 Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
+Route::get('/attached-images-grid/get-products/{type}/{customer_id}', 'ProductController@getCustomerProducts');
 
 //referfriend
 Route::prefix('referfriend')->middleware('auth')->group(static function () {
@@ -2369,6 +2385,11 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
 
 });
+
+
+//CommonMailPopup
+Route::post('/common/sendEmail', 'CommonController@sendCommonEmail')->name('common.send.email');
+Route::get('/common/getmailtemplate', 'CommonController@getMailTemplate')->name('common.getmailtemplate');
 
 //Google file translator
 Route::prefix('googlefiletranslator')->middleware('auth')->group(static function () {

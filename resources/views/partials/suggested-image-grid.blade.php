@@ -57,7 +57,10 @@
             min-width:200px !important;   
         }
         .no-pd {
-            padding:0px;
+            padding:3px;
+        }
+        .mr-3 {
+            margin:3px;
         }
     </style>
 @endsection
@@ -1163,7 +1166,6 @@
 
         $(document).on("click", ".expand-row-btn", function (e) {
             var id = $(this).data('id');
-            console.log(id);
             $('.toggle-div-'+id).toggleClass('hidden');
         });
 
@@ -1250,6 +1252,18 @@
         $(document).on('click', '.preview-attached-img-btn', function (e) {
             e.preventDefault();
             var customer_id = $(this).data('id');
+
+            $.ajax({
+                url: '/attached-images-grid/get-products/sent/'+customer_id,
+                data: $('#searchForm').serialize(),
+                dataType: 'html',
+            }).done(function (data) {
+                $('#attach-image-list-'+customer_id).html(data);
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+
+
             var expand = $('.expand-'+customer_id);
             console.log(expand);
             $(expand).toggleClass('hidden');
