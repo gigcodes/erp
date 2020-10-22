@@ -487,3 +487,34 @@ Content-Type: application/json
     "message": "Tickets not found for customer !"
 }
 ```
+## Push Notifications API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/notification/create
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
+    "token" : "sdsad2e232dsdsd", //required 
+}
+```
+**Successful Response:**
+```json
+HTTP/1.1 200
+{
+    "status": "success",
+    "message": "Notification created successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Unable to create notifications !"
+}
+```
