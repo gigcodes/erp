@@ -529,6 +529,40 @@ $(document).on("change", ".search-alias", function() {
         $(this).closest(".form-row").find(".extra_condtions").addClass("dis-none");
     }
 });
+
+$(document).on('change', '.store_on_change', function() {
+    var store_website_id = $(this).val();
+    var dialog_id = $(this).data('dialog');
+    $.ajax({
+        type: 'GET',
+        url: '/chatbot/dialog/get-response-only',
+        data: {
+            store_website_id : store_website_id,
+            dialog_id : dialog_id
+        },
+        dataType: "json",
+        success: function(response) {
+            console.log(response);
+            var myTmpl = $.templates("#add-dialog-form");
+            var html = myTmpl.render({
+                "data": response.data
+            });
+            $("#leaf-editor-model").find(".modal-body").html(html);
+            $("[data-toggle='toggle']").bootstrapToggle('destroy')
+            $("[data-toggle='toggle']").bootstrapToggle();
+            $(".search-alias").select2();
+            searchForDialog($("#leaf-editor-model"));
+            var eleLeaf = $("#leaf-editor-model");
+            searchForIntent(eleLeaf);
+            searchForCategory(eleLeaf);
+            previousDialog(eleLeaf);
+            parentDialog(eleLeaf);
+        },
+        error: function() {
+            toastr['error']('Could not change module!');
+        }
+    });
+})
 // $(document).on("click", ".bx--overflow-menu-options > li", function() {
 //     var buttonRole = $(this).find("button").attr("role");
 //     if (buttonRole == "add_child") {
@@ -900,4 +934,53 @@ $(document).on("click",".call_child_node",function(e) {
     var parent_id = $(this).data('id');
     console.log(parent_id);
     updateBoxEvent(parent_id);
+});
+
+$(document).on("click", ".view-all-response", function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    $.ajax({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    type: "get",
+    url: '/chatbot/dialog/all-reponses/'+id,
+    dataType: "html",
+    success: function(response) {
+        $('#all-response-modal').modal("show");
+        $('#all-response-data').html(response);
+    },
+    error: function() {
+        toastr['error']('Can not store intent name please review!');
+    }
+});
+});
+
+
+$(document).on("click", ".update-response", function(e) {
+    e.preventDefault();
+    var id = $(this).data('id');
+    var responseData = $('#response-'+id).val();
+    $.ajax({
+    headers: {
+        'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+    },
+    type: "post",
+    url: '/chatbot/dialog/submit-reponse/'+id,
+    dataType: "json",
+    data: {
+        responseData:responseData
+    },
+    success: function(response) {
+        if(response.code == 200) {
+            toastr['success'](response.message);
+        }
+        else {
+            toastr['error'](response.message);
+        }
+    },
+    error: function() {
+        toastr['error']('Can not store intent name please review!');
+    }
+});
 });

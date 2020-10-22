@@ -15,6 +15,7 @@ class AssetsManagerController extends Controller
 	 */
 	public function index(Request $request)
 	{
+		
 		$archived = 0;
 		if($request->archived == 1)
 			$archived = 1;
@@ -25,7 +26,7 @@ class AssetsManagerController extends Controller
 		$paymentCycle 	= request("payment_cycle","");
 		$assetType 		= request("asset_type","");
 		$purchaseType 	= request("purchase_type","");
-
+		
 		$assets = new AssetsManager;
 		
 		if(!empty($search)) {
@@ -47,7 +48,7 @@ class AssetsManagerController extends Controller
 		}		
 
 		$assets = $assets->paginate(10);
-
+		
 	return view('assets-manager.index',compact('assets', 'category'))
 			->with('i', ($request->input('page', 1) - 1) * 10);
 	}
@@ -72,7 +73,6 @@ class AssetsManagerController extends Controller
 	 */
 	public function store(Request $request)
 	{
-
 		$this->validate($request, [
 			'name' => 'required',
 			'asset_type' => 'required',
@@ -107,8 +107,20 @@ class AssetsManagerController extends Controller
 			$data['category_id'] = $catid;
 		}
 
-		AssetsManager::create($data);
-
+		$insertData = AssetsManager::create($data);
+		if($request->input('payment_cycle') == 'One time'){
+			//create entry in table cash_flows
+			\DB::table('cash_flows')->insert(
+				[
+					'description'=>'Asset Manager Payment for id'.$insertData->id,
+					'date'=>('Y-m-d'),
+					'amount'=>$request->input('amount'),
+					'type'=>'paid',
+					'cash_flow_able_type'=>'App\AssetsManager',
+	
+				]
+			);
+		}
 		return redirect()->route('assets-manager.index')
 		                 ->with('success','Assets created successfully');
 	}
@@ -163,7 +175,7 @@ class AssetsManagerController extends Controller
 			'payment_cycle' => 'required',
 			'amount' => 'required',
 		]);
-
+			
 		$othercat = $request->input('other');
 		$category_id = $request->input('category_id');
 		$catid = '';

@@ -13,6 +13,7 @@ class OrderStatusMail extends Mailable
 	
 	public $body;
 	public $subject;
+    public $sendFrom;
 	
 	/**
      * Create a new message instance.
@@ -23,6 +24,11 @@ class OrderStatusMail extends Mailable
     {
 		$this->subject =  $data['subject'];
 		$this->body =  $data['static_template'];
+        if(isset($data['from'])){
+             $this->sendFrom =  $data['from'];
+        }else{
+            $this->sendFrom = 'customercare@sololuxury.co.in';  
+        }
 	}
 
     /**
@@ -33,8 +39,8 @@ class OrderStatusMail extends Mailable
     public function build()
     {
 		
-		return $this->from('customercare@sololuxury.co.in')
-                    ->bcc('customercare@sololuxury.co.in')
+		return $this->from($this->sendFrom)
+                    ->bcc($this->sendFrom)
                     ->subject($this->subject)
                     ->html($this->body, 'text/html');
 		

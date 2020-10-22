@@ -4,7 +4,11 @@
 <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
 <style>
-
+.mr-pd {
+    margin: 0px;
+    padding: 2px;
+    margin-bottom:10px !important;
+}
 </style>
 @endsection
 
@@ -33,25 +37,25 @@
 @endif
 <div class="col-lg-12 margin-tb">
     <form action="{{ url('productinventory/inventory-list') }}" method="GET" class="form-inline align-items-start">
-        <div class="form-group mr-3 mb-3">
-            {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control']) !!}
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::text('term',request("term"), ['placeholder' => 'Search by product, sku, brand, category','class' => 'form-control','style' => 'width: 100%;']) !!}
         </div>
-        <div class="form-group mr-3 mb-3">
+        <div class="form-group mr-pd col-md-2">
             {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-3 mb-3">
+        <div class="form-group mr-pd col-md-2">
             {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-3 mb-3">
-            {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
         </div>
         <!-- <div class="form-group mr-3 mb-3">
                 {!! Form::select('product_sku[]',$products_sku, request("product_sku",[]), ['data-placeholder' => 'Select a Sku','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
             </div> -->
-        <div class="form-group mr-3 mb-3">
+        <div class="form-group mr-pd col-md-1">
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
-        <div class="form-group mr-3 mb-3">
+        <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
                 <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                 <span class="input-group-addon">
@@ -59,7 +63,10 @@
                 </span>
             </div>
         </div>
+        <div class="form-group mr-pd col-md-1">
         <button type="submit" class="btn btn-secondary"><i class="fa fa-filter"></i>Filter</button>
+        </div>
+        
 
     </form>
 </div>
@@ -213,12 +220,7 @@
 
     var isLoadingProducts = false;
     let page = 1;
-    let last_page = {
-        {
-            $inventory_data - > lastPage()
-        }
-    }
-
+    let last_page = {{$inventory_data->lastPage()}};
     $(function() {
         $(window).scroll(function() {
             if (($(window).scrollTop() + $(window).outerHeight()) >= ($(document).height() - 2500)) {

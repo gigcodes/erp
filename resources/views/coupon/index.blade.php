@@ -153,6 +153,24 @@
                             @endif
                         </div>
                     </div>
+                    <div class="form-group row">
+                        <label for="maximum_usage" class="col-sm-3 col-form-label">Credit/Initial Amount</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="initial_amount" placeholder="Credit" value="{{old('initial_amount')}}" />
+                            @if ($errors->has('initial_amount'))
+                            <div class="alert alert-danger">{{$errors->first('initial_amount')}}</div>
+                            @endif
+                        </div>
+                    </div>
+                    <div class="form-group row">
+                        <label for="email" class="col-sm-3 col-form-label">Email</label>
+                        <div class="col-sm-8">
+                            <input type="text" class="form-control" name="email" placeholder="Email" value="{{old('email')}}" />
+                            @if ($errors->has('email'))
+                            <div class="alert alert-danger">{{$errors->first('email')}}</div>
+                            @endif
+                        </div>
+                    </div>
 
                 </div>
                 <div class="modal-footer">
@@ -219,6 +237,8 @@
                     <th>Minimum Order Amount</th>
                     <th>Maximum Usage</th>
                     <th>Usage</th>
+                    <th>Initial Amount</th>
+                    <th>Email</th>
                     <th width="10%">Actions</th>
                 </tr>
             </thead>
@@ -325,7 +345,9 @@
         discountFixed,
         discountPercentage,
         minimumOrderAmount,
-        maximumUsage
+        maximumUsage,
+        initialAmount,
+        email
     ) {
         $('#coupon-form').attr('action', '/checkout/coupons/' + id);
 
@@ -338,6 +360,8 @@
         $('#coupon-form input[name="discount_percentage"]').val(discountPercentage);
         $('#coupon-form input[name="minimum_order_amount"]').val(minimumOrderAmount);
         $('#coupon-form input[name="maximum_usage"]').val(maximumUsage);
+        $('#coupon-form input[name="initial_amount"]').val(initialAmount);
+        $('#coupon-form input[name="email"]').val(email);
 
         $('#couponModal').modal('show');
     }
@@ -368,7 +392,11 @@
                     discount_fixed: $('#coupon-form input[name="discount_fixed"]').val(),
                     discount_percentage: $('#coupon-form input[name="discount_percentage"]').val(),
                     minimum_order_amount: $('#coupon-form input[name="minimum_order_amount"]').val(),
-                    maximum_usage: $('#coupon-form input[name="maximum_usage"]').val()
+                    maximum_usage: $('#coupon-form input[name="maximum_usage"]').val(),
+                    maximum_usage: $('#coupon-form input[name="maximum_usage"]').val(),
+                    maximum_usage: $('#coupon-form input[name="maximum_usage"]').val(),
+                    initialAmount: $('#coupon-form input[name="initial_amount"]').val(),
+                    email: $('#coupon-form input[name="email"]').val(),
                 }
             })
             .done(function(msg) {

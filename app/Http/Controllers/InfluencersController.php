@@ -182,7 +182,8 @@ class InfluencersController extends Controller
 
        $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
@@ -205,7 +206,9 @@ class InfluencersController extends Controller
 
         $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/send-log?'.$name;
+        // echo $url;
+        // die();
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 
@@ -235,7 +238,11 @@ class InfluencersController extends Controller
 
        $cURLConnection = curl_init();
 
-        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/restart-script?'.$name;
+
+        // echo $url;
+        // die();
+
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
 
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
@@ -258,7 +265,9 @@ class InfluencersController extends Controller
        $name = str_replace(" ","",$name);
 
        $cURLConnection = curl_init();
-        $url = env('INFLUENCER_SCRIPT_URL').env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/stop-script?'.$name;
+        // echo $url;
+        // die();
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
 

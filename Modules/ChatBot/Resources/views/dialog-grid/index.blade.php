@@ -11,6 +11,9 @@
     .word-wrap {
         word-break: break-all;
     }
+	.pd-3 {
+		padding:2px;
+	}
 </style>
 <div class="row">
 	<div class="col-lg-12 margin-tb">
@@ -21,6 +24,7 @@
     <div class="col-lg-12 margin-tb" style="margin-bottom: 10px;">
         <div class="pull-right">
             <div class="form-inline">
+                <button type="button" class="btn btn-secondary ml-3"><a href="{{route('chatbot.dialog.local-error-log')}}" style="text-decoration:none;color:white;">Error log</a> </button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-btn-rest">Create</button>
                 <button type="button" class="btn btn-secondary ml-3" id="create-dialog-folder-btn-rest">Create Folder</button>
         	  </div>
@@ -83,6 +87,26 @@
       </div>
       <div class="modal-body">
         
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-secondary save-dialog-btn">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<div class="modal fade" id="all-response-modal" role="dialog">
+  <div class="modal-dialog modal-lg" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">All Responses</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body" id="all-response-data">
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

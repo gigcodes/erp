@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraperSites;
 use seo2websites\PriceComparisonScraper\PriceComparisonScraper;
+use App\Product;
 
 
 class PriceComparisionController extends Controller
@@ -145,5 +146,122 @@ class PriceComparisionController extends Controller
     	}
 
     	
+    }
+
+    public function sendDetails(Request $request)
+    {
+        //checking if we getting proper request 
+        if(empty($request->sku) || empty($request->country)){
+            
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'Please Send Both SKU and Country',
+            ]);
+        }
+        $internationCountriesCount = 5;
+        
+        //getting product
+        $product = Product::getProductBySKU($request->sku);
+        if($product){
+            //getting product category
+            $category =  $product->product_category;
+            if($category){
+                $categoryArray = []; //storing the category in array
+                //storing in category array 
+                $categoryArray[] = $category->title; 
+                //checking if category is parent or child
+                $isParentCategory = $category->isParent($category->id);
+                    //if not parent category
+                    if(!$isParentCategory){
+                        //getting category parent
+                        $parent = $category->parent;
+                        //storing data in category array
+                        $categoryArray[] = $parent->title;
+                    }
+                    
+                    //search in Price comparision table using array
+
+                    $outputArray = []; //output array
+                    $idArray = [];
+                    $priceComparisonId = [];
+                    
+                    //getting local data
+                    $resultWithCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
+                    ->where('country_code',$request->country)
+                    ->where('currency','EUR')
+                    ->groupBy('price_comparison_site_id')
+                    ->take(3)
+                    ->get();
+
+                    //storing locat data for output
+                    foreach ($resultWithCountries as $resultWithCountry) {
+                        $percentage = $resultWithCountry->getTheDiffrence();
+                        $priceComparisonId[] = $resultWithCountry->price_comparison_site_id;
+                        $data['name'] = ($resultWithCountry->price_comparison_site) ? $resultWithCountry->price_comparison_site->name : "N/A";
+                        $data['currency'] = $resultWithCountry->currency;
+                        $data['price'] = $resultWithCountry->addPrice($product->price,$percentage);
+                        $data['country_code'] = $resultWithCountry->country_code;
+                        $outputArray[] = $data;
+                        $idArray[] = $resultWithCountry->id;
+                    }
+
+                    $resultWithCountriesCount = $resultWithCountries->count();
+
+                    //if we dont get any local price
+                    if(count($idArray) == 0){
+                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->where('currency','EUR')->groupBy('price_comparison_site_id')->take(5)->get();
+                    }else{
+                        //exclude the price and site which are already included
+                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
+                        ->whereNotIn('id',$idArray)
+                        ->where('currency','EUR')
+                        ->whereNotIn('price_comparison_site_id',$priceComparisonId)
+                        ->groupBy('price_comparison_site_id')
+                        ->take($internationCountriesCount)
+                        ->get();
+                    }
+
+                    //getting international results
+                    foreach ($resultWithoutCountries as $resultWithoutCountry) {
+                        $percentage = $resultWithoutCountry->getTheDiffrence();
+                        $data['name'] = ($resultWithoutCountry->price_comparison_site) ? $resultWithoutCountry->price_comparison_site->name : "N/A";
+                        $data['currency'] = $resultWithoutCountry->currency;
+                        $data['price'] = $resultWithoutCountry->addPrice($product->price,$percentage);
+                        $data['country_code'] = $resultWithoutCountry->country_code;
+                        $outputArray[] = $data;
+                    }
+                    
+                    //checking when we dont have any output
+                    if(count($outputArray) == 0){
+
+                        return response()->json([
+                            'status' => 'failed',
+                            'message' => 'No Price Comparision Found',
+                        ]);
+
+                    }else{
+                        return response()->json([
+                            'status' => 'success',
+                            'results' => $outputArray,
+                        ]);
+                    }
+                    
+                    
+
+            }else{
+                //if not category found response
+                return response()->json([
+                    'status' => 'failed',
+                    'message' => 'No Category Found',
+                ]);
+            }
+        }else{
+            //not product found with sku response
+            return response()->json([
+                'status' => 'failed',
+                'message' => 'No Product Found For This SKU',
+            ]);
+        }
+
     }
 }

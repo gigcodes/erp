@@ -39,6 +39,8 @@ use App\CallHistory;
 use App\Setting;
 use App\StatusChange;
 use App\MailinglistTemplate;
+use App\MailinglistTemplateCategory;
+use App\EmailAddress;
 use App\Category;
 use App\Mails\Manual\RefundProcessed;
 use App\Mails\Manual\AdvanceReceipt;
@@ -67,8 +69,8 @@ use App\StoreWebsite;
 use App\Invoice;
 use App\StoreWebsiteOrder;
 use seo2websites\MagentoHelper\MagentoHelperv2;
-
-
+use App\OrderStatusHistory;
+use App\waybillTrackHistories;
 class OrderController extends Controller {
 
 
@@ -280,6 +282,7 @@ class OrderController extends Controller {
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
+		->leftJoin("customers as cs","cs.id","orders.customer_id")
 		->leftJoin("products as p","p.id","op.product_id")
         ->leftJoin("brands as b","b.id","p.brand");
 
@@ -288,9 +291,8 @@ class OrderController extends Controller {
 		}
 
 		$orders = $orders->groupBy("orders.id");
-		$orders = $orders->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
-
-
+		$orders = $orders->select(["orders.*","cs.email as cust_email",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
+	
 		$users  = Helpers::getUserArray( User::all() );
 		$order_status_list = OrderHelper::getStatus();
 
@@ -2134,22 +2136,43 @@ public function createProductOnMagento(Request $request, $id){
 			$statuss = OrderStatus::where("id",$status)->first();
 			
 			if($order) {
+				$old_status = $order->order_status_id;
 				$order->order_status 	= $statuss->status;
 				$order->order_status_id = $status;
 				$order->save();
-				
+
+				$history = new OrderStatusHistory;
+				$history->order_id = $order->id;
+				$history->old_status = $old_status;
+				$history->new_status = $status;
+				$history->user_id = Auth::user()->id;
+				$history->save();
 				//Sending Mail on changing of order status
-				$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
-				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
-				$valToReplace = [$order->customer->name,$statuss->status];
-				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
-				
-				$emailData['subject'] = $templateData->subject;
-				$emailData['static_template'] = $bodyText;
-				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                if($mailingListCategory){
+                    if($order->storeWebsiteOrder) {
+                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+                    }else{
+                        $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                    }
+                    // @todo put the function to send mail from specific store emails
+                    if($templateData) {
+        				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+        				$valToReplace = [$order->customer->name,$statuss->status];
+        				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+        				
+        				$storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+                        if($storeEmailAddress) {
+                            $emailData['subject'] = $templateData->subject;
+                            $emailData['static_template'] = $bodyText;
+                            $emailData['from'] = $storeEmailAddress->from_address;
+                        
+            				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                        }
+                    }
+                }
+
 				//Sending Mail on changing of order status
-				
-				
 				
 				//sending order message to the customer	
 				UpdateOrderStatusMessageTpl::dispatch($order->id);
@@ -2163,7 +2186,6 @@ public function createProductOnMagento(Request $request, $id){
 							if($magento_status) {
 								$magentoHelper = new MagentoHelperv2;
 								$result = $magentoHelper->changeOrderStatus($order,$website,$magento_status->value);
-								// dd($result);
 							}
 						}
 					}
@@ -2787,5 +2809,105 @@ public function createProductOnMagento(Request $request, $id){
 		->get();
 		$html = view('partials.modals.estimated-delivery-date-histories')->with('estimated_delivery_histories', $estimated_delivery_histories)->render(); 
 		return response()->json(["code" => 200 , "html" => $html, "message" => "Something went wrong"]);
+	}
+
+	public function customerOrderDetails(Request $request) {
+		$token = $request->token;
+		$email = $request->email;
+        $order_no = $request->order_no;
+		$store_url = $request->website;
+
+		$token = $request->bearerToken();
+		if((!$email || trim($email) == '') && empty($order_no)) {
+			return response()->json(['message' => 'Email is absent in your request','status' => 400]);
+		}
+
+        if((!$order_no || trim($order_no) == '') && empty($email)) {
+            return response()->json(['message' => 'Order reference no is absent in your request','status' => 400]);
+        }
+
+
+		if(!$store_url || trim($store_url) == '') {
+			return response()->json(['message' => 'Store Url is absent in your request','status' => 400]);
+		}
+		$store_website = StoreWebsite::where('website',"like", $store_url)->first();
+    	if(!$store_website) {
+			return response()->json(['message' => 'Store not found with this url','status' => 404]);
+		}
+		if($store_website->api_token != $token) {
+			return response()->json(['message' => 'Token mismatched','status' => 401]);
+		}
+
+		if(!empty($email)) {
+            $customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
+    		if(!$customer) {
+    			return response()->json(['message' => 'Customer not found in this store for the requested email','status' => 404]);
+    		}
+    		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+    					->where('orders.customer_id',$customer->id)
+    					->where('store_website_orders.website_id',$store_website->id)
+    					->select('orders.*')
+    					->orderBy('created_at','desc')
+    					->get();
+        }else{
+            $orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+                        ->where('store_website_orders.website_id',$store_website->id)
+                        ->where('store_website_orders.platform_order_id',$order_no)
+                        ->select('orders.*')
+                        ->orderBy('created_at','desc')
+                        ->get();
+        }
+
+
+		if(count($orders) == 0) {
+			return response()->json(['message' => 'No orders found against this customer','status' => 200]);
+		}
+		foreach($orders as $order) {
+			$histories  = OrderStatusHistory::
+										join('order_statuses','order_statuses.id','order_status_histories.new_status')
+										->where('order_status_histories.order_id', $order->id)
+										->select(['order_statuses.*','order_status_histories.created_at as created_at_time'])
+										->orderBy('order_status_histories.created_at','asc')
+										->get();
+			/*$order->status_histories = $histories->toArray();*/
+            $return_histories = [];
+			if(count($histories) > 0){
+                foreach($histories->toArray() as $h)  {
+                    $return_histories[] = [
+                        "status" => $h['status'],
+                        "created_at" => $h['created_at_time'],
+                    ];
+                }
+			}
+            //$order->waybill;
+			$waybill_history  = waybillTrackHistories::
+										join('waybills','waybills.id','waybill_track_histories.waybill_id')
+										->where('waybills.order_id', $order->id)
+										->select(['waybill_track_histories.*','waybill_track_histories.created_at  as created_at_time'])
+										->orderBy('waybill_track_histories.created_at','asc')
+										->get();
+
+
+            if(count($waybill_history) > 0){
+            	foreach($waybill_history->toArray() as $h)  {
+                    $return_histories[] = [
+                        "status" => $h['comment'],
+                        "created_at" => $h['created_at_time'],
+                    ];
+                }
+			}
+
+            if(!empty($return_histories)) {
+                usort($return_histories, function($a, $b) {
+                    return strtotime($a['created_at']) - strtotime($b['created_at']);
+                });
+            }
+
+            $order->status_histories = array_reverse($return_histories);
+		}
+		$orders = $orders->toArray();
+		// $orders = json_encode($orders);
+		return response()->json(['message' => 'Orders Fetched successfully','status' => 200, 'data' => $orders]);
+
 	}
 }

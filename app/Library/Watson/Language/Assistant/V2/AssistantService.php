@@ -46,6 +46,11 @@ class AssistantService extends Service
         );
     }
 
+    public function set_url($url)
+    {
+        return $this->url = $url;
+    }
+
     public function createSession($assistantId, $version = '2019-02-28')
     {
         return $this->client->request(

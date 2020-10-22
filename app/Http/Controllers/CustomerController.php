@@ -155,7 +155,6 @@ class CustomerController extends Controller
         // dd($messages);
 
         $results = $this->getCustomersIndex($request);
-
         $term = $request->input('term');
         $reply_categories = ReplyCategory::all();
         $api_keys = ApiKey::select('number')->get();
@@ -406,6 +405,7 @@ class CustomerController extends Controller
         $sql = '
             SELECT
                 customers.id,
+                customers.email,
                 customers.frequency,
                 customers.reminder_message,
                 customers.name,
@@ -1349,7 +1349,6 @@ class CustomerController extends Controller
     {
         $customer = Customer::with(['call_recordings', 'orders', 'leads', 'facebookMessages'])->where('id', $id)->first();
         $customers = Customer::select(['id', 'name', 'email', 'phone', 'instahandler'])->get();
-
         $emails = [];
         $lead_status = (New status)->all();
         $users_array = Helpers::getUserArray(User::all());

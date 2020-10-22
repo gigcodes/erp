@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\StoreWebsite;
 use App\WatsonAccount;
+use App\ChatbotQuestion;
+use App\Library\Watson\Model as WatsonManager;
+use App\Jobs\PushToWatson;
 class WatsonController extends Controller
 {
     /**
@@ -102,5 +105,12 @@ class WatsonController extends Controller
         $account = WatsonAccount::find($id);
         $account->delete();
         return redirect()->back();
+    }
+
+    public function addIntentsToWatson($id) {
+        $account = WatsonAccount::find($id);
+        PushToWatson::dispatch($id);
+        $account->update(['watson_push' => 1]);
+        return response()->json(['message' => 'Successfully added to the queue', 'code' => 200]);
     }
 }

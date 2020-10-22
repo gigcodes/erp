@@ -78,16 +78,16 @@
 <div class="tab-pane">
 	<div class="row">
 	    <div class="col-lg-12 margin-tb">
-	        <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+	        <table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 			  <thead>
 			    <tr>
-			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Intent / entity</th>
-			      <th class="th-sm">Type</th>
-			      <th class="th-sm">User Intent / entity</th>
-                  <th class="th-sm">Suggested Response</th>
-			      <th class="th-sm">Category</th>
-			      <th class="th-sm">Action</th>
+			      <th class="th-sm" style="width:5%">Id</th>
+			      <th class="th-sm" style="width:13%">Intent / entity</th>
+			      <th class="th-sm" style="width:5%">Type</th>
+			      <th class="th-sm" style="width:30%">User Intent / entity</th>
+                  <th class="th-sm" style="width:30%">Suggested Response</th>
+			      <th class="th-sm" style="width:9%">Category</th>
+			      <th class="th-sm" style="width:8%">Action</th>
 			    </tr>
 			  </thead>
 			  <tbody>
@@ -130,17 +130,6 @@
 				    </tr>
 				<?php } ?>
 			  </tbody>
-			  <tfoot>
-			    <tr>
-			      <th>Id</th>
-			      <th>Intent</th>
-			      <th>Type</th>
-			      <th class="th-sm">User Intent / entity</th>
-			      <th class="th-sm">Suggested Response</th>
-			      <th>Category</th>
-			      <th>Action</th>
-			    </tr>
-			  </tfoot>
 			</table>
 	    </div>
 	    <div class="col-lg-12 margin-tb">
@@ -181,7 +170,8 @@
                	toastr['error'](errorMessage);
                } 
             },
-            error: function () {
+            error: function (error) {
+				console.log(error);
                toastr['error']('Could not change module!');
             }
         });

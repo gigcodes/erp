@@ -46,14 +46,12 @@
     				  <?php echo csrf_field(); ?>
 					  @if($chatbotQuestion->keyword_or_question == 'intent')
 					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="value">Intent</label>
-					      <small id="emailHelp" class="form-text text-muted">Name your intent to match the category of values that it will detect.</small>
 					      <?php echo Form::text("value", $chatbotQuestion->value, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+					      <small style="font-size:10px;" id="emailHelp" class="form-text text-muted">Name your intent to match the category of values that it will detect.</small>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="question">Category</label>
 					      <!-- <?php echo Form::select("category_id",$allCategoryList, null, ["class" => "form-control select-chatbot-category", "id" => "chatbot-category-id"]); ?> -->
 						  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatbotQuestion->id}}">
@@ -63,15 +61,11 @@
 						  @endforeach
 						</select>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="question">User Intent</label>
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your question"]); ?>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="value">Auto Approve</label>
 					      <select name="auto_approve" id="" class="form-control">
 							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
@@ -94,7 +88,7 @@
 					  @endif -->
 					  @if($chatbotQuestion->task_type && $chatbotQuestion->task_type != '')
 					  <div class="form-row">
-					  <div class="form-group col-md-6">
+					  <div class="form-group col-md-2">
 							<label for="value">Task Category</label>
 							<select name="task_category_id" id="" class="form-control">
 								<option value="">Select</option>
@@ -103,18 +97,14 @@
 								@endforeach
 							</select>
 						</div>
-						</div>
-						<div class="form-row">
-						<div class="form-group col-md-6">
+						<div class="form-group col-md-2">
 							<label for="value">Task Type</label>
-							<select name="task_type" id="" class="form-control change-task-type">
+							<select name="task_type" id="task_type" class="form-control change-task-type">
 								<option value="task" {{$chatbotQuestion->task_type == 'task' ? 'selected' : ''}}>Task</option>
 								<option value="devtask" {{$chatbotQuestion->task_type == 'devtask' ? 'selected' : ''}}>Devtask</option>
 							</select>
 						</div>
-						</div>
-						<div class="form-row">
-						<div class="form-group col-md-6">
+						<div class="form-group col-md-2">
 							<label for="value">Assign to</label>
 							<select name="assigned_to" id="" class="form-control">
 								<option value="">Select</option>
@@ -123,9 +113,7 @@
 								@endforeach
 							</select>
 						</div>
-						</div>
-						<div id="repo-details">
-						<div class="form-row">
+						<div class="col-md-6" id="repo-details">
 						<div class="form-group col-md-6" >
 									<label for="repository_id">Repository:</label>
 									<br>
@@ -136,8 +124,6 @@
 										@endforeach
 									</select>
 								</div>
-								</div>
-								<div class="form-row">
 								<div class="form-group col-md-6">
 									<label for="module_id">Module:</label>
 									<br>
@@ -150,11 +136,11 @@
 								</div>
 								</div>
 							</div>
-							<div class="form-row">
-						<div class="form-group col-md-6">
-							<label for="value">Task Description</label>
-							<textarea name="task_description" class="form-control" rows="8" cols="80" required>{{$chatbotQuestion->task_description}}</textarea>
-						</div>
+						<div class="form-row">
+							<div class="form-group col-md-12">
+								<label for="value">Task Description</label>
+								<textarea name="task_description" class="form-control" rows="2" required>{{$chatbotQuestion->task_description}}</textarea>
+							</div>
 						</div>
 
 
@@ -162,14 +148,12 @@
 					  @endif
 					  @if($chatbotQuestion->keyword_or_question == 'entity')
 					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="keyword">Entity</label>
-					      <small id="emailHelp" class="form-text text-muted">Name your entity to match the category of values that it will detect.</small>
 						  <?php echo Form::text("value", $chatbotQuestion->value, ["class" => "form-control", "id" => "keyword", "placeholder" => "Enter your entity"]); ?>
+					      <small style="font-size: 10px;" id="emailHelp" class="form-text text-muted">Name your entity to match the category of values that it will detect.</small>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="question">Category</label>
 					      <!-- <?php echo Form::select("category_id",$allCategoryList, null, ["class" => "form-control select-chatbot-category", "id" => "chatbot-category-id"]); ?> -->
 						  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatbotQuestion->id}}">
@@ -179,11 +163,16 @@
 						  @endforeach
 						</select>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-3">
 					      <label for="value">User Entity</label>
 					      <?php echo Form::text("question", null, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+					    </div>
+						<div class="form-group col-md-3">
+					      <label for="value">Auto Approve</label>
+					      <select name="auto_approve" id="" class="form-control">
+							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
+							<option value="1" {{$chatbotQuestion->auto_approve == 1 ? 'selected' : ''}}>Yes</option>
+						</select>
 					    </div>
 					</div>
 					<div class="form-row align-items-end">
@@ -204,26 +193,16 @@
 			                </a>	
 			      	    </div>
 					</div>
-					<div class="form-row">
-					    <div class="form-group col-md-6">
-					      <label for="value">Auto Approve</label>
-					      <select name="auto_approve" id="" class="form-control">
-							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
-							<option value="1" {{$chatbotQuestion->auto_approve == 1 ? 'selected' : ''}}>Yes</option>
-						</select>
-					    </div>
-					  </div>
 					  @endif
 					  @if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer')
 					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-2">
 					      <label for="value">ERP Entity</label>
-					      <small id="emailHelp" class="form-text text-muted">Name your erp entity to match the category of values that it will detect.</small>
+					     
 					      <?php echo Form::text("value", $chatbotQuestion->value, ["class" => "form-control", "id" => "value", "placeholder" => "Enter your value"]); ?>
+						  <small style="font-size:10px;" id="emailHelp" class="form-text text-muted">Name your erp entity to match the category of values that it will detect.</small>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-2">
 					      <label for="question">Category</label>
 						  <select name="category_id" id="" class="form-control question-category" data-id="{{$chatbotQuestion->id}}">
 						  <option value="">Select</option>
@@ -232,17 +211,13 @@
 						  @endforeach
 						</select>
 					    </div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-2">
 					      <label for="question">Keyword</label>
 					      <?php echo Form::text("keyword", null, ["class" => "form-control", "id" => "question", "placeholder" => "Enter your keyword"]); ?>
 					    </div>
-					  </div>
-					  <div class="form-row">
-						<div class="form-group col-md-6">
+						<div class="form-group col-md-2">
 							<strong>Repeat:</strong>
-							<select class="form-control" name="repeat">
+							<select class="form-control" name="repeat" style="margin-top: 5px;">
 								<option value="">Don't Repeat</option>
 								<option value="Every Day" {{$chatbotQuestion->repeat == 'Every Day' ? 'selected'  : ''}}>Every Day</option>
 								<option value="Every Week" {{$chatbotQuestion->repeat == 'Every Week' ? 'selected'  : ''}}>Every Week</option>
@@ -250,15 +225,12 @@
 								<option value="Every Year" {{$chatbotQuestion->repeat == 'Every Year' ? 'selected'  : ''}}>Every Year</option>
 							</select>
 						</div>
-					  </div>
-
-					  <div class="form-row">
-					  <div class="form-group col-md-6">
+					  <div class="form-group col-md-2">
                         <strong>Completion Date:</strong>
                         <div class='input-group date' id='sending-datetime'>
-								<input type='text' class="form-control" name="sending_time" value="{{ $chatbotQuestion->sending_time }}"/>
+								<input style="margin-top: 5px;" type='text' class="form-control" name="sending_time" value="{{ $chatbotQuestion->sending_time }}"/>
 
-								<span class="input-group-addon">
+								<span style="margin-top: 5px;" class="input-group-addon">
 									<span class="glyphicon glyphicon-calendar"></span>
 								</span>
 							</div>
@@ -267,9 +239,7 @@
 								<div class="alert alert-danger">{{$errors->first('sending_time')}}</div>
 							@endif
 						</div>
-					  </div>
-					  <div class="form-row">
-					    <div class="form-group col-md-6">
+					    <div class="form-group col-md-2">
 					      <label for="value">Auto Approve</label>
 					      <select name="auto_approve" id="" class="form-control">
 							<option value="0" {{$chatbotQuestion->auto_approve == 0 ? 'selected' : ''}}>No</option>
@@ -278,25 +248,29 @@
 					    </div>
 					  </div>
 					  @endif
-					  <button type="submit" class="btn btn-primary">Add Intent</button>
+					  @if($chatbotQuestion->keyword_or_question == 'entity')
+					  <center><button type="submit" class="btn btn-primary">Add Entity</button></center>
+					  @else 
+					  <center><button type="submit" class="btn btn-primary">Add Intent</button></center>
+					@endif
 				</form>
 	    	</div>
 		</div>
 		<div class="col-lg-12 margin-tb">
 		@if($chatbotQuestion->keyword_or_question == 'intent')
-			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 			  <thead>
 			    <tr>
-			      <th class="th-sm">Id</th>
-			      <th class="th-sm">User Intent</th>
-			      <th class="th-sm">Annotation</th>
-			      <th class="th-sm">Action</th>
+			      <th class="th-sm" style="width:5%">Sl no</th>
+			      <th class="th-sm" style="width:65%">User Intent</th>
+			      <th class="th-sm" style="width:20%">Annotation</th>
+			      <th class="th-sm" style="width:10%">Action</th>
 			    </tr>
 			  </thead>
 			  <tbody>
-			    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $value) {?>
+			    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $key => $value) {?>
 				    <tr>
-				      <td><?php echo $value->id; ?></td>
+				      <td><?php echo ++$key; ?></td>
 				      <td class="text-question" data-question-id="<?php echo $value->id; ?>" data-question="<?php echo $value->question; ?>">
 				      	<?php echo $value->question; ?>
 				     </td>
@@ -319,31 +293,23 @@
 				    </tr>
 				<?php }?>
 			  </tbody>
-			  <tfoot>
-			    <tr>
-			      <th>Id</th>
-			      <th>User Example</th>
-			      <th>Annotation</th>
-			      <th>Action</th>
-			    </tr>
-			  </tfoot>
 			</table>
 			@endif
 			@if($chatbotQuestion->keyword_or_question == 'entity')
-			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 				  <thead>
 				    <tr>
-				      <th class="th-sm">Id</th>
-				      <th class="th-sm">Value</th>
-				      <th class="th-sm">Type</th>
-				      <th class="th-sm">Extra Values</th>
-				      <th class="th-sm">Action</th>
+				      <th class="th-sm" style="width:5%">Sl no</th>
+				      <th class="th-sm" style="width:40%">Value</th>
+				      <th class="th-sm" style="width:10%">Type</th>
+				      <th class="th-sm" style="width:35%">Extra Values</th>
+				      <th class="th-sm" style="width:10%">Action</th>
 				    </tr>
 				  </thead>
 				  <tbody>
-				    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $value) {?>
+				    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $key => $value) {?>
 					    <tr>
-					      <td><?php echo $value->id; ?></td>
+					      <td><?php echo ++$key; ?></td>
 					      <td><?php echo $value->question; ?></td>
 					      <td><?php echo $value->types; ?></td>
 					      <td><?php 
@@ -364,30 +330,21 @@
 					    </tr>
 					<?php }?>
 				  </tbody>
-				  <tfoot>
-				    <tr>
-				      <th>Id</th>
-				      <th>Value</th>
-				      <th>Type</th>
-				      <th>Extra Values</th>
-				      <th>Action</th>
-				    </tr>
-				  </tfoot>
 				</table>
 				@endif
 				@if($chatbotQuestion->keyword_or_question == 'simple' || $chatbotQuestion->keyword_or_question == 'priority-customer')
-				<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+				<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 				  <thead>
 				    <tr>
-				      <th class="th-sm">Id</th>
-				      <th class="th-sm">Value</th>
-				      <th class="th-sm">Action</th>
+				      <th class="th-sm" style="width:5%">Sl no</th>
+				      <th class="th-sm" style="width:85%">Value</th>
+				      <th class="th-sm" style="width:10%">Action</th>
 				    </tr>
 				  </thead>
 				  <tbody>
-				    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $value) {?>
+				    <?php foreach ($chatbotQuestion->chatbotQuestionExamples as $key => $value) {?>
 					    <tr>
-					      <td><?php echo $value->id; ?></td>
+					      <td><?php echo ++$key; ?></td>
 					      <td><?php echo $value->question; ?></td>	
 					      <td>
 	                        <a class="btn btn-image delete-button" data-id="<?php echo $value->id; ?>" href="<?php echo route("chatbot.question-example.delete", [$chatbotQuestion->id, $value->id]); ?>">
@@ -397,51 +354,50 @@
 					    </tr>
 					<?php }?>
 				  </tbody>
-				  <tfoot>
-				    <tr>
-				      <th>Id</th>
-				      <th>Value</th>
-				      <th>Action</th>
-				    </tr>
-				  </tfoot>
 				</table>
 
 				@endif
+					
 		</div>
 
-
+		
 
 <div class="col-md-12" style="margin-bottom:15px;">
-<form action="<?php echo route("chatbot.question.edit",[$chatbotQuestion->id]); ?>">
 <div class="col-md-7">
 </div>
 <div class="col-md-4" style="padding:0px;">
-				      <select name="store_website_id" class="form-control">
+<form action="<?php echo route("chatbot.question.edit",[$chatbotQuestion->id]); ?>">
+<div class="d-flex">
+<select name="store_website_id" class="form-control">
 						<option value="">Select Website</option>
 						@foreach($watson_accounts as $acc)
 						<option value="{{$acc->store_website_id}}" {{request()->get('store_website_id') == $acc->store_website_id ? 'selected' : ''}}>{{$acc->storeWebsite->title}}</option>
 						@endforeach
 					  </select>
-				    </div>
-<div class="col-md-1 pull-right" style="padding:0px;">
 <button type="submit" class="btn btn-image"><img src="/images/filter.png"></button>
 </div>
 </form>
+
+</div>
+<div class="col-md-1 pull-right" style="padding:0px;">
+<button type="button" class="btn btn-image add-website-reply" data-id="{{$chatbotQuestion->id}}"><img src="/images/add.png"></button>
+
+</div>
 </div>
 		<div class="col-lg-12 margin-tb">
-			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%">
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
 			  <thead>
 			    <tr>
-			      <th class="th-sm">Id</th>
-			      <th class="th-sm">Website</th>
-			      <th class="th-sm">Suggested Response</th>
-			      <th class="th-sm">Action</th>
+			      <th class="th-sm" style="width:5%">Sl no</th>
+			      <th class="th-sm" style="width:20%">Website</th>
+			      <th class="th-sm" style="width:70%">Suggested Response</th>
+			      <th class="th-sm" style="width:5%">Action</th>
 			    </tr>
 			  </thead>
 			  <tbody>
-			    <?php foreach ($replies as $reply) {?>
+			    <?php foreach ($replies as $key => $reply) {?>
 				    <tr>
-				      <td><?php echo $reply->id; ?></td>
+				      <td><?php echo ++$key; ?></td>
 				      <td class="">
 					  {{$reply->storeWebsite->title}}
 				     </td>
@@ -456,21 +412,58 @@
 				    </tr>
 				<?php }?>
 			  </tbody>
-			  <tfoot>
-			    <tr>
-			      <th>Id</th>
-			      <th>Website</th>
-			      <th>Suggested Response</th>
-			      <th>Action</th>
-			    </tr>
-			  </tfoot>
 			</table>
 		</div>
 	</div>
 </div>
 
+
+<div class="col-lg-12 margin-tb" style="padding:0px;">
+			@if($chatbotQuestion->keyword_or_question == 'intent' || $chatbotQuestion->keyword_or_question == 'entity')
+			<p>Chatbot Error logs</p>
+
+			<table id="dtBasicExample" class="table table-striped table-bordered table-sm" cellspacing="0" width="100%" style="table-layout:fixed;">
+			  <thead>
+			    <tr>
+			      <th class="th-sm" style="width:15%;">Website</th>
+			      <th class="th-sm" style="width:75%;">Message</th>
+			      <th class="th-sm" style="width:5%;">Status</th>
+			      <th class="th-sm" style="width:5%;">Action</th>
+			    </tr>
+			  </thead>
+			  <tbody>
+			    <?php foreach ($chatbotQuestion->chatbotErrorLogs as $value) {?>
+				    <tr>
+				      <td class="text-question">
+				      	<?php echo $value->storeWebsite->title; ?>
+				     </td>
+				     <td>
+				     	{{$value->response}}
+				     </td>	
+				      <td>
+					  @if($value->status)
+					  <span>Success</span>
+					  @else 
+					  <span style="color:red;">Error</span>
+					  @endif
+				      </td>
+					  <td>
+					  @if(!$value->status)
+					  	<a class="btn btn-image edit-data-button" data-id="{{$value->id}}">
+                        	<img src="/images/edit.png" style="cursor: nwse-resize;">
+                    	</a>
+					@endif
+					  </td>
+				    </tr>
+				<?php }?>
+			  </tbody>
+			</table>
+			@endif
+</div>
+
 @include('chatbot::partial.create_question_annotation')
 @include('chatbot::partial.chatbot_reply_edit')
+@include('chatbot::partial.chatbot_reply_add')
 <script src="/js/bootstrap-datetimepicker.min.js"></script>
 <script type="text/javascript">
 
@@ -602,7 +595,29 @@
 	            }
 	        });
 		});
-		
+
+		$(document).on("click",".edit-data-button",function() {
+			var id = $(this).data("id");
+			$.ajax({
+				type: 'POST',
+	            url: '/chatbot/question/online-update/'+id,
+	            dataType : "json",
+				data: {
+                        _token: "{{ csrf_token() }}"
+                },
+	            success: function (response) {
+	               if(response.code == 200) {
+	               	  toastr['success'](response.message);
+	               	  location.reload();
+	               }else{
+	               	  toastr['error'](response.message);
+	               } 
+	            },
+	            error: function () {
+	               toastr['error']('Could not save correctly!');
+	            }
+	        });
+		});
 		$(document).on("click",".delete-annotation",function() {
 			var $this = $(this);
 			var anntid = $this.data("id");
@@ -664,6 +679,58 @@
 	function remove(ele) {
 		$(ele).parents('div.col-md-2').remove()
 	}
+
+
+	
+		$(document).on('change', '.change-task-type', function () {
+            var type = $(this).val();
+			if(type =='task') {
+				$('#repo-details').hide();
+			}
+			else if(type =='devtask') {
+				$('#repo-details').show();
+			}
+        });
+		$( document ).ready(function() {
+			if($("#task_type").val() == 'devtask') {
+				$('#repo-details').show();
+			}
+			else {
+				$('#repo-details').hide();
+			}
+		});
+
+		$(document).on('click', '.add-website-reply', function () {
+            var id = $(this).data('id');
+			$("#add-reply-hidden-id").val(id);
+			$("#chatbotReplyAddModal").show();
+			
+        });
+
+		$(document).on('submit', '#add-website-reply-form', function (e) {
+            e.preventDefault();
+			var url = $('#add-website-reply-form').attr('action');
+			var method = $('#add-website-reply-form').attr('method');
+			$.ajax({
+				type: method,
+	            url: url,
+	            dataType : "json",
+				data: $(this).serialize(),
+	            success: function (response) {
+	               if(response.code == 200) {
+	               	  toastr['success'](response.message);
+	               	  location.reload();
+	               }else{
+	               	  toastr['error'](response.message);
+	               } 
+	            },
+	            error: function () {
+	               toastr['error']('Could not save correctly!');
+	            }
+	        });
+			
+        });
+		
 </script>
 
 @endsection

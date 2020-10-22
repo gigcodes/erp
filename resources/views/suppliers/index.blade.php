@@ -364,6 +364,7 @@
 					{{-- <td>{{ $supplier->updated_at }}</td> --}}
 					<td>
           <input class="inventory_lifetime" style="width:50px;"  type="text" data-supplier-id="{{ $supplier->id }}" value="{{ $supplier->inventory_lifetime }}" data-width="10">
+          <span>Est. Delivery : {{ $supplier->est_delivery_time }} </span>
           </td>
 				<td>
 					<div class="form-group">
@@ -425,6 +426,8 @@
 						<img src="{{ asset('images/list-128x128.png') }}" alt="" style="width: 18px;">
 						</button>
                         @endif
+                        <button type="button" class="btn send-email-common-btn" data-toemail="{{$supplier->email}}" data-object="supplier" data-id="{{$supplier->id}}"><i class="fa fa-envelope-square"></i></button>
+
 				</td>
 				</tr>
           @endforeach
@@ -572,6 +575,7 @@
             </div>
         </div>
     </div>
+@include('common.commonEmailModal')
 @include('customers.zoomMeeting');
 @endsection
 
@@ -580,6 +584,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
   <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
   <script src="{{asset('js/zoom-meetings.js')}}"></script>
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script type="text/javascript">
 
       var supplierToRemind = null;
@@ -716,6 +721,7 @@
       $('#supplier_category_id').val(supplier.supplier_category_id);
       $('#scraper_name').val(supplier.scraper_name);
       $('#inventory_lifetime').val(supplier.inventory_lifetime);
+      $('#est_delivery_time').val(supplier.est_delivery_time);
     });
 
     $(document).on('click', '.send-supplier-email', function() {

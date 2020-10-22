@@ -54,6 +54,13 @@
         }
         .select2-container {
             width:100% !important;
+            min-width:200px !important;   
+        }
+        .no-pd {
+            padding:3px;
+        }
+        .mr-3 {
+            margin:3px;
         }
     </style>
 @endsection
@@ -67,7 +74,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Suggested Images</h2>
+                <h2 class="page-heading">Sent Images</h2>
 
                 <!--pending products count-->
                 @if(auth()->user()->isAdmin())
@@ -116,11 +123,18 @@
                         </select>
                     </div>
                     <div class="form-group mr-3">
-                    <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
+                    <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
                                     <option value="{{ $key }}" {{ isset($customerId) && $customerId == $key ? 'selected' : '' }}>{{ $customer }}</option>
                                 @endforeach
+                        </select> -->
+                        <select name="customer_id" type="text" class="form-control" placeholder="Search" id="customer-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('customer_id')) {
+                                    echo '<option value="'.request()->get('customer_id').'" selected>'.request()->get('customer_id').'</option>';
+                                }
+                            ?>
                         </select>
                     </div>
 
@@ -131,7 +145,7 @@
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
                 </form>
 
-                <div class="row mt-3">
+                <!-- <div class="row mt-3">
                 <div class="col-1">
                 </div>
                 <div class="col-11 btn-group-actions">
@@ -144,7 +158,7 @@
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="100">Select 100</button>
                     </div>
                 </div>
-            </div>
+            </div> -->
             
             </div>
         </div>
@@ -158,18 +172,27 @@
       $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
     ?>
 
-<div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
-        Goto :
-        <select onchange="location.href = this.value;" class="form-control" id="page-goto">
-            @for($i = 1 ; $i <= $suggestedProducts->lastPage() ; $i++ )
-                <option data-value="{{ $i }}" value="{{ $query.$i }}" {{ ($i == $suggestedProducts->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-            @endfor
-        </select>
+<div class="col-md-12 margin-tb">
+        <div class="table-responsive">
+            <table class="table table-bordered" style="table-layout:fixed;">
+                <th style="width:7%">Date</th>
+                <th style="width:8%">Id</th>
+                <th style="width:15%">Name</th>
+                <th style="width:10%">Phone</th>
+                <th style="width:20%">Brand</th>
+                <th style="width:20%">Category</th>
+                <th style="width:20%">Action</th>
+                <tbody class="infinite-scroll-data">
+                    @include('partials.suggested-image-load')
+                </tbody>
+            </table>
+        </div>
+        {{$suggestedProducts->appends(request()->except("page"))->links()}}
     </div>
     @include('partials.image-load-category-count')
-    <div class="productGrid" id="productGrid">
+    <!-- <div class="productGrid" id="productGrid">
         @include('partials.suggested-image-load')
-    </div>
+    </div> -->
     @php
         $action = url('whatsapp/updateAndCreate/');
 
@@ -255,28 +278,71 @@
                 width: "100%"
             });
 
-        var infinteScroll = function() {
+        // var infinteScroll = function() {
 
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                   $('.lazy').Lazy({
-                        effect: 'fadeIn'
-                   });
-                   $('ul.pagination:visible:first').remove();
-                    var next_page = $('.pagination li.active + li a');
-                    var page_number = next_page.attr('href').split('page=');
-                    var current_page = page_number[1] - 1;
-                    $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
-                    categoryChange();
+        //     $('.infinite-scroll').jscroll({
+        //         autoTrigger: true,
+        //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //         padding: 2500,
+        //         nextSelector: '.pagination li.active + li a',
+        //         contentSelector: 'div.infinite-scroll',
+        //         callback: function () {
+        //            $('.lazy').Lazy({
+        //                 effect: 'fadeIn'
+        //            });
+        //            $('ul.pagination:visible:first').remove();
+        //             var next_page = $('.pagination li.active + li a');
+        //             var page_number = next_page.attr('href').split('page=');
+        //             var current_page = page_number[1] - 1;
+        //             $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+        //             categoryChange();
+        //         }
+        //     });
+
+        // };
+
+
+        $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
                 }
             });
 
-        };
+
+
+            var isLoading;
+            function loadMore() {
+                if (isLoading)
+                    return;
+                    isLoading = true;
+                if(!$('.pagination li.active + li a').attr('href'))
+                return;
+
+                var $loader = $('.infinite-scroll-products-loader');
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    console.log(data);
+                    // if('' === data.trim())
+                    //     return;
+
+                    $loader.hide();
+
+                    $('.infinite-scroll-data').append(data);
+
+                    isLoading = false;
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    isLoading = false;
+                });
+            }
+
 
         var categoryChange = function() 
         {   
@@ -301,7 +367,7 @@
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
             
-            infinteScroll();
+            // infinteScroll();
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -587,7 +653,7 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
-                infinteScroll();
+                // infinteScroll();
             }).fail(function () {
                 alert('Error searching for products');
             });
@@ -799,12 +865,7 @@
          });
         }
         
-        $('body').on("click",'.select_row', function (event) {
-        $(".select-pr-list-chk").prop("checked", false).trigger('change');
-           var $input = $(this);
-           var checkBox = $input.parent().parent().parent().find(".select-pr-list-chk");
-           checkBox.prop("checked", true).trigger('change');
-        });
+
     </script>
 
 @endsection
@@ -859,6 +920,71 @@
          });
         });
 
+
+        $(document).on("click", ".resend-products", function (event) {
+            customer_id = $(this).data('id');
+
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            image_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+            if (productCard.length > 0) {
+                    var image = productCard.data("image");
+                    if ($input.is(":checked") === true) {
+                        image_array.push(image);
+                        image_array = unique(image_array);
+                    }
+                }
+            }
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            $.ajax({
+                url: '/attached-images-grid/resend-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(image_array)
+                },
+                beforeSend: function () {  
+                              $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    //  window.location.href = result.url;
+                    toastr['success'](result.message, 'success');
+             }
+         });
+        });
+
+        $(document).on("click", ".resend-single-image", function (event) {
+            var image = $(this).data('id');
+            var customer_id = $(this).data('customer');
+            image_array = [];
+            image_array.push(image);
+            $.ajax({
+                url: '/attached-images-grid/resend-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(image_array)
+                },
+                beforeSend: function () {  
+                              $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                    //  window.location.href = result.url;
+                    toastr['success'](result.message, 'success');
+             }
+         });
+        });
 
         $('.erp_lead_frm').on('submit', function(e) {
           e.preventDefault();
@@ -968,6 +1094,192 @@
             });
         });
 
+
+        $(document).on("click", ".remove-products", function (event) {
+            var customer_id = $(this).data("id");
+            var cus_cls = ".customer-"+customer_id;
+            var total = $(cus_cls).find(".select-pr-list-chk").length;
+            product_array = [];
+            for (i = 0; i < total; i++) {
+             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var $input = $(customer_cls).eq(i);
+            var productCard = $input.parent().parent().find(".attach-photo");
+                if (productCard.length > 0) {
+                    var product = productCard.data("product");
+                    if ($input.is(":checked") === true) {
+                        product_array.push(product);
+                    }
+                }
+            }
+            if (product_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            console.log(product_array);
+            var confirm = window.confirm('Are you sure ?');
+            if(!confirm) {
+                return;
+            }
+            $.ajax({
+                url: '/attached-images-grid/remove-products/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    products: JSON.stringify(product_array)
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     location.reload();
+             }
+         });
+        });
+
+
+        $(document).on("click", ".delete-message", function (event) {
+            var product_id = $(this).data("id");
+            var customer_id = $(this).data("customer");
+            var cls = '.single-image-'+customer_id+'-'+product_id;
+            $.ajax({
+                url: '/attached-images-grid/remove-single-product/'+customer_id,
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    product_id: product_id
+                },
+                beforeSend: function () {  
+                    $("#loading-image").show();
+                },
+                success: function(result){
+                     $("#loading-image").hide();
+                     toastr['success']("Successfull", 'success');
+                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     $(cls).hide();
+                    //  location.reload();
+             }
+         });
+        });
+
+        $(document).on("click", ".expand-row-btn", function (e) {
+            var id = $(this).data('id');
+            $('.toggle-div-'+id).toggleClass('hidden');
+        });
+
+        var selectAllCustomerProductBtn = $(".select-customer-all-products");
+        selectAllCustomerProductBtn.on("click", function (e) {
+                    var customer_id = $(this).data('id');
+                    var $this = $(this);
+                    var custCls = '.customer-'+customer_id;
+                    if ($this.hasClass("has-all-selected") === false) {
+                        // $this.html("Deselect all");
+                        $(this).find('img').attr("src", "/images/completed-green.png");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        $this.addClass("has-all-selected");
+                    }else {
+                        // $this.html("Select all");
+                        $(this).find('img').attr("src", "/images/completed.png");
+                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        $this.removeClass("has-all-selected");
+                    }
+            })
+
+
+            $('body').on("click",'.select_row', function (event) {
+        $(".select-pr-list-chk").prop("checked", false).trigger('change');
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+        $('body').on("click",'.select_multiple_row', function (event) {
+           var $input = $(this);
+           var checkBox = $input.parent().parent().parent().parent().find(".select-pr-list-chk");
+           checkBox.prop("checked", true).trigger('change');
+        });
+
+
+        $('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        if(data[i].name) {
+                            var combo = data[i].name+'/'+data[i].id;
+                        }
+                        else {
+                            var combo = data[i].text;
+                        }
+                        data[i].id = combo;
+                    }
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+        });
+
+        $(document).on('click', '.preview-attached-img-btn', function (e) {
+            e.preventDefault();
+            var customer_id = $(this).data('id');
+
+            $.ajax({
+                url: '/attached-images-grid/get-products/sent/'+customer_id,
+                data: $('#searchForm').serialize(),
+                dataType: 'html',
+            }).done(function (data) {
+                $('#attach-image-list-'+customer_id).html(data);
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+
+
+            var expand = $('.expand-'+customer_id);
+            console.log(expand);
+            $(expand).toggleClass('hidden');
+
+        });
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            console.log(name);
+            console.log(id);
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
+        });
 
 </script>
 
