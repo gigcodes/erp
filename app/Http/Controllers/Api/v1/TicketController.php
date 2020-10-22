@@ -129,7 +129,11 @@ class TicketController extends Controller
         if($request->ticket_id!=null){
             $tickets->where('ticket_id',$request->ticket_id);
         }
-        $tickets = $tickets->join('ticket_statuses as ts','ts.id', 'tickets.status_id')->get();
+        $per_page='';
+        if(!empty($request->per_page)){
+            $per_page=$request->per_page;
+        }
+        $tickets = $tickets->join('ticket_statuses as ts','ts.id', 'tickets.status_id')->paginate($per_page);
         if(empty($tickets)){
             return response()->json(['status' => 'failed', 'message' => 'Tickets not found for customer !', ], 404);    
         }
