@@ -54,7 +54,6 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 
 {
@@ -145,7 +144,6 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 
 {
@@ -266,14 +264,13 @@ Content-Type: application/json
 **Failed Response:**
 
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "400",
     "message": "Email is absent in your request"
 }
 ```
-## Buyback Check Product API
+## Buyback | Return | Exchange | Refund Check Product API
 
 **Request:**
 
@@ -281,7 +278,10 @@ Content-Type: application/json
 GET https://erp.amourint.com/api/orders/products
 Accept: application/json
 Content-Type: application/json
-{   "customer_email" : "abc@example.com", //required, email
+{
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012"
 }
 ```
 
@@ -321,41 +321,82 @@ Content-Type: application/json
 
 **Failed Response:**
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "failed",
     "message": "Customer not found with this email !"
 }
 ```
-## Create buyback request API
+## Create Buyback | Return | Exchange | Refund request API
 
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/buyback/create
+POST https://erp.amourint.com/api/return-exchange-buyback/create
 Accept: application/json
 Content-Type: application/json
-{   "order_id" : "225544", //platform_id in store_website_orders table
-    "product_sku" : "2965688"
+{
+    "customer_email" : "firasath90@gmail.com",
+    "website" : "www.brands-labels.com",
+    "order_id" : "000000012",
+    "product_sku" : "Test01",
+    "type":"exchange"
 }
 ```
+For type expected value will be "return","exchange","buyback","refund"
 
 **Successful Response:**
 ```json
 Content-Type: application/json
 {
     "status": "success",
-    "message": "buyback request created successfully"
+    "message": "Exchange request created successfully"
 }
 ```
 
 **Failed Response:**
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "failed",
-    "message": "Unable to create buyback request!"
+    "message": "Unable to create Exchange request!"
+}
+```
+
+## Price comparison API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/price_comparision/details
+Accept: application/json
+Content-Type: application/json
+{
+    "sku" : "565655VT0406512FW2019",
+    "country" : "IN"
+}
+```
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+    "status": "sucess",
+    "results": [
+        {
+            "name": "N/A",
+            "currency": "USD",
+            "price": "631.99",
+            "country_code": "in"
+        }
+    ]
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "No Category Found"
 }
 ```
