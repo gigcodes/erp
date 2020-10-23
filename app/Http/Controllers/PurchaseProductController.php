@@ -117,7 +117,7 @@ class PurchaseProductController extends Controller
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 		$orders = $orders->groupBy("op.id");
-		$orders = $orders->select(["orders.*","op.id as order_product_id","op.product_price","op.product_id as product_id","op.supplier_discount_info_id"]);
+		$orders = $orders->select(["orders.*","op.id as order_product_id","op.product_price","op.product_id as product_id","op.supplier_discount_info_id","op.inventory_status_id"]);
 	
 		$users  = Helpers::getUserArray( User::all() );
 		$order_status_list = OrderHelper::getStatus();
@@ -131,8 +131,10 @@ class PurchaseProductController extends Controller
 		$statusFilterList = $statusFilterList->leftJoin("order_statuses as os","os.id","orders.order_status_id")
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
 		$totalOrders = sizeOf($orders->get());
-		$orders_array = $orders->paginate(10);
-		return view('purchase-product.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders') );
+        $orders_array = $orders->paginate(10);
+        
+        $inventoryStatus = InventoryStatus::pluck('name','id');
+		return view('purchase-product.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','inventoryStatus') );
     }
 
     /**
@@ -306,6 +308,15 @@ class PurchaseProductController extends Controller
         else {
             return response()->json(['message' => 'Already exist' , 'code' => 500]);
         }
+    }
+
+    public function changeStatus($id, Request $request) {
+        $order_product = OrderProduct::find($id);
+        if($request->status && $order_product) {
+            $order_product->update(['inventory_status_id' => $request->status]);
+            return response()->json(['message' => 'Successfull' ,'code' => 200]);
+        }
+        return response()->json(['message' => 'Status not changed' ,'code' => 500]);
     }
 
     /**

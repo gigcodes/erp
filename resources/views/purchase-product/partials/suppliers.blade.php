@@ -98,10 +98,10 @@ color:black!important;
               <td>{{ ++$key }}</td>
               <td>{{ $supplier->supplier }}</td>
               <td>
-              <a href="#" data-type="order" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn">
+              <a href="#"  data-type="order" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
                 Order
               </a>
-              <a href="#" data-type="enquery" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn">
+              <a href="#"  data-type="enquery" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
                 Enquery
               </a>
               <button title="Select all products" type="button" class="btn btn-xs btn-secondary select-all-products btn-image no-pd" data-id="{{$supplier->id}}">

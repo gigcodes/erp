@@ -163,9 +163,9 @@ color:black!important;
                   $order_product = \App\OrderProduct::find($order->order_product_id);
                   @endphp      
                       @if ($order_product && $order_product->product)	                      
-                        @if ($order_product->product->hasMedia(config('constants.media_tags')))	                   
+                        @if ($order_product->product->hasMedia(config('constants.media_tags')))	             
                           <span class="td-mini-container">	                         
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>	                     
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>	                     
                           </span>	                 
                         @endif	                 
                       @endif            
@@ -179,7 +179,15 @@ color:black!important;
               </td>
               <td>{{ $order->order_date }}</td>
               <td>{{$order->date_of_delivery}}</td>
-              <td>{{ $order->order_status }}</td>
+              <td>
+              <select name="inventory_status_id" id="" class="form-control change-inventory-status" data-id="{{$order->order_product_id}}">
+              <option value="">Select Inventory status</option>
+              @foreach($inventoryStatus as $id => $status)
+          <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+              @endforeach
+              </select>
+              
+              </td>
               <td>{{ $order->balance_amount }}</td>
 
             </tr>
@@ -327,6 +335,36 @@ $(document).on('click', '.view-details', function(e) {
             $("#loading-image").hide();
             $("#purchaseCommonModal").modal("show");
             $("#common-contents").html(response);
+        }).fail(function(errObj) {
+            $("#loading-image").hide();
+        });
+    });
+
+    $(document).on('change', '.change-inventory-status', function(e) {
+      e.preventDefault();
+      var order_product_id = $(this).data('id');
+      var status =  $(this).val();
+        $.ajax({
+          headers: {
+              'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+              },
+          url: '/purchase-product/change-status/'+order_product_id,
+          type: 'POST',
+          dataType: 'json',
+          data: {
+            status:status
+          },
+          beforeSend: function() {
+            $("#loading-image").show();
+          }
+        }).done( function(response) {
+            $("#loading-image").hide();
+            if(response.code == 200) {
+                    toastr["success"](response.message, "Message");
+                  }
+                  else {
+                    toastr["error"](response.message, "Message");
+                  }
         }).fail(function(errObj) {
             $("#loading-image").hide();
         });

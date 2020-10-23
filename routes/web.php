@@ -826,6 +826,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     
     
     
+    Route::post('purchase-product/change-status/{id}', 'PurchaseProductController@changeStatus');
     Route::post('purchase-product/submit-status', 'PurchaseProductController@createStatus');
     Route::get('purchase-product/send-products/{type}/{supplier_id}', 'PurchaseProductController@sendProducts');
     Route::get('purchase-product/get-products/{type}/{supplier_id}', 'PurchaseProductController@getProducts');
