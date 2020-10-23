@@ -151,7 +151,6 @@ class PriceComparisionController extends Controller
     public function sendDetails(Request $request)
     {
         //checking if we getting proper request 
-
         if(empty($request->sku) || empty($request->country)){
             
             return response()->json([
@@ -159,29 +158,23 @@ class PriceComparisionController extends Controller
                 'message' => 'Please Send Both SKU and Country',
             ]);
         }
+        $internationCountriesCount = 5;
         
         //getting product
         $product = Product::getProductBySKU($request->sku);
         if($product){
             //getting product category
             $category =  $product->product_category;
-            
             if($category){
-                
                 $categoryArray = []; //storing the category in array
-                
                 //storing in category array 
                 $categoryArray[] = $category->title; 
-                
                 //checking if category is parent or child
                 $isParentCategory = $category->isParent($category->id);
-                    
                     //if not parent category
                     if(!$isParentCategory){
-                        
                         //getting category parent
                         $parent = $category->parent;
-                        
                         //storing data in category array
                         $categoryArray[] = $parent->title;
                     }
@@ -193,42 +186,48 @@ class PriceComparisionController extends Controller
                     $priceComparisonId = [];
                     
                     //getting local data
-                    $resultWithCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->where('country_code',$request->country)->groupBy('price_comparison_site_id')->take(3)->get();
+                    $resultWithCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
+                    ->where('country_code',$request->country)
+                    ->where('currency','EUR')
+                    ->groupBy('price_comparison_site_id')
+                    ->take(3)
+                    ->get();
 
                     //storing locat data for output
                     foreach ($resultWithCountries as $resultWithCountry) {
-                        $idArray[] = $resultWithCountry->id;
+                        $percentage = $resultWithCountry->getTheDiffrence();
                         $priceComparisonId[] = $resultWithCountry->price_comparison_site_id;
-                        $data['name'] = $resultWithCountry->scraper_site->name;
+                        $data['name'] = ($resultWithCountry->price_comparison_site) ? $resultWithCountry->price_comparison_site->name : "N/A";
                         $data['currency'] = $resultWithCountry->currency;
-                        $data['price'] = $resultWithCountry->checkout_price;
+                        $data['price'] = $resultWithCountry->addPrice($product->price,$percentage);
+                        $data['country_code'] = $resultWithCountry->country_code;
                         $outputArray[] = $data;
+                        $idArray[] = $resultWithCountry->id;
                     }
 
-                    
-
-                    //getting count for international prices
                     $resultWithCountriesCount = $resultWithCountries->count();
-
-                    $internationCountriesCount = (5 - $resultWithCountriesCount);
 
                     //if we dont get any local price
                     if(count($idArray) == 0){
-
-                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->groupBy('price_comparison_site_id')->take(5)->get();
-                    
+                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->where('currency','EUR')->groupBy('price_comparison_site_id')->take(5)->get();
                     }else{
-                        
                         //exclude the price and site which are already included
-                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)->whereNotIn('id',$idArray)->whereNotIn('price_comparison_site_id',$priceComparisonId)->groupBy('price_comparison_site_id')->take($internationCountriesCount)->get();
-                        
+                        $resultWithoutCountries = PriceComparisonScraper::whereIn('category',$categoryArray)
+                        ->whereNotIn('id',$idArray)
+                        ->where('currency','EUR')
+                        ->whereNotIn('price_comparison_site_id',$priceComparisonId)
+                        ->groupBy('price_comparison_site_id')
+                        ->take($internationCountriesCount)
+                        ->get();
                     }
-                    
+
                     //getting international results
                     foreach ($resultWithoutCountries as $resultWithoutCountry) {
-                        $data['name'] = $resultWithoutCountry->scraper_site->name;
+                        $percentage = $resultWithoutCountry->getTheDiffrence();
+                        $data['name'] = ($resultWithoutCountry->price_comparison_site) ? $resultWithoutCountry->price_comparison_site->name : "N/A";
                         $data['currency'] = $resultWithoutCountry->currency;
-                        $data['price'] = $resultWithoutCountry->checkout_price;
+                        $data['price'] = $resultWithoutCountry->addPrice($product->price,$percentage);
+                        $data['country_code'] = $resultWithoutCountry->country_code;
                         $outputArray[] = $data;
                     }
                     
@@ -242,7 +241,7 @@ class PriceComparisionController extends Controller
 
                     }else{
                         return response()->json([
-                            'status' => 'sucess',
+                            'status' => 'success',
                             'results' => $outputArray,
                         ]);
                     }

@@ -24,14 +24,7 @@
 	@include("partials.flash_messages")
     <div class="col-lg-12 margin-tb">
     	<div class="row">
-	    	<div class="col col-md-9">
-		    	<div class="row">
-	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image add-social-account">
-		  				<img src="/images/add.png" style="cursor: default;">
-		  			</button>
-				 </div> 		
-		    </div>
-		    <div class="col">
+		    <div class="col col-md-10">
 		    	<div class="h" style="margin-bottom:10px;">
 		    		<form class="form-inline message-search-handler" method="post">
 					  <div class="row">
@@ -50,6 +43,16 @@
 					  </div>	
 					</form>	
 		    	</div>
+		    </div>
+			<div class="col col-md-1">
+	    			<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image add-social-account">
+		  				<img src="/images/add.png" style="cursor: default;">
+		  			</button>		
+		    </div>
+			<div class="col col-md-1">
+	    			<button class="btn btn-sm btn-secondary">
+		  				<a href="/content-management/contents" style="color:white;">View Contents</a>
+		  			</button>		
 		    </div>
 	    </div>	
 		<div>
