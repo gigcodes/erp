@@ -2,36 +2,60 @@
 @section('favicon' , 'task.png')
 
 @section('content')
-    <div class="container">
-        <h2>Google AdWords</h2>
-        <h2>Campaigns ({{$totalNumEntries}})</h2>
-    </div>
-    <div class="container" style="margin-top: 10px">
+    <div class="container-fluid" style="margin-top: 10px">
+    <h4>Google AdWords - Campaigns ({{$totalNumEntries}})</h4>
         <form method="get" action="/googlecampaigns/create">
-            <button type="submit">New Campaign</button>
+        <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
+            <button type="submit" class="float-right mb-3">New Campaign</button>
         </form>
-    </div>
-    <div class="container" style="margin-top: 10px">
-        @foreach($campaigns as $campaign)
-            <div id="{{$campaign['campaignId']}}" class="col-sm-6" style="margin-bottom: 10px; border: 1px solid #ccc!important">
-                <p>Campaign's groups:
-                    @foreach($campaign['campaignGroups'] as $i => $adGroup)
-                        {{($i>0 ? ", <" : "<")  . $adGroup['adGroupName'] . ">"}}
-                    @endforeach
-                </p>
-                <p>Name: {{$campaign['name']}}</p>
-                <p>Status: {{$campaign['status']}}</p>
-                <p id="{{$campaign['budgetId']}}">Budget ({{$campaign['budgetName']}}): ${{$campaign['budgetAmount']}}</p>
-                <form method="GET" action="/googlecampaigns/{{$campaign['campaignId']}}/adgroups">
-                    <button type="submit" class="btn btn-image">Ad Groups</button>
-                </form>
-                {!! Form::open(['method' => 'DELETE','route' => ['googlecampaigns.deleteCampaign',$campaign['campaignId']],'style'=>'display:inline']) !!}
-                    <button type="submit" class="btn btn-image">Delete</button>
-                {!! Form::close() !!}
-                {!! Form::open(['method' => 'GET','route' => ['googlecampaigns.updatePage',$campaign['campaignId']],'style'=>'display:inline']) !!}
-                <button type="submit" class="btn btn-image">Update</button>
-                {!! Form::close() !!}
-            </div>
-        @endforeach
+        <div class="mt-3">
+        <table class="table table-bordered">
+            <thead>
+            <tr>
+                <th>#ID</th>
+                <th>Google Campaign Id</th>
+                <th>Campaign Name</th>
+                <th>Budget</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+                <th>Budget Uniq Id</th>
+                <th>Status</th>
+                <th>Created At</th>
+                <th>Actions</th>
+            </tr>
+            </thead>
+
+            <tbody>
+            @foreach($campaigns as $campaign)
+                <tr>
+                    <td>{{$campaign->id}}</td>
+                    <td>{{$campaign->google_campaign_id}}</td>
+                    <td>{{$campaign->campaign_name}}</td>
+                    <td>{{$campaign->budget_amount}}</td>
+                    <td>{{$campaign->start_date}}</td>
+                    <td>{{$campaign->end_date}}</td>
+                    <td>{{$campaign->budget_uniq_id}}</td>
+                    <td>{{$campaign->status}}</td>
+                    <td>{{$campaign->created_at}}</td>
+                    <td>
+                    <form method="GET" action="/googlecampaigns/{{$campaign['google_campaign_id']}}/adgroups">
+                        <button type="submit" class="btn btn-sm btn-link">Ad Groups</button>
+                    </form>
+                    {!! Form::open(['method' => 'DELETE','route' => ['googlecampaigns.deleteCampaign',$campaign['google_campaign_id']],'style'=>'display:inline']) !!}
+                    <input type="hidden" id="delete_account_id" name="delete_account_id" value='{{$campaign->account_id}}'/>
+                        <button type="submit" class="btn-image"><img src="/images/delete.png"></button>
+                    {!! Form::close() !!}
+                    {!! Form::open(['method' => 'GET','route' => ['googlecampaigns.updatePage',$campaign['google_campaign_id']],'style'=>'display:inline']) !!}
+                    <input type="hidden" id="account_id" name="account_id" value='{{$campaign->account_id}}'/>
+                    <button type="submit" class="btn-image"><img src="/images/edit.png"></button>
+                    {!! Form::close() !!}
+                    </td>
+                </tr>
+            @endforeach
+            </tbody>
+        </table>
+        </div>
+        {{ $campaigns->links() }}
+
     </div>
 @endsection

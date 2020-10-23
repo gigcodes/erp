@@ -10,49 +10,49 @@
         <div class="form-group row">
             <label for="headline-part1" class="col-sm-2 col-form-label">Headline part 1</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="headline-part1" name="headlinePart1" placeholder="Headline">
+                <input type="text" class="form-control" id="headline-part1" name="headlinePart1" placeholder="Headline">
             </div>
         </div>
         <div class="form-group row">
             <label for="headline-part2" class="col-sm-2 col-form-label">Headline part 2</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="headline-part2" name="headlinePart2" placeholder="Headline">
+                <input type="text" class="form-control" id="headline-part2" name="headlinePart2" placeholder="Headline">
             </div>
         </div>
         <div class="form-group row">
             <label for="headline-part3" class="col-sm-2 col-form-label">Headline part 3</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="headline-part3" name="headlinePart3" placeholder="Headline">
+                <input type="text" class="form-control" id="headline-part3" name="headlinePart3" placeholder="Headline">
             </div>
         </div>
         <div class="form-group row">
             <label for="description1" class="col-sm-2 col-form-label">Description</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="description1" name="description1" placeholder="Description">
+                <input type="text" class="form-control" id="description1" name="description1" placeholder="Description">
             </div>
         </div>
         <div class="form-group row">
             <label for="description2" class="col-sm-2 col-form-label">Description 2</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="description2" name="description2" placeholder="Description">
+                <input type="text" class="form-control" id="description2" name="description2" placeholder="Description">
             </div>
         </div>
         <div class="form-group row">
             <label for="finalUrl" class="col-sm-2 col-form-label">Final URL</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="finalUrl" name="finalUrl" placeholder="http://www.example.com">
+                <input type="text" class="form-control" id="finalUrl" name="finalUrl" placeholder="http://www.example.com">
             </div>
         </div>
         <div class="form-group row">
             <label for="path1" class="col-sm-2 col-form-label">Path 1</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="path1" name="path1" placeholder="http://www.example.com/path1/...">
+                <input type="text" class="form-control" id="path1" name="path1" placeholder="E.g path1 (for this kind of URL http://www.example.com/path1/)">
             </div>
         </div>
         <div class="form-group row">
             <label for="path2" class="col-sm-2 col-form-label">Path 2</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="path2" name="path2" placeholder="http://www.example.com/.../path2/...">
+                <input type="text" class="form-control" id="path2" name="path2" placeholder="E.g path2 (for this kind of URL http://www.example.com/path1/path2/)">
             </div>
         </div>
         <div class="form-group row">
@@ -65,6 +65,6 @@
                 </select>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mb-2">Create</button>
+        <button type="submit" class="mb-2 float-right">Create</button>
     </form>
 @endsection

@@ -7,16 +7,29 @@
     </div>
     <form method="POST" action="/googlecampaigns/create" enctype="multipart/form-data">
         {{csrf_field()}}
+        <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
         <div class="form-group row">
             <label for="campaign-name" class="col-sm-2 col-form-label">Campaign name</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="campaign-name" name="campaignName" placeholder="Campaign name">
+                <input type="text" class="form-control" id="campaign-name" name="campaignName" placeholder="Campaign name">
             </div>
         </div>
         <div class="form-group row">
             <label for="budget-amount" class="col-sm-2 col-form-label">Budget amount ($)</label>
             <div class="col-sm-10">
-                <input type="number" class="form-control" id="budget-amount" name="budgetAmount" placeholder="Budget amount ($)">
+                <input type="text" class="form-control" id="budget-amount" name="budgetAmount" placeholder="Budget amount ($)">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="start-date" class="col-sm-2 col-form-label">Start Date</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}">
+            </div>
+        </div>
+        <div class="form-group row">
+            <label for="start-date" class="col-sm-2 col-form-label">End Date</label>
+            <div class="col-sm-10">
+                <input type="text" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}">
             </div>
         </div>
         <div class="form-group row">
@@ -28,7 +41,7 @@
                 </select>
             </div>
         </div>
-        <button type="submit" class="btn btn-primary mb-2">Create</button>
+        <button type="submit" class="btn btn-primary mb-2 float-right">Create</button>
     </form>
     <div class="container">
 

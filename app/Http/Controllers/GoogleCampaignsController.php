@@ -40,26 +40,49 @@ use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
 class GoogleCampaignsController extends Controller
 {
     // show campaigns in main page
-    public function index() {
-        $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+    public function getstoragepath($account_id)
+    {
+        $result = \App\GoogleAdsAccount::find($account_id);
+        if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
+            $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
+            $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
+            /* echo $storagepath; exit;
+        echo storage_path('adsapi_php.ini'); exit; */
+            /* echo '<pre>' . print_r($result, true) . '</pre>';
+            die('developer working'); */
+            return $storagepath;
+        } else {
+            abort(404,"Please add adspai_php.ini file");
+        }
+    }
+
+    public function index(Request $request)
+    {
+        $account_id=$request->get('account_id');
+        $storagepath = $this->getstoragepath($account_id);
+        //echo $storagepath; exit;
+        //echo $storagepath; exit;
+        /* $oAuth2Credential = (new OAuth2TokenBuilder())
+            ->fromFile($storagepath)
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+            ->fromFile($storagepath)
             ->withOAuth2Credential($oAuth2Credential)
-            ->build();
+            ->build(); */
 
-        $adWordsServices = new AdWordsServices();
-
-        $campInfo = $this->getCampaigns($adWordsServices, $session);
-
-
-        return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]);
+        
+        $campInfo=\App\GoogleAdsCampaign::where('account_id',$account_id)->paginate(15);
+        $totalEntries=$campInfo->count();
+        return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries]);
+        /*$adWordsServices = new AdWordsServices();
+         $campInfo = $this->getCampaigns($adWordsServices, $session);
+        return view('googlecampaigns.index', ['campaigns' => $campInfo['campaigns'], 'totalNumEntries' => $campInfo['totalNumEntries']]); */
     }
 
     // get campaigns and total count
-    public function getCampaigns(AdWordsServices $adWordsServices, AdWordsSession $session) {
+    public function getCampaigns(AdWordsServices $adWordsServices, AdWordsSession $session)
+    {
         $campaignService = $adWordsServices->get($session, CampaignService::class);
 
 
@@ -78,7 +101,7 @@ class GoogleCampaignsController extends Controller
         $groupSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
         $groupSelector->setPaging(new Paging(0, 10));
 
-//        $budgetService = $adWordsServices->get($session, BudgetService::class);
+        //        $budgetService = $adWordsServices->get($session, BudgetService::class);
         $totalNumEntries = 0;
         $campaigns = [];
         do {
@@ -95,7 +118,7 @@ class GoogleCampaignsController extends Controller
                     $adGroupPage = $adGroupService->get($groupSelector);
                     $adGroups = [];
                     if ($adGroupPage->getEntries() !== null) {
-//                        $totalNumEntries = $page->getTotalNumEntries();
+                        //                        $totalNumEntries = $page->getTotalNumEntries();
                         foreach ($adGroupPage->getEntries() as $adGroup) {
                             $adGroups[] = [
                                 'adGroupId' => $adGroup->getId(),
@@ -131,24 +154,48 @@ class GoogleCampaignsController extends Controller
     }
 
     // go to create page
-    public function createPage() {
+    public function createPage()
+    {
         //
         return view('googlecampaigns.create');
     }
 
     // create campaign
-    public function createCampaign(Request $request) {
+    public function createCampaign(Request $request)
+    {
+
+        /*  $this->validate($request, [
+			'campaignName' => 'required',
+			'budgetAmount' => 'required|integer',
+			'start_date' => 'required',
+			'end_date' => 'required',
+			'campaignStatus' => 'required',
+		]); */
+        $campaignArray = array();
         $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $budgetAmount = $request->budgetAmount * 1000000;
         $campaignName = $request->campaignName;
+        $campaign_start_date = $request->start_date;
+        $campaign_end_date = $request->end_date;
         $campaignStatus = $campaignStatusArr[$request->campaignStatus];
 
+        //start creating array to store data into database
+        $account_id = $request->account_id;
+        $campaignArray['account_id'] = $account_id;
+        $storagepath = $this->getstoragepath($account_id);
+        $campaignArray['campaign_name'] = $campaignName;
+        $campaignArray['budget_amount'] = $request->budgetAmount;
+        $campaignArray['start_date'] = $campaign_start_date;
+        $campaignArray['end_date'] = $campaign_end_date;
+        $campaignArray['status'] = $campaignStatus;
+
+
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+            ->fromFile($storagepath)
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+            ->fromFile($storagepath)
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
@@ -157,8 +204,10 @@ class GoogleCampaignsController extends Controller
         $budgetService = $adWordsServices->get($session, BudgetService::class);
 
         // Create the shared budget (required).
+        $uniq_id = uniqid();
+        $campaignArray['budget_uniq_id'] = $uniq_id;
         $budget = new Budget();
-        $budget->setName('Interplanetary Cruise Budget #' . uniqid());
+        $budget->setName('Interplanetary Cruise Budget #' . $uniq_id);
 
         $money = new Money();
         $money->setMicroAmount($budgetAmount);
@@ -177,7 +226,7 @@ class GoogleCampaignsController extends Controller
         $result = $budgetService->mutate($operations);
 
         $budget = $result->getValue()[0];
-
+        
         $campaignService = $adWordsServices->get($session, CampaignService::class);
 
         $operations = [];
@@ -188,6 +237,7 @@ class GoogleCampaignsController extends Controller
         $campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH);
 
         // Set shared budget (required).
+        $campaignArray['budget_id'] = $budget->getBudgetId();
         $campaign->setBudget(new Budget());
         $campaign->getBudget()->setBudgetId($budget->getBudgetId());
 
@@ -215,8 +265,10 @@ class GoogleCampaignsController extends Controller
         // the ads from immediately serving. Set to ENABLED once you've added
         // targeting and the ads are ready to serve.
         $campaign->setStatus($campaignStatus); //CampaignStatus::ENABLED);
-        $campaign->setStartDate(date('Ymd', strtotime('+1 day')));
-        $campaign->setEndDate(date('Ymd', strtotime('+1 month')));
+        // $campaign->setStartDate(date('Ymd', strtotime('+1 day')));
+        // $campaign->setEndDate(date('Ymd', strtotime('+1 month')));
+        $campaign->setStartDate($campaign_start_date);
+        $campaign->setEndDate($campaign_end_date);
 
         // Set frequency cap (optional).
         $frequencyCap = new FrequencyCap();
@@ -243,13 +295,19 @@ class GoogleCampaignsController extends Controller
 
         // Create the campaign on the server
         $result = $campaignService->mutate($operations);
-
-        return redirect()->route('googlecampaigns.index');
+        $addedCampaign = $result->getValue();
+        $addedCampaignId = $addedCampaign[0]->getId();
+        $campaignArray['google_campaign_id'] = $addedCampaignId;
+        $campaignArray['campaign_response'] = json_encode($addedCampaign);
+        \App\GoogleAdsCampaign::create($campaignArray);
+        /* return redirect()->route('googlecampaigns.index'); */
+        return redirect()->to('googlecampaigns?account_id='.$account_id);
     }
 
     // go to update page
-    public function updatePage(Request $request, $campaignId) {
-        $oAuth2Credential = (new OAuth2TokenBuilder())
+    public function updatePage(Request $request, $campaignId)
+    {
+        /* $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
 
@@ -265,8 +323,8 @@ class GoogleCampaignsController extends Controller
         // Create selector.
         $campaignSelector = new Selector();
         $campaignSelector->setFields(['Id', 'Name', 'Status']);
-//        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
-//        $campaignSelector->setPaging(new Paging(0, 10));
+        //        $campaignSelector->setOrdering([new OrderBy('Name', SortOrder::ASCENDING)]);
+        //        $campaignSelector->setPaging(new Paging(0, 10));
         $campaignSelector->setPredicates(
             [new Predicate('Id', PredicateOperator::IN, [$campaignId])]
         );
@@ -279,30 +337,50 @@ class GoogleCampaignsController extends Controller
         }
         $campaign = [
             "campaignId" => $campaign->getId(),
-//            "campaignGroups" => $adGroups,
+            //            "campaignGroups" => $adGroups,
             "name" => $campaign->getName(),
             "status" => $campaign->getStatus(),
-//                        "budgetId" => $campaignBudget->getBudgetId(),
-//                        "budgetName" => $campaignBudget->getName(),
-//                        "budgetAmount" => $campaignBudget->getAmount()
+            //                        "budgetId" => $campaignBudget->getBudgetId(),
+            //                        "budgetName" => $campaignBudget->getName(),
+            //                        "budgetAmount" => $campaignBudget->getAmount()
         ];
-        //
+        // */
+        $campaign=\App\GoogleAdsCampaign::where('google_campaign_id',$campaignId)->first();
         return view('googlecampaigns.update', ['campaign' => $campaign]);
     }
 
     // save campaign's changes
-    public function updateCampaign(Request $request) {
+    public function updateCampaign(Request $request)
+    {
+        $campaignDetail=\App\GoogleAdsCampaign::where('google_campaign_id',
+        $request->campaignId)->first();
+        $account_id=$campaignDetail->account_id;
+        $storagepath = $this->getstoragepath($account_id);
         $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $campaignId = $request->campaignId;
         $campaignName = $request->campaignName;
         $campaignStatus = $campaignStatusArr[$request->campaignStatus];
+        
+        $campaignArray = array();
+        $budgetAmount = $request->budgetAmount * 1000000;
+        $campaign_start_date = $request->start_date;
+        $campaign_end_date = $request->end_date;
+       
+        //start creating array to store data into database
+        
+        $campaignArray['campaign_name'] = $campaignName;
+        $campaignArray['budget_amount'] = $request->budgetAmount;
+        $campaignArray['start_date'] = $campaign_start_date;
+        $campaignArray['end_date'] = $campaign_end_date;
+        $campaignArray['status'] = $campaignStatus;
+
 
         $oAuth2Credential = (new OAuth2TokenBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+            ->fromFile($storagepath)
             ->build();
 
         $session = (new AdWordsSessionBuilder())
-            ->fromFile(storage_path('adsapi_php.ini'))
+            ->fromFile($storagepath)
             ->withOAuth2Credential($oAuth2Credential)
             ->build();
 
@@ -310,12 +388,26 @@ class GoogleCampaignsController extends Controller
 
         $campaignService = $adWordsServices->get($session, CampaignService::class);
 
+        // Create the shared budget (required).
+        $uniq_id = uniqid();
+        //$campaignArray['budget_uniq_id'] = $uniq_id;
+        $budget = new Budget();
+        $budget->setBudgetId($campaignDetail->budget_id);
+        //$budget->setName('Interplanetary Cruise Budget #' . $uniq_id);
+
+        $money = new Money();
+        $money->setMicroAmount($budgetAmount);
+        $budget->setAmount($money);
+        $budget->setDeliveryMethod(BudgetBudgetDeliveryMethod::STANDARD);
+
         $operations = [];
         // Create a campaign with ... status.
         $campaign = new Campaign();
         $campaign->setId($campaignId);
         $campaign->setName($campaignName);
         $campaign->setStatus($campaignStatus);
+        $campaign->setStartDate($campaign_start_date);
+        $campaign->setEndDate($campaign_end_date);
 
         // Create a campaign operation and add it to the list.
         $operation = new CampaignOperation();
@@ -325,18 +417,26 @@ class GoogleCampaignsController extends Controller
 
         // Update the campaign on the server.
         $result = $campaignService->mutate($operations);
-
-        return redirect()->route('googlecampaigns.index');
+        $addedCampaign = $result->getValue();
+        $addedCampaignId = $addedCampaign[0]->getId();
+        $campaignArray['google_campaign_id'] = $addedCampaignId;
+        $campaignArray['campaign_response'] = json_encode($addedCampaign);
+        \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);  
+        //return redirect()->route('googlecampaigns.index');
+        return redirect()->to('googlecampaigns?account_id='.$account_id);
     }
 
     // delete campaign
-    public function deleteCampaign(Request $request, $campaignId) {
+    public function deleteCampaign(Request $request, $campaignId)
+    {
+        $account_id=$request->delete_account_id;
+        $storagepath = $this->getstoragepath($account_id);
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adWordsServices = new AdWordsServices();
 
@@ -356,7 +456,9 @@ class GoogleCampaignsController extends Controller
 
         // Remove the campaign on the server.
         $result = $campaignService->mutate($operations);
-
-        return redirect()->route('googlecampaigns.index');
+        //delete from database
+        \App\GoogleAdsCampaign::where('account_id',$account_id)->where('google_campaign_id',$campaignId)->delete();
+        /* return redirect()->route('googlecampaigns.index'); */
+        return redirect()->to('googlecampaigns?account_id='.$account_id);
     }
 }

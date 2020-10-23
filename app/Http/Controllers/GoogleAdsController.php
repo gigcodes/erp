@@ -27,8 +27,37 @@ class GoogleAdsController extends Controller
 {
     const PAGE_LIMIT = 500;
 
+    // show campaigns in main page
+    public function getstoragepath($account_id)
+    {
+        $result = \App\GoogleAdsAccount::find($account_id);
+        if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
+            $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
+            $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
+            /* echo $storagepath; exit;
+        echo storage_path('adsapi_php.ini'); exit; */
+            /* echo '<pre>' . print_r($result, true) . '</pre>';
+            die('developer working'); */
+            return $storagepath;
+        } else {
+            abort(404,"Please add adspai_php.ini file");
+        }
+    }
+
+    public function getAccountDetail($campaignId){
+        $campaignDetail=\App\GoogleAdsCampaign::where('google_campaign_id',$campaignId)->first();
+        if($campaignDetail->exists()>0){
+          return array(
+            'account_id'=>$campaignDetail->account_id,
+            'campaign_name'=>$campaignDetail->campaign_name
+          );
+        }else{
+            abort(404,"Invalid account!");
+        }
+    }
+    
     public function index(Request $request, $campaignId, $adGroupId) {
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
+        /* $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
@@ -38,7 +67,13 @@ class GoogleAdsController extends Controller
 
         return view('googleads.index',
             ['ads' => $adsInfo['ads'], 'totalNumEntries' => $adsInfo['totalNumEntries'],
-                'campaignId' => $campaignId, 'adGroupId' => $adGroupId]);
+                'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
+
+                $groupDetail=\App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->first();
+                $adsInfo=\App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->paginate(15);
+                $totalEntries=$adsInfo->total();
+                return view('googleads.index',['ads' => $adsInfo, 'totalNumEntries' => $totalEntries,'campaignId' => $campaignId, 'adGroupId' => $adGroupId,'groupname'=>@$groupDetail->ad_group_name]);
+
     }
 
     // getting ads
@@ -111,6 +146,11 @@ class GoogleAdsController extends Controller
 
     // create ad
     public function createAd(Request $request, $campaignId, $adGroupId) {
+        $acDetail=$this->getAccountDetail($campaignId);
+        $account_id=$acDetail['account_id'];
+        $storagepath=$this->getstoragepath($account_id);
+
+        $adsArray=array();
         $adStatuses = ['ENABLED', 'PAUSED', 'DISABLED'];
         $headlinePart1 = $request->headlinePart1;
         $headlinePart2 = $request->headlinePart2;
@@ -121,10 +161,21 @@ class GoogleAdsController extends Controller
         $path1 = $request->path1;
         $path2 = $request->path2;
         $adStatus = $adStatuses[$request->adStatus];
+        $adsArray['adgroup_google_campaign_id']=$campaignId;
+        $adsArray['google_adgroup_id']=$adGroupId;
+        $adsArray['headline1']=$headlinePart1;
+        $adsArray['headline2']=$headlinePart2;
+        $adsArray['headline3']=$headlinePart3;
+        $adsArray['description1']=$description1;
+        $adsArray['description2']=$description2;
+        $adsArray['final_url']=$finalUrl;
+        $adsArray['path1']=$path1;
+        $adsArray['path2']=$path2;
+        $adsArray['status']=$adStatus;
+        
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
-
-        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
 
@@ -156,7 +207,11 @@ class GoogleAdsController extends Controller
 
         // Add expanded text ads on the server.
         $result = $adGroupAdService->mutate($operations);
-
+        $addedAds=$result->getValue();
+        $addedAdsId=$addedAds[0]->getAd()->getId();
+        $adsArray['google_ad_id']=$addedAdsId;
+        $adsArray['ads_response']=json_encode($addedAds[0]);
+        \App\GoogleAd::create($adsArray);
         return redirect('googlecampaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads');
     }
 
@@ -172,12 +227,16 @@ class GoogleAdsController extends Controller
 
     // delete ad
     public function deleteAd(Request $request, $campaignId, $adGroupId, $adId) {
+        $acDetail=$this->getAccountDetail($campaignId);
+        $account_id=$acDetail['account_id'];
+        $storagepath=$this->getstoragepath($account_id);
+
         // Generate a refreshable OAuth2 credential for authentication.
-        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile(storage_path('adsapi_php.ini'))->build();
+        $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
-        $session = (new AdWordsSessionBuilder())->fromFile(storage_path('adsapi_php.ini'))->withOAuth2Credential($oAuth2Credential)->build();
+        $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
 
@@ -200,7 +259,7 @@ class GoogleAdsController extends Controller
 
         // Remove the ad on the server.
         $result = $adGroupAdService->mutate($operations);
-
+        \App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->where('google_ad_id',$adId)->delete();
         return redirect('googlecampaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads');
     }
 }

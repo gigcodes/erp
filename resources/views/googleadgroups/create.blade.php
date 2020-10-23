@@ -3,20 +3,20 @@
 
 @section('content')
     <div class="container">
-        <h2>Create Ad group</h2>
+        <h2>Create Ad group for {{$campaign_name}}</h2>
     </div>
     <form method="POST" action="/googlecampaigns/{{$campaignId}}/adgroups/create" enctype="multipart/form-data">
         {{csrf_field()}}
         <div class="form-group row">
             <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control-plaintext" id="ad-group-name" name="adGroupName" placeholder="Ad group name">
+                <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name">
             </div>
         </div>
         <div class="form-group row">
             <label for="bid-amount" class="col-sm-2 col-form-label">Bid ($)</label>
             <div class="col-sm-10">
-                <input type="number" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid ($)">
+                <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid ($)">
             </div>
         </div>
         <div class="form-group row">
@@ -53,6 +53,6 @@
 {{--                </select>--}}
 {{--            </div>--}}
 {{--        </div>--}}
-        <button type="submit" class="btn btn-primary mb-2">Create</button>
+        <button type="submit" class="mb-2 float-right">Create</button>
     </form>
 @endsection
