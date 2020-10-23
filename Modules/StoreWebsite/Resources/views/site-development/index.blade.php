@@ -47,23 +47,23 @@
 </div>
 <div class="row" id="common-page-layout">
 	<div class="col-lg-12 margin-tb">
-		<h2 class="page-heading">Site Development <span class="count-text"></span></h2>
+		<h2 class="page-heading">Site Development  @if($website) {{ '- ( ' .$website->website.' )' }} @endif <span class="count-text"></span></h2>
 	</div>
 	<br>
 	<div class="col-lg-12 margin-tb">
 		<div class="row">
 			<div class="col col-md-12">
-				<div class="row">
+				<div class="row mb-3">
 					<div class="col-md-3">
 						<form class="form-inline message-search-handler" onsubmit="event.preventDefault(); saveCategory();">
 							<div class="row">
 								<div class="col">
 									<div class="form-group">
-										<label for="keyword">Add Category:</label>
-										<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Enter Category", "id" => "add-category"]) ?>
+										<?php /* <label for="keyword">Add Category:</label> */ ?>
+										<?php echo Form::text("keyword", request("keyword"), ["class" => "form-control", "placeholder" => "Add Category", "id" => "add-category"]) ?>
 									</div>
 									<div class="form-group">
-										<label for="button">&nbsp;</label>
+									<?php /* <label for="button">&nbsp;</label> */ ?>
 										<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
 											<img src="/images/send.png" style="cursor: default;">
 										</button>
@@ -73,39 +73,38 @@
 						</form>
 					</div>
 					<div class="col-md-9">
-						<form class="form-inline handle-search">
+						<form class="form-inline handle-search" style="display:inline-block;">
 							<div class="form-group" style="margin-right:10px;">
-								<label for="keyword">Search keyword:</label>
-								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Enter keyword", "id" => "enter-keyword"]) ?>
+							<?php /* <label for="keyword">Search keyword:</label> */ ?>
+								<?php echo Form::text("k", request("k"), ["class" => "form-control", "placeholder" => "Search keyword", "id" => "enter-keyword"]) ?>
 							</div>
 							<div class="form-group">
-								<label for="status">Status:</label>
-								<?php echo Form::select("status", ["" => "All", "ignored" => "Ignored"], request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
+								<?php /* <label for="status">Status:</label> */?>
+								<?php echo Form::select("status", [""=>"All Status", "ignored" => "Ignored Status"], request("status"), ["class" => "form-control", "id" => "enter-status"]) ?>
 							</div>
 							<div class="form-group">
-								<label for="button">&nbsp;</label>
+							<?php /* <label for="button">&nbsp;</label> */ ?>
 								<button style="display: inline-block;width: 10%" type="submit" class="btn btn-sm btn-image btn-search-keyword">
 									<img src="/images/send.png" style="cursor: default;">
 								</button>
 							</div>
 						</form>
+			
+						<a href="{{ route('site-development-status.index') }}" target="__blank">
+							<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
+								+ Add Status
+							</button>
+						</a>
+						<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-secondary latest-remarks-btn">
+							Remarks
+						</button>
+						<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
+							Status Count
+						</a>
+					
 					</div>
 				</div>
 			</div>
-		</div>
-		<br>
-		<div class="row" style="margin-bottom: 10px;">
-			<a href="{{ route('site-development-status.index') }}" target="__blank">
-				<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image">
-					+ Add Status
-				</button>
-			</a>
-			<button style="display: inline-block;width: 10%;margin-right:5px;" class="btn btn-sm btn-secondary latest-remarks-btn">
-				Remarks
-			</button>
-			<a class="btn btn-secondary" data-toggle="collapse" href="#statusFilterCount" role="button" aria-expanded="false" aria-controls="statusFilterCount">
-				Status Count
-			</a>
 		</div>
 
 		<div class="row">
@@ -140,10 +139,10 @@
 				<table class="table table-bordered" id="documents-table">
 					<thead>
 						<tr>
-							<th width="4%">Sl no</th>
+							<th width="4%">S No</th>
 							<th width="10%"></th>
 							<th width="18%">Title</th>
-							<th width="18%">Description</th>
+							<th width="18%">Message</th>
 							<th width="30%">Communication</th>
 							<th width="20%">Action</th>
 						</tr>
@@ -285,6 +284,11 @@
 					<div class="form-group">
 						<label for="">Details</label>
 						<input class="form-control" type="text" name="task_detail" />
+					</div>
+
+					<div class="form-group">
+						<label for="">Cost</label>
+						<input class="form-control" type="text" name="cost" />
 					</div>
 
 					<div class="form-group">
@@ -550,6 +554,38 @@
 				})
 				.done(function(data) {
 					toastr["success"]("Successful");
+				})
+				.fail(function(data) {
+					console.log(data)
+					console.log("error");
+				});
+		});
+
+		$(document).on("click", ".save-status", function() {
+			websiteId = $('#website_id').val()
+			category = $(this).data("category")
+			type = $(this).data("type")
+			site = $(this).data("site")
+			var text = $(this).data("text");
+			var elem = $(this);
+			$.ajax({
+					url: '{{ route("site-development.save") }}',
+					type: 'POST',
+					dataType: 'json',
+					data: {
+						websiteId: websiteId,
+						"_token": "{{ csrf_token() }}",
+						category: category,
+						type: type,
+						text: text,
+						site: site
+					},
+				})
+				.done(function(data) {
+					toastr["success"]("Successful");
+					if(typeof data.html !=='undefined' || data.html !==''){
+						elem.parent('span').html(data.html);
+					}
 				})
 				.fail(function(data) {
 					console.log(data)
@@ -1143,12 +1179,14 @@
 			},
 			success: function(data) {
 				$("#dev_task_statistics").modal("show");
-				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Action</th></tr>';
+				var table = '<div class="table-responsive"><table class="table table-bordered table-striped"><tr><th>Task type</th><th>Assigned to</th><th>Description</th><th>Status</th><th>Communicate</th><th>Action</th></tr>';
 				for (var i = 0; i < data.taskStatistics.length; i++) {
 					var str = data.taskStatistics[i].subject;
 					var res = str.substr(0, 100);
-					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + data.taskStatistics[i].status + '</td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
-					table = table + '| <a href="javascript:void(0);" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a></td>';
+					var status = data.taskStatistics[i].status;
+					if(typeof status=='undefined' || typeof status=='' || typeof status=='0' ){ status = 'In progress'};
+					table = table + '<tr><td>' + data.taskStatistics[i].task_type + '</td><td>' + data.taskStatistics[i].assigned_to_name + '</td><td>' + res + '</td><td>' + status + '</td><td><div class="col-md-10 pl-0 pr-1"><input type="text" style="width: 100%; float: left;" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value=""></div><div class="col-md-2"><button style="float: left;" class="btn btn-sm btn-image send-message" title="Send message" data-taskid="'+ data.taskStatistics[i].id +'"><img src="/images/filled-sent.png" style="cursor: default;"></button></div></td><td><button type="button" class="btn btn-xs btn-image load-communication-modal load-body-class" data-object="' + data.taskStatistics[i].message_type + '" data-id="' + data.taskStatistics[i].id + '" title="Load messages" data-dismiss="modal"><img src="/images/chat.png" alt=""></button>';
+					table = table + '| <a href="javascript:void(0);" data-task-type="'+data.taskStatistics[i].task_type +'" data-id="' + data.taskStatistics[i].id + '" class="delete-dev-task-btn btn btn-image pd-5"><img title="Delete Task" src="/images/delete.png" /></a></td>';
 					table = table + '</tr>';
 				}
 				table = table + '</table></div>';
@@ -1165,6 +1203,75 @@
 
 
 	});
+	$(document).on('click', '.send-message', function () {
+            var thiss = $(this);
+            var data = new FormData();
+            var task_id = $(this).data('taskid');
+            var message = $(this).siblings('input').val();
+
+            data.append("task_id", task_id);
+            data.append("message", message);
+            data.append("status", 1);
+
+            if (message.length > 0) {
+                if (!$(thiss).is(':disabled')) {
+                    $.ajax({
+                        url: '/whatsapp/sendMessage/task',
+                        type: 'POST',
+                        "dataType": 'json',           // what to expect back from the PHP script, if anything
+                        "cache": false,
+                        "contentType": false,
+                        "processData": false,
+                        "data": data,
+                        beforeSend: function () {
+                            $(thiss).attr('disabled', true);
+                        }
+                    }).done(function (response) {
+                        $(thiss).siblings('input').val('');
+
+                        if (cached_suggestions) {
+                            suggestions = JSON.parse(cached_suggestions);
+
+                            if (suggestions.length == 10) {
+                                suggestions.push(message);
+                                suggestions.splice(0, 1);
+                            } else {
+                                suggestions.push(message);
+                            }
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('EXISTING');
+                            console.log(suggestions);
+                        } else {
+                            suggestions.push(message);
+                            localStorage['message_suggestions'] = JSON.stringify(suggestions);
+                            cached_suggestions = localStorage['message_suggestions'];
+
+                            console.log('NOT');
+                            console.log(suggestions);
+                        }
+
+                        // $.post( "/whatsapp/approve/customer", { messageId: response.message.id })
+                        //   .done(function( data ) {
+                        //
+                        //   }).fail(function(response) {
+                        //     console.log(response);
+                        //     alert(response.responseJSON.message);
+                        //   });
+
+                        $(thiss).attr('disabled', false);
+                    }).fail(function (errObj) {
+                        $(thiss).attr('disabled', false);
+
+                        alert("Could not send message");
+                        console.log(errObj);
+                    });
+                }
+            } else {
+                alert('Please enter a message first');
+            }
+    });
 	$(document).on("click",".delete-dev-task-btn",function() {
 		var x = window.confirm("Are you sure you want to delete this ?");
             if(!x) {
@@ -1172,7 +1279,7 @@
             }
             var $this = $(this);
             var taskId = $this.data("id");
-
+			var tasktype = $this.data("task-type");
             if(taskId > 0) {
                 $.ajax({
                     beforeSend : function() {
@@ -1181,7 +1288,7 @@
                     type: 'get',
                     url: "/site-development/deletedevtask",
                     headers: {'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')},
-                    data: {id : taskId},
+                    data: {id : taskId,tasktype:tasktype},
                     dataType: "json"
                 }).done(function (response) {
                     $("#loading-image").hide();

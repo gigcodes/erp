@@ -152,7 +152,17 @@ class SiteDevelopmentController extends Controller
         $site->site_development_category_id = $request->category;
         $site->website_id                   = $request->websiteId;
         $site->save();
-
+        $html='';
+        if ($request->type == 'status') {
+            $id = $site->id;
+            $siteDev =  SiteDevelopment::where('id',$id)->first();
+            $status = ($siteDev) ? $siteDev->status : 0; 
+            if($status==3){
+                $html .= "<i class='fa fa-ban save-status' data-text='4' data-site=".$siteDev->id." data-category=".$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:red;'' title='Deactivate'></i>";
+            }elseif($status==4 || $status==0 ){
+                $html .= "<i class='fa fa-ban save-status' data-text='3' data-site=".$siteDev->id." data-category=".$siteDev->site_development_category_id."  data-type='status' aria-hidden='true' style='color:black;' title='Activate'></i>";
+            }
+        }
         if ($request->type == 'artwork_status') {
             $history = new SiteDevelopmentArtowrkHistory;
             $history->date = date('Y-m-d');
@@ -163,7 +173,7 @@ class SiteDevelopmentController extends Controller
             $history->save();
         }
 
-        return response()->json(["code" => 200, "messages" => 'Site Development Saved Sucessfully']);
+        return response()->json(["code" => 200, "messages" => 'Site Development Saved Sucessfully','html'=>$html]);
 
     }
 
@@ -432,16 +442,26 @@ class SiteDevelopmentController extends Controller
         $query = DeveloperTask::join('users','users.id','developer_tasks.assigned_to')->where('site_developement_id',$site_developement_id)->where('status','!=','Done')->select('developer_tasks.id','developer_tasks.task as subject','developer_tasks.status','users.name as assigned_to_name');
         $query = $query->addSelect(DB::raw("'Devtask' as task_type,'developer_task' as message_type"));
         $taskStatistics = $query->get();
-
-        return response()->json(["code" => 200, "taskStatistics" => $taskStatistics]);
+        //print_r($taskStatistics);
+        $othertask = Task::where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select(); 
+        $query1 = Task::join('users','users.id','tasks.assign_to')->where('site_developement_id',$site_developement_id)->whereNull('is_completed')->select('tasks.id','tasks.task_subject as subject','tasks.assign_status','users.name as assigned_to_name');
+        $query1 = $query1->addSelect(DB::raw("'Othertask' as task_type,'task' as message_type"));
+        $othertaskStatistics = $query1->get();
+        $merged = $othertaskStatistics->merge($taskStatistics);
+        //print_r($merged);
+        return response()->json(["code" => 200, "taskStatistics" => $merged]);
 
     }
     public function deleteDevTask(Request $request){
 
-		$id   = $request->input( 'id' );
-		$task = DeveloperTask::find( $id );
+        $id   = $request->input( 'id' );
+        if($request->tasktype=='Devtask'){
+            $task = DeveloperTask::find( $id );
+        }elseif($request->tasktype=='Othertask'){
+            $task = Task::find( $id );
+        }
 		
-		if($task ) {
+		if($task) {
 			$task->delete();
 		}
 

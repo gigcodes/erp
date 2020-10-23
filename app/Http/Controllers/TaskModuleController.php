@@ -1928,7 +1928,8 @@ class TaskModuleController extends Controller {
 		$this->validate($request, [
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
-			'task_asssigned_to' => 'required_without:assign_to_contacts'
+			'task_asssigned_to' => 'required_without:assign_to_contacts',
+			'cost'=>'required|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		
@@ -1950,6 +1951,7 @@ class TaskModuleController extends Controller {
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
 			$data["site_developement_id"]	= $request->get("site_id");
+			$data["cost"]	= $request->get("cost");
 			$data["status"]	= 'In Progress';
 			$data["created_by"]	= Auth::id();
 			//echo $data["site_developement_id"]; die;
@@ -2039,6 +2041,8 @@ class TaskModuleController extends Controller {
 				$data['task_details'] = $request->get("task_detail");
 				$data['task_subject'] = $request->get("task_subject");
 				$data["customer_id"]	= $request->get("customer_id");
+				$data["site_developement_id"]	= $request->site_id;
+				$data["cost"]	= $request->get("cost");
 				if($request->category_id != null) {
 					$data['category'] 	  = $request->category_id;
 				}
