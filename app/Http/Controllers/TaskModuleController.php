@@ -34,7 +34,7 @@ use GuzzleHttp\RequestOptions;
 use Storage;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use App\Helpers\HubstaffTrait;
-
+use Artisan;
 class TaskModuleController extends Controller {
 
 	use hubstaffTrait;
@@ -44,6 +44,8 @@ class TaskModuleController extends Controller {
 	}
 
 	public function index( Request $request ) {
+		$a = Artisan::call('customer:dob-and-anniversary-mail');
+		dd($a);
 		if ( $request->input( 'selected_user' ) == '' ) {
 			$userid = Auth::id();
 		} else {
