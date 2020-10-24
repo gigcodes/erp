@@ -172,7 +172,18 @@ class UserManagementController extends Controller
         ]);
 
     }
+    public function GetUserDetails($id)
+    {
+        $user = User::where('id',$id)->first();
+      
+       
+       
+        return response()->json([
+            "code"       => 200,
+            "data"       => $user,
+        ]);
 
+    }
     public function getPendingandAvalHour($id)
     {
         $u = [];

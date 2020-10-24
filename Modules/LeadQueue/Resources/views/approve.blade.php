@@ -170,9 +170,9 @@
 				<th width="10%">Phone</th>
 				<th width="10%">Lead Group</th>
 				<th width="10%">Message</th>
-				<th width="45%">Media</th>
+				<th width="25%">Media</th>
 				<th width="10%">Created At</th>
-				<th width="10%">Action</th>
+				<th width="30%">Action</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -190,9 +190,9 @@
 					@endforeach
 				</td>
 				<td>{{$data->created_at}}</td>
-				<td><input type="button" id="approve-lead-group" data-lead-id="{{$data->lead_id}}" value="approve" onsubmit="return false" />
+				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{$data->lead_id}}" value="approve" onsubmit="return false" />
 				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$data->chatid}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
-				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="/images/filled-sent.png" /></button>
+				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="../images/filled-sent.png" /></button>
 
 				</td>
 			</tr>
