@@ -1929,7 +1929,7 @@ class TaskModuleController extends Controller {
 			'task_subject'	=> 'required',
 			'task_detail'	=> 'required',
 			'task_asssigned_to' => 'required_without:assign_to_contacts',
-			'cost'=>'required|integer'
+			'cost'=>'sometimes|integer'
 		]);
 		$data['assign_from'] = Auth::id();
 		
@@ -1951,7 +1951,7 @@ class TaskModuleController extends Controller {
 			$data["task"] 			= $request->get("task_detail");
 			$data["task_type_id"]	= 1;
 			$data["site_developement_id"]	= $request->get("site_id");
-			$data["cost"]	= $request->get("cost");
+			$data["cost"]	= $request->get("cost",0);
 			$data["status"]	= 'In Progress';
 			$data["created_by"]	= Auth::id();
 			//echo $data["site_developement_id"]; die;
