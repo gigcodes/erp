@@ -59,14 +59,21 @@ class TestMagentoProduct extends Command
 
             if(!$storeWebsiteCategories->isEmpty()) {
                 foreach($storeWebsiteCategories as $swc) {
-                     $products = \App\Product::select('*')->where("short_description", "!=", "")
+                     $products = \App\Product::join("mediables as m",function($q){
+                        $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
+                     })->join("media",function($q) {
+                        $q->on("media.id","m.media_id")->where("media.filename",'Like',"%cropped%");
+                     })->where("short_description", "!=", "")
                      ->where("name", "!=", "")
-                     ->where("size","!=","")
-                     ->where("price",">","0")
-                     ->where("status_id", StatusHelper::$finalApproval)
-                     ->whereIn('category', [$swc->category_id])
+                     ->where("products.size","!=","")
+                     ->where("products.price",">","0")
+                     ->where("products.status_id", StatusHelper::$finalApproval)
+                     ->whereIn('products.category', [$swc->category_id])
+                     ->groupBy("m.mediable_id")
+                     ->select('*')
                      ->limit(5)
                      ->get();
+
                      if(!$products->isEmpty()) {
                         foreach($products as $product) {
                             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
