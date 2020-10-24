@@ -763,29 +763,30 @@
 		var hidden_row_class = 'hidden_row_' + category;
 
 		if ($this.closest("tr").find("input[name='developer']:checked").length > 0) {
-			var value = $('.hidden_row_' + category).find("select[name='developer_id']").val();
+			var value = $this.closest("tr").find("select[name='developer_id']").val();
 			if (value != "") {
 				users.push(value);
 			}
 		}
 		if ($this.closest("tr").find("input[name='designer']:checked").length > 0) {
-			var value = $('.hidden_row_' + category).find("select[name='designer_id']").val();
+			var value = $this.closest("tr").find("select[name='designer_id']").val();
 			if (value != "") {
 				users.push(value);
 			}
 		}
 		if ($this.closest("tr").find("input[name='html']:checked").length > 0) {
-			var value = $('.hidden_row_' + category).find("select[name='html_designer']").val();
+			var value = $this.closest("tr").find("select[name='html_designer']").val();
 			if (value != "") {
 				users.push(value);
 			}
 		}
 		if ($this.closest("tr").find("input[name='tester']:checked").length > 0) {
-			var value = $('.hidden_row_' + category).find("select[name='tester_id']").val();
+			var value = $this.closest("tr").find("select[name='tester_id']").val();
 			if (value != "") {
 				users.push(value);
 			}
 		}
+		console.log(users);
 		if (users.length <= 0) {
 			alert('Please Select User');
 		} else if (site) {

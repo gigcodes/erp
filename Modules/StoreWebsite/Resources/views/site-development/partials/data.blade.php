@@ -93,7 +93,7 @@
             <td>
                 <div class="row">
                     @if($site)
-                    <div class="col-md-1">
+                    <div class="col-md-12">
                         <div class="chat_messages expand-row table-hover-cell d-inline">
                             <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHod }}" data-object="site_development" data-id="{{$site->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></button>
                             <span class="chat-mini-container"> @if($site->lastChat) {{ $site->lastChat->message }} @endif</span>
