@@ -40,6 +40,7 @@ class PushStoreWebsiteCategory extends Command
      */
     public function handle()
     {
+        $notInclude = [1,143,144];
         //
         $limitOfCat = $this->ask('Which category need to push ?');
         $limit      = $this->ask('Which website you need to push');
@@ -47,7 +48,7 @@ class PushStoreWebsiteCategory extends Command
             $catIds = explode(",", $limitOfCat);
             $categories    = Category::query()->whereIn("id",$catIds)->orderBy("parent_id", "asc")->get();
         }else{
-            $categories    = Category::query()->orderBy("parent_id", "asc")->get();
+            $categories    = Category::query()->whereNotIn('id',$notInclude)->whereNotIn('parent_id',$notInclude)->orderBy("parent_id", "asc")->get();
         }
         
         if(!empty($limit)) {
