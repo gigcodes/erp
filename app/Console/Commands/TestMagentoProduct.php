@@ -64,8 +64,8 @@ class TestMagentoProduct extends Command
                      })->join("media",function($q) {
                         $q->on("media.id","m.media_id")->where("media.filename",'Like',"%cropped%");
                      })->join("brands as b","b.id","products.brand")
-                     ->where("short_description", "!=", "")
-                     ->where("name", "!=", "")
+                     ->where("products.short_description", "!=", "")
+                     ->where("products.name", "!=", "")
                      ->where("products.size","!=","")
                      ->where("products.price",">","0")
                      ->where("products.status_id", StatusHelper::$finalApproval)
