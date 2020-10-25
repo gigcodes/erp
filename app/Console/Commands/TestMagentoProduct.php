@@ -63,14 +63,15 @@ class TestMagentoProduct extends Command
                         $q->on("m.mediable_id","products.id")->where("m.mediable_type",\App\Product::class);
                      })->join("media",function($q) {
                         $q->on("media.id","m.media_id")->where("media.filename",'Like',"%cropped%");
-                     })->where("short_description", "!=", "")
+                     })->join("brands as b","b.id","products.brand")
+                     ->where("short_description", "!=", "")
                      ->where("name", "!=", "")
                      ->where("products.size","!=","")
                      ->where("products.price",">","0")
                      ->where("products.status_id", StatusHelper::$finalApproval)
                      ->whereIn('products.category', [$swc->category_id])
                      ->groupBy("m.mediable_id")
-                     ->select('*')
+                     ->select('products.*')
                      ->limit(5)
                      ->get();
 
