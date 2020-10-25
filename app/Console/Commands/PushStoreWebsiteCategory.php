@@ -204,26 +204,36 @@ class PushStoreWebsiteCategory extends Command
                                 }
                                 //Search for child category
 
-                                $data['id']       = $category->parent->id;
-                                $data['level']    = 2;
-                                $data['name']     = ucwords($category->parent->title);
-                                $data['parentId'] = $grandRemoteId;
-                                $parentId         = $grandRemoteId;
-
-                                $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
-
-                                $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
+                                $childCategoryE = StoreWebsiteCategory::where('store_website_id', $swi)
                                     ->where('category_id', $category->parent->id)
-                                    ->where('remote_id', $childCategoryDetails)
+                                    ->where('remote_id','>',0)
                                     ->first();
 
-                                if (empty($checkIfExist)) {
-                                    $storeWebsiteCategory                   = new StoreWebsiteCategory();
-                                    $storeWebsiteCategory->category_id      = $category->parent->id;
-                                    $storeWebsiteCategory->store_website_id = $swi;
-                                    $storeWebsiteCategory->remote_id        = $childCategoryDetails;
-                                    $storeWebsiteCategory->save();
-                                }
+                                if(!$childCategoryE) {
+                                    $data['id']       = $category->parent->id;
+                                    $data['level']    = 2;
+                                    $data['name']     = ucwords($category->parent->title);
+                                    $data['parentId'] = $grandRemoteId;
+                                    $parentId         = $grandRemoteId;
+
+                                    $childCategoryDetails = MagentoHelper::createCategory($parentId, $data, $swi);
+
+                                    $checkIfExist = StoreWebsiteCategory::where('store_website_id', $swi)
+                                        ->where('category_id', $category->parent->id)
+                                        ->where('remote_id', $childCategoryDetails)
+                                        ->first();
+
+                                    if (empty($checkIfExist)) {
+                                        $storeWebsiteCategory                   = new StoreWebsiteCategory();
+                                        $storeWebsiteCategory->category_id      = $category->parent->id;
+                                        $storeWebsiteCategory->store_website_id = $swi;
+                                        $storeWebsiteCategory->remote_id        = $childCategoryDetails;
+                                        $storeWebsiteCategory->save();
+                                    }
+
+                                }else{
+                                    $childCategoryDetails = $childCategoryE->remote_id;
+                                } 
 
                                 $data['id']       = $category->id;
                                 $data['level']    = 3;
