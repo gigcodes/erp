@@ -100,10 +100,10 @@ class PushStoreWebsiteCategory extends Command
                         if ($case == 'second') {
                             $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)
                                 ->where('category_id', $category->parent->id)
-                                ->whereNotNull('remote_id')
+                                ->where('remote_id','>',0)
                                 ->first();
                             //if parent remote null then send to magento first
-                            if (empty($parentCategory) || 1 == 1) {
+                            if (empty($parentCategory)) {
 
                                 $data['id']       = $category->parent->id;
                                 $data['level']    = 1;
@@ -159,19 +159,19 @@ class PushStoreWebsiteCategory extends Command
                         //if case third
                         if ($case == 'third') {
                             //Find Parent
-                            $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->whereNotNull('remote_id')->first();
+                            $parentCategory = StoreWebsiteCategory::where('store_website_id', $swi)->where('category_id', $category->id)->where('remote_id','>',0)->first();
 
                             //Check if parent had remote id
-                            if (empty($parentCategory)  || 1 == 1) {
+                            if (empty($parentCategory)) {
 
                                 //check for grandparent
                                 $grandCategory       = Category::find($category->parent->id);
                                 $grandCategoryDetail = StoreWebsiteCategory::where('store_website_id', $swi)
                                     ->where('category_id', $grandCategory->parent->id)
-                                    ->whereNotNull('remote_id')
+                                    ->where('remote_id','>',0)
                                     ->first();
 
-                                if (empty($grandCategoryDetail)  || 1 == 1) {
+                                if (empty($grandCategoryDetail)) {
 
                                     $data['id']       = $grandCategory->parent->id;
                                     $data['level']    = 1;
