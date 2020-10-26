@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class AddFieldsintocampaignTable extends Migration
+class AddFieldsintocampaignTableB extends Migration
 {
     /**
      * Run the migrations.
@@ -14,8 +14,9 @@ class AddFieldsintocampaignTable extends Migration
     public function up()
     {
         Schema::table('googlecampaigns', function (Blueprint $table) {
-            $table->unsignedInteger('account_id')->after('id')->nullable();
-            $table->foreign('account_id')->references('id')->on('googleadsaccounts');
+            $table->string('budget_uniq_id')->after('end_date')->nullable();
+            $table->string('budget_id')->after('budget_uniq_id')->nullable();
+            $table->text('campaign_response')->after('budget_id')->nullable();
         });
     }
 
