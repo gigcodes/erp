@@ -412,6 +412,19 @@ Accept: application/json
 Content-Type: application/json
 {
     "website" : "www.brands-labels.com", //existing website
+    "first_name":"xyz", //optional
+    "last_name":"ABC", //optional
+    "phone":"9999999999", //optional, string
+    "emailaddress":"example@domain.com", //optional
+    "website_name":"sololuxury", //optional, string
+    "url":"url", //optional, string
+    "unique_visitors_per_month":"unique_visitors_per_month", //optional, string
+    "page_views_per_month":"page_views_per_month", //optional, string
+    "street_address":"address", //optional, string
+    "city":"Texas", //optional, string
+    "postcode":"111111", //optional, string
+    "country":"United States Of America", //optional, string
+
 }
 ```
 
