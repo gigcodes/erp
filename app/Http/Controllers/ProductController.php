@@ -2262,7 +2262,8 @@ class ProductController extends Controller
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
                                 'customer_id' => $customerId,
-                                'product_id' => $id
+                                'product_id' => $id,
+                                'created_at' => date("Y-m-d H:i:s")
                             ];
                         }
                     }
