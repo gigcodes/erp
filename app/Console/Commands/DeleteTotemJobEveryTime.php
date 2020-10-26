@@ -39,7 +39,7 @@ class DeleteTotemJobEveryTime extends Command
     {
         //
         $jobs = \App\Job::where('payload','like',"%Studio\Totem\Events%")->get();
-        if($jobs->isEmpty()) {
+        if(!$jobs->isEmpty()) {
             foreach($jobs as $job) {
                 echo $job->id." started to delete \n";
                 $jobs->delete();
