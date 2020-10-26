@@ -197,6 +197,12 @@ class ProductHelper extends Model
             ]);
         }
 
+        if ($request->get('price') != '') {
+            $request->merge([
+                'price' => preg_replace('/[^0-9\.]/', "", $request->get('price')),
+            ]);
+        }
+
         // Return request
         return $request;
     }
