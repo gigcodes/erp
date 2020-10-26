@@ -1012,7 +1012,11 @@
             if (product_array.length == 0) {
                 alert('Please select some images');
                 return;
-            }delete
+            }
+
+            console.log(product_array);
+            var confirm = window.confirm('Are you sure ?');
+            if(!confirm) {
                 return;
             }
             $.ajax({
