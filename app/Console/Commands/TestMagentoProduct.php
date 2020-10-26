@@ -73,6 +73,7 @@ class TestMagentoProduct extends Command
                      ->whereIn('products.category', [$swc->category_id])
                      ->groupBy("m.mediable_id")
                      ->select('products.*')
+                     ->orderBy("products.id","desc")
                      ->limit(5)
                      ->get();
 
