@@ -49,7 +49,7 @@ class DeleteTotemJobEveryTime extends Command
         if(!$jobs->isEmpty()) {
             foreach($jobs as $job) {
                 echo $job->id." started to delete \n";
-                $jobs->delete();
+                $job->delete();
             }
         }
     }
