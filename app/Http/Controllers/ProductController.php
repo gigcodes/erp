@@ -3727,6 +3727,9 @@ class ProductController extends Controller
 
     public function pushProduct()
     {
+
+        return response()->json(["code" => 200, "message" => "This request is temporary disable"]);
+
         $webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
             ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
             ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')

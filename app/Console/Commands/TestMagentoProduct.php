@@ -68,6 +68,7 @@ class TestMagentoProduct extends Command
                      ->where("products.name", "!=", "")
                      ->where("products.size","!=","")
                      ->where("products.price",">","0")
+                     ->where("products.isListed","0")
                      ->where("products.status_id", StatusHelper::$finalApproval)
                      ->whereIn('products.category', [$swc->category_id])
                      ->groupBy("m.mediable_id")

@@ -86,6 +86,8 @@ class ProductListerController extends Controller
 
     public function magentoSoapApiUpload( $product, $status = 2 )
     {
+        return 'this request is tempoary disable';
+
         // Log activity
         ListingHistory::createNewListing( Auth::user()->id, $product->id, [ 'action' => 'MAGENTO_LISTED', 'page' => 'Approved Listing Page' ], 'MAGENTO_LISTED' );
 
