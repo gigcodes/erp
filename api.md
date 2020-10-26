@@ -402,6 +402,40 @@ Content-Type: application/json
 ```
 
 
+## Affilates Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/affiliate/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.brands-labels.com", //existing website
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "affiliate added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add affiliate !"
+}
+```
+
+
 
 ## Magneto Customer Reference Store API
 
