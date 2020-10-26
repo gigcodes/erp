@@ -38,11 +38,10 @@ class DeleteTotemJobEveryTime extends Command
     public function handle()
     {
         //
-        $limit   = $this->ask('Limit for delete?');
         $jobs = \App\Job::where('payload','like',"%Totem%");
-        if(!empty($limit)) {
+        /*if(!empty($limit)) {
             $jobs = $jobs->limit($limit);
-        }
+        }*/
 
         $jobs = $jobs->get();
 
