@@ -402,35 +402,39 @@ Content-Type: application/json
 ```
 
 
-## Affilates Api
+
+## Magneto Customer Reference Store API
 
 **Request:**
 
 ```json
-POST https://erp.amourint.com/api/affiliate/add
+POST https://erp.amourint.com/api/magento/customer-reference
 Accept: application/json
 Content-Type: application/json
 {
-    "website" : "www.brands-labels.com", //existing website
+    "name" : "Wahiduzzaman", //required
+    "email" : "wahidlaskar05@gmail.com", //required
+    "phone": "918638973610", //optional
+    "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
+    "dob": "2020-10-23", //optional
+    "wedding_anniversery": "2020-10-23" //optional
 }
 ```
-
 **Successful Response:**
 ```json
-HTTP/1.1 200
 Content-Type: application/json
 {
-    "status": "success",
-    "message": "affiliate added successfully !"
+     "status": "200",
+    "message": "Saved SucessFully"
+    
 }
 ```
 
 **Failed Response:**
 ```json
-HTTP/1.1 500
 Content-Type: application/json
 {
-    "status": "failed",
-    "message": "unable to add affiliate !"
+    "status": "403",
+    "message": "Email is required"
 }
 ```
