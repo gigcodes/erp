@@ -33,6 +33,7 @@ class ProductCategoryController extends Controller
     {
         $brands = $request->get("brands",[]);
         $usresIds = $request->get("user_ids",[]);
+        $keywords = $request->get("keyword");
 
 
         $productCategory = \App\ProductCategoryHistory::leftJoin("categories as c","c.id","product_category_histories.category_id")
@@ -46,6 +47,12 @@ class ProductCategoryController extends Controller
 
         if(!empty($usresIds)) {
            $productCategory = $productCategory->whereIn("product_category_histories.user_id",$usresIds);
+        }
+
+        if($keywords) {
+           $productCategory = $productCategory->where(function($q) use($keywords) {
+                $q->orWhere("p.id","like","%".$keywords."%")->orWhere("p.name","like","%".$keywords."%");
+           });
         }
 
         $updatedHistory = clone $productCategory;
