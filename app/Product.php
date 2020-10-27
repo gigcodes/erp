@@ -98,7 +98,8 @@ class Product extends Model
                 $data = array(
                     'product_id' => $product->id,
                     'old_status' => $old_status_id,
-                    'new_status' => $new_status_id
+                    'new_status' => $new_status_id,
+                    'created_at' => date("Y-m-d H:i:s")
                 );
                 \App\ProductStatusHistory::addStatusToProduct($data);
             }
