@@ -163,7 +163,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
     Route::get('product/update-listing-remark', 'ProductController@updateProductListingStats');
     Route::post('product/crop_rejected_status', 'ProductController@crop_rejected_status');
-
+    Route::post('product/all_crop_rejected_status', 'ProductController@all_crop_rejected_status');
+    
     // Added Mass Action
     Route::get('product/delete-product', 'ProductController@deleteProduct')->name('products.mass.delete');
     Route::get('products/approveProduct', 'ProductController@approveProduct')->name('products.mass.approve');;
@@ -223,6 +224,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
+    
+    Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
+    Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
+    Route::resource('facebook-posts', 'FacebookPostController');
+    
 
     Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
     Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
@@ -700,7 +706,6 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
     Route::get('quickSell/quick-sell-group-list', 'QuickSellController@quickSellGroupProductsList');
     Route::post('quickSell/quicksell-product-delete', 'QuickSellController@quickSellGroupProductDelete');
-
 
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
@@ -1351,6 +1356,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
     Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+
 });
 
 
@@ -1505,8 +1511,6 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
 
 
 
-
-
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
     Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
@@ -1581,24 +1585,25 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post/create', 'InstagramPostsController@post')->name('instagram.post');
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
-    Route::post('post/create', 'InstagramPostsController@createPost')->name('post.store');
+    Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
+    
+
+     Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
+     Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
+     Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
 
 
-    Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
-    Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
-    Route::get('users/{id}', 'InstagramPostsController@userPost')->name('instagram.users.post');
+     //direct message new 
+     Route::get('direct', 'DirectMessageController@index')->name('direct.index');
+     Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
+     Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
+     Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
+     Route::post('direct/group-message', 'DirectMessageController@sendMessageMultiple')->name('direct.group-message');
+     Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
+     Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
+     Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
+     Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 
-
-    //direct message new 
-    Route::get('direct', 'DirectMessageController@index')->name('direct.index');
-    Route::post('direct/send', 'DirectMessageController@sendMessage')->name('direct.send');
-    Route::post('direct/sendImage', 'DirectMessageController@sendImage')->name('direct.send.file');
-    Route::post('direct/newChats', 'DirectMessageController@incomingPendingRead')->name('direct.new.chats');
-    Route::post('direct/group-message', 'DirectMessageController@sendMessageMultiple')->name('direct.group-message');
-    Route::post('direct/send-message', 'DirectMessageController@prepareAndSendMessage')->name('direct.send-message');
-    Route::post('direct/latest-posts', 'DirectMessageController@latestPosts')->name('direct.latest-posts');
-    Route::post('direct/messages', 'DirectMessageController@messages')->name('direct.messages');
-    Route::post('direct/infulencers-messages', 'DirectMessageController@influencerMessages')->name('direct.infulencers-messages');
 });
 
 // logScraperVsAiController
@@ -2312,7 +2317,6 @@ Route::group(['middleware' => 'auth'], function () {
     Route::post('watson/add-intents/{id}', 'WatsonController@addIntentsToWatson')->name('watson-accounts.add-intents');
 
 
-
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
     Route::post('twilio/assign-number', 'TwilioController@assignTwilioNumberToStoreWebsite')->name('assign-number-to-store-website');
     Route::post('twilio/call-forward', 'TwilioController@twilioCallForward')->name('manage-twilio-call-forward');
@@ -2398,9 +2402,8 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(static function
     Route::get('/{id?}/download', 'GoogleFileTranslator@download')->name('googlefiletranslator.download');
     Route::post('/store', 'GoogleFileTranslator@store')->name('googlefiletranslator.store');
     Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
-});
 
-//translation
+});
 Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::get('/list', 'TranslationController@index')->name('translation.list');
     Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
