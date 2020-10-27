@@ -400,3 +400,41 @@ Content-Type: application/json
     "message": "No Category Found"
 }
 ```
+
+
+
+## Magneto Customer Reference Store API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/magento/customer-reference
+Accept: application/json
+Content-Type: application/json
+{
+    "name" : "Wahiduzzaman", //required
+    "email" : "wahidlaskar05@gmail.com", //required
+    "phone": "918638973610", //optional
+    "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
+    "dob": "2020-10-23", //optional
+    "wedding_anniversery": "2020-10-23" //optional
+}
+```
+**Successful Response:**
+```json
+Content-Type: application/json
+{
+     "status": "200",
+    "message": "Saved SucessFully"
+    
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "403",
+    "message": "Email is required"
+}
+```
