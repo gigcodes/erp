@@ -2675,7 +2675,7 @@ class ProductController extends Controller
             $imageReference->save();
 
 
-            //Get the last image of the product
+            //Get the last image of the product.
             $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id', $product->id)->whereDate('created_at', Carbon::today())->count();
