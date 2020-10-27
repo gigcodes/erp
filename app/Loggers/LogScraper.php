@@ -67,12 +67,7 @@ class LogScraper extends Model
         $errorLog .= self::validateDiscountedPrice($request->discounted_price);
 
         // Find existing record
-        /*$logScraper = LogScraper::where('website', $request->website)->where('sku', ProductHelper::getSku($request->sku))->first();
-
-        // Create new record if not found
-        if ($logScraper == null) {
-            $logScraper = new LogScraper();
-        }*/
+        $logScraper = new LogScraper();
 
         // For excels we only need the SKU
         if ($isExcel == 1 && isset($request->sku)) {
@@ -87,21 +82,21 @@ class LogScraper extends Model
         }
 
         // Update values
-        /*$logScraper->ip_address = self::getRealIp();
+        $logScraper->ip_address = self::getRealIp();
         $logScraper->website = $request->website ?? null;
         $logScraper->url = $request->url ?? null;
         $logScraper->sku = ProductHelper::getSku($request->sku) ?? null;
         $logScraper->original_sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
-        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : "";
         $logScraper->title = $request->title ?? null;
-        $logScraper->description = $request->description ?? null;
+        $logScraper->description = $request->description ?? "";
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
         $logScraper->images = isset($request->images) ? serialize($request->images) : null;
         $logScraper->size_system = $request->size_system ?? null;
         $logScraper->currency = $request->currency ?? null;
         $logScraper->price = $request->price ?? null;
-        $logScraper->discounted_price = $request->discounted_price ?? null;
+        $logScraper->discounted_price = $request->discounted_price ?? 0;
         $logScraper->is_sale = $request->is_sale ?? 0;
         $logScraper->validated = empty($errorLog) ? 1 : 0;
         $logScraper->validation_result = $errorLog . $warningLog;
@@ -110,7 +105,7 @@ class LogScraper extends Model
 
         // Update modified date
         $logScraper->touch();
-        $logScraper->save();*/
+        $logScraper->save();
 
         // Return true or false
         return ["error" => $errorLog , "warning" => $warningLog];

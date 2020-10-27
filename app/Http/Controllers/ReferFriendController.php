@@ -109,7 +109,7 @@ class ReferFriendController extends Controller
 
 		$ReferFriend->delete();
 
-		return redirect()->route('referfriend.index')
+		return redirect()->route('referfriend.list')
 			->with('success', 'Referral deleted successfully');
     }
 }

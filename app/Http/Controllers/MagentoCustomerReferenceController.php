@@ -6,6 +6,7 @@ use App\MagentoCustomerReference;
 use Illuminate\Http\Request;
 use App\Setting;
 use App\Customer;
+use App\StoreWebsite;
 use App\Helpers\InstantMessagingHelper;
 
 class MagentoCustomerReferenceController extends Controller
@@ -27,7 +28,7 @@ class MagentoCustomerReferenceController extends Controller
      */
     public function create()
     {
-        //
+        ///
     }
 
     /**
@@ -40,42 +41,74 @@ class MagentoCustomerReferenceController extends Controller
     {
        
         if (empty($request->name)) {
-            return response()->json(['error' => 'Name is required'], 403);
+            return response()->json(['message' => 'Name is required'], 403);
         }
 
-        if (empty($request->phone)) {
-            return response()->json(['error' => 'Phone is required'], 403);
-        }
+        // if (empty($request->phone)) {
+        //     return response()->json(['error' => 'Phone is required'], 403);
+        // }
 
         if (empty($request->email)) {
-            return response()->json(['error' => 'Email is required'], 403);
+            return response()->json(['message' => 'Email is required'], 403);
         }
 
-        if (empty($request->social)) {
-            return response()->json(['error' => 'Social is required'], 403);
+        if (empty($request->website)) {
+            return response()->json(['message' => 'website is required'], 403);
+        }
+        
+        // if (empty($request->social)) {
+        //     return response()->json(['error' => 'Social is required'], 403);
+        // }
+        $name = $request->name;
+        $email = $request->email;
+        $website = $request->website;
+        $phone = null;
+        $dob = null;
+        $store_website_id = null;
+        $wedding_anniversery = null;
+        if($request->phone) {
+            $phone = $request->phone;
+        }
+        if($request->dob) {
+            $dob = $request->dob;
+        }
+        if($request->wedding_anniversery) {
+            $wedding_anniversery = $request->wedding_anniversery;
         }
 
-        //getting reference
-        $reference = Customer::where('phone',$request->phone)->first();
-        
-        
+         //getting reference
+         $reference = Customer::where('email',$email)->first();
+         $store_website = StoreWebsite::where('website',"like", $website)->first();
+         if($store_website) {
+             $store_website_id = $store_website->id;
+         }
         if(empty($reference)){
 
             $reference = new Customer();
-            $reference->name = $request->name;
-            $reference->phone = $request->phone;
-            $reference->email = $request->email;
+            $reference->name = $name;
+            $reference->phone = $phone;
+            $reference->email = $email;
+            $reference->store_website_id = $store_website_id;
+            $reference->dob = $dob;
+            $reference->wedding_anniversery = $wedding_anniversery;
             $reference->save();
         
         }
+        else {
+            return response()->json(['message' => 'Account already exists with this email'], 403);
+        }
         
-        //get welcome message
-        $welcomeMessage = InstantMessagingHelper::replaceTags($reference, Setting::get('welcome_message'));
+        
 
-        //sending message
-        app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
+        if($reference->phone) {
+            //get welcome message
+            $welcomeMessage = InstantMessagingHelper::replaceTags($reference, Setting::get('welcome_message'));
+            //sending message
+            app('App\Http\Controllers\WhatsAppController')->sendWithThirdApi($reference->phone, '', $welcomeMessage, '', '');
+        }
+        
 
-        return response()->json(['success' => 'Saved SucessFully'], 200);
+        return response()->json(['message' => 'Saved SucessFully'], 200);
 
     }
 

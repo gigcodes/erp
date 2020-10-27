@@ -57,11 +57,19 @@
                                <a data-id="{{ $account->id }}" class="btn btn-sm edit_account" style="padding:3px;">
                                     <i class="fa fa-edit" aria-hidden="true"></i>
                                 </a>
+                               
                                 <a href="{{ route('watson-accounts.delete', $account->id) }}" data-id="1"
                                    class="btn btn-delete-template"
                                    onclick="return confirm('Are you sure you want to delete this account ?');" style="padding:3px;">
                                     <i class="fa fa-trash" aria-hidden="true"></i>
                                 </a>
+                                @if(!$account->watson_push)
+                                <a data-id="{{ $account->id }}"
+                                   class="btn upload-data-watson"
+                                    style="padding:3px;">
+                                    <i class="fa fa-plus" aria-hidden="true"></i>
+                                </a>
+                                @endif
                                 </div>
                             </td>
                         </tr>
@@ -274,6 +282,29 @@
             var mini ='.expand-row-msg .show-full-'+name+'-'+id;
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
+        });
+
+        $(document).on('click', '.upload-data-watson', function () {
+			var id = $(this).data('id');
+            $.ajax({
+                method: "post",
+                url: "/watson/add-intents/" + id,
+                data: {
+                    _token: "{{csrf_token()}}",
+                },
+                dataType: "json",
+                success: function (response) {
+                    if (response.code == 200) {
+                        toastr["success"](response.message, "Message")
+                        location.reload();
+                    } else {
+                        toastr["error"](response.message, "Message");
+                    }
+                },
+                error: function (error) {
+                    toastr["error"](error.responseJSON.message, "Message");
+                }
+            });
         });
     </script>
 

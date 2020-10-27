@@ -396,7 +396,18 @@ class ReturnExchangeController extends Controller
             $data['credited'] = 1;
         }
         ReturnExchange::create($data);
-        
+        //create entry in table cash_flows
+        \DB::table('cash_flows')->insert(
+            [
+                'cash_flow_able_id'=>$request->input('user_id'),
+                'description'=>'Vendor paid',
+                'date'=>('Y-m-d'),
+                'amount'=>$request->input('refund_amount'),
+                'type'=>'paid',
+                'cash_flow_able_type'=>'App\ReturnExchange',
+
+            ]
+        );
         return response()->json(['message' => 'You have successfully added refund!'],200);
     }
 

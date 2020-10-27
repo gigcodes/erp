@@ -64,6 +64,7 @@ use App\Task;
 use seo2websites\MagentoHelper\MagentoHelper;
 use App\ProductTranslationHistory;
 use App\Translations;
+use App\ProductPushErrorLog;
 
 
 class ProductController extends Controller
@@ -732,8 +733,6 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        // $category_selection = Category::attr(['name' => 'category', 'class' => 'form-control quick-edit-category', 'data-id' => ''])
-        //                                                                           ->renderAsDropdown();
 
         $term = $request->input('term');
         $brand = '';
@@ -1006,8 +1005,6 @@ class ProductController extends Controller
             'categories' => $categories,
             'category_tree' => $category_tree,
             'categories_array' => $categories_array,
-            // 'category_selection' => $category_selection,
-            // 'category_search'    => $category_search,
             'term' => $term,
             'brand' => $brand,
             'category' => $category,
@@ -1374,6 +1371,11 @@ class ProductController extends Controller
 
     public function listMagento(Request $request, $id)
     {
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
         // Get product by ID
         $product = Product::find($id);
         //check for hscode
@@ -1402,10 +1404,9 @@ class ProductController extends Controller
                             LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
                             //currently we have 3 queues assigned for this task.
                             if($i > 3) {
-                                $i = 1;
+                               $i = 1;
                             }
-                            $queueName = 'push_product_'.$i;
-                            PushToMagento::dispatch($product,$website)->onQueue($queueName);
+                            PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
                             $i++;
                         }
                     }
@@ -2257,13 +2258,14 @@ class ProductController extends Controller
                 $suggestedProducts->save();
                 $data_to_insert = [];
                 foreach($product_ids as $id){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->first();
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
                                 'customer_id' => $customerId,
-                                'product_id' => $id
+                                'product_id' => $id,
+                                'date' => date('Y-m-d')
                             ];
                         }
                     }
@@ -3261,6 +3263,7 @@ class ProductController extends Controller
         $data['message'] = $request->message;
         $data['customer_id'] = $request->customer_id;
         $data['status'] = $request->status;
+        $data['type'] = $request->type;
         \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
@@ -3724,6 +3727,9 @@ class ProductController extends Controller
 
     public function pushProduct()
     {
+
+        return response()->json(["code" => 200, "message" => "This request is temporary disable"]);
+
         $webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
             ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
             ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
@@ -3738,8 +3744,30 @@ class ProductController extends Controller
             ->groupBy("brand", "category")
             ->get();
 
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+
         foreach ($products as $key => $product) {
-            PushToMagento::dispatch($product)->onQueue('magento');
+            $i = 1;
+            $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            if(!empty($websiteArrays)) {
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if($website){
+                        \Log::info("Product started website found For website".$website->website);
+                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info',$website->id);
+                        //currently we have 3 queues assigned for this task.
+                        if($i > 3) {
+                           $i = 1;
+                        }
+                        PushToMagento::dispatch($product,$website)->onQueue($queueName[$i]);
+                        $i++;
+                    }
+                }
+            }
         }
         return response()->json(["code" => 200, "message" => "Push product successfully"]);
 
@@ -4002,71 +4030,37 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+
+
+
+
+
+
+
         foreach($suggestedProducts as $suggestion) {
-            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id);
-            if (isset($request->brand[0])) {
-                if ($request->brand[0] != null) {
-                    $products = $products->whereIn('products.brand', $request->brand);
-                }
+            $last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
+            if($last_attached) {
+                $suggestion->last_attached = $last_attached->date;
+            }
+            else {
+                $suggestion->last_attached = $suggestion->created_at;
+            }
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            if(count($brandIds) > 0) {
+                $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
+            }
+            else {
+                $suggestion->brdNames = []; 
             }
 
-            if (isset($request->category[0])) {
-                if ($request->category[0] != null && $request->category[0] != 1) {
-
-                    $category_children = [];
-
-                    foreach ($request->category as $category) {
-
-                        $is_parent = Category::isParent($category);
-
-                        if ($is_parent) {
-                            $childs = Category::find($category)->childs()->get();
-
-                            foreach ($childs as $child) {
-                                $is_parent = Category::isParent($child->id);
-
-                                if ($is_parent) {
-                                    $children = Category::find($child->id)->childs()->get();
-
-                                    foreach ($children as $chili) {
-                                        array_push($category_children, $chili->id);
-                                    }
-                                } else {
-                                    array_push($category_children, $child->id);
-                                }
-                            }
-                        } else {
-                            array_push($category_children, $category);
-                        }
-                    }
-                    $products = $products->whereIn('category', $category_children);
-                }
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            if(count($catIds) > 0) {
+                $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
-
-            if (trim($term) != '') {
-                $products = $products->where(function ($query) use ($term) {
-                    $query->where('sku', 'LIKE', "%$term%")
-                            ->orWhere('products.id', 'LIKE', "%$term%")
-                            ->orWhere('name', 'LIKE', "%$term%")
-                            ->orWhere('short_description', 'LIKE', "%$term%");
-                    if ($term == -1) {
-                        $query = $query->orWhere('isApproved', -1);
-                    }
-
-                    $brand_id = \App\Brand::where('name', 'LIKE', "%$term%")->value('id');
-                    if ($brand_id) {
-                        $query = $query->orWhere('brand', 'LIKE', "%$brand_id%");
-                    }
-
-                    $category_id = $category = Category::where('title', 'LIKE', "%$term%")->value('id');
-                    if ($category_id) {
-                        $query = $query->orWhere('category', $category_id);
-                    }
-                });
+            else {
+                $suggestion->catNames = []; 
             }
-
-             $suggestion->products = $products->get();
         }
 
         if ($request->category) {
@@ -4078,11 +4072,9 @@ class ProductController extends Controller
         } else {
             $filtered_category = [1];
         }
-
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
                 ->selected($filtered_category)
                 ->renderAsDropdown();
-
 
         $all_product_ids = [];
         $model_type = 'customer';
@@ -4107,12 +4099,15 @@ class ProductController extends Controller
                 'customerId' => $customerId,
                 'categoryArray' => $categoryArray,
                     ])->render();
-
             if (!empty($from) && $from == "attach-image") {
                 return $html;
             }
 
-            return response()->json(['html' => $html, 'products_count' => $products_count]);
+            // return response()->json(['html' => $html, 'products_count' => $products_count]);
+
+            $selected_products = $request->selected_products ? json_decode($request->selected_products) : [];
+            return view('partials.attached-image-load', compact(
+                'suggestedProducts','all_product_ids','brand','selected_products','model_type','countBrands','countCategory','countSuppliers','customerId','categoryArray'));
         }
 
         $message_body = $request->message ? $request->message : '';
@@ -4122,8 +4117,6 @@ class ProductController extends Controller
         $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
 
         $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
-        //\Log::info(print_r(\DB::getQueryLog(),true));
-
         $customers = \App\Customer::pluck('name','id');
         return view('partials.attached-image-grid', compact(
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
@@ -4203,6 +4196,7 @@ class ProductController extends Controller
             $term = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
+
         $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id');
 
         $products = (new Product())->newQuery()->latest();
@@ -4278,13 +4272,14 @@ class ProductController extends Controller
             if(count($products) > 0) {
                 $data_to_insert = [];
                 foreach($products as $product){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->first();
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($product->id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                         $data_to_insert[] = [
                             'customer_id' => $customerId,
-                            'product_id' => $product->id
+                            'product_id' => $product->id,
+                            'date' => date('Y-m-d')
                         ];
                     }
                     }
@@ -4322,14 +4317,271 @@ class ProductController extends Controller
         if($customerId) {
             $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
-        $suggestedProducts = $suggestedProducts->groupBy('suggested_products.customer_id')->select('suggested_products.*')->paginate($perPageLimit);
+        // $suggestedProducts = $suggestedProducts->groupBy('suggested_products.customer_id')->select('suggested_products.*')->paginate($perPageLimit);
+
+
+        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
+
+
         foreach($suggestedProducts as $suggestion) {
-            $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('chat_message_id','!=',NULL);
+            $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
+
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            if(count($brandIds) > 0) {
+                $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
+            }
+            else {
+                $suggestion->brdNames = []; 
+            }
+
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            if(count($catIds) > 0) {
+                $suggestion->catNames = Category::whereIn('id',$catIds)->get();
+            }
+            else {
+                $suggestion->catNames = []; 
+            }
+        }
+
+        if ($request->category) {
+            try {
+                $filtered_category = $request->category;
+            } catch (\Exception $e) {
+                $filtered_category = [1];
+            }
+        } else {
+            $filtered_category = [1];
+        }
+
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
+                ->selected($filtered_category)
+                ->renderAsDropdown();
+
+
+        $all_product_ids = [];
+        $model_type = 'customer';
+        $countBrands = 0;
+        $countCategory = 0;
+        $countSuppliers = 0;
+        $categoryArray = [];
+        $from = '';
+        $products_count = 0;
+        $selected_products = [];
+        $brand =$request->brand;
+        if ($request->ajax()) {
+            $html = view('partials.suggested-image-load', [
+                'suggestedProducts' => $suggestedProducts,
+                'all_product_ids' => $all_product_ids,
+                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
+                'model_type' => $model_type,
+                'countBrands' => $countBrands,
+                'countCategory' => $countCategory,
+                'countSuppliers' => $countSuppliers,
+                'customerId' => $customerId,
+                'categoryArray' => $categoryArray,
+                'brand' => $brand
+                ])->render();
+
+            if (!empty($from) && $from == "attach-image") {
+                return $html;
+            }
+
+            // return response()->json(['html' => $html, 'products_count' => $products_count]);
+            $selected_products =  $request->selected_products ? json_decode($request->selected_products) : [];
+            return view('partials.suggested-image-load', compact(
+                'suggestedProducts','all_product_ids','selected_products','model_type','countBrands','countCategory','countSuppliers','customerId','categoryArray','brand'
+));
+        }
+
+        $message_body = $request->message ? $request->message : '';
+        $sending_time = $request->sending_time ?? '';
+
+        $locations = \App\ProductLocation::pluck("name", "name");
+        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
+
+        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
+        //\Log::info(print_r(\DB::getQueryLog(),true));
+
+        $customers = \App\Customer::pluck('name','id');
+        return view('partials.suggested-image-grid', compact(
+                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
+        ));
+    }
+    public function removeProducts($customer_id, Request $request) {
+            $products = json_decode($request->products,true);
+            foreach($products as $product_list_id) {
+                $suggested = \App\SuggestedProductList::find($product_list_id);
+                if($suggested) {
+                    if($suggested->chat_message_id) {
+                     $suggested->remove_attachment = 1;
+                     $suggested->save();
+                     }
+                    else {
+                     $suggested->delete();
+                    }
+                }
+            }
+            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+                if(!$remains) {
+                    \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+                }
+            return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+    public function removeSingleProduct($customer_id, Request $request) {
+        $suggested = \App\SuggestedProductList::find($request->product_id);
+       if($suggested) {
+           if($suggested->chat_message_id) {
+            $suggested->remove_attachment = 1;
+            $suggested->save();
+            }
+           else {
+            $suggested->delete(); 
+
+            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+            if(!$remains) {
+                \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+            }
+           }
+       }
+        return response()->json(['code' => 200, 'message' => 'Successfull']);
+    }
+
+    
+
+
+    public function forwardProducts(Request $request) {
+        $customerId = 0;
+        if($request->customer_id) {
+            $explode = explode('/',$request->customer_id);
+            if(count($explode) > 1) {
+                $customerId =  $explode[1];
+            }
+        }
+        if(!$customerId) {
+            $msg = ' Customer not found';
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $total = count($products);
+                if($suggestedProducts) {
+                    $suggestedProducts->touch();
+                }
+                else {
+                    $suggestedProducts = new \App\SuggestedProduct;
+                    $suggestedProducts->customer_id = $customerId;
+                    $suggestedProducts->total = $total;
+                    $suggestedProducts->save();
+                }
+                $listIds = json_decode($request->products, true);
+                $data_to_insert = [];
+                $inserted = 0;
+               
+
+
+                if(!empty($listIds) && is_array($listIds)) {
+                foreach($listIds as $listedImage) {
+
+                    $productList = \App\SuggestedProductList::find($listedImage);
+                    $product = Product::find($productList->product_id);
+                    $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+                    $image_key = $imageDetails->getKey();
+                    $media = Media::find($image_key);
+                    if($media) {
+                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
+                            if($mediable) {
+                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
+                                if(!$exists) {
+                                    $pr = Product::find($mediable->mediable_id);
+                                    if($pr->hasMedia(config('constants.attach_image_tag'))) {
+                                        $data_to_insert[] = [
+                                            'customer_id' => $customerId,
+                                            'product_id' => $mediable->mediable_id,
+                                            'date' => date('Y-m-d')
+                                        ];
+                                    }
+                                }
+                           }
+                        }
+                        }
+
+                        $inserted = count($data_to_insert);
+                        if($inserted > 0) {
+                            \App\SuggestedProductList::insert($data_to_insert);
+                        }
+
+                        if($request->type == 'forward') {
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $customerId;
+                            $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                        }
+                }
+                $msg = $inserted. ' Products added successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
+    }
+
+
+    public function resendProducts($customer_id, Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
+                $products = json_decode($request->products, true);
+                $suggestedProducts->touch();
+                
+
+                            $data['_token'] = $request->_token;
+                            $data['send_pdf'] = 0;
+                            $data['pdf_file_name'] = "";
+                            $data['images'] = $request->products;
+                            $data['image'] = null;
+                            $data['screenshot_path'] = null;
+                            $data['message'] = null;
+                            $data['customer_id'] = $customer_id;
+                            $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
+                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+                $msg = ' Images Resend successfully';
+                return response()->json(['code' => 200, 'message' => $msg]);
+    }
+
+    public function getCustomerProducts($type,$customer_id, Request $request) {
+        $term = null;
+        if($type == 'attach') {
+            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('remove_attachment',0)
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
+        }
+        else {
+            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
+        }
+        
+        foreach($productsLists as $suggestion) {
+            if($type == 'attach') {
+                $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
+            ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('remove_attachment',0)
+            ->where('suggested_product_lists.date', $suggestion->date);
+            }
+            else {
+                $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
+            ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('chat_message_id','!=',NULL)
+            ->where('suggested_product_lists.date', $suggestion->date);
+            }
+
             if (isset($request->brand[0])) {
                 if ($request->brand[0] != null) {
                     $products = $products->whereIn('products.brand', $request->brand);
                 }
             }
+
             if (isset($request->category[0])) {
                 if ($request->category[0] != null && $request->category[0] != 1) {
 
@@ -4384,184 +4636,45 @@ class ProductController extends Controller
                     }
                 });
             }
-
-             $suggestion->products = $products->get();
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
         }
-
-        if ($request->category) {
-            try {
-                $filtered_category = $request->category;
-            } catch (\Exception $e) {
-                $filtered_category = [1];
-            }
-        } else {
-            $filtered_category = [1];
-        }
-
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
-                ->selected($filtered_category)
-                ->renderAsDropdown();
-
-
-        $all_product_ids = [];
-        $model_type = 'customer';
-        $countBrands = 0;
-        $countCategory = 0;
-        $countSuppliers = 0;
-        $categoryArray = [];
-        $from = '';
-        $products_count = 0;
         $selected_products = [];
-        $brand =$request->brand;
-        if ($request->ajax()) {
-            $html = view('partials.suggested-image-load', [
-                'suggestedProducts' => $suggestedProducts,
-                'all_product_ids' => $all_product_ids,
-                'selected_products' => $request->selected_products ? json_decode($request->selected_products) : [],
-                'model_type' => $model_type,
-                'countBrands' => $countBrands,
-                'countCategory' => $countCategory,
-                'countSuppliers' => $countSuppliers,
-                'customerId' => $customerId,
-                'categoryArray' => $categoryArray,
-                'brand' => $brand
-                ])->render();
-
-            if (!empty($from) && $from == "attach-image") {
-                return $html;
-            }
-
-            return response()->json(['html' => $html, 'products_count' => $products_count]);
+        $model_type = 'customer';
+        if($type == 'attach') {
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type'));
         }
-
-        $message_body = $request->message ? $request->message : '';
-        $sending_time = $request->sending_time ?? '';
-
-        $locations = \App\ProductLocation::pluck("name", "name");
-        $suppliers = Supplier::select(['id', 'supplier'])->whereIn('id', DB::table('product_suppliers')->selectRaw('DISTINCT(`supplier_id`) as suppliers')->pluck('suppliers')->toArray())->get();
-
-        $quick_sell_groups = \App\QuickSellGroup::select('id', 'name')->orderBy('id', 'desc')->get();
-        //\Log::info(print_r(\DB::getQueryLog(),true));
-
-        $customers = \App\Customer::pluck('name','id');
-        return view('partials.suggested-image-grid', compact(
-                        'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
-        ));
-    }
-    public function removeProducts($customer_id, Request $request) {
-            $products = json_decode($request->products,true);
-            foreach($products as $product_id) {
-                \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->delete();
-            }
-            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
-                if(!$remains) {
-                    \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
-                }
-            return response()->json(['code' => 200, 'message' => 'Successfull']);
-    }
-
-    public function removeSingleProduct($customer_id, Request $request) {
-        \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->delete();
-        $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
-            if(!$remains) {
-                \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
-            }
-        return response()->json(['code' => 200, 'message' => 'Successfull']);
-    }
-
-    
-
-
-    public function forwardProducts(Request $request) {
-        $customerId = 0;
-
-        if($request->customer_id) {
-            $explode = explode('/',$request->customer_id);
-            if(count($explode) > 1) {
-                $customerId =  $explode[1];
-            }
+        else {
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type'));
         }
-        if(!$customerId) {
-            $msg = ' Customer not found';
-            return response()->json(['code' => 500, 'message' => $msg]);
-        }
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
-                $products = json_decode($request->products, true);
-                $total = count($products);
-                if($suggestedProducts) {
-                    $suggestedProducts->touch();
-                }
-                else {
-                    $suggestedProducts = new \App\SuggestedProduct;
-                    $suggestedProducts->customer_id = $customerId;
-                    $suggestedProducts->total = $total;
-                    $suggestedProducts->save();
-                }
-                
-                $data_to_insert = [];
-                $imagesDecoded = json_decode($request->products, true);
-                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
-                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
-                    if(!$medias->isEmpty()) {
-                        foreach($medias as $iimg => $media) {
-                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                            if($mediable) {
-                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->first();
-                                if(!$exists) {
-                                    $pr = Product::find($mediable->mediable_id);
-                                    if($pr->hasMedia(config('constants.attach_image_tag'))) {
-                                        $data_to_insert[] = [
-                                            'customer_id' => $customerId,
-                                            'product_id' => $mediable->mediable_id
-                                        ];
-                                    }
-                                }
-                           }
-                        }
-
-                        $inserted = count($data_to_insert);
-                        if($inserted > 0) {
-                            \App\SuggestedProductList::insert($data_to_insert);
-                        }
-
-                        if($request->type == 'forward') {
-                            $data['_token'] = $request->_token;
-                            $data['send_pdf'] = 0;
-                            $data['pdf_file_name'] = "";
-                            $data['images'] = $request->products;
-                            $data['image'] = null;
-                            $data['screenshot_path'] = null;
-                            $data['message'] = null;
-                            $data['customer_id'] = $customerId;
-                            $data['status'] = 2;
-                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
-                        }
-                    }
-                }
-                $msg = $inserted. ' Products added successfully';
-                return response()->json(['code' => 200, 'message' => $msg]);
     }
 
-
-    public function resendProducts($customer_id, Request $request) {
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
-                $products = json_decode($request->products, true);
-                $suggestedProducts->touch();
-                
-
-                            $data['_token'] = $request->_token;
-                            $data['send_pdf'] = 0;
-                            $data['pdf_file_name'] = "";
-                            $data['images'] = $request->products;
-                            $data['image'] = null;
-                            $data['screenshot_path'] = null;
-                            $data['message'] = null;
-                            $data['customer_id'] = $customer_id;
-                            $data['status'] = 2;
-                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
-                $msg = ' Images Resend successfully';
-                return response()->json(['code' => 200, 'message' => $msg]);
-    }
+    public function addDraftProductsToQuickSell(Request $request){
+        $post=$request->all();
+        
+        $group = \App\QuickSellGroup::orderBy('id', 'desc')->first();
+            if ($group != null) {
+                $group_create =  new \App\QuickSellGroup();
+                $incrementId = ($group->group+1);
+                $group_create->group = $incrementId;
+                $group_create->name = $post['groupName'];
+                $group_create->save();
+                $group_id = $group_create->group;
+            } else {
+                $group =  new \App\QuickSellGroup();
+                $group->group = 1;
+                $group->name = $post['groupName'];
+                $group->save();
+                $group_id = $group->group;
+            }
+            foreach ($request->products as $id){
+                $group = new \App\ProductQuicksellGroup();
+                $group->product_id = $id;
+                $group->quicksell_group_id = $group_id;
+                $group->save();
+            }
+            $msg = 'Products are added into group successfully';
+            return response()->json(['code' => 200, 'message' => $msg]);
+     }
 
 }
 

@@ -224,6 +224,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('push-in-shopify', 'NewProductInventoryController@pushInShopify')->name('product-inventory.push-in-shopify');
         });
     });
+    
+    Route::post('facebook-posts/save', 'FacebookPostController@store')->name('facebook-posts/save');
+    Route::get('facebook-posts/create', 'FacebookPostController@create')->name('facebook-posts.create');
+    Route::resource('facebook-posts', 'FacebookPostController');
+    
 
 
     Route::resource('sales', 'SaleController');
@@ -387,6 +392,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
                 Route::get('/', 'ContentManagementController@remarks')->name("content-management.remarks");
                 Route::post('/', 'ContentManagementController@saveRemarks')->name("content-management.saveRemarks");
             });
+        });
+
+
+        Route::prefix('contents')->group(function () {
+            Route::get('/', 'ContentManagementController@viewAllContents')->name("content-management.contents");
         });
     });
 
@@ -689,7 +699,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('quickSell/activate', 'QuickSellController@activate')->name('quicksell.activate');
     Route::get('quickSell/search', 'QuickSellController@search')->name('quicksell.search');
     Route::post('quickSell/groupUpdate', 'QuickSellController@groupUpdate')->name('quicksell.group.update');
-
+    Route::get('quickSell/quick-sell-group-list', 'QuickSellController@quickSellGroupProductsList');
+    Route::post('quickSell/quicksell-product-delete', 'QuickSellController@quickSellGroupProductDelete');
+    
 
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
@@ -1341,6 +1353,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('/drafted-products/edit', 'ProductController@editDraftedProduct');
     Route::post('/drafted-products/edit', 'ProductController@editDraftedProducts');
     Route::post('/drafted-products/delete', 'ProductController@deleteDraftedProducts');
+    Route::post('/drafted-products/addtoquicksell', 'ProductController@addDraftProductsToQuickSell');
+    
 });
 
 
@@ -1485,7 +1499,19 @@ Route::prefix('database')->middleware('auth')->group(function () {
 
 Route::resource('pre-accounts', 'PreAccountController')->middleware('auth');
 
+
+Route::get('instagram/get/hashtag/{word}', 'InstagramPostsController@hashtag');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
+Route::get('instagram/post/publish-post/{id}', 'InstagramPostsController@publishPost');
+
+
 Route::prefix('instagram')->middleware('auth')->group(function () {
+
+    
+
+
+
     Route::get('auto-comment-history', 'UsersAutoCommentHistoriesController@index');
     Route::get('auto-comment-history/assign', 'UsersAutoCommentHistoriesController@assignPosts');
     Route::get('auto-comment-history/send-posts', 'UsersAutoCommentHistoriesController@sendMessagesToWhatsappToScrap');
@@ -1561,6 +1587,7 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('post', 'InstagramPostsController@viewPost')->name('post.index');
     Route::get('post/edit', 'InstagramPostsController@editPost')->name('post.edit');
     Route::post('post/create','InstagramPostsController@createPost')->name('post.store');
+    
 
      Route::get('users', 'InstagramPostsController@users')->name('instagram.users');
      Route::post('users/save', 'InstagramController@addUserForPost')->name('instagram.users.add');
@@ -2265,6 +2292,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('shipment/customer-details/{id}', 'ShipmentController@showCustomerDetails');
     Route::post('shipment/generate-shipment', 'ShipmentController@generateShipment')->name('shipment/generate');
     Route::get('shipment/get-templates-by-name/{name}', 'ShipmentController@getShipmentByName');
+    Route::post('shipment/pickup-request', 'ShipmentController@createPickupRequest')->name('shipment/pickup-request');
+
 
     /**
      * Twilio account management
@@ -2286,7 +2315,8 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('watson/account/{id}', 'WatsonController@show')->name('watson-accounts.show');
     Route::post('watson/account/{id}', 'WatsonController@update')->name('watson-accounts.update');
     Route::get('watson/delete-account/{id}', 'WatsonController@destroy')->name('watson-accounts.delete');
-
+    Route::post('watson/add-intents/{id}', 'WatsonController@addIntentsToWatson')->name('watson-accounts.add-intents');
+    
 
 
     Route::get('get-twilio-numbers/{account_id}', 'TwilioController@getTwilioActiveNumbers')->name('twilio-get-numbers');
@@ -2337,12 +2367,13 @@ Route::get('/store-website-analytics/delete/{id}', 'StoreWebsiteAnalyticsControl
 Route::get('/analytis/cron/showData', 'AnalyticsController@cronShowData');
 
 Route::get('/attached-images-grid/customer/', 'ProductController@attachedImageGrid');
-Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');
-Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');
-Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');
+Route::post('/attached-images-grid/add-products/{customer_id}', 'ProductController@attachMoreProducts');//
+Route::post('/attached-images-grid/remove-products/{customer_id}', 'ProductController@removeProducts');//
+Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'ProductController@removeSingleProduct');//
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
-Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');
-Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');
+Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');//
+Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');//
+Route::get('/attached-images-grid/get-products/{type}/{customer_id}', 'ProductController@getCustomerProducts');
 
 //referfriend
 Route::prefix('referfriend')->middleware('auth')->group(static function () {
@@ -2358,7 +2389,33 @@ Route::prefix('referralprograms')->middleware('auth')->group(static function () 
     Route::get('/{id?}/edit', 'ReferralProgramController@edit')->name('referralprograms.edit');
     Route::post('/store', 'ReferralProgramController@store')->name('referralprograms.store');
     Route::post('/update', 'ReferralProgramController@update')->name('referralprograms.update');
-    
-    
+
 });
 
+
+//CommonMailPopup
+Route::post('/common/sendEmail', 'CommonController@sendCommonEmail')->name('common.send.email');
+Route::get('/common/getmailtemplate', 'CommonController@getMailTemplate')->name('common.getmailtemplate');
+
+//Google file translator
+Route::prefix('googlefiletranslator')->middleware('auth')->group(static function () {
+    Route::get('/list', 'GoogleFileTranslator@index')->name('googlefiletranslator.list');
+    Route::DELETE('/delete/{id?}', 'GoogleFileTranslator@destroy')->name('googlefiletranslator.destroy');
+    Route::get('/add', 'GoogleFileTranslator@create')->name('googlefiletranslator.add');
+    Route::get('/{id?}/edit', 'GoogleFileTranslator@edit')->name('googlefiletranslator.edit');
+    Route::get('/{id?}/download', 'GoogleFileTranslator@download')->name('googlefiletranslator.download');
+    Route::post('/store', 'GoogleFileTranslator@store')->name('googlefiletranslator.store');
+    Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
+
+});
+
+//ReferralProgram
+Route::prefix('translation')->middleware('auth')->group(static function () {
+    Route::get('/list', 'TranslationController@index')->name('translation.list');
+    Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
+    Route::get('/add', 'TranslationController@create')->name('translation.add');
+    Route::get('/{id?}/edit', 'TranslationController@edit')->name('translation.edit');
+    Route::post('/store', 'TranslationController@store')->name('translation.store');
+    Route::post('/update', 'TranslationController@update')->name('translation.update');
+
+});

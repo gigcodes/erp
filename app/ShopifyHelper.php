@@ -175,6 +175,22 @@ class ShopifyHelper
                 'updated_at'      => $order["created_at"],
             ));
 
+        //create entry in table cash_flows
+        \DB::table('cash_flows')->insert(
+            [
+                'cash_flow_able_id'=>$customer_id,
+                'description'=>'Order recieved full pre payment for orderid '.$order["id"],
+                'date'=>date('Y-m-d'),
+                'amount'=>$balance_amount,
+                'type'=>'received',
+                'cash_flow_able_type'=>'App\Order',
+                'status' => $order_status,
+                'order_status' => $order_status,
+                'expected'=>$balance_amount,
+                'actual'=>$balance_amount,
+            ]
+        );    
+
         $items = $order["line_items"];
         foreach ($items as $item) {
             if (round($item["price"]) > 0) {

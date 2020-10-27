@@ -274,6 +274,7 @@
     </div>
     @include('partials.modals.remarks')
     @include('vendors.partials.modal-emailToAll')
+    @include('common.commonEmailModal')
     @include('vendors.partials.vendor-modals')
     @include('vendors.partials.add-vendor-info-modal')
     {{-- @include('vendors.partials.agent-modals') --}}
@@ -437,13 +438,13 @@
         </div>
     </div>
 @endsection
-
 @section('scripts')
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script src="{{asset('js/zoom-meetings.js')}}"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
     <script src="https://gitcdn.github.io/bootstrap-toggle/2.2.2/js/bootstrap-toggle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+    <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
 
     <script type="text/javascript">
 
