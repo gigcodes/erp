@@ -130,6 +130,9 @@ class InfluencersController extends Controller
      $cURLConnection = curl_init();
 
      $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
+
+     echo $url;
+     die();
      curl_setopt($cURLConnection, CURLOPT_URL, $url);
      
      curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
@@ -183,6 +186,10 @@ class InfluencersController extends Controller
        $cURLConnection = curl_init();
 
         $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
+        $url = str_replace(' ','',$url);
+
+        echo $url;
+        die();
 
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);

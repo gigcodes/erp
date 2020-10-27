@@ -159,9 +159,9 @@ Route::get('customer/order-details','OrderController@customerOrderDetails');
 //refer a friend api
 Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
 Route::post('price_comparision/details','PriceComparisionController@sendDetails');
-
+//Ticket api
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
-
+Route::post('ticket/send','\App\Http\Controllers\Api\v1\TicketController@sendTicketsToCustomers');
 
 Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');
 Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost');
@@ -173,4 +173,3 @@ Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');
-
