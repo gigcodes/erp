@@ -401,8 +401,6 @@ Content-Type: application/json
 }
 ```
 
-
-
 ## Magneto Customer Reference Store API
 
 **Request:**
@@ -417,7 +415,7 @@ Content-Type: application/json
     "phone": "918638973610", //optional
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
     "dob": "2020-10-23", //optional
-    "wedding_anniversery": "2020-10-23" //optional
+    "wedding_anniversery": "2020-10-23"//optional
 }
 ```
 **Successful Response:**
@@ -426,7 +424,6 @@ Content-Type: application/json
 {
      "status": "200",
     "message": "Saved SucessFully"
-    
 }
 ```
 
@@ -436,5 +433,94 @@ Content-Type: application/json
 {
     "status": "403",
     "message": "Email is required"
+}
+```
+
+```
+## Tickets API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
+    "ticket_id":"PWTCR", //optional if email is set
+    "per_page":"10" //optional, default is 15
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "tickets": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 3,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
+                "last_name": null,
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "PWTCR",
+                "subject": "Task test",
+                "message": "Message: Hi",
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 01:26:31",
+                "created_at": "2020-09-11 11:48:23",
+                "updated_at": "2020-09-11 12:08:33",
+                "type_of_inquiry": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "status": "open"
+            },
+            {
+                "id": 4,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
+                "last_name": null,
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "J7XPB",
+                "subject": "About new Products",
+                "message": "Message: Hi",
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 01:25:30",
+                "created_at": "2020-09-11 11:48:23",
+                "updated_at": "2020-09-11 11:48:23",
+                "type_of_inquiry": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "status": "open"
+            }
+        ],
+        "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "next_page_url": null,
+        "path": "http://127.0.0.1:8000/api/ticket/send",
+        "per_page": 15,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    }
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
 }
 ```
