@@ -316,14 +316,16 @@ class ScrapController extends Controller
             ]);
         }
         catch (\Exception $e) {
-            ScrapRequestHistory::create([
-                'scraper_id' => $scrap_details->id,
-                'date' => Carbon::now(),
-                'start_time' => Carbon::now(),
-                'end_time' => Carbon::now(),
-                'request_sent' => empty($errorLog) ? 1 : 0,
-                'request_failed' => empty($errorLog) ? 0 : 1
-            ]);
+            if($scrap_details) {
+                ScrapRequestHistory::create([
+                    'scraper_id' => $scrap_details->id,
+                    'date' => Carbon::now(),
+                    'start_time' => Carbon::now(),
+                    'end_time' => Carbon::now(),
+                    'request_sent' => empty($errorLog) ? 1 : 0,
+                    'request_failed' => empty($errorLog) ? 0 : 1
+                ]);
+            }
         }
         return true;
     }
