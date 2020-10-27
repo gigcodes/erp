@@ -3196,7 +3196,7 @@ class WhatsAppController extends FindByNumberController
             } else {
                 if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
                     if($request->type == 'customer-attach') {
-                        foreach($imagesDecoded as $listedImage) {
+                        foreach($imagesDecoded as $iimg => $listedImage) {
                             $productList = \App\SuggestedProductList::find($listedImage);
                             $product = Product::find($productList->product_id);
                             $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
