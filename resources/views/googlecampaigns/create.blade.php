@@ -5,7 +5,7 @@
     <div class="container">
         <h2>Create Campaign</h2>
     </div>
-    <form method="POST" action="/googlecampaigns/create" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/create" enctype="multipart/form-data">
         {{csrf_field()}}
         <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
         <div class="form-group row">

@@ -24,14 +24,15 @@ class GoogleAdsAccountController extends Controller
         $adWordsServices = new AdWordsServices();
 
         $campInfo = $this->getCampaigns($adWordsServices, $session); */
-        $googleadsaccount = \App\GoogleAdsAccount::paginate(15);
+        $googleadsaccount = \App\GoogleAdsAccount::orderby('id','desc')->paginate(15);
         $totalentries = $googleadsaccount->count();
         return view('googleadsaccounts.index', ['googleadsaccount' => $googleadsaccount, 'totalentries' => $totalentries]);
     }
     
     public function createGoogleAdsAccountPage()
     {
-        return view('googleadsaccounts.create');
+        $store_website=\App\StoreWebsite::all();
+        return view('googleadsaccounts.create',['store_website'=>$store_website]);
     }
 
     public function createGoogleAdsAccount(Request $request)
@@ -60,13 +61,14 @@ class GoogleAdsAccountController extends Controller
             $googleadsAc->config_file_path = $getfilename;
             $googleadsAc->save();
         }
-        return redirect()->back()->with('success', 'GoogleAdwords account details added successfully');
+        return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
     }
 
     public function editeGoogleAdsAccountPage($id)
     {
+        $store_website=\App\StoreWebsite::all();
         $googleAdsAc=\App\GoogleAdsAccount::find($id);
-        return view('googleadsaccounts.update',['account'=>$googleAdsAc]);
+        return view('googleadsaccounts.update',['account'=>$googleAdsAc,'store_website'=>$store_website]);
     }
 
     public function updateGoogleAdsAccount(Request $request)
@@ -100,6 +102,6 @@ class GoogleAdsAccountController extends Controller
         }
         $googleadsAc->fill($accountArray);
         $googleadsAc->save();
-        return redirect()->to('/googlecampaigns/adsaccount')->with('success', 'GoogleAdwords account details added successfully');
+        return redirect()->to('/google-campaigns/ads-account')->with('actSuccess', 'GoogleAdwords account details added successfully');
     }
 }

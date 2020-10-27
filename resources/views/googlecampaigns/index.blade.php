@@ -4,7 +4,7 @@
 @section('content')
     <div class="container-fluid" style="margin-top: 10px">
     <h4>Google AdWords - Campaigns ({{$totalNumEntries}})</h4>
-        <form method="get" action="/googlecampaigns/create">
+        <form method="get" action="/google-campaigns/create">
         <input type="hidden" value="<?php echo $_GET['account_id']; ?>" id="accountID" name="account_id"/>
             <button type="submit" class="float-right mb-3">New Campaign</button>
         </form>
@@ -38,7 +38,7 @@
                     <td>{{$campaign->status}}</td>
                     <td>{{$campaign->created_at}}</td>
                     <td>
-                    <form method="GET" action="/googlecampaigns/{{$campaign['google_campaign_id']}}/adgroups">
+                    <form method="GET" action="/google-campaigns/{{$campaign['google_campaign_id']}}/adgroups">
                         <button type="submit" class="btn btn-sm btn-link">Ad Groups</button>
                     </form>
                     {!! Form::open(['method' => 'DELETE','route' => ['googlecampaigns.deleteCampaign',$campaign['google_campaign_id']],'style'=>'display:inline']) !!}

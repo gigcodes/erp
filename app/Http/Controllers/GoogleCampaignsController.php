@@ -43,7 +43,7 @@ class GoogleCampaignsController extends Controller
     public function getstoragepath($account_id)
     {
         $result = \App\GoogleAdsAccount::find($account_id);
-        if (\Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
+        if (isset($result->config_file_path) && $result->config_file_path!='' && \Storage::disk('adsapi')->exists($account_id . '/' . $result->config_file_path)) {
             $storagepath = \Storage::disk('adsapi')->url($account_id . '/' . $result->config_file_path);
             $storagepath = storage_path('app/adsapi/' . $account_id . '/' . $result->config_file_path);
             /* echo $storagepath; exit;
@@ -52,13 +52,17 @@ class GoogleCampaignsController extends Controller
             die('developer working'); */
             return $storagepath;
         } else {
-            abort(404,"Please add adspai_php.ini file");
+            return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
         }
     }
 
     public function index(Request $request)
     {
-        $account_id=$request->get('account_id');
+        if($request->get('account_id')){
+            $account_id=$request->get('account_id');
+        }else{
+            return redirect()->to('/google-campaigns?account_id=null')->with('actError', 'Please add adspai_php.ini file');
+        }
         $storagepath = $this->getstoragepath($account_id);
         //echo $storagepath; exit;
         //echo $storagepath; exit;
@@ -301,7 +305,7 @@ class GoogleCampaignsController extends Controller
         $campaignArray['campaign_response'] = json_encode($addedCampaign);
         \App\GoogleAdsCampaign::create($campaignArray);
         /* return redirect()->route('googlecampaigns.index'); */
-        return redirect()->to('googlecampaigns?account_id='.$account_id);
+        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
     }
 
     // go to update page
@@ -423,7 +427,7 @@ class GoogleCampaignsController extends Controller
         $campaignArray['campaign_response'] = json_encode($addedCampaign);
         \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);  
         //return redirect()->route('googlecampaigns.index');
-        return redirect()->to('googlecampaigns?account_id='.$account_id);
+        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');;
     }
 
     // delete campaign
@@ -459,6 +463,6 @@ class GoogleCampaignsController extends Controller
         //delete from database
         \App\GoogleAdsCampaign::where('account_id',$account_id)->where('google_campaign_id',$campaignId)->delete();
         /* return redirect()->route('googlecampaigns.index'); */
-        return redirect()->to('googlecampaigns?account_id='.$account_id);
+        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');;
     }
 }

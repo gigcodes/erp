@@ -2222,7 +2222,7 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
-Route::prefix( 'googlecampaigns')->middleware('auth')->group(function () {
+Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
     Route::get('/', 'GoogleCampaignsController@index')->name('googlecampaigns.index');
     Route::get('/create', 'GoogleCampaignsController@createPage')->name('googlecampaigns.createPage');
     Route::post('/create', 'GoogleCampaignsController@createCampaign')->name('googlecampaigns.createCampaign');
@@ -2230,11 +2230,11 @@ Route::prefix( 'googlecampaigns')->middleware('auth')->group(function () {
     Route::post('/update', 'GoogleCampaignsController@updateCampaign')->name('googlecampaigns.updateCampaign');
     Route::delete('/delete/{id}', 'GoogleCampaignsController@deleteCampaign')->name('googlecampaigns.deleteCampaign');
     //google adwords account
-    Route::get('/adsaccount', 'GoogleAdsAccountController@index')->name('googleadsaccount.index');
-    Route::get('/adsaccount/create', 'GoogleAdsAccountController@createGoogleAdsAccountPage')->name('googleadsaccount.createPage');
-    Route::post('/adsaccount/create', 'GoogleAdsAccountController@createGoogleAdsAccount')->name('googleadsaccount.createAdsAccount');
-    Route::get('/adsaccount/update/{id}', 'GoogleAdsAccountController@editeGoogleAdsAccountPage')->name('googleadsaccount.updatePage');
-    Route::post('/adsaccount/update', 'GoogleAdsAccountController@updateGoogleAdsAccount')->name('googleadsaccount.updateAdsAccount');
+    Route::get('/ads-account', 'GoogleAdsAccountController@index')->name('googleadsaccount.index');
+    Route::get('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccountPage')->name('googleadsaccount.createPage');
+    Route::post('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccount')->name('googleadsaccount.createAdsAccount');
+    Route::get('/ads-account/update/{id}', 'GoogleAdsAccountController@editeGoogleAdsAccountPage')->name('googleadsaccount.updatePage');
+    Route::post('/ads-account/update', 'GoogleAdsAccountController@updateGoogleAdsAccount')->name('googleadsaccount.updateAdsAccount');
     
     Route::prefix('{id}')->group(function () {
         Route::prefix('adgroups')->group(function () {

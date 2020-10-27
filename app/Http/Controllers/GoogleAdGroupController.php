@@ -188,7 +188,7 @@ class GoogleAdGroupController extends Controller
         $addgroupArray['google_adgroup_id']=$addedGroupId;
         $addgroupArray['adgroup_response']=json_encode($addedGroup[0]);
         \App\GoogleAdsGroup::create($addgroupArray);
-        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup added successfully');
     }
 
     // go to update page
@@ -283,7 +283,7 @@ class GoogleAdGroupController extends Controller
         // Update the ad group on the server.
         $result = $adGroupService->mutate($operations);
         $adGroupUpdate=\App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->where('adgroup_google_campaign_id',$campaignId)->update($addgroupArray);
-        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup added successfully');
     }
 
     // delete ad group
@@ -319,6 +319,6 @@ class GoogleAdGroupController extends Controller
 
         $adGroup = $result->getValue()[0];
         \App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->where('adgroup_google_campaign_id',$campaignId)->delete();
-        return redirect('googlecampaigns/' . $campaignId . '/adgroups');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
     }
 }

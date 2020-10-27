@@ -3,9 +3,9 @@
 
 @section('content')
     <div class="container" style="margin-top: 10px">
-    <h4>Google Ads ({{$totalNumEntries}}) for {{$groupname}} AdsGroup <button class="btn-image" onclick="window.location.href='/googlecampaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
+    <h4>Google Ads ({{$totalNumEntries}}) for {{$groupname}} AdsGroup <button class="btn-image" onclick="window.location.href='/google-campaigns/{{$campaignId}}/adgroups';">Back to Ad groups</button></h4>
     
-    <form method="get" action="/googlecampaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">
+    <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create">
         <button type="submit" class="float-right mb-3">New Ads</button>
     </form>    
 

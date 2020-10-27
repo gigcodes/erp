@@ -2641,6 +2641,16 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
     </script>
+    @if ($message = Session::get('actSuccess'))
+        <script>
+            toastr['success']('<?php echo $message; ?>', 'success');
+        </script>
+    @endif
+    @if ($message = Session::get('actError'))
+        <script>
+            toastr['error']('<?php echo $message; ?>', 'error');
+        </script>
+    @endif
 
 </body>
 

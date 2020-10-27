@@ -5,42 +5,60 @@
     <div class="container">
         <h2>Create Ad</h2>
     </div>
-    <form method="POST" action="/googlecampaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroupId}}/ads/create" enctype="multipart/form-data">
         {{csrf_field()}}
         <div class="form-group row">
             <label for="headline-part1" class="col-sm-2 col-form-label">Headline part 1</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="headline-part1" name="headlinePart1" placeholder="Headline">
+                @if ($errors->has('headlinePart1'))
+                <span class="text-danger">{{$errors->first('headlinePart1')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="headline-part2" class="col-sm-2 col-form-label">Headline part 2</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="headline-part2" name="headlinePart2" placeholder="Headline">
+            @if ($errors->has('headlinePart2'))
+                <span class="text-danger">{{$errors->first('headlinePart2')}}</span>
+            @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="headline-part3" class="col-sm-2 col-form-label">Headline part 3</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="headline-part3" name="headlinePart3" placeholder="Headline">
+                @if ($errors->has('headlinePart3'))
+                <span class="text-danger">{{$errors->first('headlinePart3')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="description1" class="col-sm-2 col-form-label">Description</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="description1" name="description1" placeholder="Description">
+                @if ($errors->has('description1'))
+                <span class="text-danger">{{$errors->first('description1')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="description2" class="col-sm-2 col-form-label">Description 2</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="description2" name="description2" placeholder="Description">
+                @if ($errors->has('description2'))
+                <span class="text-danger">{{$errors->first('description2')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="finalUrl" class="col-sm-2 col-form-label">Final URL</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="finalUrl" name="finalUrl" placeholder="http://www.example.com">
+                @if ($errors->has('finalUrl'))
+                        <span class="text-danger">{{$errors->first('finalUrl')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">

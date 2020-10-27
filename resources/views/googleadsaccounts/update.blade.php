@@ -6,7 +6,7 @@
     <div class="page-header">
     <h4>Create Account</h4>
 </div>
-    <form method="POST" action="/googlecampaigns/adsaccount/update" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/ads-account/update" enctype="multipart/form-data">
         {{csrf_field()}}
         <input type="hidden" id="account_id" name="account_id" placeholder="Account Id" value="{{$account->id}}">
         <div class="form-group row">
@@ -20,11 +20,26 @@
         </div>
 
         <div class="form-group row">
-            <label for="store_websites" class="col-sm-2 col-form-label">Store Website</label>
+            <label for="store_websites1" class="col-sm-2 col-form-label">Store Website</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="store_websites" name="store_websites" placeholder="Store Website" value="{{$account->store_websites}}">
+                <input type="text" class="form-control" id="store_websites1" name="store_websites1" placeholder="Store Website" value="{{$account->store_websites}}">
                 @if ($errors->has('store_websites'))
                 <span class="text-danger">{{$errors->first('store_websites')}}</span>
+                @endif
+            </div>
+        </div>
+
+        <div class="form-group row">
+            <label for="store_websites" class="col-sm-2 col-form-label">Status</label>
+            <div class="col-sm-10">
+                <select class="browser-default custom-select" id="store_websites" name="store_websites" style="height: auto">
+                <option value="" selected>---Selecty store websites---</option>
+                @foreach($store_website as $sw)     
+                <option value="{{$sw->website}}" {{ ($account->store_websites==$sw->website)?'selected':''}} >{{$sw->website}}</option>
+                @endforeach
+                </select>
+                @if ($errors->has('store_websites'))
+                    <span class="text-danger">{{$errors->first('store_websites')}}</span>
                 @endif
             </div>
         </div>

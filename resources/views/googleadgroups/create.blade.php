@@ -5,7 +5,7 @@
     <div class="container">
         <h2>Create Ad group for {{$campaign_name}}</h2>
     </div>
-    <form method="POST" action="/googlecampaigns/{{$campaignId}}/adgroups/create" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/{{$campaignId}}/adgroups/create" enctype="multipart/form-data">
         {{csrf_field()}}
         <div class="form-group row">
             <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>

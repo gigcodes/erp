@@ -146,6 +146,16 @@ class GoogleAdsController extends Controller
 
     // create ad
     public function createAd(Request $request, $campaignId, $adGroupId) {
+        //create account
+        $this->validate($request, [
+            'headlinePart1' => 'required|max:25',
+            'headlinePart2' => 'required|max:25',
+            'headlinePart3' => 'required|max:25',
+            'description1' => 'required|max:200',
+            'description2' => 'required|max:200',
+            'finalUrl' => 'required|max:200',
+        ]);
+
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -212,7 +222,7 @@ class GoogleAdsController extends Controller
         $adsArray['google_ad_id']=$addedAdsId;
         $adsArray['ads_response']=json_encode($addedAds[0]);
         \App\GoogleAd::create($adsArray);
-        return redirect('googlecampaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads created successfully');
     }
 
     // go to ad update page
@@ -260,6 +270,6 @@ class GoogleAdsController extends Controller
         // Remove the ad on the server.
         $result = $adGroupAdService->mutate($operations);
         \App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->where('google_ad_id',$adId)->delete();
-        return redirect('googlecampaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');;
     }
 }

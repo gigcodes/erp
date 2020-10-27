@@ -4,8 +4,8 @@
 @section('content')
     <div class="container" style="margin-top: 10px">
     <h4>Google AdGroups ({{$totalNumEntries}}) for {{@$campaign_name}} campaign name
-    <button class="btn-image" onclick="window.location.href='/googlecampaigns?account_id={{$campaign_account_id}}'">Back to campaigns</button></h4>
-        <form method="get" action="/googlecampaigns/{{$campaignId}}/adgroups/create">
+    <button class="btn-image" onclick="window.location.href='/google-campaigns?account_id={{$campaign_account_id}}'">Back to campaigns</button></h4>
+        <form method="get" action="/google-campaigns/{{$campaignId}}/adgroups/create">
             <button type="submit" class="btn-sm float-right mb-3">New Ad Group</button>
         </form>
    
@@ -34,7 +34,7 @@
                     <td>{{$adGroup->status}}</td>
                     <td>{{$adGroup->created_at}}</td>
                     <td>
-                    <form method="GET" action="/googlecampaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
+                    <form method="GET" action="/google-campaigns/{{$campaignId}}/adgroups/{{$adGroup['google_adgroup_id']}}/ads">
                     <button type="submit" class="btn-image">Ads</button>
                     </form>
                     {!! Form::open(['method' => 'DELETE','route' => ['adgroup.deleteAdGroup',$campaignId,$adGroup['google_adgroup_id']],'style'=>'display:inline']) !!}

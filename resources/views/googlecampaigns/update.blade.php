@@ -5,7 +5,7 @@
     <div class="container">
         <h2>Update Campaign</h2>
     </div>
-    <form method="POST" action="/googlecampaigns/update" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/update" enctype="multipart/form-data">
         {{csrf_field()}}
         <input type="hidden" name="campaignId" value="{{$campaign['google_campaign_id']}}">
         <div class="form-group row">

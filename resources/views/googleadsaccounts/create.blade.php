@@ -6,7 +6,7 @@
     <div class="page-header">
     <h4>Create Account</h4>
 </div>
-    <form method="POST" action="/googlecampaigns/adsaccount/create" enctype="multipart/form-data">
+    <form method="POST" action="/google-campaigns/ads-account/create" enctype="multipart/form-data">
         {{csrf_field()}}
         <div class="form-group row">
             <label for="account_name" class="col-sm-2 col-form-label">Account name</label>
@@ -19,11 +19,16 @@
         </div>
 
         <div class="form-group row">
-            <label for="store_websites" class="col-sm-2 col-form-label">Store Website</label>
+            <label for="store_websites" class="col-sm-2 col-form-label">Status</label>
             <div class="col-sm-10">
-                <input type="text" class="form-control" id="store_websites" name="store_websites" placeholder="Store Website">
+                <select class="browser-default custom-select" id="store_websites" name="store_websites" style="height: auto">
+                <option value="" selected>---Selecty store websites---</option>
+                @foreach($store_website as $sw)     
+                <option value="{{$sw->website}}">{{$sw->website}}</option>
+                @endforeach
+                </select>
                 @if ($errors->has('store_websites'))
-                <span class="text-danger">{{$errors->first('store_websites')}}</span>
+                    <span class="text-danger">{{$errors->first('store_websites')}}</span>
                 @endif
             </div>
         </div>
