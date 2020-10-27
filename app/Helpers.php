@@ -329,5 +329,15 @@ class Helpers
         return ["" => "None"] + \App\Helpers\StatusHelper::getStatus();
     }
 
+    public static function quickSellGroupList($none = true) 
+    {
+        $list = \App\QuickSellGroup::pluck("name","id")->toArray();
+
+        if($none) {
+            return ["" => "None"] + $list;
+        }
+
+        return $list;
+    }
 
 }

@@ -411,8 +411,13 @@ class QuestionController extends Controller
         $question    = $request->get("question");
         $category_id = $request->get("category_id");
         $erp_or_watson = $request->get("erp_or_watson");
+        $keyword_or_question = $request->get("keyword_or_question");
         if(!$erp_or_watson) {
             $erp_or_watson = 'erp';
+        }
+
+        if(!$keyword_or_question) {
+            $keyword_or_question = 'intent';
         }
         // if (!empty($groupId) && $groupId > 0) {
         //     $chQuestion = ChatbotQuestion::where("id", $groupId)->first();
@@ -503,6 +508,9 @@ class QuestionController extends Controller
                         $chQuestion->save();
                     }
                 }
+            }
+            if(!$chQuestion->keyword_or_question || $chQuestion->keyword_or_question == '') {
+                $chQuestion->keyword_or_question = $keyword_or_question;
             }
             $chQuestion->erp_or_watson = $erp_or_watson;
             $chQuestion->save();
@@ -822,6 +830,19 @@ class QuestionController extends Controller
         $reply->suggested_reply = $request->suggested_reply;
         $reply->save();
         return response()->json(['suggested_reply' => $request->suggested_reply,'code' => 200]);
+    }
+
+    public function addReply(Request $request) {
+        $reply = ChatbotQuestionReply::where('store_website_id',$request->store_website_id)->where('chatbot_question_id', $request->id)->first();
+        if($reply) {
+            return response()->json(['message' => 'Reply is already available, you can edit the reply', 'code' => 500]);
+        }
+        $reply = new ChatbotQuestionReply;
+        $reply->store_website_id = $request->store_website_id;
+        $reply->chatbot_question_id = $request->id;
+        $reply->suggested_reply = $request->suggested_reply;
+        $reply->save();
+        return response()->json(['message' => 'Successfull','suggested_reply' => $request->suggested_reply,'code' => 200]);
     }
 
     public function onlineUpdate($id) {

@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\CashFlow;
 use App\CronJobReport;
 use App\Email;
 use App\EmailAddress;
@@ -50,14 +51,15 @@ class FetchAllEmails extends Command
      */
     public function handle()
     {
+        
         $report = CronJobReport::create([
             'signature'  => $this->signature,
             'start_time' => Carbon::now(),
         ]);
 
-        $emailAddresses = EmailAddress::where("driver","imap")->orderBy('id', 'asc')->get();
+        $emailAddresses = EmailAddress::where("driver", "imap")->orderBy('id', 'asc')->get();
 
-        foreach($emailAddresses as $emailAddress) {
+        foreach ($emailAddresses as $emailAddress) {
             try {
                 $imap = new Client([
                     'host' => $emailAddress->host,
@@ -84,8 +86,10 @@ class FetchAllEmails extends Command
                     ],
                 ];
 
-                $available_models = ["supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
-                    "customer" => \App\Customer::class, "users" => \App\User::class];
+                $available_models = [
+                    "supplier" => \App\Supplier::class, "vendor" => \App\Vendor::class,
+                    "customer" => \App\Customer::class, "users" => \App\User::class
+                ];
                 $email_list = [];
                 foreach ($available_models as $key => $value) {
                     $email_list[$value] = $value::whereNotNull('email')->pluck('id', 'email')->unique()->all();
@@ -98,25 +102,24 @@ class FetchAllEmails extends Command
                     $inbox = $imap->getFolder($type['inbox_name']);
                     $latest_email = Email::where('type', $type['type'])->latest()->first();
 
-                    $latest_email_date = $latest_email?Carbon::parse($latest_email->created_at):false;
+                    $latest_email_date = $latest_email ? Carbon::parse($latest_email->created_at) : false;
 
-                    dump("Last received at: " . ($latest_email_date?:'never'));
+                    dump("Last received at: " . ($latest_email_date ?: 'never'));
                     // Uncomment below just for testing purpose
-//                    $latest_email_date = Carbon::parse('2020-01-01');
+                    //                    $latest_email_date = Carbon::parse('2020-01-01');
 
                     if ($latest_email_date) $emails = $inbox->messages()->where('SINCE', $latest_email_date->subDays(1)->format('d-M-Y'));
                     else $emails = $inbox->messages();
 
                     $emails = $emails->get();
-//
+                    //
                     // dump($inbox->messages()->where([
                     //     ['SINCE', $latest_email_date->subDays(1)->format('d-M-Y')],
                     //     ])->get());
-
                     foreach ($emails as $email) {
 
                         $reference_id = $email->references;
-//                        dump($reference_id);
+                        //                        dump($reference_id);
                         $origin_id = $email->message_id;
 
                         // Skip if message is already stored
@@ -135,13 +138,20 @@ class FetchAllEmails extends Command
                         if (!$latest_email_date || $email->getDate()->timestamp > $latest_email_date->timestamp) {
                             $attachments_array = [];
                             $attachments = $email->getAttachments();
-
-                            $attachments->each(function ($attachment) use (&$attachments_array) {
+                            $fromThis = $email->getFrom()[0]->mail;
+                            $attachments->each(function ($attachment) use (&$attachments_array, $fromThis) {
                                 $attachment->name = preg_replace("/[^a-z0-9\_\-\.]/i", '', $attachment->name);
                                 file_put_contents(storage_path('app/files/email-attachments/' . $attachment->name), $attachment->content);
                                 $path = "email-attachments/" . $attachment->name;
 
                                 $attachments_array[] = $path;
+
+                                /*start 3215 attachment fetch from DHL mail */
+                                $findFromEmail = explode('@', $fromThis);
+                                if($findFromEmail[1]=='dhl.com'){
+                                    $this->getEmailAttachedFileData($attachment->name);
+                                }
+                                /*end 3215 attachment fetch from DHL mail */
                             });
 
                             $from = $email->getFrom()[0]->mail;
@@ -161,16 +171,16 @@ class FetchAllEmails extends Command
                              * @var $model_id
                              * @var $model_type
                              */
-                                $email_subject=$email->getSubject();
-                                $subject=explode("#",$email_subject);
-                                if(isset($subject[1]) && !empty($subject[1])){
-                                    $findTicket=\App\Tickets::where('ticket_id',$subject[1])->first();
-                                    if($findTicket){
-                                        $model_id=$findTicket->id;
-                                        $model_type=\App\Tickets::class;
-                                    }
+                            $email_subject = $email->getSubject();
+                            $subject = explode("#", $email_subject);
+                            if (isset($subject[1]) && !empty($subject[1])) {
+                                $findTicket = \App\Tickets::where('ticket_id', $subject[1])->first();
+                                if ($findTicket) {
+                                    $model_id = $findTicket->id;
+                                    $model_type = \App\Tickets::class;
                                 }
-                            
+                            }
+
                             $params = [
                                 'model_id' => $model_id,
                                 'model_type' => $model_type,
@@ -186,8 +196,32 @@ class FetchAllEmails extends Command
                                 'additional_data' => json_encode(['attachment' => $attachments_array]),
                                 'created_at' => $email->getDate(),
                             ];
-//                            dump("Received from: ". $email->getFrom()[0]->mail);
+                            //                            dump("Received from: ". $email->getFrom()[0]->mail);
                             Email::create($params);
+
+                            if ($type['type'] == 'incoming') {
+                                $message = trim($content);
+                                $reply = \App\WatsonAccount::getReply($message);
+                                if ($reply) {
+                                    $params = [
+                                        'model_id' => $model_id,
+                                        'model_type' => $model_type,
+                                        'origin_id' => $origin_id,
+                                        'reference_id' => $reference_id,
+                                        'type' => 'outgoing',
+                                        'seen' => $email->getFlags()['seen'],
+                                        'from' => array_key_exists(0, $email->getTo()) ? $email->getTo()[0]->mail : $email->getReplyTo()[0]->mail,
+                                        'to' => $email->getFrom()[0]->mail,
+                                        'subject' => $email->getSubject(),
+                                        'message' => $reply,
+                                        'template' => 'customer-simple',
+                                        'additional_data' => json_encode(['attachment' => []]),
+                                        'created_at' => $email->getDate(),
+                                        'approve_mail' => 1,
+                                    ];
+                                    Email::create($params);
+                                }
+                            }
                         }
                     }
                 }
@@ -208,7 +242,8 @@ class FetchAllEmails extends Command
      * @param [type] $email_list
      * @return array(model_id,miodel_type)
      */
-    private function getModel($email, $email_list){
+    private function getModel($email, $email_list)
+    {
         $model_id = null;
         $model_type = null;
 
@@ -216,14 +251,89 @@ class FetchAllEmails extends Command
         foreach ($email_list as $key => $value) {
 
             // If email exists in the DB
-            if( isset($value[$email])){
+            if (isset($value[$email])) {
                 $model_id = $value[$email];
                 $model_type = $key;
-            break;
+                break;
             }
         }
 
-        return compact('model_id','model_type');
+        return compact('model_id', 'model_type');
+    }
 
+    public function getEmailAttachedFileData($fileName = '')
+    {
+        $file = fopen(storage_path('app/files/email-attachments/' . $fileName), "r");
+        $skiprowupto = 1; //skip first line
+        $rowincrement = 1;
+        $attachedFileDataArray = array();
+        while (($data = fgetcsv($file, 4000, ",")) !== FALSE) {
+            ///echo '<pre>'.print_r($data,true).'</pre>'; die('developer working');
+            /* foreach($data as $d){
+                $d=str_replace('(','',$d);
+                $d=str_replace(')','',$d);
+                $d=str_replace('.','',$d);
+                $d=str_replace('&','',$d);
+                $d=str_replace(' ','_',$d);
+                $d=strtolower($d);
+                //echo $csvArrayIndex.' - $table->string("'.$d.'")->nullable();'."\n";
+                //echo '"'.$d.'"=>$data['.$csvArrayIndex.']'."\n";
+                $csvArrayIndex++;
+            }
+            exit; */
+            if ($rowincrement > $skiprowupto) {
+                //echo '<pre>'.print_r($data = fgetcsv($file, 4000, ","),true).'</pre>'; 
+                if (isset($data[0]) && !empty($data[0])) {
+                    $due_date=date('Y-m-d',strtotime($data[9]));
+                    $attachedFileDataArray = array(
+                        "line_type" => $data[0],
+                        "billing_source" => $data[1],
+                        "original_invoice_number" => $data[2],
+                        "invoice_number" => $data[3],
+                        "invoice_identifier" => $data[5],
+                        "invoice_type" => $data[6],
+                        "invoice_date" => $data[7],
+                        "payment_terms" => $data[8],
+                        "due_date" => $due_date,
+                        "billing_account" => $data[11],
+                        "billing_account_name" => $data[12],
+                        "billing_account_name_additional" => $data[13],
+                        "billing_address_1" => $data[14],
+                        "billing_postcode" => $data[17],
+                        "billing_city" => $data[18],
+                        "billing_state_province" => $data[19],
+                        "billing_country_code" => $data[20],
+                        "billing_contact" => $data[21],
+                        "shipment_number" => $data[23],
+                        "shipment_date" => $data[24],
+                        "product" => $data[30],
+                        "product_name" => $data[31],
+                        "pieces" => $data[32],
+                        "origin" => $data[33],
+                        "orig_name" => $data[34],
+                        "orig_country_code" => $data[35],
+                        "orig_country_name" => $data[36],
+                        "senders_name" => $data[37],
+                        "senders_city" => $data[42],
+                        'created_at'=>\Carbon\Carbon::now(),
+                        'updated_at'=>\Carbon\Carbon::now(),
+                    );
+                    if(!empty($attachedFileDataArray)){
+                       $attachresponse=\App\Waybillinvoice::create($attachedFileDataArray);
+                       $cash_flow=New CashFlow();
+                       $cash_flow->fill([
+                        'date' => $attachresponse->due_date ? $attachresponse->due_date:null,
+                        'type'=>'pending',
+                        'description' => 'Waybill invoice details',
+                        'cash_flow_able_id'=>$attachresponse->id,
+                        'cash_flow_able_type'=>\App\Waybillinvoice::class,
+                    ])->save();
+
+                    }
+                }
+            }
+            $rowincrement++;
+        }
+        fclose($file);
     }
 }

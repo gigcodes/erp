@@ -811,17 +811,81 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-         $tasks = Task::where('assign_to',$id)->where('is_verified',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
-         $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
-         $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','due_date as due_date');
-         $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
 
-         $taskList = $devTasks->union($tasks)->get();
-       
+
+        
+
+            $taskList = DB::select('
+            select * from (
+                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type  FROM tasks
+                          LEFT JOIN (
+                              SELECT  chat_messages.id as message_id,  chat_messages.task_id,  chat_messages.message,  chat_messages.status as message_status, 
+                              chat_messages.sent as message_type,  chat_messages.created_at as message_created_at,  chat_messages.is_reminder AS message_is_reminder, chat_messages.user_id AS message_user_id,
+                              chat_messages.created_at
+                              FROM chat_messages join chat_messages_quick_datas on chat_messages_quick_datas.last_communicated_message_id = chat_messages.id WHERE chat_messages.status not in(7,8,9) and chat_messages_quick_datas.model="App\\Task"
+                          ) as chat_messages  ON chat_messages.task_id = tasks.id WHERE tasks.deleted_at IS NULL and tasks.is_statutory != 1 and tasks.is_verified is null and tasks.assign_to = '.$id.') 
+                
+                union 
+                
+                (
+                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                    
+                    ) 
+                ) as c order by c.orderBytime desc
+            ');
+
+
+        //  $tasks = Task::where('assign_to',$id)->where('is_verified',NULL)->select('id as task_id','task_subject as subject','task_details as details','approximate as approximate_time','due_date');
+        //  $tasks = $tasks->addSelect(DB::raw("'TASK' as type"));
+        //  $devTasks = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select('id as task_id','subject','task as details','estimate_minutes as approximate_time','due_date as due_date');
+        //  $devTasks = $devTasks->addSelect(DB::raw("'DEVTASK' as type"));
+
+        //  $taskList = $devTasks->union($tasks)->get();
+
+
+
+        $u = [];
+        $tasks_time = Task::where('assign_to',$id)->where('is_verified',NULL)->select(DB::raw("SUM(approximate) as approximate_time"));
+        $devTasks_time = DeveloperTask::where('assigned_to',$id)->where('status','!=','Done')->select(DB::raw("SUM(estimate_minutes) as approximate_time"));
+        
+        $task_times = ($devTasks_time)->union($tasks_time)->get();
+        $pending_tasks = 0;
+        foreach($task_times as $key => $task_time){
+            $pending_tasks += $task_time['approximate_time'];
+        }
+        $u['total_pending_hours'] = intdiv($pending_tasks, 60).':'. ($pending_tasks % 60);
+        $today = date('Y-m-d');
+
+        /** get total availablity hours */
+        $avaibility = UserAvaibility::where('user_id',$id)->where('date','>=',$today)->get();
+        $avaibility_hour = 0;
+        foreach($avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $avaibility_hour = $this->getTimeFormat($avaibility_hour);
+        $u['total_avaibility_hour'] = $avaibility_hour;
+
+        /** get today availablity hours */
+        $today_avaibility = UserAvaibility::where('user_id',$id)->where('date','=',$today)->get();
+        $today_avaibility_hour = 0;
+        foreach($today_avaibility as $aval_time){
+            $from = $this->getTimeFormat($aval_time["from"]);
+            $to = $this->getTimeFormat($aval_time["to"]);
+            $today_avaibility_hour += round((strtotime($to) - strtotime($from))/3600, 1);
+        }
+        $today_avaibility_hour = $this->getTimeFormat($today_avaibility_hour);
+        $u['today_avaibility_hour'] = $today_avaibility_hour;
+
+
+
+
             return response()->json([
                 "code"       => 200,
                 "user"       => $user,
-                "taskList"       => $taskList
+                "taskList"       => $taskList,
+                'userTiming'  => $u
             ]); 
     }
 
