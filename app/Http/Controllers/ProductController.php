@@ -4031,13 +4031,6 @@ class ProductController extends Controller
         }
         // $perPageLimit
         $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
-
-
-
-
-
-
-
         foreach($suggestedProducts as $suggestion) {
             $last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
             if($last_attached) {
@@ -4321,8 +4314,6 @@ class ProductController extends Controller
 
 
         $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
-
-
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
 

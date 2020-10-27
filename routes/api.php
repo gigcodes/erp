@@ -170,6 +170,14 @@ Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@get
 Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
 Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
 
+Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');
+Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost');
+
+//gift cards api
+Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
+Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
+
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');
+
