@@ -119,6 +119,20 @@
     </div>
 </div>
 
+
+<div id="inventory-history-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Inventory History</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+            </div>
+        </div>
+    </div>
+</div>
+
 @endsection
 
 @section('scripts')
@@ -218,6 +232,37 @@
         $('#status-history-modal').modal('show')
     })
 
+
+    $('body').delegate('.show-inventory-history-modal', 'click', function() {
+
+    let data = $(this).parent().parent().find('.inventory-history').attr('data')
+    let result = '';
+
+    if (data != '[]') {
+        data = JSON.parse(data)
+
+        result += '<table class="table table-bordered">';
+        result += '<thead><th>Supplier</th><th>Date</th><th>Prev Stock</th><th>In Stock</th></thead>';
+        result += '<tbody>';
+        for (let value in data) {
+            result += '<tr>';
+            result += "<td>" + data[value].supplier + "</td>"
+            result += "<td>" + data[value].date + "</td>"
+            result += "<td>" + data[value].prev_in_stock + "</td>"
+            result += "<td>" + data[value].in_stock + "</td>"
+            result += '</tr>';
+        }
+        result += '</tbody>';
+        result += '</table>';
+
+    } else {
+        result = '<h3>This Product dont have inventory history</h3>';
+    }
+
+    $('#inventory-history-modal .modal-body').html(result)
+
+    $('#inventory-history-modal').modal('show')
+    })
     var isLoadingProducts = false;
     let page = 1;
     let last_page = {{$inventory_data->lastPage()}};

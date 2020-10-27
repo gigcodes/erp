@@ -990,12 +990,24 @@ class ProductInventoryController extends Controller
 
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
-            $product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+			$inventory_history   =  \App\InventoryStatusHistory::getInventoryHistoryFromProductId($product['id']);
             foreach ($product_history as $each) {
                 $each['old_status'] = $status_list[$each['old_status']];
                 $each['new_status'] = $status_list[$each['new_status']];
             }
-            $product['status_history'] = $product_history;
+			$product['status_history'] = $product_history;
+			
+			foreach ($inventory_history as $each) {
+				$supplier = \App\Supplier::find($each['supplier_id']);
+				if($supplier) {
+					$each['supplier'] = $supplier->supplier;
+				}
+				else {
+					$each['supplier'] = '';
+				}
+            }
+            $product['inventory_history'] = $inventory_history;
         }
 
         //for filter
