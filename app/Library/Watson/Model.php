@@ -192,7 +192,6 @@ class Model
                 // $result = $watson->update($question->workspace_id, $question->value, $storeParams);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
-//                dd($question->keyword_or_question,$question, $storeParams);
                 ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue);
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
@@ -531,47 +530,39 @@ class Model
 
     public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null)
     {
-
         ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id);
 
         return true;
 
     }
 
-    public static function sendMessageFromJob(Customer $customer, $assistant, $inputText, $contextReset = false, $message_application_id = null)
+    public static function sendMessageFromJob(Customer $customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
         }
 
-        $assistantID = self::getAssistantId();
-//        $assistant   = new AssistantService(
-//            "apiKey",
-//            self::API_KEY
-//        );
+        $assistantID = $account->assistant_id;
 
         if (empty($customer->chat_session_id)) {
-            $customer = self::createSession($customer, $assistant);
+            $customer = self::createSession($customer, $assistant, $assistantID);
             if (!$customer) {
                 return false;
             }
         }
-
         if (!empty($customer->chat_session_id)) {
             // now sending message to the watson
-            $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
-
+            $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
             if (!empty($result->code) && $result->code == 404 && $result->error == "Invalid Session") {
-                $customer = self::createSession($customer, $assistant);
+                $customer = self::createSession($customer, $assistant, $assistantID);
                 if ($customer) {
-                    $result = self::sendMessageCustomer($customer, $assistant, $inputText, $contextReset);
+                    $result = self::sendMessageCustomer($customer, $assistantID, $assistant, $inputText, $contextReset);
                 }
             }
             $chatResponse = new ResponsePurify($result, $customer);
             // if response is valid then check ahead
             if ($chatResponse->isValid()) {
                 $result = $chatResponse->assignAction();
-
                 \Log::info(print_r($result, true));
                 if (!empty($result)) {
                     if (!empty($result["action"])) {
@@ -604,7 +595,7 @@ class Model
                                     $category = $result["medias"]["params"]["category"];
                                 }
 
-                                self::sendMessageFromJob($customer, $assistant, "image_has_been_found", true);
+                                self::sendMessageFromJob($customer, $account, $assistant, "image_has_been_found", true);
 
                                 if (!empty($brands) || !empty($category)) {
                                     $suggestion = \App\Suggestion::create([
@@ -684,17 +675,14 @@ class Model
 
     }
 
-    public static function createSession(Customer $customer, AssistantService $assistant)
+    public static function createSession(Customer $customer, AssistantService $assistant, $assistantID)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
         }
 
-        $assistantID = self::getAssistantId();
-
         $session = $assistant->createSession($assistantID);
         $result = json_decode($session->getContent());
-
         if (isset($result->session_id)) {
             $customer->chat_session_id = $result->session_id;
             $customer->save();
@@ -770,13 +758,11 @@ class Model
         return false;
     }
 
-    public static function sendMessageCustomer(Customer $customer, AssistantService $assistant, $inputText, $contextReset = false)
+    public static function sendMessageCustomer(Customer $customer, $assistantID,  AssistantService $assistant, $inputText, $contextReset = false)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
         }
-
-        $assistantID = self::getAssistantId();
 
         $params = [
             "input" => [
