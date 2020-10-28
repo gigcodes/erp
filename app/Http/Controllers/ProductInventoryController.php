@@ -991,12 +991,13 @@ class ProductInventoryController extends Controller
 
         foreach ($inventory_data as $product) {
             $product['medias'] =  \App\Mediables::getMediasFromProductId($product['id']);
-            $product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
+			$product_history   =  \App\ProductStatusHistory::getStatusHistoryFromProductId($product['id']);
             foreach ($product_history as $each) {
                 $each['old_status'] = $status_list[$each['old_status']];
                 $each['new_status'] = $status_list[$each['new_status']];
             }
-            $product['status_history'] = $product_history;
+			$product['status_history'] = $product_history;
+		
         }
 
         //for filter
@@ -1007,6 +1008,22 @@ class ProductInventoryController extends Controller
         if (request()->ajax()) return view("product-inventory.inventory-list-partials.load-more", compact('inventory_data'));
         return view('product-inventory.inventory-list',compact('inventory_data','brands_names','products_names','products_categories','products_sku','status_list','inventory_data_count','supplier_list'));
     }
+  
+  public function inventoryHistory($id) {
+		$inventory_history   =  \App\InventoryStatusHistory::getInventoryHistoryFromProductId($id);
+			
+		foreach ($inventory_history as $each) {
+			$supplier = \App\Supplier::find($each['supplier_id']);
+			if($supplier) {
+				$each['supplier'] = $supplier->supplier;
+			}
+			else {
+				$each['supplier'] = '';
+			}
+		}
+		return response()->json(['data' => $inventory_history]);;
+	}
+  
 	public function getProductImages($id) {
 	  $product = Product::find($id);
 	  $urls = [];
