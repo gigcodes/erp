@@ -190,8 +190,8 @@ class InfluencersController extends Controller
         $url = str_replace('\u2029','',$url);
 
 
-        echo $url;
-        die();
+        //echo $url;
+        //die();
 
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
