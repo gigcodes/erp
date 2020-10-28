@@ -306,12 +306,14 @@ class ProductController extends Controller
             $join->on("pvu.product_id", "products.id");
             $join->where("pvu.user_id", "!=", auth()->user()->id);
         });
+
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
+
             if (!$newProducts->isEmpty()) {
                 $i = 1;
                 foreach ($newProducts as $product) {
@@ -329,7 +331,7 @@ class ProductController extends Controller
                 }
             }
         }
-
+//here
         if($request->ajax()) {
             return view('products.final_listing_ajax', [
                 'products' => $newProducts,
@@ -2497,7 +2499,6 @@ class ProductController extends Controller
             $product = $product->whereHasMedia('original')->first();
         }
 
-
         if (!$product) {
             // Return JSON
             return response()->json([
@@ -2506,7 +2507,6 @@ class ProductController extends Controller
         }
 
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
-
         foreach ($mediables as $mediable) {
             $mediableArray[] = $mediable->media_id;
         }
@@ -2518,7 +2518,6 @@ class ProductController extends Controller
         }
 
         $images = Media::select('id', 'filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id', $mediableArray)->get();
-
 
         foreach ($images as $image) {
             $output['media_id'] = $image->id;
@@ -2582,18 +2581,19 @@ class ProductController extends Controller
 
                 $website = StoreWebsite::find($websiteArray);
                 if ($website) {
-
-                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
-                    $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray)
+                    ->where('product_id', $product->id)->exists();
+                    if(!$isCropped) {
+                        list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                        $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
+                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                    }
                 }
             }
         }
-
         if (!isset($colors)) {
             $colors = [];
         }
-
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2675,7 +2675,7 @@ class ProductController extends Controller
             $imageReference->save();
 
 
-            //Get the last image of the product
+            //Get the last image of the product.
             $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id', $product->id)->whereDate('created_at', Carbon::today())->count();
@@ -3286,7 +3286,6 @@ class ProductController extends Controller
         $style = explode(' ', $style);
         $name = str_replace(['scale(', ')'], '', $style[4]);
         $newHeight = (($name * 3.333333) * 1000);
-
         list($width, $height) = getimagesize($img);
         $thumb = imagecreatetruecolor($newHeight, $newHeight);
         try {
@@ -3315,7 +3314,6 @@ class ProductController extends Controller
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
         $product = Product::find($id);
-
         return response()->json(['success' => 'success', 200]);
     }
 
@@ -4033,13 +4031,6 @@ class ProductController extends Controller
         }
         // $perPageLimit
         $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
-
-
-
-
-
-
-
         foreach($suggestedProducts as $suggestion) {
             $last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
             if($last_attached) {
@@ -4126,12 +4117,57 @@ class ProductController extends Controller
     }
     public function crop_rejected_status(Request $request)
     {
-
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->where('website_id' , $request->site_id)->delete();
+        }
         RejectedImages::updateOrCreate(
             ['website_id' => $request->site_id, 'product_id' => $request->product_id],
             ['status' => $request->status = "approve" ? 1 : 0]
         );
-        return response()->json(true);
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
+    }
+
+    public function all_crop_rejected_status(Request $request)
+    {
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            $sites = SiteCroppedImages::where('product_id', $request->product_id)->get();
+            foreach($sites as $site) {
+                RejectedImages::updateOrCreate(
+                    ['website_id' => $site->website_id, 'product_id' => $request->product_id],
+                    ['status' => $request->status = "approve" ? 1 : 0]
+                );
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->delete();
+        }
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
     }
     
     public function attachMoreProducts($customerId)
@@ -4278,8 +4314,6 @@ class ProductController extends Controller
 
 
         $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
-
-
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
 
