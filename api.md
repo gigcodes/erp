@@ -401,6 +401,7 @@ Content-Type: application/json
 }
 ```
 
+
 ## Magneto Customer Reference Store API
 
 **Request:**
@@ -523,4 +524,5 @@ Content-Type: application/json
     "status": "failed",
     "message": "Tickets not found for customer !"
 }
+
 ```

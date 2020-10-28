@@ -186,7 +186,9 @@ class InfluencersController extends Controller
        $cURLConnection = curl_init();
 
         $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
-        $url = str_replace(' ','',$url);
+        
+        $url = str_replace('\u2029','',$url);
+
 
         echo $url;
         die();

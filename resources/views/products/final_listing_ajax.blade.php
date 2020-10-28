@@ -2,24 +2,24 @@
                     $imageCropperRole = Auth::user()->hasRole('ImageCropers');
                 @endphp
 
-                <table class="table table-bordered table-striped" style="min-width:1500px;width: 100%">
+                <table class="table table-bordered table-striped" style="table-layout:fixed;">
                     <thead>
                     <tr>
-                        <th style="width:30px"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
-                        <th style="width:120px">Product ID</th>
-                        <th style="width:70px">Image</th>
-                        <th style="width:110px">Brand</th>
-                        <th style="width:120px">Category</th>
-                        <th style="width: 90px">Title</th>
-                        <th style="max-width: 200px;"> Description</th>
-                        <th style="width:120px">Composition</th>
-                        <th style="width:120px">Color</th>
-                        <th style="width:120px">Dimension</th>
-                        <th style="width:100px">Sizes</th>
-                        <th style="width:70px">Price</th>
-                        <th style="min-width: 100px">Action</th>
-                        <th style="width:120px">Status</th>
-                        <th style="width:120px">User</th>
+                        <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
+                        <th style="width:10%">Product ID</th>
+                        <th style="width:4%">Image</th>
+                        <th style="width:7%">Brand</th>
+                        <th style="width:8%">Category</th>
+                        <th style="width:8%">Title</th>
+                        <th style="width:9%"> Description</th>
+                        <th style="width:8%">Composition</th>
+                        <th style="width:8%">Color</th>
+                        <th style="width:8%">Dimension</th>
+                        <th style="width:7%">Sizes</th>
+                        <th style="width:5%">Price</th>
+                        <th style="width:6%">Action</th>
+                        <th style="width:5%">Status</th>
+                        <th style="width:5%">User</th>
                     </tr>
                     </thead>
                     <tbody>
@@ -193,8 +193,18 @@
                                 @else
                                     <span class="badge badge-warning" >&nbsp;</span>
                                 @endif
+                                @if(count($product->more_suppliers()) > 1)
+                                    <button style="padding:0px;" type="button" class="btn-link"
+                                    data-id="{{ $product->id }}" data-target="#product_suppliers_{{ $product->id }}"
+                                    data-toggle="modal">View
+                                    </button>
+                                    @endif
                                 <div>
-                                    {{ $product->sku }}
+                                @if($product->supplier_link)
+                                    <a target="_new" href="{{ $product->supplier_link }}">{{ $product->sku }}</a>
+                                @else 
+                                {{ $product->sku }}
+                                @endif
                                 </div>
                             </td>
 
@@ -283,6 +293,8 @@
                                     </span>
 
                                 @endif
+                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
+                                        data-toggle="modal"><i class="fa fa-info-circle"></i></button>
 
                             </td>
 
@@ -319,7 +331,7 @@
                                         @foreach ($colors as $color)
                                             <option value="{{ $color }}" {{ $product->color == $color ? 'selected' : '' }}>{{ $color }}</option>
                                         @endforeach
-                                    </select>x
+                                    </select>
                                 @else
 
                                     {{ $product->color }}
@@ -518,3 +530,402 @@
                     &nbsp;
                 </p>
                     <?php echo $products->appends(request()->except("page"))->links(); ?>
+
+
+
+
+                    @foreach ($products as $key => $product)
+
+        <div id="product_activity_{{ $product->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Activity</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <table class="table table-striped table-bordered">
+                            <tr>
+                                <th>Activity</th>
+                                <th>Date</th>
+                                <th>User Name</th>
+                                <th>Status</th>
+                            </tr>
+                            <tr>
+                                <th>Cropping</th>
+                                <td>{{ $product->crop_approved_at ?? 'N/A' }}</td>
+                                <td>
+                                    {{ $product->cropApprover ? $product->cropApprover->name : 'N/A' }}
+                                </td>
+                                <td>
+                                    <select style="width: 90px !important;" data-id="{{$product->id}}"
+                                            class="form-control-sm form-control reject-cropping bg-secondary text-light"
+                                            name="reject_cropping"
+                                            id="reject_cropping_{{$product->id}}">
+                                        <option value="0">Select...</option>
+                                        <option value="Images Not Cropped Correctly">Images Not Cropped
+                                            Correctly
+                                        </option>
+                                        <option value="No Images Shown">No Images Shown</option>
+                                        <option value="Grid Not Shown">Grid Not Shown</option>
+                                        <option value="Blurry Image">Blurry Image</option>
+                                        <option value="First Image Not Available">First Image Not
+                                            Available
+                                        </option>
+                                        <option value="Dimension Not Available">Dimension Not
+                                            Available
+                                        </option>
+                                        <option value="Wrong Grid Showing For Category">Wrong Grid
+                                            Showing For Category
+                                        </option>
+                                        <option value="Incorrect Category">Incorrect Category</option>
+                                        <option value="Only One Image Available">Only One Image
+                                            Available
+                                        </option>
+                                        <option value="Image incorrect">Image incorrect</option>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Sequencing</th>
+                                <td>{{ $product->crop_ordered_at ?? 'N/A' }}</td>
+                                <td>{{ $product->cropOrderer ? $product->cropOrderer->name : 'N/A' }}</td>
+                                <td>
+                                    <button style="width: 90px" data-button-type="sequence"
+                                            data-id="{{$product->id}}"
+                                            class="btn btn-secondary btn-sm reject-sequence">Reject
+                                    </button>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th>Approval</th>
+                                <td>{{ $product->listing_approved_at ?? 'N/A' }}</td>
+                                <td>{{ $product->approver ? $product->approver->name : 'N/A' }}</td>
+                                <td>
+                                    <select style="width: 90px !important;" data-id="{{$product->id}}"
+                                            class="form-control-sm form-control reject-listing bg-secondary text-light"
+                                            name="reject_listing" id="reject_listing_{{$product->id}}">
+                                        <option value="0">Select Remark</option>
+                                        <option value="Category Incorrect">Category Incorrect</option>
+                                        <option value="Price Not Incorrect">Price Not Correct</option>
+                                        <option value="Price Not Found">Price Not Found</option>
+                                        <option value="Color Not Found">Color Not Found</option>
+                                        <option value="Category Not Found">Category Not Found</option>
+                                        <option value="Description Not Found">Description Not Found
+                                        </option>
+                                        <option value="Details Not Found">Details Not Found</option>
+                                        <option value="Composition Not Found">Composition Not Found
+                                        </option>
+                                    </select>
+                                </td>
+                            </tr>
+                            @php
+                                // Set opener URL
+                                $openerUrl = urlencode((isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? "https" : "http") . "://" . $_SERVER['HTTP_HOST'] .  $_SERVER['REQUEST_URI']);
+                            @endphp
+                            @if ( isset($product->log_scraper_vs_ai) && $product->log_scraper_vs_ai->count() > 0 )
+                                <tr>
+                                    <th>AI</th>
+                                    <td></td>
+                                    <td></td>
+                                    <td>
+                                        <button style="width: 90px" class="btn btn-secondary btn-sm"
+                                                data-toggle="modal" id="linkAiModal{{ $product->id }}"
+                                                data-target="#aiModal{{ $product->id }}">AI result
+                                        </button>
+                                        <div class="modal fade" id="aiModal{{ $product->id }}"
+                                             tabindex="-1" role="dialog">
+                                            <div class="modal-dialog modal-dialog modal-lg"
+                                                 role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h4 class="modal-title">{{ strtoupper($product->name) }}</h4>
+                                                        <button type="button" class="close"
+                                                                data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <iframe id="aiModalLoad{{ $product->id }}"
+                                                                frameborder="0" border="0" width="100%"
+                                                                height="800"></iframe>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            $('#linkAiModal{{ $product->id }}').click(function () {
+                                                $('#aiModalLoad{{ $product->id }}').attr('src', '/log-scraper-vs-ai/{{ $product->id }}?opener={{ $openerUrl }}');
+                                            });
+                                        </script>
+                                    </td>
+                                </tr>
+                            @endif
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="product_scrape_{{ $product->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Scraped sites</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        @php
+                            $logScrapers = \App\ScrapedProducts::where('sku', $product->sku)->where('validated', 1)->get();
+                        @endphp
+                        @if ($logScrapers)
+                            <div>
+                                <ul>
+                                    @foreach($logScrapers as $logScraper)
+                                        @if($logScraper->url != "N/A")
+                                            <li><a href="{!! $logScraper->url  !!}"
+                                                   target="_blank">{!! $logScraper->website  !!} </a>
+                                                ( {!! $logScraper->last_inventory_at  !!} )
+                                            </li>
+                                        @else
+                                            <li>{!! $logScraper->website  !!}</li>
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>
+                        @endif
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div id="product_image_{{ $product->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Images</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                    @php
+                            $product = \App\Product::find($product->id);
+                                $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->first();
+                            @endphp
+                    <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
+                    @if($anyCropExist)
+                    Reject All
+                    @else 
+                    All Rejected
+                    @endif
+                    </button>
+                        @foreach($store_websites as $index => $site)
+                        @php 
+                        $siteCroppedImage = \App\SiteCroppedImages::where('product_id', $product->id)->where('website_id' , $site->id)->first();
+                        @endphp
+                            <div class="product-slider {{$index == 0 ? 'd-block' : 'd-none'}}">
+                            <p style="text-align:center;">{{$site->title}}</p>
+                            <br>
+                           
+                            <div class="row">
+                            <div class="col-md-10">
+                            </div>
+                            <div class="col-md-2">
+                                <div class="d-flex" style="float: right;">
+
+                                        <div class="form-group">
+                                        <button type="button" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-site_id="{{$site->id}}" value="reject" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary reject-product-cropping">
+                                            @if($siteCroppedImage)
+                                            <span>Reject</span>
+                                            @else 
+                                            <span>Rejected</span>
+                                            @endif
+                                            </button>
+                                        </div>
+                                    </div>
+                            </div>
+                            </div>
+                            <div class="row">
+                                <div class="col-md-5">
+                                    <?php $gridImage = ''; ?>
+                                    @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                        @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
+                                            @if(strpos($media->filename, 'crop') !== false && $product->tag == 'gallery_'.$site->cropper_color)
+                                                <?php
+                                                $width = 0;
+                                                $height = 0;
+                                                if (file_exists($media->getAbsolutePath())) {
+                                                    list($width, $height) = getimagesize($media->getAbsolutePath());
+                                                    $badge = "notify-red-badge";
+                                                    if ($width == 1000 && $height == 1000) {
+                                                        $badge = "notify-green-badge";
+                                                    }
+                                                } else {
+                                                    $badge = "notify-red-badge";
+                                                }
+                                                // Get cropping grid image
+                                                $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
+                                                if ($width == 1000 && $height == 1000) {
+                                                ?>
+                                                <div class="thumbnail-pic">
+                                                    <div class="thumbnail-edit"><a class="delete-thumbail-img"
+                                                                                   data-product-id="{{ $product->id }}"
+                                                                                   data-media-id="{{ $media->id }}"
+                                                                                   data-media-type="gallery"
+                                                                                   href="javascript:;"><i
+                                                                    class="fa fa-trash fa-lg"></i></a></div>
+                                                    <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
+                                                    <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
+                                                         src="{{ $media->getUrl() }}"
+                                                         class="quick-image-container img-responive" alt=""
+                                                         data-toggle="tooltip" data-placement="top"
+                                                         title="ID: {{ $product->id }}"
+                                                         onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}')">
+                                                </div>
+                                                <?php } ?>
+                                            @endif
+                                        @endforeach
+                                    @endif
+                                </div>
+                                <div class="col-md-7" id="col-large-image{{ $product->id }}">
+                                    @if ($product->hasMedia(config('constants.media_gallery_tag')))
+                                        <div onclick="bigImg('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}')"
+                                             style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}'); background-size: 300px"
+                                             id="image{{ $product->id }}">
+                                            <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}"
+                                                 class="quick-image-container img-responive" style="width: 100%;"
+                                                 alt="" data-toggle="tooltip" data-placement="top"
+                                                 title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
+                                        </div>
+                                        <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')"
+                                                class="btn btn-secondary">Crop Image
+                                        </button>
+                                        <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')"
+                                                class="btn btn-secondary">Crop
+                                        </button>
+
+                                    @endif
+                                </div>
+                                </div>
+                            </div>
+                        @endforeach
+                        <div class="text-center">
+
+                            <i style="cursor: pointer;" class="fa fa-arrow-left product-slider-arrow-left"></i>
+                            <i style="cursor: pointer;" class="fa fa-arrow-right product-slider-arrow"></i>
+                        </div>
+
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="product_suppliers_{{ $product->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog modal-lg">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h4 class="modal-title">All Suppliers</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                      <table class="table table-striped table-bordered">
+                      <thead>
+                        <tr>
+                            <th style="width:10%">Name</th>
+                            <th style="width:4%">Visit</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    @php
+                            $product = \App\Product::find($product->id);
+                            @endphp
+                    @foreach($product->more_suppliers() as $index => $supplier)
+                        <tr>
+                            <td>{{$supplier->name}}</td>
+                            <td><a target="_new" href="{{$supplier->link}}">Visit</a> </td>
+                        </tr>
+                    @endforeach
+                    </tbody>
+                      </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="description_modal_view_{{ $product->id }}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <!-- Modal content-->
+                <div class="modal-content ">
+                    <div class="modal-header">
+                        <h4 class="modal-title">Description</h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <p>
+                            {{--                            <strong class="same-color"--}}
+                            {{--                                    style="text-decoration: underline">Description</strong>--}}
+                            {{--                            <br/>--}}
+                            <span id="description{{ $product->id }}" class="same-color">
+                                                {{ ucwords(strtolower(html_entity_decode($product->short_description))) }}
+                                            </span>
+                        </p>
+                        <br/>
+                        @php
+                            $descriptions = \App\ScrapedProducts::select('description','website')->where('sku', $product->sku)->get();
+                        @endphp
+                        @if ( $descriptions->count() > 0 )
+                            @foreach ( $descriptions as $description )
+                                @if ( !empty(trim($description->description)) && trim($description->description) != trim($product->short_description) )
+                                    <hr/>
+                                    <span class="same-color">
+                                                        {{ ucwords(strtolower(html_entity_decode($description->description))) }}
+                                                    </span>
+                                    <p>
+                                        <button class="btn btn-default btn-sm use-description"
+                                                data-id="{{ $product->id }}"
+                                                data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">
+                                            Use this description ({{ $description->website }})
+                                        </button>
+
+                                        <button class="btn btn-default btn-sm set-description-site"
+                                                data-id="{{ $product->id }}"
+                                                data-description="{{ str_replace('"', "'", html_entity_decode($description->description)) }}">
+                                            Set Description
+                                        </button>
+                                    </p>
+                                @endif
+                            @endforeach
+                            <hr/>
+                        @endif
+                        <table class="table table-bordered table-striped" style="table-layout:fixed;">
+                    <thead>
+                    <tr>
+                        <th style="width:20%">Website</th>
+                        <th style="width:80%">Description</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @php
+                    $product = \App\Product::find($product->id);
+                    $attributes = \App\StoreWebsiteProductAttribute::join('store_websites','store_websites.id','store_website_product_attributes.store_website_id')->where('product_id', $product->id)->select('store_website_product_attributes.description','store_websites.title')->get();
+                    @endphp
+                    @foreach($attributes as $index => $att)
+                        <tr>
+                            <td>{{$att->title}}</td>
+                            <td>{{$att->description}}</td>
+                        </tr>
+                    @endforeach
+                    
+                    </tbody>
+                    </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endforeach
