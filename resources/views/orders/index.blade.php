@@ -224,20 +224,20 @@ color:black!important;
               <td class="expand-row table-hover-cell">	              
                 @php $count = 0; @endphp	               
                 <div class="d-flex">	               
-                  <div class="">	                 
+                  <div class="">
                     @foreach ($order->order_product as $order_product)	                        
                       @if ($order_product->product)	                      
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))	                       
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <!-- <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->	                     
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
                               @php ++$count; @endphp	                        
                             @endif	                     
                           </span>	                        
                           <span class="td-full-container hidden">	                        
                             @if ($count >= 1)	   
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
     
                              <!--  <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->
                               @php $count++; @endphp	      

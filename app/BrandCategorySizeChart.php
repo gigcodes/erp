@@ -16,7 +16,7 @@ class BrandCategorySizeChart extends Model
     {
         $img = [];
         
-        $sizeChart = self::where("brand_id",$brandId)->where("category_id",$categoryId)->where("store_website_id",$siteId)->first();
+        $sizeChart = self::where("brand_id",$brandId)->where("category_id",$categoryId)->first();
         if(!empty($sizeChart) && $sizeChart->hasMedia(["size_chart"])) {
             $medias = $sizeChart->getMedia(["size_chart"]);
             foreach($medias as $media) {

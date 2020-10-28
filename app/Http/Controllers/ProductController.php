@@ -306,12 +306,14 @@ class ProductController extends Controller
             $join->on("pvu.product_id", "products.id");
             $join->where("pvu.user_id", "!=", auth()->user()->id);
         });
+
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
+
             if (!$newProducts->isEmpty()) {
                 $i = 1;
                 foreach ($newProducts as $product) {
@@ -329,7 +331,7 @@ class ProductController extends Controller
                 }
             }
         }
-
+//here
         if($request->ajax()) {
             return view('products.final_listing_ajax', [
                 'products' => $newProducts,
@@ -2256,13 +2258,14 @@ class ProductController extends Controller
                 $suggestedProducts->save();
                 $data_to_insert = [];
                 foreach($product_ids as $id){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->first();
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
                                 'customer_id' => $customerId,
-                                'product_id' => $id
+                                'product_id' => $id,
+                                'date' => date('Y-m-d')
                             ];
                         }
                     }
@@ -2496,7 +2499,6 @@ class ProductController extends Controller
             $product = $product->whereHasMedia('original')->first();
         }
 
-
         if (!$product) {
             // Return JSON
             return response()->json([
@@ -2505,7 +2507,6 @@ class ProductController extends Controller
         }
 
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
-
         foreach ($mediables as $mediable) {
             $mediableArray[] = $mediable->media_id;
         }
@@ -2517,7 +2518,6 @@ class ProductController extends Controller
         }
 
         $images = Media::select('id', 'filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id', $mediableArray)->get();
-
 
         foreach ($images as $image) {
             $output['media_id'] = $image->id;
@@ -2581,18 +2581,19 @@ class ProductController extends Controller
 
                 $website = StoreWebsite::find($websiteArray);
                 if ($website) {
-
-                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
-                    $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray)
+                    ->where('product_id', $product->id)->exists();
+                    if(!$isCropped) {
+                        list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                        $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
+                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                    }
                 }
             }
         }
-
         if (!isset($colors)) {
             $colors = [];
         }
-
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2674,7 +2675,7 @@ class ProductController extends Controller
             $imageReference->save();
 
 
-            //Get the last image of the product
+            //Get the last image of the product.
             $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
             //CHeck number of products in Crop Reference Grid
             $cropCount = CroppedImageReference::where('product_id', $product->id)->whereDate('created_at', Carbon::today())->count();
@@ -3262,6 +3263,7 @@ class ProductController extends Controller
         $data['message'] = $request->message;
         $data['customer_id'] = $request->customer_id;
         $data['status'] = $request->status;
+        $data['type'] = $request->type;
         \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
@@ -3284,7 +3286,6 @@ class ProductController extends Controller
         $style = explode(' ', $style);
         $name = str_replace(['scale(', ')'], '', $style[4]);
         $newHeight = (($name * 3.333333) * 1000);
-
         list($width, $height) = getimagesize($img);
         $thumb = imagecreatetruecolor($newHeight, $newHeight);
         try {
@@ -3313,7 +3314,6 @@ class ProductController extends Controller
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
         $product = Product::find($id);
-
         return response()->json(['success' => 'success', 200]);
     }
 
@@ -3727,6 +3727,9 @@ class ProductController extends Controller
 
     public function pushProduct()
     {
+
+        return response()->json(["code" => 200, "message" => "This request is temporary disable"]);
+
         $webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
             ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
             ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
@@ -4028,15 +4031,14 @@ class ProductController extends Controller
         }
         // $perPageLimit
         $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
-
-
-
-
-
-
-
         foreach($suggestedProducts as $suggestion) {
-            $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
+            $last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
+            if($last_attached) {
+                $suggestion->last_attached = $last_attached->date;
+            }
+            else {
+                $suggestion->last_attached = $suggestion->created_at;
+            }
             $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
@@ -4115,12 +4117,57 @@ class ProductController extends Controller
     }
     public function crop_rejected_status(Request $request)
     {
-
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->where('website_id' , $request->site_id)->delete();
+        }
         RejectedImages::updateOrCreate(
             ['website_id' => $request->site_id, 'product_id' => $request->product_id],
             ['status' => $request->status = "approve" ? 1 : 0]
         );
-        return response()->json(true);
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
+    }
+
+    public function all_crop_rejected_status(Request $request)
+    {
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            $sites = SiteCroppedImages::where('product_id', $request->product_id)->get();
+            foreach($sites as $site) {
+                RejectedImages::updateOrCreate(
+                    ['website_id' => $site->website_id, 'product_id' => $request->product_id],
+                    ['status' => $request->status = "approve" ? 1 : 0]
+                );
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->delete();
+        }
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
     }
     
     public function attachMoreProducts($customerId)
@@ -4142,6 +4189,7 @@ class ProductController extends Controller
             $term = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
+
         $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id');
 
         $products = (new Product())->newQuery()->latest();
@@ -4217,13 +4265,14 @@ class ProductController extends Controller
             if(count($products) > 0) {
                 $data_to_insert = [];
                 foreach($products as $product){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->first();
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($product->id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                         $data_to_insert[] = [
                             'customer_id' => $customerId,
-                            'product_id' => $product->id
+                            'product_id' => $product->id,
+                            'date' => date('Y-m-d')
                         ];
                     }
                     }
@@ -4265,8 +4314,6 @@ class ProductController extends Controller
 
 
         $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
-
-
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
 
@@ -4353,8 +4400,8 @@ class ProductController extends Controller
     }
     public function removeProducts($customer_id, Request $request) {
             $products = json_decode($request->products,true);
-            foreach($products as $product_id) {
-                $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->first();
+            foreach($products as $product_list_id) {
+                $suggested = \App\SuggestedProductList::find($product_list_id);
                 if($suggested) {
                     if($suggested->chat_message_id) {
                      $suggested->remove_attachment = 1;
@@ -4373,7 +4420,7 @@ class ProductController extends Controller
     }
 
     public function removeSingleProduct($customer_id, Request $request) {
-       $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->first();
+        $suggested = \App\SuggestedProductList::find($request->product_id);
        if($suggested) {
            if($suggested->chat_message_id) {
             $suggested->remove_attachment = 1;
@@ -4396,7 +4443,6 @@ class ProductController extends Controller
 
     public function forwardProducts(Request $request) {
         $customerId = 0;
-
         if($request->customer_id) {
             $explode = explode('/',$request->customer_id);
             if(count($explode) > 1) {
@@ -4419,26 +4465,36 @@ class ProductController extends Controller
                     $suggestedProducts->total = $total;
                     $suggestedProducts->save();
                 }
-                
+                $listIds = json_decode($request->products, true);
                 $data_to_insert = [];
-                $imagesDecoded = json_decode($request->products, true);
-                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
-                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
-                    if(!$medias->isEmpty()) {
-                        foreach($medias as $iimg => $media) {
+                $inserted = 0;
+               
+
+
+                if(!empty($listIds) && is_array($listIds)) {
+                foreach($listIds as $listedImage) {
+
+                    $productList = \App\SuggestedProductList::find($listedImage);
+                    $product = Product::find($productList->product_id);
+                    $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+                    $image_key = $imageDetails->getKey();
+                    $media = Media::find($image_key);
+                    if($media) {
                             $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
                             if($mediable) {
-                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->first();
+                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
                                 if(!$exists) {
                                     $pr = Product::find($mediable->mediable_id);
                                     if($pr->hasMedia(config('constants.attach_image_tag'))) {
                                         $data_to_insert[] = [
                                             'customer_id' => $customerId,
-                                            'product_id' => $mediable->mediable_id
+                                            'product_id' => $mediable->mediable_id,
+                                            'date' => date('Y-m-d')
                                         ];
                                     }
                                 }
                            }
+                        }
                         }
 
                         $inserted = count($data_to_insert);
@@ -4456,9 +4512,9 @@ class ProductController extends Controller
                             $data['message'] = null;
                             $data['customer_id'] = $customerId;
                             $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
                             \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
                         }
-                    }
                 }
                 $msg = $inserted. ' Products added successfully';
                 return response()->json(['code' => 200, 'message' => $msg]);
@@ -4480,6 +4536,7 @@ class ProductController extends Controller
                             $data['message'] = null;
                             $data['customer_id'] = $customer_id;
                             $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
                             \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
                 $msg = ' Images Resend successfully';
                 return response()->json(['code' => 200, 'message' => $msg]);
@@ -4489,11 +4546,11 @@ class ProductController extends Controller
         $term = null;
         if($type == 'attach') {
             $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('remove_attachment',0)
-            ->select('suggested_product_lists.*',DB::Raw('DATE(created_at) as date'))->orderBy('date','desc')->get()->unique('date');
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
             $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
-            ->select('suggested_product_lists.*',DB::Raw('DATE(created_at) as date'))->orderBy('date','desc')->get()->unique('date');
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         
         foreach($productsLists as $suggestion) {
@@ -4501,15 +4558,14 @@ class ProductController extends Controller
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
             ->where('remove_attachment',0)
-            ->where('suggested_product_lists.created_at', $suggestion->date);
+            ->where('suggested_product_lists.date', $suggestion->date);
             }
             else {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
             ->where('chat_message_id','!=',NULL)
-            ->where('suggested_product_lists.created_at', $suggestion->date);
+            ->where('suggested_product_lists.date', $suggestion->date);
             }
-
 
             if (isset($request->brand[0])) {
                 if ($request->brand[0] != null) {
@@ -4571,7 +4627,7 @@ class ProductController extends Controller
                     }
                 });
             }
-             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort')->orderBy('sort')->get();
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
         }
         $selected_products = [];
         $model_type = 'customer';

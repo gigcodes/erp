@@ -98,7 +98,8 @@ class Product extends Model
                 $data = array(
                     'product_id' => $product->id,
                     'old_status' => $old_status_id,
-                    'new_status' => $new_status_id
+                    'new_status' => $new_status_id,
+                    'created_at' => date("Y-m-d H:i:s")
                 );
                 \App\ProductStatusHistory::addStatusToProduct($data);
             }
@@ -1122,5 +1123,15 @@ class Product extends Model
     public static function getProductBySKU($sku)
     {
          return Product::where('sku',$sku)->first();
+    }
+
+
+    public function more_suppliers() {
+        $more_suppliers = DB::select('SELECT sp.url as link,s.supplier as name
+                            FROM `scraped_products` sp
+                            JOIN scrapers sc on sc.scraper_name=sp.website
+                            JOIN suppliers s ON s.id=sc.supplier_id
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $this->sku]);
+        return $more_suppliers;
     }
 }
