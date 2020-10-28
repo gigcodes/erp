@@ -131,8 +131,8 @@ class InfluencersController extends Controller
 
      $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/get-image?'.$name;
 
-     echo $url;
-     die();
+     //echo $url;
+     //die();
      curl_setopt($cURLConnection, CURLOPT_URL, $url);
      
      curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
@@ -187,11 +187,11 @@ class InfluencersController extends Controller
 
         $url = env('INFLUENCER_SCRIPT_URL').':'.env('INFLUENCER_SCRIPT_PORT').'/start-script?'.$name;
         
-        $url = str_replace('\u2029','',$url);
+       // $url = str_replace('\u2029','',$url);
 
 
-        echo $url;
-        die();
+        //echo $url;
+        //die();
 
         curl_setopt($cURLConnection, CURLOPT_URL, $url);
         curl_setopt($cURLConnection, CURLOPT_RETURNTRANSFER, true);
