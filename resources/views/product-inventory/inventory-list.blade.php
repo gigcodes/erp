@@ -9,6 +9,9 @@
     padding: 2px;
     margin-bottom:10px !important;
 }
+.des-pd {
+    padding:2px;
+}
 </style>
 @endsection
 
@@ -234,10 +237,36 @@
 
 
     $('body').delegate('.show-inventory-history-modal', 'click', function() {
+    // let data = $(this).parent().parent().find('.inventory-history').attr('data')
+        var id = $(this).data('id');
+            $.ajax({
+                url: '/productinventory/inventory-history/'+id,
+                type: 'GET',
+                dataType:'json',
+                success: function (response) {
+                     let result = '';
 
-    let data = $(this).parent().parent().find('.inventory-history').attr('data')
-    let result = '';
+                    result += '<table class="table table-bordered">';
+                    result += '<thead><th>Supplier</th><th>Date</th><th>Prev Stock</th><th>In Stock</th></thead>';
+                    result += '<tbody>';
+                    $.each(response.data, function(i, item) {
+                        result += '<tr>';
+                            result += "<td>" + item.supplier + "</td>"
+                            result += "<td>" + item.date + "</td>"
+                            result += "<td>" + item.prev_in_stock + "</td>"
+                            result += "<td>" + item.in_stock + "</td>"
+                            result += '</tr>';
+                        });
 
+                        result += '</tbody>';
+                         result += '</table>';
+                         $('#inventory-history-modal .modal-body').html(result)
+                        $('#inventory-history-modal').modal('show')
+                },
+                error: function () {
+                }
+            });
+return;
     if (data != '[]') {
         data = JSON.parse(data)
 
