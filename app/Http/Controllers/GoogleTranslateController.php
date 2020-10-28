@@ -30,85 +30,59 @@ class GoogleTranslateController extends Controller
             $product_translation->save();
         }
         foreach($languages as $language) {
-            $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-            if(!$isLocaleAvailable) {
-                $product_translation = new Product_translation();
-                $query = Product_translation::select('title,description,composition,color,size,country_of_manufacture,dimension')
-                ->where('locale',$language);
-                if($product->name){
-                    $query = $query->orWhere('title',$product->name);
+            $isLocaleAvailable = Product_translation::where('locale',$language)
+            ->where('product_id',$product->id)
+            ->where('title','!=','')
+            ->where('description','!=','')
+            ->where('composition','!=','')
+            ->where('color','!=','')
+            ->where('size','!=','')
+            ->where('country_of_manufacture','!=','')
+            ->where('dimension','!=','')
+            ->first();
+            if(!$isLocaleAvailable) { //if product translation not available
+                $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
+                $product_translation = Product_translation::find($product->id);
+                if (empty($product_translation)) { //check if id existing or not
+                    $product_translation= new Product_translation; //if id not existing create new object for insert else update
                 }
-                if($product->short_description){
-                    $query = $query->orWhere('description',$product->short_description);
-                }
-                if($product->composition){
-                    $query = $query->orWhere('composition',$product->composition);
-                }
-                if($product->color){
-                    $query = $query->orWhere('color',$product->color); 
-                }
-                if($product->size){
-                    $query = $query->orWhere('size',$product->size);            
-                }
-                if($product->made_in){
-                    $query = $query->orWhere('country_of_manufacture',$product->made_in);
-                }
-                if($measurement){
-                    $query = $query->orWhere('dimension','like','%'.$measurement.'%');
-                }
-                $translationData = $query->first();
-                if($translationData->title!=null){
-                    $titlefromtable = $translationData;
-                }
-                if($translationData->description!=null){
-                    $descriptionFromTable = $translationData;
-                }
-                if($translationData->composition!=null){
-                    $compositionfromtable = $translationData;
-                }
-                if($translationData->color!=null){
-                    $colorfromtable = $translationData;
-                }
-                if($translationData->size!=null){
-                    $sizefromtable = $translationData;
-                }
-                if($translationData->country_of_manufacture!=null){
-                    $country_of_manufacturefromtable = $translationData;
-                }
-                if($translationData->dimension!=null){
-                    $dimensionfromtable = $translationData;
-                }
-                /* 
-                $titlefromtable = Product_translation::select('title')->where('locale',$language)->where('title',$product->name)->first();
-                $descriptionFromTable = Product_translation::select('description')->where('locale',$language)->where('description',$product->short_description)->first();
-                $compositionfromtable = Product_translation::select('composition')->where('locale',$language)->where('composition',$product->composition)->first();
-                $colorfromtable = Product_translation::select('color')->where('locale',$language)->where('color',$product->color)->first(); 
-                $sizefromtable = Product_translation::select('size')->where('locale',$language)->where('size',$product->size)->first();            
-                $country_of_manufacturefromtable = Product_translation::select('country_of_manufacture')->where('locale',$language)->where('country_of_manufacture',$product->made_in)->first();
-                $dimensionfromtable = Product_translation::select('dimension')->where('locale',$language)->where('dimension','like',"'%.$measurement.%'")->first(); */
-                
+                $checkdata = Product_translation::select('title,description,composition,color,size,country_of_manufacture,dimension')
+                ->where('locale',$language)->where('product_id',$product->id)->first();
                 $googleTranslate = new GoogleTranslate();
                 $productNames = splitTextIntoSentences($product->name);
                 $productShortDescription =  splitTextIntoSentences($product->short_description);
-                $title = $titlefromtable ? $titlefromtable->title : self::translateProducts($googleTranslate, $language, $productNames);
-                $description = $descriptionFromTable ? $descriptionFromTable->description : self::translateProducts($googleTranslate, $language, $productShortDescription);
-                $composition = $compositionfromtable ? $compositionfromtable->composition : self::translateProducts($googleTranslate, $language, $product->composition);
-                $color = $colorfromtable ? $colorfromtable->color : self::translateProducts($googleTranslate, $language, $product->color);
-                $size = $sizefromtable ? $sizefromtable->size : self::translateProducts($googleTranslate, $language, $product->size);
-                $country_of_manufacture = $country_of_manufacturefromtable ? $country_of_manufacturefromtable->country_of_manufacture : self::translateProducts($googleTranslate, $language, $product->made_in);
-                $dimension = $dimensionfromtable ? $dimensionfromtable->dimension : self::translateProducts($googleTranslate, $language, $measurement);
-                if($title && $description) {
+                //check in table is field is empty and then translate
+                if($checkdata->title==''){
+                    $title = self::translateProducts($googleTranslate, $language, $productNames);
                     $product_translation->title = $title;
-                    $product_translation->description = $description;
-                    $product_translation->product_id = $product->id;
-                    $product_translation->locale = $language;
-                    $product_translation->composition = $composition;
-                    $product_translation->color = $color;
-                    $product_translation->size = $size;
-                    $product_translation->country_of_manufacture = $country_of_manufacture;
-                    $product_translation->dimension = $dimension;
-                    $product_translation->save();
                 }
+                if($checkdata->description==''){
+                    $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
+                    $product_translation->description = $description;
+                }
+                if($checkdata->composition==''){
+                    $composition = self::translateProducts($googleTranslate, $language, $product->composition);
+                    $product_translation->composition = $composition;
+                }
+                if($checkdata->color==''){
+                    $color = self::translateProducts($googleTranslate, $language, $product->color);
+                    $product_translation->color = $color;
+                }
+                if($checkdata->size==''){
+                    $size = self::translateProducts($googleTranslate, $language, $product->size);
+                    $product_translation->size = $size;
+                }
+                if($checkdata->country_of_manufacture==''){
+                    $country_of_manufacture = self::translateProducts($googleTranslate, $language, $product->made_in);
+                    $product_translation->country_of_manufacture = $country_of_manufacture;
+                }
+                if($checkdata->dimension==''){
+                    $dimension = self::translateProducts($googleTranslate, $language, $measurement);
+                    $product_translation->dimension = $dimension;
+                }
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = $language;
+                $product_translation->save();
             }
         }
     }
