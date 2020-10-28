@@ -205,6 +205,32 @@ class GraphqlService
                 $translations[] = $titleData;
                 $translations[] = $descData;
             }
+
+
+            //start-DEVTASK-3272
+            $thisProduct = \App\Product::find($productId);
+            if ($thisProduct) {
+                $productCategory = \App\Category::find($thisProduct->category);
+                if ($productCategory) {
+                    $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['product_type']);
+                }
+
+                $translationsData = \App\Translations::where('text_original', $productCategory->title)->get();
+                if (isset($hashProductCategory) && !empty($hashProductCategory)) {
+                    $titleData = [];
+
+                    foreach ($translationsData as $data) {
+                        //one for title
+                        $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
+                        $titleData['key']    = 'product_type';
+                        $titleData['value']  = $data['text'];
+                        $titleData['translatableContentDigest'] = $hashProductCategory;
+
+                        $translations[] = $titleData;
+                    }
+                }
+            }
+            //end-DEVTASK-3272
         }
 
 

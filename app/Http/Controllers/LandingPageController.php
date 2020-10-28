@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Brand;
+use App\Category;
 use App\Helpers\StatusHelper;
 use App\LandingPageProduct;
 use App\LandingPageStatus;
@@ -19,6 +20,7 @@ use Illuminate\Support\Facades\Validator;
 use Plank\Mediable\Media;
 use App\Loggers\LogListMagento;
 use App\ProductPushErrorLog;
+use Google\Cloud\Translate\V3\Translation;
 
 class LandingPageController extends Controller
 {
@@ -266,6 +268,7 @@ class LandingPageController extends Controller
 
     public function pushToShopify(Request $request, $id)
     {
+    
         $landingPage = LandingPageProduct::where("id", $id)->first();
         if (!empty($landingPage) && $landingPage->store_website_id > 0) {
 
@@ -320,12 +323,14 @@ class LandingPageController extends Controller
                 $landingPage->save();
 
                 $selfProduct = Product::find($landingPage->product_id);
-
+                $selfCategory=Category::find($selfProduct->category);
+                
                 if ($selfProduct) {
                     $storeWebsiteUrl = StoreWebsite::find($landingPage->store_website_id);
 
                     if ($storeWebsiteUrl) {
                         GoogleTranslateController::translateProductDetails($selfProduct);
+                        GoogleTranslateController::translateGeneralDetails(['text'=>$selfCategory->title]); //DEVTASK-3272
                         GraphqlService::sendTranslationByGrapql($landingPage->shopify_id, $landingPage->product_id,$storeWebsiteUrl->magento_url, $storeWebsiteUrl->magento_password,$storeWebsiteUrl);
 //                    GraphqlService::testGetDataByCurl($landingPage->shopify_id);//check translations exist
                     }
