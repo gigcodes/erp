@@ -41,15 +41,9 @@
             <select name="url" class="form-control">
                 <option value="">Select Website</option>
                 @foreach($StoreWebsite as $website)
-                <option value="{{$website->website}}" {{ ($website->website == old('uri'))?'selected':''}}>{{$website->website}}</option>
+                <option value="{{$website->website}}" {{ ($website->website == old('url'))?'selected':''}}>{{$website->website}}</option>
                 @endforeach
             </select>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-12 col-md-12">
-        <div class="form-group">
-            <strong>Notification token:</strong>
-            {!! Form::text('token', null, array('placeholder' => 'token','class' => 'form-control')) !!}
         </div>
     </div>
     <div class="col-xs-12 col-sm-12 col-md-12">
@@ -58,7 +52,12 @@
             {!! Form::textarea('body', null, array('placeholder' => 'body','class' => 'form-control')) !!}
         </div>
     </div>
-
+    <div class="col-xs-12 col-sm-12 col-md-12">
+        <div class="form-group">
+            <strong>Sent At:</strong>
+            {!! Form::text('sent_at', null, array('placeholder' => 'time to send notification at','class' => 'form-control', 'id' => 'sent_at_fcm_create')) !!}
+        </div>
+    </div>
     <div class="col-xs-12 col-sm-12 col-md-12 text-center">
         <button type="submit" class="btn btn-secondary">+</button>
     </div>
@@ -67,4 +66,14 @@
 {!! Form::close() !!}
 
 
+@endsection
+@section('scripts')
+<script type="text/javascript">
+    $(function () {
+        $('#sent_at_fcm_create').datetimepicker({
+            format: 'Y-MM-DD HH:mm',
+            stepping: 5
+        });
+    });
+</script>
 @endsection

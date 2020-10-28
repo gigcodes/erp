@@ -55,7 +55,6 @@
                 <th>Notification Title</th>
                 <th>Url</th>
                 <th>Text</th>
-                <th>Token</th>
                 <th>Sent At</th>
                 <th>Sent On</th>
                 <th>Created By</th>

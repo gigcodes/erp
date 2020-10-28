@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\PushFcmNotification;
 use App\StoreWebsite;
 use Auth;
-
+use Carbon\Carbon;
 class FcmNotificationController extends Controller
 {
      /**
@@ -24,7 +24,7 @@ class FcmNotificationController extends Controller
 		}
 		if($request->term){
             $query = $query->where('title', 'LIKE','%'.$request->term.'%')
-                    ->orWhere('token', 'LIKE', '%'.$request->term.'%')
+                    ->orWhere('body', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('url', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('created_by', 'LIKE', '%'.$request->term.'%');
 		}
@@ -65,11 +65,12 @@ class FcmNotificationController extends Controller
         $this->validate($request, [
 			'title' => 'required',
 			'url' => 'required|exists:store_websites,website',
-			'token' => 'required',
+			'sent_at' => 'required',
             'body' => 'required|string',
 		]);
         $StoreWebsiteId = StoreWebsite::where('website',$request->input('url'))->first()->id; 
         $input = $request->all();
+        $input['sent_at'] = $request->sent_at;
         $input['store_website_id'] = $StoreWebsiteId;
         $input['created_by'] = Auth::id();
 		$insert = PushFcmNotification::create($input);
@@ -94,12 +95,12 @@ class FcmNotificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /* public function edit($id)
+     public function edit($id)
     {
         $StoreWebsite = StoreWebsite::select('id','website')->groupBy('website')->get();
-        $ReferralProgram = PushFcmNotification::where('id',$id)->first();
-		return view('referralprogram.edit', compact('StoreWebsite','ReferralProgram'));
-    } */
+        $Notification = PushFcmNotification::where('id',$id)->first();
+		return view('pushfcmnotification.edit', compact('StoreWebsite','Notification'));
+    } 
 
     /**
      * Update the specified resource in storage.
@@ -108,23 +109,22 @@ class FcmNotificationController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /* public function update(Request $request)
+    public function update(Request $request)
     {
         $this->validate($request, [
-			'name' => 'required',
-			'uri' => 'required|exists:store_websites,website',
-			'credit' => 'required|integer',
-            'currency' => 'required|string',
-            'lifetime_minutes'=>'integer',
-        ]);
-        $id = $request->input('id');
-        $StoreWebsiteId = StoreWebsite::where('website',$request->input('uri'))->first()->id; 
-        $input = $request->except('_token');
+			'title' => 'required',
+			'url' => 'required|exists:store_websites,website',
+			'sent_at' => 'required',
+            'body' => 'required|string',
+		]);
+        $StoreWebsiteId = StoreWebsite::where('website',$request->input('url'))->first()->id; 
+        $input = $request->except(['_token']);
         $input['store_website_id'] = $StoreWebsiteId;
-		$insert = PushFcmNotification::where('id',$id)->update($input);
+        $input['created_by'] = Auth::id();
+		$insert = PushFcmNotification::where('id',$request->id)->update($input);
 
 		return redirect()->back()->with('success', 'Notification updated successfully');
-    } */
+    }
 
     /**
      * Remove the specified resource from storage.
