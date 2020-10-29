@@ -208,17 +208,10 @@ class GraphqlService
 
 
             //start-DEVTASK-3272
-            $thisProduct = \App\Product::find($productId);
-            if ($thisProduct) {
-                $productCategory = \App\Category::find($thisProduct->category);
-                if ($productCategory) {
-                    $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['product_type']);
-                }
-
-                $translationsData = \App\Translations::where('text_original', $productCategory->title)->get();
-                if (isset($hashProductCategory) && !empty($hashProductCategory)) {
+                $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['product_type']);
+                $translationsData = \App\Translations::where('text_original', $shopifyProduct['data']['product']['product_type'])->get();
+                if (isset($hashProductCategory) && !empty($hashProductCategory) && $translationsData) {
                     $titleData = [];
-
                     foreach ($translationsData as $data) {
                         //one for title
                         $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
@@ -229,7 +222,6 @@ class GraphqlService
                         $translations[] = $titleData;
                     }
                 }
-            }
             //end-DEVTASK-3272
         }
 
