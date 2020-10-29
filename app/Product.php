@@ -1043,24 +1043,30 @@ class Product extends Model
 
         if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
 
+
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
+        $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         if(isset($filter_data['in_stock'])) {
             if($filter_data['in_stock'] == 1) {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
-                ->where('inventory_status_histories.in_stock',1);
+                $query = $query->where('products.stock',">",0);
+            }else {
+                $query = $query->where('products.stock',"<=",0);
             }
-            else {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
-                                ->where('inventory_status_histories.in_stock',0);
-            }
-        }
-        else {
-            $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         }
         if(isset($filter_data['date'])) {
             $query = $query->where('inventory_status_histories.date',$filter_data['date']);
         }
+
+        if(isset($filter_data['date'])) {
+            $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+        }
+
+        if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
+            $suppliers_list = implode(',', $filter_data['supplier']);
+            $query = $query->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
+        }
+
         // if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
         if(isset($filter_data['term'])) {
             $term = $filter_data['term'];

@@ -215,6 +215,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('productinventory/import', 'ProductInventoryController@import')->name('productinventory.import');
     Route::get('productinventory/list', 'ProductInventoryController@list')->name('productinventory.list');
     Route::get('productinventory/inventory-list', 'ProductInventoryController@inventoryList')->name('productinventory.inventory-list');
+    Route::get('productinventory/inventory-history/{id}', 'ProductInventoryController@inventoryHistory')->name('productinventory.inventory-history');
     Route::resource('productinventory', 'ProductInventoryController');
 
     Route::prefix('product-inventory')->group(function () {
@@ -2223,6 +2224,40 @@ Route::prefix('listing-history')->middleware('auth')->group(function () {
     Route::get('/records', 'ListingHistoryController@records');
 });
 
+Route::prefix( 'google-campaigns')->middleware('auth')->group(function () {
+    Route::get('/', 'GoogleCampaignsController@index')->name('googlecampaigns.index');
+    Route::get('/create', 'GoogleCampaignsController@createPage')->name('googlecampaigns.createPage');
+    Route::post('/create', 'GoogleCampaignsController@createCampaign')->name('googlecampaigns.createCampaign');
+    Route::get('/update/{id}', 'GoogleCampaignsController@updatePage')->name('googlecampaigns.updatePage');
+    Route::post('/update', 'GoogleCampaignsController@updateCampaign')->name('googlecampaigns.updateCampaign');
+    Route::delete('/delete/{id}', 'GoogleCampaignsController@deleteCampaign')->name('googlecampaigns.deleteCampaign');
+    //google adwords account
+    Route::get('/ads-account', 'GoogleAdsAccountController@index')->name('googleadsaccount.index');
+    Route::get('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccountPage')->name('googleadsaccount.createPage');
+    Route::post('/ads-account/create', 'GoogleAdsAccountController@createGoogleAdsAccount')->name('googleadsaccount.createAdsAccount');
+    Route::get('/ads-account/update/{id}', 'GoogleAdsAccountController@editeGoogleAdsAccountPage')->name('googleadsaccount.updatePage');
+    Route::post('/ads-account/update', 'GoogleAdsAccountController@updateGoogleAdsAccount')->name('googleadsaccount.updateAdsAccount');
+    
+    Route::prefix('{id}')->group(function () {
+        Route::prefix('adgroups')->group(function () {
+            Route::get('/', 'GoogleAdGroupController@index')->name('adgroup.index');
+            Route::get('/create', 'GoogleAdGroupController@createPage')->name('adgroup.createPage');
+            Route::post('/create', 'GoogleAdGroupController@createAdGroup')->name('adgroup.createAdGroup');
+            Route::get('/update/{adGroupId}', 'GoogleAdGroupController@updatePage')->name('adgroup.updatePage');
+            Route::post('/update', 'GoogleAdGroupController@updateAdGroup')->name('adgroup.updateAdGroup');
+            Route::delete('/delete/{adGroupId}', 'GoogleAdGroupController@deleteAdGroup')->name('adgroup.deleteAdGroup');
+
+            Route::prefix('{adGroupId}')->group(function () {
+                Route::prefix('ads')->group(function () {
+                    Route::get('/', 'GoogleAdsController@index')->name('ads.index');
+                    Route::get('/create', 'GoogleAdsController@createPage')->name('ads.createPage');
+                    Route::post('/create', 'GoogleAdsController@createAd')->name('ads.craeteAd');
+                    Route::delete('/delete/{adId}', 'GoogleAdsController@deleteAd')->name('ads.deleteAd');
+                });
+            });
+        });
+    });
+});
 
 Route::prefix('digital-marketing')->middleware('auth')->group(function () {
     Route::get('/', 'DigitalMarketingController@index')->name('digital-marketing.index');

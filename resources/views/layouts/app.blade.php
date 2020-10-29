@@ -1211,6 +1211,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         </li>
                                     </ul>
                                 </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
+                                </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
                                     </a>
@@ -2638,6 +2641,16 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
     </script>
+    @if ($message = Session::get('actSuccess'))
+        <script>
+            toastr['success']('<?php echo $message; ?>', 'success');
+        </script>
+    @endif
+    @if ($message = Session::get('actError'))
+        <script>
+            toastr['error']('<?php echo $message; ?>', 'error');
+        </script>
+    @endif
 
 </body>
 

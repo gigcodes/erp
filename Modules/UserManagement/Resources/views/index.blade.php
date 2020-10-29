@@ -206,6 +206,7 @@
 @include("usermanagement::templates.add-time")
 @include("usermanagement::templates.user-avaibility")
 @include("usermanagement::templates.show-task-hours")
+@include("usermanagement::templates.show-user-details")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>

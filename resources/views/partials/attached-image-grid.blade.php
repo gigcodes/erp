@@ -1025,6 +1025,7 @@
                 alert('Please select some images');
                 return;
             }
+
             console.log(product_array);
             var confirm = window.confirm('Are you sure ?');
             if(!confirm) {

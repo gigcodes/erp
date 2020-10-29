@@ -112,6 +112,10 @@ class Category extends Model
                 return 0;
             }
 
+            if ( $parentId == 146 && strtolower( $gender ) == 'kids' ) {
+                return 0;
+            }
+
             // Other
             if ( $parentId > 0 ) {
                 // Store category ID
@@ -132,6 +136,11 @@ class Category extends Model
 
                 // Return correct result for men
                 if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for kids
+                if ( $dbParentResult->parent_id == 146 && strtolower( $gender ) == 'kids' ) {
                     return $categoryId;
                 }
             }
