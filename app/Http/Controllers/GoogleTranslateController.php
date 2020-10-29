@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\GoogleTranslate;
 use App\Language;
 use App\Product_translation;
+use App\Category_translation;
 use App\Translations;
 use Illuminate\Http\Request;
 
@@ -73,5 +74,20 @@ class GoogleTranslateController extends Controller
             return '';
         }
 
+    }
+
+    //DEVTASK-3272
+    public static function translateGeneralDetails($data) 
+    {
+        //$languages = Language::pluck('locale')->where("status",1)->toArray();
+        $languages = Language::where("status",1)->pluck('locale');
+        foreach($languages as $language) {
+            $isLocaleAvailable = Translations::where('to',$language)->where('text_original',$data['text'])->first();
+            if(!$isLocaleAvailable) { //if its not exist then it will go to google translator.
+                $googleTranslate = new GoogleTranslate();
+                $dataNames = splitTextIntoSentences($data['text']);
+                $dataGeneral = self::translateProducts($googleTranslate, $language, $dataNames);
+            }
+        }
     }
 }

@@ -83,7 +83,7 @@ class LandingPageProduct extends Model
                 }
             }
         }
-
+        
         $generalOptions = [
             'barcode'              => (string) ($product) ? $product->id : $this->product_id,
             'fulfillment_service'  => 'manual',
