@@ -239,7 +239,7 @@ class Category extends Model
         if ( $categoryInstance !== NULL ) {
 
             // Load initial category
-            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id];
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
@@ -252,9 +252,9 @@ class Category extends Model
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
-                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
                     }else{
-                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
                     }
                 }else{
                     // Add additional category to tree
