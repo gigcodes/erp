@@ -9,4 +9,10 @@ class StoreWebsiteProductAttribute extends Model
     protected $fillable = [
         'product_id', 'description', 'store_website_id', 'created_at', 'updated_at',
     ];
+
+
+    public function storeWebsite()
+    {
+        return $this->belongsTo(\App\StoreWebsite::class);
+    }
 }

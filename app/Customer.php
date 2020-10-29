@@ -23,6 +23,8 @@ class Customer extends Model
         'user_id',
         'reminder_from',
         'reminder_last_reply',
+        'wedding_anniversery',
+        'dob'
     ];
 
     protected $casts = [

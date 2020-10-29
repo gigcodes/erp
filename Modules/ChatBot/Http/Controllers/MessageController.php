@@ -19,12 +19,10 @@ class MessageController extends Controller
     {
         $search = request("search");
         $status = request("status");
-
         $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
             ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
             ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id")
             ->leftJoin("chatbot_questions as cq", "cq.chat_message_id", "chat_messages.id");
-
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
                 $q->where("cr.question", "like", "%" . $search . "%")
@@ -48,21 +46,20 @@ class MessageController extends Controller
             ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id", 'cq.chat_message_id'])
             ->latest()
             ->paginate(20);
-
+            $allCategory = ChatbotCategory::all();
+            $allCategoryList = [];
+            if (!$allCategory->isEmpty()) {
+                foreach ($allCategory as $all) {
+                    $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
+                }
+            }
         $page = $pendingApprovalMsg->currentPage();
-
         if ($request->ajax()) {
-            $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page'));
+            $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page','allCategoryList'));
             return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
         }
 
-        $allCategory = ChatbotCategory::all();
-        $allCategoryList = [];
-        if (!$allCategory->isEmpty()) {
-            foreach ($allCategory as $all) {
-                $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
-            }
-        }
+        
 //dd($pendingApprovalMsg);
         return view("chatbot::message.index", compact('pendingApprovalMsg', 'page', 'allCategoryList'));
     }

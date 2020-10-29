@@ -15,6 +15,13 @@
         /*.update-product + .select2-container--default{
             width: 60% !important;
         }*/
+        .no-pd {
+            padding:0px;
+        }
+
+        .select-multiple-cat-list + .select2-container {
+            width:100% !important;
+        }
 
         #loading-image {
             position: fixed;
@@ -30,9 +37,7 @@
         .btn-group-actions{
             text-align: right;
         }
-        .select-multiple-cat-list + .select2-container{
-            width: 225px !important;
-        }
+
         .multiselect-supplier + .select2-container{
             width: 198px !important;
         }
@@ -102,10 +107,10 @@
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
                     <input type="hidden" name="return_url" value="{{ request('return_url') }}">
-                    <div class="form-group mr-3 mb-3">
+                    <div class="form-group col-md-2 mr-3 mb-3 no-pd">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="sku,brand,category,status,stage">
+                               placeholder="sku,brand,category,status,stage" style="width:100%;">
                         @if( isset($doSelection) )
                             <input hidden name="doSelection" type="text" value="true">
                             <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
@@ -114,11 +119,11 @@
                             <input hidden name="status" type="text" value="{{ $status ?? '' }}">
                         @endif
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         {!! $category_selection !!}
                     </div>
 
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                         @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
@@ -129,7 +134,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                         <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
@@ -147,10 +152,12 @@
                     </div>
 
 
+                    <div class="col-md-1 no-pd">
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
                     &nbsp;
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+                    </div>
                 </form>
   
             <!-- <div class="row mt-3">
@@ -250,6 +257,10 @@
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}" id="hidden-customer-id">
+
+        <input type="hidden" name="type" value="" id="hidden-type">
+
+
         <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
@@ -742,7 +753,7 @@
                     var image = productCard.data("image");
                     var product = productCard.data("product");
                     if ($input.is(":checked") === true) {
-                        image_array.push(image);
+                        image_array.push(product);
                         image_array = unique(image_array);
                     }
                 }
@@ -756,6 +767,7 @@
                 if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                     $("#hidden-customer-id").val(customer_id);
+                    $("#hidden-type").val('customer-attach');
                     // if(modelType == "customer") {
                     //     $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
                     // }
@@ -1038,7 +1050,7 @@
         });
 
         $(document).on("click", ".delete-message", function (event) {
-            var product_id = $(this).data("id");
+            var product_id = $(this).data("listed_id");
             var customer_id = $(this).data("customer");
             $.ajax({
                 url: '/attached-images-grid/remove-single-product/'+customer_id,
@@ -1072,7 +1084,7 @@
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
-                    var image = productCard.data("image");
+                    var image = productCard.data("product");
                     if ($input.is(":checked") === true) {
                         image_array.push(image);
                         image_array = unique(image_array);

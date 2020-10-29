@@ -197,6 +197,12 @@ class ProductHelper extends Model
             ]);
         }
 
+        if ($request->get('price') != '') {
+            $request->merge([
+                'price' => preg_replace('/[^0-9\.]/', "", $request->get('price')),
+            ]);
+        }
+
         // Return request
         return $request;
     }
@@ -774,7 +780,6 @@ class ProductHelper extends Model
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         $websiteArray = [];
-
        foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
             if(!empty($storeBrands)){

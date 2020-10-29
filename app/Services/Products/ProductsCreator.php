@@ -486,6 +486,10 @@ class ProductsCreator
                     if (in_array(strtoupper($category), ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'])) {
                         $gender = 'WOMEN';
                     }
+
+                    if (in_array(strtoupper($category), ['KIDS'])) {
+                        $gender = 'KIDS';
+                    }
                 }
 
                 // Try to get category ID
