@@ -252,9 +252,9 @@ class Category extends Model
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
-                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
                     }else{
-                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
                     }
                 }else{
                     // Add additional category to tree
