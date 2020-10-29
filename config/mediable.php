@@ -21,6 +21,7 @@ return [
     'allowed_disks' => [
         'uploads',
         'files',
+        'adsapi'
     ],
 
     /*

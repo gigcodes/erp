@@ -25,6 +25,7 @@
         "giggsey/libphonenumber-for-php": "^8.11",
         "google/apiclient": "^2.0",
         "google/cloud-translate": "^1.9",
+        "googleads/googleads-php-lib": "48.0.0",
         "guzzlehttp/guzzle": "^6.3",
         "intervention/image": "^2.5",
         "kosinix/grafika": "^2.0",
@@ -76,9 +77,7 @@
         "filp/whoops": "^2.0",
         "fzaninotto/faker": "^1.4",
         "mockery/mockery": "^1.0",
-        "nunomaduro/collision": "^2.0",
-        "seo2websites/erp-excel-importer": "dev-master",
-        "phpunit/phpunit": "^7.0"
+        "nunomaduro/collision": "^2.0"
     },
     "autoload": {
         "classmap": [
@@ -88,7 +87,7 @@
         "psr-4": {
             "App\\": "app/",
             "Modules\\": "Modules/",
-            "InstagramAPI\\": "vendors/mgp25/instagram-php/src"
+            "InstagramAPI\\": "app/Library/mgp25/instagram-php/src"
         },
         "files": [
             "Modules/BookStack/helpers.php",
