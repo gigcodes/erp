@@ -129,6 +129,10 @@ var page = {
             page.taskTimeModalOpen($(this));
         });
 
+        page.config.bodyView.on("click",".load-userdetail-modal",function(e) {
+            page.userDetailModalOpen($(this));
+        });
+
         $(".common-modal").on("click",".submit-time",function(e) {
             page.saveTime($(this));
         });
@@ -614,6 +618,24 @@ var page = {
             method: "get",
         }
         this.sendAjax(_z, 'avaibilityTaskHourResult');
+    },
+    userDetailModalOpen : function(ele) {
+        var user_id = ele.data("id");
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/user-management/user-details/"+ele.data("id"),
+            method: "get",
+        }
+        this.sendAjax(_z, 'userDetailsResult');
+    },
+    userDetailsResult : function(response) {
+        var taskTimeTemplate = $.templates("#template-userdetails");
+        var tplHtml = taskTimeTemplate.render(response);
+        // console.log(response,"response");
+        // console.log(tplHtml,"tplHtml");
+        // console.log(taskTimeTemplate,"taskTimeTemplate");
+        var common =  $(".common-modal");
+            common.find(".modal-dialog").html(tplHtml); 
+            common.modal("show");
     },
     avaibilityTaskHourResult : function(response) {
         var taskTimeTemplate = $.templates("#template-taskavaibility");

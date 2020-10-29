@@ -55,10 +55,19 @@ class LeadQueueController extends Controller
 
     $lead_id = $request->lead_id;
     $customer_name = $request->customer_name;
+    $message = $request->message;
     //\DB::enableQueryLog();
-    $leadList = ChatMessage::select('lead_id')->distinct('lead_id')->where("is_queue" , 0)->where("lead_id" , '!=' ,'')->where("lead_id" , '!=' ,null)->get();
+    $customerId="";
+     $leadList= ChatMessage::select('lead_id')->distinct('lead_id')->where("is_queue" , 0)->where("lead_id" , '!=' ,'')->where("lead_id" , '!=' ,null)->get();
+     if($request->customer_id) {
+        $explode = explode('/',$request->customer_id);
+        if(count($explode) > 1) {
+            $customerId =  $explode[1];
+        }
+    }
+    
     //dd(\DB::getQueryLog());
-    $messageData = ChatMessage::select('c.name','chat_messages.*')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
+    $messageData = ChatMessage::select('c.name','c.id as cust_id','c.phone','chat_messages.*','chat_messages.id as chatid')->join("customers as c", "c.id", "chat_messages.customer_id")->where("is_queue", "=", 0)
     ->where("lead_id" , '!=' ,NULL)
     ->where("lead_id" , '!=' ,'')
     ->when($lead_id != '', function ($q) use($lead_id) {
@@ -67,6 +76,12 @@ class LeadQueueController extends Controller
     ->when($customer_name != '', function ($q) use($customer_name) {
       return $q->where("c.name",'LIKE', '%' . $customer_name . '%');
     })
+    ->when($customerId != '', function ($q) use($customerId) {
+        return $q->where("c.id", $customerId );
+      })
+      ->when($message != '', function ($q) use($message) {
+        return $q->where("message",'LIKE', '%' . $message . '%');
+      })
     ->groupBy("lead_id")
     ->orderBy("lead_id","desc")
     ->get();
@@ -142,6 +157,7 @@ class LeadQueueController extends Controller
 
     public function deleteRecord(Request $request, $id)
     {
+       
         $message = ChatMessage::find($id);
 
         if (!empty($message)) {
