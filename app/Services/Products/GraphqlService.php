@@ -183,6 +183,7 @@ class GraphqlService
             $shopifyProduct = $shopLocalesData = self::retrieveDataByGrapql('getTitleDesc', ['shopifyProductId' => $shopifyProductId]);
             $hashTitle = hash('sha256', $shopifyProduct['data']['product']['title']);
             $hashDesc  = hash('sha256', $shopifyProduct['data']['product']['description']);
+            $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['productType']);
 
 
             foreach ($productTranslations as $data)
@@ -208,14 +209,14 @@ class GraphqlService
 
 
             //start-DEVTASK-3272
-                $hashProductCategory  = hash('sha256', $shopifyProduct['data']['product']['product_type']);
-                $translationsData = \App\Translations::where('text_original', $shopifyProduct['data']['product']['product_type'])->get();
+                
+                $translationsData = \App\Translations::where('text_original', $shopifyProduct['data']['product']['productType'])->get();
                 if (isset($hashProductCategory) && !empty($hashProductCategory) && $translationsData) {
                     $titleData = [];
                     foreach ($translationsData as $data) {
                         //one for title
                         $titleData['locale'] = array_key_exists($data['to'], $localeDiffs) ? $localeDiffs[$data['to']] : $data['to'];
-                        $titleData['key']    = 'product_type';
+                        $titleData['key']    = 'productType';
                         $titleData['value']  = $data['text'];
                         $titleData['translatableContentDigest'] = $hashProductCategory;
 
@@ -249,6 +250,7 @@ class GraphqlService
                     title
                     description
                     onlineStoreUrl
+                    productType
                   }
                 }
             ';
