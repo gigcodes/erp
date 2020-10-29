@@ -18,9 +18,9 @@
            <table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		      	<th style="width:25%">Task</th>
-				<th style="width:25%">Description</th>
-		      	<th style="width:25%">Approximate time</th>
+		      	<th style="width:19%">Task</th>
+				<th style="width:19%">Description</th>
+		      	<th style="width:45%">Approximate time</th>
 				<th style="width:25%">Action</th> 
 			</tr>
 		    </thead>
@@ -48,22 +48,18 @@
 								<input style="min-width: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
 
 								<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
+							
+									<input style="width: 135px;margin-left: 10px;" type="text" class="form-control input-sm due_date_cls" name="due_date" data-type={{:prop.type}} value="{{:prop.due_date}}"/>
+								
+                            <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{:prop.task_id}}" style="padding:0px;"><img style="padding: 0;margin-left: 5px;" src="/images/filled-sent.png"/></button>
+                            </div>
 							</div>
-						</div>
-                        <div class="d-flex">
-
-                            <div class="form-group" style="padding-top:5px;">
-                                <div class='input-group date due-datetime'>
-									<input type="text" class="form-control input-sm due_date_cls" name="due_date" data-type={{:prop.type}} value="{{:prop.due_date}}"/>
-								</div>
-							</div>
-                            <button class="btn btn-sm btn-image set-due-date" title="Set due date" data-taskid="{{:prop.task_id}}" style="padding:0px;"><img style="padding: 0;margin-top: -14px;" src="/images/filled-sent.png"/></button>
                         </div>
 					  </td>
 					  <td>
-					  	<input type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
+					  	<input style="width: 105px;float: left;" type="text" class="form-control quick-message-field input-sm" name="message" placeholder="Message" value="">
 
-                          <div class="d-flex" style="float:right;">
+                          <!-- <div class="d-flex" style="float:right;"> -->
                           <button style="padding:2px;" class="btn btn-sm btn-image task-send-message-btn" data-type="{{:prop.type}}" data-id="{{:prop.task_id}}"><img src="/images/filled-sent.png"/></button>
                           {{if prop.type == 'TASK'}}
                           <button style="padding:2px;" type="button" class="btn btn-xs btn-image load-communication-modal" data-object="task" data-id="{{:prop.task_id}}" title="Load messages"><img src="/images/chat.png" alt="" style="cursor: nwse-resize;"></button>
@@ -72,7 +68,7 @@
 					  {{/if}}
                         
                                                  
-                    </div>
+                    <!-- </div> -->
 					  	
 					  </td>
 				  </tr>

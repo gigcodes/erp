@@ -563,9 +563,9 @@ class InstagramPostsController extends Controller
     public function getHastagifyApiToken()
     {
         //Update Parameters
-        $clientCredentials = '';
-        $consumerKey = '';
-        $consumerSecret = '';
+        //$clientCredentials = '';
+        $consumerKey = env('HASTAGIFY_CONSUMER_KEY');
+        $consumerSecret = env('HASTAGIFY_CONSUMER_SECRET');
         
         $curl = curl_init();
 
@@ -577,7 +577,7 @@ class InstagramPostsController extends Controller
           CURLOPT_TIMEOUT => 30,
           CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
           CURLOPT_CUSTOMREQUEST => "POST",
-          CURLOPT_POSTFIELDS => "grant_type=".$clientCredentials."&client_id=".$consumerKey."&client_secret=".$consumerSecret,
+          CURLOPT_POSTFIELDS => "grant_type=client_credentials&client_id=".$consumerKey."&client_secret=".$consumerSecret,
           CURLOPT_HTTPHEADER => array(
             "cache-control: no-cache",
             "content-type: application/x-www-form-urlencoded"

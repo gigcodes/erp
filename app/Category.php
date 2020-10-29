@@ -112,6 +112,10 @@ class Category extends Model
                 return 0;
             }
 
+            if ( $parentId == 146 && strtolower( $gender ) == 'kids' ) {
+                return 0;
+            }
+
             // Other
             if ( $parentId > 0 ) {
                 // Store category ID
@@ -132,6 +136,11 @@ class Category extends Model
 
                 // Return correct result for men
                 if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for kids
+                if ( $dbParentResult->parent_id == 146 && strtolower( $gender ) == 'kids' ) {
                     return $categoryId;
                 }
             }
@@ -243,9 +252,9 @@ class Category extends Model
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
-                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
                     }else{
-                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$parentId];
                     }
                 }else{
                     // Add additional category to tree

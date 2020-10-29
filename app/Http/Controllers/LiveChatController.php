@@ -1181,7 +1181,33 @@ if(isset($request->messageId)){
         
     }
 
+    public function createTickets(Request $request) {
+        $data = [];
+        $data['ticket_id'] = "T" . date("YmdHis");
+        $customer = Customer::find($request->ticket_customer_id);
+        $email = null;
+        $name = null;
+        if($customer) {
+            $name = $customer->name;
+            $email = $customer->email;
+        }
+        $data['date'] = date('Y-m-d H:i:s');
+        $data['name'] = $name;
+        $data['email'] = $email;
+        $data['customer_id'] = $request->ticket_customer_id;
+        $data['source_of_ticket'] = $request->source_of_ticket;
+        $data['subject'] = $request->ticket_subject;
+        $data['message'] = $request->ticket_message;
+        $data['assigned_to'] = $request->ticket_assigned_to;
+        $data['status_id'] = $request->ticket_status_id;
+        $success = Tickets::create($data);
+        return response()->json(['ticket created successfully', 'code' => 200, 'status' => 'success']);
+    }
 
+    public function getTicketsData(Request $request) {
+        $tickets = Tickets::where('customer_id',$request->customer_id)->with('ticketStatus')->get();
+        return response()->json(['data' => $tickets, 'status' => 'success']);
+    }
     public function sendEmail(Request $request)
     {
         $this->validate($request, [

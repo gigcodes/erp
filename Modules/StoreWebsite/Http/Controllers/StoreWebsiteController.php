@@ -60,7 +60,6 @@ class StoreWebsiteController extends Controller
     public function save(Request $request)
     {
         $post = $request->all();
-
         $validator = Validator::make($post, [
             'title'   => 'required',
             'website' => 'required',

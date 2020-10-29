@@ -88,9 +88,9 @@ class LogScraper extends Model
         $logScraper->sku = ProductHelper::getSku($request->sku) ?? null;
         $logScraper->original_sku = $request->sku ?? null;
         $logScraper->brand = $request->brand ?? null;
-        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : null;
+        $logScraper->category = isset($request->properties[ 'category' ]) ? serialize($request->properties[ 'category' ]) : "";
         $logScraper->title = $request->title ?? null;
-        $logScraper->description = $request->description ?? null;
+        $logScraper->description = $request->description ?? "";
         $logScraper->properties = isset($request->properties) ? serialize($request->properties) : null;
         $logScraper->images = isset($request->images) ? serialize($request->images) : null;
         $logScraper->size_system = $request->size_system ?? null;

@@ -4,7 +4,7 @@
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 style="margin: 5px 0px;">{{$list->date}}</h5> 
+                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$list->date}}</h5> 
                 <hr style="margin: 5px 0px;">
             </div>
         </div>   
@@ -55,11 +55,10 @@
                         <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$customer_id}}"></label>
                     </div>
-
-                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
+                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$pr->suggested_product_list_id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
                         <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
-                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$product->id}}" data-customer="{{$customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-listed_id="{{$pr->suggested_product_list_id}}" data-id="{{$product->id}}" data-customer="{{$customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
 
                         <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>
