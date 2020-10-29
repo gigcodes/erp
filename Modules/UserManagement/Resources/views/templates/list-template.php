@@ -30,14 +30,12 @@ a {
 		      <tr>
 		      	<th style="width:50px;">ID</th> 
 		      	<th style="width:150px;">User</th> 
-				<th>Rate per hour</th>
-				<th tyle="width:100px">SAL / FIX PX</th>
-				<th>TASKS</th>
+				<th style="width:80px;">TASKS</th>
 				<th style="width:80px">Yesterday hours</th>
-				<th>Last seen</th> 
+				<th style="width:80px;">Last seen</th> 
 				<th style="width:80px">Payment frequency</th> 
 				<th style="width:80px">Payment Due</th>
-				<th>Due date</th> 			
+				<th style="width:80px">Due date</th> 			
 				<th style="width:85px;">Paid on</th>
 				<th style="width:30px;">S</th>
 				<?php if(Auth::user()->isAdmin()) { ?>
@@ -52,23 +50,13 @@ a {
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td>
-					  <!-- <div class="row">
-							<div class="col-md-12">
-								<div class="col-md-12 text-primary">
-								    -->
-										<a style="padding:0" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
-										<!-- <span>{{:prop.email}}</span><br>
-										<span>{{:prop.phone}}</span><br> -->
-
-										
-								<!-- </div> 
-							</div>   
-						</div>    	   -->
-					  </td>
+			      	<td><a style="padding:0" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
+			      		</br>
+			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
+			      		</br>
+			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}
+					</td>
 					 
-			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
-			        <td>{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}</td>
 			        <td>
 						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
 					</td>
