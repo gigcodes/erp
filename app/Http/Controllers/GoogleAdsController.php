@@ -22,11 +22,12 @@ use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\AdsApi\AdWords\v201809\cm\SortOrder;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Illuminate\Http\Request;
+use Exception;
 
 class GoogleAdsController extends Controller
 {
     const PAGE_LIMIT = 500;
-
+    public $exceptionError="Something went wrong";
     // show campaigns in main page
     public function getstoragepath($account_id)
     {
@@ -182,7 +183,7 @@ class GoogleAdsController extends Controller
         $adsArray['path1']=$path1;
         $adsArray['path2']=$path2;
         $adsArray['status']=$adStatus;
-        
+        try{
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -223,6 +224,10 @@ class GoogleAdsController extends Controller
         $adsArray['ads_response']=json_encode($addedAds[0]);
         \App\GoogleAd::create($adsArray);
         return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads created successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
+          }
     }
 
     // go to ad update page
@@ -237,6 +242,7 @@ class GoogleAdsController extends Controller
 
     // delete ad
     public function deleteAd(Request $request, $campaignId, $adGroupId, $adId) {
+        
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -246,6 +252,7 @@ class GoogleAdsController extends Controller
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
+        try{
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
@@ -270,6 +277,10 @@ class GoogleAdsController extends Controller
         // Remove the ad on the server.
         $result = $adGroupAdService->mutate($operations);
         \App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->where('google_ad_id',$adId)->delete();
-        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');;
+        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actError', $this->exceptionError);
+          }
     }
 }
