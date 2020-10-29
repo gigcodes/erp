@@ -1203,6 +1203,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Affiliate<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('affiliates.list')}}">Manual Affiliates</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{route('google.affiliate.keyword')}}">Keywords</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
