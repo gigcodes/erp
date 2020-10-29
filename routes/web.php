@@ -2439,6 +2439,8 @@ Route::prefix('googlefiletranslator')->middleware('auth')->group(static function
     Route::post('/update', 'GoogleFileTranslator@update')->name('googlefiletranslator.update');
 
 });
+
+//Translation
 Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::get('/list', 'TranslationController@index')->name('translation.list');
     Route::DELETE('/delete/{id?}', 'TranslationController@destroy')->name('translation.destroy');
@@ -2446,4 +2448,15 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::get('/{id?}/edit', 'TranslationController@edit')->name('translation.edit');
     Route::post('/store', 'TranslationController@store')->name('translation.store');
     Route::post('/update', 'TranslationController@update')->name('translation.update');
+
+});
+
+//FCM Notifications
+Route::prefix('pushfcmnotification')->middleware('auth')->group(static function () {
+    Route::get('/list', 'FcmNotificationController@index')->name('pushfcmnotification.list');
+    Route::DELETE('/delete/{id?}', 'FcmNotificationController@destroy')->name('pushfcmnotification.destroy');
+    Route::get('/add', 'FcmNotificationController@create')->name('pushfcmnotification.add');
+    Route::get('/{id?}/edit', 'FcmNotificationController@edit')->name('pushfcmnotification.edit');
+    Route::post('/store', 'FcmNotificationController@store')->name('pushfcmnotification.store');
+    Route::post('/update', 'FcmNotificationController@update')->name('pushfcmnotification.update');
 });
