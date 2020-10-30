@@ -51,8 +51,7 @@ class PushToMagento implements ShouldQueue
         }
         if (class_exists('\\seo2websites\\MagentoHelper\\MagentoHelper')) {
             MagentoHelper::callHelperForProductUpload($product,$website);
-        }
-        else {
+        }else {
             ProductPushErrorLog::log('',$product->id, 'Magento helper class not found', 'error',$website->id);
         }
         // Load Magento Soap Helper

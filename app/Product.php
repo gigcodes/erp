@@ -1140,4 +1140,11 @@ class Product extends Model
                             WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $this->sku]);
         return $more_suppliers;
     }
+
+    public function getWebsites()
+    {
+        $websites = ProductHelper::getStoreWebsiteName($this->id,$this);
+        return \App\StoreWebsite::whereIn("id",$websites)->get();
+    }
+
 }

@@ -95,6 +95,7 @@ class CroppedImageReferenceController extends Controller
     public function grid(Request $request)
     {
         $query = CroppedImageReference::query();
+        
         if ($request->category || $request->brand || $request->supplier || $request->crop || $request->status || $request->filter_id) {
 
             if (is_array(request('category'))) {
