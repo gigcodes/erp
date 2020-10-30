@@ -119,8 +119,6 @@ class ProductController extends Controller
 
     public function approvedListing(Request $request)
     {
-
-
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -169,8 +167,9 @@ class ProductController extends Controller
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
-        if ((int)$request->get('status_id') > 0) {
-            $newProducts = $newProducts->where('status_id', (int)$request->get('status_id'));
+        if ($request->get('status_id') != null) {
+            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $newProducts = $newProducts->whereIn('status_id', $statusList);
         } else {
             if ($request->get('submit_for_approval') == "on") {
                 $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
@@ -306,6 +305,18 @@ class ProductController extends Controller
             $join->on("pvu.product_id", "products.id");
             $join->where("pvu.user_id", "!=", auth()->user()->id);
         });
+
+        if($request->without_title != null) {
+           $newProducts = $newProducts->where("products.name","");
+        }
+
+        if($request->without_size != null) {
+           $newProducts = $newProducts->where("products.size","");
+        }
+
+        if($request->without_composition != null) {
+           $newProducts = $newProducts->where("products.composition","");
+        }
 
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
