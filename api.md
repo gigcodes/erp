@@ -635,6 +635,7 @@ Content-Type: application/json
     "website_name":"sololuxury", //optional, string
     "url":"url", //optional, string
     "country":"United States Of America", //optional, string
+    "type" :"influencer"
 }
 ```
 
