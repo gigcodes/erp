@@ -62,6 +62,9 @@
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <div class="form-group mr-pd col-md-2">
+            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
+        </div>
+        <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>
                 <input type='text' class="form-control" name="date" value="{{ request('date','') }}" placeholder="Date" />
                 <span class="input-group-addon">
