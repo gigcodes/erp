@@ -129,6 +129,13 @@ class ProductsCreator
                     // Update the category
                     $product->category = $formattedDetails[ 'category' ];
                 }
+
+                // if product has not entry with manual category
+                if($product->category < 2) {
+                    // Update the category
+                    $product->category = $formattedDetails[ 'category' ];
+                    $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+                }
             }
 
             // Get current sizes
@@ -164,8 +171,15 @@ class ProductsCreator
             $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
             $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
+            // check if the product category is not set
+            if($product->category <= 1) {
+                $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
+            }
+
             $product->save();
             $product->attachImagesToProduct();
+            $image->product_id = $product->id;
+            $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
 
@@ -269,7 +283,7 @@ class ProductsCreator
             return;
         }
         // Changed status to auto crop now
-        $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+        // check that product category is set then send auto crop otherwise send on the missing category status
         $product->sku = str_replace(' ', '', $image->sku);
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;
@@ -290,7 +304,12 @@ class ProductsCreator
         $product->dmeasurement = (int)$formattedDetails[ 'dmeasurement' ];
         $product->measurement_size_type = $formattedDetails[ 'measurement_size_type' ];
         $product->made_in = $formattedDetails[ 'made_in' ];
-        $product->category = $formattedDetails[ 'category' ];
+        $product->category = $formattedDetails[ 'category'];
+        if($product->category > 1) {
+            $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+        }else{
+            $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
+        }
         // start to update the eu size
         if(!empty($product->size)) {
             $sizeExplode = explode(",", $product->size);

@@ -85,15 +85,22 @@ class Product extends Model
         });
 
         static::updating(function ($product) {
-            $oldCatID = $product->category;
-            $newCatID = $product->getOriginal('category');
+            $newCatID = $product->category;
+            $oldCatID = $product->getOriginal('category');
 
-            if($oldCatID != $newCatID) {
+            if($oldCatID != $newCatID && $newCatID > 1) {
                 \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
+                $data = array(
+                    'product_id' => $product->id,
+                    'old_status' => $product->status_id,
+                    'new_status' => StatusHelper::$autoCrop,
+                    'created_at' => date("Y-m-d H:i:s")
+                );
+                \App\ProductStatusHistory::addStatusToProduct($data);
             }
 
-            $old_status_id = $product->status_id;
-            $new_status_id = $product->getOriginal('status_id');
+            $new_status_id = $product->status_id;
+            $old_status_id = $product->getOriginal('status_id');
             if($old_status_id != $new_status_id) {
                 $data = array(
                     'product_id' => $product->id,
@@ -723,13 +730,14 @@ class Product extends Model
                         $countImageUpdated++;
                     }
                 }
-                if ($countImageUpdated != 0) {
+                // here is the StatusHelper::$AI being used so disable that status for not
+                /*if ($countImageUpdated != 0) {
                     //Updating the Product Status
                     $this->status_id = StatusHelper::$AI;
                     $this->save();
                     // Call status update handler
                     StatusHelper::updateStatus($this, StatusHelper::$AI);
-                }
+                }*/
 
             }
         }

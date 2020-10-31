@@ -43,6 +43,7 @@ class StatusHelper extends Model
     public static $attributeRejectCategory = 33;
     public static $submitForApproval = 34;
     public static $requestForExternalScraper = 35;
+    public static $unknownCategory = 36;
 
     public static function getStatus()
     {
@@ -81,7 +82,8 @@ class StatusHelper extends Model
             32 => 'manually rejected google text search',
             33 => 'pending products without category',
             34 => 'Submit For approval',
-            35 => 'Request For external Scraper'
+            35 => 'Request For external Scraper',
+            36 => 'Unknown Category',
         ];
     }
     public static function updateStatus(\App\Product $product, $newStatus = 0)
