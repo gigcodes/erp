@@ -47,7 +47,7 @@
             {!! Form::select('brand_names[]',$brands_names, request("brand_names",[]), ['data-placeholder' => 'Select a Brand','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
         </div>
         <div class="form-group mr-pd col-md-2">
-            {!! Form::select('product_categories[]',$products_categories, request("product_categories",[]), ['data-placeholder' => 'Select a Category','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+            {!! $products_categories !!}
         </div>
         <div class="form-group mr-pd col-md-2">
             {!! Form::select('in_stock',["" => "--All--" , "1" => "In Stock", "2" => "Out Of Stock"], request("in_stock",null), ['data-placeholder' => 'Select a In Stock','class' => 'form-control']) !!}
@@ -60,6 +60,9 @@
             </div> -->
         <div class="form-group mr-pd col-md-1">
             {!! Form::select('product_status[]',$status_list, request("product_status",[]), ['data-placeholder' => 'Select a Status','class' => 'form-control select-multiple2', 'multiple' => true]) !!}
+        </div>
+        <div class="form-group mr-pd col-md-2">
+            {!! Form::checkbox('no_category',"on",request("no_category"), ['class' => 'form-control']) !!} No Category
         </div>
         <div class="form-group mr-pd col-md-2">
             <div class='input-group date' id='filter-date'>

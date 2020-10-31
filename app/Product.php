@@ -1070,6 +1070,10 @@ class Product extends Model
             $query = $query->where('inventory_status_histories.date',$filter_data['date']);
         }
 
+        if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
+            $query = $query->where('products.category',"<=",0);
+        }
+
         if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
             $suppliers_list = implode(',', $filter_data['supplier']);
             $query = $query->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
