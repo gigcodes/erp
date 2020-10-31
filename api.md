@@ -635,6 +635,7 @@ Content-Type: application/json
     "website_name":"sololuxury", //optional, string
     "url":"url", //optional, string
     "country":"United States Of America", //optional, string
+    "type" :"influencer"
 }
 ```
 
@@ -644,7 +645,7 @@ HTTP/1.1 200
 Content-Type: application/json
 {
     "status": "success",
-    "message": "affiliate added successfully !"
+    "message": "influencer added successfully !"
 }
 ```
 
@@ -654,6 +655,6 @@ HTTP/1.1 500
 Content-Type: application/json
 {
     "status": "failed",
-    "message": "unable to add affiliate !"
+    "message": "unable to add influencer !"
 }
 ```

@@ -87,7 +87,7 @@ class AffiliateController extends Controller
         }
         return response()->json([
             'status'  => 'failed',
-            'message' => 'unable to add affilated !',
+            'message' => 'Unable to add '.ucwords($affiliates->type)."!",
         ], 500);
     }
 
