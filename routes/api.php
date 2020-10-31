@@ -179,6 +179,7 @@ Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v
 
 //Affiliate Api
 Route::post('affiliate/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
+Route::post('influencer/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');

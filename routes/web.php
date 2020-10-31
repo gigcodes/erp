@@ -2455,6 +2455,7 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
 Route::prefix('affiliates')->middleware('auth')->group(static function () {
     Route::get('/', 'AffiliateResultController@index')->name('affiliates.list');
     Route::POST('/delete', 'AffiliateResultController@destroy')->name('affiliates.destroy');
+    Route::get('/{id?}/edit', 'AffiliateResultController@edit')->name('affiliates.edit');
 });
 //FCM Notifications
 Route::prefix('pushfcmnotification')->middleware('auth')->group(static function () {
