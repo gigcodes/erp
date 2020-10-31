@@ -18,15 +18,22 @@ class AffiliateResultController extends Controller
 		if($request->id){
 			$query = $query->where('id', $request->id);
 		}
+
+        if($request->type != null) {
+            $query = $query->where('type', $request->type);
+        }
+
+
 		if($request->term){
-            $query = $query->where('first_name', 'LIKE','%'.$request->term.'%')
+            $query = $query->where(function($q) use($request){
+                  $q = $q->orWhere('first_name', 'LIKE','%'.$request->term.'%')
                     ->orWhere('last_name', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('emailaddress', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('phone', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('website_name', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('url', 'LIKE', '%'.$request->term.'%')
                     ->orWhere('title', 'LIKE', '%'.$request->term.'%');
-
+            });
 		}
 
 		$data = $query->orderBy('id', 'asc')->paginate(25)->appends(request()->except(['page']));
@@ -81,7 +88,9 @@ class AffiliateResultController extends Controller
      */
     public function edit($id)
     {
-        //
+        $affiliates = Affiliates::find($id);
+
+        return response()->json(["code" => 200 , "data" => $affiliates]);
     }
 
     /**
