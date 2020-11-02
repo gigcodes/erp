@@ -702,7 +702,6 @@
             </div>
         </div>
 
-
         <div id="product_image_{{ $product->id }}" class="modal fade" role="dialog">
             <div class="modal-dialog modal-lg">
                 <!-- Modal content-->
@@ -713,118 +712,126 @@
                     </div>
                     <div class="modal-body">
                     @php
-                            $product = \App\Product::find($product->id);
-                                $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->first();
-                            @endphp
+                        $anyCropExist = \App\SiteCroppedImages::where('product_id', $product->id)->first();
+                    @endphp
                     <button type="button" value="reject" id="reject-all-cropping{{$product->id}}" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary pull-right reject-all-cropping">
-                    @if($anyCropExist)
-                    Reject All
-                    @else 
-                    All Rejected
-                    @endif
+                        @if($anyCropExist)
+                            Reject All - Re Crop
+                        @else 
+                            All Rejected - Re Crop
+                        @endif
                     </button>
-                        @foreach($store_websites as $index => $site)
                         @php 
-                        $siteCroppedImage = \App\SiteCroppedImages::where('product_id', $product->id)->where('website_id' , $site->id)->first();
+                            $websiteList = $product->getWebsites();
                         @endphp
-                            <div class="product-slider {{$index == 0 ? 'd-block' : 'd-none'}}">
-                            <p style="text-align:center;">{{$site->title}}</p>
-                            <br>
-                           
-                            <div class="row">
-                            <div class="col-md-10">
-                            </div>
-                            <div class="col-md-2">
-                                <div class="d-flex" style="float: right;">
-
-                                        <div class="form-group">
-                                        <button type="button" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-site_id="{{$site->id}}" value="reject" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary reject-product-cropping">
-                                            @if($siteCroppedImage)
-                                            <span>Reject</span>
-                                            @else 
-                                            <span>Rejected</span>
-                                            @endif
-                                            </button>
+                        @if(!empty($websiteList))
+                            @foreach($websiteList as $index => $site)
+                                @php 
+                                    $siteCroppedImage = \App\SiteCroppedImages::where('product_id', $product->id)->where('website_id' , $site->id)->first();
+                                @endphp
+                                <div class="product-slider {{$index == 0 ? 'd-block' : 'd-none'}}">
+                                    <p style="text-align:center;">{{$site->title}}</p>
+                                    <br>
+                                    <div class="row">
+                                        <div class="col-md-10">
+                                        </div>
+                                        <div class="col-md-2">
+                                            <div class="d-flex" style="float: right;">
+                                                <div class="form-group">
+                                                    <button type="button" id="reject-product-cropping{{$site->id}}{{$product->id}}" data-site_id="{{$site->id}}" value="reject" data-product_id="{{$product->id}}" class="btn btn-xs btn-secondary reject-product-cropping">
+                                                        @if($siteCroppedImage)
+                                                            <span>Reject</span>
+                                                        @else 
+                                                            <span>Rejected</span>
+                                                        @endif
+                                                    </button>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                            </div>
-                            </div>
-                            <div class="row">
-                                <div class="col-md-5">
-                                    <?php $gridImage = ''; ?>
-                                    @if ($product->hasMedia(config('constants.media_gallery_tag')))
-                                        @foreach($product->getMedia(config('constants.media_gallery_tag')) as $media)
-                                            @if(strpos($media->filename, 'crop') !== false && $product->tag == 'gallery_'.$site->cropper_color)
-                                                <?php
-                                                $width = 0;
-                                                $height = 0;
-                                                if (file_exists($media->getAbsolutePath())) {
-                                                    list($width, $height) = getimagesize($media->getAbsolutePath());
-                                                    $badge = "notify-red-badge";
-                                                    if ($width == 1000 && $height == 1000) {
-                                                        $badge = "notify-green-badge";
+                                <div class="row">
+                                    <div class="col-md-5">
+                                        <?php 
+                                            $gridImage = '';
+                                            $tag = 'gallery_'.$site->cropper_color;
+                                            $testing = false;
+                                        ?>
+                                        @if ($product->hasMedia($tag))
+                                            @foreach($product->getMedia($tag) as $media)
+                                                @if(strpos($media->filename, 'CROP') !== false || $testing == 1)
+                                                    <?php
+                                                    $width = 0;
+                                                    $height = 0;
+                                                    if (file_exists($media->getAbsolutePath())) {
+                                                        list($width, $height) = getimagesize($media->getAbsolutePath());
+                                                        $badge = "notify-red-badge";
+                                                        if ($width == 1000 && $height == 1000) {
+                                                            $badge = "notify-green-badge";
+                                                        }
+                                                    } else {
+                                                        $badge = "notify-red-badge";
                                                     }
-                                                } else {
-                                                    $badge = "notify-red-badge";
-                                                }
-                                                // Get cropping grid image
-                                                $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
-                                                if ($width == 1000 && $height == 1000) {
-                                                ?>
-                                                <div class="thumbnail-pic">
-                                                    <div class="thumbnail-edit"><a class="delete-thumbail-img"
-                                                                                   data-product-id="{{ $product->id }}"
-                                                                                   data-media-id="{{ $media->id }}"
-                                                                                   data-media-type="gallery"
-                                                                                   href="javascript:;"><i
-                                                                    class="fa fa-trash fa-lg"></i></a></div>
-                                                    <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
-                                                    <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
-                                                         src="{{ $media->getUrl() }}"
-                                                         class="quick-image-container img-responive" alt=""
-                                                         data-toggle="tooltip" data-placement="top"
-                                                         title="ID: {{ $product->id }}"
-                                                         onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}')">
-                                                </div>
-                                                <?php } ?>
-                                            @endif
-                                        @endforeach
-                                    @endif
-                                </div>
-                                <div class="col-md-7" id="col-large-image{{ $product->id }}">
-                                    @if ($product->hasMedia(config('constants.media_gallery_tag')))
-                                        <div onclick="bigImg('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}')"
-                                             style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}'); background-size: 300px"
-                                             id="image{{ $product->id }}">
-                                            <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}"
-                                                 class="quick-image-container img-responive" style="width: 100%;"
-                                                 alt="" data-toggle="tooltip" data-placement="top"
-                                                 title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}">
-                                        </div>
-                                        <button onclick="cropImage('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}')"
-                                                class="btn btn-secondary">Crop Image
-                                        </button>
-                                        <button onclick="crop('{{ $product->getMedia(config('constants.media_gallery_tag'))->first()->getUrl() }}','{{ $product->id }}','{{ $gridImage }}')"
-                                                class="btn btn-secondary">Crop
-                                        </button>
+                                                    // Get cropping grid image
+                                                    $gridImage = \App\Category::getCroppingGridImageByCategoryId($product->category);
+                                                    if ($width == 1000 && $height == 1000 || $testing == 1) {
+                                                    ?>
+                                                    <div class="thumbnail-pic">
+                                                        <div class="thumbnail-edit">
+                                                            <a class="delete-thumbail-img"
+                                                                                        data-product-id="{{ $product->id }}"
+                                                                                        data-media-id="{{ $media->id }}"
+                                                                                        data-media-type="gallery"
+                                                                                        href="javascript:;"><i
+                                                                            class="fa fa-trash fa-lg"></i>
+                                                            </a>
+                                                        </div>
+                                                        <span class="notify-badge {{$badge}}">{{ $width."X".$height}}</span>
+                                                        <img style="display:block; width: 70px; height: 80px; margin-top: 5px;"
+                                                             src="{{ $media->getUrl() }}"
+                                                             class="quick-image-container img-responive" alt=""
+                                                             data-toggle="tooltip" data-placement="top"
+                                                             title="ID: {{ $product->id }}"
+                                                             onclick="replaceThumbnail('{{ $product->id }}','{{ $media->getUrl() }}','{{$gridImage}}','{{ $site->id }}')">
+                                                    </div>
+                                                    <?php } ?>
+                                                @endif
+                                            @endforeach
+                                        @else
+                                            <span>Site has not any cropped images Please click on Recrop</span>
+                                        @endif
+                                    </div>
+                                    <div class="col-md-7" id="col-large-image{{ $product->id }}{{$site->id}}">
+                                        @if ($product->hasMedia($tag))
+                                            @php $siteImage =  $product->getMedia($tag)->first()->getUrl() @endphp
+                                            <div onclick="bigImg('{{ $siteImage }}')"
+                                                 style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('{{ $siteImage }}'); background-size: 300px"
+                                                 id="image{{ $product->id }}{{$site->id}}">
+                                                <img style="width: 300px;" src="{{ asset('images/'.$gridImage) }}"
+                                                     class="quick-image-container img-responive" style="width: 100%;"
+                                                     alt="" data-toggle="tooltip" data-placement="top"
+                                                     title="ID: {{ $product->id }}" id="image-tag{{ $product->id }}{{ $site->id }}">
+                                            </div>
+                                            <button onclick="cropImage('{{ $siteImage }}','{{ $product->id }}','{{ $site->id }}')"
+                                                    class="btn btn-secondary">Crop Image
+                                            </button>
+                                            <button onclick="crop('{{ $siteImage }}','{{ $product->id }}','{{ $gridImage }}','{{ $site->id }}')"
+                                                    class="btn btn-secondary">Crop
+                                            </button>
 
-                                    @endif
+                                        @endif
+                                    </div>
+                                    </div>
                                 </div>
-                                </div>
-                            </div>
-                        @endforeach
+                            @endforeach
+                        @endif
                         <div class="text-center">
-
                             <i style="cursor: pointer;" class="fa fa-arrow-left product-slider-arrow-left"></i>
                             <i style="cursor: pointer;" class="fa fa-arrow-right product-slider-arrow"></i>
                         </div>
-
-
                     </div>
                 </div>
             </div>
         </div>
-
         <div id="product_suppliers_{{ $product->id }}" class="modal fade" role="dialog">
             <div class="modal-dialog modal-lg">
                 <!-- Modal content-->
