@@ -15,7 +15,9 @@ class OrderProduct extends Model
 	    'size',
 	    'color',
       'qty',
-	    'purchase_status',
+		'purchase_status',
+		'supplier_discount_info_id',
+		'inventory_status_id'
     ];
 
     protected $appends = ['communication'];
