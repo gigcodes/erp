@@ -22,11 +22,12 @@ use Google\AdsApi\AdWords\v201809\cm\Selector;
 use Google\AdsApi\AdWords\v201809\cm\SortOrder;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Illuminate\Http\Request;
+use Exception;
 
 class GoogleAdsController extends Controller
 {
     const PAGE_LIMIT = 500;
-
+    public $exceptionError="Something went wrong";
     // show campaigns in main page
     public function getstoragepath($account_id)
     {
@@ -70,7 +71,45 @@ class GoogleAdsController extends Controller
                 'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
 
                 $groupDetail=\App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->first();
-                $adsInfo=\App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->paginate(15);
+                $query=\App\GoogleAd::query();
+
+                if($request->headline){
+                    $query = $query->where(function($q) use($request){
+                        $q->where('headline1', 'LIKE','%'.$request->headline.'%')->orWhere('headline2', 'LIKE', '%'.$request->headline.'%')
+                            ->orWhere('headline3', 'LIKE', '%'.$request->headline.'%');
+                    });
+                }
+
+                if($request->description){
+                    $query =$query->where(function($q) use($request){
+                        $q->where('description1', 'LIKE','%'.$request->description.'%')->orWhere('description2', 'LIKE', '%'.$request->description.'%');
+                    });
+                }
+
+                if($request->path){
+                    $query = $query->where(function($q) use($request){
+                        $q->where('path1', 'LIKE','%'.$request->path.'%')->orWhere('path2', 'LIKE', '%'.$request->path.'%');
+                    });
+                }
+
+                if($request->final_url){
+                    $query = $query->where('final_url','LIKE','%'.$request->final_url.'%');
+                }
+           
+                if($request->ads_status){
+                    $query = $query->where('status', $request->ads_status);
+                }
+                
+                $query->where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId);
+                $adsInfo=$query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+                if ($request->ajax()) {
+                    return response()->json([
+                        'tbody' => view('googleads.partials.list-ads', ['ads' => $adsInfo,'campaignId' => $campaignId,'adGroupId' => $adGroupId])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                        'links' => (string)$adsInfo->render(),
+                        'count' => $adsInfo->total(),
+                    ], 200);
+                }
+
                 $totalEntries=$adsInfo->total();
                 return view('googleads.index',['ads' => $adsInfo, 'totalNumEntries' => $totalEntries,'campaignId' => $campaignId, 'adGroupId' => $adGroupId,'groupname'=>@$groupDetail->ad_group_name]);
 
@@ -182,7 +221,7 @@ class GoogleAdsController extends Controller
         $adsArray['path1']=$path1;
         $adsArray['path2']=$path2;
         $adsArray['status']=$adStatus;
-        
+        try{
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -223,6 +262,10 @@ class GoogleAdsController extends Controller
         $adsArray['ads_response']=json_encode($addedAds[0]);
         \App\GoogleAd::create($adsArray);
         return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads created successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/'.$adGroupId.'/ads/create')->with('actError', $this->exceptionError);
+          }
     }
 
     // go to ad update page
@@ -237,6 +280,7 @@ class GoogleAdsController extends Controller
 
     // delete ad
     public function deleteAd(Request $request, $campaignId, $adGroupId, $adId) {
+        
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -246,6 +290,7 @@ class GoogleAdsController extends Controller
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
+        try{
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adGroupAdService = (new AdWordsServices())->get($session, AdGroupAdService::class);
@@ -270,6 +315,10 @@ class GoogleAdsController extends Controller
         // Remove the ad on the server.
         $result = $adGroupAdService->mutate($operations);
         \App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->where('google_ad_id',$adId)->delete();
-        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');;
+        return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actSuccess', 'Ads deleted successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/' . $adGroupId . '/ads')->with('actError', $this->exceptionError);
+          }
     }
 }

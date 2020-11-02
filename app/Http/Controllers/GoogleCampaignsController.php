@@ -35,11 +35,13 @@ use Google\AdsApi\AdWords\v201809\cm\Operator;
 use Google\AdsApi\AdWords\v201809\cm\TimeUnit;
 use Google\AdsApi\AdWords\v201809\cm\Predicate;
 use Google\AdsApi\AdWords\v201809\cm\PredicateOperator;
-
+use Exception;
 
 class GoogleCampaignsController extends Controller
 {
     // show campaigns in main page
+    public $exceptionError="Something went wrong";
+
     public function getstoragepath($account_id)
     {
         $result = \App\GoogleAdsAccount::find($account_id);
@@ -56,6 +58,7 @@ class GoogleCampaignsController extends Controller
         }
     }
 
+    
     public function index(Request $request)
     {
         if($request->get('account_id')){
@@ -75,8 +78,42 @@ class GoogleCampaignsController extends Controller
             ->withOAuth2Credential($oAuth2Credential)
             ->build(); */
 
+        $query=\App\GoogleAdsCampaign::query();
+        if($request->googlecampaign_id){
+			$query = $query->where('google_campaign_id', $request->googlecampaign_id);
+        }
+        if($request->googlecampaign_name){
+			$query = $query->where('campaign_name','LIKE','%'.$request->googlecampaign_name.'%');
+        }
+
+        if($request->googlecampaign_budget){
+            $query = $query->where('budget_amount','LIKE','%'.$request->googlecampaign_budget.'%');
+        }
+        if($request->start_date){
+            $query = $query->where('start_date','LIKE','%'.$request->start_date.'%');
+        }
+        if($request->end_date){
+            $query = $query->where('end_date','LIKE','%'.$request->end_date.'%');
+        }
+        if($request->budget_uniq_id){
+			$query = $query->where('budget_uniq_id', $request->budget_uniq_id);
+        }
+
+        if($request->campaign_status){
+			$query = $query->where('status', $request->campaign_status);
+        }
         
-        $campInfo=\App\GoogleAdsCampaign::where('account_id',$account_id)->paginate(15);
+        
+        $query->where('account_id',$account_id);
+        $campInfo=$query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googlecampaigns.partials.list-adscampaign', ['campaigns' => $campInfo])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$campInfo->render(),
+                'count' => $campInfo->total(),
+            ], 200);
+        }
+
         $totalEntries=$campInfo->count();
         return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries]);
         /*$adWordsServices = new AdWordsServices();
@@ -174,7 +211,14 @@ class GoogleCampaignsController extends Controller
 			'start_date' => 'required',
 			'end_date' => 'required',
 			'campaignStatus' => 'required',
-		]); */
+        ]); */
+        $this->validate($request, [
+            'campaignName' => 'required|max:55',
+            'budgetAmount' => 'required|max:55',
+            'start_date' => 'required|max:15',
+            'end_date' => 'required|max:15',
+        ]);
+        try{
         $campaignArray = array();
         $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $budgetAmount = $request->budgetAmount * 1000000;
@@ -193,7 +237,7 @@ class GoogleCampaignsController extends Controller
         $campaignArray['end_date'] = $campaign_end_date;
         $campaignArray['status'] = $campaignStatus;
 
-
+        
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($storagepath)
             ->build();
@@ -307,10 +351,15 @@ class GoogleCampaignsController extends Controller
         /* return redirect()->route('googlecampaigns.index'); */
         return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
     }
+    catch(Exception $e) {
+        return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $this->exceptionError);
+      }
+    }
 
     // go to update page
     public function updatePage(Request $request, $campaignId)
     {
+        
         /* $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile(storage_path('adsapi_php.ini'))
             ->build();
@@ -356,9 +405,17 @@ class GoogleCampaignsController extends Controller
     // save campaign's changes
     public function updateCampaign(Request $request)
     {
+        $this->validate($request, [
+            'campaignName' => 'required|max:55',
+            'budgetAmount' => 'required|max:55',
+            'start_date' => 'required|max:15',
+            'end_date' => 'required|max:15',
+        ]);
+        
         $campaignDetail=\App\GoogleAdsCampaign::where('google_campaign_id',
         $request->campaignId)->first();
         $account_id=$campaignDetail->account_id;
+        try{
         $storagepath = $this->getstoragepath($account_id);
         $campaignStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
         $campaignId = $request->campaignId;
@@ -378,7 +435,7 @@ class GoogleCampaignsController extends Controller
         $campaignArray['end_date'] = $campaign_end_date;
         $campaignArray['status'] = $campaignStatus;
 
-
+        
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($storagepath)
             ->build();
@@ -427,12 +484,18 @@ class GoogleCampaignsController extends Controller
         $campaignArray['campaign_response'] = json_encode($addedCampaign);
         \App\GoogleAdsCampaign::whereId($campaignDetail->id)->update($campaignArray);  
         //return redirect()->route('googlecampaigns.index');
-        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');;
+        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
+        }
+        catch(Exception $e) {
+            return redirect()->to('google-campaigns/update/'.$request->campaignId.'?account_id='.$account_id)->with('actError', $this->exceptionError);
+          }
+        
     }
 
     // delete campaign
     public function deleteCampaign(Request $request, $campaignId)
     {
+        try{
         $account_id=$request->delete_account_id;
         $storagepath = $this->getstoragepath($account_id);
         // Generate a refreshable OAuth2 credential for authentication.
@@ -463,6 +526,10 @@ class GoogleCampaignsController extends Controller
         //delete from database
         \App\GoogleAdsCampaign::where('account_id',$account_id)->where('google_campaign_id',$campaignId)->delete();
         /* return redirect()->route('googlecampaigns.index'); */
-        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');;
+        return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign deleted successfully');
+        }
+        catch(Exception $e) {
+            return redirect()->to('google-campaigns?account_id='.$account_id)->with('actError', $this->exceptionError);
+          }
     }
 }

@@ -11,12 +11,18 @@
             <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name">
+                @if ($errors->has('adGroupName'))
+                <span class="text-danger">{{$errors->first('adGroupName')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="bid-amount" class="col-sm-2 col-form-label">Bid ($)</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="bid-amount" name="microAmount" placeholder="Bid ($)">
+                @if ($errors->has('microAmount'))
+                <span class="text-danger">{{$errors->first('microAmount')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">

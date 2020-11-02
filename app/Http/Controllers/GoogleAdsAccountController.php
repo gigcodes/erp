@@ -10,7 +10,7 @@ use stdClass;
 class GoogleAdsAccountController extends Controller
 {
     // show campaigns in main page
-    public function index()
+    public function index(Request $request)
     {
         /* $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile(storage_path('adsapi_php.ini'))
@@ -24,9 +24,26 @@ class GoogleAdsAccountController extends Controller
         $adWordsServices = new AdWordsServices();
 
         $campInfo = $this->getCampaigns($adWordsServices, $session); */
-        $googleadsaccount = \App\GoogleAdsAccount::orderby('id','desc')->paginate(15);
+        $query=\App\GoogleAdsAccount::query();
+        if($request->website){
+			$query = $query->where('store_websites', $request->website);
+		}
+		if($request->accountname){
+			$query = $query->where('account_name', 'LIKE','%'.$request->accountname.'%');
+		}
+
+        $googleadsaccount = $query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+		if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googleadsaccounts.partials.list-adsaccount', compact('googleadsaccount'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$googleadsaccount->render(),
+                'count' => $googleadsaccount->total(),
+            ], 200);
+        }
+
+        $store_website=\App\StoreWebsite::all();
         $totalentries = $googleadsaccount->count();
-        return view('googleadsaccounts.index', ['googleadsaccount' => $googleadsaccount, 'totalentries' => $totalentries]);
+        return view('googleadsaccounts.index', ['googleadsaccount' => $googleadsaccount, 'totalentries' => $totalentries,'store_website'=>$store_website]);
     }
     
     public function createGoogleAdsAccountPage()

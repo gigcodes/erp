@@ -12,12 +12,18 @@
             <label for="ad-group-name" class="col-sm-2 col-form-label">Ad group name</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="ad-group-name" name="adGroupName" placeholder="Ad group name" value="{{$adGroup['ad_group_name']}}">
+                @if ($errors->has('adGroupName'))
+                <span class="text-danger">{{$errors->first('adGroupName')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="cpc-bid-micro-amount" class="col-sm-2 col-form-label">Bid ($)</label>
             <div class="col-sm-10">
-                <input type="number" class="form-control" id="cpc-bid-micro-amount" name="cpcBidMicroAmount" placeholder="Bid ($)" value="{{$adGroup['bid']}}">
+                <input type="text" class="form-control" id="cpc-bid-micro-amount" name="cpcBidMicroAmount" placeholder="Bid ($)" value="{{$adGroup['bid']}}">
+                @if ($errors->has('cpcBidMicroAmount'))
+                <span class="text-danger">{{$errors->first('cpcBidMicroAmount')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">

@@ -26,12 +26,12 @@ use Google\AdsApi\AdWords\v201809\cm\Money;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
 use Google\AdsApi\AdWords\v201809\cm\TargetingSetting;
 use Google\AdsApi\AdWords\v201809\cm\TargetingSettingDetail;
-
+use Exception;
 class GoogleAdGroupController extends Controller
 {
     const PAGE_LIMIT = 500;
     const CPC_BID_MICRO_AMOUNT = null;
-
+    public $exceptionError="Something went wrong";
     // show campaigns in main page
     public function getstoragepath($account_id)
     {
@@ -74,7 +74,36 @@ class GoogleAdGroupController extends Controller
         $acDetail=$this->getAccountDetail($campaignId);
         $campaign_account_id=$acDetail['account_id'];
         $campaign_name=$acDetail['campaign_name'];
-        $adGroups = \App\GoogleAdsGroup::where('adgroup_google_campaign_id',$campaignId)->paginate(15);
+
+        $query=\App\GoogleAdsGroup::query();
+
+        if($request->googlegroup_name){
+			$query = $query->where('ad_group_name','LIKE','%'.$request->googlegroup_name.'%');
+        }
+
+        if($request->bid){
+            $query = $query->where('bid','LIKE','%'.$request->bid.'%');
+        }
+        
+        if($request->googlegroup_id){
+			$query = $query->where('google_adgroup_id', $request->googlegroup_id);
+        }
+   
+        if($request->adsgroup_status){
+			$query = $query->where('status', $request->adsgroup_status);
+        }
+
+        $query->where('adgroup_google_campaign_id',$campaignId);
+        $adGroups = $query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googleadgroups.partials.list-adsgroup', ['adGroups' => $adGroups,'campaignId' => $campaignId])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$adGroups->render(),
+                'count' => $adGroups->total(),
+            ], 200);
+        }
+
         $totalEntries=$adGroups->total();
         return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId,'campaign_name'=>$campaign_name,'campaign_account_id'=>$campaign_account_id]);
     }
@@ -133,6 +162,13 @@ class GoogleAdGroupController extends Controller
 
     // create ad group
     public function createAdGroup(Request $request, $campaignId) {
+
+        try{
+        $this->validate($request, [
+            'adGroupName' => 'required|max:55',
+            'microAmount' => 'required',
+        ]);
+
         $adGroupStatusArr = ['UNKNOWN', 'ENABLED', 'PAUSED', 'REMOVED'];
 //        $criterionTypeGroups = ['KEYWORD', 'USER_INTEREST_AND_LIST', 'VERTICAL', 'GENDER', 'AGE_RANGE', 'PLACEMENT', 'PARENT', 'INCOME_RANGE', 'NONE', 'UNKNOWN'];
 //        $adRotationModes = ['UNKNOWN', 'OPTIMIZE', 'ROTATE_FOREVER'];
@@ -149,7 +185,7 @@ class GoogleAdGroupController extends Controller
         $addgroupArray['status']=$adGroupStatus;
 //        $criterionTypeGroup = $criterionTypeGroups[$request->criterionTypeGroup];
 //        $adRotationMode = $adRotationModes[$request->adRotationMode];
-
+    
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
@@ -189,10 +225,15 @@ class GoogleAdGroupController extends Controller
         $addgroupArray['adgroup_response']=json_encode($addedGroup[0]);
         \App\GoogleAdsGroup::create($addgroupArray);
         return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup added successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups/create')->with('actError', $this->exceptionError);
+          }
     }
 
     // go to update page
     public function updatePage(Request $request, $campaignId, $adGroupId) {
+        
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -234,6 +275,12 @@ class GoogleAdGroupController extends Controller
 
     // update ad group
     public function updateAdGroup(Request $request, $campaignId) {
+
+        $this->validate($request, [
+            'adGroupName' => 'required|max:55',
+            'cpcBidMicroAmount' => 'required',
+        ]);
+        try {
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -247,7 +294,7 @@ class GoogleAdGroupController extends Controller
         $addgroupArray['ad_group_name']=$adGroupName;
         $addgroupArray['bid']=$request->cpcBidMicroAmount;
         $addgroupArray['status']=$adGroupStatus;
-
+        
         $oAuth2Credential = (new OAuth2TokenBuilder())->fromFile($storagepath)->build();
 
         // Construct an API session configured from a properties file and the
@@ -283,11 +330,17 @@ class GoogleAdGroupController extends Controller
         // Update the ad group on the server.
         $result = $adGroupService->mutate($operations);
         $adGroupUpdate=\App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->where('adgroup_google_campaign_id',$campaignId)->update($addgroupArray);
-        return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup added successfully');
+        return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup updated successfully');
+    }
+    catch(Exception $e) {
+        return redirect('google-campaigns/' . $campaignId . '/adgroups/update/'.$request->adGroupId)->with('actError', $this->exceptionError);
+      }
+      
     }
 
     // delete ad group
     public function deleteAdGroup(Request $request, $campaignId, $adGroupId) {
+        
         $acDetail=$this->getAccountDetail($campaignId);
         $account_id=$acDetail['account_id'];
         $storagepath=$this->getstoragepath($account_id);
@@ -296,6 +349,7 @@ class GoogleAdGroupController extends Controller
 
         // Construct an API session configured from a properties file and the
         // OAuth2 credentials above.
+        try {
         $session = (new AdWordsSessionBuilder())->fromFile($storagepath)->withOAuth2Credential($oAuth2Credential)->build();
 
         $adWordsServices = new AdWordsServices();
@@ -320,5 +374,10 @@ class GoogleAdGroupController extends Controller
         $adGroup = $result->getValue()[0];
         \App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->where('adgroup_google_campaign_id',$campaignId)->delete();
         return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actSuccess', 'Adsgroup deleted successfully');
+        }
+        catch(Exception $e) {
+            return redirect('google-campaigns/' . $campaignId . '/adgroups')->with('actError', $this->exceptionError);
+          }
+
     }
 }

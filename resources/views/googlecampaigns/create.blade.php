@@ -12,24 +12,36 @@
             <label for="campaign-name" class="col-sm-2 col-form-label">Campaign name</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="campaign-name" name="campaignName" placeholder="Campaign name">
+                @if ($errors->has('campaignName'))
+                <span class="text-danger">{{$errors->first('campaignName')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="budget-amount" class="col-sm-2 col-form-label">Budget amount ($)</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="budget-amount" name="budgetAmount" placeholder="Budget amount ($)">
+                @if ($errors->has('budgetAmount'))
+                <span class="text-danger">{{$errors->first('budgetAmount')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="start-date" class="col-sm-2 col-form-label">Start Date</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="start-date" name="start_date" placeholder="Start Date E.g {{date('Ymd', strtotime('+1 day'))}}">
+                @if ($errors->has('start_date'))
+                <span class="text-danger">{{$errors->first('start_date')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
             <label for="start-date" class="col-sm-2 col-form-label">End Date</label>
             <div class="col-sm-10">
                 <input type="text" class="form-control" id="end-date" name="end_date" placeholder="End Date E.g {{date('Ymd', strtotime('+1 month'))}}">
+                @if ($errors->has('end_date'))
+                <span class="text-danger">{{$errors->first('end_date')}}</span>
+                @endif
             </div>
         </div>
         <div class="form-group row">
