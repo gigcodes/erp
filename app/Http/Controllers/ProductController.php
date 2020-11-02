@@ -2647,27 +2647,46 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
+
+            //Get the last image of the product.
+            $allMediaIds = [];
+            $pMedia = $product->getMedia(config('constants.media_original_tag'));
+            if(!$pMedia->isEmpty()) {
+                foreach($pMedia as $m) {
+                    $allMediaIds[] = $m->id;
+                }
+            }
+
+            $productMediacount = count($allMediaIds);
+
             $media = MediaUploader::fromSource($image)
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
+            $colorName =  null;    
             if ($request->get('color')) {
                 $colorCode = str_replace(['(', ')'], '', $request->get('color'));
                 $rgbarr = explode(",", $colorCode, 3);
                 $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $colorName = $hex;
                 $tag = 'gallery_' . $hex;
-                $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
-                if ($store_websites !== null) {
 
-                    $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                        ->where('product_id', $product->id)->exists();
-                    if (!$exist) {
-                        SiteCroppedImages::create([
-                            'website_id' => $store_websites->id,
-                            'product_id' => $product->id
-                        ]);
+                // check the store website count is existed with the total image
+                $storeWebCount = $product->getMedia($tag)->count();
+                if($productMediacount <= $storeWebCount) {
+                    $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                    if ($store_websites !== null) {
+                        $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                            ->where('product_id', $product->id)->exists();
+                        if (!$exist) {
+                            SiteCroppedImages::create([
+                                'website_id' => $store_websites->id,
+                                'product_id' => $product->id
+                            ]);
+                        }
                     }
                 }
+
             } else {
                 $tag = config('constants.media_gallery_tag');
             }
@@ -2683,17 +2702,15 @@ class ProductController extends Controller
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
             $imageReference->speed = $request->get('time');
             $imageReference->product_id = $product->id;
+            $imageReference->color = $colorName;
             $imageReference->save();
 
 
-            //Get the last image of the product.
-            $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
+            
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereDate('created_at', Carbon::today())->count();
-
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->where('original_media_id', $allMediaIds)->count();
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
             try {
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
@@ -2704,7 +2721,7 @@ class ProductController extends Controller
                 $multi = 1;
             }
 
-            $cropCount = ($cropCount * $multi);
+            $productMediacount = ($productMediacount * $multi);
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
