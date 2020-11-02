@@ -45,7 +45,7 @@ class ProductsCreator
 
         // Get formatted data
         $formattedPrices = $this->formatPrices($image);
-        $formattedDetails = $this->getGeneralDetails($image->properties);
+        $formattedDetails = $this->getGeneralDetails($image->properties,$image);
 
         // Set data.sku for validation
         $data[ 'sku' ] = ProductHelper::getSku($image->sku);
@@ -438,7 +438,7 @@ class ProductsCreator
         ];
     }
 
-    public function getGeneralDetails($properties_array)
+    public function getGeneralDetails($properties_array,$scrapedProduct = null)
     {
         if (array_key_exists('material_used', $properties_array)) {
             $composition = (is_array($properties_array[ 'material_used' ])) ? implode(" ",$properties_array[ 'material_used' ]) : (string)$properties_array[ 'material_used' ];
@@ -488,6 +488,10 @@ class ProductsCreator
         }
 
         // Get category
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
         if (array_key_exists('category', $properties_array)) {
             // Check if category is an array
             if (is_array($properties_array[ 'category' ])) {
@@ -497,17 +501,40 @@ class ProductsCreator
                 // Loop over categories to find gender
                 foreach ($properties_array[ 'category' ] as $category) {
                     // Check for gender man
-                    if (in_array(strtoupper($category), ['MAN', 'MEN', 'UOMO', 'MALE'])) {
+                    if (in_array(strtoupper($category), $liForMen)) {
                         $gender = 'MEN';
                     }
 
                     // Check for gender woman
-                    if (in_array(strtoupper($category), ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'])) {
+                    if (in_array(strtoupper($category), $liForWoMen)) {
                         $gender = 'WOMEN';
                     }
 
-                    if (in_array(strtoupper($category), ['KIDS'])) {
+                    // check for kids
+                    if (in_array(strtoupper($category), $liForKids)) {
                         $gender = 'KIDS';
+                    }
+                }
+
+                // check if gender is still null then try to looks from url if we found there 
+                if($scrapedProduct && !empty($scrapedProduct->url) && is_null($gender)) {
+                    // check for men
+                    foreach($liForMen  as $lim) {
+                        if(strpos($lim, $scrapedProduct->url) !== false) {
+                            $gender = "MEN";
+                        }
+                    }
+                    // check for women
+                    foreach($liForWoMen  as $liw) {
+                        if(strpos($liw, $scrapedProduct->url) !== false) {
+                            $gender = "WOMEN";
+                        }
+                    }
+                    // check for kids
+                    foreach($liForKids  as $lik) {
+                        if(strpos($lik, $scrapedProduct->url) !== false) {
+                            $gender = "KIDS";
+                        }
                     }
                 }
 
