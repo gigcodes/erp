@@ -71,7 +71,45 @@ class GoogleAdsController extends Controller
                 'campaignId' => $campaignId, 'adGroupId' => $adGroupId]); */
 
                 $groupDetail=\App\GoogleAdsGroup::where('google_adgroup_id',$adGroupId)->first();
-                $adsInfo=\App\GoogleAd::where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId)->paginate(15);
+                $query=\App\GoogleAd::query();
+
+                if($request->headline){
+                    $query = $query->where(function($q) use($request){
+                        $q->where('headline1', 'LIKE','%'.$request->headline.'%')->orWhere('headline2', 'LIKE', '%'.$request->headline.'%')
+                            ->orWhere('headline3', 'LIKE', '%'.$request->headline.'%');
+                    });
+                }
+
+                if($request->description){
+                    $query =$query->where(function($q) use($request){
+                        $q->where('description1', 'LIKE','%'.$request->description.'%')->orWhere('description2', 'LIKE', '%'.$request->description.'%');
+                    });
+                }
+
+                if($request->path){
+                    $query = $query->where(function($q) use($request){
+                        $q->where('path1', 'LIKE','%'.$request->path.'%')->orWhere('path2', 'LIKE', '%'.$request->path.'%');
+                    });
+                }
+
+                if($request->final_url){
+                    $query = $query->where('final_url','LIKE','%'.$request->final_url.'%');
+                }
+           
+                if($request->ads_status){
+                    $query = $query->where('status', $request->ads_status);
+                }
+                
+                $query->where('adgroup_google_campaign_id',$campaignId)->where('google_adgroup_id',$adGroupId);
+                $adsInfo=$query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+                if ($request->ajax()) {
+                    return response()->json([
+                        'tbody' => view('googleads.partials.list-ads', ['ads' => $adsInfo,'campaignId' => $campaignId,'adGroupId' => $adGroupId])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                        'links' => (string)$adsInfo->render(),
+                        'count' => $adsInfo->total(),
+                    ], 200);
+                }
+
                 $totalEntries=$adsInfo->total();
                 return view('googleads.index',['ads' => $adsInfo, 'totalNumEntries' => $totalEntries,'campaignId' => $campaignId, 'adGroupId' => $adGroupId,'groupname'=>@$groupDetail->ad_group_name]);
 

@@ -74,7 +74,36 @@ class GoogleAdGroupController extends Controller
         $acDetail=$this->getAccountDetail($campaignId);
         $campaign_account_id=$acDetail['account_id'];
         $campaign_name=$acDetail['campaign_name'];
-        $adGroups = \App\GoogleAdsGroup::where('adgroup_google_campaign_id',$campaignId)->paginate(15);
+
+        $query=\App\GoogleAdsGroup::query();
+
+        if($request->googlegroup_name){
+			$query = $query->where('ad_group_name','LIKE','%'.$request->googlegroup_name.'%');
+        }
+
+        if($request->bid){
+            $query = $query->where('bid','LIKE','%'.$request->bid.'%');
+        }
+        
+        if($request->googlegroup_id){
+			$query = $query->where('google_adgroup_id', $request->googlegroup_id);
+        }
+   
+        if($request->adsgroup_status){
+			$query = $query->where('status', $request->adsgroup_status);
+        }
+
+        $query->where('adgroup_google_campaign_id',$campaignId);
+        $adGroups = $query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googleadgroups.partials.list-adsgroup', ['adGroups' => $adGroups,'campaignId' => $campaignId])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$adGroups->render(),
+                'count' => $adGroups->total(),
+            ], 200);
+        }
+
         $totalEntries=$adGroups->total();
         return view('googleadgroups.index', ['adGroups' => $adGroups, 'totalNumEntries' => $totalEntries, 'campaignId' => $campaignId,'campaign_name'=>$campaign_name,'campaign_account_id'=>$campaign_account_id]);
     }

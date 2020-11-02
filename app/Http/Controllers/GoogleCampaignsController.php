@@ -78,8 +78,42 @@ class GoogleCampaignsController extends Controller
             ->withOAuth2Credential($oAuth2Credential)
             ->build(); */
 
+        $query=\App\GoogleAdsCampaign::query();
+        if($request->googlecampaign_id){
+			$query = $query->where('google_campaign_id', $request->googlecampaign_id);
+        }
+        if($request->googlecampaign_name){
+			$query = $query->where('campaign_name','LIKE','%'.$request->googlecampaign_name.'%');
+        }
+
+        if($request->googlecampaign_budget){
+            $query = $query->where('budget_amount','LIKE','%'.$request->googlecampaign_budget.'%');
+        }
+        if($request->start_date){
+            $query = $query->where('start_date','LIKE','%'.$request->start_date.'%');
+        }
+        if($request->end_date){
+            $query = $query->where('end_date','LIKE','%'.$request->end_date.'%');
+        }
+        if($request->budget_uniq_id){
+			$query = $query->where('budget_uniq_id', $request->budget_uniq_id);
+        }
+
+        if($request->campaign_status){
+			$query = $query->where('status', $request->campaign_status);
+        }
         
-        $campInfo=\App\GoogleAdsCampaign::where('account_id',$account_id)->paginate(15);
+        
+        $query->where('account_id',$account_id);
+        $campInfo=$query->orderby('id','desc')->paginate(25)->appends(request()->except(['page']));
+        if ($request->ajax()) {
+            return response()->json([
+                'tbody' => view('googlecampaigns.partials.list-adscampaign', ['campaigns' => $campInfo])->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$campInfo->render(),
+                'count' => $campInfo->total(),
+            ], 200);
+        }
+
         $totalEntries=$campInfo->count();
         return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries]);
         /*$adWordsServices = new AdWordsServices();
