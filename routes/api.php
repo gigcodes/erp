@@ -159,9 +159,9 @@ Route::get('customer/order-details','OrderController@customerOrderDetails');
 //refer a friend api
 Route::post('friend/referral/create','\App\Http\Controllers\Api\v1\ReferaFriend@store');
 Route::post('price_comparision/details','PriceComparisionController@sendDetails');
-
+//Ticket api
 Route::post('ticket/create','\App\Http\Controllers\Api\v1\TicketController@store');
-
+Route::post('ticket/send','\App\Http\Controllers\Api\v1\TicketController@sendTicketsToCustomers');
 
 Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');
 Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost');
@@ -170,7 +170,19 @@ Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@get
 Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
 Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
 
+Route::post('facebook/post/status','\App\Http\Controllers\FacebookPostController@setPostStatus');
+Route::post('facebook/account','\App\Http\Controllers\FacebookPostController@getPost');
+
+//gift cards api
+Route::post('giftcards/add','\App\Http\Controllers\Api\v1\GiftCardController@store');
+Route::get('giftcards/check-giftcard-coupon-amount','\App\Http\Controllers\Api\v1\GiftCardController@checkGiftcardCouponAmount');
+
+//Affiliate Api
+Route::post('affiliate/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
+Route::post('influencer/add','\App\Http\Controllers\Api\v1\AffiliateController@store');
 //buyback cards api
 Route::get('orders/products','\App\Http\Controllers\Api\v1\BuyBackController@checkProductsForBuyback');
 Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBackController@store');
 
+//Push Notification Api
+Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificationController@create');

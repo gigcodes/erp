@@ -106,9 +106,13 @@
 					<form class="form-inline" action="{{ route('lead-queue.approve') }}" method="GET">
 						<div class="row">
 							<div class="col">
-								<div class="form-group">
+								<!-- <div class="form-group">
 									<label for="from">Customer Name:</label>
 									<?php echo Form::text("customer_name", request("customer_name"), ["class" => "form-control", "placeholder" => "Enter Customer Name"]) ?>
+								</div> -->
+								<div class="form-group">
+									<label for="from">Message:</label>
+									<?php echo Form::text("message", request("message"), ["class" => "form-control", "placeholder" => "Enter message"]) ?>
 								</div>
 								<div class="form-group">
 									<label for="action">Lead Group:</label>
@@ -122,6 +126,16 @@
 									endforeach;
 									@endphp
 									{{ Form::select('lead_id',$listOfValues,(($lead_id)?$lead_id:null),['class' => 'form-control']) }}
+								</div>
+								<div class="form-group">
+								<label for="action">Customer:</label>
+								<select name="customer_id" type="text" class="form-control" placeholder="Search" id="customer-search" data-allow-clear="true">
+                            <?php 
+                                if (request()->get('customer_id')) {
+                                    echo '<option value="'.request()->get('customer_id').'" selected>'.request()->get('customer_id').'</option>';
+                                }
+                            ?>
+                        </select>
 								</div>
 								<div class="form-group">
 									<label for="button">&nbsp;</label>
@@ -151,21 +165,23 @@
 				<th width="5%"><input type="checkbox" id="sel-multiplelead-checkbox">
 				<button class="btn btn-xs btn-primary submit-multileads-approval" title="approve selected leads group"><i class="fa fa-check-circle" aria-hidden="true"></i></button>
 				</th>
-				<!-- <th width="5%">Id</th> -->
+				<th width="5%">Customer Id</th>
 				<th width="10%">Customer Name</th>
+				<th width="10%">Phone</th>
 				<th width="10%">Lead Group</th>
 				<th width="10%">Message</th>
-				<th width="45%">Media</th>
+				<th width="25%">Media</th>
 				<th width="10%">Created At</th>
-				<th width="10%">Action</th>
+				<th width="30%">Action</th>
 			</tr>
 		</thead>
 		<tbody>
 			@foreach($messageData as $data)
 			<tr>
 				<td><input class="approve-sel-checkbox" type="checkbox" value="{{$data->lead_id}}"></td>
-				<!-- <td>{{$data->id}}</td> -->
+				<td>{{$data->cust_id}}</td>
 				<td>{{$data->name}}</td>
+				<td>{{$data->phone}}</td>
 				<td>{{$data->lead_id}}</td>
 				<td>{{$data->message}}</td>
 				<td>
@@ -174,7 +190,11 @@
 					@endforeach
 				</td>
 				<td>{{$data->created_at}}</td>
-				<td><input type="button" id="approve-lead-group" data-lead-id="{{$data->lead_id}}" value="approve" onsubmit="return false" /></td>
+				<td style="width:300px"><input type="button" id="approve-lead-group" data-lead-id="{{$data->lead_id}}" value="approve" onsubmit="return false" />
+				<button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-leads mr-3" data-id="{{$data->chatid}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+				<button title="Send Images" type="button" class="btn btn-image send-message no-pd" data-id="{{$data->cust_id}}"><img src="../images/filled-sent.png" /></button>
+
+				</td>
 			</tr>
 			@endforeach
 		</tbody>
@@ -185,6 +205,29 @@
 
 @section('scripts')
 <script>
+  $(document).on("click", ".remove-leads", function (event) {
+	event.preventDefault();
+	var $this = $(this);
+	var lead_id = $(this).data("id");
+            $.ajax({
+                url: '/lead-queue/records/'+lead_id+'/delete',
+                type: 'get',
+                dataType: 'json',
+                // data: {
+                //     _token: "{{ csrf_token() }}",
+                //     products: JSON.stringify(product_array)
+                // },
+                // beforeSend: function () {  
+                //     $("#loading-image").show();
+                // },
+                success: function(result){
+					if (result.code == 200) {
+				toastr["success"](result.message);
+				$this.closest("tr").remove();
+			}
+             }
+         });
+        });
 	$(document).on('click', '#approve-lead-group', function(e) {
 		e.preventDefault();
 		var lead_id = $(this).data('lead-id');
@@ -263,6 +306,52 @@
 		})
 
 	});
+	$('#customer-search').select2({
+            tags: true,
+            width : '100%',
+            ajax: {
+                url: '/erp-leads/customer-search',
+                dataType: 'json',
+                delay: 750,
+                data: function (params) {
+                    return {
+                        q: params.term, // search term
+                    };
+                },
+                processResults: function (data, params) {
+                    for (var i in data) {
+                        if(data[i].name) {
+                            var combo = data[i].name+'/'+data[i].id;
+                        }
+                        else {
+                            var combo = data[i].text;
+                        }
+                        data[i].id = combo;
+                    }
+                    params.page = params.page || 1;
+                    return {
+                        results: data,
+                        pagination: {
+                            more: (params.page * 30) < data.total_count
+                        }
+                    };
+                },
+            },
+            placeholder: 'Search for Customer by id, Name, No',
+            escapeMarkup: function (markup) {
+                return markup;
+            },
+            minimumInputLength: 1,
+            templateResult: function (customer) {
+                if (customer.loading) {
+                    return customer.name;
+                }
+                if (customer.name) {
+                    return "<p> " + (customer.name ? " <b>Name:</b> " + customer.name : "") + (customer.phone ? " <b>Phone:</b> " + customer.phone : "") + "</p>";
+                }
+            },
+            templateSelection: (customer) => customer.text || customer.name,
+        });
 	
 </script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>

@@ -513,7 +513,9 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerpayment:cron Weekly")->weekly();
         $schedule->command("assetsmanagerpayment:cron Yearly")->yearly();
         $schedule->command("assetsmanagerpayment:cron Monthly")->monthly();
-        $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');;
+        $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');
+        //cron for fcm push notifications
+        $schedule->command("fcm:send")->everyFiveMinutes();
     }
 
     /**

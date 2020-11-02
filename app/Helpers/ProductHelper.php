@@ -12,6 +12,7 @@ use App\Product;
 use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
+use App\Helpers\ProductHelper;
 
 
         
@@ -194,6 +195,12 @@ class ProductHelper extends Model
             // Replace images with corrected URLs
             $request->merge([
                 'images' => $arrImages,
+            ]);
+        }
+
+        if ($request->get('price') != '') {
+            $request->merge([
+                'price' => preg_replace('/[^0-9\.]/', "", $request->get('price')),
             ]);
         }
 
@@ -764,9 +771,9 @@ class ProductHelper extends Model
         return [];
     }
 
-    public static function getStoreWebsiteName($id)
+    public static function getStoreWebsiteName($id,$product = null)
     {
-        $product = Product::find($id);
+        $product = ($product) ? $product : Product::find($id);
 
         $brand = $product->brand;
 
@@ -774,8 +781,7 @@ class ProductHelper extends Model
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         $websiteArray = [];
-
-       foreach ($storeCategories as $storeCategory) {
+        foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
             if(!empty($storeBrands)){
                 foreach ($storeBrands as $storeBrand) {

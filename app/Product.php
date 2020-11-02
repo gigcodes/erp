@@ -85,20 +85,28 @@ class Product extends Model
         });
 
         static::updating(function ($product) {
-            $oldCatID = $product->category;
-            $newCatID = $product->getOriginal('category');
+            $newCatID = $product->category;
+            $oldCatID = $product->getOriginal('category');
 
-            if($oldCatID != $newCatID) {
+            if($oldCatID != $newCatID && $newCatID > 1) {
                 \DB::table("products")->where("id", $product->id)->update(["status_id" => StatusHelper::$autoCrop]);
+                $data = array(
+                    'product_id' => $product->id,
+                    'old_status' => $product->status_id,
+                    'new_status' => StatusHelper::$autoCrop,
+                    'created_at' => date("Y-m-d H:i:s")
+                );
+                \App\ProductStatusHistory::addStatusToProduct($data);
             }
 
-            $old_status_id = $product->status_id;
-            $new_status_id = $product->getOriginal('status_id');
+            $new_status_id = $product->status_id;
+            $old_status_id = $product->getOriginal('status_id');
             if($old_status_id != $new_status_id) {
                 $data = array(
                     'product_id' => $product->id,
                     'old_status' => $old_status_id,
-                    'new_status' => $new_status_id
+                    'new_status' => $new_status_id,
+                    'created_at' => date("Y-m-d H:i:s")
                 );
                 \App\ProductStatusHistory::addStatusToProduct($data);
             }
@@ -722,13 +730,14 @@ class Product extends Model
                         $countImageUpdated++;
                     }
                 }
-                if ($countImageUpdated != 0) {
+                // here is the StatusHelper::$AI being used so disable that status for not
+                /*if ($countImageUpdated != 0) {
                     //Updating the Product Status
                     $this->status_id = StatusHelper::$AI;
                     $this->save();
                     // Call status update handler
                     StatusHelper::updateStatus($this, StatusHelper::$AI);
-                }
+                }*/
 
             }
         }
@@ -1042,24 +1051,34 @@ class Product extends Model
 
         if(isset($filter_data['product_status']))      $query = $query->whereIn('products.status_id',$filter_data['product_status']);
 
+
         if(isset($filter_data['brand_names']))        $query = $query->whereIn('brand',$filter_data['brand_names']);
         if(isset($filter_data['product_categories'])) $query = $query->whereIn('category',$filter_data['product_categories']);
+        $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         if(isset($filter_data['in_stock'])) {
             if($filter_data['in_stock'] == 1) {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
-                ->where('inventory_status_histories.in_stock',1);
+                $query = $query->where('products.stock',">",0);
+            }else {
+                $query = $query->where('products.stock',"<=",0);
             }
-            else {
-                $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id')
-                                ->where('inventory_status_histories.in_stock',0);
-            }
-        }
-        else {
-            $query = $query->leftJoin('inventory_status_histories','inventory_status_histories.product_id','products.id');
         }
         if(isset($filter_data['date'])) {
             $query = $query->where('inventory_status_histories.date',$filter_data['date']);
         }
+
+        if(isset($filter_data['date'])) {
+            $query = $query->where('inventory_status_histories.date',$filter_data['date']);
+        }
+
+        if(isset($filter_data['no_category']) && $filter_data['no_category'] == "on") {
+            $query = $query->where('products.category',"<=",0);
+        }
+
+        if (isset($filter_data['supplier']) && is_array($filter_data['supplier']) && $filter_data['supplier'][0] != null) {
+            $suppliers_list = implode(',', $filter_data['supplier']);
+            $query = $query->whereRaw(\DB::raw("products.id IN (SELECT product_id FROM product_suppliers WHERE supplier_id IN ($suppliers_list))"));
+        }
+
         // if(isset($filter_data['date']))               $query = $query->where('products.created_at', 'like', '%'.$filter_data['date'].'%');
         if(isset($filter_data['term'])) {
             $term = $filter_data['term'];
@@ -1123,4 +1142,21 @@ class Product extends Model
     {
          return Product::where('sku',$sku)->first();
     }
+
+
+    public function more_suppliers() {
+        $more_suppliers = DB::select('SELECT sp.url as link,s.supplier as name
+                            FROM `scraped_products` sp
+                            JOIN scrapers sc on sc.scraper_name=sp.website
+                            JOIN suppliers s ON s.id=sc.supplier_id
+                            WHERE last_inventory_at > DATE_SUB(NOW(), INTERVAL sc.inventory_lifetime DAY) and sp.sku = :sku', ['sku' => $this->sku]);
+        return $more_suppliers;
+    }
+
+    public function getWebsites()
+    {
+        $websites = ProductHelper::getStoreWebsiteName($this->id,$this);
+        return \App\StoreWebsite::whereIn("id",$websites)->get();
+    }
+
 }

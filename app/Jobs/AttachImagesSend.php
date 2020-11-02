@@ -22,6 +22,7 @@ class AttachImagesSend implements ShouldQueue
     protected $message;
     protected $customer_id;
     protected $status;
+    protected $type;
 
     /**
      * Create a new job instance.
@@ -40,6 +41,7 @@ class AttachImagesSend implements ShouldQueue
         $this->message         = $data['message'];
         $this->customer_id     = $data['customer_id'];
         $this->status          = $data['status'];
+        $this->type          = $data['type'];
     }
 
     /**
@@ -63,9 +65,9 @@ class AttachImagesSend implements ShouldQueue
             'screenshot_path' => $this->screenshot_path,
             'message'         => $this->message,
             'customer_id'     => $this->customer_id,
-            'status'          => $this->status
+            'status'          => $this->status,
+            'type'          => $this->type
         ]);
-
         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
 
 

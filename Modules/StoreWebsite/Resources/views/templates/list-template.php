@@ -10,7 +10,10 @@
 		        <th width="5%">Facebook</th>
 		        <th width="5%">Instagram</th>
 		        <th width="3%">Published</th>
-		        <th width="5%">Created At</th>
+				<th width="3%">FCM Key</th>
+				<th width="3%">FCM Id</th>
+				<th width="3%">Icon</th>
+				<th width="5%">Created At</th>
 		        <th width="10%">Action</th>
 		      </tr>
 		    </thead>
@@ -34,7 +37,10 @@
 			        	<br>
 			        	<i class="fa fa-comment show-instagram-remarks" data-id="{{>prop.id}}" data-value="{{:prop.instagram_remarks}}"></i>
 			        </td>
-			        <td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
+					<td>{{if prop.is_published == 1}}Yes{{else}}No{{/if}}</td>
+					<td>{{if prop.push_web_key !=null}} {{:prop.push_web_key.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td>{{if prop.push_web_id !=null}} {{:prop.push_web_id.substring(0, 10)+'..'}} {{else}} {{/if}} </td>
+					<td>{{if prop.icon !=null}} {{:prop.icon}} {{else}} {{/if}} </td>
 			        <td>{{:prop.created_at}}</td>
 			        <td>
 			        	<button type="button" data-id="{{>prop.id}}" class="btn btn-edit-template">
