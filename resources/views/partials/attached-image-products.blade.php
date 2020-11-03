@@ -1,4 +1,4 @@
-<div class="customer-count customer-list-{{$customer_id}} customer-{{$customer_id}}" style="padding: 0px 10px;">   
+<div class="customer-count customer-list-{{$suggested_products_id}} customer-{{$suggested_products_id}}" style="padding: 0px 10px;">   
         @foreach($productsLists as $list)
         @if(count($list->products) > 0)
         <div class="row">
