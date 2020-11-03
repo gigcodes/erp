@@ -560,6 +560,11 @@ class Product extends Model
         return $this->hasOne('App\Brand', 'id', 'brand');
     }
 
+    public function categories()
+    {
+        return $this->hasOne('App\Category', 'id', 'category');
+    }
+
     public function references()
     {
         return $this->hasMany('App\ProductReference');

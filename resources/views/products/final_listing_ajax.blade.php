@@ -6,18 +6,18 @@
                     <thead>
                     <tr>
                         <th style="width:2%"><input type="checkbox" id="main_checkbox" name="choose_all"></th>
-                        <th style="width:10%">Product ID</th>
+                        <th style="width:8%">Product ID</th>
                         <th style="width:4%">Image</th>
                         <th style="width:7%">Brand</th>
-                        <th style="width:8%">Category</th>
+                        <th style="width:20%">Category</th>
                         <th style="width:8%">Title</th>
-                        <th style="width:9%"> Description</th>
+                        <th style="width:9%">Description</th>
                         <th style="width:8%">Composition</th>
                         <th style="width:8%">Color</th>
                         <th style="width:8%">Dimension</th>
                         <th style="width:7%">Sizes</th>
                         <th style="width:5%">Price</th>
-                        <th style="width:6%">Action</th>
+                        <th style="width:8%">Action</th>
                         <th style="width:5%">Status</th>
                         <th style="width:5%">User</th>
                     </tr>
@@ -200,11 +200,11 @@
                                     </button>
                                     @endif
                                 <div>
-                                @if($product->supplier_link)
-                                    <a target="_new" href="{{ $product->supplier_link }}">{{ $product->sku }}</a>
-                                @else 
-                                {{ $product->sku }}
-                                @endif
+                                    @if($product->supplier_link)
+                                        <a target="_new" title="{{ $product->sku }}" href="{{ $product->supplier_link }}">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
+                                    @else 
+                                        <a title="{{ $product->sku }}" href="javascript:;">{{ substr($product->sku, 0, 5) . (strlen($product->sku) > 5 ? '...' : '') }}</a>
+                                    @endif
                                 </div>
                             </td>
 
@@ -216,7 +216,11 @@
                             </td>
 
                             <td>
-                                {{ $product->brands ? $product->brands->name : 'N/A' }}
+                                @if($product->brands)
+                                    <a title="{{ $product->brands->name }}" href="javascript:;">{{ substr($product->brands->name, 0, 5) . (strlen($product->brands->name) > 5 ? '...' : '') }}</a>
+                                @else
+                                    N/A
+                                @endif
                             </td>
 
                             <td class="table-hover-cell">
@@ -261,43 +265,50 @@
 
 
                                 @endif
+                                <?php
+                                    $cat = [];
+                                    $catM = $product->categories;
+                                    if($catM) {
+                                        $parentM = $catM->parent;
+                                        $cat[]   = $catM->title;
+                                        if($parentM) {
+                                            $gparentM = $parentM->parent;
+                                            $cat[]    = $parentM->title;
+                                            if($gparentM) {
+                                                $cat[] = $gparentM->title;
+                                            }
+                                        }
+                                    }
+                                ?>
                             </td>
 
-                            <td class="table-hover-cell quick-edit-name" data-id="{{ $product->id }}">
+                            <td class="table-hover-cell quick-edit-name quick-edit-name-{{ $product->id }}" data-id="{{ $product->id }}">
                                 @if (!$imageCropperRole)
                                     <span class="quick-name">{{ $product->name }}</span>
-                                    {{-- <input type="text" name="name" class="form-control quick-edit-name-input hidden" placeholder="Product Name" value="{{ $product->name }}"> --}}
-                                    <input name="text" class="form-control quick-edit-name-input hidden"
-                                           placeholder="Product Name" value="{{ $product->name }}">
                                 @else
-
                                     <span>{{ $product->name }}</span>
-
                                 @endif
                             </td>
 
 
-                            <td class="table-hover-cell quick-edit-description" data-id="{{ $product->id }}">
-
-                                @if (!$imageCropperRole)
-
-                                    <span class="quick-description">{{ $product->short_description}}</span>
-                                    <textarea name="description" id="textarea_description_{{ $product->id }}"
-                                              class="form-control quick-edit-description-textarea hidden" rows="8"
-                                              cols="80">{{ $product->short_description }}</textarea>
-                                @else
-
-                                    <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
-                                    <span class="long-description-container hidden">
-                                        <span class="description-container">{{ $product->short_description }}</span>
-                                    </span>
-
-                                @endif
-                                <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
-                                        data-toggle="modal"><i class="fa fa-info-circle"></i></button>
-
+                            <td class="table-hover-cell">
+                                <div class="quick-edit-description quick-edit-description-{{ $product->id }}" data-id="{{ $product->id }}">
+                                    @if (!$imageCropperRole)
+                                        <span class="quick-description">{{ $product->short_description}}</span>
+                                    @else
+                                        <span class="short-description-container">{{ substr($product->short_description, 0, 100) . (strlen($product->short_description) > 100 ? '...' : '') }}</span>
+                                        <span class="long-description-container hidden">
+                                            <span class="description-container">{{ $product->short_description }}</span>
+                                        </span>
+                                    @endif
+                                </div>
+                                <div>
+                                    <button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-description" title="Edit description for specific Website" data-id="{{ $product->id }}" data-target="#description_modal_view_{{ $product->id }}"
+                                        data-toggle="modal">
+                                        <i class="fa fa-info-circle"></i>
+                                    </button>
+                                 </div>
                             </td>
-
                             <td class="table-hover-cell" data-id="{{ $product->id }}">
                                 @if (!$imageCropperRole)
                                     @php
