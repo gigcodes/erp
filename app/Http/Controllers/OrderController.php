@@ -71,6 +71,8 @@ use App\StoreWebsiteOrder;
 use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\OrderStatusHistory;
 use App\waybillTrackHistories;
+use App\CreditHistory;
+
 class OrderController extends Controller {
 
 
@@ -670,7 +672,7 @@ class OrderController extends Controller {
 		}
 		$order = Order::create( $data );
 
-		if($request->hdn_order_mail_status == "1")
+		/* if($request->hdn_order_mail_status == "1")
 		{
 			$id_order_inc = $order->id;
 			$order_new = Order::find($id_order_inc);
@@ -699,25 +701,38 @@ class OrderController extends Controller {
                     }
 				}
 			}
-		}
-
-		if ($customer->credit > 0) {
+		} */
+		$customer_credit=$request->customer_credit?$request->customer_credit:0;
+		if ($customer_credit > 0) {
 			$balance_amount = $order->balance_amount;
 
-			if (($order->balance_amount - $customer->credit) < 0) {
-				$left_credit = ($order->balance_amount - $customer->credit) * -1;
+			if (($order->balance_amount - $customer_credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer_credit) * -1;
 				$order->advance_detail += $order->balance_amount;
 				$balance_amount = 0;
 				$customer->credit = $left_credit;
 			} else {
-				$balance_amount -= $customer->credit;
-				$order->advance_detail += $customer->credit;
+				$balance_amount -= $customer_credit;
+				$order->advance_detail += $customer_credit;
 			}
-
 			$order->balance_amount = $balance_amount;
 			$order->order_id = $oPrefix."-".$order->id;
 			$order->save();
 			$customer->save();
+				
+			if($order->id){
+				CreditHistory::create(
+					array(
+					'customer_id'=>$request->customer_id,
+					'model_id'=>$order->id,
+					'model_type'=>Order::class,
+					'used_credit'=>$customer_credit,
+					'used_in'=>'ORDER',
+					'type'=>'MINUS'
+					)
+					);
+			}
+
 		}
 
 		$expiresAt = Carbon::now()->addMinutes(10);
