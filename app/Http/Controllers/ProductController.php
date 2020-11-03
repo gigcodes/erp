@@ -2267,6 +2267,7 @@ class ProductController extends Controller
                 $suggestedProducts->size = $size;
                 $suggestedProducts->total = $perPageLimit;
                 $suggestedProducts->save();
+                $suggestedProductId=$suggestedProducts->id;
                 $data_to_insert = [];
                 foreach($product_ids as $id){
                     $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
@@ -2274,6 +2275,7 @@ class ProductController extends Controller
                         $pr = Product::find($id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
+                                'suggested_products_id'=>$suggestedProductId,
                                 'customer_id' => $customerId,
                                 'product_id' => $id,
                                 'date' => date('Y-m-d')
@@ -4041,9 +4043,12 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        //$suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('id')->paginate($perPageLimit);
+        
         foreach($suggestedProducts as $suggestion) {
-            $last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
+            //$last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
+            $last_attached = \App\SuggestedProductList::where('suggested_products_id',$suggestion->id)->orderBy('date','desc')->first();
             if($last_attached) {
                 $suggestion->last_attached = $last_attached->date;
             }
@@ -4181,11 +4186,13 @@ class ProductController extends Controller
         return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
     }
     
-    public function attachMoreProducts($customerId)
+    public function attachMoreProducts($suggested_products_id)
     {
-       
-        $lastSuggestion = \App\SuggestedProduct::where('customer_id',$customerId)->orderBy('created_at','desc')->first();
+        
+        /* $lastSuggestion = \App\SuggestedProduct::where('customer_id',$customerId)->orderBy('created_at','desc')->first(); */
 
+        $lastSuggestion = \App\SuggestedProduct::where('id',$suggested_products_id)->orderBy('created_at','desc')->first();
+        $customerId=$lastSuggestion->customer_id; 
         $brands = [];
         $categories = [];
         $term = '';
@@ -4201,7 +4208,9 @@ class ProductController extends Controller
             $limit = $lastSuggestion->total;
         }
 
-        $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id');
+        /* $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id'); */
+
+        $remove_ids = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->pluck('product_id as id');
 
         $products = (new Product())->newQuery()->latest();
 
@@ -4276,11 +4285,12 @@ class ProductController extends Controller
             if(count($products) > 0) {
                 $data_to_insert = [];
                 foreach($products as $product){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->where('date',date('Y-m-d'))->first();
+                    $exists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customerId)->where('product_id',$product->id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($product->id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                         $data_to_insert[] = [
+                            'suggested_products_id'=>$suggested_products_id,
                             'customer_id' => $customerId,
                             'product_id' => $product->id,
                             'date' => date('Y-m-d')
@@ -4409,7 +4419,7 @@ class ProductController extends Controller
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
     }
-    public function removeProducts($customer_id, Request $request) {
+    public function removeProducts($suggested_products_id, Request $request) {
             $products = json_decode($request->products,true);
             foreach($products as $product_list_id) {
                 $suggested = \App\SuggestedProductList::find($product_list_id);
@@ -4423,9 +4433,9 @@ class ProductController extends Controller
                     }
                 }
             }
-            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+            $remains = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->count();
                 if(!$remains) {
-                    \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+                    \App\SuggestedProduct::where('id',$suggested_products_id)->delete();
                 }
             return response()->json(['code' => 200, 'message' => 'Successfull']);
     }
@@ -4553,10 +4563,12 @@ class ProductController extends Controller
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
-    public function getCustomerProducts($type,$customer_id, Request $request) {
+    public function getCustomerProducts($type,$suggested_products_id, Request $request) {
         $term = null;
+        //$suggested_products_id=3;
+        $customer_id=5;
         if($type == 'attach') {
-            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('remove_attachment',0)
+            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
@@ -4568,12 +4580,14 @@ class ProductController extends Controller
             if($type == 'attach') {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('suggested_product_lists.suggested_products_id',$suggested_products_id)
             ->where('remove_attachment',0)
             ->where('suggested_product_lists.date', $suggestion->date);
             }
             else {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('suggested_product_lists.suggested_products_id',$suggested_products_id)
             ->where('chat_message_id','!=',NULL)
             ->where('suggested_product_lists.date', $suggestion->date);
             }
@@ -4643,10 +4657,10 @@ class ProductController extends Controller
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
-            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type'));
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
         }
         else {
-            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type'));
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
         }
     }
 
