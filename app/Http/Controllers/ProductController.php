@@ -4580,10 +4580,9 @@ class ProductController extends Controller
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
-    public function getCustomerProducts($type,$suggested_products_id, Request $request) {
+    public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
         //$suggested_products_id=3;
-        $customer_id=5;
         if($type == 'attach') {
             $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
