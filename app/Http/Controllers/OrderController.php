@@ -702,18 +702,17 @@ class OrderController extends Controller {
 				}
 			}
 		} */
-		$customer_credit=$request->customer_credit?$request->customer_credit:0;
-		if ($customer_credit > 0) {
+		if ($customer->credit > 0) {
 			$balance_amount = $order->balance_amount;
 
-			if (($order->balance_amount - $customer_credit) < 0) {
-				$left_credit = ($order->balance_amount - $customer_credit) * -1;
+			if (($order->balance_amount - $customer->credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer->credit) * -1;
 				$order->advance_detail += $order->balance_amount;
 				$balance_amount = 0;
 				$customer->credit = $left_credit;
 			} else {
-				$balance_amount -= $customer_credit;
-				$order->advance_detail += $customer_credit;
+				$balance_amount -= $customer->credit;
+				$order->advance_detail += $customer->credit;
 			}
 			$order->balance_amount = $balance_amount;
 			$order->order_id = $oPrefix."-".$order->id;
@@ -726,7 +725,7 @@ class OrderController extends Controller {
 					'customer_id'=>$request->customer_id,
 					'model_id'=>$order->id,
 					'model_type'=>Order::class,
-					'used_credit'=>$customer_credit,
+					'used_credit'=>$customer->credit,
 					'used_in'=>'ORDER',
 					'type'=>'MINUS'
 					)
@@ -1041,6 +1040,19 @@ class OrderController extends Controller {
 				$order->balance_amount = $balance_amount;
 				$order->save();
 				$customer->save();
+
+				if($order->id){
+					CreditHistory::create(
+						array(
+						'customer_id'=>$request->customer_id,
+						'model_id'=>$order->id,
+						'model_type'=>Order::class,
+						'used_credit'=>$customer->credit,
+						'used_in'=>'ORDER',
+						'type'=>'MINUS'
+						)
+						);
+				}
 			}
 		}
 

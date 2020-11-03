@@ -461,7 +461,11 @@
 
     //DEVTASK-3291
         $("#customer_id").on('change',function(){
-                alert($(this).val());
+             var selectedCustomerCredit=$(this).find(':selected').data('credit');
+             if(selectedCustomerCredit=="undefined" || selectedCustomerCredit==""){
+                selectedCustomerCredit=0;
+             }
+             $("#customer_credit").val(selectedCustomerCredit);
         });
           
         function balanceCalc(){
