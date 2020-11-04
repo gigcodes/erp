@@ -241,25 +241,30 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         });
     });
 
-    $(document).on("click",".merge-brand",function(e){
-        var brand_id = $(this).data("brand-id");
-        var reference = $(this).val();
-        $.ajax({
-            type: 'POST',
-            url: "/brand/merge-brand",
-            data: {
-                _token: "{{ csrf_token() }}",
-                from_brand: brand_id,
-                to_brand: reference
-            }
-        }).done(function(response) {
-            if (response.code == 200) {
-                toastr['success']('Brand merged successfully', 'success');
-                location.reload();
-            }
-        }).fail(function(response) {
-            console.log("Could not update successfully");
-        });
+    $(document).on("change",".merge-brand",function(e){
+        var ready = confirm("Are you sure want to merge brand ?");
+        if (ready) {
+            var brand_id = $(this).data("brand-id");
+            var reference = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: "/brand/merge-brand",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from_brand: brand_id,
+                    to_brand: reference
+                }
+            }).done(function(response) {
+                if (response.code == 200) {
+                    toastr['success']('Brand merged successfully', 'success');
+                    location.reload();
+                }
+            }).fail(function(response) {
+                console.log("Could not update successfully");
+            });
+        }else{
+            return false;
+        }    
     });
     
 
