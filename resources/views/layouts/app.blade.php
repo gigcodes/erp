@@ -591,7 +591,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
 
                                 <li class="nav-item dropdown">
-                                    <a class="dropdown-item" href="{{route('products.final-approval-images')}}">Final Apporval Images</a>
+                                    <a class="dropdown-item" href="{{route('products.listing.approved.images')}}">Final Apporval Images</a>
                                 </li>
                             </ul>
                         </li>

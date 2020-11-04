@@ -154,11 +154,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('products/product-translation/details/{id}/{locale}', 'ProductController@getProductTranslationDetails')->name('products.product-translation.locale');
     Route::get('product/listing/users', 'ProductController@showListigByUsers');
     Route::get('products/listing', 'ProductController@listing')->name('products.listing');
-    Route::get('products/listing/final', 'ProductController@approvedListing')->name('products.listing.approved');
+    Route::get('products/listing/final/{images?}', 'ProductController@approvedListing')->name('products.listing.approved.images');
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
-    Route::get('products/listing/final-approval-images', 'ProductController@getFinalApporvalImages')->name('products.final-approval-images');
+
+
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');

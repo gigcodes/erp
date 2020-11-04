@@ -117,7 +117,7 @@ class ProductController extends Controller
     }
 
 
-    public function approvedListing(Request $request)
+    public function approvedListing(Request $request,$type = "")
     {
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
@@ -152,15 +152,6 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        // if ((int)$request->get('status_id') > 0) {
-        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
-        // } else {
-        //     if ($request->get('submit_for_approval') == "on") {
-        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
-        //     }else{
-        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-        //     }
-        // }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::query();
         } else {
@@ -344,7 +335,10 @@ class ProductController extends Controller
         }
 //here
         if($request->ajax()) {
-            return view('products.final_listing_ajax', [
+
+            // view path for images
+            $viewpath = ($type == "images") ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
+            return view($viewpath, [
                 'products' => $newProducts,
                 'products_count' => $newProducts->total(),
                 'colors' => $colors,
@@ -368,7 +362,9 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('products.final_listing', [
+        $viewpath = ($type == "images") ? 'products.final_listing_ajax' : 'products.final_listing'; 
+
+        return view($viewpath, [
             'products' => $newProducts,
             'products_count' => $newProducts->total(),
             'colors' => $colors,
