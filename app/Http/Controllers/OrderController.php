@@ -672,7 +672,7 @@ class OrderController extends Controller {
 		}
 		$order = Order::create( $data );
 
-		/* if($request->hdn_order_mail_status == "1")
+		 if($request->hdn_order_mail_status == "1")
 		{
 			$id_order_inc = $order->id;
 			$order_new = Order::find($id_order_inc);
@@ -701,7 +701,7 @@ class OrderController extends Controller {
                     }
 				}
 			}
-		} */
+		} 
 		$customer_credit=$request->customer_credit?$request->customer_credit:0;
 		if ($customer_credit > 0) {
 			$balance_amount = $order->balance_amount;
