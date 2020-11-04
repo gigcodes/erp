@@ -307,4 +307,36 @@ class BrandController extends Controller
 
         return response()->json(["code" => 500 , "data" => []]);
     }
+
+    public function mergeBrand(Request $request)
+    {
+        if($request->from_brand && $request->to_brand) {
+            $fromBrand  = \App\Brand::find($request->from_brand);
+            $toBrand    = \App\Brand::find($request->to_brand);
+
+            if($fromBrand && $toBrand) {
+                $product = \App\Product::where("brand",$fromBrand->id)->get();
+                if(!$product->isEmpty()) {
+                    foreach($product as $p) {
+                         $p->brand =  $toBrand->id;  
+                         $p->save();
+                    }
+                }
+
+                // now store the all brands
+                $freferenceBrand = explode(",", $fromBrand->references);
+                $treferenceBrand = explode(",", $toBrand->references);
+
+
+                $mReference =  array_merge($freferenceBrand,$treferenceBrand);
+                $toBrand->references = implode(",",array_unique($mReference));
+                $toBrand->save();
+                $fromBrand->delete();
+                return response()->json(["code" => 200 , "data" => []]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [],"message" => "Please check valid brand exist"]);
+
+    }
 }
