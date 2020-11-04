@@ -396,6 +396,287 @@ class ProductController extends Controller
         ]);
     }
 
+    public function getFinalApporvalImages(Request $request){
+        
+        $cropped = $request->cropped;
+        $colors = (new Colors)->all();
+        $categories = Category::all();
+        $category_tree = [];
+        $categories_array = [];
+        $brands = Brand::getAll();
+
+        $suppliers = DB::select('
+                SELECT id, supplier
+                FROM suppliers
+
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
+
+        foreach (Category::all() as $category) {
+            if ($category->parent_id != 0) {
+                $parent = $category->parent;
+                if ($parent->parent_id != 0) {
+                    if (!isset($category_tree[$parent->parent_id])) {
+                        $category_tree[$parent->parent_id] = [];
+                    }
+                    $category_tree[$parent->parent_id][$parent->id] = $category->id;
+                } else {
+                    $category_tree[$parent->id][$category->id] = $category->id;
+                }
+            }
+
+            $categories_array[$category->id] = $category->parent_id;
+        }
+
+        // if ((int)$request->get('status_id') > 0) {
+        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        // } else {
+        //     if ($request->get('submit_for_approval') == "on") {
+        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+        //     }else{
+        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        //     }
+        // }
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $newProducts = Product::query();
+        } else {
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        }
+
+        if ($request->get('status_id') != null) {
+            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $newProducts = $newProducts->whereIn('status_id', $statusList);
+        } else {
+            if ($request->get('submit_for_approval') == "on") {
+                $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
+            } else {
+                $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
+            }
+        }
+
+
+        // Run through query helper
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $term = $request->input('term');
+        $brand = '';
+        $category = '';
+        $color = '';
+        $supplier = [];
+        $type = '';
+        $assigned_to_users = '';
+
+        if (is_array($request->brand) && $request->brand[0] != null) {
+            $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
+        }
+
+        if (is_array($request->color) && $request->color[0] != null) {
+            $newProducts = $newProducts->whereIn('color', $request->get('color'));
+        }
+        if (is_array($request->category) && $request->category[0] != null && $request->category[0] != 1) {
+            $category_children = [];
+
+            foreach ($request->category as $category) {
+                $is_parent = Category::isParent($category);
+
+                if ($is_parent) {
+                    $childs = Category::find($category)->childs()->get();
+
+                    foreach ($childs as $child) {
+                        $is_parent = Category::isParent($child->id);
+
+                        if ($is_parent) {
+                            $children = Category::find($child->id)->childs()->get();
+
+                            foreach ($children as $chili) {
+                                array_push($category_children, $chili->id);
+                            }
+                        } else {
+                            array_push($category_children, $child->id);
+                        }
+                    }
+                } else {
+                    array_push($category_children, $category);
+                }
+            }
+
+            $newProducts = $newProducts->whereIn('category', $category_children);
+            $category = $request->category[0];
+        }
+        if ($request->type != '') {
+            if ($request->type == 'Not Listed') {
+                $newProducts = $newProducts->where('isFinal', 0)->where('isUploaded', 0);
+            } else {
+                if ($request->type == 'Listed') {
+                    $newProducts = $newProducts->where('isUploaded', 1);
+                } else {
+                    if ($request->type == 'Approved') {
+                        $newProducts = $newProducts->where('is_approved', 1);
+                    } else {
+                        if ($request->type == 'Image Cropped') {
+                            $newProducts = $newProducts->where('is_image_processed', 1);
+                        }
+                    }
+                }
+            }
+
+            $type = $request->get('type');
+        }
+
+        if($request->crop_status == "Not Matched"){
+            $newProducts = $newProducts->whereDoesntHave('croppedImages');
+        }
+        if($request->crop_status == "Matched"){
+            $newProducts = $newProducts->whereHas('croppedImages');
+        }
+
+
+        if (trim($term) != '') {
+
+            $newProducts->where(function ($query) use ($term) {
+                $query->where('short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.id', 'LIKE', "%" . $term . "%")
+                    ->orWhereHas('brands', function($q) use($term){
+                        $q->where('name', 'LIKE', "%" . $term . "%");
+                })
+                ->orWhereHas('product_category', function($q) use($term){
+                    $q->where('title', 'LIKE', "%" . $term . "%");
+                });
+            });
+        }
+
+//        if(!empty($request->term)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->where('color', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('short_description', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('category', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('brand', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('sku', 'LIKE', '%' . $request->term . '%') ;
+//            });
+//        }
+//        if(!empty($request->color)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('color', $request->color);
+//            });
+//        }
+//        if(!empty($request->category)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('category', $request->category);
+//            });
+//        }
+
+
+        if ($request->get('user_id') > 0) {
+            $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+        }
+
+
+        $selected_categories = $request->category ? $request->category : [1];
+        $category_array = Category::renderAsArray();
+        $users = User::all();
+
+        $newProducts = $newProducts->leftJoin("product_verifying_users as pvu", function ($join) {
+            $join->on("pvu.product_id", "products.id");
+            $join->where("pvu.user_id", "!=", auth()->user()->id);
+        });
+
+        if($request->without_title != null) {
+           $newProducts = $newProducts->where("products.name","");
+        }
+
+        if($request->without_size != null) {
+           $newProducts = $newProducts->where("products.size","");
+        }
+
+        if($request->without_composition != null) {
+           $newProducts = $newProducts->where("products.composition","");
+        }
+
+        if (!auth()->user()->isAdmin()) {
+            $newProducts = $newProducts->whereNull("pvu.product_id");
+        }
+
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
+        if (!auth()->user()->isAdmin()) {
+
+            if (!$newProducts->isEmpty()) {
+                $i = 1;
+                foreach ($newProducts as $product) {
+                    $productVerify = \App\ProductVerifyingUser::firstOrNew(array(
+                        'product_id' => $product->id
+                    ));
+                    $productVerify->product_id = $product->id;
+                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->save();
+                    $i++;
+                    // if more then 15 records then break
+                    if ($i > 25) {
+                        break;
+                    }
+                }
+            }
+        }
+        //echo'<pre>'.print_r($cropped,true).'</pre>'; exit;
+//here
+        if($request->ajax()) {
+            return view('products.final_listing_ajax', [
+                'products' => $newProducts,
+                'products_count' => $newProducts->total(),
+                'colors' => $colors,
+                'brands' => $brands,
+                'suppliers' => $suppliers,
+                'categories' => $categories,
+                'category_tree' => $category_tree,
+                'categories_array' => $categories_array,
+                'term' => $term,
+                'brand' => $brand,
+                'category' => $category,
+                'color' => $color,
+                'supplier' => $supplier,
+                'type' => $type,
+                'users' => $users,
+                'assigned_to_users' => $assigned_to_users,
+                'cropped' => $cropped,
+                'category_array' => $category_array,
+                'selected_categories' => $selected_categories,
+                'store_websites' => StoreWebsite::all(),
+            ]);
+        }
+
+        return view('products.final_approval_images', [
+            'products' => $newProducts,
+            'products_count' => $newProducts->total(),
+            'colors' => $colors,
+            'brands' => $brands,
+            'suppliers' => $suppliers,
+            'categories' => $categories,
+            'category_tree' => $category_tree,
+            'categories_array' => $categories_array,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
+            'term' => $term,
+            'brand' => $brand,
+            'category' => $category,
+            'color' => $color,
+            'supplier' => $supplier,
+            'type' => $type,
+            'users' => $users,
+            'assigned_to_users' => $assigned_to_users,
+            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
+            'category_array' => $category_array,
+            'selected_categories' => $selected_categories,
+            'store_websites' => StoreWebsite::all(),
+            //'store_website_count' => StoreWebsite::count(),
+        ]);
+
+    }   
+
     public function approvedListingCropConfirmation(Request $request)
     {
         $colors = (new Colors)->all();

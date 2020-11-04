@@ -158,6 +158,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('products/listing/final/pushproduct', 'ProductController@pushProduct');
     Route::get('products/listing/final-crop', 'ProductController@approvedListingCropConfirmation');
     Route::post('products/listing/final-crop-image', 'ProductController@cropImage')->name('products.crop.image');
+    Route::get('products/listing/final-approval-images', 'ProductController@getFinalApporvalImages')->name('products.final-approval-images');
     Route::get('products/listing/magento', 'ProductController@approvedMagento')->name('products.listing.magento');
     Route::get('products/listing/rejected', 'ProductController@showRejectedListedProducts');
     Route::get('product/listing-remark', 'ProductController@addListingRemarkToProduct');
