@@ -37,11 +37,11 @@
 
     <button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-products mr-3" data-id="{{$suggested->id}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
 
-    <button type="button" class="btn btn-xs btn-secondary forward-products mr-3" title="Attach images to new Customer" data-id="{{$suggested->customer_id}}"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+    <button type="button" class="btn btn-xs btn-secondary forward-products mr-3" title="Attach images to new Customer" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
 
     <button title="Add more products" type="button" class="btn btn-xs btn-secondary add-more-products mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><i class="fa fa-plus" aria-hidden="true"></i></button>
 
-    <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$suggested->customer_id}}"><img src="/images/filled-sent.png" /></button>
+    <button title="Send Images" type="button" class="btn btn-image sendImageMessage no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><img src="/images/filled-sent.png" /></button>
     </td>
     </tr>
     <tr class="expand-{{$suggested->id}} hidden">

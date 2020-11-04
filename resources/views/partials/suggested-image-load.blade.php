@@ -5,7 +5,7 @@
     
     {{ \Carbon\Carbon::parse($suggested->last_attached)->format('d-m-y') }} 
     </td>
-    <td>{{$suggested->customer->id}}</td>
+    <td>{{$suggested->id}}</td>
     <td>{{$suggested->customer->name}}</td>
     <td>{{$suggested->customer->phone}}</td>
     <td class="expand-row-msg" data-name="brand" data-id="{{$suggested->id}}">
@@ -32,13 +32,13 @@
             <span style="word-break:break-all;" class="show-full-category-{{$suggested->id}} hidden">{{$catList}},</span>
     </td>
     <td>
-    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$suggested->customer_id}}">
+    <button title="Open Images" type="button" class="btn preview-attached-img-btn btn-image no-pd" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}">
 	<img src="/images/forward.png" style="cursor: default;">
 	</button>
-    <button title="Select all products" type="button" class="btn btn-xs btn-secondary btn-image no-pd select-customer-all-products mr-3" data-id="{{$suggested->customer_id}}"> <img src="/images/completed.png" style="cursor: default;"></button>
-    <button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-products mr-3" data-id="{{$suggested->customer_id}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
-    <button type="button" title="Forward multiple products" class="btn btn-xs btn-secondary forward-products mr-3" data-id="{{$suggested->customer_id}}"><i class="fa fa-forward" aria-hidden="true"></i></button>
-    <button type="button" title="Resent Multiple products" class="btn btn-xs btn-secondary resend-products mr-3" data-id="{{$suggested->customer_id}}"><i class="fa fa-repeat" aria-hidden="true"></i></button>
+    <button title="Select all products" type="button" class="btn btn-xs btn-secondary btn-image no-pd select-customer-all-products mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"> <img src="/images/completed.png" style="cursor: default;" data-suggestedproductid="{{$suggested->id}}"></button>
+    <button title="Remove Multiple products" type="button" class="btn btn-xs btn-secondary remove-products mr-3" data-id="{{$suggested->id}}"><i class="fa fa-trash" aria-hidden="true"></i></button>
+    <button type="button" title="Forward multiple products" class="btn btn-xs btn-secondary forward-products mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><i class="fa fa-forward" aria-hidden="true"></i></button>
+    <button type="button" title="Resent Multiple products" class="btn btn-xs btn-secondary resend-products mr-3" data-id="{{$suggested->customer_id}}" data-suggestedproductid="{{$suggested->id}}"><i class="fa fa-repeat" aria-hidden="true"></i></button>
     
     </td>
     </tr>

@@ -907,8 +907,9 @@
 
         $(document).on("click", ".add-more-products", function (event) {
             customer_id = $(this).data('id');
+            suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/add-products/'+customer_id,
+                url: '/attached-images-grid/add-products/'+suggestedproductid+'/'+customer_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -928,12 +929,13 @@
 
         $(document).on("click", ".resend-products", function (event) {
             customer_id = $(this).data('id');
+            suggestedproductid = $(this).data('suggestedproductid');
 
-            var cus_cls = ".customer-"+customer_id;
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
@@ -949,7 +951,7 @@
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/resend-products/'+customer_id,
+                url: '/attached-images-grid/resend-products/'+suggestedproductid,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -970,10 +972,11 @@
         $(document).on("click", ".resend-single-image", function (event) {
             var image = $(this).data('id');
             var customer_id = $(this).data('customer');
+            suggestedproductid = $(this).data('suggestedproductid');
             image_array = [];
             image_array.push(image);
             $.ajax({
-                url: '/attached-images-grid/resend-products/'+customer_id,
+                url: '/attached-images-grid/resend-products/'+suggestedproductid,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1051,11 +1054,13 @@
 
         $(document).on("click", ".forward-products", function (event) {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            $("#forward_suggestedproductid").val(suggestedproductid);
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
@@ -1101,12 +1106,12 @@
 
 
         $(document).on("click", ".remove-products", function (event) {
-            var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggested_products_id = $(this).data("id");
+            var cus_cls = ".customer-"+suggested_products_id;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             product_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggested_products_id+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
@@ -1126,7 +1131,7 @@
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/remove-products/'+customer_id,
+                url: '/attached-images-grid/remove-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1177,8 +1182,9 @@
         var selectAllCustomerProductBtn = $(".select-customer-all-products");
         selectAllCustomerProductBtn.on("click", function (e) {
                     var customer_id = $(this).data('id');
+                    var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);
-                    var custCls = '.customer-'+customer_id;
+                    var custCls = '.customer-'+suggestedproductid;
                     if ($this.hasClass("has-all-selected") === false) {
                         // $this.html("Deselect all");
                         $(this).find('img').attr("src", "/images/completed-green.png");
@@ -1257,9 +1263,9 @@
         $(document).on('click', '.preview-attached-img-btn', function (e) {
             e.preventDefault();
             var customer_id = $(this).data('id');
-
+            var suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/get-products/sent/'+customer_id,
+                url: '/attached-images-grid/get-products/sent/'+suggestedproductid+'/'+customer_id,
                 data: $('#searchForm').serialize(),
                 dataType: 'html',
             }).done(function (data) {

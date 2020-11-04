@@ -41,7 +41,7 @@
         @if($count == 0)
         <div class="row parent-row">
         @endif
-        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$customer_id}}-{{$product->id}}" style="padding:0px 5px;margin-bottom:2px !important;">
+        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$pr->suggested_product_list_id}}-{{$customer_id}}-{{$product->id}}" style="padding:0px 5px;margin-bottom:2px !important;">
             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                 <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
                     <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
