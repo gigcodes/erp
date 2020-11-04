@@ -4004,7 +4004,6 @@ class ProductController extends Controller
     }
     
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
-
         $model_type = 'customer';
         if ($model_type == 'customer') {
             $customerId = $model_id;
@@ -4487,11 +4486,16 @@ class ProductController extends Controller
                 $customerId =  $explode[1];
             }
         }
+        if(!$request->forward_suggestedproductid){
+            $msg = 'Entry not found';
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+        $forward_suggestedproductid=$request->forward_suggestedproductid;
         if(!$customerId) {
             $msg = ' Customer not found';
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->where('id',$forward_suggestedproductid)->orderBy('created_at','desc')->first();
                 $products = json_decode($request->products, true);
                 $total = count($products);
                 if($suggestedProducts) {
@@ -4502,6 +4506,7 @@ class ProductController extends Controller
                     $suggestedProducts->customer_id = $customerId;
                     $suggestedProducts->total = $total;
                     $suggestedProducts->save();
+                    $new_suggestedproductid=$suggestedProducts->id;
                 }
                 $listIds = json_decode($request->products, true);
                 $data_to_insert = [];
@@ -4512,7 +4517,7 @@ class ProductController extends Controller
                 if(!empty($listIds) && is_array($listIds)) {
                 foreach($listIds as $listedImage) {
 
-                    $productList = \App\SuggestedProductList::find($listedImage);
+                    $productList = \App\SuggestedProductList::where('suggested_products_id',$forward_suggestedproductid)->find($listedImage);
                     $product = Product::find($productList->product_id);
                     $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
                     $image_key = $imageDetails->getKey();
@@ -4520,11 +4525,12 @@ class ProductController extends Controller
                     if($media) {
                             $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
                             if($mediable) {
-                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
+                                $exists = \App\SuggestedProductList::where('suggested_products_id',$new_suggestedproductid)->where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
                                 if(!$exists) {
                                     $pr = Product::find($mediable->mediable_id);
                                     if($pr->hasMedia(config('constants.attach_image_tag'))) {
                                         $data_to_insert[] = [
+                                            'suggested_products_id'=>$new_suggestedproductid,
                                             'customer_id' => $customerId,
                                             'product_id' => $mediable->mediable_id,
                                             'date' => date('Y-m-d')
@@ -4559,8 +4565,9 @@ class ProductController extends Controller
     }
 
 
-    public function resendProducts($customer_id, Request $request) {
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
+    public function resendProducts($suggestedproductid, Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('id', $suggestedproductid)->orderBy('created_at','desc')->first();
+                $customer_id=$suggestedProducts->customer_id;
                 $products = json_decode($request->products, true);
                 $suggestedProducts->touch();
                 

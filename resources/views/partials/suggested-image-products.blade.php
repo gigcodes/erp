@@ -1,4 +1,4 @@
-<div class="customer-count customer-list-{{$customer_id}} customer-{{$customer_id}}" style="padding: 0px 10px;">
+<div class="customer-count customer-list-{{$suggested_products_id}} customer-{{$suggested_products_id}}" style="padding: 0px 10px;">
         @foreach($productsLists as $list)
         @if(count($list->products) > 0)
         <div class="row">
@@ -64,7 +64,7 @@
                         <a href="javascript:;" class="btn btn-sm create-detail_image" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Detailed Images"><i class="fa fa-file-image-o" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-order" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Order"><i class="fa fa-cart-arrow-down" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-kyc-customer" data-media-key="{{$image_key}}" data-customer-id="{{$customer->id}}" title="KYC"><i class="fa fa-id-badge" aria-hidden="true"></i></a>
-                        <a href="javascript:;" title="Resend" data-id="{{$pr->suggested_product_list_id}}" data-customer="{{$customer->id}}" class="btn btn-sm resend-single-image" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
+                        <a href="javascript:;" title="Resend" data-id="{{$pr->suggested_product_list_id}}" data-suggestedproductid="{{$suggested_products_id}}" data-customer="{{$customer->id}}" class="btn btn-sm resend-single-image" title="Resend"><i class="fa fa-repeat" aria-hidden="true"></i></a>
                        
                         @php
                         $chat_message = \App\ChatMessage::find($pr->chat_message_id);
