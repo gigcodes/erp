@@ -54,7 +54,6 @@
         }
         .notify-badge {
             position: absolute;
-            right: -20px;
             top: 10px;
             text-align: center;
             border-radius: 30px 30px 30px 30px;
@@ -69,9 +68,18 @@
             background: green;
         }
         .cropme-container {
-            bottom: -43px;
             margin-left: 35px !important;
-            top: 22px !important;
+            top: 0px !important;
+            width: 300px !important;
+            height: 300px !important;
+            display: inline-block  !important;
+            vertical-align: middle !important;
+        }
+
+        .cropme-slider {
+            margin-top : 0px !important;
+            transform: translate3d(550px, 155px, 0px) rotate(-90deg) !important;
+            transform-origin:unset !important;
         }
         .product_filter .row > div:not(:first-child):not(:last-child) {
             padding-left: 10px;
@@ -133,6 +141,38 @@
         td {
             padding:3px !important;
         }
+
+        .quick-edit-category ,.quick-edit-composition-select, .quick-edit-color,.post-remark, .approved_by {
+            height: 26px;
+            padding: 2px 12px;
+            font-size: 12px; 
+        }
+        .lmeasurement-container input {
+           height: 26px;
+            padding: 2px 12px;
+            font-size: 12px;  
+        }
+
+        .infinite-scroll-data .badge {
+            display: inline-block;
+            min-width: 5px;
+            padding: 0px 4px;
+        }
+        .quick-edit-category ,.quick-edit-composition-select, .quick-edit-color,.post-remark, .approved_by {
+            height: 26px;
+            padding: 2px 12px;
+            font-size: 12px; 
+        }
+        .lmeasurement-container input {
+           height: 26px;
+            padding: 2px 12px;
+            font-size: 12px;  
+        }
+        .infinite-scroll-data .badge {
+            display: inline-block;
+            min-width: 5px;
+            padding: 0px 4px;
+        }
     </style>
 @endsection
 
@@ -142,7 +182,7 @@
             <h2 class="page-heading">Approved Product Listing ({{ $products_count }}) 
                 <a href="{{ action('ProductController@showSOP') }}?type=ListingApproved" class="pull-right">SOP</a>
             </h2>
-            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}" method="GET">
+            <form class="product_filter" action="{{ action('ProductController@approvedListing') }}/{{ $pageType }}" method="GET">
                 <div class="row">
                     <div class="col-sm-1">
                         <div class="form-group">
@@ -309,7 +349,11 @@
     <div class="row">
         <div class="col-md-12">
             <div class="infinite-scroll table-responsive mt-5 infinite-scroll-data">
-                @include("products.final_listing_ajax")
+                @if($pageType == "images")
+                    @include("products.final_listing_image_ajax")
+                @else
+                    @include("products.final_listing_ajax")
+                @endif
             </div>
             <img class="infinite-scroll-products-loader center-block" src="/images/loading.gif" alt="Loading..." style="display: none" />
         </div>
@@ -318,6 +362,34 @@
     @include('partials.modals.remarks')
     @include('partials.modals.image-expand')
     @include('partials.modals.set-description-site-wise')
+
+    <div class="common-modal modal" role="dialog">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title">Edit Value</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+               </div>
+               <div class="modal-body edited-field-value">
+                    
+                </div>
+            </div>
+        </div>  
+    </div>
+
+    <div class="common-modal-crop modal " role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+               <div class="modal-header">
+                  <h5 class="modal-title">Edit Value</h5>
+                  <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">×</span></button>
+               </div>
+               <div class="modal-body edited-field-value">
+                    
+                </div>
+            </div>
+        </div>  
+    </div>
 
 @endsection
 
@@ -707,35 +779,76 @@
             $('#end_time_field').val(task.end_time);
             $('#editTaskForm').attr('action', url);
         });
-        $(document).on('click', '.quick-edit-name', function () {
-            var id = $(this).data('id');
-            $(this).closest('td').find('.quick-name').addClass('hidden');
-            $(this).closest('td').find('.quick-edit-name-input').removeClass('hidden');
-            $(this).closest('td').find('.quick-edit-name-input').focus();
-            $(this).closest('td').find('.quick-edit-name-input').keypress(function (e) {
-                var key = e.which;
-                var thiss = $(this);
-                if (key == 13) {
-                    e.preventDefault();
-                    var name = $(thiss).val();
-                    $.ajax({
-                        type: 'POST',
-                        url: "{{ url('products') }}/" + id + '/updateName',
-                        data: {
-                            _token: "{{ csrf_token() }}",
-                            name: name,
-                        }
-                    }).done(function () {
-                        $(thiss).addClass('hidden');
-                        $(thiss).siblings('.quick-name').text(name);
-                        $(thiss).siblings('.quick-name').removeClass('hidden');
-                    }).fail(function (response) {
-                        console.log(response);
-                        alert('Could not update name');
-                    });
-                }
+
+        $(document).on("click",".update-product-icn", function() {
+            var id = $(this).data("id");
+            var field = $(this).closest(".edited-field-value").find(".edited-field");
+            var field_name = field.attr("name");
+            var field_value = field.val();
+            var main_row = $(".quick-edit-name-"+id);
+            var data = {}
+                data["_token"] = "{{ csrf_token() }}";
+                data[field_name] = field_value;
+
+            var formurl =  "{{ url('products') }}/" + id + '/updateName';
+            if(field_name =="description") {
+                var formurl =  "{{ url('products') }}/" + id + '/updateDescription';
+                var main_row = $(".quick-edit-description-"+id);
+            }
+            $.ajax({
+                type: 'POST',
+                url: formurl,
+                data: data
+            }).done(function () {
+                main_row.find("span").html(field_value);
+                $(".common-modal").modal("hide");
+            }).fail(function (response) {
+                console.log(response);
+                alert('Could not update name');
+                $(".common-modal").modal("hide");
             });
         });
+
+
+        $(document).on('click', '.quick-edit-name', function () {
+            var id = $(this).data('id');
+            var value = $(this).find('.quick-name').text();
+            var commandModel = $(".common-modal");
+            var body = commandModel.find(".edited-field-value");
+            var html = `<div class="row">
+                            <div class="col-md-11">
+                                <input type="text" class="form-control edited-field" name="name" value="`+value+`" placeholder="Enter name">
+                            </div>
+                            <div class="col-md-1">
+                                <i style="cursor: pointer;" class="fa fa-check update-product-icn" title="save" data-id="`+id+`" data-type="approve" aria-hidden="true">
+                                </i>
+                            </div>
+                        </div>`;
+                body.html(html);
+                commandModel.modal("show");
+            return false;
+        });
+
+        $(document).on('click', '.quick-edit-description', function () {
+            var id = $(this).data('id');
+            var value = $(this).find('span.quick-description').text();
+            console.log(value);
+            var commandModel = $(".common-modal");
+            var body = commandModel.find(".edited-field-value");
+            var html = `<div class="row">
+                            <div class="col-md-11">
+                                <textarea class="form-control edited-field" name="description" placeholder="Enter description">`+value+`</textarea>
+                            </div>
+                            <div class="col-md-1">
+                                <i style="cursor: pointer;" class="fa fa-check update-product-icn" title="save" data-id="`+id+`" data-type="approve" aria-hidden="true">
+                                </i>
+                            </div>
+                        </div>`;
+                body.html(html);
+                commandModel.modal("show");
+            return false;
+        });
+
         $(document).on('click', '.btn-composition', function () {
             var id = $(this).data('id');
             var composition = $(this).data('value');
@@ -997,7 +1110,7 @@
         $(document).on('click', '.quick-description-edit-textarea', function (e) {
             e.stopPropagation();
         });
-        $(document).on('click', '.quick-edit-description', function (e) {
+        /*$(document).on('click', '.quick-edit-description', function (e) {
             e.stopPropagation();
             var id = $(this).data('id');
             $(this).siblings('.long-description-container').removeClass('hidden');
@@ -1033,7 +1146,7 @@
                     });
                 }
             });
-        });
+        });*/
         function updateSizes(element, category_value) {
             var found_id = 0;
             var found_final = false;
@@ -1267,6 +1380,7 @@
                 }).done(response => {
                     if (response.code == 1) {
                         $this.closest(".thumbnail-pic").remove();
+                        $this.closest(".product-list-card").remove();
                     }
                 });
             }
@@ -1278,6 +1392,44 @@
         function normalImg() {
             $('#imageExpand').modal('hide');
         }
+
+        function bigImageModal(img)
+        {
+            $(".large-image-map").attr("src", img);
+        }
+
+        function shortCrop(img, id, site_id, gridImage)
+        {
+            var commandModel = $(".common-modal-crop");
+            var body = commandModel.find(".edited-field-value");
+            var html = `<div style="position:relative;" id="image`+id+``+site_id+`">
+                            <div style=" margin-bottom: 5px; width: 300px;height: 300px; background-image: url('`+img+`'); background-size: 300px; display:inline-block; vertical-align:middle;">
+                            <img style="width: 300px;" src="`+gridImage+`"
+                                 class="quick-image-container img-responive" style="width: 100%;"
+                                 alt="" data-toggle="tooltip" data-placement="top"
+                                 title="ID: `+id+`" id="image-tag`+id+``+site_id+`"></div> 
+                        </div>
+                        <div><button onclick="cropPopup('`+img+`',`+id+`)" class="btn btn-secondary">Crop</button></div>`;
+            body.html(html);
+            commandModel.modal("show");
+            var example = $('#image' + id+site_id).cropme({
+                customClass : 'crp-me-container'
+            });
+            example.cropme('bind', {
+                url: img,
+                customClass : 'crp-me-container'
+            });
+            example.cropme('reload', {
+                zoom: {
+                    min: 0.01,
+                    max: 1,
+                    enable: true,
+                    mouseWheel: true,
+                    slider: true,
+                }
+            });
+        }
+
         function cropImage(img, id, site_id) {
             $('#image-tag' + id+site_id).hide();
             $('#image' + id+site_id).removeAttr("style");
@@ -1300,6 +1452,30 @@
                 }
             });
         }
+
+        function cropPopup(img, id) {
+            style = $('.cropme-container img').attr("style");
+            $.ajax({
+                url: '/products/listing/final-crop-image',
+                type: 'POST',
+                dataType: 'json',
+                async: false,
+                data: {
+                    "_token": "{{ csrf_token() }}",
+                    style: style,
+                    img, img,
+                    id, id,
+                },
+            })
+                .done(function () {
+                    toastr["success"]('Image Cropped and Saved Successfully');
+                    $(".common-modal-crop").modal("hide");
+                })
+                .fail(function () {
+                    console.log("error");
+                });
+        }
+
         function crop(img, id, gridImage,site_id) {
             style = $('.cropme-container img').attr("style");
             $.ajax({
@@ -1363,34 +1539,7 @@
                 console.log("error");
             });
         });
-        // $(".post-remark").select2();
-        // $(".quick-edit-category").select2();
-        // $("#main_checkbox").click(function(){
-        //     $('.affected_checkbox').not(this).prop('checked', this.checked);
-        // });
-        {{--$(document).on('click', '.delete_checked_products', function (e) {--}}
-        {{--    e.preventDefault();--}}
-        {{--    var conf = confirm("Are you sure you want to delete selected products ?");--}}
-        {{--    if (conf == true) {--}}
-        {{--        var $this = $(this);--}}
-        {{--        $.ajax({--}}
-        {{--            type: 'GET',--}}
-        {{--            headers: {--}}
-        {{--                'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')--}}
-        {{--            },--}}
-        {{--            url: '{{ route('products.delete') }}',--}}
-        {{--            data: {--}}
-        {{--                product_id: $this.data("product-id"),--}}
-        {{--                media_id: $this.data("media-id"),--}}
-        {{--                media_type: $this.data("media-type")--}}
-        {{--            },--}}
-        {{--        }).done(response => {--}}
-        {{--            if (response.code == 1) {--}}
-        {{--                $this.closest(".thumbnail-pic").remove();--}}
-        {{--            }--}}
-        {{--        });--}}
-        {{--    }--}}
-        {{--});--}}
+        
         $('#main_checkbox').on('click', function (e) {
             if ($(this).is(':checked', true)) {
                 $(".affected_checkbox").prop('checked', true);
@@ -1449,13 +1598,13 @@
                 }
             }
         });
-        $(document).on('click', '.quick-description', function () {
+        /*$(document).on('click', '.quick-description', function () {
             var id = $(this).data('id');
             $(this).closest('td').find('.quick-description').addClass('hidden');
             $(this).closest('td').find('.quick-edit-description-textarea').removeClass('hidden');
             $(this).closest('td').find('.quick-edit-description-textarea').focus();
-        });
-        $(document).on('keypress', '.quick-edit-description-textarea', function (e) {
+        });*/
+        /*$(document).on('keypress', '.quick-edit-description-textarea', function (e) {
             var id = $(this).parents('.quick-edit-description').data('id');
             var key = e.which;
             var thiss = $(this);
@@ -1477,7 +1626,7 @@
                     alert('Could not update description');
                 });
             }
-        });
+        });*/
         $(document).on('change', '.post-remark', function () {
             const data = {
                 _token: "{{ csrf_token() }}",

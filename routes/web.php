@@ -267,6 +267,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('brand/attach-website', 'BrandController@attachWebsite');
     Route::post('brand/change-segment', 'BrandController@changeSegment');
     Route::post('brand/update-reference', 'BrandController@updateReference');
+    Route::post('brand/merge-brand', 'BrandController@mergeBrand');
     Route::get('brand/{id}/create-remote-id', 'BrandController@createRemoteId');
     Route::resource('brand', 'BrandController');
 
@@ -2421,7 +2422,7 @@ Route::post('/attached-images-grid/remove-single-product/{customer_id}', 'Produc
 Route::get('/attached-images-grid/sent-products', 'ProductController@suggestedProducts');
 Route::post('/attached-images-grid/forward-products', 'ProductController@forwardProducts');//
 Route::post('/attached-images-grid/resend-products/{customer_id}', 'ProductController@resendProducts');//
-Route::get('/attached-images-grid/get-products/{type}/{customer_id}', 'ProductController@getCustomerProducts');
+Route::get('/attached-images-grid/get-products/{type}/{suggested_products_id}/{customer_id}', 'ProductController@getCustomerProducts');
 
 //referfriend
 Route::prefix('referfriend')->middleware('auth')->group(static function () {

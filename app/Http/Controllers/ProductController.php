@@ -117,7 +117,7 @@ class ProductController extends Controller
     }
 
 
-    public function approvedListing(Request $request,$type = "")
+    public function approvedListing(Request $request,$pageType = "")
     {
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
@@ -337,7 +337,7 @@ class ProductController extends Controller
         if($request->ajax()) {
 
             // view path for images
-            $viewpath = ($type == "images") ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
+            $viewpath = ($pageType == "images") ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
             return view($viewpath, [
                 'products' => $newProducts,
                 'products_count' => $newProducts->total(),
@@ -359,10 +359,11 @@ class ProductController extends Controller
                 'category_array' => $category_array,
                 'selected_categories' => $selected_categories,
                 'store_websites' => StoreWebsite::all(),
+                'type' => $pageType
             ]);
         }
 
-        $viewpath = ($type == "images") ? 'products.final_listing_ajax' : 'products.final_listing'; 
+        $viewpath = 'products.final_listing'; 
 
         return view($viewpath, [
             'products' => $newProducts,
@@ -388,6 +389,7 @@ class ProductController extends Controller
             'category_array' => $category_array,
             'selected_categories' => $selected_categories,
             'store_websites' => StoreWebsite::all(),
+            'pageType' => $pageType
             //'store_website_count' => StoreWebsite::count(),
         ]);
     }
@@ -3424,12 +3426,11 @@ class ProductController extends Controller
         $mediaId = request("media_id", 0);
         $mediaType = request("media_type", "gallery");
 
-
         $cond = Db::table("mediables")->where([
             "media_id" => $mediaId,
             "mediable_id" => $productId,
-            "tag" => $mediaType,
-            "mediable_type" => "App\Product"
+            //"tag" => $mediaType,
+            "mediable_type" => \App\Product::class
         ])->delete();
 
         if ($cond) {
@@ -4857,10 +4858,9 @@ class ProductController extends Controller
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
-    public function getCustomerProducts($type,$suggested_products_id, Request $request) {
+    public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
         //$suggested_products_id=3;
-        $customer_id=5;
         if($type == 'attach') {
             $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
             ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
