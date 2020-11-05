@@ -13,69 +13,64 @@
 
         <tbody>
         @foreach($suppliers as $supplier)
-        @php 
-        if($order_product) {
-          $order_product_id = $order_product->id;
-        }
-        else {
-          $order_product_id = 0;
-        }
-        $order_product = \App\OrderProduct::find($order_product_id);
-        $supplier_discount_info = \App\SupplierDiscountInfo::where('product_id', $supplier->product_id)->where('supplier_id',$supplier->supplier_id)->first();
-        if($supplier_discount_info) {
-          $discount = $supplier_discount_info->discount;
-          $fixed_price = $supplier_discount_info->fixed_price;
-          $supplier_discount_info_id = $supplier_discount_info->id;
-        }
-        else {
+        @php
+          $order_product_id = 0; 
+          if($order_product) {
+            $order_product_id = $order_product->id;
+          }
+
+          $order_product = \App\OrderProduct::find($order_product_id);
+          $supplier_discount_info = \App\SupplierDiscountInfo::where('product_id', $supplier->product_id)->where('supplier_id',$supplier->supplier_id)->first();
+          
           $discount = null;
           $fixed_price = null;
           $supplier_discount_info_id = null;
-        }
-        if($order_product && $supplier_discount_info_id) {
-          if($order_product->supplier_discount_info_id == $supplier_discount_info_id) {
-            $checked = 1;
+
+          if($supplier_discount_info) {
+            $discount = $supplier_discount_info->discount;
+            $fixed_price = $supplier_discount_info->fixed_price;
+            $supplier_discount_info_id = $supplier_discount_info->id;
           }
-          else {
-            $checked = 0;
-          }
-        }
-        else {
+
           $checked = 0;
-        }
+          if($order_product && $supplier_discount_info_id) {
+            if($order_product->supplier_discount_info_id == $supplier_discount_info_id) {
+              $checked = 1;
+            }
+          }
         @endphp
             <tr>
             <td>{{$supplier->supplier}}</td>
             <td>{{$supplier->product_price}}</td>
             <td>
-            <input style="min-width: 30px;" data-product="{{$supplier->product_id}}" data-id="{{$supplier->supplier_id}}" placeholder="Discount" value="{{$discount}}" type="number" class="form-control supplier-discount" name="supplier_discount" id="supplier_discount-{{$supplier->supplier_id}}">
+            <input style="min-width: 30px;" data-order-product="{{$order_product_id}}" data-product="{{$supplier->product_id}}" data-id="{{$supplier->supplier_id}}" placeholder="Discount" value="{{$discount}}" type="number" class="form-control supplier-discount" name="supplier_discount" id="supplier_discount-{{$supplier->supplier_id}}">
             </td>
             <td>
-            <input style="min-width: 30px;" data-product="{{$supplier->product_id}}" placeholder="Fixed Price" data-id="{{$supplier->supplier_id}}" value="{{$fixed_price}}" type="number" class="form-control supplier-fixed-price" name="supplier_fixed_price" id="supplier_fixed_price_{{$supplier->supplier_id}}">
+            <input style="min-width: 30px;" data-order-product="{{$order_product_id}}" data-product="{{$supplier->product_id}}" placeholder="Fixed Price" data-id="{{$supplier->supplier_id}}" value="{{$fixed_price}}" type="number" class="form-control supplier-fixed-price" name="supplier_fixed_price" id="supplier_fixed_price_{{$supplier->supplier_id}}">
             </td>
             <td>
             @php 
-            if($supplier->product_price)  {
+             
+             if($supplier->product_price)  {
               if($discount) {
                 $discount = $supplier->product_price*($discount/100);
                 $final_price = $supplier->product_price - $discount;
-              }
-              else {
+              } else {
                 if($fixed_price) {
                   $final_price = $fixed_price;
-                }
-                else {
+                }else {
                   $final_price = $supplier->product_price;
                 }
               } 
-            }
-            else {
+            }else {
               $final_price = 0;
             }
+            
             $gmu = 0;
             if($final_price) {
               $gmu = $final_price/1.22;
             }
+            
             @endphp
             {{number_format($gmu,2)}}
             </td>

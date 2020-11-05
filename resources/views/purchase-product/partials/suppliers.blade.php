@@ -101,8 +101,8 @@ color:black!important;
               <a href="#"  data-type="order" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
                 Order
               </a>
-              <a href="#"  data-type="enquery" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
-                Enquery
+              <a href="#"  data-type="inquiry" data-id="{{$supplier->id}}" class="btn btn-xs btn-secondary product-list-btn" style="color:white !important;">
+                Inquiry
               </a>
               <button title="Select all products" type="button" class="btn btn-xs btn-secondary select-all-products btn-image no-pd" data-id="{{$supplier->id}}">
                 <img src="/images/completed.png" style="cursor: default;"></button>

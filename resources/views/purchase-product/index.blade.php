@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', 'Orders List')
+@section('title', 'Purchase List')
 
 @section('styles')
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
@@ -19,7 +19,7 @@
     z-index: 1060;
 }
 .inner_loader {
-	top: 30%;
+  top: 30%;
     position: absolute;
     left: 40%;
     width: 100%;
@@ -48,11 +48,11 @@ color:black!important;
 @endsection
 
 @section('large_content')
-	<div class="ajax-loader" style="display: none;">
-		<div class="inner_loader">
-		<img src="{{ asset('/images/loading2.gif') }}">
-		</div>
-	</div>
+  <div class="ajax-loader" style="display: none;">
+    <div class="inner_loader">
+    <img src="{{ asset('/images/loading2.gif') }}">
+    </div>
+  </div>
 
   <div class="row">
         <div class="col-12" style="padding:0px;">
@@ -61,7 +61,7 @@ color:black!important;
            <div class="col-10" style="padding-left:0px;">
             <div >
             <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-                
+
                 <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
@@ -76,13 +76,13 @@ color:black!important;
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
                   </div>
               </form>
-               
+
             </div>
              </div>
-        </div>	
+        </div>
 <div class="row">
 @include('partials.flash_messages')
- 
+
 </div>
 <div class="row">
         <div class="col-md-12" style="padding:0px;">
@@ -98,7 +98,7 @@ color:black!important;
 </div>
 <div class="row">
     <div class="infinite-scroll" style="width:100%;">
-	<div class="table-responsive mt-2">
+  <div class="table-responsive mt-2">
       <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;">
         <thead>
         <tr>
@@ -117,7 +117,7 @@ color:black!important;
         </thead>
 
         <tbody>
-			@foreach ($orders_array as $key => $order)
+      @foreach ($orders_array as $key => $order)
                 @php
                 if($order->supplier_discount_info_id) {
                   $supplier = \App\SupplierDiscountInfo::join('suppliers','suppliers.id','supplier_discount_infos.supplier_id')->where('supplier_discount_infos.id',$order->supplier_discount_info_id)->select('suppliers.*')->first();
@@ -125,14 +125,14 @@ color:black!important;
                 else {
                   $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select('suppliers.*')->first();
                 }
-                    
+
                 @endphp
 
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
                   </span>
-                  
+
                 </td>
               <td  class="view-details" data-type="order" data-id="{{$order->id}}">
               <div class="form-inline">
@@ -156,21 +156,21 @@ color:black!important;
                         {{$supplier->supplier}}
                     @endif
                 </td>
-              <td class="expand-row table-hover-cell">	              
-                <div class="d-flex">	               
+              <td class="expand-row table-hover-cell">
+                <div class="d-flex">
                   <div class="">
                   @php
                   $order_product = \App\OrderProduct::find($order->order_product_id);
-                  @endphp      
-                      @if ($order_product && $order_product->product)	                      
-                        @if ($order_product->product->hasMedia(config('constants.media_tags')))	             
-                          <span class="td-mini-container">	                         
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>	                     
-                          </span>	                 
-                        @endif	                 
-                      @endif            
-                  </div>	    	        
-                </div>	        
+                  @endphp
+                      @if ($order_product && $order_product->product)
+                        @if ($order_product->product->hasMedia(config('constants.media_tags')))
+                          <span class="td-mini-container">
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">View</a>
+                          </span>
+                        @endif
+                      @endif
+                  </div>
+                </div>
               </td>
               <td class="expand-row table-hover-cell">
               </td>
@@ -186,7 +186,7 @@ color:black!important;
           <option value="{{$id}}" {{$id==$order->inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
               @endforeach
               </select>
-              
+
               </td>
               <td>{{ $order->balance_amount }}</td>
 
@@ -195,8 +195,8 @@ color:black!important;
         </tbody>
       </table>
 
-	{!! $orders_array->appends(Request::except('page'))->links() !!}
-	</div>
+  {!! $orders_array->appends(Request::except('page'))->links() !!}
+  </div>
     </div>
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
@@ -246,7 +246,7 @@ color:black!important;
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
                 </div>
                     <div class="modal-body" id="common-contents">
-                        
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -268,7 +268,7 @@ color:black!important;
   <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
-  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script>
   <script type="text/javascript">
 
 $(document).on('click', '.view-details', function(e) {
@@ -291,7 +291,7 @@ $(document).on('click', '.view-details', function(e) {
             $("#loading-image").hide();
         });
     });
-    
+
 
     $(document).on('click', '.create-status-btn', function(e) {
       $("#createStatusModal").modal("show");
@@ -369,14 +369,15 @@ $(document).on('click', '.view-details', function(e) {
             $("#loading-image").hide();
         });
     });
-    
-    $(document).on('keyup', '.supplier-discount', function () {
+
+    $(document).on('keyup', '.supplier-discount', function (event) {
             if (event.keyCode != 13) {
                 return;
             }
             let id = $(this).data('id');
             let product_id = $(this).data('product');
             let discount = $("#supplier_discount-"+id).val();
+            let orderProductId = $(this).data('order-product');
             $.ajax({
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -386,23 +387,26 @@ $(document).on('click', '.view-details', function(e) {
                 data: {
                   discount: discount,
                   supplier_id: id,
-                  product_id:product_id
+                  product_id:product_id,
+                  order_product_id:orderProductId
                 },
-                success: function () {
+                success: function (data) {
                     toastr["success"]("Discount updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
                 }
             });
 
         });
 
 
-        $(document).on('keyup', '.supplier-fixed-price', function () {
+        $(document).on('keyup', '.supplier-fixed-price', function (event) {
             if (event.keyCode != 13) {
                 return;
             }
             let id = $(this).data('id');
             let fixed_price = $("#supplier_fixed_price_"+id).val();
             let product_id = $(this).data('product');
+            let orderProductId = $(this).data('order-product');
             $.ajax({
               headers: {
               'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -412,10 +416,12 @@ $(document).on('click', '.view-details', function(e) {
                 data: {
                   fixed_price: fixed_price,
                   supplier_id: id,
-                  product_id:product_id
+                  product_id:product_id,
+                  order_product_id:orderProductId
                 },
-                success: function () {
+                success: function (data) {
                     toastr["success"]("Fixed price updated successfully!", "Message");
+                    $("#common-contents").html(data.html);
                 }
             });
 
@@ -443,13 +449,13 @@ $(document).on('click', '.view-details', function(e) {
                   else {
                     toastr["error"](res.message, "Message");
                   }
-                   
+
                 }
             });
 
         });
-        
-        
+
+
 
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
@@ -459,7 +465,7 @@ $(document).on('click', '.view-details', function(e) {
         minDate:new Date(),
         format: 'YYYY-MM-DD'
       });
-      
+
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
             if(typeof customer != "undefined" || customer != "") {
@@ -483,7 +489,7 @@ $(document).on('click', '.view-details', function(e) {
             status : $(this).val()
           }
         }).done( function(response) {
-         
+
         }).fail(function(errObj) {
           alert("Could not change status");
         });
@@ -495,21 +501,21 @@ $(document).on('click', '.view-details', function(e) {
         // buttonWidth: '100%',
         // includeSelectAllOption: true
       });
-	  
-	  
-	  $('ul.pagination').hide();
-		$('.infinite-scroll').jscroll({
-			autoTrigger: true,
-			// debug: true,
-			loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-			padding: 0,
-			nextSelector: '.pagination li.active + li a',
-			contentSelector: 'div.infinite-scroll',
-			callback: function () {
-				$('ul.pagination').first().remove();
-				$('ul.pagination').hide();
-			}
-		});
+
+
+    $('ul.pagination').hide();
+    $('.infinite-scroll').jscroll({
+      autoTrigger: true,
+      // debug: true,
+      loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+      padding: 0,
+      nextSelector: '.pagination li.active + li a',
+      contentSelector: 'div.infinite-scroll',
+      callback: function () {
+        $('ul.pagination').first().remove();
+        $('ul.pagination').hide();
+      }
+    });
     });
 
     $(document).on('click', '.change_message_status', function(e) {
@@ -570,7 +576,7 @@ $(document).on('click', '.view-details', function(e) {
            }else{
              toastr['error'](response.message);
            }
-           $("#loading-image").hide(); 
+           $("#loading-image").hide();
         }).fail(function(errObj) {
            $("#loading-image").hide();
         });
@@ -594,7 +600,7 @@ $(document).on('click', '.view-details', function(e) {
            }else{
              toastr['error'](response.message);
            }
-           $("#loading-image").hide(); 
+           $("#loading-image").hide();
         }).fail(function(errObj) {
            $("#loading-image").hide();
         });
@@ -608,14 +614,14 @@ $(document).on('click', '.view-details', function(e) {
           type: "get"
         }).done(function(response) {
           $('#addInvoice').modal('show');
-           $("#add-invoice-content").html(response); 
+           $("#add-invoice-content").html(response);
         }).fail(function(errObj) {
            $("#addInvoice").hide();
         });
     });
 
-	
-	
+
+
 
 
     var selected_orders = [];
@@ -663,7 +669,7 @@ $(document).on('click', '.view-details', function(e) {
         //       type: "GET"
         //     }).done(function(response) {
         //       $('#view-products').modal('show');
-        //       $("#view-products-content").html(response); 
+        //       $("#view-products-content").html(response);
         //     }).fail(function(errObj) {
         //     });
         // });
@@ -675,7 +681,7 @@ $(document).on('click', '.view-details', function(e) {
           }
           $('#updateCustomer').modal('show');
         });
-        
+
         $(document).on('submit', '#customerUpdateForm', function (e) {
                 e.preventDefault();
                 var data = $(this).serializeArray();
@@ -805,9 +811,9 @@ $(document).on('click', '.view-details', function(e) {
               $('.ajax-loader').hide();
                 console.log(response);
             });
-          
+
         })
-        
+
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
