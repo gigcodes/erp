@@ -216,8 +216,6 @@ class PurchaseProductController extends Controller
         }
         $discount_info = SupplierDiscountInfo::where('product_id', $request->product_id)->where('supplier_id',$request->supplier_id)->first();
         if($discount_info) {
-            $discount_info->discount = $request->discount;
-            $discount_info->fixed_price = $request->fixed_price;
             $discount_info->save();
             $order_product = OrderProduct::find($request->order_product);
             if($order_product) {
@@ -228,9 +226,6 @@ class PurchaseProductController extends Controller
         else {
             $discount_info = new SupplierDiscountInfo;
             $discount_info->product_id = $request->product_id;
-            $discount_info->supplier_id = $request->supplier_id;
-            $discount_info->discount = $request->discount;
-            $discount_info->fixed_price = $request->fixed_price;
             $discount_info->supplier_id = $request->supplier_id;
             $discount_info->save();
             $order_product = OrderProduct::find($request->order_product);
