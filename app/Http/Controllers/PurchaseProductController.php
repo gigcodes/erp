@@ -176,7 +176,13 @@ class PurchaseProductController extends Controller
             $discount->supplier_id = $request->supplier_id;
             $discount->save();
         }
-        return response()->json(['message' => 'Successfull','code' => 200]);
+
+        $order_product = OrderProduct::find($request->order_product_id);
+        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+
+        $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
+
+        return response()->json(['message' => 'Successfull','html' => $html,'code' => 200]);
     }
 
     
@@ -195,7 +201,13 @@ class PurchaseProductController extends Controller
             $fixed_price->supplier_id = $request->supplier_id;
             $fixed_price->save();
         }
-        return response()->json(['message' => 'Successfull','code' => 200]);
+
+        $order_product = OrderProduct::find($request->order_product_id);
+        $suppliers = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$request->product_id)->select('suppliers.*','product_suppliers.id as ps_id','product_suppliers.price as product_price','suppliers.id as supplier_id','product_suppliers.product_id')->get();
+
+        $html  = (string)view('purchase-product.partials.supplier_info',compact('suppliers','order_product'));
+
+        return response()->json(['message' => 'Successfull','html'=> $html,'code' => 200]);
     }
 
     public function saveDefaultSupplier(Request $request) {
@@ -204,6 +216,9 @@ class PurchaseProductController extends Controller
         }
         $discount_info = SupplierDiscountInfo::where('product_id', $request->product_id)->where('supplier_id',$request->supplier_id)->first();
         if($discount_info) {
+            $discount_info->discount = $request->discount;
+            $discount_info->fixed_price = $request->fixed_price;
+            $discount_info->save();
             $order_product = OrderProduct::find($request->order_product);
             if($order_product) {
                 $order_product->supplier_discount_info_id = $discount_info->id;
@@ -213,6 +228,9 @@ class PurchaseProductController extends Controller
         else {
             $discount_info = new SupplierDiscountInfo;
             $discount_info->product_id = $request->product_id;
+            $discount_info->supplier_id = $request->supplier_id;
+            $discount_info->discount = $request->discount;
+            $discount_info->fixed_price = $request->fixed_price;
             $discount_info->supplier_id = $request->supplier_id;
             $discount_info->save();
             $order_product = OrderProduct::find($request->order_product);
@@ -235,23 +253,34 @@ class PurchaseProductController extends Controller
     }
 
     public function getProducts($type, $supplier_id) {
-        if($type == 'enquery') {
-            $products = ProductSupplier::join('products','products.id','product_suppliers.product_id')->where('product_suppliers.supplier_id',$supplier_id)->groupBy('product_id')->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id')->get();
+        if($type == 'inquiry') {
+            $products = ProductSupplier::join('products','products.id','product_suppliers.product_id')
+            ->join('order_products as op','op.product_id','products.id')
+            ->where('product_suppliers.supplier_id',$supplier_id)
+            ->groupBy('product_id')
+            ->select('product_suppliers.price as product_price','products.*','products.id as product_id','product_suppliers.id as ps_id')
+            ->get();
+
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
         if($type == 'order') {
-            $products = OrderProduct::join('supplier_discount_infos','supplier_discount_infos.id','order_products.supplier_discount_info_id')->join('products','products.id','supplier_discount_infos.product_id')->join('product_suppliers','product_suppliers.product_id','supplier_discount_infos.product_id')->where('supplier_discount_infos.supplier_id',$supplier_id)->groupBy('supplier_discount_infos.id')->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
+            $products = OrderProduct::leftjoin('supplier_discount_infos','supplier_discount_infos.id','order_products.supplier_discount_info_id')
+            ->join('products','products.id','order_products.product_id')
+            ->join('product_suppliers','product_suppliers.product_id','products.id')
+            ->where('product_suppliers.supplier_id',$supplier_id)
+            /*->groupBy('supplier_discount_infos.id')*/
+            ->select('product_suppliers.price as product_price','products.*','supplier_discount_infos.*','product_suppliers.id as ps_id')->get();
             return view('purchase-product.partials.products',compact('products','type','supplier_id'));
         }
     }
 
     public function sendProducts($type,$supplier_id,Request $request)
     {
-        if($type == 'enquery') {
+        if($type == 'inquiry') {
             $supplier = Supplier::find($supplier_id);            
-            $path = "enquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
+            $path = "inquiry_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_enquiry_exports.xlsx";
             $subject = 'Product enquiry';
-            $message = 'Some random message';
+            $message = 'Please check below products';
             $product_ids = json_decode($request->product_ids, true);
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             Mail::to($supplier->email)->send(new PurchaseExport($path, $subject, $message));
@@ -275,7 +304,7 @@ class PurchaseProductController extends Controller
             $supplier = Supplier::find($supplier_id);            
             $path = "order_exports/" . Carbon::now()->format('Y-m-d-H-m-s') . "_order_exports.xlsx";
             $subject = 'Product order';
-            $message = 'Some random message for order';
+            $message = 'Please check below product order request';
             $product_ids = json_decode($request->product_ids, true);
             Excel::store(new EnqueryExport($product_ids,$path), $path, 'files');
             Mail::to($supplier->email)->send(new PurchaseExport($path, $subject, $message));
