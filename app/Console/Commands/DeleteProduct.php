@@ -4,6 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use App\Product;
+use File;
 
 class DeleteProduct extends Command
 {
@@ -57,7 +58,7 @@ class DeleteProduct extends Command
                 $products = \App\Product::whereIn("id",explode(",",$ids))->get();
                 if(!$products->isEmpty()) {
                     foreach($products as $p) {
-                        $this->deleteProduct($product);
+                        $this->deleteProduct($p);
                     }
                 }
             }
@@ -69,7 +70,28 @@ class DeleteProduct extends Command
     {
         // check if product is empty then delete only 
         if($product->orderproducts->isEmpty()) {
-            \App\BloggerProductImage::where("product_id",$product->id)->delete();
+            if (!$product->media->isEmpty()) {
+                foreach ($product->media as $image) {
+                    $image_path = $image->getAbsolutePath();
+                    if (File::exists($image_path)) {
+                        File::delete($image_path);
+                    }
+                    $image->delete();
+                }
+            }
+
+            // delete supplier detach
+            $product->suppliers()->detach();
+            
+            if ($product->user()) {
+                $product->user()->detach();
+            }
+            
+            $product->references()->delete();
+            $product->suggestions()->detach();
+
+
+            //\App\BloggerProductImage::where("product_id",$product->id)->delete();
             \App\CropAmends::where("product_id",$product->id)->delete();
             \App\CroppedImageReference::where("product_id",$product->id)->delete();
             \App\ErpLeadSendingHistory::where("product_id",$product->id)->delete();
@@ -78,13 +100,13 @@ class DeleteProduct extends Command
             \App\InventoryStatusHistory::where("product_id",$product->id)->delete();
             \App\LandingPageProduct::where("product_id",$product->id)->delete();
             \App\ListingHistory::where("product_id",$product->id)->delete();
-            \App\ListingPayments::where("product_id",$product->id)->delete();
-            \App\LogListMagento::where("product_id",$product->id)->delete();
+            //\App\ListingPayments::where("product_id",$product->id)->delete();
+            \App\Loggers\LogListMagento::where("product_id",$product->id)->delete();
             \App\LogScraperVsAi::where("product_id",$product->id)->delete();
             \App\Notification::where("product_id",$product->id)->delete();
             \DB::statement("Delete from private_view_products where product_id = ".$product->id);
             //\App\PrivateViewProduct::where("product_id",$product->id)->delete();
-            \App\PrivateView::where("product_id",$product->id)->delete();
+            //\App\PrivateView::where("product_id",$product->id)->delete();
             \DB::statement("Delete from product_attributes where product_id = ".$product->id);
             //\App\ProductAttribute::where("product_id",$product->id)->delete();
             \App\ProductCategoryHistory::where("product_id",$product->id)->delete();
@@ -102,17 +124,17 @@ class DeleteProduct extends Command
             \App\ProductVerifyingUser::where("product_id",$product->id)->delete();
             \App\PurchaseDiscount::where("product_id",$product->id)->delete();
 
-            \DB::statement("Delete from purchase_product_suppliers where product_id = ".$product->id);
+            \DB::statement("Delete from purchase_product_supplier where product_id = ".$product->id);
 
             //\App\PurchaseProductSupplier::where("product_id",$product->id)->delete();
             \App\PurchaseProduct::where("product_id",$product->id)->delete();
             \App\RejectedImages::where("product_id",$product->id)->delete();
             \App\ReturnExchangeProduct::where("product_id",$product->id)->delete();
-            \App\ScrapActivity::where("product_id",$product->id)->delete();
+            \App\ScrapActivity::where("scraped_product_id",$product->id)->delete();
             \App\ScrapeQueues::where("product_id",$product->id)->delete();
-            \App\ScrapedProducts::where("product_id",$product->id)->delete();
+            \App\ScrapedProducts::where("sku",$product->sku)->delete();
             \App\SiteCroppedImages::where("product_id",$product->id)->delete();
-            \DB::statement("Delete from site_products where product_id = ".$product->id);
+            //\DB::statement("Delete from site_products where product_id = ".$product->id);
             //\App\StockProduct::where("product_id",$product->id)->delete();
             \App\StoreWebsiteProductAttribute::where("product_id",$product->id)->delete();
             \App\StoreWebsiteProduct::where("product_id",$product->id)->delete();
@@ -120,12 +142,13 @@ class DeleteProduct extends Command
             \App\SuggestionProduct::where("product_id",$product->id)->delete();
             \App\SupplierDiscountInfo::where("product_id",$product->id)->delete();
             \App\TranslatedProduct::where("product_id",$product->id)->delete();
-            \DB::statement("Delete from user_manual_crops where product_id = ".$product->id);
+            //\DB::statement("Delete from user_manual_crops where product_id = ".$product->id);
 
             //\App\UserManualCrop::where("product_id",$product->id)->delete();
             \App\UserProductFeedback::where("product_id",$product->id)->delete();
             \App\UserProduct::where("product_id",$product->id)->delete();
             \App\WebsiteProduct::where("product_id",$product->id)->delete();
+            $product->forceDelete();
         }
     }
 }
