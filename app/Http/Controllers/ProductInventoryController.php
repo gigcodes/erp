@@ -84,6 +84,9 @@ class ProductInventoryController extends Controller
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
 				if ($parent && $parent->parent_id != 0) {
+					if (!isset($category_tree[$parent->parent_id])) {
+  						$category_tree[$parent->parent_id] = [];
+  					}
 					$category_tree[$parent->parent_id][$parent->id][$category->id];
 				} else if($parent) {
 					$category_tree[$parent->id][$category->id] = 0;
