@@ -83,9 +83,9 @@ class ProductInventoryController extends Controller
 		foreach (Category::all() as $category) {
 			if ($category->parent_id != 0) {
 				$parent = $category->parent;
-				if ($parent->parent_id != 0) {
+				if ($parent && $parent->parent_id != 0) {
 					$category_tree[$parent->parent_id][$parent->id][$category->id];
-				} else {
+				} else if($parent) {
 					$category_tree[$parent->id][$category->id] = 0;
 				}
 			}
