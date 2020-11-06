@@ -15,9 +15,24 @@ class ColorReferenceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $colors = ColorNamesReference::get();
+        $colors = ColorNamesReference::query();
+
+        if($request->keyword != null) {
+            $colors = $colors->where(function($q) use ($request) {
+                $q->orWhere('color_name','like','%'.$request->keyword.'%')->orWhere('erp_name','like','%'.$request->keyword.'%');
+            });
+        }
+
+        if($request->no_ref == 1) {
+            $colors = $colors->where(function($q) use ($request) {
+                $q->orWhere('erp_name','')->orWhereNull('erp_name');
+            });
+        }
+
+        $colors = $colors->get();
+
         return view('color_references.index', compact('colors'));
     }
 
