@@ -105,6 +105,8 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::resource('color-reference', 'ColorReferenceController');
+    Route::resource('compositions', 'CompositionsController');
+
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');

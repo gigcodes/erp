@@ -12,9 +12,24 @@ class CompositionsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $compositions = Compositions::query();
+        if($request->keyword != null) {
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('name','like','%'.$request->keyword.'%')->orWhere('replace_with','like','%'.$request->keyword.'%');
+            });
+        }
+
+        if($request->no_ref == 1) {
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('replace_with','')->orWhereNull('replace_with');
+            });
+        }
+
+        $compositions = $compositions->orderBy('id','desc')->paginate(12);
+
+        return view('compositions.index', compact('compositions'));
     }
 
     /**
@@ -36,6 +51,15 @@ class CompositionsController extends Controller
     public function store(Request $request)
     {
         //
+        $this->validate($request, [
+            'name'         => 'required',
+            'replace_with' => 'required',
+        ]);
+
+        Compositions::create($request->all());
+
+        return redirect()->back();
+
     }
 
     /**
@@ -67,9 +91,15 @@ class CompositionsController extends Controller
      * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Compositions $compositions)
+    public function update(Request $request, Compositions $compositions, $id)
     {
         //
+        $c = $compositions->find($id);
+        if ($c) {
+            $c->fill($request->all());
+            $c->save();
+        }
+        return redirect()->back();
     }
 
     /**
@@ -78,8 +108,11 @@ class CompositionsController extends Controller
      * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Compositions $compositions)
+    public function destroy(Compositions $compositions, $id)
     {
         //
+        $compositions->find($id)->delete();
+
+        return redirect()->back();
     }
 }

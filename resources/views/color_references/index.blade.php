@@ -1,11 +1,26 @@
 @extends('layouts.app')
-
+@section('title')
+    Color References
+@endsection
 @section('content')
     <div class="row">
         <div class="col-md-12">
             <h2 class="page-heading">Color References</h2>
         </div>
         <div class="col-md-12">
+            <div class="col-md-4 mt-5 float-right">
+                {!! Form::open(["class" => "form-inline" , "route" => 'color-reference.index',"method" => "GET"]) !!}    
+                  <div class="form-group">
+                    <input type="text" name="keyword" class="form-control" id="keyword" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
+                  </div>
+                  <div class="form-group ml-2">
+                    <input type="checkbox" name="no_ref" class="form-control" id="no_ref" @if(request('no_ref') == 1) checked="checked" @endif value="1"/> No Ref
+                  </div>
+                  <button type="submit" class="btn btn-default ml-2 small-field-btn"><i class="fa fa-search"></i></button>
+                </form>
+            </div>
+        </div>    
+        <div class="col-md-12 mt-5">
             <form action="{{ action('ColorReferenceController@store') }}" method="post">
                 @csrf
                 <table class="table table-striped">

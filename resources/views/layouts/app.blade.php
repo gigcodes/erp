@@ -1691,6 +1691,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
                                         </li>
                                         @endif
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('compositions.index')}}">Composition</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">

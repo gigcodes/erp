@@ -18,6 +18,7 @@ use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
 use App\Setting;
+use App\Compositions;
 
 class ProductsCreator
 {
@@ -55,6 +56,11 @@ class ProductsCreator
 
         // Get color
         $color = ColorNamesReference::getProductColorFromObject($image);
+
+        $composition = $formattedDetails['composition'];
+        if(!empty($formattedDetails['composition'])) {
+            $composition = Compositions::getErpName($formattedDetails['composition']);
+        }
 
         // Store count
         try {
@@ -296,7 +302,7 @@ class ProductsCreator
         $product->is_without_image = 1;
         $product->is_on_sale = $image->is_sale ? 1 : 0;
 
-        $product->composition = $formattedDetails[ 'composition' ];
+        $product->composition = $composition;
         $product->color = ColorNamesReference::getProductColorFromObject($image);
         $product->size = $formattedDetails[ 'size' ];
         $product->lmeasurement = (int)$formattedDetails[ 'lmeasurement' ];
