@@ -21,7 +21,13 @@ class CompositionsController extends Controller
             });
         }
 
-        if($request->no_ref == 1) {
+        $listcompostions = Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
+
+        if($request->with_ref == 1) {
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('replace_with',"!=",'')->WhereNotNull('replace_with');
+            });
+        }else{
             $compositions = $compositions->where(function($q) use ($request) {
                 $q->orWhere('replace_with','')->orWhereNull('replace_with');
             });
@@ -29,7 +35,7 @@ class CompositionsController extends Controller
 
         $compositions = $compositions->orderBy('id','desc')->paginate(12);
 
-        return view('compositions.index', compact('compositions'));
+        return view('compositions.index', compact('compositions','listcompostions'));
     }
 
     /**
@@ -99,6 +105,11 @@ class CompositionsController extends Controller
             $c->fill($request->all());
             $c->save();
         }
+
+        if ($request->ajax()) {
+            return response()->json(["code" => 200 , "data" => []]);
+        }   
+
         return redirect()->back();
     }
 
