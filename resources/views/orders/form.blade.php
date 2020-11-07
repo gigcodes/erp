@@ -135,7 +135,6 @@
                                         <th></th>
                                         <th></th>
                                     @endif
-
                                     <th>
                                         <input class="table-input" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
                                     </th>
@@ -572,6 +571,23 @@
                   product_row += '</tr>';
 
               $('#products-table').append(product_row);
+              $("#productModal").modal("hide");
+            },
+            error:function(data) {
+                if( data.status === 422 ) {
+                    var errors = $.parseJSON(data.responseText);
+                    var errStr = "";
+                    $.each(errors, function (key, value) {
+                        if($.isPlainObject(value)) {
+                            $.each(value, function (key, value) {                       
+                                errStr += value+"</br>";
+                            });
+                        }else{
+                            errStr += value+"</br>";
+                        }
+                    });
+                    toastr['error'](errStr, 'error');
+                }
             }
           });
         });

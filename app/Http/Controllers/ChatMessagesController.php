@@ -18,6 +18,7 @@ use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\ChatMessage;
 use Carbon\Carbon;
+use App\Order;
 class ChatMessagesController extends Controller
 {
     /**
@@ -66,7 +67,10 @@ class ChatMessagesController extends Controller
                 break; 
             case 'content_management':
                 $object = StoreSocialContent::find($request->object_id);
-            break;    
+            break;
+            case 'order':
+                $object = Order::find($request->object_id);
+            break;
             default:
                 $object = Customer::find($request->object);
         }

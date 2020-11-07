@@ -61,6 +61,7 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
                 'status'      => 0,
                 'order_id'    => $order->id,
             ]);
+
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');
         }
 

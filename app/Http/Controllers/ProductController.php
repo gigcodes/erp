@@ -2704,7 +2704,8 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->sku = $request->sku;
        // $size_array = implode(',', $request->size) ;
-        $product->size = implode(',', $request->size);
+        $size = !is_array($request->size) ? [$request->size] : $request->size;
+        $product->size = implode(',', $size);
         $product->brand = $request->brand;
         $product->color = $request->color;
         $product->supplier = $request->supplier;
@@ -2735,11 +2736,14 @@ class ProductController extends Controller
             $product->suppliers()->attach(11); // In-stock ID
         }
 
-        $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
-            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
-            ->upload();
-        $product->attachMedia($media, config('constants.media_tags'));
+        if($request->hasFile('image')) {
+            $product->detachMediaTags(config('constants.media_tags'));
+            $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
+                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
+                ->upload();
+            $product->attachMedia($media, config('constants.media_tags'));
+        }
+
 
         $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 

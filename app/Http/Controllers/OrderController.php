@@ -670,6 +670,8 @@ class OrderController extends Controller {
 		{
 			$data['auto_emailed'] = 0;
 		}
+
+        $data['estimated_delivery_date'] = $data['date_of_delivery'];
 		$order = Order::create( $data );
 
 		 if($request->hdn_order_mail_status == "1")
@@ -875,7 +877,7 @@ class OrderController extends Controller {
         }*/
 
         // sending order message to the customer
-		UpdateOrderStatusMessageTpl::dispatch($order->id);	
+		UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");	
 		
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);
@@ -2190,7 +2192,7 @@ public function createProductOnMagento(Request $request, $id){
 				//Sending Mail on changing of order status
 				
 				//sending order message to the customer	
-				UpdateOrderStatusMessageTpl::dispatch($order->id);
+				UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2735,7 +2737,7 @@ public function createProductOnMagento(Request $request, $id){
 			foreach($ids as $id) {
 				$order = \App\Order::where("id", $id)->first();
 				if($order && $request->customer_message && $request->customer_message != "") {
-					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message);
+					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message)->onQueue("customer_message");
 				}
 			}
 		}
@@ -2743,14 +2745,42 @@ public function createProductOnMagento(Request $request, $id){
 			// dd("send message and update status");
 			$ids = explode(",",$request->selected_orders);
 			foreach($ids as $id) {
-				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->order_status) {
+				if(!empty($id) && $request->order_status) {
 					$order = \App\Order::where("id", $id)->first();
 					$statuss = OrderStatus::where("id",$request->order_status)->first();
 					if($order) {
 						$order->order_status 	= $statuss->status;
 						$order->order_status_id = $request->order_status;
 						$order->save();
-						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message);
+
+                        // this code is duplicate we need to fix it
+                        //Sending Mail on changing of order status
+                        $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                        if($mailingListCategory){
+                            if($order->storeWebsiteOrder) {
+                                $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+                            }else{
+                                $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                            }
+                            // @todo put the function to send mail from specific store emails
+                            if($templateData) {
+                                $arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+                                $valToReplace = [$order->customer->name,$statuss->status];
+                                $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+                                
+                                $storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+                                if($storeEmailAddress) {
+                                    $emailData['subject'] = $templateData->subject;
+                                    $emailData['static_template'] = $bodyText;
+                                    $emailData['from'] = $storeEmailAddress->from_address;
+                                
+                                    Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                                }
+                            }
+                        }
+                        // this code is duplicate we need to fix it
+
+						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message)->onQueue("customer_message");
 
  						$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 						if($storeWebsiteOrder) {
@@ -2798,7 +2828,7 @@ public function createProductOnMagento(Request $request, $id){
 		$orderid = $request->input('orderid');
 		$newdeldate = $request->input('newdeldate');
 		$fieldname = $request->input('fieldname');
-		$oldOrderDelData = \App\order::where('id',$orderid);
+		$oldOrderDelData = \App\Order::where('id',$orderid);
 		$oldOrderDelDate = $oldOrderDelData->pluck('estimated_delivery_date');
 		$oldOrderDelDate = (isset($oldOrderDelDate[0]) && $oldOrderDelDate[0]!='')?$oldOrderDelDate[0]:'';
 		$userId = Auth::id();
