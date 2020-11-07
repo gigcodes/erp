@@ -120,6 +120,13 @@ class Product extends Model
             if($model->has_mediables != $flag) {
                 \DB::table("products")->where("id", $model->id)->update(["has_mediables" => $flag]);
             }
+            $data = array(
+                'product_id' => $model->id,
+                'old_status' => null,
+                'new_status' => $model->status_id,
+                'created_at' => date("Y-m-d H:i:s")
+            );
+            \App\ProductStatusHistory::addStatusToProduct($data);
         });
     }
 
