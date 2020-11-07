@@ -341,8 +341,8 @@ class ProductsCreator
 
         try {
             $product->save();
-            $setProductDescAndNameLanguages = new ProductController();
-            $setProductDescAndNameLanguages->listMagento(request() ,$product->id);
+            //$setProductDescAndNameLanguages = new ProductController();
+            //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
             $image->save();
             $product->attachImagesToProduct();
