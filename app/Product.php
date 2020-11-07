@@ -122,7 +122,7 @@ class Product extends Model
             }
             $data = array(
                 'product_id' => $model->id,
-                'old_status' => null,
+                'old_status' => $model->status_id,
                 'new_status' => $model->status_id,
                 'created_at' => date("Y-m-d H:i:s")
             );
