@@ -115,4 +115,20 @@ class ColorReferenceController extends Controller
     {
         //
     }
+
+    public function usedProducts(Request $request)
+    {
+        $q = $request->q;
+        
+        if($q) {
+            // check the type and then 
+           $q = '"color":"'.$q.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$q.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
+    }
 }
