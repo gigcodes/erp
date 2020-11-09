@@ -126,4 +126,21 @@ class CompositionsController extends Controller
 
         return redirect()->back();
     }
+
+    public function usedProducts(Compositions $compositions, Request $request,  $id)
+    {
+        $compositions = $compositions->find($id);
+
+        if($compositions) {
+            // check the type and then 
+           $name = '"'.$compositions->name.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$name.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
+
+    }
 }

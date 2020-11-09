@@ -42,7 +42,7 @@
                                     @endforeach
                                 </select>
                             </td>
-                            <td>{{ $color->color_name }}</td>
+                            <td class="call-used-product" data-name="{{ $color->color_name }}">{{ $color->color_name }}</td>
                         </tr>
                     @endforeach
                     <tr>
@@ -54,4 +54,43 @@
             </form>
         </div>
     </div>
+    <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+    </div>
+    <div class="common-modal modal show-listing-exe-records" role="dialog">
+        <div class="modal-dialog modal-lg" role="document">
+        </div>  
+    </div>
+    @section('scripts')
+     <script>
+            $(document).on("click",".call-used-product",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/color-reference/used-products',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        q : $this.data("name")
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
+                });
+            });
+        </script>
+    @endsection
 @endsection
