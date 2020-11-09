@@ -16,6 +16,7 @@ use Google\AdsApi\AdWords\v201809\cm\SortOrder;
 use Google\AdsApi\Common\OAuth2TokenBuilder;
 use Google\AdsApi\AdWords\v201809\cm\Budget;
 use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelType;
+use Google\AdsApi\AdWords\v201809\cm\AdvertisingChannelSubType;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyConfiguration;
 use Google\AdsApi\AdWords\v201809\cm\BiddingStrategyType;
 use Google\AdsApi\AdWords\v201809\cm\BudgetBudgetDeliveryMethod;
@@ -29,6 +30,15 @@ use Google\AdsApi\AdWords\v201809\cm\GeoTargetTypeSettingNegativeGeoTargetType;
 use Google\AdsApi\AdWords\v201809\cm\GeoTargetTypeSettingPositiveGeoTargetType;
 use Google\AdsApi\AdWords\v201809\cm\Level;
 use Google\AdsApi\AdWords\v201809\cm\ManualCpcBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\TargetRoasBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\MaximizeConversionValueBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\TargetCpaBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\TargetSpendBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\ManualCpmBiddingScheme;
+use Google\AdsApi\AdWords\v201809\cm\AdServingOptimizationStatus;
+use Google\AdsApi\AdWords\v201809\cm\TargetingSetting;
+use Google\AdsApi\AdWords\v201809\cm\TargetingSettingDetail;
+use Google\AdsApi\AdWords\v201809\cm\ShoppingSetting;
 use Google\AdsApi\AdWords\v201809\cm\Money;
 use Google\AdsApi\AdWords\v201809\cm\NetworkSetting;
 use Google\AdsApi\AdWords\v201809\cm\Operator;
@@ -41,7 +51,6 @@ class GoogleCampaignsController extends Controller
 {
     // show campaigns in main page
     public $exceptionError="Something went wrong";
-
     public function getstoragepath($account_id)
     {
         $result = \App\GoogleAdsAccount::find($account_id);
@@ -115,6 +124,7 @@ class GoogleCampaignsController extends Controller
         }
 
         $totalEntries=$campInfo->count();
+        
         return view('googlecampaigns.index', ['campaigns' => $campInfo, 'totalNumEntries' => $totalEntries]);
         /*$adWordsServices = new AdWordsServices();
          $campInfo = $this->getCampaigns($adWordsServices, $session);
@@ -197,14 +207,14 @@ class GoogleCampaignsController extends Controller
     // go to create page
     public function createPage()
     {
-        //
-        return view('googlecampaigns.create');
+        $biddingStrategyTypes=$this->getBiddingStrategyTypeArray();
+        return view('googlecampaigns.create',compact('biddingStrategyTypes'));
     }
 
     // create campaign
     public function createCampaign(Request $request)
     {
-
+        
         /*  $this->validate($request, [
 			'campaignName' => 'required',
 			'budgetAmount' => 'required|integer',
@@ -226,7 +236,7 @@ class GoogleCampaignsController extends Controller
         $campaign_start_date = $request->start_date;
         $campaign_end_date = $request->end_date;
         $campaignStatus = $campaignStatusArr[$request->campaignStatus];
-
+        
         //start creating array to store data into database
         $account_id = $request->account_id;
         $campaignArray['account_id'] = $account_id;
@@ -236,7 +246,82 @@ class GoogleCampaignsController extends Controller
         $campaignArray['start_date'] = $campaign_start_date;
         $campaignArray['end_date'] = $campaign_end_date;
         $campaignArray['status'] = $campaignStatus;
+        if($request->channel_type){
+            $channel_type=$request->channel_type;
+        }else{
+            $channel_type='SEARCH';
+        }
+        $campaignArray['channel_type']=$channel_type;
 
+        if($request->channel_sub_type){
+            $channel_sub_type=$request->channel_sub_type;
+        }else{
+            $channel_sub_type='UNKNOWN';
+        }
+        $campaignArray['channel_sub_type']=$channel_sub_type;
+
+        if($request->biddingStrategyType){
+            $bidding_strategy_type=$request->biddingStrategyType;
+        }else{
+            $bidding_strategy_type='UNKNOWN';
+        }
+        $campaignArray['bidding_strategy_type']=$bidding_strategy_type;
+
+        if($request->txt_target_cpa){
+            $txt_target_cpa=$request->txt_target_cpa;
+        }else{
+            $txt_target_cpa=0.0;
+        }
+        $campaignArray['target_cpa_value']=$txt_target_cpa;
+        
+        if($request->txt_target_roas){
+            $txt_target_roas=$request->txt_target_roas;
+        }else{
+            $txt_target_roas=0.0;
+        }
+        $campaignArray['target_roas_value']=$txt_target_roas;
+
+        if($request->txt_maximize_clicks){
+            $txt_maximize_clicks=$request->txt_maximize_clicks;
+        }else{
+            $txt_maximize_clicks='';
+        }
+        $campaignArray['maximize_clicks']=$txt_maximize_clicks;
+
+        if($request->ad_rotation){
+            $ad_rotation=$request->ad_rotation;
+        }else{
+            $ad_rotation='';
+        }
+        $campaignArray['ad_rotation']=$ad_rotation;
+        
+        if($request->tracking_template_url){
+            $tracking_template_url=$request->tracking_template_url;
+        }else{
+            $tracking_template_url='';
+        }
+        $campaignArray['tracking_template_url']=$tracking_template_url;
+
+        if($request->final_url_suffix){
+            $final_url_suffix=$request->final_url_suffix;
+        }else{
+            $final_url_suffix='';
+        }
+        $campaignArray['final_url_suffix']=$final_url_suffix;
+
+        if($request->merchant_id){
+            $merchant_id=$request->merchant_id;
+        }else{
+            $merchant_id='';
+        }
+        $campaignArray['merchant_id']=$merchant_id;
+
+        if($request->sales_country){
+            $sales_country=$request->sales_country;
+        }else{
+            $sales_country='';
+        }
+        $campaignArray['sales_country']=$sales_country  ;
         
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($storagepath)
@@ -282,8 +367,11 @@ class GoogleCampaignsController extends Controller
         // Create a campaign with required and optional settings.
         $campaign = new Campaign();
         $campaign->setName($campaignName);
-        $campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH);
 
+        //$campaign->setAdvertisingChannelType(AdvertisingChannelType::SEARCH); //set channel Type
+        $campaign->setAdvertisingChannelType($this->getAdvertisingChannelType($channel_type)); //set channel Type
+        //$campaign->setAdvertisingChannelSubType($this->getAdvertisingChannelSubType($channel_sub_type));
+        
         // Set shared budget (required).
         $campaignArray['budget_id'] = $budget->getBudgetId();
         $campaign->setBudget(new Budget());
@@ -291,22 +379,74 @@ class GoogleCampaignsController extends Controller
 
         // Set bidding strategy (required).
         $biddingStrategyConfiguration = new BiddingStrategyConfiguration();
-        $biddingStrategyConfiguration->setBiddingStrategyType(
-            BiddingStrategyType::MANUAL_CPC
-        );
-
-        // You can optionally provide a bidding scheme in place of the type.
+        $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPC);
         $biddingScheme = new ManualCpcBiddingScheme();
+        
+        if($bidding_strategy_type=="MAXIMIZE_CONVERSIONS"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MAXIMIZE_CONVERSIONS);
+            $biddingScheme = new MaximizeConversionValueBiddingScheme();
+        }
+
+        if($bidding_strategy_type=="MANUAL_CPM"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPM);
+            $biddingScheme = new ManualCpmBiddingScheme();
+        }
+
+        if($bidding_strategy_type=="TARGET_SPEND"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_SPEND);
+            $biddingScheme = new TargetSpendBiddingScheme();
+            if(isset($maximize_clicks) && $maximize_clicks!=""){
+                $biddingScheme->setSpendTarget($maximize_clicks);
+            }
+        }
+
+        if($bidding_strategy_type=="TARGET_CPA"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_CPA);
+            $biddingScheme = new TargetCpaBiddingScheme();
+            $biddingScheme->setTargetCpa($txt_target_cpa);
+            
+        }
+
+        if($bidding_strategy_type=="TARGET_ROAS"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_ROAS);
+            $biddingScheme = new TargetRoasBiddingScheme();
+            $biddingScheme->setTargetRoas($txt_target_roas);
+        }
+        
+        // You can optionally provide a bidding scheme in place of the type.
         $biddingStrategyConfiguration->setBiddingScheme($biddingScheme);
 
         $campaign->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
-
+        
+         /* if($ad_rotation=="OPTIMIZE"){
+            $campaign->setAdServingOptimizationStatus(AdServingOptimizationStatus::OPTIMIZE);
+        }else if($ad_rotation=="ROTATE_INDEFINITELY"){
+            $campaign->setAdServingOptimizationStatus(AdServingOptimizationStatus::ROTATE_INDEFINITELY);
+        }else if($ad_rotation=="CONVERSION_OPTIMIZE" && ($channel_sub_type=="UNIVERSAL_APP_CAMPAIGN" ||($channel_type=="DISPLAY" && $channel_sub_type=="DISPLAY_SMART_CAMPAIGN") ) ){
+            $campaign->setAdServingOptimizationStatus(AdServingOptimizationStatus::CONVERSION_OPTIMIZE);
+        }else if($ad_rotation=="ROTATE"){
+            $campaign->setAdServingOptimizationStatus(AdServingOptimizationStatus::ROTATE);
+        }  */
+        
         // Set network targeting (optional).
         $networkSetting = new NetworkSetting();
+        if($channel_type=="SEARCH" || $channel_type=="MULTI_CHANNEL" || ($channel_type=="DISPLAY" && $channel_sub_type=="SHOPPING_GOAL_OPTIMIZED_ADS")){
+            $networkSetting->setTargetGoogleSearch(true);
+        }else if($channel_type=="MULTI_CHANNEL" || $channel_sub_type=="SHOPPING_GOAL_OPTIMIZED_ADS"){
+            $networkSetting->setTargetSearchNetwork(true);
+        }if($channel_type=="MULTI_CHANNEL" || $channel_type=="MULTI_CHANNEL" || ($channel_type=="DISPLAY" && $channel_sub_type=="DISPLAY_SMART_CAMPAIGN") || $channel_sub_type=="SHOPPING_GOAL_OPTIMIZED_ADS"){
+            $networkSetting->setTargetContentNetwork(true);
+        }if($channel_type=="MULTI_CHANNEL"){
+            $networkSetting->setTargetPartnerSearchNetwork(false);
+        }
+        
+        $campaign->setNetworkSetting($networkSetting);
+        // Set network targeting (optional).
+        /* $networkSetting = new NetworkSetting();
         $networkSetting->setTargetGoogleSearch(true);
         $networkSetting->setTargetSearchNetwork(true);
         $networkSetting->setTargetContentNetwork(true);
-        $campaign->setNetworkSetting($networkSetting);
+        $campaign->setNetworkSetting($networkSetting); */
 
         // Set additional settings (optional).
         // Recommendation: Set the campaign to PAUSED when creating it to stop
@@ -317,7 +457,13 @@ class GoogleCampaignsController extends Controller
         // $campaign->setEndDate(date('Ymd', strtotime('+1 month')));
         $campaign->setStartDate($campaign_start_date);
         $campaign->setEndDate($campaign_end_date);
-
+        if($tracking_template_url!="" && $channel_sub_type!="UNIVERSAL_APP_CAMPAIGN"){
+            //$campaign->setTrackingUrlTemplate($tracking_template_url);
+        } 
+        
+        if($final_url_suffix!="" && $channel_type!="MULTI_CHANNEL"){
+            $campaign->setFinalUrlSuffix($final_url_suffix);
+        } 
         // Set frequency cap (optional).
         $frequencyCap = new FrequencyCap();
         $frequencyCap->setImpressions(5);
@@ -333,6 +479,17 @@ class GoogleCampaignsController extends Controller
         $geoTargetTypeSetting->setNegativeGeoTargetType(
             GeoTargetTypeSettingNegativeGeoTargetType::DONT_CARE
         );
+        /* $targetSetting=new TargetingSetting();
+        $targetSettingDetails=new TargetingSettingDetail();
+        $criteriaTargetingSetting=$targetSettingDetails->setCriterionTypeGroup('erp.amourint.com');
+        $targetSettingData=$targetSetting->setDetails([$criteriaTargetingSetting]); */
+        $shoppingSetting=array();
+        if($channel_type==="SHOPPING"){
+            $shoppingSetting=new ShoppingSetting();
+            $shoppingSetting->setMerchantId($merchant_id);
+            $shoppingSetting->setSalesCountry($sales_country);
+        }
+
         $campaign->setSettings([$geoTargetTypeSetting]);
 
         // Create a campaign operation and add it to the operations list.
@@ -340,7 +497,7 @@ class GoogleCampaignsController extends Controller
         $operation->setOperand($campaign);
         $operation->setOperator(Operator::ADD);
         $operations[] = $operation;
-
+        
         // Create the campaign on the server
         $result = $campaignService->mutate($operations);
         $addedCampaign = $result->getValue();
@@ -352,7 +509,8 @@ class GoogleCampaignsController extends Controller
         return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign created successfully');
     }
     catch(Exception $e) {
-        return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $this->exceptionError);
+        //echo'<pre>'.print_r($e,true).'</pre>'; exit;
+        return redirect()->to('google-campaigns/create?account_id='.$request->account_id)->with('actError', $e->getMessage());
       }
     }
 
@@ -398,8 +556,9 @@ class GoogleCampaignsController extends Controller
             //                        "budgetAmount" => $campaignBudget->getAmount()
         ];
         // */
+        $biddingStrategyTypes=$this->getBiddingStrategyTypeArray();
         $campaign=\App\GoogleAdsCampaign::where('google_campaign_id',$campaignId)->first();
-        return view('googlecampaigns.update', ['campaign' => $campaign]);
+        return view('googlecampaigns.update', ['campaign' => $campaign,'biddingStrategyTypes'=>$biddingStrategyTypes]);
     }
 
     // save campaign's changes
@@ -435,7 +594,28 @@ class GoogleCampaignsController extends Controller
         $campaignArray['end_date'] = $campaign_end_date;
         $campaignArray['status'] = $campaignStatus;
 
+        if($request->biddingStrategyType){
+            $bidding_strategy_type=$request->biddingStrategyType;
+        }else{
+            $bidding_strategy_type='UNKNOWN';
+        }
+        $campaignArray['bidding_strategy_type']=$bidding_strategy_type;
+
+
+        if($request->txt_target_cpa){
+            $txt_target_cpa=$request->txt_target_cpa;
+        }else{
+            $txt_target_cpa=0.0;
+        }
+        $campaignArray['target_cpa_value']=$txt_target_cpa;
         
+        if($request->txt_target_roas){
+            $txt_target_roas=$request->txt_target_roas;
+        }else{
+            $txt_target_roas=0.0;
+        }
+        $campaignArray['target_roas_value']=$txt_target_roas;
+
         $oAuth2Credential = (new OAuth2TokenBuilder())
             ->fromFile($storagepath)
             ->build();
@@ -461,6 +641,7 @@ class GoogleCampaignsController extends Controller
         $budget->setAmount($money);
         $budget->setDeliveryMethod(BudgetBudgetDeliveryMethod::STANDARD);
 
+        
         $operations = [];
         // Create a campaign with ... status.
         $campaign = new Campaign();
@@ -469,6 +650,48 @@ class GoogleCampaignsController extends Controller
         $campaign->setStatus($campaignStatus);
         $campaign->setStartDate($campaign_start_date);
         $campaign->setEndDate($campaign_end_date);
+
+
+        // Set bidding strategy (required).
+        $biddingStrategyConfiguration = new BiddingStrategyConfiguration();
+        $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPC);
+        $biddingScheme = new ManualCpcBiddingScheme();
+        
+        if($bidding_strategy_type=="MAXIMIZE_CONVERSIONS"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MAXIMIZE_CONVERSIONS);
+            $biddingScheme = new MaximizeConversionValueBiddingScheme();
+        }
+
+        if($bidding_strategy_type=="MANUAL_CPM"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::MANUAL_CPM);
+            $biddingScheme = new ManualCpmBiddingScheme();
+        }
+
+        if($bidding_strategy_type=="TARGET_SPEND"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_SPEND);
+            $biddingScheme = new TargetSpendBiddingScheme();
+            if(isset($maximize_clicks) && $maximize_clicks!=""){
+                $biddingScheme->setSpendTarget($maximize_clicks);
+            }
+        }
+
+        if($bidding_strategy_type=="TARGET_CPA"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_CPA);
+            $biddingScheme = new TargetCpaBiddingScheme();
+            $biddingScheme->setTargetCpa($txt_target_cpa);
+            
+        }
+
+        if($bidding_strategy_type=="TARGET_ROAS"){
+            $biddingStrategyConfiguration->setBiddingStrategyType(BiddingStrategyType::TARGET_ROAS);
+            $biddingScheme = new TargetRoasBiddingScheme();
+            $biddingScheme->setTargetRoas($txt_target_roas);
+        }
+        
+        // You can optionally provide a bidding scheme in place of the type.
+        $biddingStrategyConfiguration->setBiddingScheme($biddingScheme);
+
+        $campaign->setBiddingStrategyConfiguration($biddingStrategyConfiguration);
 
         // Create a campaign operation and add it to the list.
         $operation = new CampaignOperation();
@@ -487,7 +710,7 @@ class GoogleCampaignsController extends Controller
         return redirect()->to('google-campaigns?account_id='.$account_id)->with('actSuccess', 'Campaign updated successfully');
         }
         catch(Exception $e) {
-            return redirect()->to('google-campaigns/update/'.$request->campaignId.'?account_id='.$account_id)->with('actError', $this->exceptionError);
+            return redirect()->to('google-campaigns/update/'.$request->campaignId.'?account_id='.$account_id)->with('actError', $e->getMessage());
           }
         
     }
@@ -531,5 +754,77 @@ class GoogleCampaignsController extends Controller
         catch(Exception $e) {
             return redirect()->to('google-campaigns?account_id='.$account_id)->with('actError', $this->exceptionError);
           }
+    }
+
+    //function to retrieve data from library 
+    //get advertising channel type
+    public function getAdvertisingChannelType($v){
+        switch ($v) {
+            case "SEARCH":
+                return AdvertisingChannelType::SEARCH;
+              break;
+
+            case "DISPLAY":
+                return AdvertisingChannelType::DISPLAY;
+              break;
+
+            case "SHOPPING":
+                return AdvertisingChannelType::SHOPPING;
+              break;
+
+            case "MULTI_CHANNEL":
+                return AdvertisingChannelType::MULTI_CHANNEL;
+              break;
+            
+            case "UNKNOWN":
+                return AdvertisingChannelType::UNKNOWN;
+            break;
+
+            default:
+                return AdvertisingChannelType::SEARCH;
+          }
+
+    }
+
+    //get advertising sub type
+    public function getAdvertisingChannelSubType($v){
+        switch ($v) {
+            case "UNKNOWN":
+                return AdvertisingChannelSubType::UNKNOWN;
+              break;
+
+            case "SEARCH_MOBILE_APP":
+                return AdvertisingChannelSubType::SEARCH_MOBILE_APP;
+              break;
+
+            case "DISPLAY_MOBILE_APP":
+                return AdvertisingChannelSubType::DISPLAY_MOBILE_APP;
+              break;
+
+            case "SEARCH_EXPRESS":
+                return AdvertisingChannelSubType::SEARCH_EXPRESS;
+              break;
+            
+            case "DISPLAY_EXPRESS":
+                return AdvertisingChannelSubType::DISPLAY_EXPRESS;
+            break;
+            case "DISPLAY_SMART_CAMPAIGN":
+                return AdvertisingChannelSubType::DISPLAY_SMART_CAMPAIGN;
+            break;
+            case "SHOPPING_GOAL_OPTIMIZED_ADS":
+                return AdvertisingChannelSubType::SHOPPING_GOAL_OPTIMIZED_ADS;
+            break;
+            case "DISPLAY_GMAIL_AD":
+                return AdvertisingChannelSubType::DISPLAY_GMAIL_AD;
+            break;
+
+            default:
+                return AdvertisingChannelSubType::UNKNOWN;
+          }
+
+    }
+
+    public function getBiddingStrategyTypeArray(){
+        return ['MANUAL_CPC'=>'Manually set bids','MANUAL_CPM'=>'Viewable CPM','PAGE_ONE_PROMOTED'=>'Page one promoted','TARGET_SPEND'=>'Maximize clicks','TARGET_CPA'=>'Target CPA','TARGET_ROAS'=>'Target Roas','MAXIMIZE_CONVERSIONS'=>'max conv','MAXIMIZE_CONVERSION_VALUE'=>'Automatically maximize conversions','TARGET_OUTRANK_SHARE'=>'Target outrank sharing','NONE'=>'None','UNKNOWN'=>'Unknown'];
     }
 }
