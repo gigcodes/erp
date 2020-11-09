@@ -4353,7 +4353,7 @@ class ProductController extends Controller
             else {
                 $suggestion->last_attached = $suggestion->created_at;
             }
-            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
@@ -4361,7 +4361,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = []; 
             }
 
-            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
             if(count($catIds) > 0) {
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
@@ -4633,10 +4633,11 @@ class ProductController extends Controller
 
 
         $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
+
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
 
-            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
@@ -4644,7 +4645,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = []; 
             }
 
-            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
             if(count($catIds) > 0) {
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }

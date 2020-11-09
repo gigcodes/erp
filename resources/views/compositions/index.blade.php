@@ -56,7 +56,7 @@
             @foreach($compositions as $key=>$composition)
                 <tr>
                     <td>{{ $composition->id }}</td>
-                    <td>{{ $composition->name }}</td>
+                    <td class="call-used-product" data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</td>
                     <td>
                         <div class="form-group small-field">
                             <?php echo Form::select(
@@ -82,9 +82,45 @@
         {{ $compositions->appends(request()->except('page'))->links() }}
     </div>
 </div>
+<div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
+          50% 50% no-repeat;display:none;">
+</div>
+<div class="common-modal modal show-listing-exe-records" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+    </div>  
+</div>
 @section('scripts')
     <script type="text/javascript">
             $(".select2").select2({"tags" : true});
+
+            $(document).on("click",".call-used-product",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/'+$this.data("id")+'/used-products',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}"
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
+                });
+            });
+
             $(document).on("change",".change-list-compostion",function() {
                 var $this = $(this);
                 $.ajax({
