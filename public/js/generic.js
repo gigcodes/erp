@@ -424,10 +424,6 @@ $(document).on('click', '.downloadChatMessages', function () {
             downloadMessages:'1',
             object:object_type,
             object_id:object_id,
-
-            //load_all: load_all,
-            //load_attached: load_attached,
-            //load_type: load_type,
         },
         beforeSend: function () {
             //$(thiss).text('Loading...');

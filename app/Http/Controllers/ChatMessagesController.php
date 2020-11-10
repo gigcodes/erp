@@ -366,12 +366,12 @@ class ChatMessagesController extends Controller
         // Return JSON
         if(isset($request->downloadMessages) && $request->downloadMessages==1)
         {
-            $storagelocation = public_path().'/chatMessageFiles';
+            $storagelocation = storage_path().'/chatMessageFiles';
             if(!is_dir($storagelocation)){
                 mkdir($storagelocation,0777, true);
             }
             $filename= $request->object.$request->object_id."_chat.txt";
-            $file = $storagelocation.'/'.$filename;
+            $file = $storagelocation.'/'. $filename;
             $txt = fopen($file, "w") or die("Unable to open file!");
             fwrite($txt, $chatFileData);
             fclose($txt);
@@ -438,5 +438,6 @@ class ChatMessagesController extends Controller
         header('Content-Length: ' . filesize($file));
         header("Content-Type: text/plain");
         readfile($file);
+        unlink($file);
     }
 }
