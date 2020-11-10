@@ -34,6 +34,6 @@ class Compositions extends Model
         }
 
         // Return an empty string by default
-        return $name;
+        return '';
     }
 }
