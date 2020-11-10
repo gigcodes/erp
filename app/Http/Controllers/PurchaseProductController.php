@@ -30,8 +30,8 @@ class PurchaseProductController extends Controller
      */
     public function index(Request $request) {
 		$filter_customer = $request->input('filter_customer');
-		$filter_supplier = $request->input('filter_supplier');
-		$filter_selling_price = $request->input('filter_selling_price');
+        $filter_supplier = $request->filter_supplier ?? '';
+        $filter_selling_price = $request->input('filter_selling_price');
 		$filter_order_date = $request->input('filter_order_date');
 		$filter_date_of_delivery = $request->input('filter_date_of_delivery');
         $filter_inventory_status_id = $request->input('filter_inventory_status_id');
@@ -41,7 +41,11 @@ class PurchaseProductController extends Controller
 		$brandIds = array_filter($request->get("brand_id",[]));
         $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
         //$product_suppliers_list=ProductSupplier::all();
-        $product_suppliers_list=array();
+        //$product_suppliers_list=array();
+        $product_suppliers_list = Supplier::where(function ($query) {
+            $query->whereNotNull('email')->orWhereNotNull('default_email');
+        })->get();
+
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -163,7 +167,9 @@ class PurchaseProductController extends Controller
         }
 
         if($filter_supplier!=''){
-            $orders->where('ps.title','like','%'.$filter_supplier.'%');
+            //$typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
+            $orders->whereIn('ps.supplier_id',$filter_supplier);
+            //$filter_supplier=implode(",",$filter_supplier);
         }
 
 		$users  = Helpers::getUserArray( User::all() );

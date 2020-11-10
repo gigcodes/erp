@@ -74,20 +74,17 @@ color:black!important;
                          placeholder="Customer">
                 </div>
 
+              
+                
                 <div class="form-group col-md-3 pd-3">
-                  <input style="width:100%;" name="filter_supplier" type="text" class="form-control"
-                         value="{{ isset($filter_supplier) ? $filter_supplier : '' }}"
-                         placeholder="Supplier">
-                </div>
-
-                <!-- <div class="form-group col-md-3 pd-3">
-                <select name="filter_supplier" id="filter_supplier" class="form-control">
-              <option value="">Select Supplier</option>
-              @foreach($product_suppliers_list as $ps)
-                <option value="{{$ps->supplier_id}}" {{$ps->supplier_id==$filter_supplier ? 'selected' : ''}}>{{$ps->title}}</option>
-              @endforeach
+                <select class="form-control select-multiple2" style="width:100%" name="filter_supplier[]" data-placeholder="Search Supplier By Name.." multiple>
+								@foreach($product_suppliers_list as $supplier)
+									<option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
+                @endforeach
+                
               </select>
-                </div> -->
+              </div>
+
 
                 <!-- <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="filter_product" type="text" class="form-control"
@@ -873,5 +870,10 @@ $(document).on('click', '.view-details', function(e) {
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
+
+          $(document).ready(function() {
+          $(".select-multiple").multiselect();
+          $(".select-multiple2").select2();
+      });
   </script>
 @endsection
