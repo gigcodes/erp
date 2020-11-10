@@ -2737,7 +2737,7 @@ public function createProductOnMagento(Request $request, $id){
 			foreach($ids as $id) {
 				$order = \App\Order::where("id", $id)->first();
 				if($order && $request->customer_message && $request->customer_message != "") {
-					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message)->onQueue("customer_message");
+                    UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message)->onQueue("customer_message");
 				}
 			}
 		}

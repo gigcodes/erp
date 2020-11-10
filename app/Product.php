@@ -994,7 +994,12 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
-        if(empty($this->name) || $this->name == ".." || empty($this->short_description) || empty($this->price)) {
+        if(empty($this->name) 
+            || $this->name == ".." 
+            || empty($this->short_description) 
+            || empty($this->price) 
+            || !$this->hasMedia(\Config('constants.media_original_tag'))
+        ) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
         }else{
