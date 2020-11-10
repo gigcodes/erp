@@ -848,7 +848,7 @@ class PurchaseController extends Controller
     public function create()
     {
         //
-    }
+    }//
 
     public function export(Request $request)
     {

@@ -598,20 +598,21 @@
         });
 
 
-        $(document).on('click', '.preview-attached-img-btn', function (e) {
+        $(document).on('click', '.preview-attached-img-btn', function (e) {     
             e.preventDefault();
             var customer_id = $(this).data('id');
+            var suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/get-products/attach/'+customer_id,
+                url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
                 data: $('#searchForm').serialize(),
                 dataType: 'html',
             }).done(function (data) {
-                $('#attach-image-list-'+customer_id).html(data);
+                $('#attach-image-list-'+suggestedproductid).html(data);
             }).fail(function () {
                 alert('Error searching for products');
             });
             
-            var expand = $('.expand-'+customer_id);
+            var expand = $('.expand-'+suggestedproductid);
             console.log(expand);
             $(expand).toggleClass('hidden');
 
@@ -742,11 +743,12 @@
 
         $(document).on('click', '.sendImageMessage', function () {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
@@ -986,8 +988,9 @@
 
         $(document).on("click", ".add-more-products", function (event) {
             customer_id = $(this).data('id');
+            suggested_products_id = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/add-products/'+customer_id,
+                url: '/attached-images-grid/add-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1006,12 +1009,12 @@
         });
 
         $(document).on("click", ".remove-products", function (event) {
-            var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggested_products_id = $(this).data("id");
+            var cus_cls = ".customer-"+suggested_products_id;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             product_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggested_products_id+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
@@ -1025,13 +1028,14 @@
                 alert('Please select some images');
                 return;
             }
+
             console.log(product_array);
             var confirm = window.confirm('Are you sure ?');
             if(!confirm) {
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/remove-products/'+customer_id,
+                url: '/attached-images-grid/remove-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1049,15 +1053,16 @@
         });
 
         $(document).on("click", ".delete-message", function (event) {
-            var product_id = $(this).data("listed_id");
+            var listed_id = $(this).data("listed_id");
             var customer_id = $(this).data("customer");
+            var product_id = $(this).data("id");
             $.ajax({
                 url: '/attached-images-grid/remove-single-product/'+customer_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
-                    product_id: product_id
+                    product_id: listed_id
                 },
                 beforeSend: function () {  
                     $("#loading-image").show();
@@ -1065,7 +1070,7 @@
                 success: function(result){
                      $("#loading-image").hide();
                      toastr['success']("Successfull", 'success');
-                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     var cls = '.single-image-'+listed_id+'-'+customer_id+'-'+product_id;
                      $(cls).hide();
                     //  location.reload();
              }
@@ -1075,11 +1080,15 @@
 
         $(document).on("click", ".forward-products", function (event) {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            $("#forward_suggestedproductid").val(suggestedproductid);
+            /* alert(suggestedproductid); 
+            return false; */
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
@@ -1094,6 +1103,7 @@
                 alert('Please select some images');
                 return;
             }
+            
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
             $('#forward-products-form').find('#forward_type').val('attach');
             $("#forwardProductsModal").modal('show');
@@ -1105,7 +1115,6 @@
 
         $(document).on("submit", "#forward-products-form", function (e) {
             e.preventDefault();
-
             $.ajax({
                 url: '/attached-images-grid/forward-products',
                 type: 'POST',
@@ -1133,8 +1142,9 @@
         var selectAllCustomerProductBtn = $(".select-customer-all-products");
         selectAllCustomerProductBtn.on("click", function (e) {
                     var customer_id = $(this).data('id');
+                    var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);
-                    var custCls = '.customer-'+customer_id;
+                    var custCls = '.customer-'+suggestedproductid;
                     if ($this.hasClass("has-all-selected") === false) {
                         // $this.html("Deselect all");
                         $(this).find('img').attr("src", "/images/completed-green.png");

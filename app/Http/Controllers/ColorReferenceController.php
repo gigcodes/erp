@@ -15,9 +15,24 @@ class ColorReferenceController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        $colors = ColorNamesReference::get();
+        $colors = ColorNamesReference::query();
+
+        if($request->keyword != null) {
+            $colors = $colors->where(function($q) use ($request) {
+                $q->orWhere('color_name','like','%'.$request->keyword.'%')->orWhere('erp_name','like','%'.$request->keyword.'%');
+            });
+        }
+
+        if($request->no_ref == 1) {
+            $colors = $colors->where(function($q) use ($request) {
+                $q->orWhere('erp_name','')->orWhereNull('erp_name');
+            });
+        }
+
+        $colors = $colors->get();
+
         return view('color_references.index', compact('colors'));
     }
 
@@ -99,5 +114,21 @@ class ColorReferenceController extends Controller
     public function destroy(ColorReference $colorReference)
     {
         //
+    }
+
+    public function usedProducts(Request $request)
+    {
+        $q = $request->q;
+        
+        if($q) {
+            // check the type and then 
+           $q = '"color":"'.$q.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$q.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
     }
 }

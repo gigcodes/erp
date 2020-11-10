@@ -12,9 +12,30 @@ class CompositionsController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
-        //
+        $compositions = Compositions::query();
+        if($request->keyword != null) {
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('name','like','%'.$request->keyword.'%')->orWhere('replace_with','like','%'.$request->keyword.'%');
+            });
+        }
+
+        $listcompostions = Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
+
+        if($request->with_ref == 1) {
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('replace_with',"!=",'')->WhereNotNull('replace_with');
+            });
+        }else{
+            $compositions = $compositions->where(function($q) use ($request) {
+                $q->orWhere('replace_with','')->orWhereNull('replace_with');
+            });
+        }
+
+        $compositions = $compositions->orderBy('id','desc')->paginate(12);
+
+        return view('compositions.index', compact('compositions','listcompostions'));
     }
 
     /**
@@ -36,6 +57,15 @@ class CompositionsController extends Controller
     public function store(Request $request)
     {
         //
+        $this->validate($request, [
+            'name'         => 'required',
+            'replace_with' => 'required',
+        ]);
+
+        Compositions::create($request->all());
+
+        return redirect()->back();
+
     }
 
     /**
@@ -67,9 +97,20 @@ class CompositionsController extends Controller
      * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, Compositions $compositions)
+    public function update(Request $request, Compositions $compositions, $id)
     {
         //
+        $c = $compositions->find($id);
+        if ($c) {
+            $c->fill($request->all());
+            $c->save();
+        }
+
+        if ($request->ajax()) {
+            return response()->json(["code" => 200 , "data" => []]);
+        }   
+
+        return redirect()->back();
     }
 
     /**
@@ -78,8 +119,28 @@ class CompositionsController extends Controller
      * @param  \App\Compositions  $compositions
      * @return \Illuminate\Http\Response
      */
-    public function destroy(Compositions $compositions)
+    public function destroy(Compositions $compositions, $id)
     {
         //
+        $compositions->find($id)->delete();
+
+        return redirect()->back();
+    }
+
+    public function usedProducts(Compositions $compositions, Request $request,  $id)
+    {
+        $compositions = $compositions->find($id);
+
+        if($compositions) {
+            // check the type and then 
+           $name = '"'.$compositions->name.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$name.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
+
     }
 }

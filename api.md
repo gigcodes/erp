@@ -402,6 +402,53 @@ Content-Type: application/json
 ```
 
 
+## Affilates Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/affiliate/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.brands-labels.com", //existing website
+    "first_name":"xyz", //optional
+    "last_name":"ABC", //optional
+    "phone":"9999999999", //optional, string
+    "emailaddress":"example@domain.com", //optional
+    "website_name":"sololuxury", //optional, string
+    "url":"url", //optional, string
+    "unique_visitors_per_month":"unique_visitors_per_month", //optional, string
+    "page_views_per_month":"page_views_per_month", //optional, string
+    "street_address":"address", //optional, string
+    "city":"Texas", //optional, string
+    "postcode":"111111", //optional, string
+    "country":"United States Of America", //optional, string
+
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "affiliate added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add affiliate !"
+}
+```
+
+
 ## Magneto Customer Reference Store API
 
 **Request:**
@@ -524,5 +571,90 @@ Content-Type: application/json
     "status": "failed",
     "message": "Tickets not found for customer !"
 }
+```
+## Push Notifications API
 
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/notification/create
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
+    "token" : "sdsad2e232dsdsd", //required 
+}
+```
+**Successful Response:**
+```json
+HTTP/1.1 200
+{
+    "status": "success",
+    "message": "Notification created successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Unable to create notifications !"
+}
+
+```
+
+## Influencer Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/influencer/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.veralusso.com", //existing website
+    "first_name":"Solo", //optional
+    "last_name":"Luxury", //optional
+    "phone":"9999999999", //optional, string
+    "emailaddress":"solo@luxury.com", //optional
+    "facebook":"example@domain.com", //optional
+    "facebook_followers":"12M", //optional
+    "instagram":"example@domain.com", //optional
+    "instagram_followers":"10M", //optional
+    "twitter":"example@domain.com", //optional
+    "twitter_followers":"12M", //optional
+    "youtube":"example@domain.com", //optional
+    "youtube_followers":"25K", //optional
+    "linkedin":"example@domain.com", //optional
+    "linkedin_followers":"10K", //optional
+    "pinterest":"example@domain.com", //optional
+    "pinterest_followers":"5K", //optional
+    "worked_on":"example@domain.com", //optional
+    "website_name":"sololuxury", //optional, string
+    "url":"url", //optional, string
+    "country":"United States Of America", //optional, string
+    "type" :"influencer"
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "influencer added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add influencer !"
+}
 ```

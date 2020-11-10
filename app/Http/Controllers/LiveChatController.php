@@ -1181,7 +1181,85 @@ if(isset($request->messageId)){
         
     }
 
+    public function createTickets(Request $request) {
+        $data = [];
+        $data['ticket_id'] = "T" . date("YmdHis");
+        $customer = Customer::find($request->ticket_customer_id);
+        $email = null;
+        $name = null;
+        if($customer) {
+            $name = $customer->name;
+            $email = $customer->email;
+        }
+        $data['date'] = date('Y-m-d H:i:s');
+        $data['name'] = $name;
+        $data['email'] = $email;
+        $data['customer_id'] = $request->ticket_customer_id;
+        $data['source_of_ticket'] = $request->source_of_ticket;
+        $data['subject'] = $request->ticket_subject;
+        $data['message'] = $request->ticket_message;
+        $data['assigned_to'] = $request->ticket_assigned_to;
+        $data['status_id'] = $request->ticket_status_id;
+        $success = Tickets::create($data);
+        return response()->json(['ticket created successfully', 'code' => 200, 'status' => 'success']);
+    }
 
+
+    public function createCredits(Request $request) {
+        $data = [];
+        
+        $customer_id=$request->credit_customer_id;
+        $credit=$request->credit;
+        $customer = Customer::find($customer_id);
+        if($customer->credit==null || $customer->credit==""){
+            $customer->credit=0;
+        }
+        $calc_credit=0;
+            if($credit<0){
+                $type="MINUS";
+                if($customer->credit==0){
+                    $calc_credit=$customer->credit+($credit);
+                }else{
+                    $credit=str_replace('-','',$credit);
+                    $calc_credit=$customer->credit-$credit;
+                }
+                
+            }else{
+                $type="PLUS";
+                $calc_credit=$customer->credit+$credit;
+            }
+            $customer->credit=$calc_credit;
+            $customer->save();
+        if($customer){
+                \App\CreditHistory::create(
+                array(
+                'customer_id'=>$customer_id,
+                'model_id'=>$customer_id,
+                'model_type'=>Customer::class,
+                'used_credit'=>$credit,
+                'used_in'=>'MANUAL',
+                'type'=>$type
+                )
+                );
+        }
+        return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
+    }
+
+    public function getCreditsData(Request $request) {
+        $customer=Customer::find($request->customer_id);
+        if($customer->credit==null || $customer->credit==""){
+            $currentcredit=0;
+        }else{
+            $currentcredit=$customer->credit;
+        }
+        $credits = \App\CreditHistory::where('customer_id',$request->customer_id)->orderBy('id','desc')->get();
+        return response()->json(['data' => $credits,'currentcredit'=>$currentcredit,'status' => 'success']);
+    }
+
+    public function getTicketsData(Request $request) {
+        $tickets = Tickets::where('customer_id',$request->customer_id)->with('ticketStatus')->get();
+        return response()->json(['data' => $tickets, 'status' => 'success']);
+    }
     public function sendEmail(Request $request)
     {
         $this->validate($request, [
