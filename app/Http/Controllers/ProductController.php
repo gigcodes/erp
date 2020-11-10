@@ -2780,9 +2780,18 @@ class ProductController extends Controller
     public function giveImage()
     {
         $productId = request("product_id", null);
+        $supplierId = request("supplier_id", null);
         if ($productId != null) {
             $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3)->first();
+        }elseif($supplierId != null) {
+            $product = Product::join("product_suppliers as ps","ps.product_id", "products.id")
+            ->where('ps.supplier_id', $supplierId)
+            ->where('products.status_id', StatusHelper::$autoCrop)
+            ->where('products.category', '>', 3)
+            ->where('products.stock', '>=', 1)
+            ->orderBy('products.scrap_priority', 'DESC')
+            ->first();
         } else {
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
