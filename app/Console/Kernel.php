@@ -516,6 +516,8 @@ class Kernel extends ConsoleKernel
         $schedule->command("assetsmanagerpayment:cron Bi-Weekly")->twiceMonthly(1, 16, '13:00');
         //cron for fcm push notifications
         $schedule->command("fcm:send")->everyFiveMinutes();
+        //cron for influencers start stop
+        $schedule->command('influencers:startstop')->hourly();
     }
 
     /**
