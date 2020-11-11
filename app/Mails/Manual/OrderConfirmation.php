@@ -34,9 +34,6 @@ class OrderConfirmation extends Mailable
     {
       $subject = "New Order # " . $this->order->order_id;
 
-      return $this->from('customercare@sololuxury.co.in')
-                  ->bcc('customercare@sololuxury.co.in')
-                  ->subject($subject)
-                  ->markdown('emails.orders.confirmed');
+      return $this->from('customercare@sololuxury.co.in')->bcc('customercare@sololuxury.co.in')->subject($subject)->markdown('emails.orders.confirmed');
     }
 }
