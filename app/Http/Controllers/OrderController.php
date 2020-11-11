@@ -612,11 +612,7 @@ class OrderController extends Controller {
 	 */
 	public function store( Request $request ) {
 
-        $order = Order::find(2063);
-        $view = (new OrderConfirmation($order))->render();
-        echo $view;die;
-
-		$this->validate( $request, [
+        $this->validate( $request, [
 			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
 			'balance_amount' => 'numeric|nullable',
