@@ -143,4 +143,47 @@ class CompositionsController extends Controller
         return response()->json(["code" => 200, "html" => ""]);
 
     }
+
+    public function affectedProduct(Request $request)
+    {
+        $from = $request->from;
+        $to   = $request->to;
+
+        if (!empty($from) && !empty($to)) {
+            // check the type and then
+            $q     = '"'.$from.'"';
+            $total = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')
+                ->join("products as p", "p.sku", "scraped_products.sku")
+                ->where("p.composition", "")
+                ->groupBy("p.id")
+                ->get()->count();
+
+            $view = (string) view("compositions.partials.affected-products", compact('total', 'from', 'to'));
+
+            return response()->json(["code" => 200, "html" => $view]);
+        }
+    }
+
+    public function updateComposition(Request $request)
+    {
+        $from = $request->from;
+        $to   = $request->to;
+
+        $updateWithProduct = $request->with_product;
+        if ($updateWithProduct == "yes") {
+            \App\Jobs\UpdateProductCompositionFromErp::dispatch([
+                "from"    => $from,
+                "to"      => $to,
+                "user_id" => \Auth::user()->id,
+            ])->onQueue("supplier_products");
+        }
+
+        $c = Compositions::where("name",$from)->first();
+        if($c) {
+            $c->replace_with = $to;
+            $c->save();
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
 }

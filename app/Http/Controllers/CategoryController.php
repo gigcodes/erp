@@ -231,7 +231,7 @@ class CategoryController extends Controller
 
         $allStatus = ["" => "N/A"] + \App\Helpers\StatusHelper::getStatus();
 
-        $allCategoriesDropdown = Category::attr([ 'name' => 'new_cat_id', 'class' => 'form-control' , 'style' => "width:100%"])->renderAsDropdown();
+        $allCategoriesDropdown = Category::attr([ 'name' => 'new_cat_id', 'class' => 'form-control new-category-update' , 'style' => "width:100%"])->renderAsDropdown();
 
         return view( 'category.references', compact( 'fillerCategories', 'categories','allStatus','allCategoriesDropdown') );
     }
@@ -390,5 +390,59 @@ class CategoryController extends Controller
 
         return response()->json(["code" => 200, "html" => ""]);
     }
+
+    public function affectedProduct(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+
+        if (!empty($from)) {
+            // check the type and then
+            $total = \App\ScrapedProducts::matchedCategory($from)->count();
+            return response()->json(["code" => 200, "total" => $total]);
+        }
+    }
+
+    public function updateCategoryReference(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+
+        \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+            "from"    => $from,
+            "to"      => $to,
+            "user_id" => \Auth::user()->id,
+        ])->onQueue("supplier_products");
+
+        $c = Category::where("id",$old)->first();
+
+        if($c) {
+            $allrefernce = explode(",",$c->references);
+            $newRef = [];
+            if(!empty($allrefernce)) {
+                foreach($allrefernce as $ar) {
+                    if($ar != $from) {
+                        $newRef[] = $ar;
+                    }
+                }
+            }
+            $c->references = implode(",",$newRef);
+            $c->save();
+
+            // new category reference store
+            $new = Category::where("id",$to)->first();
+            if($new) {
+               $existingRef = explode(",",$new->references);
+               $existingRef[] = $from;
+               $new->references = implode(",",$existingRef);
+               $new->save();
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
 }
  

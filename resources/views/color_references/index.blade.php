@@ -35,7 +35,7 @@
                             <td>{{ $key+1 }}</td>
                             <td style="background-color: #{{$color->color_code}}">{{ $color->color_code }}</td>
                             <td>
-                                <select class="form-control" name="colors[{{$color->id}}]" id="color_{{$color->id}}">
+                                <select class="form-control color-change-event" data-name="{{ $color->color_name }}" name="colors[{{$color->id}}]" id="color_{{$color->id}}">
                                     <option value="">Select Color</option>
                                     @foreach((new \App\Colors())->all() as $col)
                                         <option {{ $col==$color->erp_name ? 'selected' : '' }} value="{{ $col }}">{{ $col }}</option>
@@ -63,6 +63,72 @@
     </div>
     @section('scripts')
      <script>
+
+            $(document).on("change",".color-change-event",function() {
+                var $this = $(this);
+                var form  = $this.closest("form").find("#old-cat-id").val()
+
+                $.ajax({
+                    type: 'GET',
+                    url: '/color-reference/affected-product',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.data("name"),
+                        to : $this.val()
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            //toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
+                });
+            });
+
+            $(document).on("click",".btn-change-color",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: '/color-reference/update-color',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.data("from"),
+                        to : $this.data("to"),
+                        with_product:$this.data('with-product')
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+            });
+
+
             $(document).on("click",".call-used-product",function() {
                 var $this = $(this);
                 $.ajax({

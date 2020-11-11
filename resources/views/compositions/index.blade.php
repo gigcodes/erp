@@ -63,7 +63,7 @@
                                 'replace_with', 
                                 $listcompostions , 
                                 $composition->replace_with, 
-                                ["class" => "form-control change-list-compostion select2", 'data-id' => $composition->id, 'style' => 'width:400px']
+                                ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px']
                             ); ?>
                         </div>
                     </td>
@@ -117,32 +117,69 @@
                     }
                 }).fail(function (response) {
                     $("#loading-image").hide();
-                    console.log("Sorry, something went wrong");
+                    toastr['error']('Sorry no product founds', 'error');
                 });
             });
 
             $(document).on("change",".change-list-compostion",function() {
                 var $this = $(this);
                 $.ajax({
-                    type: 'PUT',
-                    url: '/compositions/'+$this.data("id"),
+                    type: 'GET',
+                    url: '/compositions/affected-product',
                     beforeSend: function () {
                         $("#loading-image").show();
                     },
                     data: {
                         _token: "{{ csrf_token() }}",
-                        replace_with: $this.val(),
+                        from : $this.data("name"),
+                        to : $this.val()
                     },
                     dataType: "json"
                 }).done(function (response) {
                     $("#loading-image").hide();
                     if (response.code == 200) {
-                        $this.remove();
-                        toastr['success'](response.message, 'success');
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            //toastr['error']('Sorry no product founds', 'error');
+                        }
                     }
                 }).fail(function (response) {
                     $("#loading-image").hide();
                     console.log("Sorry, something went wrong");
+                });
+            });
+
+            $(document).on("click",".btn-change-composition",function() {
+                var $this = $(this);
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-composition',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.data("from"),
+                        to : $this.data("to"),
+                        with_product:$this.data('with-product')
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
                 });
             });
     </script>

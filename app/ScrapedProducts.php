@@ -175,4 +175,36 @@ class ScrapedProducts extends Model
     {
         return $this->hasOne('App\Product', 'id', 'product_id');
     }
+
+    public static function matchedColors($name) 
+    {
+       $q = '"color":"'.$name.'"';
+       return \App\Product::where("sp.properties","like",'%'.$q.'%')
+       ->join("scraped_products as sp","sp.sku","products.sku")
+       ->where("products.color","")
+       ->select("products.*")
+       ->get();
+    }
+
+    public static function matchedComposition($name) 
+    {
+       $q  = '"'.$name.'"';
+       return \App\Product::where("sp.properties","like",'%'.$q.'%')
+       ->join("scraped_products as sp","sp.sku","products.sku")
+       ->where("products.composition","")
+       ->select("products.*")
+       ->get();
+    }
+
+    public static function matchedCategory($name) 
+    {
+       $q  = '"'.$name.'"';
+       return \App\Product::where("sp.properties","like",'%'.$q.'%')
+       ->join("scraped_products as sp","sp.sku","products.sku")
+       ->where(function($q) {
+            $q->whereNull("products.category")->orWhere("products.category","<=",1);
+       })
+       ->select("products.*")
+       ->get();
+    }
 }
