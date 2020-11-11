@@ -509,12 +509,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
+    Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
-
-
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
@@ -2338,6 +2337,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
+    Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
