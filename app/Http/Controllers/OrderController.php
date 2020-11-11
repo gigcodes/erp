@@ -701,7 +701,6 @@ class OrderController extends Controller {
                     if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
     					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
     					$view = (new OrderConfirmation($order))->render();
-                        echo $view;die;
                         $params = [
     				        'model_id'    		=> $order_new->customer->id,
     				        'model_type'  		=> Customer::class,
