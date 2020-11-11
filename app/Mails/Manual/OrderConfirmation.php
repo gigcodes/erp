@@ -46,7 +46,6 @@ class OrderConfirmation extends Mailable
                     $view = (string)view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
-                    echo "<pre>"; print_r($view);  echo "</pre>";die;
                     return $this->from('customercare@sololuxury.co.in')->subject($template->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
