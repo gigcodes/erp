@@ -1344,7 +1344,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
-
+    Route::post('assets-manager/payment-history', 'AssetsManagerController@paymentHistory')->name('assetsmanager.paymentHistory');
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
