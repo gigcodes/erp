@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html>
 <head>
@@ -32,11 +31,11 @@
           <tbody>
             <tr>
               <td>
-                <h3 style="line-height: 1.24;font-size: 17px;font-weight: bold;letter-spacing: -0.1px;color:#898989;margin: 0;padding: 0;">Hello James</h3>
+                <h3 style="line-height: 1.24;font-size: 17px;font-weight: bold;letter-spacing: -0.1px;color:#898989;margin: 0;padding: 0;">Hello {{ $customer->name }}</h3>
               </td>
             </tr>
             <tr><td><div style="font-size: 13px;line-height: 1.62;color:#898989;margin: 5px 0;">You've got great taste! We're so glad you chose noon.</div></td></tr>
-            <tr><td><div style="font-size: 13px;line-height: 1.62;color:#898989;">Your order NAECB0042412822 has been received and is currently being processed by our crew.</div></td></tr>
+            <tr><td><div style="font-size: 13px;line-height: 1.62;color:#898989;">Your order {{ $order->order_id }} has been received and is currently being processed by our crew.</div></td></tr>
           </tbody>
         </table>
       </div>
@@ -62,106 +61,14 @@
           <table border="0" cellpadding="0" cellspacing="0">
             <tbody>
                 <tr>
-                  <td style="width: 100%;"><div style="font-weight: bold;font-size: 20px;color: #898989;padding-top: 10px;"><b style="color: #000000;">Ordered:</b> Nov 07, 2020</div></td>
+                  <td style="width: 100%;"><div style="font-weight: bold;font-size: 20px;color: #898989;padding-top: 10px;"><b style="color: #000000;">Ordered:</b>
+                    {{ date("M d, Y",strtotime($order->created_at)) }}</div></td>
                 </tr>
             </tbody>
           </table>
       </div>
-      <div style="width: 100%;padding: 30px 0px 30px;">
-        <table border="0" cellpadding="0" cellspacing="0">
-          <tbody>
-            <tr>
-              <td width="50%" valign="top" align="left" style="background-color: #f9f2ef;padding: 20px 30px;">
-                <table align="left" valign="top">
-                  <tbody>
-                    <tr>
-                      <td><div style="font-size: 14px;font-weight: bold;color: #000000;padding-bottom: 5px;">ORDER SUMMARY</div></td>
-                    </tr>
-                    <tr>
-                      <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">Order No:</div></td>
-                      <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ $order->order_id }}</div></td>
-                    </tr>
-                    <tr>
-                      <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">Order Total:</div></td>
-                      <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ $order->currency }} {{ $order->balance_amount }}</div></td>
-                    </tr>
-                    <tr>
-                      <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">Payment :</div></td>
-                      <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ ucwords($order->payment_mode) }}</div></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-               <td width="50%" valign="top" align="right" style="background-color: #f9f2ef;padding: 20px 30px;">
-                <table align="left" valign="top">
-                  <tbody>
-                    <tr>
-                      <td><div style="font-size: 14px;font-weight: bold;color: #000000;padding-bottom: 5px;">SHIPPING ADDRESS</div></td>
-                    </tr>
-                    <tr>
-                      <td><div style="color: #898989;font-size: 12px;padding-top: 5px;font-weight: bold;">{{ $order->customer->name }}</div></td>
-                    </tr>
-                    <tr>
-                      <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">{{ $order->customer->address }} </br>  {{ $order->customer->city }} </br>   {{ $order->customer->pincode }} </br>    {{ $order->customer->country }} </br>    T: {{ $order->customer->phone }}</div></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      <div style="width: 100%;padding: 0px 30px;">
-        <table cellpadding="0" cellspacing="0" style="border: 1px solid #f4e7e1;">
-          <tbody>
-            <tr><td style="border-bottom:1px solid #f4e7e1;text-align: center;font-size: 16px;font-weight: bold;padding: 10px;color: #898989;">Confirmed Items</td></tr>
-            <tr>
-              <td>
-                <table border="0" cellpadding="0" cellspacing="0">
-                  <tbody>
-                    @php $total = $product_total = 0; @endphp
-                    @foreach ($order->order_product as $order_product)
-                      @php $product = $order_product->product @endphp
-                      <tr>
-                        <td style="padding:5px 10px;"><div><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></div></td>
-                        <td style="padding: 5px 10px;">
-                          <h4 style="margin: 0;padding:0;font-weight: bold;font-size: 14px;color: #898989;">Brand name</h4>
-                          <p style="margin: 0;padding: 0;width: 70%;margin: 5px 0;">{{ ($product->brand) ? $product->brand->name : "" }}</p>
-                          <div style="font-size: 12px;color: #898989;">Quantity : {{$product->qty}}</div>
-                          <div style="font-size: 12px;font-weight: 700;color: #000000;margin-top: 5px;margin-bottom: 10px;">Receive it by {{$order_product->shipment_date}}</div>
-                        </td>
-                        <td style="font-weight: bold;padding: 5px 10px;">{{ $order->currency }} {{$order_product->order_price}}</td>
-                      </tr>
-                      @php $product_total += $order_product->product_price; @endphp
-                      @php $total += $order_product->order_price; @endphp
-                    @endforeach
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <table cellpadding="0" cellspacing="0">
-          <tbody>
-            <tr>
-              <td align="right">
-               <table align="right" style="width: 230px;">
-                  <tbody align="right">
-                    <tr>
-                      <td align="left"><div style="color: #898989;font-size: 14px;padding-top: 10px;">Subtotal</div></td>
-                      <td align="right" style="padding-right: 10px;"><div style="color: #898989;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">{{ $order->currency }}{{$product_total}}</div></td>
-                    </tr>
-                     <tr>
-                      <td align="left"><div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Total <span style="font-size: 11px;font-weight: normal;color: #898989;">(Inclusive of VAT)</span></div></td>
-                      <td align="right" style="padding-right: 10px;"><div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">{{ $order->currency }}{{$total}}</div></td>
-                    </tr>
-                  </tbody>
-                </table>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+      @include('emails.orders.partials.order-summary')
+      @include('emails.orders.partials.order-product-summary')
       <div style="width: 100%;padding: 30px;">
         <table border="0" cellpadding="0" cellspacing="0">
           <tbody>

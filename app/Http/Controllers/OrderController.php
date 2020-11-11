@@ -566,7 +566,9 @@ class OrderController extends Controller {
 				$last_order = Cache::get('last-order') + 1;
 				Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 				Cache::put('last-order', $last_order, $expiresAt);
-			}
+			}else{
+                $last_order = Cache::get('last-order');
+            }
 		} else {
             $last = Order::withTrashed()->latest()->first();
 			$last_order = ($last) ? $last->id + 1 : 1;
@@ -609,6 +611,11 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( Request $request ) {
+
+        $order = Order::find(2063);
+        $view = (new OrderConfirmation($order))->render();
+        echo $view;die;
+
 		$this->validate( $request, [
 			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
@@ -657,8 +664,7 @@ class OrderController extends Controller {
 		//
 		// 	$data['customer_id'] = $customer->id;
 		// }
-
-		$customer = Customer::find($request->customer_id);
+        $customer = Customer::find($request->customer_id);
 
 		$data['client_name'] = $customer->name;
 		$data['contact_detail'] = $customer->phone;
@@ -672,7 +678,23 @@ class OrderController extends Controller {
 		}
 
         $data['estimated_delivery_date'] = $data['date_of_delivery'];
-		$order = Order::create( $data );
+        $order = Order::create( $data );
+
+        if(!empty($request->input('order_products'))) {
+            foreach ($request->input('order_products') as $key => $order_product_data) {
+                $order_product = OrderProduct::findOrFail( $key );
+                if($order_product->order_id != $order->id) {
+                    $nw_order_product = new OrderProduct;
+                    foreach($order_product->getAttributes() as $k => $attr) {
+                        if(!in_array($k, ["id","created_at","updated_at"])) {
+                            $nw_order_product->{$k} = $attr;
+                        }
+                    }
+                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->save();
+                }
+            }
+        }
 
 		 if($request->hdn_order_mail_status == "1")
 		{
@@ -683,7 +705,8 @@ class OrderController extends Controller {
                     if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
     					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
     					$view = (new OrderConfirmation($order))->render();
-    					$params = [
+                        echo $view;die;
+                        $params = [
     				        'model_id'    		=> $order_new->customer->id,
     				        'model_type'  		=> Customer::class,
     				        'from'        		=> 'customercare@sololuxury.co.in',
