@@ -105,8 +105,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
+    Route::get('color-reference/affected-product', 'ColorReferenceController@affectedProduct');
+    Route::post('color-reference/update-color', 'ColorReferenceController@updateColor');
+
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
+    Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
+    Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
+
     Route::resource('compositions', 'CompositionsController');
 
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
@@ -304,8 +310,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
+    Route::post('category/references/update-reference', 'CategoryController@updateReference');
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
+    Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
+    Route::post('category/references/update-category', 'CategoryController@updateCategoryReference');
+
+
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
