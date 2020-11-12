@@ -2791,6 +2791,7 @@ class ProductController extends Controller
             ->where('products.category', '>', 3)
             ->where('products.stock', '>=', 1)
             ->orderBy('products.scrap_priority', 'DESC')
+            ->select("products.*")
             ->first();
         } else {
             // Get next product
