@@ -520,6 +520,8 @@ class Kernel extends ConsoleKernel
         
         //cron for fcm push notifications
         $schedule->command("fcm:send")->everyFiveMinutes();
+        //cron for influencers start stop
+        $schedule->command('influencers:startstop')->hourly();
         //cron for price check api daily basis
         $schedule->command("pricedrop:check")->daily();
     }
