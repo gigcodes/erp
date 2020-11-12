@@ -46,20 +46,20 @@ class OrderConfirmation extends Mailable
                     $view = (string)view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
-                    return $this->from('customercare@sololuxury.co.in')->subject($template->subject)
+                    return $this->from('contact@sololuxury.co.in')->subject($template->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
                 }else{
                     $content = $template->static_template;
-                    return $this->from('customercare@sololuxury.co.in')->subject($template->subject)->view('emails.blank_content', compact(
+                    return $this->from('contact@sololuxury.co.in')->subject($template->subject)->view('emails.blank_content', compact(
                         'order', 'customer', 'order_products','content'
                     ));
                 }
             }
 
         } else {
-            return $this->from('customercare@sololuxury.co.in')->bcc('customercare@sololuxury.co.in')->subject($subject)->view('emails.orders.confirmed-solo', compact(
+            return $this->from('contact@sololuxury.co.in')->bcc('contact@sololuxury.co.in')->subject($subject)->view('emails.orders.confirmed-solo', compact(
                 'order', 'customer', 'order_products'
             ));
         }
