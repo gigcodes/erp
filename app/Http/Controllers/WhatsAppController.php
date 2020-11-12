@@ -3281,8 +3281,6 @@ class WhatsAppController extends FindByNumberController
         }
 
         // get the status for approval
-        $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
-
         if ($isNeedToBeSend && $chat_message->status != 0 && $chat_message->is_queue == '0') {
             $myRequest = new Request();
             $myRequest->setMethod('POST');

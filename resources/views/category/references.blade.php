@@ -338,6 +338,7 @@
         });
 
         $(document).on("click",".category-mov-btn span",function(event){
+            $(".btn-category-update").html("Update");
             var $target = $(event.target);
             if($target[0].tagName != "I") {
                 var catModal = $("#categoryUpdate");
@@ -347,7 +348,57 @@
             }
         });
 
+        $(document).on("change",".new-category-update",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'POST',
+                url: '/category/references/affected-product',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: $this.closest('form').serialize(),
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $(".btn-category-update").html("Update ("+response.total+")");
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
+        });
+
         $(document).on("click",".btn-category-update",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'POST',
+                url: '/category/references/update-category',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: $this.closest('form').serialize(),
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if(response.html != "") {
+                        toastr['success'](response.message, 'success');
+                    }else{
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                    $(".show-listing-exe-records").modal('hide');
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+                $(".show-listing-exe-records").modal('hide');
+            });
+        });
+
+        /*$(document).on("click",".btn-category-update",function(e) {
             e.preventDefault();
             var form = $(this).closest("form");
             $.ajax({
@@ -364,7 +415,7 @@
                 toastr['success']('Category Updated successfully', 'success');
                 location.reload();
             });
-        });
+        });*/
 
     </script>
 @endsection

@@ -6,6 +6,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/css/bootstrap-datetimepicker.min.css">
   <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" />
+  <link href="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/themes/smoothness/jquery-ui.css" rel="stylesheet" />
 <style>
 .ajax-loader{
     position: fixed;
@@ -410,6 +411,34 @@ color:black!important;
                             </div>
                             <div class="col-md-12">
                                 <div class="col-md-2">
+                                    <strong>Add New Reply:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                <div class="form-group">
+                                  <input type="text" class="addnewreply" placeholder="add new reply">
+                                  <button class="btn btn-secondary addnewreplybtn">+</button>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Quick Reply:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                <div class="form-group">
+                                  <select class="quickreply">
+                                  <option value="">Select quick reply</option>
+                                  @if($quickreply)
+                                    @foreach($quickreply as $quickrep)
+                                      <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
+                                    @endforeach
+                                 @endif
+                                </select>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-2">
                                     <strong>Message:</strong>
                                 </div>
                                 <div class="col-md-8">
@@ -456,6 +485,7 @@ color:black!important;
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
   <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({
@@ -478,21 +508,61 @@ color:black!important;
             }
             $("#generateAWBMODAL").modal("show");
       });
+      
 
-      $(document).on("change",".order-status-select",function() {
-        $.ajax({
-          url: "/order/change-status",
-          type: "GET",
-          async : false,
-          data : {
-            id : $(this).data("id"),
-            status : $(this).val()
+    function ConfirmDialog(message,id,status) {
+      $('<div></div>').appendTo('body')
+        .html('<div><h5>' + message + '?</h5></div>')
+        .dialog({
+          modal: true,
+          title: 'Confirm Send',
+          zIndex: 10000,
+          autoOpen: true,
+          width: 'auto',
+          resizable: false,
+          buttons: {
+            Yes: function() {
+              $.ajax({
+                url: "/order/change-status",
+                type: "GET",
+                async : false,
+                data : {
+                  id : id,
+                  status : status,
+                  sendmessage:'1',
+                }
+              }).done( function(response) {
+              
+              }).fail(function(errObj) {
+                alert("Could not change status");
+              });    
+            },
+            No: function() {
+              $.ajax({
+              url: "/order/change-status",
+              type: "GET",
+              async : false,
+              data : {
+                id : id,
+                status : status
+              }
+            }).done( function(response) {
+            
+            }).fail(function(errObj) {
+              alert("Could not change status");
+            });
+            }
+          },
+          close: function(event, ui) {
+            $(this).remove();
           }
-        }).done( function(response) {
-         
-        }).fail(function(errObj) {
-          alert("Could not change status");
         });
+    };
+      $(document).on("change",".order-status-select",function() {
+        var id = $(this).data("id");
+        var status = $(this).val();
+        var message = 'Do you want to send message to customer for status change';
+        ConfirmDialog(message,id,status);
       });
 
       $(".select2").select2({tags:true});
@@ -813,6 +883,47 @@ color:black!important;
             });
           
         })
+        $(document).on('click','.addnewreplybtn',function(e){
+          e.preventDefault();
+          var replybox  = $(this).parentsUntil('#customerUpdateForm').find('.addnewreply');
+          var selectreplybox = $(this).parentsUntil('#customerUpdateForm').find('.quickreply');
+          var reply = $(this).parentsUntil('#customerUpdateForm').find('.addnewreply').val();
+          if(!reply){
+            alert('please add reply to input box !');
+            return false;
+          }
+          $.ajax({
+                type: "POST",
+                url: "{{route('order.addNewReply')}}",
+                data: {reply:reply},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+              if(response.status==200){
+                replybox.val('');
+                selectreplybox.html(response.html);
+              }
+            }).fail(function (response) {
+              $('.ajax-loader').hide();
+                console.log(response);
+            });
+          
+        })
+        $('.quickreply').on('change',function(){
+          var reply = $(this).find('option:selected').text();
+          var replyval = $(this).find('option:selected').attr('value');
+          if(replyval!=''){
+            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
+          }else{
+            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
+          }
+        });
         
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here

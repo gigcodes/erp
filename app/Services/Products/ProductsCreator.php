@@ -120,10 +120,8 @@ class ProductsCreator
                 $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
-                    if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? '', 'composition'));
-                    }
-
+                    $product->composition = $composition;
+                    
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
                         $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? '', 'composition'));

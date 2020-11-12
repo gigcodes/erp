@@ -105,8 +105,14 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('reject-listing-by-supplier', 'ProductController@rejectedListingStatistics');
     Route::get('lead-auto-fill-info', 'LeadsController@leadAutoFillInfo');
     Route::get('color-reference/used-products', 'ColorReferenceController@usedProducts');
+    Route::get('color-reference/affected-product', 'ColorReferenceController@affectedProduct');
+    Route::post('color-reference/update-color', 'ColorReferenceController@updateColor');
+
     Route::resource('color-reference', 'ColorReferenceController');
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
+    Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
+    Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
+
     Route::resource('compositions', 'CompositionsController');
 
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
@@ -304,8 +310,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('settings/updateAutomatedMessages', 'SettingController@updateAutoMessages')->name('settings.update.automessages');
     Route::resource('settings', 'SettingController');
     Route::get('category/references/used-products', 'CategoryController@usedProducts');
+    Route::post('category/references/update-reference', 'CategoryController@updateReference');
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
+    Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
+    Route::post('category/references/update-category', 'CategoryController@updateCategoryReference');
+
+
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
@@ -498,12 +509,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
+    Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
-
-
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
@@ -1344,7 +1354,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
-
+    Route::post('assets-manager/payment-history', 'AssetsManagerController@paymentHistory')->name('assetsmanager.paymentHistory');
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
@@ -2327,6 +2337,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
+    Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');

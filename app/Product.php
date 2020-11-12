@@ -994,10 +994,18 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
-        if(empty($this->name) || $this->name == ".." || empty($this->short_description) || empty($this->price)) {
+        if(empty($this->name) 
+            || $this->name == ".." 
+            || empty($this->short_description) 
+            || empty($this->price) 
+            || !$this->hasMedia(\Config('constants.media_original_tag'))
+        ) {
             $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
-        }else{
+        }else if(empty($this->composition) || empty($this->color) || empty($this->category || $this->category < 1)) {
+            $this->status_id = StatusHelper::$unknownCategory;
+            $this->save();
+        } else{
             // if validation pass and status is still external scraper then remove and put for the auto crop
             if($this->status_id == StatusHelper::$requestForExternalScraper) {
                $this->status_id =  StatusHelper::$autoCrop;
@@ -1100,7 +1108,8 @@ class Product extends Model
                 $q->where('products.name', 'LIKE', "%$term%")
                 ->orWhere('products.sku', 'LIKE', "%$term%")
                 ->orWhere('c.title', 'LIKE', "%$term%")
-                ->orWhere('b.name', 'LIKE', "%$term%");
+                ->orWhere('b.name', 'LIKE', "%$term%")
+                ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
         return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);

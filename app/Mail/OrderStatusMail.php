@@ -22,8 +22,8 @@ class OrderStatusMail extends Mailable
      */
     public function __construct($data)
     {
-		$this->subject =  $data['subject'];
-		$this->body =  $data['static_template'];
+		$this->subject =  isset($data['subject']) ? :"";
+		$this->body =  isset($data['static_template'])?:"";
         if(isset($data['from'])){
              $this->sendFrom =  $data['from'];
         }else{
