@@ -2371,6 +2371,11 @@ public function createProductOnMagento(Request $request, $id){
 			$order->customer->save();
 		}
 
+        $products = $order->orderProducts;
+        if(!$products->isEmpty()) {
+            
+        }
+
 
 		$rateReq   = new CreateShipmentRequest("soap");
 		$rateReq->setShipper([
