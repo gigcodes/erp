@@ -43,7 +43,6 @@ abstract class APIAbstract
         } else {
             $ch = curl_init($this->_stagingUrl);
         }
-        dump($this->document());
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); //ssl
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); //ssl
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml']);
@@ -60,7 +59,6 @@ abstract class APIAbstract
         $result = curl_exec($ch);
 
         curl_close($ch);
-        dump($result);
         $this->resultsRAW = $result;
         try {
             $result = str_ireplace(['xmlSOAP-ENV','ser-root:','SOAP-ENV:', 'SOAP:','rateresp:','shipresp:','trac:','dhl:','ns:'], '', $result);
