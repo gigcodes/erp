@@ -5,6 +5,7 @@ namespace App\Console\Commands;
 use Illuminate\Console\Command;
 use App\AssetsManager;
 use App\CashFlow;
+use Carbon\Carbon;
 class AssetsManagerPaymentCron extends Command
 {
     /**
@@ -75,7 +76,7 @@ class AssetsManagerPaymentCron extends Command
         foreach($results as $result){
             
             //create entry in table cash_flows
-            CashFlow::create(
+            /* CashFlow::create(
                 [
                     'description'=>'Asset Manager Payment for id '.$result->id,
                     'date'=>date('Y-m-d'),
@@ -83,7 +84,18 @@ class AssetsManagerPaymentCron extends Command
                     'type'=>'paid',
                     'cash_flow_able_type'=>'App\AssetsManager',
                 ]
-            );
+            ); */
+
+            if($result->payment_cycle =='Weekly')
+            {
+                AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::parse('next monday')->toDateString()]);
+            }elseif($result->payment_cycle =='Monthly'){
+                AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->day(5)->addMonth(1)->toDateString()]);
+            }elseif($result->payment_cycle =='Bi-Weekly'){
+                AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->addWeeks(2)->toDateString()]);
+            }elseif($result->payment_cycle =='Yearly'){
+                AssetsManager::where('id',$result->id)->update(['due_date'=>Carbon::now()->addYear()->toDateString()]);
+            }
             $i++;
             if($i==$count){
                 $success=true;
