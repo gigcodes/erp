@@ -253,7 +253,6 @@ class CreateShipmentRequest extends APIAbstract
                             $xml->writeElement('Account',$this->accountNumber);
                             $xml->writeElement('Currency',$this->currency);
                             $xml->writeElement('UnitOfMeasurement',$this->unitOfMeasurement);
-                            $xml->writeElement('ShipmentIdentificationNumber',$this->shipmentIdentificationNumber);
                             $xml->writeElement('PackagesCount',count($this->packages));
                             $xml->writeElement('SendPackage',$this->sendPackage);
                         $xml->endElement();
@@ -265,7 +264,7 @@ class CreateShipmentRequest extends APIAbstract
                                 $xml->writeElement('Description','Fashion Products');
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
-                            $xml->writeElement('Content',$this->content);
+                            $xml->writeElement('Content',"NON_DOCUMENTS");
                         $xml->endElement();
                         // section for the  shiping and recipient
                         $xml->startElement('Ship');
