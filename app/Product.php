@@ -1108,7 +1108,8 @@ class Product extends Model
                 $q->where('products.name', 'LIKE', "%$term%")
                 ->orWhere('products.sku', 'LIKE', "%$term%")
                 ->orWhere('c.title', 'LIKE', "%$term%")
-                ->orWhere('b.name', 'LIKE', "%$term%");
+                ->orWhere('b.name', 'LIKE', "%$term%")
+                ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
         return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
