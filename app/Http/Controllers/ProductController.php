@@ -3003,7 +3003,7 @@ class ProductController extends Controller
 
             
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->where('original_media_id', $allMediaIds)->count();
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
 
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
