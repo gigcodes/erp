@@ -3003,7 +3003,8 @@ class ProductController extends Controller
 
             
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->where('original_media_id', $allMediaIds)->count();
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
+
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             try {
@@ -3015,8 +3016,12 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
+            $totalM = $productMediacount;
 
             $productMediacount = ($productMediacount * $multi);
+
+            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
