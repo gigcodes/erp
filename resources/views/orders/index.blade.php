@@ -311,7 +311,7 @@ color:black!important;
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
                   @else
-                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;">
+                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                       <i class="fa fa-truck" aria-hidden="true"></i>
                     </a>
                   @endif
@@ -469,12 +469,18 @@ color:black!important;
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
             if(typeof customer != "undefined" || customer != "") {
-               $(".input_customer_name").val(customer.name);
+               /* $(".input_customer_name").val(customer.name);
                $(".input_customer_phone").val(customer.phone);
                $(".input_customer_address1").val(customer.address);
                $(".input_customer_address2").val(customer.city);
                $(".input_customer_city").val(customer.city);
-               $(".input_customer_pincode").val(customer.pincode);
+               $(".input_customer_pincode").val(customer.pincode); */
+               $("#customer_name").val(customer.name);
+               $("#customer_phone").val(customer.phone);
+               $("#customer_address1").val(customer.address);
+               $("#customer_address2").val(customer.city);
+               $("#customer_city").val(customer.city);
+               $("#customer_pincode").val(customer.pincode);
             }
             $("#generateAWBMODAL").modal("show");
       });
@@ -817,5 +823,117 @@ color:black!important;
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
+
+          $('#swtichForm').on('click',function(e){
+    
+        var from_customer_id=$("#from_customer_name");
+        var from_customer_city=$("#from_customer_city");
+        var from_customer_country=$("#from_customer_country");
+        var from_customer_phone=$("#from_customer_phone");
+        var from_customer_address1=$("#from_customer_address1");
+        var from_customer_address2=$("#from_customer_address2");
+        var from_customer_pincode=$("#from_customer_pincode");
+        var from_company_name=$("#from_company_name");
+        /* var from_actual_weight=$("#from_actual_weight");
+        var from_box_length=$("#from_box_length");
+        var from_box_width=$("#from_box_width");
+        var from_box_height=$("#from_box_height");
+        var from_amount=$("#from_amount");
+        var from_currency=$("#from_currency");
+        var from_pickup_time=$("#from_pickup_time");
+        var from_service_type=$("#from_service_type"); */
+        //"TO" section
+        var customer_id=$("#customer_name");
+        var customer_city=$("#customer_city");
+        var customer_country=$("#customer_country");
+        var customer_phone=$("#customer_phone");
+        var customer_address1=$("#customer_address1");
+        var customer_address2=$("#customer_address2");
+        var customer_pincode=$("#customer_pincode");
+        var company_name=$("#company_name");
+        var actual_weight=$("#actual_weight");
+        var box_length=$("#box_length");
+        var box_width=$("#box_width");
+        var box_height=$("#box_height");
+        var amount=$("#amount");
+        var currency=$("#currency");
+        var pickup_time=$("#pickup_time");
+        var service_type=$("#service_type");
+
+        var pre_from_customer_id=from_customer_id.val();
+        from_customer_id.val(customer_id.val());
+        customer_id.val(pre_from_customer_id);
+       /*  var pre_from_customer_id_name=from_customer_id.attr('name');
+        var pre_from_customer_id_id=from_customer_id.attr('name');
+        from_customer_id.attr('name',customer_id.attr('name'));
+        from_customer_id.attr('id',customer_id.attr('id'));
+        customer_id.attr('name',pre_from_customer_id_name);
+        customer_id.attr('id',pre_from_customer_id_id); */
+        
+        var pre_from_customer_name=$("#div_from_customer_name").html();
+        $("#div_from_customer_name").html($("#div_to_customer_name").html());
+        $("#div_to_customer_name").html(pre_from_customer_name);
+        
+        var pre_from_customer_city=from_customer_city.val();
+        from_customer_city.val(customer_city.val());
+        customer_city.val(pre_from_customer_city);
+
+        var pre_from_customer_country=from_customer_country.val();
+        from_customer_country.val(customer_country.val());
+        customer_country.val(pre_from_customer_country);
+
+        var pre_from_customer_phone=from_customer_phone.val();
+        from_customer_phone.val(customer_phone.val());
+        customer_phone.val(pre_from_customer_phone);
+
+        var pre_from_customer_address1=from_customer_address1.val();
+        from_customer_address1.val(customer_address1.val());
+        customer_address1.val(pre_from_customer_address1);
+
+        var pre_from_customer_address2=from_customer_address2.val();
+        from_customer_address2.val(customer_address2.val());
+        customer_address2.val(pre_from_customer_address2);
+
+        var pre_from_customer_pincode=from_customer_pincode.val();
+        from_customer_pincode.val(customer_pincode.val());
+        customer_pincode.val(pre_from_customer_pincode);
+
+        var pre_from_company_name=from_company_name.val();
+        from_company_name.val(company_name.val());
+        company_name.val(pre_from_company_name);
+
+        /* var pre_from_actual_weight=from_actual_weight.val();
+        from_actual_weight.val(actual_weight.val());
+        actual_weight.val(pre_from_actual_weight);
+
+        var pre_from_box_length=from_box_length.val();
+        from_box_length.val(box_length.val());
+        box_length.val(pre_from_box_length);
+
+        var pre_from_box_width=from_box_width.val();
+        from_box_width.val(box_width.val());
+        box_width.val(pre_from_box_width);
+
+        var pre_from_box_height=from_box_height.val();
+        from_box_height.val(box_height.val());
+        box_height.val(pre_from_box_height);
+        
+        var pre_from_amount=from_amount.val();
+        from_amount.val(amount.val());
+        amount.val(pre_from_amount);
+
+        var pre_from_currency=from_currency.val();
+        from_currency.val(currency.val());
+        currency.val(pre_from_currency);
+        
+        var pre_from_pickup_time=from_pickup_time.val();
+        from_pickup_time.val(pickup_time.val());
+        pickup_time.val(pre_from_pickup_time);
+
+        var pre_from_service_type=from_service_type.val();
+        from_service_type.val(service_type.val());
+        service_type.val(pre_from_service_type); */
+    
+    });
   </script>
 @endsection

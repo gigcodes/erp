@@ -33,7 +33,7 @@
 <div class="infinite-scroll">
     <div class="row col-md-12">
         <div class="col-md-4">
-            <button class="btn btn-secondary add-shipment" data-target="#addShipment" data-toggle="modal">+</button>
+            <button class="btn btn-secondary generate-awb">+</button>
         </div>
     </div>
     <form method="get" action="">
@@ -93,8 +93,12 @@
                         <a class="btn" href="javascript:void(0);" id="view_mail_btn" title="View communication sent" data-order-id="{{ $item->order_id }}">
                             <i class="fa fa-eye" aria-hidden="true"></i>
                         </a>
+                        <a class="btn" href="javascript:void(0);" id="create_pickup_request_btn" title="Create pickup request" data-waybillid="{{ $item->id }}">
+                            <i class="fa fa-truck" aria-hidden="true"></i>
+                        </a>
                         <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
                             <i class="fa fa-list" aria-hidden="true"></i>
+
                         </a>
                     </td>
                 </tr>
@@ -108,8 +112,8 @@
 	</div>
 </div>
 
+@include("partials.modals.generate-awb-modal")
 @include('shipment.partial.modal')
-@include('shipment.partial.generate-shipping')
 
 @endsection
 
@@ -135,6 +139,26 @@ $(".to-email, .cc-email, .bcc-email").select2({
     }
 });
 
+$(document).on("click",".generate-awb",function() {
+      var customer = $(this).data("customer");
+
+        if(typeof customer != "undefined" && customer != "") {
+           /* $(".input_customer_name").val(customer.name);
+           $(".input_customer_phone").val(customer.phone);
+           $(".input_customer_address1").val(customer.address);
+           $(".input_customer_address2").val(customer.city);
+           $(".input_customer_city").val(customer.city);
+           $(".input_customer_pincode").val(customer.pincode); */
+           $("#customer_name").val(customer.name);
+           $("#customer_phone").val(customer.phone);
+           $("#customer_address1").val(customer.address);
+           $("#customer_address2").val(customer.city);
+           $("#customer_city").val(customer.city);
+           $("#customer_pincode").val(customer.pincode);
+        }
+        $("#generateAWBMODAL").modal("show");
+  });
+
 $(document).on('click', '#view_mail_btn', function() {
     var orderId = $(this).data('order-id');
     $.ajax({
@@ -146,6 +170,11 @@ $(document).on('click', '#view_mail_btn', function() {
             $('#view_sent_email_modal').modal('show');
         }
     });
+});
+
+$(document).on('click','#create_pickup_request_btn',function(){
+    $("#waybill_id").val($(this).data('waybillid'));
+    $("#pickup_request").modal("show");
 });
 
 $(document).on('click', '#waybill_track_history_btn', function() {
@@ -167,13 +196,18 @@ $(document).on('click', '#send_email_btn', function() {
     $('#send_email_modal').modal('show');
 });
 
-$(document).on("change","#customer_name",function() {
+$(document).on("change","#customer_id",function() {
     var cus_id = $(this).val();
     if(cus_id == ''){
-        $('.input_customer_city').val('');
+        /* $('.input_customer_city').val('');
         $('.input_customer_phone').val('');
         $('.input_customer_address1').val('');
-        $('.input_customer_pincode').val('');
+        $('.input_customer_pincode').val(''); */
+        $('#customer_city').val('');
+        $('#customer_phone').val('');
+        $('#customer_address1').val('');
+        $('#customer_address2').val('');
+        $('#customer_pincode').val('');
     }
     $.ajax({
         url: "{{ url('shipment/customer-details') }}"+'/'+cus_id,
@@ -181,8 +215,10 @@ $(document).on("change","#customer_name",function() {
     }).done( function(response) {
         if(response.status == 1)
         {
-            $('.input_customer_city').val(response.data.city);
-            let countryField = $('.input_customer_country');
+            /* $('.input_customer_city').val(response.data.city);
+            let countryField = $('.input_customer_country'); */
+            $('#customer_city').val(response.data.city);
+            let countryField = $('#customer_city');
             let countryOptionsField = countryField.find('option')
             if (countryOptionsField && countryOptionsField.length){
                 for (let i in countryOptionsField){
@@ -191,9 +227,53 @@ $(document).on("change","#customer_name",function() {
                     }
                 }
             }
-            $('.input_customer_phone').val(response.data.phone);
+            /* $('.input_customer_phone').val(response.data.phone);
             $('.input_customer_address1').val(response.data.address);
-            $('.input_customer_pincode').val(response.data.pincode);
+            $('.input_customer_pincode').val(response.data.pincode); */
+            $('#customer_phone').val(response.data.phone);
+            $('#customer_address1').val(response.data.address);
+            $('#customer_pincode').val(response.data.pincode);
+        }
+    })
+});
+
+$(document).on("change","#from_customer_id",function() {
+    var cus_id = $(this).val();
+    if(cus_id == ''){
+        /* $('.input_customer_city').val('');
+        $('.input_customer_phone').val('');
+        $('.input_customer_address1').val('');
+        $('.input_customer_pincode').val(''); */
+        $('#from_customer_city').val('');
+        $('#from_customer_phone').val('');
+        $('#from_customer_address1').val('');
+        $('#from_customer_address2').val('');
+        $('#from_customer_pincode').val('');
+    }
+    $.ajax({
+        url: "{{ url('shipment/customer-details') }}"+'/'+cus_id,
+        type: "GET"
+    }).done( function(response) {
+        if(response.status == 1)
+        {
+            /* $('.input_customer_city').val(response.data.city);
+            let countryField = $('.input_customer_country'); */
+            $('#from_customer_city').val(response.data.city);
+            let countryField = $('#from_customer_city');
+            let countryOptionsField = countryField.find('option')
+            if (countryOptionsField && countryOptionsField.length){
+                for (let i in countryOptionsField){
+                    if (countryOptionsField[i].innerText && countryOptionsField[i].innerText.toLowerCase() === response.data.country.toLowerCase()){
+                        countryField.val(countryOptionsField[i].value)
+                    }
+                }
+            }
+            /* $('.input_customer_phone').val(response.data.phone);
+            $('.input_customer_address1').val(response.data.address);
+            $('.input_customer_pincode').val(response.data.pincode); */
+            $('#from_customer_phone').val(response.data.phone);
+            $('#from_customer_address1').val(response.data.address);
+            $('#from_customer_pincode').val(response.data.pincode);
         }
     })
 });

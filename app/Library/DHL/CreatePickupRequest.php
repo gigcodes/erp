@@ -2,14 +2,14 @@
 
 namespace App\Library\DHL;
 
-use App\Library\DHL\Response\CreateShipmentResponse;
+use App\Library\DHL\Response\CreatePickupResponse;
 
 /**
  * Get Rate request for DHL
  *
  *
  */
-class CreateShipmentRequest extends APIAbstract
+class CreatePickupRequest extends APIAbstract
 {
 
     private $reference;
@@ -28,6 +28,13 @@ class CreateShipmentRequest extends APIAbstract
     private $recipient                 = [];
     private $packages                  = [];
     private $shippingTime;
+    private $pickupTimestamp;
+    private $pickupLocationCloseTime;
+    private $specialPickupInstruction;
+    private $pickupLocation;
+    private $numberOfPieces     = 1;
+    private $description        = "Fashion products";
+    private $paymentType        = "S";
     private $unitOfMeasurement  = "SI";
     private $content            = "DOCUMENTS";
     private $paymentInfo        = "DAP";
@@ -93,6 +100,60 @@ class CreateShipmentRequest extends APIAbstract
     {
         $this->shippingTime = $value;
         return $this->shippingTime;
+    }
+
+    public function getPickupTimestamp(){
+        return $this->pickupTimestamp;
+    }
+
+    public function setPickupTimestamp($value){
+        $this->pickupTimestamp = $value;
+        return $this->pickupTimestamp;
+    }
+
+    public function getPickupLocationCloseTime(){
+        return $this->pickupLocationCloseTime;
+    }
+
+    public function setPickupLocationCloseTime($value){
+        $this->pickupLocationCloseTime = $value;
+        return $this->pickupLocationCloseTime;
+    }
+
+    public function getSpecialPickupInstruction(){
+        return $this->specialPickupInstruction;
+    }
+
+    public function setSpecialPickupInstruction($value){
+        $this->specialPickupInstruction = $value;
+        return $this->specialPickupInstruction;
+    }
+
+    public function getPickupLocation(){
+        return $this->pickupLocation;
+    }
+
+    public function setPickupLocation($value){
+        $this->pickupLocation = $value;
+        return $this->pickupLocation;
+    }
+
+    public function getNumberOfPieces(){
+        return $this->numberOfPieces;
+    }
+
+    public function setNumberOfPieces($value){
+        $this->numberOfPieces = $value;
+        return $this->numberOfPieces;
+    }
+
+    public function getDescription(){
+        return $this->description;    
+    }
+
+    public function setdescription($value){
+        $this->description = $value;
+        return $this->description;
     }
 
     public function getDropoffType()
@@ -194,15 +255,15 @@ class CreateShipmentRequest extends APIAbstract
         return $this->declaredValueCurrecyCode;
     }
 
-    public function getPaymentInfo()
+    public function getPaymentType()
     {
-        return $this->paymentInfo;
+        return $this->paymentType;
     }
 
-    public function setPaymentInfo($value)
+    public function setPaymentType($value)
     {
-        $this->paymentInfo = $value;
-        return $this->paymentInfo;
+        $this->paymentType = $value;
+        return $this->paymentType;
     }
 
     public function getMobile()
@@ -214,17 +275,6 @@ class CreateShipmentRequest extends APIAbstract
     {
         $this->mobile = $mobile;
         return $this->mobile;
-    }
-
-    public function getCommoditiesDescription()
-    {
-        return $this->commoditiesDescription;
-    }
-
-    public function setCommoditiesDescription($description)
-    {
-        $this->commoditiesDescription = $description;
-        return $this->commoditiesDescription;
     }
 
     public function toXML()
@@ -239,7 +289,7 @@ class CreateShipmentRequest extends APIAbstract
             $xml->writeAttribute('xmlns:wsu', "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd");
             $xml->writeAttribute('xmlns:wsse', "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd");
             $xml->writeAttribute('xmlns:soapenv', "http://schemas.xmlsoap.org/soap/envelope/");
-            $xml->writeAttribute('xmlns:ship', "http://scxgxtt.phx-dc.dhl.com/euExpressRateBook/ShipmentMsgRequest");
+            $xml->writeAttribute('xmlns:pic', "http://scxgxtt.phx-dc.dhl.com/euExpressRateBook/PickUpRequest");
             $xml->startElement('soapenv:Header');
                 $xml->startElement('wsse:UsernameToken');
                     $xml->writeAttribute('wsu:Id', "Request");
@@ -256,31 +306,25 @@ class CreateShipmentRequest extends APIAbstract
                 $xml->endElement();
             $xml->endElement();
             $xml->startElement('soapenv:Body');
-                $xml->startElement('ship:ShipmentRequest');
-                    $xml->startElement('RequestedShipment');
+                $xml->startElement('pic:PickUpRequest');
+                    $xml->startElement('PickUpShipment');
                         $xml->startElement('ShipmentInfo');
-                            $xml->writeElement('DropOffType', $this->dropOffType);
                             $xml->writeElement('ServiceType',$this->serviceType);
-                            $xml->writeElement('Account',$this->accountNumber);
-                            $xml->writeElement('Currency',$this->currency);
+                            $xml->startElement('Billing');
+                                $xml->writeElement('ShipperAccountNumber',$this->accountNumber);
+                                $xml->writeElement('ShippingPaymentType',$this->paymentType);
+                            $xml->endElement();
                             $xml->writeElement('UnitOfMeasurement',$this->unitOfMeasurement);
-                            $xml->writeElement('PackagesCount',count($this->packages));
-                            $xml->writeElement('SendPackage',$this->sendPackage);
                         $xml->endElement();
-                        $xml->writeElement('ShipTimestamp', $this->shippingTime);
-                        $xml->writeElement('PaymentInfo', $this->paymentInfo);
-                        $xml->writeElement('PaperLess', $this->paperLess);
+                        $xml->writeElement('PickupTimestamp', $this->pickupTimestamp);
+                        $xml->writeElement('PickupLocationCloseTime', $this->pickupLocationCloseTime);
+                        $xml->writeElement('SpecialPickupInstruction', $this->specialPickupInstruction);
+                        $xml->writeElement('PickupLocation', $this->pickupLocation);
                         $xml->startElement('InternationalDetail');
                             $xml->startElement('Commodities');
-                                $xml->writeElement('NumberOfPieces',1);
-                                $xml->writeElement('Description','Fashion Products');
-                                $xml->writeElement('CustomsValue',$this->declaredValue);
+                                $xml->writeElement('NumberOfPieces',$this->numberOfPieces);
+                                $xml->writeElement('Description',$this->description);
                             $xml->endElement();
-                            if($this->serviceType == "D") {
-                                $xml->writeElement('Content',$this->content);
-                            }else{
-                                $xml->writeElement('Content',"NON_DOCUMENTS");
-                            }
                         $xml->endElement();
                         // section for the  shiping and recipient
                         $xml->startElement('Ship');
@@ -292,6 +336,8 @@ class CreateShipmentRequest extends APIAbstract
                                         $xml->writeElement('PersonName',!empty($shipper["person_name"]) ? $shipper["person_name"] : '');
                                         $xml->writeElement('CompanyName',!empty($shipper["company_name"]) ? $shipper["company_name"] : '');
                                         $xml->writeElement('PhoneNumber',!empty($shipper["phone"]) ? $shipper["phone"] : '');
+                                        $xml->writeElement('EmailAddress',!empty($shipper["email"]) ? $shipper["email"] : '');
+                                        $xml->writeElement('MobilePhoneNumber',!empty($shipper["mobile"]) ? $shipper["mobile"] : '');
                                     $xml->endElement();
                                     $xml->startElement('Address');
                                         $xml->writeElement('StreetLines',!empty($shipper["street"]) ? $shipper["street"] : '');
@@ -310,6 +356,8 @@ class CreateShipmentRequest extends APIAbstract
                                         $xml->writeElement('PersonName',!empty($recipient["person_name"]) ? $recipient["person_name"] : '');
                                         $xml->writeElement('CompanyName',!empty($recipient["company_name"]) ? $recipient["company_name"] : '');
                                         $xml->writeElement('PhoneNumber',!empty($recipient["phone"]) ? $recipient["phone"] : '');
+                                        $xml->writeElement('EmailAddress',!empty($recipient["email"]) ? $recipient["email"] : '');
+                                        $xml->writeElement('MobilePhoneNumber',!empty($recipient["mobile"]) ? $recipient["mobile"] : '');
                                     $xml->endElement();
                                     $xml->startElement('Address');
                                         $xml->writeElement('StreetLines',!empty($recipient["street"]) ? $recipient["street"] : '');
@@ -338,27 +386,17 @@ class CreateShipmentRequest extends APIAbstract
                             }
                             $xml->endElement();
                         }
-                        $xml->startElement('ShipmentNotifications');
-                            $xml->startElement('ShipmentNotification');
-                                $xml->writeElement('NotificationMethod', 'EMAIL');
-                                $xml->writeElement('EmailAddress', 'info@theluxuryunlimited.com');
-                                $xml->writeElement('MobilePhoneNumber', $this->mobile);
-                            $xml->endElement();
-                        $xml->endElement();
                     $xml->endElement();
                 $xml->endElement();
             $xml->endElement();
         $xml->endElement();
-        //$xml->endDocument();
-        //echo $xml->outputMemory();die;
         return $this->document = $xml->outputMemory();
     }
 
     public function call()
-    {
-        $result = $this->doCurlPost();
-
-        return new CreateShipmentResponse($result);
+    {   
+        $result = $this->doCurlPost();        
+        return new CreatePickupResponse($result);
     }
 
 }
