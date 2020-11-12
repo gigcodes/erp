@@ -112,6 +112,10 @@ class Category extends Model
                 return 0;
             }
 
+            if ( $parentId == 146 && strtolower( $gender ) == 'kids' ) {
+                return 0;
+            }
+
             // Other
             if ( $parentId > 0 ) {
                 // Store category ID
@@ -132,6 +136,11 @@ class Category extends Model
 
                 // Return correct result for men
                 if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for kids
+                if ( $dbParentResult->parent_id == 146 && strtolower( $gender ) == 'kids' ) {
                     return $categoryId;
                 }
             }
@@ -213,7 +222,7 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
-    public static function getCategoryTreeMagentoWithPosition( $id , $website)
+    public static function getCategoryTreeMagentoWithPosition( $id , $website , $needOrigin =  false)
     {
 
         $categoryMulti = StoreWebsiteCategory::where('category_id',$id)->where('store_website_id',$website->id)->first();
@@ -230,7 +239,11 @@ class Category extends Model
         if ( $categoryInstance !== NULL ) {
 
             // Load initial category
-            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+            if($needOrigin) {
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id];
+            }else{
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+            }
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
@@ -243,9 +256,17 @@ class Category extends Model
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
-                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        if($needOrigin) {
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                        }else{
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        }
                     }else{
-                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        if($needOrigin) {
+                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                        }else{
+                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        }
                     }
                 }else{
                     // Add additional category to tree

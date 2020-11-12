@@ -72,6 +72,7 @@ use seo2websites\MagentoHelper\MagentoHelperv2;
 use App\OrderStatusHistory;
 use App\waybillTrackHistories;
 use stdClass;
+use App\CreditHistory;
 
 class OrderController extends Controller {
 
@@ -293,6 +294,7 @@ class OrderController extends Controller {
 		$statusFilterList =  clone($orders);
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
+		->leftJoin("customers as cs","cs.id","orders.customer_id")
 		->leftJoin("products as p","p.id","op.product_id")
         ->leftJoin("brands as b","b.id","p.brand");
 
@@ -301,9 +303,8 @@ class OrderController extends Controller {
 		}
 
 		$orders = $orders->groupBy("orders.id");
-		$orders = $orders->select(["orders.*",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
-
-
+		$orders = $orders->select(["orders.*","cs.email as cust_email",\DB::raw("group_concat(b.name) as brand_name_list"),"swo.website_id"]);
+	
 		$users  = Helpers::getUserArray( User::all() );
 		$order_status_list = OrderHelper::getStatus();
 
@@ -575,7 +576,9 @@ class OrderController extends Controller {
 				$last_order = Cache::get('last-order') + 1;
 				Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
 				Cache::put('last-order', $last_order, $expiresAt);
-			}
+			}else{
+                $last_order = Cache::get('last-order');
+            }
 		} else {
             $last = Order::withTrashed()->latest()->first();
 			$last_order = ($last) ? $last->id + 1 : 1;
@@ -618,7 +621,8 @@ class OrderController extends Controller {
 	 * @return \Illuminate\Http\Response
 	 */
 	public function store( Request $request ) {
-		$this->validate( $request, [
+
+        $this->validate( $request, [
 			'customer_id'    => 'required',
 			'advance_detail' => 'numeric|nullable',
 			'balance_amount' => 'numeric|nullable',
@@ -666,8 +670,7 @@ class OrderController extends Controller {
 		//
 		// 	$data['customer_id'] = $customer->id;
 		// }
-
-		$customer = Customer::find($request->customer_id);
+        $customer = Customer::find($request->customer_id);
 
 		$data['client_name'] = $customer->name;
 		$data['contact_detail'] = $customer->phone;
@@ -679,9 +682,27 @@ class OrderController extends Controller {
 		{
 			$data['auto_emailed'] = 0;
 		}
-		$order = Order::create( $data );
 
-		if($request->hdn_order_mail_status == "1")
+        $data['estimated_delivery_date'] = $data['date_of_delivery'];
+        $order = Order::create( $data );
+
+        if(!empty($request->input('order_products'))) {
+            foreach ($request->input('order_products') as $key => $order_product_data) {
+                $order_product = OrderProduct::findOrFail( $key );
+                if($order_product->order_id != $order->id) {
+                    $nw_order_product = new OrderProduct;
+                    foreach($order_product->getAttributes() as $k => $attr) {
+                        if(!in_array($k, ["id","created_at","updated_at"])) {
+                            $nw_order_product->{$k} = $attr;
+                        }
+                    }
+                    $nw_order_product->order_id = $order->id;
+                    $nw_order_product->save();
+                }
+            }
+        }
+
+		 if($request->hdn_order_mail_status == "1")
 		{
 			$id_order_inc = $order->id;
 			$order_new = Order::find($id_order_inc);
@@ -690,7 +711,7 @@ class OrderController extends Controller {
                     if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
     					Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
     					$view = (new OrderConfirmation($order))->render();
-    					$params = [
+                        $params = [
     				        'model_id'    		=> $order_new->customer->id,
     				        'model_type'  		=> Customer::class,
     				        'from'        		=> 'customercare@sololuxury.co.in',
@@ -710,25 +731,38 @@ class OrderController extends Controller {
                     }
 				}
 			}
-		}
-
-		if ($customer->credit > 0) {
+		} 
+		$customer_credit=$request->customer_credit?$request->customer_credit:0;
+		if ($customer_credit > 0) {
 			$balance_amount = $order->balance_amount;
 
-			if (($order->balance_amount - $customer->credit) < 0) {
-				$left_credit = ($order->balance_amount - $customer->credit) * -1;
+			if (($order->balance_amount - $customer_credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer_credit) * -1;
 				$order->advance_detail += $order->balance_amount;
 				$balance_amount = 0;
 				$customer->credit = $left_credit;
 			} else {
-				$balance_amount -= $customer->credit;
-				$order->advance_detail += $customer->credit;
+				$balance_amount -= $customer_credit;
+				$order->advance_detail += $customer_credit;
 			}
-
 			$order->balance_amount = $balance_amount;
 			$order->order_id = $oPrefix."-".$order->id;
 			$order->save();
 			$customer->save();
+				
+			if($order->id){
+				CreditHistory::create(
+					array(
+					'customer_id'=>$request->customer_id,
+					'model_id'=>$order->id,
+					'model_type'=>Order::class,
+					'used_credit'=>$customer_credit,
+					'used_in'=>'ORDER',
+					'type'=>'MINUS'
+					)
+					);
+			}
+
 		}
 
 		$expiresAt = Carbon::now()->addMinutes(10);
@@ -871,7 +905,7 @@ class OrderController extends Controller {
         }*/
 
         // sending order message to the customer
-		UpdateOrderStatusMessageTpl::dispatch($order->id);	
+		UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");	
 		
 		if ($request->ajax()) {
 			return response()->json(['order' => $order]);
@@ -2186,7 +2220,7 @@ public function createProductOnMagento(Request $request, $id){
 				//Sending Mail on changing of order status
 				
 				//sending order message to the customer	
-				UpdateOrderStatusMessageTpl::dispatch($order->id);
+				UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2748,7 +2782,7 @@ public function createProductOnMagento(Request $request, $id){
 			foreach($ids as $id) {
 				$order = \App\Order::where("id", $id)->first();
 				if($order && $request->customer_message && $request->customer_message != "") {
-					UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message);
+                    UpdateOrderStatusMessageTpl::dispatch($order->id, $request->customer_message)->onQueue("customer_message");
 				}
 			}
 		}
@@ -2756,14 +2790,42 @@ public function createProductOnMagento(Request $request, $id){
 			// dd("send message and update status");
 			$ids = explode(",",$request->selected_orders);
 			foreach($ids as $id) {
-				if(!empty($id) && $request->customer_message && $request->customer_message != "" && $request->order_status) {
+				if(!empty($id) && $request->order_status) {
 					$order = \App\Order::where("id", $id)->first();
 					$statuss = OrderStatus::where("id",$request->order_status)->first();
 					if($order) {
 						$order->order_status 	= $statuss->status;
 						$order->order_status_id = $request->order_status;
 						$order->save();
-						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message);
+
+                        // this code is duplicate we need to fix it
+                        //Sending Mail on changing of order status
+                        $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                        if($mailingListCategory){
+                            if($order->storeWebsiteOrder) {
+                                $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+                            }else{
+                                $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+                            }
+                            // @todo put the function to send mail from specific store emails
+                            if($templateData) {
+                                $arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+                                $valToReplace = [$order->customer->name,$statuss->status];
+                                $bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+                                
+                                $storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+                                if($storeEmailAddress) {
+                                    $emailData['subject'] = $templateData->subject;
+                                    $emailData['static_template'] = $bodyText;
+                                    $emailData['from'] = $storeEmailAddress->from_address;
+                                
+                                    Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+                                }
+                            }
+                        }
+                        // this code is duplicate we need to fix it
+
+						UpdateOrderStatusMessageTpl::dispatch($order->id,$request->customer_message)->onQueue("customer_message");
 
  						$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 						if($storeWebsiteOrder) {
@@ -2811,7 +2873,7 @@ public function createProductOnMagento(Request $request, $id){
 		$orderid = $request->input('orderid');
 		$newdeldate = $request->input('newdeldate');
 		$fieldname = $request->input('fieldname');
-		$oldOrderDelData = \App\order::where('id',$orderid);
+		$oldOrderDelData = \App\Order::where('id',$orderid);
 		$oldOrderDelDate = $oldOrderDelData->pluck('estimated_delivery_date');
 		$oldOrderDelDate = (isset($oldOrderDelDate[0]) && $oldOrderDelDate[0]!='')?$oldOrderDelDate[0]:'';
 		$userId = Auth::id();
@@ -2842,32 +2904,51 @@ public function createProductOnMagento(Request $request, $id){
 	public function customerOrderDetails(Request $request) {
 		$token = $request->token;
 		$email = $request->email;
+        $order_no = $request->order_no;
 		$store_url = $request->website;
 
 		$token = $request->bearerToken();
-		if(!$email || trim($email) == '') {
+		if((!$email || trim($email) == '') && empty($order_no)) {
 			return response()->json(['message' => 'Email is absent in your request','status' => 400]);
 		}
+
+        if((!$order_no || trim($order_no) == '') && empty($email)) {
+            return response()->json(['message' => 'Order reference no is absent in your request','status' => 400]);
+        }
+
+
 		if(!$store_url || trim($store_url) == '') {
 			return response()->json(['message' => 'Store Url is absent in your request','status' => 400]);
 		}
-		$store_website = StoreWebsite::where('website', $store_url)->first();
-		if(!$store_website) {
+		$store_website = StoreWebsite::where('website',"like", $store_url)->first();
+    	if(!$store_website) {
 			return response()->json(['message' => 'Store not found with this url','status' => 404]);
 		}
 		if($store_website->api_token != $token) {
 			return response()->json(['message' => 'Token mismatched','status' => 401]);
 		}
-		$customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
-		if(!$customer) {
-			return response()->json(['message' => 'Customer not found in this store for the requested email','status' => 404]);
-		}
-		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
-					->where('orders.customer_id',$customer->id)
-					->where('store_website_orders.website_id',$store_website->id)
-					->select('orders.*')
-					->orderBy('created_at','desc')
-					->get();
+
+		if(!empty($email)) {
+            $customer = Customer::where('email',$email)->where('store_website_id',$store_website->id)->first();
+    		if(!$customer) {
+    			return response()->json(['message' => 'Customer not found in this store for the requested email','status' => 404]);
+    		}
+    		$orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+    					->where('orders.customer_id',$customer->id)
+    					->where('store_website_orders.website_id',$store_website->id)
+    					->select('orders.*')
+    					->orderBy('created_at','desc')
+    					->get();
+        }else{
+            $orders = Order::join('store_website_orders','orders.id','store_website_orders.order_id')
+                        ->where('store_website_orders.website_id',$store_website->id)
+                        ->where('store_website_orders.platform_order_id',$order_no)
+                        ->select('orders.*')
+                        ->orderBy('created_at','desc')
+                        ->get();
+        }
+
+
 		if(count($orders) == 0) {
 			return response()->json(['message' => 'No orders found against this customer','status' => 200]);
 		}

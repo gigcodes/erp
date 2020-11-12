@@ -224,20 +224,20 @@ color:black!important;
               <td class="expand-row table-hover-cell">	              
                 @php $count = 0; @endphp	               
                 <div class="d-flex">	               
-                  <div class="">	                 
+                  <div class="">
                     @foreach ($order->order_product as $order_product)	                        
                       @if ($order_product->product)	                      
                         @if ($order_product->product->hasMedia(config('constants.media_tags')))	                       
                           <span class="td-mini-container">	                         
                             @if ($count == 0)	                          
                               <!-- <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->	                     
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
                               @php ++$count; @endphp	                        
                             @endif	                     
                           </span>	                        
                           <span class="td-full-container hidden">	                        
                             @if ($count >= 1)	   
-                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"><img width="100" src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}"></a>
+                              <a data-fancybox="gallery" href="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}">VIEW #{{$order_product->product->id}}</a>
     
                              <!--  <a href="{{ route('products.show', $order_product->product->id) }}" target="_blank"><img src="{{ $order_product->product->getMedia(config('constants.media_tags'))->first()->getUrl() }}" class="img-responsive thumbnail-200 mb-1"></a> -->
                               @php $count++; @endphp	      
@@ -348,6 +348,8 @@ color:black!important;
                 <a title="Return / Exchange" data-id="{{$order->id}}" class="btn btn-image quick_return_exchange pd-5 btn-ht">
                      <i class="fa fa-product-hunt" aria-hidden="true"></i>
                 </a>
+                <button type="button" class="btn send-email-common-btn" data-toemail="{{$order->cust_email}}" data-object="order" data-id="{{$order->customer_id}}"><i class="fa fa-envelope-square"></i></button>
+                <button type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ Auth::user()->hasRole('Admin') }}" data-is_hod_crm="{{ Auth::user()->hasRole('HOD of CRM') }}" data-object="order" data-id="{{$order->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="{{asset('images/chat.png')}}" alt=""></button>
                 </div>
               </td>
             </tr>
@@ -361,6 +363,21 @@ color:black!important;
     </div>
     <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 50% 50% no-repeat;display:none;">
    </div>
+   <div id="chat-list-history" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h4 class="modal-title">Communication</h4>
+                    <input type="text" name="search_chat_pop"  class="form-control search_chat_pop" placeholder="Search Message" style="width: 200px;">
+                </div>
+                <div class="modal-body" style="background-color: #999999;">
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
    <div id="updateCustomer" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
@@ -426,6 +443,7 @@ color:black!important;
 </div>
 <div id="estdelhistoryresponse"></div>
 @endsection
+@include('common.commonEmailModal')
 @include("partials.modals.update-delivery-date-modal")
 @include("partials.modals.tracking-event-modal")
 @include("partials.modals.generate-awb-modal")
@@ -437,6 +455,7 @@ color:black!important;
   <script src="{{ asset('/js/order-awb.js') }}"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
   <script src="https://cdn.jsdelivr.net/gh/fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js"></script>
+  <script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
   <script type="text/javascript">
     $(document).ready(function() {
       $('#order-datetime').datetimepicker({

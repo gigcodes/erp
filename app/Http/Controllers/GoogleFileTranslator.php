@@ -158,7 +158,7 @@ class GoogleFileTranslator extends Controller
                 // Check translation SEPARATE LINE exists or not
                 $checkTranslationTable = Translations::select('text')->where('to',$language)->where('text_original',$data[0])->first();
                 if($checkTranslationTable) {
-                    $data[] = $checkTranslationTable->text;
+                    $data[] = htmlspecialchars_decode($checkTranslationTable->text,ENT_QUOTES);
                 } else {
                     try {
                         $googleTranslate = new GoogleTranslate();
@@ -166,7 +166,7 @@ class GoogleFileTranslator extends Controller
 
                         // Devtask-2893 : Added model to save individual line translation
                         Translations::addTranslation($data[0], $translationString, 'en', $language);
-                        $data[] = $translationString;
+                        $data[] = htmlspecialchars_decode($translationString,ENT_QUOTES);
                         
                     } catch (\Exception $e) {
                         \Log::error($e);
@@ -179,7 +179,7 @@ class GoogleFileTranslator extends Controller
         $handle = fopen($path, 'r+');
 
         foreach ($newCsvData as $line) {
-        fputcsv($handle, $line, $delimiter,$enclosure = '"');
+            fputcsv($handle, $line, $delimiter,$enclosure = '"');
         }
         fclose($handle);
     }

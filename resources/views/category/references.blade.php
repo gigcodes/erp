@@ -39,7 +39,7 @@
                                     @if(count($options)>0)
                                         @foreach($options as $option)
                                             @if(strlen($option) > 1)
-                                                <span class="btn btn-secondary">{{$option}}</span> 
+                                                <span class="btn btn-secondary">{{$option}} <i data-name="{{$option}}" class="fa fa-eye call-used-product"></i></span>
                                             @endif
                                         @endforeach
                                     @else
@@ -82,7 +82,7 @@
                                     @if(count($options)>0)
                                         @foreach($options as $option)
                                             @if(strlen($option) > 1)
-                                                <span class="btn btn-secondary">{{$option}}</span> 
+                                                <span class="btn btn-secondary">{{$option}} <i data-name="{{$option}}" class="fa fa-eye call-used-product"></i></span>
                                             @endif
                                         @endforeach
                                     @else
@@ -123,7 +123,7 @@
                                             @if(count($options)>0)
                                                 @foreach($options as $option)
                                                     @if(strlen($option) > 1)
-                                                        <span class="btn btn-secondary">{{$option}}</span> 
+                                                        <span class="btn btn-secondary">{{$option}} <i data-name="{{$option}}" class="fa fa-eye call-used-product"></i></span>
                                                     @endif
                                                 @endforeach
                                             @else
@@ -163,7 +163,7 @@
                                                     @if(count($options)>0)
                                                         @foreach($options as $option)
                                                             @if(strlen($option) > 1)
-                                                                <span class="btn btn-secondary">{{$option}}</span> 
+                                                                <span class="btn btn-secondary">{{$option}} <i data-name="{{$option}}" class="fa fa-eye call-used-product"></i></span>
                                                             @endif
                                                         @endforeach
                                                     @else
@@ -200,6 +200,10 @@
 <div id="loading-image" style="position: fixed;left: 0px;top: 0px;width: 100%;height: 100%;z-index: 9999;background: url('/images/pre-loader.gif') 
           50% 50% no-repeat;display:none;">
 </div>
+<div class="common-modal modal show-listing-exe-records" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+    </div>  
+</div>
 <div id="categoryUpdate" class="modal fade" role="dialog">
     <div class="modal-dialog">
         <!-- Modal content-->
@@ -234,6 +238,35 @@
     <script>
         $("select").select2({
             tags: true
+        });
+
+        $(document).on("click",".call-used-product",function() {
+            var $this = $(this);
+            $.ajax({
+                type: 'GET',
+                url: '/category/references/used-products',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    q : $this.data("name")
+                },
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if(response.html != "") {
+                        $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                        $(".show-listing-exe-records").modal('show');
+                    }else{
+                        toastr['error']('Sorry no product founds', 'error');
+                    }
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                console.log("Sorry, something went wrong");
+            });
         });
 
         $(".sortable-tables").find(".category-mov-btn").find("span").draggable({
@@ -304,14 +337,68 @@
             });
         });
 
-        $(document).on("click",".category-mov-btn span",function(){
-            var catModal = $("#categoryUpdate");
-                catModal.find("#cat-name").val($(this).text());
-                catModal.find("#old-cat-id").val($(this).closest(".category-mov-btn").data("cat-id"));
-                $("#categoryUpdate").modal("show");
+        $(document).on("click",".category-mov-btn span",function(event){
+            $(".btn-category-update").html("Update");
+            var $target = $(event.target);
+            if($target[0].tagName != "I") {
+                var catModal = $("#categoryUpdate");
+                    catModal.find("#cat-name").val($(this).text());
+                    catModal.find("#old-cat-id").val($(this).closest(".category-mov-btn").data("cat-id"));
+                    $("#categoryUpdate").modal("show");
+            }
+        });
+
+        $(document).on("change",".new-category-update",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'POST',
+                url: '/category/references/affected-product',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: $this.closest('form').serialize(),
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    $(".btn-category-update").html("Update ("+response.total+")");
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+            });
         });
 
         $(document).on("click",".btn-category-update",function(e) {
+            e.preventDefault();
+            var $this = $(this);
+            $.ajax({
+                type: 'POST',
+                url: '/category/references/update-category',
+                beforeSend: function () {
+                    $("#loading-image").show();
+                },
+                data: $this.closest('form').serialize(),
+                dataType: "json"
+            }).done(function (response) {
+                $("#loading-image").hide();
+                if (response.code == 200) {
+                    if(response.html != "") {
+                        toastr['success'](response.message, 'success');
+                    }else{
+                        toastr['error']('Sorry, something went wrong', 'error');
+                    }
+                    $(".show-listing-exe-records").modal('hide');
+                }
+            }).fail(function (response) {
+                $("#loading-image").hide();
+                toastr['error']('Sorry, something went wrong', 'error');
+                $(".show-listing-exe-records").modal('hide');
+            });
+        });
+
+        /*$(document).on("click",".btn-category-update",function(e) {
             e.preventDefault();
             var form = $(this).closest("form");
             $.ajax({
@@ -328,7 +415,7 @@
                 toastr['success']('Category Updated successfully', 'success');
                 location.reload();
             });
-        });
+        });*/
 
     </script>
 @endsection

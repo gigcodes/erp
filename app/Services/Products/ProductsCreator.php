@@ -18,6 +18,7 @@ use App\Helpers\StatusHelper;
 use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
 use App\Setting;
+use App\Compositions;
 
 class ProductsCreator
 {
@@ -45,7 +46,7 @@ class ProductsCreator
 
         // Get formatted data
         $formattedPrices = $this->formatPrices($image);
-        $formattedDetails = $this->getGeneralDetails($image->properties);
+        $formattedDetails = $this->getGeneralDetails($image->properties,$image);
 
         // Set data.sku for validation
         $data[ 'sku' ] = ProductHelper::getSku($image->sku);
@@ -55,6 +56,11 @@ class ProductsCreator
 
         // Get color
         $color = ColorNamesReference::getProductColorFromObject($image);
+
+        $composition = $formattedDetails['composition'];
+        if(!empty($formattedDetails['composition'])) {
+            $composition = Compositions::getErpName($formattedDetails['composition']);
+        }
 
         // Store count
         try {
@@ -114,10 +120,8 @@ class ProductsCreator
                 $manual = ProductStatus::where('name', 'MANUAL_COMPOSITION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
                     // Check for composition key
-                    if (isset($image->properties[ 'composition' ])) {
-                        $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'composition' ] ?? '', 'composition'));
-                    }
-
+                    $product->composition = $composition;
+                    
                     // Check for material_used key
                     if (isset($image->properties[ 'material_used' ])) {
                         $product->composition = trim(ProductHelper::getRedactedText($image->properties[ 'material_used' ] ?? '', 'composition'));
@@ -128,6 +132,13 @@ class ProductsCreator
                 if ($manual == null || (int)$manual->value == 0) {
                     // Update the category
                     $product->category = $formattedDetails[ 'category' ];
+                }
+
+                // if product has not entry with manual category
+                if($product->category < 2) {
+                    // Update the category
+                    $product->category = $formattedDetails[ 'category' ];
+                    $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
                 }
             }
 
@@ -164,8 +175,15 @@ class ProductsCreator
             $product->price_inr_special = $formattedPrices[ 'price_inr_special' ];
             $product->price_inr_discounted = $formattedPrices[ 'price_inr_discounted' ];
             $product->is_scraped = $isExcel == 1 ? $product->is_scraped : 1;
+            // check if the product category is not set
+            if($product->category <= 1) {
+                $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
+            }
+
             $product->save();
             $product->attachImagesToProduct();
+            $image->product_id = $product->id;
+            $image->save();
             // check that if product has no title and everything then send to the external scraper
             $product->checkExternalScraperNeed();
 
@@ -269,7 +287,7 @@ class ProductsCreator
             return;
         }
         // Changed status to auto crop now
-        $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+        // check that product category is set then send auto crop otherwise send on the missing category status
         $product->sku = str_replace(' ', '', $image->sku);
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;
@@ -282,7 +300,7 @@ class ProductsCreator
         $product->is_without_image = 1;
         $product->is_on_sale = $image->is_sale ? 1 : 0;
 
-        $product->composition = $formattedDetails[ 'composition' ];
+        $product->composition = $composition;
         $product->color = ColorNamesReference::getProductColorFromObject($image);
         $product->size = $formattedDetails[ 'size' ];
         $product->lmeasurement = (int)$formattedDetails[ 'lmeasurement' ];
@@ -290,7 +308,12 @@ class ProductsCreator
         $product->dmeasurement = (int)$formattedDetails[ 'dmeasurement' ];
         $product->measurement_size_type = $formattedDetails[ 'measurement_size_type' ];
         $product->made_in = $formattedDetails[ 'made_in' ];
-        $product->category = $formattedDetails[ 'category' ];
+        $product->category = $formattedDetails[ 'category'];
+        if($product->category > 1) {
+            $product->status_id = \App\Helpers\StatusHelper::$autoCrop;
+        }else{
+            $product->status_id = \App\Helpers\StatusHelper::$unknownCategory;
+        }
         // start to update the eu size
         if(!empty($product->size)) {
             $sizeExplode = explode(",", $product->size);
@@ -316,8 +339,8 @@ class ProductsCreator
 
         try {
             $product->save();
-            $setProductDescAndNameLanguages = new ProductController();
-            $setProductDescAndNameLanguages->listMagento(request() ,$product->id);
+            //$setProductDescAndNameLanguages = new ProductController();
+            //$setProductDescAndNameLanguages->listMagento(request() ,$product->id);
             $image->product_id = $product->id;
             $image->save();
             $product->attachImagesToProduct();
@@ -419,7 +442,7 @@ class ProductsCreator
         ];
     }
 
-    public function getGeneralDetails($properties_array)
+    public function getGeneralDetails($properties_array,$scrapedProduct = null)
     {
         if (array_key_exists('material_used', $properties_array)) {
             $composition = (is_array($properties_array[ 'material_used' ])) ? implode(" ",$properties_array[ 'material_used' ]) : (string)$properties_array[ 'material_used' ];
@@ -469,6 +492,10 @@ class ProductsCreator
         }
 
         // Get category
+        $liForMen = ['MAN', 'MEN', 'UOMO', 'MALE'];
+        $liForWoMen = ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'];
+        $liForKids = ['KIDS'];
+
         if (array_key_exists('category', $properties_array)) {
             // Check if category is an array
             if (is_array($properties_array[ 'category' ])) {
@@ -478,13 +505,40 @@ class ProductsCreator
                 // Loop over categories to find gender
                 foreach ($properties_array[ 'category' ] as $category) {
                     // Check for gender man
-                    if (in_array(strtoupper($category), ['MAN', 'MEN', 'UOMO', 'MALE'])) {
+                    if (in_array(strtoupper($category), $liForMen)) {
                         $gender = 'MEN';
                     }
 
                     // Check for gender woman
-                    if (in_array(strtoupper($category), ['WOMAN', 'WOMEN', 'DONNA', 'FEMALE'])) {
+                    if (in_array(strtoupper($category), $liForWoMen)) {
                         $gender = 'WOMEN';
+                    }
+
+                    // check for kids
+                    if (in_array(strtoupper($category), $liForKids)) {
+                        $gender = 'KIDS';
+                    }
+                }
+
+                // check if gender is still null then try to looks from url if we found there 
+                if($scrapedProduct && !empty($scrapedProduct->url) && is_null($gender)) {
+                    // check for men
+                    foreach($liForMen  as $lim) {
+                        if(strpos($lim, $scrapedProduct->url) !== false) {
+                            $gender = "MEN";
+                        }
+                    }
+                    // check for women
+                    foreach($liForWoMen  as $liw) {
+                        if(strpos($liw, $scrapedProduct->url) !== false) {
+                            $gender = "WOMEN";
+                        }
+                    }
+                    // check for kids
+                    foreach($liForKids  as $lik) {
+                        if(strpos($lik, $scrapedProduct->url) !== false) {
+                            $gender = "KIDS";
+                        }
                     }
                 }
 

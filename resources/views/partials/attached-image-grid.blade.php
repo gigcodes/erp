@@ -15,6 +15,13 @@
         /*.update-product + .select2-container--default{
             width: 60% !important;
         }*/
+        .no-pd {
+            padding:0px;
+        }
+
+        .select-multiple-cat-list + .select2-container {
+            width:100% !important;
+        }
 
         #loading-image {
             position: fixed;
@@ -30,9 +37,7 @@
         .btn-group-actions{
             text-align: right;
         }
-        .select-multiple-cat-list + .select2-container{
-            width: 225px !important;
-        }
+
         .multiselect-supplier + .select2-container{
             width: 198px !important;
         }
@@ -56,6 +61,12 @@
         .select2-container {
             width:100% !important;
             min-width:200px !important;   
+        }
+        .no-pd {
+            padding:3px;
+        }
+        .mr-3 {
+            margin:3px;
         }
     </style>
 @endsection
@@ -96,10 +107,10 @@
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
                     <input type="hidden" name="return_url" value="{{ request('return_url') }}">
-                    <div class="form-group mr-3 mb-3">
+                    <div class="form-group col-md-2 mr-3 mb-3 no-pd">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="sku,brand,category,status,stage">
+                               placeholder="sku,brand,category,status,stage" style="width:100%;">
                         @if( isset($doSelection) )
                             <input hidden name="doSelection" type="text" value="true">
                             <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
@@ -108,11 +119,11 @@
                             <input hidden name="status" type="text" value="{{ $status ?? '' }}">
                         @endif
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         {!! $category_selection !!}
                     </div>
 
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                         @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
@@ -123,7 +134,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                         <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
@@ -141,15 +152,15 @@
                     </div>
 
 
+                    <div class="col-md-1 no-pd">
                     <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
                     &nbsp;
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+                    </div>
                 </form>
   
-            <div class="row mt-3">
-                <div class="col-1">
-                </div>
+            <!-- <div class="row mt-3">
                 <div class="col-11 btn-group-actions">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" id="select-all-product" data-count="<?php echo (isset($products_count)) ? $products_count : 0; ?>">Select All</button>
@@ -158,22 +169,9 @@
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="30">Select 30</button>
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="50">Select 50</button>
                         <button type="button" class="btn btn-xs btn-secondary select-all-product-btn" data-count="100">Select 100</button>
-                        <!-- <button type="button" class="btn btn-xs btn-secondary select-all-same-page-btn" data-count="100">Select All Current Page</button> -->
-                        <!-- <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#brandFilterCount" role="button" aria-expanded="false" aria-controls="brandFilterCount">
-                            Show Brand(s) count 
-                        </a>
-                        <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#categoryFilterCount" role="button" aria-expanded="false" aria-controls="categoryFilterCount">
-                            Show Categories count
-                        </a>
-                        <a class="btn btn-xs btn-secondary" 
-                           data-toggle="collapse" href="#suppliersFilterCount" role="button" aria-expanded="false" aria-controls="suppliersFilterCount">
-                            Show suppliers count
-                        </a> -->
                     </div>
                 </div>
-            </div>
+            </div> -->
             
             </div>
         </div>
@@ -181,23 +179,42 @@
 
     @include('partials.flash_messages')
 
-    <?php
-      $query = http_build_query( Request::except( 'page' ) );
-      $query = url()->current() . ( ( $query == '' ) ? $query . '?page=' : '?' . $query . '&page=' );
-    ?>
 
-<div class="form-group position-fixed hidden-xs hidden-sm" style="top: 50px; left: 20px;">
-        Goto :
-        <select onchange="location.href = this.value;" class="form-control" id="page-goto">
-            @for($i = 1 ; $i <= $suggestedProducts->lastPage() ; $i++ )
-                <option data-value="{{ $i }}" value="{{ $query.$i }}" {{ ($i == $suggestedProducts->currentPage() ? 'selected' : '') }}>{{ $i }}</option>
-            @endfor
-        </select>
+
+    
+    <div>
     </div>
+
+
+    <div class="col-md-12 margin-tb">
+        <div class="table-responsive">
+            <table class="table table-bordered" style="table-layout:fixed;">
+                <thead>
+                <th style="width:7%">Date</th>
+                <th style="width:8%">Id</th>
+                <th style="width:15%">Name</th>
+                <th style="width:10%">Phone</th>
+                <th style="width:20%">Brand</th>
+                <th style="width:20%">Category</th>
+                <th style="width:20%">Action</th>
+                </thead>
+                <tbody class="infinite-scroll-data">
+                    @include('partials.attached-image-load')
+                </tbody>
+            </table>
+        </div>
+        {{$suggestedProducts->appends(request()->except("page"))->links()}}
+    </div>
+
+
+
+
+
+
     @include('partials.image-load-category-count')
-    <div class="productGrid" id="productGrid">
+    <!-- <div class="productGrid" id="productGrid">
         @include('partials.attached-image-load')
-    </div>
+    </div> -->
     @php
         $action = url('whatsapp/updateAndCreate/');
 
@@ -240,6 +257,10 @@
         <input type="hidden" name="screenshot_path" value="">
         <input type="hidden" name="message" value="{{ $model_type == 'customers' || $model_type == 'selected_customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? "$message_body" : '' }}">
         <input type="hidden" name="{{ $model_type == 'customer' || $model_type == 'livechat' || $model_type == 'live-chat' ? 'customer_id' : ($model_type == 'purchase-replace' ? 'moduleid' : ($model_type == 'selected_customer' ? 'customers_id' : 'nothing')) }}" value="{{ $model_id }}" id="hidden-customer-id">
+
+        <input type="hidden" name="type" value="" id="hidden-type">
+
+
         <input type="hidden" name="customer_token" value="<?php echo ($model_type == 'selected_customer_token') ? $model_id : '' ?>">
         {{-- <input type="hidden" name="moduletype" value="{{ $model_type }}">
         <input type="hidden" name="assigned_to" value="{{ $assigned_user }}" /> --}}
@@ -281,27 +302,70 @@
                 width: "100%"
             });
 
-        var infinteScroll = function() {
-            $('.infinite-scroll').jscroll({
-                autoTrigger: true,
-                loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
-                padding: 2500,
-                nextSelector: '.pagination li.active + li a',
-                contentSelector: 'div.infinite-scroll',
-                callback: function () {
-                   $('.lazy').Lazy({
-                        effect: 'fadeIn'
-                   });
-                   $('ul.pagination:visible:first').remove();
-                    var next_page = $('.pagination li.active + li a');
-                    var page_number = next_page.attr('href').split('page=');
-                    var current_page = page_number[1] - 1;
-                    $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
-                    categoryChange();
+            $(window).scroll(function() {
+                if ( ( $(window).scrollTop() + $(window).outerHeight() ) >= ( $(document).height() - 2500 ) ) {
+                    loadMore();
                 }
             });
 
-        };
+
+
+            var isLoading;
+            function loadMore() {
+                if (isLoading)
+                    return;
+                    isLoading = true;
+                if(!$('.pagination li.active + li a').attr('href')) {
+                    return;
+                }
+                
+
+                var $loader = $('.infinite-scroll-products-loader');
+                $.ajax({
+                    url: $('.pagination li.active + li a').attr('href'),
+                    type: 'GET',
+                    beforeSend: function() {
+                        $loader.show();
+                        $('ul.pagination').remove();
+                    }
+                })
+                .done(function(data) {
+                    isLoading = false;
+
+                    // if('' === data.trim())
+                    //     return;
+
+                    // $loader.hide();
+
+                    $('.infinite-scroll-data').append(data);
+
+                })
+                .fail(function(jqXHR, ajaxOptions, thrownError) {
+                    isLoading = false;
+                });
+            }
+
+        // var infinteScroll = function() {
+        //     $('.infinite-scroll').jscroll({
+        //         autoTrigger: true,
+        //         loadingHtml: '<img class="center-block" src="/images/loading.gif" alt="Loading..." />',
+        //         padding: 2500,
+        //         nextSelector: '.pagination li.active + li a',
+        //         contentSelector: 'div.infinite-scroll',
+        //         callback: function () {
+        //            $('.lazy').Lazy({
+        //                 effect: 'fadeIn'
+        //            });
+        //            $('ul.pagination:visible:first').remove();
+        //             var next_page = $('.pagination li.active + li a');
+        //             var page_number = next_page.attr('href').split('page=');
+        //             var current_page = page_number[1] - 1;
+        //             $('#page-goto option[data-value="' + current_page + '"]').attr('selected', 'selected');
+        //             categoryChange();
+        //         }
+        //     });
+
+        // };
 
         var categoryChange = function() 
         {   
@@ -326,7 +390,7 @@
         //var all_product_ids = [<?= implode(',', $all_product_ids) ?>];
         $(document).ready(function () {
             
-            infinteScroll();
+            // infinteScroll();
             $(".select-multiple").select2();
             //$(".select-multiple-cat").multiselect();
             $("body").tooltip({selector: '[data-toggle=tooltip]'});
@@ -533,6 +597,27 @@
             console.log(image_array);
         });
 
+
+        $(document).on('click', '.preview-attached-img-btn', function (e) {     
+            e.preventDefault();
+            var customer_id = $(this).data('id');
+            var suggestedproductid = $(this).data('suggestedproductid');
+            $.ajax({
+                url: '/attached-images-grid/get-products/attach/'+suggestedproductid+'/'+customer_id,
+                data: $('#searchForm').serialize(),
+                dataType: 'html',
+            }).done(function (data) {
+                $('#attach-image-list-'+suggestedproductid).html(data);
+            }).fail(function () {
+                alert('Error searching for products');
+            });
+            
+            var expand = $('.expand-'+suggestedproductid);
+            console.log(expand);
+            $(expand).toggleClass('hidden');
+
+        });
+
         $(document).on('click', '.attach-photo-all', function (e) {
             e.preventDefault();
             var image = $(this).data('image');
@@ -612,7 +697,7 @@
                 $('.lazy').Lazy({
                     effect: 'fadeIn'
                 });
-                infinteScroll();
+                // infinteScroll();
             }).fail(function () {
                 alert('Error searching for products');
             });
@@ -658,18 +743,19 @@
 
         $(document).on('click', '.sendImageMessage', function () {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
                     var image = productCard.data("image");
                     var product = productCard.data("product");
                     if ($input.is(":checked") === true) {
-                        image_array.push(image);
+                        image_array.push(product);
                         image_array = unique(image_array);
                     }
                 }
@@ -683,6 +769,7 @@
                 if(modelType == "selected_customer" || modelType == "customer" || modelType == "customers" || modelType == "livechat") {
                     $("#confirmPdf").modal("show");
                     $("#hidden-customer-id").val(customer_id);
+                    $("#hidden-type").val('customer-attach');
                     // if(modelType == "customer") {
                     //     $("#hidden-return-url").val('/attached-images-grid/sent-products?customer_id='+customer_id);
                     // }
@@ -901,8 +988,9 @@
 
         $(document).on("click", ".add-more-products", function (event) {
             customer_id = $(this).data('id');
+            suggested_products_id = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/add-products/'+customer_id,
+                url: '/attached-images-grid/add-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -921,12 +1009,12 @@
         });
 
         $(document).on("click", ".remove-products", function (event) {
-            var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggested_products_id = $(this).data("id");
+            var cus_cls = ".customer-"+suggested_products_id;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             product_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggested_products_id+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
@@ -940,13 +1028,14 @@
                 alert('Please select some images');
                 return;
             }
+
             console.log(product_array);
             var confirm = window.confirm('Are you sure ?');
             if(!confirm) {
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/remove-products/'+customer_id,
+                url: '/attached-images-grid/remove-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -964,15 +1053,16 @@
         });
 
         $(document).on("click", ".delete-message", function (event) {
-            var product_id = $(this).data("id");
+            var listed_id = $(this).data("listed_id");
             var customer_id = $(this).data("customer");
+            var product_id = $(this).data("id");
             $.ajax({
                 url: '/attached-images-grid/remove-single-product/'+customer_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
                     _token: "{{ csrf_token() }}",
-                    product_id: product_id
+                    product_id: listed_id
                 },
                 beforeSend: function () {  
                     $("#loading-image").show();
@@ -980,7 +1070,7 @@
                 success: function(result){
                      $("#loading-image").hide();
                      toastr['success']("Successfull", 'success');
-                     var cls = '.single-image-'+customer_id+'-'+product_id;
+                     var cls = '.single-image-'+listed_id+'-'+customer_id+'-'+product_id;
                      $(cls).hide();
                     //  location.reload();
              }
@@ -990,15 +1080,19 @@
 
         $(document).on("click", ".forward-products", function (event) {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            $("#forward_suggestedproductid").val(suggestedproductid);
+            /* alert(suggestedproductid); 
+            return false; */
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
-                    var image = productCard.data("image");
+                    var image = productCard.data("product");
                     if ($input.is(":checked") === true) {
                         image_array.push(image);
                         image_array = unique(image_array);
@@ -1009,6 +1103,7 @@
                 alert('Please select some images');
                 return;
             }
+            
             $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
             $('#forward-products-form').find('#forward_type').val('attach');
             $("#forwardProductsModal").modal('show');
@@ -1020,7 +1115,6 @@
 
         $(document).on("submit", "#forward-products-form", function (e) {
             e.preventDefault();
-
             $.ajax({
                 url: '/attached-images-grid/forward-products',
                 type: 'POST',
@@ -1048,14 +1142,17 @@
         var selectAllCustomerProductBtn = $(".select-customer-all-products");
         selectAllCustomerProductBtn.on("click", function (e) {
                     var customer_id = $(this).data('id');
+                    var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);
-                    var custCls = '.customer-'+customer_id;
+                    var custCls = '.customer-'+suggestedproductid;
                     if ($this.hasClass("has-all-selected") === false) {
-                        $this.html("Deselect all");
+                        // $this.html("Deselect all");
+                        $(this).find('img').attr("src", "/images/completed-green.png");
                         $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
                         $this.addClass("has-all-selected");
                     }else {
-                        $this.html("Select all");
+                        // $this.html("Select all");
+                        $(this).find('img').attr("src", "/images/completed.png");
                         $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
                         $this.removeClass("has-all-selected");
                     }
@@ -1106,6 +1203,16 @@
                 }
             },
             templateSelection: (customer) => customer.text || customer.name,
+        });
+
+
+        $(document).on('click', '.expand-row-msg', function () {
+            var name = $(this).data('name');
+			var id = $(this).data('id');
+            var full = '.expand-row-msg .show-short-'+name+'-'+id;
+            var mini ='.expand-row-msg .show-full-'+name+'-'+id;
+            $(full).toggleClass('hidden');
+            $(mini).toggleClass('hidden');
         });
         
 </script>

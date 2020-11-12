@@ -179,6 +179,7 @@
         </div>
     </div>
 </div>
+
 <div id="chat-list-history" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
@@ -192,7 +193,8 @@
                 </div>
             </div>
         </div>
-    </div>
+</div>
+@include('common.commonEmailModal')
 @include("usermanagement::templates.list-template")
 @include("usermanagement::templates.create-solution-template")
 @include("usermanagement::templates.load-communication-history")
@@ -204,6 +206,7 @@
 @include("usermanagement::templates.add-time")
 @include("usermanagement::templates.user-avaibility")
 @include("usermanagement::templates.show-task-hours")
+@include("usermanagement::templates.show-user-details")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>
@@ -219,6 +222,7 @@
 <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.31.0/js/jquery.tablesorter.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
+<script src="{{asset('js/common-email-send.js')}}">//js for common mail</script> 
 <script type="text/javascript">
  $('#due-datetime').datetimepicker({
             format: 'YYYY-MM-DD HH:mm'

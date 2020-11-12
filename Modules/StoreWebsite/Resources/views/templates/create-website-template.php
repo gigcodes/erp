@@ -132,6 +132,18 @@
 		         <label for="mysql_staging_password">Mysql Staging Password</label>
 		         <input type="password" name="mysql_staging_password" value="{{if data}}{{:data.mysql_staging_password}}{{/if}}" class="form-control" id="mysql_staging_password" placeholder="Enter Mysql Staging Password">
 		      </div>
+		      <div class="form-group">
+		         <label for="push_web_key">FCM Server Key</label>
+		         <input type="text" name="push_web_key" value="{{if data}}{{:data.push_web_key}}{{/if}}" class="form-control" id="push_web_key" placeholder="Enter FCM Server Key">
+		      </div>
+		      <div class="form-group">
+		         <label for="push_web_id">FCM Server Id</label>
+		         <input type="text" name="push_web_id" value="{{if data}}{{:data.push_web_id}}{{/if}}" class="form-control" id="push_web_id" placeholder="Enter FCM Server Id">
+		      </div>
+		      <div class="form-group">
+		         <label for="icon">Icon</label>
+		         <input type="text" name="icon" value="{{if data}}{{:data.icon}}{{/if}}" class="form-control" id="icon" placeholder="Enter Icon Url">
+		      </div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>

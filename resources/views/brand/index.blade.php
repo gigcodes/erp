@@ -90,6 +90,9 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
     </div>
 <?php } ?>
 <br>
+<?php 
+    $bList = \App\Brand::pluck('name','id')->toArray();
+?>
 <div class="infinite-scroll">
     {!! $brands->links() !!}
     <div class="table-responsive mt-3">
@@ -97,36 +100,29 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
             <tr>
                 <th>ID</th>
                 <th>Name</th>
-                <th>Similar Brands</th>
+                <th width="200px">Similar Brands</th>
+                <th>Merge Brands</th>
                 <th>Magento ID</th>
                 <th>Euro to Inr</th>
                 <th>Deduction%</th>
                 <th>Segment</th>
                 <th>Selling on</th>
-                <th width="200px">Action</th>
+                <th>Action</th>
             </tr>
             @foreach ($brands as $key => $brand)
             <tr>
                 <td>{{ $brand->id }}</td>
                 <td>{{ $brand->name }}</td>
+                <td><?php echo $brand->references; ?></td>
                 <td>
                     <div class="form-select">
-
                         <?php
-                        $references = explode(',', $brand->references);
-                        $countref = count($references);
-                        $selarr = [];
-                        $valarr= [];
-                        for ($i = 0; $i < $countref; $i++) {
-                            $selarr[] = $references[$i];
-                            $valarr[$references[$i]]= $references[$i];
-                        }
                         echo Form::select(
-                            "similar_brand[]",
-                            ["" => "-- Similar Brands --"] + $valarr,
-                            !empty($brand->references) ? $selarr : [],
-                            ["class" => "form-control select-multiple4 input-similar-brands", "multiple" => true, "data-reference-id" => $brand->id]
-                        );  ?>
+                            "merge_brand",
+                            ["" => "-- Select Brand --"] + $bList,
+                            $brand->brand_segment,
+                            ["class" => "form-control merge-brand", "data-brand-id" => $brand->id]
+                        ); ?>
                     </div>
                 </td>
                 <td class="remote-td">{{ $brand->magento_id}}</td>
@@ -243,6 +239,32 @@ $query = url()->current() . (($query == '') ? $query . '?page=' : '?' . $query .
         }).fail(function(response) {
             console.log("Could not update successfully");
         });
+    });
+
+    $(document).on("change",".merge-brand",function(e){
+        var ready = confirm("Are you sure want to merge brand ?");
+        if (ready) {
+            var brand_id = $(this).data("brand-id");
+            var reference = $(this).val();
+            $.ajax({
+                type: 'POST',
+                url: "/brand/merge-brand",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    from_brand: brand_id,
+                    to_brand: reference
+                }
+            }).done(function(response) {
+                if (response.code == 200) {
+                    toastr['success']('Brand merged successfully', 'success');
+                    location.reload();
+                }
+            }).fail(function(response) {
+                console.log("Could not update successfully");
+            });
+        }else{
+            return false;
+        }    
     });
     
 

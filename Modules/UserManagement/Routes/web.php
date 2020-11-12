@@ -44,5 +44,6 @@ Route::prefix('user-management')->group(function() {
     Route::post('/reply/add', 'UserManagementController@addReply')->name('user-management.reply.add');
     Route::get('/reply/delete', 'UserManagementController@deleteReply')->name('user-management.reply.delete');
     Route::get('/records', 'UserManagementController@records')->name("user-management.records");
+    Route::get('/user-details/{id}', 'UserManagementController@GetUserDetails')->name("user-management.user-details");
     Route::get('task-hours/{id}', 'UserManagementController@getPendingandAvalHour')->name("user-management.task-hours");
 });

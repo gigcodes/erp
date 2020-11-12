@@ -14,7 +14,32 @@
 					@csrf
 
 					<div class="row">
-						<div class="col-md-12">
+						<div class="col-md-4 col-lg-4 col-xs-12">
+		                    <div class="card media-manager">
+		                        <div class="card-header pl-3">
+		                            <h3 class="card-title">@lang('Media')</h3>
+		                            <small class="ml-3 text-gray">{{ $used_space }} / {{ $storage_limit }}</small>
+		                            <div class="card-options">
+		                                <button type="button" class="btn btn-secondary btn-sm btn-delete mr-3" disabled>
+		                                    <i class="fa fa-trash"></i>
+		                                </button>
+		                                <span class="btn btn-primary btn-sm btn-upload">
+		                                    <i class="fa fa-upload"></i> <span class="d-none d-md-inline">@lang('Upload')</span>
+		                                    <input type="file" name="files[]" data-url="{{ route('media.upload') }}" multiple />
+		                                </span>
+		                            </div>
+		                        </div>
+		                        <div class="p-3">
+		                            <div class="dimmer active">
+		                                <div class="loader"></div>
+		                                <div class="dimmer-content">
+		                                    <div class="d-flex flex-wrap align-content-start media-files-container"></div>
+		                                </div>
+		                            </div>
+		                        </div>
+		                    </div>
+		                </div>
+						<div class="col-md-4 col-lg-4 col-xs-12">
 							<small style="color: red;">Please Maintain aspect ratios between 0.800 and 1.910 for Photos</small>
 							<div class="card">
 								<div class="card-header pl-3">
@@ -56,12 +81,15 @@
 									</div>
 
 									<div class="form-group">
-										<label class="form-label">@lang('Caption')</label>
-										<textarea rows="3" name="caption" id="caption_ig" class="form-control caption-text" placeholder="@lang('Compose a post caption')" data-emojiable="true"></textarea>
+										<label class="form-label">Hashtags</label>
+										<input type="text" name="hashtags" id="search_hashtag" class="form-control location-lookup"></select>
 										<div id="auto"></div>
 									</div>
 
-									<p></p>
+									<div class="form-group">
+										<label class="form-label">@lang('Caption')</label>
+										<textarea rows="3" name="caption" id="caption_ig" class="form-control caption-text" placeholder="@lang('Compose a post caption')" data-emojiable="true"></textarea>
+									</div>
 
 									<div class="form-group">
 										<label class="custom-control custom-checkbox">
@@ -88,6 +116,35 @@
 								</div>
 							</div>
 						</div>
+
+
+						<div class="col-md-4 col-lg-4 col-xs-12">
+		                    <div class="card preview-story d-none"></div>
+		                    <div class="card preview-timeline">
+		                        <div class="pt-5 pb-2 text-center">
+		                            <img src="{{ asset('/images/ig-logo.png') }}" alt="Instagram">
+		                        </div>
+		                        <div class="p-3 d-flex align-items-center px-2">
+		                            <div class="avatar avatar-md mr-3"></div>
+		                            <div>
+		                                <div class="preview-username active"></div>
+		                                <small class="d-block text-muted preview-location active"></small>
+		                            </div>
+		                        </div>
+		                        <div class="image-preview">
+		                            <div id="carousel" class="carousel slide">
+		                                <ol class="carousel-indicators"></ol>
+		                                <div class="carousel-inner"></div>
+		                            </div>
+		                        </div>
+		                        <div class="card-body">
+		                            <div class="preview-caption active">
+		                                <span></span>
+		                                <span></span>
+		                            </div>
+		                        </div>
+		                    </div>
+		                </div>
 					</div>
 				</form>
 			</div>

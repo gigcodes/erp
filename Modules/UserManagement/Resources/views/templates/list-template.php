@@ -13,44 +13,113 @@ td {
 td+td {
   width: auto;
 }
+body{
+	font-size:13px;
+}
+.btn-image,.send-email-common-btn{
+	padding:0;
+}
+a {
+    color: #333;
+}
 
 </style>
 	<div class="row">
 		<table class="table table-bordered">
 		    <thead>
 		      <tr>
-		      	<th style="width:50px;">User ID</th> 
-		      	<th style="width:200px;">User</th> 
-				<th>Rate per hour</th>
-				<th>Salaried or fixed price</th>
-				<th>TASKS</th>
-				<th>Yesterday hours</th>
-				<th>Last seen</th> 
-				<th>Payment frequency</th> 
-				<th>Payment Due</th>
-				<th>Due date</th> 			
-				<th>Paid on</th>
+		      	<th style="width:50px;">ID</th> 
+		      	<th style="width:150px;">User</th> 
+				<th style="width:80px;">TASKS</th>
+				<th style="width:80px">Yesterday hours</th>
+				<th style="width:80px;">Last seen</th> 
+				<th style="width:80px">Payment frequency</th> 
+				<th style="width:80px">Payment Due</th>
+				<th style="width:80px">Due date</th> 			
+				<th style="width:85px;">Paid on</th>
+				<th style="width:30px;">S</th>
 				<?php if(Auth::user()->isAdmin()) { ?>
-				<th style="width:200px;">Send</th>
+				<th style="width:148px;">Send</th>
+				<th style="width:160px;">Reply</th>
 				<?php } ?>
 
-				<th style="width:200px;">Action</th>
+				<th style="width:285px;">Action</th>
 			</tr>
 		    </thead>
 		    <tbody>
 		    	{{props data}}
 			      <tr>
 			      	<td>{{:prop.id}}</td>
-			      	<td>
-					  <div class="row">
+			      	<td><a style="padding:0" title="Task Hours" class="btn btn-image load-userdetail-modal" data-id="{{:prop.id}}">{{:prop.name}}</a>
+			      		</br>
+			      		RATE : {{:prop.hourly_rate}} {{:prop.currency}}
+			      		</br>
+			      		S/F PX : {{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}
+					</td>
+					 
+			        <td>
+						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
+					</td>
+			        <td>{{:prop.yesterday_hrs}}</td>
+			        <td>{{:prop.online_now}}</td>
+			        <td>{{:prop.payment_frequency}}</td>
+			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
+			        <td>{{:prop.nextDue}}</td>
+			        <td>
+					{{:prop.lastPaidOn}}
+					</td>
+					<td>
+					<span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
+					</td>
+					<?php if(Auth::user()->isAdmin()) { ?>
+					<td>
+						<div class="row">
 							<div class="col-md-12">
-								<div class="col-md-12 text-primary">
-								    <span class="user-status {{if prop.is_online}} is-online {{/if}}"></span>
-										<span>{{:prop.name}}</span><br>
-										<span>{{:prop.email}}</span><br>
-										<span>{{:prop.phone}}</span><br>
-
-										{{if prop.team}}
+								<div class="d-flex">
+									<input style="width:121px" type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
+									<button class="btn btn-sm btn-image send-message" data-userid="{{:prop.id}}"><img src="/images/filled-sent.png"/></button>
+								</div>
+						</div>
+						
+						
+					</td>
+					<td>
+					
+						<div style="padding-left:0;" class="col-md-12">
+								<div class="d-flex">
+									<select name="quickComment" class="form-control quickComment select2-quick-reply" "style" => "width:100%">
+									<option value="">--Auto Reply--</option>
+									{{props replies}}
+										<option value="">{{>prop}}</option>
+									{{/props}}
+									</select>
+									<a style="padding-top: 5px;" class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
+								</div>
+							</div> 
+						</div>  
+						
+					</td>
+					<?php } ?>
+			        <td>
+					<?php if(Auth::user()->isAdmin()) { ?>
+					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
+					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
+					</button>
+					{{if prop.id == <?php echo Auth::id(); ?>}}
+					<a class="btn btn-image" href="#"><img src="/images/view.png"/></a>
+					{{else}}
+					<a class="btn btn-image" onclick="editUser({{>prop.id}})"><img src="/images/edit.png"/></a>
+					{{/if}}
+					<a href="/user-management/track/{{>prop.id}}">Info</a>
+					<a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"></span></a>
+					
+					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
+					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
+					<?php } ?>
+					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
+					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
+					<button type="button" class="btn send-email-common-btn" data-toemail="{{:prop.email}}" data-object="user" data-id="{{:prop.id}}"><i class="fa fa-envelope-square"></i></button>
+					{{if prop.team}}
 										<span class="expand-row">
 										<span class="div-team-mini">
 												<span><span><strong> {{if prop.team.name}} {{:prop.team.name}} {{else}} 'Team' {{/if}} :</strong> ({{:prop.team_leads}})</span></span>
@@ -82,65 +151,6 @@ td+td {
 									{{if !prop.already_approved}}
 									<button title="Approve user for the day" type="button" class="btn approve-user pd-5" data-id="{{:prop.id}}"> <i class="fa fa-check-circle" aria-hidden="true"></i></button>
 									{{/if}}
-								</div> 
-							</div>   
-						</div>    	  
-					  </td>
-			        <td>{{:prop.hourly_rate}} {{:prop.currency}}</td>
-			        <td>{{if prop.fixed_price_user_or_job == 1}} Fixed price Job {{else prop.fixed_price_user_or_job == 2}} Salaried {{/if}}</td>
-			        <td>
-						<a href="#" class="load-task-modal" data-id="{{:prop.id}}">{{:prop.pending_tasks}}/{{:prop.total_tasks}}</a>
-					</td>
-			        <td>{{:prop.yesterday_hrs}}</td>
-			        <td>{{:prop.online_now}}</td>
-			        <td>{{:prop.payment_frequency}}</td>
-			        <td> {{:prop.previousDue}} {{:prop.currency}}</td>
-			        <td>{{:prop.nextDue}}</td>
-			        <td>
-					{{:prop.lastPaidOn}}
-					</td>
-					<?php if(Auth::user()->isAdmin()) { ?>
-					<td>
-						<div class="row">
-							<div class="col-md-12">
-								<div class="d-flex">
-									<input type="text" class="form-control quick-message-field" name="message" placeholder="Message" value="">
-									<button class="btn btn-sm btn-image send-message" data-userid="{{:prop.id}}"><img src="/images/filled-sent.png"/></button>
-								</div>
-						</div>
-						<div style="margin-top:5px;" class="col-md-12">
-								<div class="d-flex">
-									<select name="quickComment" class="form-control quickComment select2-quick-reply" "style" => "width:100%">
-									<option value="">--Auto Reply--</option>
-									{{props replies}}
-										<option value="">{{>prop}}</option>
-									{{/props}}
-									</select>
-									<a class="btn btn-image delete_quick_comment"><img src="/images/delete.png" style="cursor: default; width: 16px;"></a>
-								</div>
-							</div> 
-						</div>  
-						
-					</td>
-					<?php } ?>
-			        <td>
-					<?php if(Auth::user()->isAdmin()) { ?>
-					<button data-toggle="tooltip" type="button" class="btn btn-xs btn-image load-communication-modal" data-object='user' data-id="{{:prop.id}}" title="Load messages">
-					<img src="/images/chat.png" data-is_admin="<?php echo Auth::user()->hasRole('Admin'); ?>" data-is_hod_crm="<?php echo Auth::user()->hasRole('HOD of CRM'); ?>" alt="">
-					</button>
-					{{if prop.id == <?php echo Auth::id(); ?>}}
-					<a class="btn btn-image" href="#"><img src="/images/view.png"/></a>
-					{{else}}
-					<a class="btn btn-image" onclick="editUser({{>prop.id}})"><img src="/images/edit.png"/></a>
-					{{/if}}
-					<a href="/user-management/track/{{>prop.id}}">Info</a>
-					<a title="Payments" class="btn btn-image" onclick="payuser({{>prop.id}})"><span class="glyphicon glyphicon-usd"></span></a>
-					
-					<a title="Add role" class="btn btn-image load-role-modal" data-id="{{:prop.id}}"><img src="/images/role.png" alt=""></a>
-					<a title="Add Permission" class="btn btn-image load-permission-modal" data-id="{{:prop.id}}"><i class="fa fa-lock" aria-hidden="true"></i></a>
-					<?php } ?>
-					<a title="Add Avaibility" class="btn btn-image load-time-modal" data-id="{{:prop.id}}"><i class="fa fa-clock-o" aria-hidden="true"></i></a>
-					<a title="Task Hours" class="btn btn-image load-tasktime-modal" data-id="{{:prop.id}}"><i class="fa fa-tasks" aria-hidden="true"></i></a>
 					</td>
 			      </tr>
 			    {{/props}}  
@@ -203,3 +213,4 @@ td+td {
 		</div>
 	</div>			
 </script>
+

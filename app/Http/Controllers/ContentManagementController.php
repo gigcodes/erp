@@ -20,6 +20,7 @@ use App\StoreSocialContentMilestone;
 use App\PaymentReceipt;
 use App\StoreSocialContentReview;
 use Auth;
+use App\Helpers;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 
 class ContentManagementController extends Controller
@@ -641,5 +642,78 @@ class ContentManagementController extends Controller
         return response()->json([
             'message' => 'Successful'
         ],200);
+    }
+
+    public function viewAllContents(Request $request) {
+        $contents = StoreSocialContent::query();
+        $users         = Helpers::getUserArray( User::all() );
+        $records = [];
+        $selected_publisher = $request->publisher_id;
+        $selected_creator = $request->creator_id;
+        $selected_website = $request->store_website_id;
+        $selected_category = $request->store_social_content_category_id;
+        
+        if($selected_publisher) {
+            $contents = $contents->where('publisher_id',$selected_publisher);
+        }
+        if($selected_creator) {
+            $contents = $contents->where('creator_id',$selected_creator);
+        }
+        if($selected_website) {
+            $contents = $contents->where('store_website_id',$selected_website);
+        }
+        if($selected_category) {
+            $contents = $contents->where('store_social_content_category_id',$selected_category);
+        }
+        $contents = $contents->get();
+        foreach($contents as $site) {
+            if ($site) {
+               
+
+          
+                // $userList = array_filter($userList);
+
+                
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {
+                            $siteName = null;
+                            $creator = null;
+                            $publisher = null;
+                            $category = null;
+                                  if ($site->publisher_id) {
+                                        $publisher = $site->publisher->name;
+                                    }
+
+                                    if ($site->creator_id) {
+                                        $creator = $site->creator->name;
+                                    }
+                                    
+                                    $store_website = StoreWebsite::find($site->store_website_id);
+                                    if($store_website) {
+                                        $siteName = $store_website->title;
+                                    }
+                                    $categoryContent = StoreSocialContentCategory::find($site->store_social_content_category_id);
+                                    if($categoryContent) {
+                                        $category = $categoryContent->title;
+                                    }
+                                    
+                            $records[] = [
+                                "id"        => $media->id,
+                                'url'       => $media->getUrl(),
+                                'site_id'   => $site->id,
+                                'siteName'   => $siteName,
+                                'creator'   => $creator,
+                                'publisher'   => $publisher,
+                                'store_website_id'   => $site->store_website_id,
+                                'category' => $category,
+                                'extension' => strtolower($media->extension),
+                            ];
+                        }
+                    }
+            }
+        }
+       $store_websites = StoreWebsite::pluck('title','id');
+       $categories = StoreSocialContentCategory::pluck('title','id');
+        return view('content-management.all-contents',compact('records','users','selected_publisher','selected_creator','store_websites','selected_website','categories','selected_category'));
     }
 }

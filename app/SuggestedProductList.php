@@ -6,5 +6,5 @@ use Illuminate\Database\Eloquent\Model;
 
 class SuggestedProductList extends Model
 {
-    protected $fillable = ['customer_id','product_id','chat_message_id'];
+    protected $fillable = ['suggested_products_id','customer_id','product_id','chat_message_id','remove_attachment','date'];
 }
