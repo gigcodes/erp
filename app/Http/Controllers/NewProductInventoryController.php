@@ -48,7 +48,9 @@ class NewProductInventoryController extends Controller
 	        ->getQuery()
 	        ->with(['scraped_products', 'suppliers'])
 	        ->paginate(24);
-
+        $productCount = count((new ProductSearch($params))
+        ->getQuery()
+        ->with(['scraped_products', 'suppliers'])->get());
         $items = [];
         foreach ($products->items() as $product) {
             $date               = date("Y-m-d", strtotime($product->created_at));
@@ -106,10 +108,10 @@ class NewProductInventoryController extends Controller
         $sampleColors  = ColorReference::select('erp_color')->groupBy('erp_color')->get()->pluck("erp_color", "erp_color")->toArray();
 
         if ( request()->ajax() ) {
-			return view("product-inventory.partials.load-more", compact('products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
+			return view("product-inventory.partials.load-more", compact('products','productCount','items', 'categoryArray', 'sampleColors','scrapperDropList'));
         }
 
-        return view("product-inventory.index", compact('category_selection', 'suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
+        return view("product-inventory.index", compact('category_selection','productCount','suppliersDropList', 'typeList', 'products', 'items', 'categoryArray', 'sampleColors','scrapperDropList'));
     }
 //
     public function pushInStore(Request $request)
