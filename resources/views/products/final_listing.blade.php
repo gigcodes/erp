@@ -409,6 +409,7 @@
                     swal(html.message);
                 }
             })
+            return false;
         }
     </script>
     <style>
