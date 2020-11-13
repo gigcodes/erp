@@ -25,6 +25,34 @@
 							</div>
 						</div>
 						<div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Add New Reply:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                <div class="form-group">
+                                  <input type="text" class="addnewreply" placeholder="add new reply">
+                                  <button class="btn btn-secondary addnewreplybtn">+</button>
+                                </div>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="col-md-2">
+                                    <strong>Quick Reply:</strong>
+                                </div>
+                                <div class="col-md-8">
+                                <div class="form-group">
+                                  <select class="quickreply">
+                                  <option value="">Select quick reply</option>
+                                  @if($quickreply)
+                                    @foreach($quickreply as $quickrep)
+                                      <option value="{{$quickrep->id}}">{{$quickrep->reply}}</option>
+                                    @endforeach
+                                 @endif
+                                </select>
+                                </div>
+                                </div>
+                            </div>
+						<div class="col-md-12">
 							<div class="col-md-2">
 								<strong>Message:</strong>
 							</div>

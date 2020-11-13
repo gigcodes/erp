@@ -20,9 +20,9 @@ class SendReferralMail extends Mailable
      */
     public function __construct($data)
     {
-        $this->referlink = $data['referlink'];
-        $this->referrer_email = $data['referrer_email'];
-        $this->referee_coupon = $data['referee_coupon'];
+        $this->referlink = isset($data['referlink']) ? : "";
+        $this->referrer_email = isset($data['referrer_email']) ?: "";
+        $this->referee_coupon = isset($data['referee_coupon']) ? : "";
     }
 
     /**

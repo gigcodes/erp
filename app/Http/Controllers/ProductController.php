@@ -2780,9 +2780,19 @@ class ProductController extends Controller
     public function giveImage()
     {
         $productId = request("product_id", null);
+        $supplierId = request("supplier_id", null);
         if ($productId != null) {
             $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3)->first();
+        }elseif($supplierId != null) {
+            $product = Product::join("product_suppliers as ps","ps.product_id", "products.id")
+            ->where('ps.supplier_id', $supplierId)
+            ->where('products.status_id', StatusHelper::$autoCrop)
+            ->where('products.category', '>', 3)
+            ->where('products.stock', '>=', 1)
+            ->orderBy('products.scrap_priority', 'DESC')
+            ->select("products.*")
+            ->first();
         } else {
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
@@ -2993,7 +3003,8 @@ class ProductController extends Controller
 
             
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->where('original_media_id', $allMediaIds)->count();
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
+
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             try {
@@ -3005,8 +3016,12 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
+            $totalM = $productMediacount;
 
             $productMediacount = ($productMediacount * $multi);
+
+            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
@@ -4632,7 +4647,7 @@ class ProductController extends Controller
         // $suggestedProducts = $suggestedProducts->groupBy('suggested_products.customer_id')->select('suggested_products.*')->paginate($perPageLimit);
 
 
-        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, suggested_products.created_at as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.id')->paginate($perPageLimit);
 
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;

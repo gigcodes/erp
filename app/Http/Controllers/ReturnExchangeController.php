@@ -14,7 +14,7 @@ use App\ReturnExchangeStatus;
 use App\MailinglistTemplateCategory;
 use App\EmailAddress;
 use App\MailinglistTemplate;
-
+use App\Reply;
 use Auth;
 class ReturnExchangeController extends Controller
 {
@@ -93,7 +93,8 @@ class ReturnExchangeController extends Controller
     {
 
         $returnExchange = ReturnExchange::latest('created_at')->paginate(10);
-        return view("return-exchange.index",$returnExchange);
+        $quickreply = Reply::where('model','Order')->get();
+        return view("return-exchange.index",compact('returnExchange','quickreply'));
     }
 
     public function records(Request $request)
@@ -532,4 +533,27 @@ class ReturnExchangeController extends Controller
 
         return response()->json(["code" => 200, "data" => $history, "message" => ""]);       
     }
+    public function addNewReply(request $request){
+		if($request->reply){
+		$replyData = [];
+		$html = '';
+		$replyData['reply'] = $request->reply;
+		$replyData['model'] = 'Order';
+		$replyData['category_id'] = 1;
+		$success = Reply::create($replyData);
+		if($success){
+			$replies = Reply::where('model','Order')->get();
+			if($replies){
+				$html .="<option value=''>Select Order Status</option>";
+				foreach($replies as $reply){
+				$html .= '<option value="'.$reply->id.'">'.$reply->reply.'</option>';
+				}
+			}
+			
+			return response()->json(['message' => 'reply added successfully','html'=>$html,'status' => 200]);
+		}
+		return response()->json(['message' => 'unable to add reply','status' => 500]);
+		}
+		return response()->json(['message' => 'please enter a reply','status' => 400]);
+	}
 }

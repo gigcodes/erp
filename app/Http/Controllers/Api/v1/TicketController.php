@@ -49,12 +49,15 @@ class TicketController extends Controller
             'type_of_inquiry' => 'required',
             //'country' => 'required',
             'subject' => 'required|max:80',
-            'message' => 'required'
+            'message' => 'required',
             //'source_of_ticket' => 'in:live_chat,customer',
         ]);
 
         if ($validator->fails()) {
             return response()->json(['status' => 'failed', 'message' => 'Please check the errors in validation!', 'errors' => $validator->errors()], 400);
+        }
+        if(isset($request->notify_on) && $request->notify_on!='email' && $request->notify_on!='phone'){
+            return response()->json(['status' => 'failed', 'message' => 'notify_on field must be either email or phone!', 'errors' => $validator->errors()], 400);            
         }
 
         $data = $request->all();
