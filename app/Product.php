@@ -33,6 +33,9 @@ class Product extends Model
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
+
+    CONST BAGS_CATEGORY_IDS = [11,39,50,192,210];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -994,6 +997,8 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
+        $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id :  null;
+
         if(empty($this->name) 
             || $this->name == ".." 
             || empty($this->short_description) 
@@ -1004,6 +1009,11 @@ class Product extends Model
             $this->save();
         }else if(empty($this->composition) || empty($this->color) || empty($this->category || $this->category < 1)) {
             $this->status_id = StatusHelper::$unknownCategory;
+            $this->save();
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement) && !empty($parentcate)) 
+            && (in_array($this->category,self::BAGS_CATEGORY_IDS) || in_array($parentcate,self::BAGS_CATEGORY_IDS))
+        ) {
+            $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
         } else{
             // if validation pass and status is still external scraper then remove and put for the auto crop
