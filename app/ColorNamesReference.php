@@ -58,6 +58,57 @@ class ColorNamesReference extends Model
         return '';
     }
 
+    public static function getColorRequest($color = "" , $url = "" , $title = "", $description = "")
+    {
+        // Get distinct color names used on ERP
+        $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name','erp_name']);
+        
+        // Check if color exists
+        if ($color) {
+            foreach ($mainColorNames as $colorName) {
+                if (stristr($color, $colorName->color_name)) {
+                    return $colorName->erp_name;
+                }
+            }
+            // in this case color refenrece we don't found so we need to add that one
+            ColorNamesReference::create([
+                'color_code' => '',
+                'color_name' => $color
+            ]);
+            
+        }
+
+        // Check if color can be found in url
+        if (isset($url)) {
+            foreach ($mainColorNames as $colorName) {
+                if (stristr(self::_replaceKnownProblems($url), $colorName->color_name)) {
+                    return $colorName->erp_name;
+                }
+            }
+        }
+
+        // Check if color can be found in title
+        if (isset($title)) {
+            foreach ($mainColorNames as $colorName) {
+                if (stristr(self::_replaceKnownProblems($title), $colorName->color_name)) {
+                    return $colorName->erp_name;
+                }
+            }
+        }
+
+        // Check if color can be found in description
+        if (isset($description)) {
+            foreach ($mainColorNames as $colorName) {
+                if (stristr(self::_replaceKnownProblems($description), $colorName->color_name)) {
+                    return $colorName->erp_name;
+                }
+            }
+        }
+
+        // Return an empty string by default
+        return '';
+    }
+
     private static function _replaceKnownProblems($text)
     {
         // Replace known problems

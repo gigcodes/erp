@@ -612,19 +612,27 @@ class ScrapController extends Controller
                 "sizes" => $request->get('sizes'),
                 "category" => $request->get('category'),
                 "dimension" => $request->get('dimension'),
-                "country" => $request->get('country'),
+                "country" => $request->get('country')
             ];
 
-            $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails();
-            echo "<pre>"; print_r($formatter);  echo "</pre>";die;
+            $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
 
+            $color = \App\ColorNamesReference::getColorRequest($formatter['color'],$request->get('url'),$request->get('title'),$request->get('description'));
+            $composition = $formatter['composition'];
+            if(!empty($formatter['composition'])) {
+                $composition = \App\Compositions::getErpName($formatter['composition']);
+            }
+            
             // Set basic data
             $product->name = $request->get('title');
             $product->short_description = $request->get('description');
-            $product->composition = $request->get('composition');
-            $product->color = $request->get('color');
+            $product->composition = $composition;
+            $product->color = $color;
             $product->description_link = $request->get('url');
-            $product->made_in = $request->get('country');
+            $product->made_in = $formatter['made_in'];
+            $product->category = $formatter['category'];
+            $product->size = $formatter['size'];
+            $product->size_eu = $formatter['size'];
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');
             }
@@ -632,13 +640,13 @@ class ScrapController extends Controller
 
             // Set optional data
             if (!$product->lmeasurement) {
-                $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
+                $product->lmeasurement = $formatter['lmeasurement'];
             }
             if (!$product->hmeasurement) {
-                $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
+                $product->hmeasurement = $formatter['hmeasurement'];
             }
             if (!$product->dmeasurement) {
-                $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
+                $product->dmeasurement = $formatter['dmeasurement'];;
             }
 
             $product->status_id = StatusHelper::$autoCrop;
