@@ -604,10 +604,24 @@ class ScrapController extends Controller
 
         // If product is found, update it
         if ($product) {
+            
+            // clear the request using for the new scraper
+            $propertiesArray = [
+                "material_used" => $request->get('composition'),
+                "color" => $request->get('color'),
+                "sizes" => $request->get('sizes'),
+                "category" => $request->get('category'),
+                "dimension" => $request->get('dimension'),
+                "country" => $request->get('country'),
+            ];
+
+            $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails();
+            echo "<pre>"; print_r($formatter);  echo "</pre>";die;
+
             // Set basic data
             $product->name = $request->get('title');
             $product->short_description = $request->get('description');
-            $product->composition = $request->get('material_used');
+            $product->composition = $request->get('composition');
             $product->color = $request->get('color');
             $product->description_link = $request->get('url');
             $product->made_in = $request->get('country');
