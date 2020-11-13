@@ -60,17 +60,70 @@ color:black!important;
         </div>
            <div class="col-10" style="padding-left:0px;">
             <div >
-            <form class="form-inline" action="{{ route('order.index') }}" method="GET">
-
+            <form class="form-inline" action="{{ route('purchase-product.index') }}" method="GET">
+<!-- 
                 <div class="form-group col-md-3 pd-3">
                   <input style="width:100%;" name="term" type="text" class="form-control"
                          value="{{ isset($term) ? $term : '' }}"
                          placeholder="Search">
+                </div> -->
+
+                <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_customer" type="text" class="form-control"
+                         value="{{ isset($filter_customer) ? $filter_customer : '' }}"
+                         placeholder="Customer">
                 </div>
 
+              
+                
+                <div class="form-group col-md-3 pd-3">
+                <select class="form-control select-multiple2" style="width:100%" name="filter_supplier[]" data-placeholder="Search Supplier By Name.." multiple>
+								@foreach($product_suppliers_list as $supplier)
+									<option value="{{ $supplier->id }}" @if(is_array($filter_supplier) && in_array($supplier->id,$filter_supplier)) selected @endif>{{ $supplier->supplier }}</option>
+                @endforeach
+                
+              </select>
+              </div>
 
 
+                <!-- <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_product" type="text" class="form-control"
+                         value="{{ isset($filter_product) ? $filter_product : '' }}"
+                         placeholder="Product">
+                </div> -->
 
+                <!-- <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_buying_price" type="text" class="form-control"
+                         value="{{ isset($filter_buying_price) ? $filter_buying_price : '' }}"
+                         placeholder="Buying Price">
+                </div> -->
+
+                <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_selling_price" type="text" class="form-control"
+                         value="{{ isset($filter_selling_price) ? $filter_selling_price : '' }}"
+                         placeholder="Selling Price">
+                </div>
+
+                <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_order_date" type="text" class="form-control"
+                         value="{{ isset($filter_order_date) ? $filter_order_date : '' }}"
+                         placeholder="Order Date">
+                </div>
+                
+                <div class="form-group col-md-3 pd-3">
+                  <input style="width:100%;" name="filter_date_of_delivery" type="text" class="form-control"
+                         value="{{ isset($filter_date_of_delivery) ? $filter_date_of_delivery : '' }}"
+                         placeholder="Delivery Date">
+                </div>
+
+                <div class="form-group col-md-3 pd-3">
+                <select name="filter_inventory_status_id" id="filter_inventory_status_id" class="form-control">
+              <option value="">Select Inventory status</option>
+              @foreach($inventoryStatus as $id => $status)
+                <option value="{{$id}}" {{$id==$filter_inventory_status_id ? 'selected' : ''}}>{{$status}}</option>
+              @endforeach
+              </select>
+                </div>
 
                    <div class="form-group col-md-1 pd-3">
                 <button type="submit" class="btn btn-image ml-3"><img src="{{asset('images/filter.png')}}" /></button>
@@ -125,8 +178,8 @@ color:black!important;
                 else {
                   $supplier = \App\ProductSupplier::join('suppliers','suppliers.id','product_suppliers.supplier_id')->where('product_suppliers.product_id',$order->product_id)->select('suppliers.*')->first();
                 }
-
                 @endphp
+                
 
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
@@ -817,5 +870,10 @@ $(document).on('click', '.view-details', function(e) {
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
+
+          $(document).ready(function() {
+          $(".select-multiple").multiselect();
+          $(".select-multiple2").select2();
+      });
   </script>
 @endsection
