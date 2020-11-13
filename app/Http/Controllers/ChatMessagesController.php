@@ -331,7 +331,8 @@ class ChatMessagesController extends Controller
             if(isset($request->downloadMessages) && $request->downloadMessages==1){
                 if($textMessage!=''){
                 $chatFileData .= html_entity_decode($textMessage,ENT_QUOTES, 'UTF-8');
-                $chatFileData .= "\n". Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
+                $chatFileData .= "\n From ".(($isOut) ? 'ERP' : $objectname)." To ".(($isOut) ? $object->name : 'ERP');
+                $chatFileData .= "\n On ". Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
                 $chatFileData .= "\n"."\n"."\n";
                 }
             }else{
