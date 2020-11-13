@@ -1453,6 +1453,8 @@ Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->nam
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
+Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
+Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
 
 
 
