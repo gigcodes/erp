@@ -65,7 +65,8 @@ class Product extends Model
         'hmeasurement',
         'dmeasurement',
         'size',
-        'color'
+        'color',
+        'last_brand'
     ];
 
     protected $dates = ['deleted_at'];
