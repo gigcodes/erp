@@ -2892,7 +2892,7 @@ class ProductController extends Controller
                     if(!$isCropped) {
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name,'size' => $website->cropping_size);
                     }
                 }
             }
