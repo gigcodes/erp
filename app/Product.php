@@ -865,8 +865,6 @@ class Product extends Model
     public function publishedOn()
     {
         return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
-
-
     }
 
     /**
@@ -1192,4 +1190,26 @@ class Product extends Model
         return \App\StoreWebsite::whereIn("id",$websites)->get();
     }
 
+    public function expandCategory()
+    {
+       $cat = [];
+       $list = $this->categories;
+       if($list) {
+            $cat[] = $list->title;
+            $parent = $list->parent;
+          if($parent)   {
+             $cat[] = $parent->title;
+             $parent = $parent->parent;
+             if($parent) {
+                $cat[] = $parent->title;
+                $parent = $parent->parent;
+                if($parent) {
+                    $cat[] = $parent->title;
+                 }
+             }
+          }
+       }
+       
+       return implode(" >> ", $cat);
+    }
 }
