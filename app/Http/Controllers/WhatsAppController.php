@@ -3797,7 +3797,6 @@ class WhatsAppController extends FindByNumberController
         $today_date = Carbon::now()->format('Y-m-d');
 
         if ($context == "customer") {
-            \Log::info("Asfasfasf ");
             // check the customer message
             $customer = \App\Customer::find($message->customer_id);
             if ($customer && $customer->hasDND()) {
