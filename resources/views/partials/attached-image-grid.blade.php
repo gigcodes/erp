@@ -1148,12 +1148,12 @@
                     if ($this.hasClass("has-all-selected") === false) {
                         // $this.html("Deselect all");
                         $(this).find('img').attr("src", "/images/completed-green.png");
-                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
+                        $(custCls).find(".select-pr-list-chk").trigger('click');
                         $this.addClass("has-all-selected");
                     }else {
                         // $this.html("Select all");
                         $(this).find('img').attr("src", "/images/completed.png");
-                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
+                        $(custCls).find(".select-pr-list-chk").trigger('click');
                         $this.removeClass("has-all-selected");
                     }
     })
