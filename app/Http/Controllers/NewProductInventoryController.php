@@ -46,13 +46,10 @@ class NewProductInventoryController extends Controller
         $params = request()->all();
 
         $products = (new ProductSearch($params))
-	        ->getQuery()
-	        ->with(['scraped_products', 'suppliers'])
-	        ->paginate(24);
+	        ->getQuery()->paginate(24);
         \Log::info("Stage 5 implement");    
         $productCount = count((new ProductSearch($params))
-        ->getQuery()
-        ->with(['scraped_products', 'suppliers'])->get());
+        ->getQuery()->get());
         $items = [];
         \Log::info("Stage 6 implement");
         foreach ($products->items() as $product) {
