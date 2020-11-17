@@ -20,6 +20,7 @@ class NewProductInventoryController extends Controller
     public function index(Stage $stage)
     {
         // dd($stage);
+        \Log::info("Stage 1 implement");
         $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control'])->selected(request('category'))->renderAsDropdown();
         $suppliersDropList  = \Illuminate\Support\Facades\DB::select('SELECT id, supplier FROM suppliers INNER JOIN (
                                     SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
@@ -27,7 +28,7 @@ class NewProductInventoryController extends Controller
                                 ON suppliers.id = product_suppliers.supplier_id');
 
         $suppliersDropList = collect($suppliersDropList)->pluck("supplier", "id")->toArray();
-
+        \Log::info("Stage 2 implement");
         $scrapperDropList = \Illuminate\Support\Facades\DB::select('SELECT id, scraper_name FROM scrapers INNER JOIN (
             SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
             ) as product_suppliers
@@ -35,7 +36,7 @@ class NewProductInventoryController extends Controller
 
         $scrapperDropList = collect($scrapperDropList)->pluck("scraper_name", "id")->toArray();
         // $suppliersDropList = Supplier::where('supplier_status_id','1')->pluck('supplier','id')->toArray();
-
+        \Log::info("Stage 3 implement");
         $typeList = [
             "scraped"  => "Scraped",
             "imported" => "Imported",
@@ -48,10 +49,12 @@ class NewProductInventoryController extends Controller
 	        ->getQuery()
 	        ->with(['scraped_products', 'suppliers'])
 	        ->paginate(24);
+        \Log::info("Stage 5 implement");    
         $productCount = count((new ProductSearch($params))
         ->getQuery()
         ->with(['scraped_products', 'suppliers'])->get());
         $items = [];
+        \Log::info("Stage 6 implement");
         foreach ($products->items() as $product) {
             $date               = date("Y-m-d", strtotime($product->created_at));
             $referencesCategory = "";
@@ -86,7 +89,7 @@ class NewProductInventoryController extends Controller
                 $items[$date] = [$product];
             }
         }
-
+        \Log::info("Stage 7 implement");
         // move to the function
         $categoryAll   = Category::where('parent_id', 0)->get();
         $categoryArray = [];
@@ -103,10 +106,11 @@ class NewProductInventoryController extends Controller
                 }
             }
         }
+        \Log::info("Stage 8 implement");
 
         $categoryArray = collect($categoryArray)->pluck("value", "id")->toArray();
         $sampleColors  = ColorReference::select('erp_color')->groupBy('erp_color')->get()->pluck("erp_color", "erp_color")->toArray();
-
+        \Log::info("Stage 9 implement");
         if ( request()->ajax() ) {
 			return view("product-inventory.partials.load-more", compact('products','productCount','items', 'categoryArray', 'sampleColors','scrapperDropList'));
         }
