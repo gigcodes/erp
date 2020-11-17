@@ -12,7 +12,7 @@
 				@foreach($items as $item)
 				<tr>
 					<td>{{$item->id}}</td>
-					<td>{{$item->short_name}}</td>
+					<td>{{$item->short_name}} <br> M : {{ $item->phone }}</td>
 					<td id="new_action_td">
 			        	<div class="row">
                             <div class="col-md-12">
