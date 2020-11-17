@@ -583,7 +583,7 @@
                 }
             },
             changeQuickComment : function (ele) {
-                ele.closest('.customer-raw-line').find('.quick-message-field').val(ele.val());
+                ele.closest('tr').find('.quick-message-field').html(ele.val());
             },
             leadsChart : function () {
                 var params = {
@@ -1495,10 +1495,6 @@
 
     $(document).on('change', '.quickCategory', function () {
         siteHelpers.changeQuickCategory($(this));
-    });
-
-    $(document).on('change', '.quickComment', function () {
-        siteHelpers.changeQuickComment($(this));
     });
 
     $(document).on('change', '.quickComment', function () {
