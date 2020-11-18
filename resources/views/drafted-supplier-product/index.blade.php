@@ -38,7 +38,7 @@
                 </div>
                 <div class="form-group ml-3 cls_filter_inputbox" style="margin-left: 10px;">
                     <label for="brand_id">Status</label>
-                    <?php echo Form::select("status_id", \App\Helpers::selectStatusList(), request('status_id'), ["class" => "form-control-sm form-control select2", 'style' => 'width:150px']); ?>
+                    <?php echo Form::select("statuds_id", \App\Helpers::selectStatusList(), request('status_id'), ["class" => "form-control-sm form-control select2", 'style' => 'width:150px']); ?>
                 </div>
                 <button type="submit" style="margin-top: 20px;padding: 5px;" class="btn btn-image"><img src="/images/filter.png" /></button>
                 <button type="button" onclick="return confirm('Are you sure you want to delete ?')" style="margin-top: 20px;padding: 5px;" class="btn btn-image btn-delete-multiple"><img src="/images/delete.png" /></button>

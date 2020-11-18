@@ -4207,6 +4207,7 @@ class ProductController extends Controller
 
     public function draftedProducts(Request $request)
     {
+        \Log::info("action started");
         $products = Product::where('quick_product', 1)
             ->leftJoin("brands as b", "b.id", "products.brand")
             ->leftJoin("categories as c", "c.id", "products.category")
@@ -4244,6 +4245,8 @@ class ProductController extends Controller
         }
 
         $products = $products->orderby("products.created_at", "desc")->paginate()->appends(request()->except(['page']));
+
+        \Log::info("Page Displayed here");
 
         return view('drafted-supplier-product.index', compact('products'));
     }
