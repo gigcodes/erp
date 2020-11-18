@@ -2,8 +2,8 @@
 
 namespace App\Console\Commands;
 
-use Illuminate\Console\Command;
 use App\Brand;
+use Illuminate\Console\Command;
 
 class BrandMergeWithProduct extends Command
 {
@@ -38,63 +38,66 @@ class BrandMergeWithProduct extends Command
      */
     public function handle()
     {
-        $brands = Brand::all()->pluck('name','id')->toArray();
-
+        $brands = Brand::all()->pluck('name', 'id')->toArray();
 
         foreach ($brands as $brandId => $brandKeyword) {
-            
+
             $input = $brandKeyword;
 
             $similarWord = [];
 
             $unlinkId = [];
-
+            echo $brandKeyword . " Started \n";
             foreach ($brands as $keyId => $word) {
+                if ($brandId == $keyId) {
+                    continue;
+                }
 
                 $originalWord = $word;
-                
-                //remove space 
+
+                //remove space
                 $input = preg_replace('/\s+/', '', $input);
 
                 $word = preg_replace('/\s+/', '', $word);
 
                 //remove all special character
-                $input = preg_replace('/[^a-zA-Z0-9_ -]/s','',$input);
+                $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
 
-
-                $word = preg_replace('/[^a-zA-Z0-9_ -]/s','',$word);
+                $word = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $word);
 
                 similar_text(strtolower($input), strtolower($word), $percent);
 
-                if($percent >= 70){
+                if ($percent >= 70) {
 
                     $reference = $originalWord;
-                    $brandId = $brandId;
-                    //getting references 
+                    $brandId   = $brandId;
+                    //getting references
                     $ref = Brand::find($brandId);
-                    
-                    //check if reference exist 
-                    if($ref->references){
-                        if (in_array($reference, explode(',', $ref->references)))
-                        {
+
+                    //check if reference exist
+                    if ($ref->references) {
+                        if (in_array($reference, explode(',', $ref->references))) {
                             unset($brands[$keyId]);
                             continue;
                         }
-                        $reference = $ref->references.','.$reference;
-                    }else{
-                        $reference = ','.$reference;
+                        $reference = $ref->references . ',' . $reference;
+                    } else {
+                        $reference = ',' . $reference;
                     }
-                        
 
-                    if(!empty($brandId)) {
-                        
-                        $success = Brand::where("id",$brandId)->update(['references'=>$reference]);
+                    if (!empty($brandId)) {
+                        \Log::info("{$brandId} updated with " . $reference);
 
-                        $product = \App\Product::where("brand",$keyId)->get();
-                        if(!$product->isEmpty()) {
-                            foreach($product as $p) {
-                                 $p->brand =  $brandId;
-                                 $p->save();
+                        $success = Brand::where("id", $brandId)->update(['references' => $reference]);
+
+                        $product = \App\Product::where("brand", $keyId)->get();
+                        if (!$product->isEmpty()) {
+                            foreach ($product as $p) {
+                                $lastBrand     = $p->brand;
+                                $p->brand      = $brandId;
+                                $p->last_brand = $lastBrand;
+                                $p->save();
+                                \Log::info("{$brandId} updated with product" . $p->sku);
                             }
                         }
                     }
