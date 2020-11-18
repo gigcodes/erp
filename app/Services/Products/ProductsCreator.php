@@ -463,7 +463,7 @@ class ProductsCreator
                     $size = trim($size);
                 }
 
-                if (!empty($size)) {
+                if (!empty($size) || $size == 0) {
                     $tmpSizes[] = $size;
                 }
             }
