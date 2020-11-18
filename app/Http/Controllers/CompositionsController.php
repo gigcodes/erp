@@ -186,4 +186,39 @@ class CompositionsController extends Controller
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
+
+    public function replaceComposition(Request $request){
+        $from = $request->name;
+        $to   = $request->replace_with;
+        if(!empty($from) && !empty($to)){
+            $products = \App\Product::where('composition','LIKE','%'.$from.'%')->get();
+            
+            if($products){
+                foreach ($products as $product) {
+                    $composition = $product->short_description;
+                    $replaceWords = [];
+                    $replaceWords[] = ucwords($from);
+                    $replaceWords[] = strtoupper($from);
+                    $replaceWords[] = strtolower($from);
+                    $newComposition = str_replace($replaceWords,$to,$composition);
+                    $product->short_description = $newComposition;
+                    $product->update();
+                }
+
+                $c = Compositions::where("name",$from)->first();
+                if($c) {
+                    $c->replace_with = $to;
+                    $c->save();
+                }else{
+                    if(!empty($from)){
+                        $comp = new Compositions();
+                        $comp->name = $from;
+                        $comp->replace_with = $to;
+                        $comp->save(); 
+                    }          
+                }
+            }
+        }
+        return redirect()->back();
+    }
 }
