@@ -2401,6 +2401,8 @@ Route::group(['middleware' => 'auth'], function () {
 
     //missing brands
     Route::get('missing-brands', 'MissingBrandController@index')->name('missing-brands.index');
+    Route::post('missing-brands/store', 'MissingBrandController@store')->name('missing-brands.store');
+    Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 
