@@ -186,3 +186,6 @@ Route::post('return-exchange-buyback/create','\App\Http\Controllers\Api\v1\BuyBa
 
 //Push Notification Api
 Route::post('notification/create','\App\Http\Controllers\Api\v1\PushFcmNotificationController@create');
+
+//Saving Not Found Brand
+Route::get('missing-brand/save','MissingBrandController@saveMissingBrand');
