@@ -13,16 +13,17 @@ class ColorNamesReference extends Model
         $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name','erp_name']);
         
         // Check if color exists
-        if (isset($productObject->properties->color)) {
+        if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
+            $colerRef = isset($productObject->properties->color) ? isset($productObject->properties->color) : $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
-                if (stristr($productObject->properties->color, $colorName->color_name)) {
+                if (stristr($colerRef, $colorName->color_name)) {
                     return $colorName->erp_name;
                 }
             }
             // in this case color refenrece we don't found so we need to add that one
             ColorNamesReference::create([
                 'color_code' => '',
-                'color_name' => $productObject->properties->color
+                'color_name' => $colerRef
             ]);
             
         }
