@@ -65,14 +65,15 @@ class DailyHubstaffActivityLevel extends Command
 
             if (!$activities->isEmpty()) {
                 foreach ($activities as $act) {
-                    $actualPercentage = (float) ($act->total_spent * 100) / $act->total_track;
+                    //STOPPED CERTAIN MESSAGES
+                    /*$actualPercentage = (float) ($act->total_spent * 100) / $act->total_track;
                     // start to add report
                     $hubsaffReport = [];
                     if ($act->min_activity_percentage > 0 && ($act->min_activity_percentage > $actualPercentage)) {
                         $userMessage = "Your Daily activity for date " . $checkDate . " is lower then " . $act->min_activity_percentage." Current : ".$actualPercentage;
                         \App\ChatMessage::sendWithChatApi($act->phone_number, null, $userMessage);
                         $hubsaffReport[] = $act->user_name . " : Daily activity for date " . $checkDate . " is lower then " . $act->min_activity_percentage." Current : ".$actualPercentage;
-                    }
+                    }*/
 
                     $hsn = new \App\Hubstaff\HubstaffActivityNotification;
                     $hsn->fill([
@@ -85,8 +86,9 @@ class DailyHubstaffActivityLevel extends Command
                     $hsn->save();
                 }
 
-                $message = implode(PHP_EOL, $hubsaffReport);
-                \App\ChatMessage::sendWithChatApi('971502609192', null, $message);
+                //STOPPED CERTAIN MESSAGES
+                //$message = implode(PHP_EOL, $hubsaffReport);
+                //\App\ChatMessage::sendWithChatApi('971502609192', null, $message);
             }
 
             $report->update(['end_time' => Carbon::now()]);
