@@ -34,7 +34,8 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Brand</a></th>
+                <th>Brand</th>
+                <th>Supplier</th>
                 <th>Created At</th>
                 <th>Action</th>
             </tr>
@@ -45,6 +46,7 @@
                 <tr>
                     <td>{{ $missingBrand->id }}</td>
                     <td>{{ $missingBrand->name }}</td>
+                    <td>{{ $missingBrand->supplier }}</td>
                     <td>{{ $missingBrand->created_at }}</td>
                     <td><a href="javascript:;" data-name="{{$missingBrand->name}}" data-id="{{$missingBrand->id}}" class="create-brand">Brand</a> | 
                         <a href="javascript:;" data-name="{{$missingBrand->name}}" data-id="{{$missingBrand->id}}" class="create-reference">Reference</a></td>
