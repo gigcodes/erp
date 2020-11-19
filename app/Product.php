@@ -161,6 +161,14 @@ class Product extends Model
 
             // Get formatted prices
             $formattedPrices = self::_getPriceArray($json);
+            $formattedDetails = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($json->properties,$json);
+
+            $color = \App\ColorNamesReference::getProductColorFromObject($json);
+
+            $composition = $formattedDetails['composition'];
+            if(!empty($formattedDetails['composition'])) {
+                $composition = \App\Compositions::getErpName($formattedDetails['composition']);
+            }
 
             // If validator fails we have an existing product
             if ($validator->fails()) {
@@ -197,19 +205,10 @@ class Product extends Model
                 // Update color, composition and material used if the product is not approved
                 if (!$product->is_approved) {
                     // Set color
-                    if (isset($json->properties[ 'color' ])) {
-                        $product->color = trim($json->properties[ 'color' ] ?? '');
-                    }
-
+                    $product->color = $color;
                     // Set composition
-                    if (isset($json->properties[ 'composition' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''), 'composition');
-                    }
-
-                    // Set material used
-                    if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''), 'composition');
-                    }
+                    $product->composition = $composition;
+                    
                 }
 
                 //Check if its json
@@ -366,8 +365,8 @@ class Product extends Model
                 $product->stock = 1;
                 $product->is_without_image = 1;
                 $product->is_on_sale = $json->is_sale ? 1 : 0;
-                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition');
-                $product->color = $json->properties[ 'color' ] ?? null;
+                $product->composition = $composition;
+                $product->color = $color;
                 $product->size = $json->properties[ 'size' ] ?? null;
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
                 $product->hmeasurement = isset($json->properties[ 'hmeasurement' ]) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
