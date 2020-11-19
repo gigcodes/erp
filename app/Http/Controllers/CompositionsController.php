@@ -62,7 +62,7 @@ class CompositionsController extends Controller
             'replace_with' => 'required',
         ]);
 
-        Compositions::create($request->all());
+        $c = Compositions::create($request->all());
 
         return redirect()->back();
 
@@ -195,13 +195,13 @@ class CompositionsController extends Controller
             
             if($products){
                 foreach ($products as $product) {
-                    $composition = $product->short_description;
+                    $composition = $product->composition;
                     $replaceWords = [];
                     $replaceWords[] = ucwords($from);
                     $replaceWords[] = strtoupper($from);
                     $replaceWords[] = strtolower($from);
                     $newComposition = str_replace($replaceWords,$to,$composition);
-                    $product->short_description = $newComposition;
+                    $product->composition = $newComposition;
                     $product->update();
                 }
 

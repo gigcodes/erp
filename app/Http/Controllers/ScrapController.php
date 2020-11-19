@@ -1132,9 +1132,9 @@ class ScrapController extends Controller
     public function sendScrapDetails()
     {
 
-        $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+        //$scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
-        //$scraper = Scraper::where("id",61)->first();
+        $scraper = Scraper::where("id",23)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);

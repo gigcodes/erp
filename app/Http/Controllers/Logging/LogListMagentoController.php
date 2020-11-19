@@ -108,8 +108,8 @@ class LogListMagentoController extends Controller
             } else {
                 $logListMagentos[$key]['image_url'] = '';
             }
+            $logListMagentos[$key]['category_home'] = $item->expandCategory();
         }
-        //echo "<Pre>";print_r($logListMagentos);exit;
         // For ajax
         if ($request->ajax()) {
             return response()->json([

@@ -1139,8 +1139,7 @@
         });
 
     
-        var selectAllCustomerProductBtn = $(".select-customer-all-products");
-        selectAllCustomerProductBtn.on("click", function (e) {
+        $(document).on("click",".select-customer-all-products", function (e) {
                     var customer_id = $(this).data('id');
                     var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);
@@ -1148,12 +1147,12 @@
                     if ($this.hasClass("has-all-selected") === false) {
                         // $this.html("Deselect all");
                         $(this).find('img').attr("src", "/images/completed-green.png");
-                        $(custCls).find(".select-pr-list-chk").trigger('click');
+                        $(custCls).find(".select-pr-list-chk").prop("checked", true).trigger('change');
                         $this.addClass("has-all-selected");
                     }else {
                         // $this.html("Select all");
                         $(this).find('img').attr("src", "/images/completed.png");
-                        $(custCls).find(".select-pr-list-chk").trigger('click');
+                        $(custCls).find(".select-pr-list-chk").prop("checked", false).trigger('change');
                         $this.removeClass("has-all-selected");
                     }
     })
