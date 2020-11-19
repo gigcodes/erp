@@ -112,6 +112,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
+    Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
 
     Route::resource('compositions', 'CompositionsController');
 

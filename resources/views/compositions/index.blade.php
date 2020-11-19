@@ -21,7 +21,7 @@
     <div class="col-md-12">
         <h2 class="page-heading">Compositions ({{$compositions->total()}})</h2>
     </div>
-    <div class="col-md-8 mt-5">
+    <div class="col-md-6 mt-5">
         {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}    
           <div class="form-group">
             <label for="name">Name:</label>
@@ -32,6 +32,19 @@
             <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
           </div>
           <button type="submit" class="btn btn-default ml-2 small-field-btn">Submit</button>
+        </form>
+    </div>
+    <div class="col-md-6 mt-5">
+        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.replace',"method" => "POST"]) !!}    
+          <div class="form-group">
+            <label for="name">Keyword:</label>
+            <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value=""/>
+          </div>
+          <div class="form-group ml-2">
+            <label for="replace_with">Replace With:</label>
+            <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="" id="">
+          </div>
+          <button type="submit" class="btn btn-default ml-2 small-field-btn">Replace</button>
         </form>
     </div>
     <div class="col-md-4 mt-5">
@@ -56,14 +69,14 @@
             @foreach($compositions as $key=>$composition)
                 <tr>
                     <td>{{ $composition->id }}</td>
-                    <td class="call-used-product" data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</td>
+                    <td><span class="call-used-product"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button></td>
                     <td>
                         <div class="form-group small-field">
                             <?php echo Form::select(
                                 'replace_with', 
                                 $listcompostions , 
                                 $composition->replace_with, 
-                                ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px']
+                                ["class" => "form-control change-list-compostion select2",'data-name' => $composition->name, 'data-id' => $composition->id, 'style' => 'width:400px','id' => 'select'.$composition->id]
                             ); ?>
                         </div>
                     </td>
@@ -180,6 +193,39 @@
                     $("#loading-image").hide();
                     toastr['error']('Sorry, something went wrong', 'error');
                     $(".show-listing-exe-records").modal('hide');
+                });
+            });
+
+            $(document).on("click",".add-list-compostion",function() {
+                var $this = $(this);
+                id = $this.data("id");
+                to = $('#select'+id).val()
+                console.log(to)
+                $.ajax({
+                    type: 'GET',
+                    url: '/compositions/affected-product',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : $this.data("name"),
+                        to : to,
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            $(".show-listing-exe-records").find('.modal-dialog').html(response.html);
+                            $(".show-listing-exe-records").modal('show');
+                        }else{
+                            //toastr['error']('Sorry no product founds', 'error');
+                        }
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    console.log("Sorry, something went wrong");
                 });
             });
     </script>
