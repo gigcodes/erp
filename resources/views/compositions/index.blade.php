@@ -210,7 +210,7 @@
                     data: {
                         _token: "{{ csrf_token() }}",
                         from : $this.data("name"),
-                        to : to,
+                        to : $this.data("name"),
                     },
                     dataType: "json"
                 }).done(function (response) {

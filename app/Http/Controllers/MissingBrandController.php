@@ -10,8 +10,9 @@ class MissingBrandController extends Controller
     public function saveMissingBrand(Request $request)
     {
     	$name = $request->name;
+    	$supplier = $request->supplier;
 		if($name){
-			$checkIfExist = MissingBrand::where('name',$name)->first();
+			$checkIfExist = MissingBrand::where('name',$name)->where('supplier',$supplier)->first();
 			if($checkIfExist){
 				return response()->json([
 				    'message' => 'Missing Brand Already Exist'
@@ -19,15 +20,16 @@ class MissingBrandController extends Controller
 			}else{
 				$brand = new MissingBrand();
 				$brand->name = $name;
+				$brand->supplier = $supplier;
 				$brand->save();
 				return response()->json([
 				    'message' => 'Missing Brand Saved'
 				]);
 			}
     	}else{
-    		return response()->json([
-				    'message' => 'Please Send Brand Name'
-				]);
+			return response()->json([
+			    'message' => 'Please Send Brand Name'
+			]);
     	}
     }
 

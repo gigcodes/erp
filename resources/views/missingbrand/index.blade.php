@@ -34,7 +34,8 @@
             <thead>
             <tr>
                 <th>ID</th>
-                <th>Brand</a></th>
+                <th>Brand</th>
+                <th>Supplier</th>
                 <th>Created At</th>
             </tr>
             </thead>
@@ -44,6 +45,7 @@
                 <tr>
                     <td>{{ $missingBrand->id }}</td>
                     <td>{{ $missingBrand->name }}</td>
+                    <td>{{ $missingBrand->supplier }}</td>
                     <td>{{ $missingBrand->created_at }}</td>
                 </tr>
             @endforeach
