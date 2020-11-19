@@ -68,6 +68,10 @@
 		         <input type="text" name="cropper_color" value="{{if data}}{{:data.cropper_color}}{{/if}}" class="form-control" id="cropper_color" placeholder="Enter cropper color">
 		      </div>
 		      <div class="form-group">
+		         <label for="cropping_size">Cropping size</label>
+		         <input type="text" name="cropping_size" value="{{if data}}{{:data.cropping_size}}{{/if}}" class="form-control" id="cropping_size" placeholder="Enter Cropping size">
+		      </div>
+		      <div class="form-group">
 		         <label for="country_duty">Country Duty</label>
 		         <select name="country_duty" class="form-control">
 	            	<option value="">-- N/A --</option>
