@@ -7,7 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class ColorNamesReference extends Model
 {
     protected $fillable = ['color_code'];
-    
+
     // Get product color from text
     public static function getProductColorFromObject($productObject)
     {
@@ -16,7 +16,7 @@ class ColorNamesReference extends Model
         
         // Check if color exists
         if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
-            $colerRef = isset($productObject->properties->color) ? isset($productObject->properties->color) : $productObject->properties['color'];
+            $colerRef = isset($productObject->properties->color) ? $productObject->properties->color : $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
                 if (stristr($colerRef, $colorName->color_name)) {
                     return $colorName->erp_name;
