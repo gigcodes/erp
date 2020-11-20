@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 
 class QuickCustomerController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $title         = "Quick Customer";
         $nextActionArr = \DB::table('customer_next_actions')->get();
@@ -17,6 +17,9 @@ class QuickCustomerController extends Controller
         $groups           = \App\QuickSellGroup::select('id', 'name', 'group')->orderby('id', 'DESC')->get();
         $category_suggestion = \App\Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple', 'multiple' => 'multiple'])->renderAsDropdown();
         $brands = \App\Brand::all()->toArray();
+
+        $request->merge(["do_not_disturb" => "0"]); 
+
         return view("quick-customer.index", compact('title', 'category_suggestion', 'brands', 'nextActionArr','reply_categories', 'groups'));
     }
 
@@ -58,6 +61,11 @@ class QuickCustomerController extends Controller
 
         if($request->customer_name != null) {
             $customer = $customer->where("customers.name","like","%".$request->customer_name."%");
+        }
+
+        if ($request->get('do_not_disturb') || 
+            (($request->get('do_not_disturb') === "0" || $request->get('do_not_disturb') === 0) && $request->get('do_not_disturb') != "")) {
+            $customer = $customer->where('customers.do_not_disturb', $request->get('do_not_disturb'));
         }
 
         //Setting::get('pagination')
