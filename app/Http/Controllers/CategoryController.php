@@ -404,17 +404,47 @@ class CategoryController extends Controller
         }
     }
 
+    public function affectedProductNew(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+        $wholeString = $request->wholeString;
+
+        if (!empty($from)) {
+            // check the type and then
+            $total = \App\ScrapedProducts::matchedCategory($from)->count();
+
+            $view = (string) view("category.partials.affected-products", compact('total', 'from', 'to', 'wholeString'));
+            
+            return response()->json(["code" => 200, "html" => $view]);
+
+        }
+    }
+
+
+
     public function updateCategoryReference(Request $request)
     {
         $old = $request->old_cat_id;
         $from = $request->cat_name;
         $to   = $request->new_cat_id;
-
-        \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-            "from"    => $from,
-            "to"      => $to,
-            "user_id" => \Auth::user()->id,
-        ])->onQueue("supplier_products");
+        $change = $request->with_product;
+        $wholeString = $request->wholeString;
+        if(!isset($wholeString)){
+            $wholeString = $from;
+        }
+        
+        if(isset($change)){
+            if($change == 'yes'){
+                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                    "from"    => $from,
+                    "to"      => $to,
+                    "user_id" => \Auth::user()->id,
+                ])->onQueue("supplier_products");
+            }
+        }
+        
 
         $c = Category::where("id",$old)->first();
 
@@ -423,7 +453,7 @@ class CategoryController extends Controller
             $newRef = [];
             if(!empty($allrefernce)) {
                 foreach($allrefernce as $ar) {
-                    if($ar != $from) {
+                    if($ar != $wholeString) {
                         $newRef[] = $ar;
                     }
                 }
@@ -442,6 +472,31 @@ class CategoryController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function newCategoryReferenceIndex()
+    {
+        $unKnownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
+        $unKnownCategories = explode(',', $unKnownCategory->references);
+        
+
+        $categoryAll   = Category::where('id','!=',$unKnownCategory)->where('magento_id','!=','0')->get();
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
+            $childs          = Category::where('parent_id', $category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
+                $grandChilds     = Category::where('parent_id', $child->id)->get();
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
+                    }
+                }
+            }
+        }
+        
+        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id]);   
     }
 
 }
