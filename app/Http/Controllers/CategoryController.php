@@ -437,11 +437,11 @@ class CategoryController extends Controller
         
         if(isset($change)){
             if($change == 'yes'){
-                // \App\Jobs\UpdateProductCategoryFromErp::dispatch([
-                //     "from"    => $from,
-                //     "to"      => $to,
-                //     "user_id" => \Auth::user()->id,
-                // ])->onQueue("supplier_products");
+                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                    "from"    => $from,
+                    "to"      => $to,
+                    "user_id" => \Auth::user()->id,
+                ])->onQueue("supplier_products");
             }
         }
         
