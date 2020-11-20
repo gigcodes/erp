@@ -82,8 +82,16 @@
 							    	"unread" => "Unread",
 							    	"last_communicated" => "Last Communicated",
 							    	"last_received" => "Last Received",
-							    ],request("type","unread"),["class"=> "form-control","placeholder" => "Type"]) ?>
+							    ],request("type","last_received"),["class"=> "form-control","placeholder" => "Type"]) ?>
 						  	</div>
+                            <div class="form-group" style="margin-left: 2px">
+                                <label for="status">DND:</label>
+                                <select class="form-control" name="do_not_disturb">
+                                    <option value="" {{(request()->get('do_not_disturb')=='')?'selected':''}}>DND Status: ALL</option>
+                                    <option value="0" {{(request()->get('do_not_disturb')=='0')?'selected':''}}>Without DND</option>
+                                    <option value="1" {{(request()->get('do_not_disturb')=='1')?'selected':''}}>With DND</option>
+                                 </select>
+                             </div>
 						  	<div class="form-group">
 						  		<label for="button">&nbsp;</label>
 						  		<button style="display: inline-block;width: 10%" class="btn btn-sm btn-image btn-search-action">
