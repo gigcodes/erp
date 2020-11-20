@@ -1212,4 +1212,51 @@ class Product extends Model
        
        return implode(" >> ", $cat);
     }
+
+    public function getRandomDescription()
+    {
+        $descriptions = $this->suppliers_info()->pluck("description")->toArray();
+        return $descriptions;
+    }
+
+    public function setRandomDescription($website)
+    {
+        $product = $this;
+        $description = $product->short_description;
+        // assign description game wise
+        // store random description from the website
+        $storeWebsiteAttributes = $product->storeWebsiteProductAttributes($website->id);
+        if ($storeWebsiteAttributes && !empty($storeWebsiteAttributes->description)) {
+            $description = $storeWebsiteAttributes->description;
+        }else{
+            $randomDescription = $product->getRandomDescription();
+            if(!empty($randomDescription)) {
+                $randomDescription[] = $product->short_description;
+                $storeWebsitePA = \App\StoreWebsiteProductAttribute::where("product_id", $product->id)->get();
+                if(!$storeWebsitePA->isEmpty()) {
+                    foreach($storeWebsitePA  as $swpa) {
+                        foreach($randomDescription as $des) {
+                            if(strtolower($des) !=  strtolower($swpa->description)) {
+                                $description  = $des;
+                            }
+                        }
+                    }
+                }else{
+                    shuffle($randomDescription);
+                    $description  = $randomDescription[0];
+                }
+
+                // if description is not empty
+                if(!empty($description)) {
+                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id = $product->id;
+                    $storeWebsitePA->store_website_id = $website->id;
+                    $storeWebsitePA->description = $description;
+                    $storeWebsitePA->save();
+                }
+            }
+        }
+
+        return $description;
+    }
 }
