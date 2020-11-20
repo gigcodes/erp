@@ -8,15 +8,15 @@
    <div class="modal-body">
         <div class="row">
             <div class="col-md-12">
-              <p><b>Total Product: </b>{{ $total }} affected please choose yes to apply or no for update only composition</p>
+              <p><b>Total Product: </b>{{ $total }} affected please choose yes to apply or no for update only category</p>
             </div>
         </div>
     </div>
     <div class="modal-footer">
         <div class="row">
             <div class="col-md-12">
-                <button type="button" data-from="{{$from}}" data-to="{{$to}}" class="btn btn-default btn-change-composition" data-with-product="yes" data-dismiss="modal">Yes</button>
-                <button type="button" data-from="{{$from}}" data-to="{{$to}}" class="btn btn-default btn-change-composition" data-with-product="no" data-dismiss="modal">No</button>
+                <button type="button" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="yes" data-dismiss="modal">Yes</button>
+                <button type="button" data-from="{{$from}}" data-to="{{$to}}" data-whole="@if(isset($wholeString)){{$wholeString}}@endif" class="btn btn-default btn-change-composition" data-with-product="no" data-dismiss="modal">No</button>
             </div>
         </div>
     </div>
