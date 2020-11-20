@@ -17,17 +17,21 @@ class ColorNamesReference extends Model
         
         // Check if color exists
         if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
-            $colerRef = isset($productObject->properties->color) ? $productObject->properties->color : $productObject->properties['color'];
+            $colerRef = $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
-                if (stristr($colerRef, $colorName->color_name)) {
-                    return $colorName->erp_name;
+                if(!empty($colerRef) && !empty($colorName->color_name)) {
+                    if (stristr($colerRef, $colorName->color_name)) {
+                        return $colorName->erp_name;
+                    }
                 }
             }
             // in this case color refenrece we don't found so we need to add that one
-            ColorNamesReference::create([
-                'color_code' => '',
-                'color_name' => $colerRef
-            ]);
+            if(!empty($colerRef)) {
+                ColorNamesReference::create([
+                    'color_code' => '',
+                    'color_name' => $colerRef
+                ]);
+            }
             
         }
 
