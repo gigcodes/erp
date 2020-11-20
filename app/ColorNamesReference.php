@@ -17,7 +17,7 @@ class ColorNamesReference extends Model
         
         // Check if color exists
         if (isset($productObject->properties['color']) || isset($productObject->properties->color)) {
-            $colerRef = isset($productObject->properties->color) ? isset($productObject->properties->color) : $productObject->properties['color'];
+            $colerRef = isset($productObject->properties->color) ? $productObject->properties->color : $productObject->properties['color'];
             foreach ($mainColorNames as $colorName) {
                 if (stristr($colerRef, $colorName->color_name)) {
                     return $colorName->erp_name;
