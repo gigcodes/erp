@@ -93,8 +93,8 @@
                             <td><a href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a></td>
 
                             <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
-                                <span class="show-short-sku-{{$item->id}}"><a href="{{ $item->website_url }}/english/catalogsearch/result/?q={{ $item->sku }}">{{ str_limit($item->sku, 5 ,'...')}}</a></span>
-                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden">{{$item->sku}}</span>
+                                <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
                             </td>
                             <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
                                 <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
