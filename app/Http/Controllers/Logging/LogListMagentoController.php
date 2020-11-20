@@ -99,7 +99,7 @@ class LogListMagentoController extends Controller
             'log_list_magentos.created_at as log_created_at',
             'sw.website as website',
             'sw.title as website_title',
-            'sw.magento_url as website_url',
+            'sw.magento_url as website_url'
         );
         $logListMagentos = $logListMagentos->paginate(25);
 
