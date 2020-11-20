@@ -68,7 +68,7 @@ class Category extends Model
 
         // No result? Try where like
         if ( $dbResult->count() == 0 ) {
-            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->where("id","!=",self::UNKNOWN_CATEGORIES)->get();
+            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->whereNotIn("id",[self::UNKNOWN_CATEGORIES,1])->get();
             $matchIds = [];
             foreach ($dbResult as $db) {
                 if($db->references){
