@@ -56,7 +56,7 @@ class Category extends Model
 
     }
 
-    public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {

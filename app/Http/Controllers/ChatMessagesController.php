@@ -104,6 +104,15 @@ class ChatMessagesController extends Controller
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
 
+        if($request->date != null) {
+           $chatMessages = $chatMessages->whereDate('created_at', $request->date); 
+        }
+
+        if($request->keyword != null) {
+            $chatMessages = $chatMessages->whereDate('message',"like", "%".$request->keyword."%"); 
+        }
+
+
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
 
         switch ($loadType) {

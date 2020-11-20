@@ -189,7 +189,19 @@
                     </div>
                     <div class="form-group mr-3">
                         <strong class="mr-3">Price</strong>
-                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="{{ (float)request('price','0.00') }}"/>
+                        <?php 
+                            $price =  explode(",",request('price'));
+                            $min = 0;
+                            $max = 400000;
+                            if(isset($price[0])) {
+                                $min = (float)$price[0];
+                            }
+
+                            if(isset($price[1])) {
+                                $max = (float)$price[1];
+                            }
+                        ?>
+                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
                     </div>
 
 

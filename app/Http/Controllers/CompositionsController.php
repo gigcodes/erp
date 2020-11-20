@@ -21,7 +21,7 @@ class CompositionsController extends Controller
             });
         }
 
-        $listcompostions = Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
+        $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
 
         if($request->with_ref == 1) {
             $compositions = $compositions->where(function($q) use ($request) {
