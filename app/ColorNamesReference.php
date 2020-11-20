@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class ColorNamesReference extends Model
 {
+    protected $fillable = ['color_code'];
+    
     // Get product color from text
     public static function getProductColorFromObject($productObject)
     {
