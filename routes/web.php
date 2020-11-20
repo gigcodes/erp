@@ -315,12 +315,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
+    Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');
     Route::post('category/references/update-category', 'CategoryController@updateCategoryReference');
 
 
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
+    //new category reference 
+
+    Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
+
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
