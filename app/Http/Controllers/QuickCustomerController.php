@@ -23,7 +23,7 @@ class QuickCustomerController extends Controller
     public function records(Request $request)
     {
 
-        $type = $request->get("type", "unread");
+        $type = $request->get("type", "last_received");
         $chatMessagesWhere = "WHERE status not in (7,8,9,10)";
 
         $customer = \App\Customer::query();
