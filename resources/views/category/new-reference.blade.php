@@ -19,52 +19,16 @@
 </style>
 <div class="row">
     <div class="col-md-12">
-        <h2 class="page-heading">Category ({{ count($unKnownCategories) }})</h2>
+        <h2 class="page-heading">New Category Reference ({{ count($unKnownCategories) }})</h2>
     </div>
-    <div class="col-md-6 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.store',"method" => "POST"]) !!}    
-          <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value="{{ old('name') ? old('name') : request('name') }}"/>
-          </div>
-          <div class="form-group ml-2">
-            <label for="replace_with">Erp Name:</label>
-            <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="{{ old('replace_with') ? old('replace_with') : request('replace_with') }}" id="replace_with">
-          </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn">Submit</button>
-        </form>
-    </div>
-    <div class="col-md-6 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.replace',"method" => "POST"]) !!}    
-          <div class="form-group">
-            <label for="name">Keyword:</label>
-            <input type="text" name="name" class="form-control" id="name" placeholder="Enter Name" value=""/>
-          </div>
-          <div class="form-group ml-2">
-            <label for="replace_with">Replace With:</label>
-            <input type="text" name="replace_with" class="form-control" placeholder="Enter Erp Name" value="" id="">
-          </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn">Replace</button>
-        </form>
-    </div>
-    <div class="col-md-4 mt-5">
-        {!! Form::open(["class" => "form-inline" , "route" => 'compositions.index',"method" => "GET"]) !!}    
-          <div class="form-group">
-            <input type="text" name="keyword" class="form-control" id="name" placeholder="Enter keyword" value="{{ old('keyword') ? old('keyword') : request('keyword') }}"/>
-          </div>
-          <div class="form-group ml-2">
-            <input type="checkbox" name="with_ref" class="form-control" id="with_ref" @if(request('with_ref') == 1) checked="checked" @endif value="1"/> With Ref
-          </div>
-          <button type="submit" class="btn btn-default ml-2 small-field-btn"><i class="fa fa-search"></i></button>
-        </form>
-    </div>
+    
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
             <tr>
                 <th width="10%">SN</th>
-                <th width="30%">Composition</th>
+                <th width="30%">Category</th>
                 <th width="40%">Erp Composition</th>
-                <th width="20%">Action</th>
+               <!--  <th width="20%">Action</th> -->
             </tr>
             <?php $count = 1; ?>
             @foreach($unKnownCategories as $unKnownCategory)
