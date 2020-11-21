@@ -1510,6 +1510,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('failedjobs.list')}}">Laravel Failed Queue</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
                                         </li>
                                         <li>
