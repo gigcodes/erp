@@ -33,11 +33,13 @@ class CreateShipmentRequest extends APIAbstract
     private $paymentInfo        = "DAP";
     private $serviceType        = "U";
     private $currency           = "INR";
+    private $invoiceNumber      = "";
     private $shipmentIdentificationNumber = true;
     private $declaredValue;
     private $declaredValueCurrecyCode;
     private $sendPackage = true;
     private $mobile;
+    private $paperLess;
 
     public function __construct($requestType = "soap")
     {
@@ -216,6 +218,28 @@ class CreateShipmentRequest extends APIAbstract
         return $this->mobile;
     }
 
+    public function getPaperLess()
+    {
+        return $this->paperLess;
+    }
+
+    public function setPaperLess($paperLess)
+    {
+        $this->paperLess = $paperLess;
+        return $this->paperLess;
+    }
+
+    public function getInvoiceNumber()
+    {
+        return $this->invoiceNumber;
+    }
+
+    public function setInvoiceNumber($invoiceNumber)
+    {
+        $this->invoiceNumber = $invoiceNumber;
+        return $this->invoiceNumber;
+    }
+
     public function toXML()
     {
         $xml = new \XmlWriter();
@@ -249,16 +273,24 @@ class CreateShipmentRequest extends APIAbstract
                     $xml->startElement('RequestedShipment');
                         $xml->startElement('ShipmentInfo');
                             $xml->writeElement('DropOffType', $this->dropOffType);
-                            $xml->writeElement('ServiceType',$this->serviceType);
+                            $xml->writeElement('ServiceType',"P");
                             $xml->writeElement('Account',$this->accountNumber);
                             $xml->writeElement('Currency',$this->currency);
                             $xml->writeElement('UnitOfMeasurement',$this->unitOfMeasurement);
                             $xml->writeElement('PackagesCount',count($this->packages));
                             $xml->writeElement('SendPackage',$this->sendPackage);
+                            $xml->writeElement('PaperlessTradeEnabled', $this->paperLess);
+                            $xml->startElement('SpecialServices');
+                                $xml->startElement('Service');
+                                    $xml->writeElement('ServiceType', "WY");
+                                $xml->endElement();
+                            $xml->endElement();
+                            $xml->startElement('LabelOptions');
+                                $xml->writeElement('RequestDHLCustomsInvoice', "Y");
+                            $xml->endElement();
                         $xml->endElement();
                         $xml->writeElement('ShipTimestamp', $this->shippingTime);
                         $xml->writeElement('PaymentInfo', $this->paymentInfo);
-                        $xml->writeElement('PaperLess', $this->paperLess);
                         $xml->startElement('InternationalDetail');
                             $xml->startElement('Commodities');
                                 $xml->writeElement('NumberOfPieces',1);
@@ -266,6 +298,10 @@ class CreateShipmentRequest extends APIAbstract
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
                             $xml->writeElement('Content',"NON_DOCUMENTS");
+                            $xml->startElement('ExportDeclaration');
+                                $xml->writeElement('InvoiceDate',date("Y-m-d"));
+                                $xml->writeElement('InvoiceNumber',$this->invoiceNumber);
+                            $xml->endElement();
                         $xml->endElement();
                         // section for the  shiping and recipient
                         $xml->startElement('Ship');

@@ -312,7 +312,7 @@ color:black!important;
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
                   @else
-                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                       <i class="fa fa-truck" aria-hidden="true"></i>
                     </a>
                   @endif
@@ -498,6 +498,7 @@ color:black!important;
       
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
+          var order_id = $(this).data("order-id");
             if(typeof customer != "undefined" || customer != "") {
                /* $(".input_customer_name").val(customer.name);
                $(".input_customer_phone").val(customer.phone);
@@ -512,6 +513,7 @@ color:black!important;
                $("#customer_city").val(customer.city);
                $("#customer_pincode").val(customer.pincode);
             }
+            $("#generateAWBMODAL").find("[name='order_id']").val(order_id);
             $("#generateAWBMODAL").modal("show");
       });
       

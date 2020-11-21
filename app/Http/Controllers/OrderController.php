@@ -2387,7 +2387,8 @@ public function createProductOnMagento(Request $request, $id){
 				
 		// find order and customer
 		$order = Order::find($request->order_id);
-		if(!empty($order)) {
+
+        if(!empty($order)) {
 			$order->customer->name = $request->customer_name;
 			$order->customer->address = $request->customer_address1;
 			$order->customer->city = $request->customer_address2;
@@ -2403,7 +2404,7 @@ public function createProductOnMagento(Request $request, $id){
 			"postal_code" 	=> config("dhl.shipper.postal_code"),
 			"country_code"	=> config("dhl.shipper.country_code"),
 			"person_name" 	=> config("dhl.shipper.person_name"),
-			"company_name" 	=> "Solo Luxury",
+			"company_name" 	=> config("dhl.shipper.company_name"),
 			"phone" 		=> config("dhl.shipper.phone")
 		]);
 		$rateReq->setRecipient([
@@ -2430,8 +2431,14 @@ public function createProductOnMagento(Request $request, $id){
 
 		$phone = !empty($request->get("customer_phone")) ? $request->get("customer_phone") : $order->customer->phone;
 		$rateReq->setMobile($phone);
+        $rateReq->setInvoiceNumber($order->order_id);
+        $rateReq->setPaperLess(true);
 
 		$response = $rateReq->call();
+
+        echo "<pre>"; print_r($response);  echo "</pre>";die;
+
+
 		if(!$response->hasError()) {
 			$receipt = $response->getReceipt();
 			if(!empty($receipt["label_format"])){
