@@ -128,7 +128,7 @@ Route::post('local/instagram-post','InstagramPostsController@saveFromLocal');
 
 Route::get('local/instagram-user-post','InstagramPostsController@getUserForLocal');
 
-Route::post('node/restart-script','ScrapController@restartNode');
+Route::post('node/get-status','ScrapController@getStatus');
 
 Route::prefix('v1')->group(function () {
     Route::prefix('product')->group(function () {

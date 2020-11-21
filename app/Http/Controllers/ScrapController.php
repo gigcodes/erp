@@ -1272,7 +1272,7 @@ class ScrapController extends Controller
             }
 
             $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$name.'.js';
-            
+            dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
             $curl = curl_init();
@@ -1282,6 +1282,44 @@ class ScrapController extends Controller
             curl_close($curl);
             if($response){
                 return response()->json(["code" => 200,"message" => "Script Restarted"]);
+            }else{
+                return response()->json(["code" => 500,"message" => "Check if Server is running"]);
+            }
+            
+        }
+    }
+
+    public function getStatus(Request $request)
+    {
+        if($request->name && $request->server_id){
+            $scraper = Scraper::where('scraper_name',$request->name)->first();
+            if(!$scraper->parent_id){
+                $name = $scraper->scraper_name;
+            }else{
+                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+            }
+
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/process-list?filename='.$name.'.js';
+
+
+            //sample url
+            //localhost:8085/restart-script?filename=biffi.js
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if($response){
+                $re = '/\d+/m';
+                $str = $response;
+                preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                
+                if(count($matches) == 2 || count($matches) == 1 || count($matches) == 0){
+                    return response()->json(["code" => 200,"message" => "Script Is Not Running"]);
+                }else{
+                    return response()->json(["code" => 200,"message" => "Script Is Running"]);
+                }
+               
             }else{
                 return response()->json(["code" => 500,"message" => "Check if Server is running"]);
             }

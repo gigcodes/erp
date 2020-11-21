@@ -273,6 +273,7 @@
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
+                                <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend.png"/></button>
                                 
                             </td>
                             </tr>
@@ -418,6 +419,7 @@
                                         <button type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $childSupplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                         <a class="btn  d-inline btn-image" href="{{ get_server_last_log_file($childSupplier->scraper_name,$childSupplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                         <button type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $childSupplier->scraper_name }}' , '{{ $childSupplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
+                                        <button type="button" class="btn btn-image d-inline" onclick="getRunningStatus('{{ $childSupplier->scraper_name }}' , '{{ $childSupplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
                                         
                                     </td>
                                     </tr>
@@ -1016,6 +1018,31 @@
                 .done(function(response) {
                     if(response.code == 200){
                         alert('Script Restarted Successfully')
+                    }else{
+                        alert('Please check if server is running')
+                    }
+                })
+                .error(function() {
+                    alert('Please check if server is running')
+                });
+            else
+                return false;    
+            
+        }
+
+
+        function getRunningStatus(name,server_id) {
+            var x = confirm("Are you sure you want to restart script?");
+            if (x)
+                  $.ajax({
+                    url: '/api/node/get-status',
+                    type: 'POST',
+                    dataType: 'json',
+                    data: {name: name ,server_id : server_id, "_token": "{{ csrf_token() }}"},
+                })
+                .done(function(response) {
+                    if(response.code == 200){
+                        alert(response.message)
                     }else{
                         alert('Please check if server is running')
                     }
