@@ -29,9 +29,7 @@ class Compositions extends Model
             foreach ($mc as $key => $c) {
                 // check if the full replacement found then assign from there
                 if (strtolower($name) == strtolower($c->name) && !empty($c->replace_with)) {
-                    $name = $c->replace_with;
-                    $isReplacementFound = true;
-                    break;
+                    return $c->replace_with;
                 }
 
                 foreach($parts as $p) {
