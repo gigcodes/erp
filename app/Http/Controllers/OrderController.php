@@ -2384,6 +2384,28 @@ public function createProductOnMagento(Request $request, $id){
 	public function generateAWBDHL(Request $request)
 	{
 		$params = $request->all();
+        $this->validate( $request, [
+            'order_id' => 'required',
+            'pickup_time' => 'required',
+            'currency' => 'required',
+            'amount' => 'required',
+            'box_length' => 'required',
+            'box_width' => 'required',
+            'box_height' => 'required',
+            'customer_name' => 'required',
+            'customer_city' => 'required',
+            'customer_country' => 'required',
+            'customer_phone' => 'required',
+            'customer_address1' => 'required',
+            'customer_pincode' => 'required',
+            'items.*.name' => 'required',
+            'items.*.qty' => 'required',
+            'items.*.unit_price' => 'required',
+            'items.*.description' => 'required',
+            'items.*.net_weight' => 'required',
+            'items.*.gross_weight' => 'required',
+            'description' => 'required'
+        ]);
 				
 		// find order and customer
 		$order = Order::find($request->order_id);
@@ -2418,7 +2440,16 @@ public function createProductOnMagento(Request $request, $id){
 		]);
 
 		$rateReq->setShippingTime(gmdate("Y-m-d\TH:i:s",strtotime($request->get("pickup_time")))." GMT+05:30");
-		$rateReq->setDeclaredValue($request->get("amount"));
+
+        $declaredValue = 0;
+        if(!empty($request->items)) {
+            foreach ($request->items as $key => $itm) {
+                $declaredValue += $itm['unit_price'];
+            }
+        }
+
+		$rateReq->setDeclaredValue($declaredValue);
+        $rateReq->setDescription($request->description);
 		$rateReq->setPackages([
 			[
 				"weight" => (float)$request->get("actual_weight"),
@@ -2433,55 +2464,74 @@ public function createProductOnMagento(Request $request, $id){
 		$rateReq->setMobile($phone);
         $rateReq->setInvoiceNumber($order->order_id);
         $rateReq->setPaperLess(true);
+        $rateReq->setItems($request->items);
 
 		$response = $rateReq->call();
 
-        echo "<pre>"; print_r($response);  echo "</pre>";die;
-
-
-		if(!$response->hasError()) {
-			$receipt = $response->getReceipt();
-			if(!empty($receipt["label_format"])){
-				if(strtolower($receipt["label_format"]) == "pdf") {
-					Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
-					$waybill = Waybill::where("order_id",$order->id)->first();
-					$waybill = ($waybill) ? $waybill : new Waybill;
-					$waybill->order_id = $order->id;
-					$waybill->awb = $receipt["tracking_number"];
-					$waybill->box_width = $request->box_width;
-					$waybill->box_height = $request->box_height;
-					$waybill->box_length = $request->box_length;
-					$waybill->actual_weight = (float)$request->get("actual_weight");
-					$waybill->package_slip = $order->id . '_package_slip.pdf';
-					$waybill->pickup_date = $request->pickup_time;
-					//newly added
-						$waybill->from_customer_id=null;
-                        $waybill->from_customer_name=$request->from_customer_name;
-                        $waybill->from_city=$request->from_customer_city;
-                        $waybill->from_country_code=$request->from_customer_country;
-                        $waybill->from_customer_phone=$request->from_customer_phone;
-                        $waybill->from_customer_address_1=$request->from_customer_address1;
-                        $waybill->from_customer_address_2=$request->from_customer_address2;
-                        $waybill->from_customer_pincode=$request->from_customer_pincode;
-                        $waybill->from_company_name=$request->from_company_name;
-                        $waybill->to_customer_id=null;
-                        $waybill->to_customer_name=$request->customer_name;
-                        $waybill->to_city=$request->customer_city;
-                        $waybill->to_country_code=$request->customer_country;
-                        $waybill->to_customer_phone=$request->customer_phone;
-                        $waybill->to_customer_address_1=$request->customer_address1;
-                        $waybill->to_customer_address_2=$request->customer_address2;
-                        $waybill->to_customer_pincode=$request->customer_pincode;
-                        $waybill->to_company_name=$request->company_name;
-						$waybill->save();
-				}				
-			}
-
-			return response()->json(["code"=> 200 , "data" => [], "message" => "Receipt Created successfully"]);
-		}else{
-
-			return response()->json(["code"=> 500 , "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Receipt not created']);
+        if($response->hasError()) {
+            $message = $response->getErrorMessage();
+            $isPaperLessTradeIssue = false;
+            
+            if(!empty($message)) {
+                foreach($message as $m) {
+                    $pos = strpos($m, "'WY' is not available between this origin and destination");
+                    if($pos !== false) {
+                        $isPaperLessTradeIssue = true;
+                    }
+                }
+            }
+            // set paperless trade fix
+            if($isPaperLessTradeIssue) {
+                $rateReq->setPaperLess(0);
+                $response = $rateReq->call(true);
+            }
 		}
+
+        if(!$response->hasError()) {
+            $receipt = $response->getReceipt();
+            if(!empty($receipt)  && !empty($receipt["label_format"])){
+                if(strtolower($receipt["label_format"]) == "pdf") {
+                    Storage::disk('files')->put('waybills/' . $order->id . '_package_slip.pdf', $bin = base64_decode($receipt["label_image"], true));
+                    $waybill = Waybill::where("order_id",$order->id)->first();
+                    $waybill = ($waybill) ? $waybill : new Waybill;
+                    $waybill->order_id = $order->id;
+                    $waybill->awb = $receipt["tracking_number"];
+                    $waybill->box_width = $request->box_width;
+                    $waybill->box_height = $request->box_height;
+                    $waybill->box_length = $request->box_length;
+                    $waybill->actual_weight = (float)$request->get("actual_weight");
+                    $waybill->package_slip = $order->id . '_package_slip.pdf';
+                    $waybill->pickup_date = $request->pickup_time;
+                    //newly added
+                    $waybill->from_customer_id = $order->customer_id;
+                    $waybill->from_customer_name=$request->from_customer_name;
+                    $waybill->from_city=$request->from_customer_city;
+                    $waybill->from_country_code=$request->from_customer_country;
+                    $waybill->from_customer_phone=$request->from_customer_phone;
+                    $waybill->from_customer_address_1=$request->from_customer_address1;
+                    $waybill->from_customer_address_2=$request->from_customer_address2;
+                    $waybill->from_customer_pincode=$request->from_customer_pincode;
+                    $waybill->from_company_name=$request->from_company_name;
+                    $waybill->to_customer_id=null;
+                    $waybill->to_customer_name=$request->customer_name;
+                    $waybill->to_city=$request->customer_city;
+                    $waybill->to_country_code=$request->customer_country;
+                    $waybill->to_customer_phone=$request->customer_phone;
+                    $waybill->to_customer_address_1=$request->customer_address1;
+                    $waybill->to_customer_address_2=$request->customer_address2;
+                    $waybill->to_customer_pincode=$request->customer_pincode;
+                    $waybill->to_company_name=$request->company_name;
+                    $waybill->save();
+                }               
+                return response()->json(["code"=> 200 , "data" => [], "message" => "Receipt Created successfully"]);
+            }
+
+        }else{
+            return response()->json(["code"=> 500 , "data" => [], "message" => ($response->getErrorMessage()) ? implode("<br>", $response->getErrorMessage()) : 'Receipt not created']);
+        }    
+
+        
+        return response()->json(["code"=> 500 , "data" => [], "message" => "Something went wrong can not create receipt"]);
 
 	}
 

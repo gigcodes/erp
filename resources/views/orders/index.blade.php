@@ -179,6 +179,19 @@ color:black!important;
 
         <tbody>
 			@foreach ($orders_array as $key => $order)
+             @php
+               $extraProducts = [];
+               if(!$order->order_product->isEmpty())  {
+                  foreach($order->order_product as $orderProduct) {
+                    $extraProducts[] = [
+                      "sku" => $orderProduct->sku,
+                      "qty" => $orderProduct->qty,
+                      "product_price" => $orderProduct->product_price
+                    ];
+                  }
+               }
+             @endphp
+
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -312,7 +325,7 @@ color:black!important;
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
                   @else
-                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
                       <i class="fa fa-truck" aria-hidden="true"></i>
                     </a>
                   @endif
@@ -495,10 +508,53 @@ color:black!important;
         minDate:new Date(),
         format: 'YYYY-MM-DD'
       });
+
+      $(document).on("click",".btn-add-items",function(e) {
+          var index = $("#generateAWBMODAL").find(".product-items-list").find(".card-body").length;
+          console.log(index);  
+          var next  = index+1;
+          var itemsHtml = `<div class="card-body">
+                <div class="form-group col-md-5">
+                   <strong>Name:</strong>
+                   <input type="text" id="name" name="items[`+next+`][name]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Qty:</strong>
+                   <input type="text" id="qty" name="items[`+next+`][qty]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Unit Price:</strong>
+                   <input type="text" id="unit_price" name="items[`+next+`][unit_price]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-5">
+                   <strong>Description:</strong>
+                   <input type="text" id="description" name="items[`+next+`][description]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Net Weight:</strong>
+                   <input type="text" id="net_weight" name="items[`+next+`][net_weight]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Gross Weight:</strong>
+                   <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-1">
+                   <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
+                </div>
+            </div>`;
+            $("#generateAWBMODAL").find(".product-items-list").append(itemsHtml);
+
+      });
+
+      $(document).on("click",".btn-remove-item",function(){
+          $(this).closest(".card-body").remove();
+      });
       
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
           var order_id = $(this).data("order-id");
+          var items    = $(this).data("items");
+
             if(typeof customer != "undefined" || customer != "") {
                /* $(".input_customer_name").val(customer.name);
                $(".input_customer_phone").val(customer.phone);
@@ -513,10 +569,48 @@ color:black!important;
                $("#customer_city").val(customer.city);
                $("#customer_pincode").val(customer.pincode);
             }
+
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<div class="card-body">
+                              <div class="form-group col-md-5">
+                                 <strong>Name:</strong>
+                                 <input type="text" id="name" name="items[`+k+`][name]" class="form-control" value="`+v.sku+`">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Qty:</strong>
+                                 <input type="text" id="qty" name="items[`+k+`][qty]" class="form-control" value="`+v.qty+`">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Unit Price:</strong>
+                                 <input type="text" id="unit_price" name="items[`+k+`][unit_price]" class="form-control" value="`+v.product_price+`">
+                              </div>
+                              <div class="form-group col-md-5">
+                                 <strong>Description:</strong>
+                                 <input type="text" id="description" name="items[`+k+`][description]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Net Weight:</strong>
+                                 <input type="text" id="net_weight" name="items[`+k+`][net_weight]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Gross Weight:</strong>
+                                 <input type="text" id="gross_weight" name="items[`+k+`][gross_weight]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-1">
+                                 <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
+                              </div>
+                          </div>`;
+              });
+              
+              $("#generateAWBMODAL").find(".product-items-list").html(itemsHtml);
+            }
+
             $("#generateAWBMODAL").find("[name='order_id']").val(order_id);
             $("#generateAWBMODAL").modal("show");
       });
-      
+
 
     function ConfirmDialog(message,id,status) {
       $('<div></div>').appendTo('body')

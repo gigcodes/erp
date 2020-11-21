@@ -31,7 +31,7 @@ class CreateShipmentRequest extends APIAbstract
     private $unitOfMeasurement  = "SI";
     private $content            = "DOCUMENTS";
     private $paymentInfo        = "DAP";
-    private $serviceType        = "U";
+    private $serviceType        = "P";
     private $currency           = "INR";
     private $invoiceNumber      = "";
     private $shipmentIdentificationNumber = true;
@@ -40,6 +40,8 @@ class CreateShipmentRequest extends APIAbstract
     private $sendPackage = true;
     private $mobile;
     private $paperLess;
+    private $items;
+    private $description = "Fashion Products";
 
     public function __construct($requestType = "soap")
     {
@@ -240,6 +242,29 @@ class CreateShipmentRequest extends APIAbstract
         return $this->invoiceNumber;
     }
 
+    public function getItems()
+    {
+        return $this->items;
+    }
+
+    public function setItems($items)
+    {
+        $this->items = $items;
+        return $this->items;
+    }
+
+    public function getDescription()
+    {
+        return $this->description;
+    }
+
+    public function setDescription($description)
+    {
+        $this->description = $description;
+        return $this->description;
+    }
+
+
     public function toXML()
     {
         $xml = new \XmlWriter();
@@ -273,18 +298,20 @@ class CreateShipmentRequest extends APIAbstract
                     $xml->startElement('RequestedShipment');
                         $xml->startElement('ShipmentInfo');
                             $xml->writeElement('DropOffType', $this->dropOffType);
-                            $xml->writeElement('ServiceType',"P");
+                            $xml->writeElement('ServiceType',$this->serviceType);
                             $xml->writeElement('Account',$this->accountNumber);
                             $xml->writeElement('Currency',$this->currency);
                             $xml->writeElement('UnitOfMeasurement',$this->unitOfMeasurement);
                             $xml->writeElement('PackagesCount',count($this->packages));
                             $xml->writeElement('SendPackage',$this->sendPackage);
                             $xml->writeElement('PaperlessTradeEnabled', $this->paperLess);
-                            $xml->startElement('SpecialServices');
-                                $xml->startElement('Service');
-                                    $xml->writeElement('ServiceType', "WY");
+                            if($this->paperLess == true) {
+                                $xml->startElement('SpecialServices');
+                                    $xml->startElement('Service');
+                                        $xml->writeElement('ServiceType', "WY");
+                                    $xml->endElement();
                                 $xml->endElement();
-                            $xml->endElement();
+                            }
                             $xml->startElement('LabelOptions');
                                 $xml->writeElement('RequestDHLCustomsInvoice', "Y");
                             $xml->endElement();
@@ -294,13 +321,28 @@ class CreateShipmentRequest extends APIAbstract
                         $xml->startElement('InternationalDetail');
                             $xml->startElement('Commodities');
                                 $xml->writeElement('NumberOfPieces',1);
-                                $xml->writeElement('Description','Fashion Products');
+                                $xml->writeElement('Description',$this->description);
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
                             $xml->writeElement('Content',"NON_DOCUMENTS");
                             $xml->startElement('ExportDeclaration');
                                 $xml->writeElement('InvoiceDate',date("Y-m-d"));
                                 $xml->writeElement('InvoiceNumber',$this->invoiceNumber);
+                                if(!empty($this->items)) {
+                                    $xml->startElement('ExportLineItems');
+                                        foreach($this->items as $i => $item) {
+                                            $xml->startElement('ExportLineItem');
+                                                $xml->writeElement('ItemNumber',$i+1);
+                                                $xml->writeElement('Quantity',$item['qty']);
+                                                $xml->writeElement('QuantityUnitOfMeasurement','PCS');
+                                                $xml->writeElement('ItemDescription',$item['name']);
+                                                $xml->writeElement('UnitPrice',$item['unit_price']);
+                                                $xml->writeElement('NetWeight',$item['net_weight']);
+                                                $xml->writeElement('GrossWeight',$item['gross_weight']);
+                                            $xml->endElement();
+                                        }
+                                    $xml->endElement();
+                                }
                             $xml->endElement();
                         $xml->endElement();
                         // section for the  shiping and recipient
@@ -375,8 +417,12 @@ class CreateShipmentRequest extends APIAbstract
         return $this->document = $xml->outputMemory();
     }
 
-    public function call()
+    public function call($reset = false)
     {
+        if($reset) {
+            $this->document = $this->toXML();
+        }
+
         $result = $this->doCurlPost();
 
         return new CreateShipmentResponse($result);

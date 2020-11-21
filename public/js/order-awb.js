@@ -50,18 +50,25 @@ $(document).on("click",".btn-rate-request",function(e) {
             'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
         },
         url: BASE_URL+'/order/generate/awb/dhl',
-		data: form.serialize(),
-		beforeSend: function() {
-			$('.ajax-loader').show();
-		},
+    		data: form.serialize(),
+    		beforeSend: function() {
+    			$('.ajax-loader').show();
+    		},
       }).done(response => {
-			$('.ajax-loader').hide();
+  			 $('.ajax-loader').hide();
           if(response.code == 200) {
             toastr['success'](response.message, 'success');
             location.reload();
           }else{
             toastr['error'](response.message, 'error');
           }
+      }).fail(error => {
+          $('.ajax-loader').hide();
+          var errors = "";
+          $.each(error.responseJSON.errors, function(key,value) {
+            errors += "<span>"+value+"</span></br>";
+         }); 
+          $('#validation-errors').append('<div class="alert alert-danger">'+errors+'</div');
       });
   });
       
