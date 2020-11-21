@@ -56,7 +56,7 @@ class Category extends Model
 
     }
 
-    public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {
@@ -68,8 +68,31 @@ class Category extends Model
 
         // No result? Try where like
         if ( $dbResult->count() == 0 ) {
-            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->where("id","!=",self::UNKNOWN_CATEGORIES)->get();
+            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->whereNotIn("id",[self::UNKNOWN_CATEGORIES,1])->get();
+            $matchIds = [];
+            foreach ($dbResult as $db) {
+                if($db->references){
+                    $referenceArrays = explode(',', $db->references);
+                    foreach ($referenceArrays as $referenceArray) {
+                        //reference 
+                        $referenceArray = preg_replace('/\s+/', '', $referenceArray);
+                        $referenceArray = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $referenceArray);
+
+                        //category
+                        $input = $keyword;
+                        $input = preg_replace('/\s+/', '', $input);
+                        $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
+                        similar_text(strtolower($input), strtolower($referenceArray), $percent);
+                        if ($percent >= 80) {
+                            $matchIds[] = $db->id;
+                            break;
+                        }
+                    }
+                }
+            }
+            $dbResult = self::whereIn('id',$matchIds)->get();
         }
+        
 
         // Still no result
         if ( $dbResult === NULL ) {

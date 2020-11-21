@@ -73,6 +73,7 @@ use App\OrderStatusHistory;
 use App\waybillTrackHistories;
 use stdClass;
 use App\CreditHistory;
+use App\QuickReply;
 
 class OrderController extends Controller {
 
@@ -318,8 +319,9 @@ class OrderController extends Controller {
 		->where("order_status","!=", '')->groupBy("order_status")->select(\DB::raw("count(*) as total"),"os.status as order_status","swo.website_id")->get()->toArray();
 		$totalOrders = sizeOf($orders->get());
 		$orders_array = $orders->paginate(10);
+		$quickreply = Reply::where('model','Order')->get();
 		//return view( 'orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList') );
-		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','fromdatadefault') );
+		return view('orders.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','quickreply','fromdatadefault') );
 	}
 
 	public function products(Request $request)
@@ -732,18 +734,17 @@ class OrderController extends Controller {
 				}
 			}
 		} 
-		$customer_credit=$request->customer_credit?$request->customer_credit:0;
-		if ($customer_credit > 0) {
+		if ($customer->credit > 0) {
 			$balance_amount = $order->balance_amount;
 
-			if (($order->balance_amount - $customer_credit) < 0) {
-				$left_credit = ($order->balance_amount - $customer_credit) * -1;
+			if (($order->balance_amount - $customer->credit) < 0) {
+				$left_credit = ($order->balance_amount - $customer->credit) * -1;
 				$order->advance_detail += $order->balance_amount;
 				$balance_amount = 0;
 				$customer->credit = $left_credit;
 			} else {
-				$balance_amount -= $customer_credit;
-				$order->advance_detail += $customer_credit;
+				$balance_amount -= $customer->credit;
+				$order->advance_detail += $customer->credit;
 			}
 			$order->balance_amount = $balance_amount;
 			$order->order_id = $oPrefix."-".$order->id;
@@ -756,7 +757,7 @@ class OrderController extends Controller {
 					'customer_id'=>$request->customer_id,
 					'model_id'=>$order->id,
 					'model_type'=>Order::class,
-					'used_credit'=>$customer_credit,
+					'used_credit'=>$customer->credit,
 					'used_in'=>'ORDER',
 					'type'=>'MINUS'
 					)
@@ -1071,6 +1072,19 @@ class OrderController extends Controller {
 				$order->balance_amount = $balance_amount;
 				$order->save();
 				$customer->save();
+
+				if($order->id){
+					CreditHistory::create(
+						array(
+						'customer_id'=>$request->customer_id,
+						'model_id'=>$order->id,
+						'model_type'=>Order::class,
+						'used_credit'=>$customer->credit,
+						'used_in'=>'ORDER',
+						'type'=>'MINUS'
+						)
+						);
+				}
 			}
 		}
 
@@ -2192,35 +2206,36 @@ public function createProductOnMagento(Request $request, $id){
 				$history->new_status = $status;
 				$history->user_id = Auth::user()->id;
 				$history->save();
+				if(isset($request->sendmessage) && $request->sendmessage=='1'){
 				//Sending Mail on changing of order status
-                $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
-                if($mailingListCategory){
-                    if($order->storeWebsiteOrder) {
-                        $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
-                    }else{
-                        $templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
-                    }
-                    // @todo put the function to send mail from specific store emails
-                    if($templateData) {
-        				$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
-        				$valToReplace = [$order->customer->name,$statuss->status];
-        				$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
-        				
-        				$storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
-                        if($storeEmailAddress) {
-                            $emailData['subject'] = $templateData->subject;
-                            $emailData['static_template'] = $bodyText;
-                            $emailData['from'] = $storeEmailAddress->from_address;
-                        
-            				Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
-                        }
-                    }
-                }
-
+					$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+					if($mailingListCategory){
+						if($order->storeWebsiteOrder) {
+							$templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
+						}else{
+							$templateData = MailinglistTemplate::where("name",'Order Status Change')->first();
+						}
+						// @todo put the function to send mail from specific store emails
+						if($templateData) {
+							$arrToReplace = ['{FIRST_NAME}','{ORDER_STATUS}'];
+							$valToReplace = [$order->customer->name,$statuss->status];
+							$bodyText = str_replace($arrToReplace,$valToReplace,$templateData->static_template);
+							
+							$storeEmailAddress = EmailAddress::where('store_website_id',$order->customer->store_website_id)->first();
+							if($storeEmailAddress) {
+								$emailData['subject'] = $templateData->subject;
+								$emailData['static_template'] = $bodyText;
+								$emailData['from'] = $storeEmailAddress->from_address;
+								Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
+							}
+						}
+					}
+				}
 				//Sending Mail on changing of order status
-				
-				//sending order message to the customer	
-				UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
+				if(isset($request->sendmessage) && $request->sendmessage=='1'){
+					//sending order message to the customer	
+					UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
+				}
 				$storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
 				if($storeWebsiteOrder) {
 					$website = StoreWebsite::find($storeWebsiteOrder->website_id);
@@ -2379,11 +2394,6 @@ public function createProductOnMagento(Request $request, $id){
 			$order->customer->pincode = $request->customer_pincode;
 			$order->customer->save();
 		}
-
-        $products = $order->orderProducts;
-        if(!$products->isEmpty()) {
-            
-        }
 
 
 		$rateReq   = new CreateShipmentRequest("soap");
@@ -3006,5 +3016,28 @@ public function createProductOnMagento(Request $request, $id){
 		// $orders = json_encode($orders);
 		return response()->json(['message' => 'Orders Fetched successfully','status' => 200, 'data' => $orders]);
 
+	}
+	public function addNewReply(request $request){
+		if($request->reply){
+		$replyData = [];
+		$html = '';
+		$replyData['reply'] = $request->reply;
+		$replyData['model'] = 'Order';
+		$replyData['category_id'] = 1;
+		$success = Reply::create($replyData);
+		if($success){
+			$replies = Reply::where('model','Order')->get();
+			if($replies){
+				$html .="<option value=''>Select Order Status</option>";
+				foreach($replies as $reply){
+				$html .= '<option value="'.$reply->id.'">'.$reply->reply.'</option>';
+				}
+			}
+			
+			return response()->json(['message' => 'reply added successfully','html'=>$html,'status' => 200]);
+		}
+		return response()->json(['message' => 'unable to add reply','status' => 500]);
+		}
+		return response()->json(['message' => 'please enter a reply','status' => 400]);
 	}
 }

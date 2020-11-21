@@ -216,17 +216,6 @@ class CreateShipmentRequest extends APIAbstract
         return $this->mobile;
     }
 
-    public function getCommoditiesDescription()
-    {
-        return $this->commoditiesDescription;
-    }
-
-    public function setCommoditiesDescription($description)
-    {
-        $this->commoditiesDescription = $description;
-        return $this->commoditiesDescription;
-    }
-
     public function toXML()
     {
         $xml = new \XmlWriter();
@@ -276,11 +265,7 @@ class CreateShipmentRequest extends APIAbstract
                                 $xml->writeElement('Description','Fashion Products');
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
-                            if($this->serviceType == "D") {
-                                $xml->writeElement('Content',$this->content);
-                            }else{
-                                $xml->writeElement('Content',"NON_DOCUMENTS");
-                            }
+                            $xml->writeElement('Content',"NON_DOCUMENTS");
                         $xml->endElement();
                         // section for the  shiping and recipient
                         $xml->startElement('Ship');

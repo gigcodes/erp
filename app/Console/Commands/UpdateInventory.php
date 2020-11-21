@@ -38,6 +38,7 @@ class UpdateInventory extends Command
      */
     public function handle()
     {
+        return false;
         try {
             $report = CronJobReport::create([
                 'signature'  => $this->signature,

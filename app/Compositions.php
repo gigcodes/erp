@@ -14,15 +14,38 @@ class Compositions extends Model
 
     public static function getErpName($name)
     {
-        $mc = self::where("name", "like", "%" . $name . "%")->distinct('name')->get(['name', 'replace_with']);
+        $parts = preg_split('/\s+/', $name);
+        
+        $mc = self::query();
+        if(!empty($parts))  {
+            foreach($parts as $p){
+                $mc->orWhere("name","like","%".trim($p)."%");
+            }
+        }
+        $mc = $mc->distinct('name')->get(['name', 'replace_with']);
 
-
+        $isReplacementFound = false;
         if (!$mc->isEmpty() && !empty($name)) {
             foreach ($mc as $key => $c) {
-                if (stristr($name, $c->name)) {
-                    return $c->replace_with;
+                // check if the full replacement found then assign from there
+                if (strtolower($name) == strtolower($c->name)) {
+                    $name = $c->replace_with;
+                    $isReplacementFound = true;
+                    break;
+                }
+
+                foreach($parts as $p) {
+                    if (strtolower($p) == strtolower($c->name)) {
+                        $name = str_replace($p, $c->replace_with, $name);
+                        $isReplacementFound = true;
+                    }
                 }
             }
+        }
+
+        // check if replacement found then assing that to the composition otherwise add new one and start next process
+        if($isReplacementFound) {
+            return $name;
         }
 
         // in this case color refenrece we don't found so we need to add that one

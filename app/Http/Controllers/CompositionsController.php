@@ -21,7 +21,7 @@ class CompositionsController extends Controller
             });
         }
 
-        $listcompostions = Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
+        $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
 
         if($request->with_ref == 1) {
             $compositions = $compositions->where(function($q) use ($request) {
@@ -62,7 +62,7 @@ class CompositionsController extends Controller
             'replace_with' => 'required',
         ]);
 
-        Compositions::create($request->all());
+        $c = Compositions::create($request->all());
 
         return redirect()->back();
 
@@ -185,5 +185,40 @@ class CompositionsController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function replaceComposition(Request $request){
+        $from = $request->name;
+        $to   = $request->replace_with;
+        if(!empty($from) && !empty($to)){
+            $products = \App\Product::where('composition','LIKE','%'.$from.'%')->get();
+            
+            if($products){
+                foreach ($products as $product) {
+                    $composition = $product->composition;
+                    $replaceWords = [];
+                    $replaceWords[] = ucwords($from);
+                    $replaceWords[] = strtoupper($from);
+                    $replaceWords[] = strtolower($from);
+                    $newComposition = str_replace($replaceWords,$to,$composition);
+                    $product->composition = $newComposition;
+                    $product->update();
+                }
+
+                $c = Compositions::where("name",$from)->first();
+                if($c) {
+                    $c->replace_with = $to;
+                    $c->save();
+                }else{
+                    if(!empty($from)){
+                        $comp = new Compositions();
+                        $comp->name = $from;
+                        $comp->replace_with = $to;
+                        $comp->save(); 
+                    }          
+                }
+            }
+        }
+        return redirect()->back();
     }
 }

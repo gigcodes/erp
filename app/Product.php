@@ -33,6 +33,9 @@ class Product extends Model
 //  use LogsActivity;
     use Mediable;
     use SoftDeletes;
+
+    CONST BAGS_CATEGORY_IDS = [11,39,50,192,210];
+
     /**
      * The attributes that are mass assignable.
      *
@@ -62,7 +65,8 @@ class Product extends Model
         'hmeasurement',
         'dmeasurement',
         'size',
-        'color'
+        'color',
+        'last_brand'
     ];
 
     protected $dates = ['deleted_at'];
@@ -157,6 +161,14 @@ class Product extends Model
 
             // Get formatted prices
             $formattedPrices = self::_getPriceArray($json);
+            $formattedDetails = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($json->properties,$json);
+
+            $color = \App\ColorNamesReference::getProductColorFromObject($json);
+
+            $composition = $formattedDetails['composition'];
+            if(!empty($formattedDetails['composition'])) {
+                $composition = \App\Compositions::getErpName($formattedDetails['composition']);
+            }
 
             // If validator fails we have an existing product
             if ($validator->fails()) {
@@ -193,19 +205,10 @@ class Product extends Model
                 // Update color, composition and material used if the product is not approved
                 if (!$product->is_approved) {
                     // Set color
-                    if (isset($json->properties[ 'color' ])) {
-                        $product->color = trim($json->properties[ 'color' ] ?? '');
-                    }
-
+                    $product->color = $color;
                     // Set composition
-                    if (isset($json->properties[ 'composition' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'composition' ] ?? ''), 'composition');
-                    }
-
-                    // Set material used
-                    if (isset($image->properties[ 'material_used' ])) {
-                        $product->composition = ProductHelper::getRedactedText(trim($image->properties[ 'material_used' ] ?? ''), 'composition');
-                    }
+                    $product->composition = $composition;
+                    
                 }
 
                 //Check if its json
@@ -362,8 +365,8 @@ class Product extends Model
                 $product->stock = 1;
                 $product->is_without_image = 1;
                 $product->is_on_sale = $json->is_sale ? 1 : 0;
-                $product->composition = ProductHelper::getRedactedText($json->properties[ 'composition' ], 'composition');
-                $product->color = $json->properties[ 'color' ] ?? null;
+                $product->composition = $composition;
+                $product->color = $color;
                 $product->size = $json->properties[ 'size' ] ?? null;
                 $product->lmeasurement = isset($json->properties[ 'lmeasurement' ]) && $json->properties[ 'lmeasurement' ] > 0 ? $json->properties[ 'lmeasurement' ] : null;
                 $product->hmeasurement = isset($json->properties[ 'hmeasurement' ]) && $json->properties[ 'hmeasurement' ] > 0 ? $json->properties[ 'hmeasurement' ] : null;
@@ -862,8 +865,6 @@ class Product extends Model
     public function publishedOn()
     {
         return array_keys($this->websiteProducts->pluck("product_id","store_website_id")->toArray());
-
-
     }
 
     /**
@@ -994,6 +995,8 @@ class Product extends Model
 
     public function checkExternalScraperNeed()
     {
+        $parentcate = ($this->category > 0 && $this->categories) ? $this->categories->parent_id :  null;
+
         if(empty($this->name) 
             || $this->name == ".." 
             || empty($this->short_description) 
@@ -1004,6 +1007,11 @@ class Product extends Model
             $this->save();
         }else if(empty($this->composition) || empty($this->color) || empty($this->category || $this->category < 1)) {
             $this->status_id = StatusHelper::$unknownCategory;
+            $this->save();
+        }else if ((empty($this->lmeasurement) && empty($this->hmeasurement) && empty($this->dmeasurement) && !empty($parentcate)) 
+            && (in_array($this->category,self::BAGS_CATEGORY_IDS) || in_array($parentcate,self::BAGS_CATEGORY_IDS))
+        ) {
+            $this->status_id = StatusHelper::$requestForExternalScraper;
             $this->save();
         } else{
             // if validation pass and status is still external scraper then remove and put for the auto crop
@@ -1108,7 +1116,8 @@ class Product extends Model
                 $q->where('products.name', 'LIKE', "%$term%")
                 ->orWhere('products.sku', 'LIKE', "%$term%")
                 ->orWhere('c.title', 'LIKE', "%$term%")
-                ->orWhere('b.name', 'LIKE', "%$term%");
+                ->orWhere('b.name', 'LIKE', "%$term%")
+                ->orWhere('products.id', 'LIKE', "%$term%");
             });
         }
         return $query->orderBy('products.created_at','DESC')->paginate(Setting::get('pagination'),$columns);
@@ -1181,4 +1190,73 @@ class Product extends Model
         return \App\StoreWebsite::whereIn("id",$websites)->get();
     }
 
+    public function expandCategory()
+    {
+       $cat = [];
+       $list = $this->categories;
+       if($list) {
+            $cat[] = $list->title;
+            $parent = $list->parent;
+          if($parent)   {
+             $cat[] = $parent->title;
+             $parent = $parent->parent;
+             if($parent) {
+                $cat[] = $parent->title;
+                $parent = $parent->parent;
+                if($parent) {
+                    $cat[] = $parent->title;
+                 }
+             }
+          }
+       }
+       
+       return implode(" >> ", $cat);
+    }
+
+    public function getRandomDescription()
+    {
+        $descriptions = $this->suppliers_info()->pluck("description")->toArray();
+        return $descriptions;
+    }
+
+    public function setRandomDescription($website)
+    {
+        $product = $this;
+        $description = $product->short_description;
+        // assign description game wise
+        // store random description from the website
+        $storeWebsiteAttributes = $product->storeWebsiteProductAttributes($website->id);
+        if ($storeWebsiteAttributes && !empty($storeWebsiteAttributes->description)) {
+            $description = $storeWebsiteAttributes->description;
+        }else{
+            $randomDescription = $product->getRandomDescription();
+            if(!empty($randomDescription)) {
+                $randomDescription[] = $product->short_description;
+                $storeWebsitePA = \App\StoreWebsiteProductAttribute::where("product_id", $product->id)->get();
+                if(!$storeWebsitePA->isEmpty()) {
+                    foreach($storeWebsitePA  as $swpa) {
+                        foreach($randomDescription as $des) {
+                            if(strtolower($des) !=  strtolower($swpa->description)) {
+                                $description  = $des;
+                            }
+                        }
+                    }
+                }else{
+                    shuffle($randomDescription);
+                    $description  = $randomDescription[0];
+                }
+
+                // if description is not empty
+                if(!empty($description)) {
+                    $storeWebsitePA = new \App\StoreWebsiteProductAttribute;
+                    $storeWebsitePA->product_id = $product->id;
+                    $storeWebsitePA->store_website_id = $website->id;
+                    $storeWebsitePA->description = $description;
+                    $storeWebsitePA->save();
+                }
+            }
+        }
+
+        return $description;
+    }
 }

@@ -1681,6 +1681,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         </li>
 
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/category/new-references">New Category Reference</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">

@@ -112,6 +112,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
+    Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
 
     Route::resource('compositions', 'CompositionsController');
 
@@ -314,12 +315,17 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('category/references', 'CategoryController@mapCategory');
     Route::post('category/references', 'CategoryController@saveReferences');
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
+    Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');
     Route::post('category/references/update-category', 'CategoryController@updateCategoryReference');
 
 
     Route::post('category/update-field', 'CategoryController@updateField');
     Route::post('category/reference', 'CategoryController@saveReference');
     Route::post('category/save-form', 'CategoryController@saveForm')->name("category.save.form");
+    //new category reference 
+
+    Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
+
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -509,12 +515,11 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('order/{id}/mail-invoice', 'OrderController@mailInvoice')->name('order.mail.invoice');
     Route::get('order/update-delivery-date', 'OrderController@updateDelDate')->name('order.updateDelDate');
     Route::get('order/view-est-delivery-date-history', 'OrderController@viewEstDelDateHistory')->name('order.viewEstDelDateHistory');
+    Route::post('order/addNewReply', 'OrderController@addNewReply')->name('order.addNewReply');
     Route::resource('order', 'OrderController');
 
     Route::post('order/status/store', 'OrderReportController@statusStore')->name('status.store');
     Route::post('order/report/store', 'OrderReportController@store')->name('status.report.store');
-
-
     //emails
     Route::get('email/replyMail/{id}', 'EmailController@replyMail');
     Route::post('email/replyMail', 'EmailController@submitReply')->name('email.submit-reply');
@@ -731,7 +736,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     // Chat messages
     Route::get('chat-messages/{object}/{object_id}/loadMoreMessages', 'ChatMessagesController@loadMoreMessages');
     Route::post('chat-messages/{id}/set-reviewed', 'ChatMessagesController@setReviewed');
-
+    Route::post('chat-messages/downloadChatMessages', 'ChatMessagesController@downloadChatMessages')->name('chat.downloadChatMessages');
     // Customers
     Route::get('customer/exportCommunication/{id}', 'CustomerController@exportCommunication');
     Route::get('customer/test', 'CustomerController@customerstest');
@@ -1355,7 +1360,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('assets-manager', 'AssetsManagerController');
     Route::post('assets-manager/add-note/{id}', 'AssetsManagerController@addNote');
-
+    Route::post('assets-manager/payment-history', 'AssetsManagerController@paymentHistory')->name('assetsmanager.paymentHistory');
     // Agent Routes
     Route::resource('agent', 'AgentController');
     //Route::resource('product-templates', 'ProductTemplatesController');
@@ -1454,6 +1459,8 @@ Route::post('tickets/add-ticket-status', 'LiveChatController@TicketStatus')->nam
 Route::post('tickets/change-ticket-status', 'LiveChatController@ChangeStatus')->name('tickets.status.change');
 Route::post('livechat/create-ticket', 'LiveChatController@createTickets')->name('livechat.create.ticket');
 Route::get('livechat/get-tickets-data', 'LiveChatController@getTicketsData')->name('livechat.get.tickets.data');
+Route::post('livechat/create-credit', 'LiveChatController@createCredits')->name('livechat.create.credit');
+Route::get('livechat/get-credits-data', 'LiveChatController@getCreditsData')->name('livechat.get.credits.data');
 
 
 
@@ -2338,6 +2345,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
+    Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
 
     Route::prefix('{id}')->group(function () {
         Route::get('/detail', 'ReturnExchangeController@detail')->name('return-exchange.detail');
@@ -2396,6 +2404,11 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('twilio/call-management', 'TwilioController@callManagement')->name('twilio-call-management');
     Route::get('twilio/incoming-calls/{number_sid}/{number}', 'TwilioController@getIncomingList')->name('twilio-incoming-calls');
     Route::get('twilio/incoming-calls-recording/{call_sid}', 'TwilioController@incomingCallRecording')->name('twilio-incoming-call-recording');
+
+    //missing brands
+    Route::get('missing-brands', 'MissingBrandController@index')->name('missing-brands.index');
+    Route::post('missing-brands/store', 'MissingBrandController@store')->name('missing-brands.store');
+    Route::post('missing-brands/reference', 'MissingBrandController@reference')->name('missing-brands.reference');
 });
 Route::post('message-queue/approve/approved', '\Modules\MessageQueue\Http\Controllers\MessageQueueController@approved');
 

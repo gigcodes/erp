@@ -604,13 +604,38 @@ class ScrapController extends Controller
 
         // If product is found, update it
         if ($product) {
+            
+            // clear the request using for the new scraper
+            $propertiesArray = [
+                "material_used" => $request->get('composition'),
+                "color" => $request->get('color'),
+                "sizes" => $request->get('sizes'),
+                "category" => $request->get('category'),
+                "dimension" => $request->get('dimension'),
+                "country" => $request->get('country')
+            ];
+
+            $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
+
+            $color = \App\ColorNamesReference::getColorRequest($formatter['color'],$request->get('url'),$request->get('title'),$request->get('description'));
+            $composition = $formatter['composition'];
+            if(!empty($formatter['composition'])) {
+                $composition = \App\Compositions::getErpName($formatter['composition']);
+            }
+            
             // Set basic data
             $product->name = $request->get('title');
             $product->short_description = $request->get('description');
-            $product->composition = $request->get('material_used');
-            $product->color = $request->get('color');
+            $product->composition = $composition;
+            $product->color = $color;
             $product->description_link = $request->get('url');
-            $product->made_in = $request->get('country');
+            $product->made_in = $formatter['made_in'];
+            $product->category = $formatter['category'];
+            // if size is empty then only update
+            if(empty($product->size)) {
+                $product->size = $formatter['size'];
+                $product->size_eu = $formatter['size'];
+            }
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');
             }
@@ -618,13 +643,13 @@ class ScrapController extends Controller
 
             // Set optional data
             if (!$product->lmeasurement) {
-                $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
+                $product->lmeasurement = $formatter['lmeasurement'];
             }
             if (!$product->hmeasurement) {
-                $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
+                $product->hmeasurement = $formatter['hmeasurement'];
             }
             if (!$product->dmeasurement) {
-                $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
+                $product->dmeasurement = $formatter['dmeasurement'];;
             }
 
             $product->status_id = StatusHelper::$autoCrop;
@@ -1110,9 +1135,9 @@ class ScrapController extends Controller
     public function sendScrapDetails()
     {
 
-        $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+        //$scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
-        //$scraper = Scraper::where("id",61)->first();
+        $scraper = Scraper::where("id",23)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);

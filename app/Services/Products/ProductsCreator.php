@@ -463,7 +463,7 @@ class ProductsCreator
                     $size = trim($size);
                 }
 
-                if (!empty($size)) {
+                if (!empty($size) || $size == 0) {
                     $tmpSizes[] = $size;
                 }
             }
@@ -544,6 +544,26 @@ class ProductsCreator
 
                 // Try to get category ID
                 $category = Category::getCategoryIdByKeyword(end($properties_array[ 'category' ]), $gender);
+                
+                if(!$category){
+                    $categoryReference = implode('/',$properties_array[ 'category' ]);
+                    $unknownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
+                    //checking if it already exist in reference table
+                    $results = explode(',', $unknownCategory->references);
+                    $exist = 0;
+                    foreach ($results as $result) {
+                        if(strtolower($result) == strtolower($categoryReference)){
+                            $exist = 1;
+                            break;
+                        }
+                    }
+                    if($exist == 0){
+                        $unknownCategory->references = $unknownCategory->references . ',' . $categoryReference;
+                        $unknownCategory->save();    
+                    }
+                    
+                }
+            
             }
         }
 

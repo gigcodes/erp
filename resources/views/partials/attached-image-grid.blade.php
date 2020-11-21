@@ -1139,8 +1139,7 @@
         });
 
     
-        var selectAllCustomerProductBtn = $(".select-customer-all-products");
-        selectAllCustomerProductBtn.on("click", function (e) {
+        $(document).on("click",".select-customer-all-products", function (e) {
                     var customer_id = $(this).data('id');
                     var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);

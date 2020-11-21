@@ -82,6 +82,12 @@
                    <input {{ (request('without_category')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_category" id="without_category"><label for="without_category">Without Category?</label>
                 </div>
                 <div class="form-group mr-3 mb-3">
+                   <input {{ (request('without_color')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_color" id="without_color"><label for="without_color">Without Color?</label>
+                </div>
+                <div class="form-group mr-3 mb-3">
+                   <input {{ (request('without_composition')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="without_composition" id="without_composition"><label for="without_composition">Without Composition?</label>
+                </div>
+                <div class="form-group mr-3 mb-3">
                    <input {{ (request('final_approval')) ? 'checked' : '' }} ? 'checked' : '' }} type="checkbox" name="final_approval" id="final_approval"><label for="final_approval">Final Approved?</label>
                 </div>
                 @if (isset($customer_id) && $customer_id != null)
@@ -117,7 +123,7 @@
   <script>
 
         var isLoadingProducts = false;
-    	
+    	var loadCount = $('.container-grow').find('.card-body').length;
     	$(document).ready(function() {
        		$(".select-multiple").multiselect();
        		$(".select-multiple2").select2();
@@ -202,9 +208,12 @@
         });
 
       function loadMoreProducts() {
+          var product_count = "{{$productCount}}";
+          //console.log(product_count +'=='+ loadCount );
           if (isLoadingProducts)
               return;
-
+        if(parseInt(loadCount) == parseInt(product_count))
+              return;
           isLoadingProducts = true;
 
           var $loader = $('.infinite-scroll-products-loader');
@@ -220,11 +229,10 @@
           .done(function(data) {
               if('' === data.trim())
                   return;
-
+                loadCount += $(data).find('.card-body').length
+                console.log(loadCount);
               $loader.hide();
-
               $('.infinite-scroll-products-inner').append(data);
-
               isLoadingProducts = false;
           })
           .fail(function(jqXHR, ajaxOptions, thrownError) {

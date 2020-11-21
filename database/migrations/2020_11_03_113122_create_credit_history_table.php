@@ -24,6 +24,7 @@ class CreateCreditHistoryTable extends Migration
             $table->string('type')->nullable()->comment('value added or minus so value will be ADD, MINUS');
             $table->timestamps();
         });
+        
     }
 
     /**

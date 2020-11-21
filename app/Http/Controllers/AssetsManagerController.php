@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\AssetsManager;
 use App\AssetsCategory;
+use App\CashFlow;
 use DB;
 class AssetsManagerController extends Controller
 {
@@ -234,5 +235,32 @@ class AssetsManagerController extends Controller
         return response()->json([
             'status' => 'success'
         ]);
-    }
+	}
+	public function paymentHistory(request $request){
+		$asset_id = $request->input('asset_id');
+		$html = '';
+		$paymentData = CashFlow::where('cash_flow_able_id',$asset_id)
+								->where('cash_flow_able_type','App\AssetsManager')	
+								->where('type','paid')
+								->orderBy('date','DESC')
+								->get();
+		$i=1;
+		if(count($paymentData)>0)
+		{
+			foreach($paymentData as $history)
+			{
+				$html .= '<tr>'; 
+				$html .= '<td>'.$i.'</td>';
+				$html .= '<td>'.$history->amount.'</td>';
+				$html .= '<td>'.$history->date.'</td>';
+				$html .= '<td>'.$history->description.'</td>';
+				$html .= '</tr>';
+
+				$i++; 
+			} 
+			return response()->json(['html'=>$html,'success'=>true],200);
+		}
+		return response()->json(['html'=>'','success'=>false],404);
+		
+	}
 }

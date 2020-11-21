@@ -41,7 +41,7 @@
     }
 </style>
 
-@includeWhen($accounts->count() == 0, 'partials.no-accounts')
+<?php /* @includeWhen($accounts->count() == 0, 'partials.no-accounts') */ ?>
 
 
 <div class = "row">
@@ -172,7 +172,7 @@
 </div>
 
 @include('instagram.partials.publish-post')
-
+@include('instagram.partials.attachment-media')
 <div id="add-insta-feed-model" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -435,6 +435,47 @@ $(document).ready(function(){
             }
         });
     }
+    $('.attachInstagramMedia').on('click', function()
+    {
+        if($('#add-vendor-info-modal').hasClass('in')){
+        $('#add-vendor-info-modal').removeClass('in');
+        $('#instagramAttachmentMedia').modal('show');
+        $('#instagramAttachmentMedia').addClass('in');
+        }
+    });
+    $('#instagramAttachmentMedia').on('hidden.bs.modal', function () {
+        if(!$('#add-vendor-info-modal').hasClass('in')){
+            $('#add-vendor-info-modal').addClass('in');
+        }
+    });
+    $('.attachInstaMediaBtn').on('click', function(){
+        var selectedMedia = $(this).parentsUntil('tr').find('.selectInstaAttachMedia:checked');
+        var checkAttachSelected = selectedMedia.length;
+        if(checkAttachSelected ==0){
+            alert('please select image to attach');
+            return;
+        }
+        var id = selectedMedia.data('id');
+        var original = selectedMedia.data('original');
+        var thumb = selectedMedia.data('thumb');
+        var file_name = selectedMedia.data('file_name');
+
+        $media_container = $('.media-manager .media-files-container');
+        $media_container.empty();
+        if(id !=''){
+            $media_container.append(
+	                              '<div class="media-file">'
+	                            + '    <label class="imagecheck m-1">'
+	                            + '        <input name="media[]" type="checkbox" value="' + id + '" data-original="' + original + '" class="imagecheck-input" />'
+	                            + '        <figure class="imagecheck-figure">'
+	                            + '            <img src="' + thumb + '" alt="' + file_name + '" class="imagecheck-image">'
+	                            + '        </figure>'
+	                            + '    </label>'
+	                            + '</div>'
+	                        );
+        }
+        $('#instagramAttachmentMedia').modal('hide');
+    });
 });
 
 

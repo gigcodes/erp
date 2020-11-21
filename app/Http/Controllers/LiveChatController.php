@@ -1204,6 +1204,58 @@ if(isset($request->messageId)){
         return response()->json(['ticket created successfully', 'code' => 200, 'status' => 'success']);
     }
 
+
+    public function createCredits(Request $request) {
+        $data = [];
+        
+        $customer_id=$request->credit_customer_id;
+        $credit=$request->credit;
+        $customer = Customer::find($customer_id);
+        if($customer->credit==null || $customer->credit==""){
+            $customer->credit=0;
+        }
+        $calc_credit=0;
+            if($credit<0){
+                $type="MINUS";
+                if($customer->credit==0){
+                    $calc_credit=$customer->credit+($credit);
+                }else{
+                    $credit=str_replace('-','',$credit);
+                    $calc_credit=$customer->credit-$credit;
+                }
+                
+            }else{
+                $type="PLUS";
+                $calc_credit=$customer->credit+$credit;
+            }
+            $customer->credit=$calc_credit;
+            $customer->save();
+        if($customer){
+                \App\CreditHistory::create(
+                array(
+                'customer_id'=>$customer_id,
+                'model_id'=>$customer_id,
+                'model_type'=>Customer::class,
+                'used_credit'=>$credit,
+                'used_in'=>'MANUAL',
+                'type'=>$type
+                )
+                );
+        }
+        return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
+    }
+
+    public function getCreditsData(Request $request) {
+        $customer=Customer::find($request->customer_id);
+        if($customer->credit==null || $customer->credit==""){
+            $currentcredit=0;
+        }else{
+            $currentcredit=$customer->credit;
+        }
+        $credits = \App\CreditHistory::where('customer_id',$request->customer_id)->orderBy('id','desc')->get();
+        return response()->json(['data' => $credits,'currentcredit'=>$currentcredit,'status' => 'success']);
+    }
+
     public function getTicketsData(Request $request) {
         $tickets = Tickets::where('customer_id',$request->customer_id)->with('ticketStatus')->get();
         return response()->json(['data' => $tickets, 'status' => 'success']);

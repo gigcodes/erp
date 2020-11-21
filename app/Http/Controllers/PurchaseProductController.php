@@ -29,12 +29,23 @@ class PurchaseProductController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index(Request $request) {
-		$term = $request->input('term');
-		$order_status = $request->status ?? [''];
+		$filter_customer = $request->input('filter_customer');
+        $filter_supplier = $request->filter_supplier ?? '';
+        $filter_selling_price = $request->input('filter_selling_price');
+		$filter_order_date = $request->input('filter_order_date');
+		$filter_date_of_delivery = $request->input('filter_date_of_delivery');
+        $filter_inventory_status_id = $request->input('filter_inventory_status_id');
+        $order_status = $request->status ?? [''];
 		$date = $request->date ?? '';
 		$brandList = \App\Brand::all()->pluck("name","id")->toArray();
 		$brandIds = array_filter($request->get("brand_id",[]));
-		$registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
+        $registerSiteList = StoreWebsite::pluck('website', 'id')->toArray();
+        //$product_suppliers_list=ProductSupplier::all();
+        //$product_suppliers_list=array();
+        $product_suppliers_list = Supplier::where(function ($query) {
+            $query->whereNotNull('email')->orWhereNotNull('default_email');
+        })->get();
+
 		if($request->input('orderby') == '')
 				$orderby = 'DESC';
 		else
@@ -82,7 +93,7 @@ class PurchaseProductController extends Controller
 		if(empty($term))
 			$orders = $orders;
 		else{
-			$orders = $orders->whereHas('customer', function($query) use ($term) {
+			/* $orders = $orders->whereHas('customer', function($query) use ($term) {
 				return $query->where('name', 'LIKE', '%'.$term.'%')
 							->orWhere('id', 'LIKE', '%'.$term.'%')
 							->orWhere('email', 'LIKE', '%'.$term.'%');
@@ -93,7 +104,36 @@ class PurchaseProductController extends Controller
            ->orWhere('received_by',Helpers::getUserIdByName($term))
            ->orWhere('client_name','like','%'.$term.'%')
            ->orWhere('city','like','%'.$term.'%')
-           ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+           ->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term)); */
+
+           /* $orders = $orders->whereHas('customer', function($query) use ($filter_customer) {
+               if($filter_customer!=''){
+                return $query->where('name', 'LIKE', '%'.$filter_customer.'%');
+               }
+                        //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
+                        //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
+        }); */
+       /* ->orWhere('orders.order_id','like','%'.$term.'%')
+       ->orWhere('order_type',$term)
+       ->orWhere('sales_person',Helpers::getUserIdByName($term))
+       ->orWhere('received_by',Helpers::getUserIdByName($term))
+       ->orWhere('client_name','like','%'.$term.'%')
+       ->orWhere('city','like','%'.$term.'%') */
+       //$orders->orWhere('order_status_id',(new \App\ReadOnly\OrderStatus())->getIDCaseInsensitive($term));
+       
+        }
+            $orders = $orders->whereHas('customer', function($query) use ($filter_customer) {
+                if($filter_customer!=''){
+                return $query->where('name', 'LIKE', '%'.$filter_customer.'%');
+                }
+                        //->orWhere('id', 'LIKE', '%'.$filter_customer.'%')
+                        //->orWhere('email', 'LIKE', '%'.$filter_customer.'%');
+            });
+        if ($filter_order_date != '') {
+			$orders = $orders->where('order_date', $filter_order_date);
+        }
+        if ($filter_date_of_delivery != '') {
+			$orders = $orders->where('date_of_delivery', $filter_date_of_delivery);
 		}
 		if ($order_status[0] != '') {
 			$orders = $orders->whereIn('order_status_id', $order_status);
@@ -111,14 +151,27 @@ class PurchaseProductController extends Controller
 		
 		$orders = $orders->leftJoin("order_products as op","op.order_id","orders.id")
 		->leftJoin("customers as cs","cs.id","orders.customer_id")
-		->leftJoin("products as p","p.id","op.product_id");
+        ->leftJoin("products as p","p.id","op.product_id")
+        ->leftJoin("product_suppliers as ps","ps.product_id","op.product_id");
 
 		if(!empty($brandIds)) {
 			$orders = $orders->whereIn("p.brand",$brandIds);
 		}
 		$orders = $orders->groupBy("op.id");
 		$orders = $orders->select(["orders.*","op.id as order_product_id","op.product_price","op.product_id as product_id","op.supplier_discount_info_id","op.inventory_status_id"]);
-	
+        if($filter_selling_price!=''){
+            $orders->where('op.product_price',$filter_selling_price);
+        }
+        if($filter_inventory_status_id!=''){
+            $orders->where('op.inventory_status_id',$filter_inventory_status_id);
+        }
+
+        if($filter_supplier!=''){
+            //$typeWhereClause .= ' AND suppliers.id IN (' . implode(",", $supplier_filter) . ')';
+            $orders->whereIn('ps.supplier_id',$filter_supplier);
+            //$filter_supplier=implode(",",$filter_supplier);
+        }
+
 		$users  = Helpers::getUserArray( User::all() );
 		$order_status_list = OrderHelper::getStatus();
 
@@ -133,8 +186,11 @@ class PurchaseProductController extends Controller
 		$totalOrders = sizeOf($orders->get());
         $orders_array = $orders->paginate(10);
         
-        $inventoryStatus = InventoryStatus::pluck('name','id');
-		return view('purchase-product.index', compact('orders_array', 'users','term', 'orderby', 'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','inventoryStatus') );
+        $inventoryStatusQuery = InventoryStatus::query();
+        $inventoryStatus=$inventoryStatusQuery->pluck('name','id');
+        //echo'<pre>'.print_r($orders_array,true).'</pre>'; exit;
+        return view('purchase-product.index', compact('orders_array', 'users', 'orderby', 
+        'order_status_list', 'order_status', 'date','statusFilterList','brandList', 'registerSiteList', 'store_site','totalOrders','inventoryStatus','product_suppliers_list','filter_supplier','filter_customer','filter_selling_price','filter_order_date','filter_date_of_delivery','filter_inventory_status_id') );
     }
 
     /**

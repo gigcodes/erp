@@ -22,6 +22,7 @@ use Carbon\Carbon;
 use App\InstagramUsersList;
 use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
+use App\StoreSocialContent;
 
 class InstagramPostsController extends Controller
 {
@@ -66,7 +67,27 @@ class InstagramPostsController extends Controller
 
         $used_space = 0;
         $storage_limit = 0;
-        return view('instagram.post.create' , compact('accounts','used_space','storage_limit', 'posts'))->with('i', ($request->input('page', 1) - 1) * 5);;   
+        $contents = StoreSocialContent::query();
+        $contents = $contents->get();
+        $records = [];
+        foreach($contents as $site) {
+            if ($site) {
+                    if ($site->hasMedia(config('constants.media_tags'))) {
+                        foreach ($site->getMedia(config('constants.media_tags')) as $media) {                                  
+                            $records[] = [
+                                "id"        => $media->id,
+                                'extension' => strtolower($media->extension), 
+                                'file_name' => $media->filename, 
+                                'mime_type' => $media->mime_type, 
+                                'size' => $media->size , 
+                                'thumb' => $media->getUrl() , 
+                                'original' => $media->getUrl() 
+                            ];
+                        }
+                    }
+            }
+        }
+        return view('instagram.post.create' , compact('accounts','records','used_space','storage_limit', 'posts'))->with('i', ($request->input('page', 1) - 1) * 5);;   
     }
 
     public function createPost(Request $request){

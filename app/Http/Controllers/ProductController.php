@@ -1722,7 +1722,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = Language::pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->where("status",1)->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -2791,6 +2791,7 @@ class ProductController extends Controller
             ->where('products.category', '>', 3)
             ->where('products.stock', '>=', 1)
             ->orderBy('products.scrap_priority', 'DESC')
+            ->select("products.*")
             ->first();
         } else {
             // Get next product
@@ -2891,7 +2892,7 @@ class ProductController extends Controller
                     if(!$isCropped) {
                         list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
                         $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name,'size' => $website->cropping_size);
                     }
                 }
             }
@@ -3002,7 +3003,8 @@ class ProductController extends Controller
 
             
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->where('original_media_id', $allMediaIds)->count();
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
+
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             try {
@@ -3014,8 +3016,12 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
+            $totalM = $productMediacount;
 
             $productMediacount = ($productMediacount * $multi);
+
+            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
@@ -4049,21 +4055,19 @@ class ProductController extends Controller
     public function pushProduct()
     {
 
-        return response()->json(["code" => 200, "message" => "This request is temporary disable"]);
-
-        $webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
+        /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
             ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
             ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
             ->where("website_source", "!=", "")
             ->get();
 
         $brandIds = array_unique($webData->pluck('brandId')->toArray());
-        $categoryIds = array_unique($webData->pluck('category_id')->toArray());
+        $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
+        
         $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
-            ->whereIn('brand', $brandIds)
-            ->whereIn('category', $categoryIds)
-            ->groupBy("brand", "category")
-            ->get();
+        ->groupBy("brand", "category")
+        ->limit(100)
+        ->get();
 
         $queueName = [
             "1" => "mageone",
@@ -4071,10 +4075,11 @@ class ProductController extends Controller
             "3" => "magethree"
         ];
 
+
         foreach ($products as $key => $product) {
-            $i = 1;
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
+                $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if($website){
@@ -4202,6 +4207,7 @@ class ProductController extends Controller
 
     public function draftedProducts(Request $request)
     {
+        \Log::info("action started");
         $products = Product::where('quick_product', 1)
             ->leftJoin("brands as b", "b.id", "products.brand")
             ->leftJoin("categories as c", "c.id", "products.category")
@@ -4239,6 +4245,8 @@ class ProductController extends Controller
         }
 
         $products = $products->orderby("products.created_at", "desc")->paginate()->appends(request()->except(['page']));
+
+        \Log::info("Page Displayed here");
 
         return view('drafted-supplier-product.index', compact('products'));
     }
