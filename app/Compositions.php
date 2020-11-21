@@ -28,14 +28,14 @@ class Compositions extends Model
         if (!$mc->isEmpty() && !empty($name)) {
             foreach ($mc as $key => $c) {
                 // check if the full replacement found then assign from there
-                if (strtolower($name) == strtolower($c->name)) {
+                if (strtolower($name) == strtolower($c->name) && !empty($c->replace_with)) {
                     $name = $c->replace_with;
                     $isReplacementFound = true;
                     break;
                 }
 
                 foreach($parts as $p) {
-                    if (strtolower($p) == strtolower($c->name)) {
+                    if (strtolower($p) == strtolower($c->name) && !empty($c->replace_with)) {
                         $name = str_replace($p, $c->replace_with, $name);
                         $isReplacementFound = true;
                     }
@@ -45,7 +45,10 @@ class Compositions extends Model
 
         // check if replacement found then assing that to the composition otherwise add new one and start next process
         if($isReplacementFound) {
-            return $name;
+            $checkExist = self::where('name','like',$name)->first();
+            if($checkExist && !empty($checkExist->replace_with)) {
+                return $checkExist->replace_with;
+            }
         }
 
         // in this case color refenrece we don't found so we need to add that one
