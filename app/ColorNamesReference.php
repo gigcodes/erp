@@ -36,7 +36,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in url
-        if (isset($productObject->url)) {
+        if (!empty($productObject->url)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($productObject->url), $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -45,7 +45,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in title
-        if (isset($productObject->title)) {
+        if (!empty($productObject->title)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($productObject->title), $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -54,7 +54,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in description
-        if (isset($productObject->description)) {
+        if (!empty($productObject->description)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($productObject->description), $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -72,7 +72,7 @@ class ColorNamesReference extends Model
         $mainColorNames = ColorNamesReference::distinct('color_name')->get(['color_name','erp_name']);
         
         // Check if color exists
-        if ($color) {
+        if (!empty($color)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr($color, $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -87,7 +87,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in url
-        if (isset($url)) {
+        if (!empty($url)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($url), $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -96,7 +96,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in title
-        if (isset($title)) {
+        if (!empty($title)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($title), $colorName->color_name)) {
                     return $colorName->erp_name;
@@ -105,7 +105,7 @@ class ColorNamesReference extends Model
         }
 
         // Check if color can be found in description
-        if (isset($description)) {
+        if (!empty($description)) {
             foreach ($mainColorNames as $colorName) {
                 if (stristr(self::_replaceKnownProblems($description), $colorName->color_name)) {
                     return $colorName->erp_name;
