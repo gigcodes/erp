@@ -58,17 +58,28 @@
           <button type="submit" class="btn btn-default ml-2 small-field-btn"><i class="fa fa-search"></i></button>
         </form>
     </div>
+    <div class="col-md-8 mt-5">
+        <div class="form-group small-field">
+            <?php echo Form::select(
+                'replace_with', 
+                $listcompostions , 
+                null, 
+                ["class" => "form-control change-list-all-compostion select2", 'style' => 'width:400px']
+            ); ?>
+            <button type="button" class="btn btn-secondary update-composition-selected">Update Selected</button>
+        </div>
+    </div>
     <div class="col-md-12 mt-5">
         <table class="table table-bordered">
             <tr>
-                <th width="10%">SN</th>
+                <th width="10%"><input type="checkbox" class="check-all-btn">&nbsp;SN</th>
                 <th width="30%">Composition</th>
                 <th width="40%">Erp Composition</th>
                 <th width="20%">Action</th>
             </tr>
             @foreach($compositions as $key=>$composition)
                 <tr>
-                    <td>{{ $composition->id }}</td>
+                    <td><input type="checkbox" name="composition[]" value="{{ $composition->id }}" class="composition-checkbox">&nbsp;{{ $composition->id }} </td>
                     <td><span class="call-used-product"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button></td>
                     <td>
                         <div class="form-group small-field">
@@ -200,7 +211,6 @@
                 var $this = $(this);
                 id = $this.data("id");
                 to = $('#select'+id).val()
-                console.log(to)
                 $.ajax({
                     type: 'GET',
                     url: '/compositions/affected-product',
@@ -228,6 +238,50 @@
                     console.log("Sorry, something went wrong");
                 });
             });
+
+            $(document).on("click",".check-all-btn",function() {
+                $(".composition-checkbox").trigger("click");
+            });
+
+            $(document).on('click','.update-composition-selected',function() {
+                var changeto = $(".change-list-all-compostion").val();
+                var changesFrom = $(".composition-checkbox:checked");
+                var ids = [];
+                $.each(changesFrom,function(k,v) {
+                    ids.push($(v).val());
+                });
+                
+                $.ajax({
+                    type: 'POST',
+                    url: '/compositions/update-multiple-composition',
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    },
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        from : ids,
+                        to : changeto
+                    },
+                    dataType: "json"
+                }).done(function (response) {
+                    $("#loading-image").hide();
+                    if (response.code == 200) {
+                        if(response.html != "") {
+                            toastr['success'](response.message, 'success');
+                            location.reload();
+                        }else{
+                            toastr['error']('Sorry, something went wrong', 'error');
+                        }
+                        $(".show-listing-exe-records").modal('hide');
+                    }
+                }).fail(function (response) {
+                    $("#loading-image").hide();
+                    toastr['error']('Sorry, something went wrong', 'error');
+                    $(".show-listing-exe-records").modal('hide');
+                });
+
+            });
+
     </script>
 @endsection
 @endsection

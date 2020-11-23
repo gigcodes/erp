@@ -33,7 +33,7 @@ class CompositionsController extends Controller
             });
         }
 
-        $compositions = $compositions->orderBy('id','desc')->paginate(12);
+        $compositions = $compositions->orderBy('id','desc')->paginate(50);
 
         return view('compositions.index', compact('compositions','listcompostions'));
     }
@@ -185,6 +185,31 @@ class CompositionsController extends Controller
         }
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+
+    public function updateMultipleComposition(Request $request)
+    {
+        $from = $request->from;
+        $to   = $request->to;
+
+        if(!empty($from) && is_array($from)) {
+            foreach($from as $f) {
+                $c = Compositions::find($f);
+                if($c) {
+                    \App\Jobs\UpdateProductCompositionFromErp::dispatch([
+                        "from"    => $c->name,
+                        "to"      => $to,
+                        "user_id" => \Auth::user()->id,
+                    ])->onQueue("supplier_products");
+                    $c->replace_with = $to;
+                    $c->save();
+                }
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+
     }
 
     public function replaceComposition(Request $request){
