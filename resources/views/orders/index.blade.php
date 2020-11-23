@@ -324,11 +324,10 @@ color:black!important;
                     <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
-                  @else
-                    <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
-                      <i class="fa fa-truck" aria-hidden="true"></i>
-                    </a>
                   @endif
+                  <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                    <i class="fa fa-truck" aria-hidden="true"></i>
+                  </a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
                   @endcan --}}
@@ -511,7 +510,6 @@ color:black!important;
 
       $(document).on("click",".btn-add-items",function(e) {
           var index = $("#generateAWBMODAL").find(".product-items-list").find(".card-body").length;
-          console.log(index);  
           var next  = index+1;
           var itemsHtml = `<div class="card-body">
                 <div class="form-group col-md-5">

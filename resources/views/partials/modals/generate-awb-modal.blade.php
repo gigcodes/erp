@@ -17,26 +17,26 @@
                <div class="col-md-6">
                   <div class="form-group" id="div_from_customer_name">
                      <strong>Customer Name:</strong>
-                     <input type="text" name="from_customer_name" id="from_customer_name" class="form-control input_customer_name" value="{{$fromdatadefault['person_name']}}" required>
+                     <input type="text" name="from_customer_name" id="from_customer_name" class="form-control input_customer_name" value="{{@$fromdatadefault['person_name']}}" required>
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group">
                      <strong>Customer City:</strong>
-                     <input type="text" name="from_customer_city" id="from_customer_city" class="form-control input_customer_city" value="{{$fromdatadefault['city']}}" >
+                     <input type="text" name="from_customer_city" id="from_customer_city" class="form-control input_customer_city" value="{{@$fromdatadefault['city']}}" >
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group">
                      <strong>Customer Country (ISO 2):</strong>
-                     <input type="text" name="from_customer_country" id="from_customer_country" class="form-control input_customer_country" value="{{$fromdatadefault['country_code']}}" required>
+                     <input type="text" name="from_customer_country" id="from_customer_country" class="form-control input_customer_country" value="{{@$fromdatadefault['country_code']}}" required>
                   </div>
                   <div class="form-group mb-2">
                      <strong>Customer Phone:</strong>
-                     <input type="number" name="from_customer_phone" id="from_customer_phone" class="form-control input_customer_phone" value="{{$fromdatadefault['phone']}}">
+                     <input type="number" name="from_customer_phone" id="from_customer_phone" class="form-control input_customer_phone" value="{{@$fromdatadefault['phone']}}">
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group mb-2">
                      <strong>Customer Address 1:</strong>
-                     <input type="text" name="from_customer_address1" id="from_customer_address1" class="form-control input_customer_address1" value="{{$fromdatadefault['street']}}">
+                     <input type="text" name="from_customer_address1" id="from_customer_address1" class="form-control input_customer_address1" value="{{@$fromdatadefault['street']}}">
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group mb-2">
@@ -46,12 +46,12 @@
                   </div>
                   <div class="form-group mb-2">
                      <strong>Customer Pincode:</strong>
-                     <input type="number" name="from_customer_pincode" id="from_customer_pincode"class="form-control input_customer_pincode" max="999999" value="{{$fromdatadefault['postal_code']}}">
+                     <input type="number" name="from_customer_pincode" id="from_customer_pincode"class="form-control input_customer_pincode" max="999999" value="{{@$fromdatadefault['postal_code']}}">
                      <span class="form-error"></span>
                   </div>
                   <div class="form-group mb-2">
                      <strong>Company Name:</strong>
-                     <input type="text" name="from_company_name" id="from_company_name" class="form-control input_customer_pincode"  value="{{$fromdatadefault['company_name']}}">
+                     <input type="text" name="from_company_name" id="from_company_name" class="form-control input_customer_pincode"  value="{{@$fromdatadefault['company_name']}}">
                      <span class="form-error"></span>
                   </div>
                </div>

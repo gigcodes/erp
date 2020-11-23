@@ -100,6 +100,10 @@
                             <i class="fa fa-list" aria-hidden="true"></i>
 
                         </a>
+                        <a class="btn" href="javascript:void(0);" id="waybill_track_history_btn" title="Way Bill Track History" data-waybill-id="{{ $item->id }}">
+                            <i class="fa fa-list" aria-hidden="true"></i>
+                        </a>
+                        <a href="{{ route('order.download.package-slip', $item->id) }}" class="btn-link"><i class="fa fa-download" aria-hidden="true"></i></a>
                     </td>
                 </tr>
             @empty
@@ -120,6 +124,7 @@
 @section('scripts')
 <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-beta.1/dist/js/select2.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jscroll/2.3.7/jquery.jscroll.min.js"></script>
+<script src="{{ asset('/js/order-awb.js') }}"></script>
 <script type="text/javascript">
 $(".to-email, .cc-email, .bcc-email").select2({
     tags: true,
@@ -195,6 +200,46 @@ $(document).on('click', '#send_email_btn', function() {
     $("#order_id").val(orderId);
     $('#send_email_modal').modal('show');
 });
+
+$(document).on("click",".btn-add-items",function(e) {
+      var index = $("#generateAWBMODAL").find(".product-items-list").find(".card-body").length;
+      var next  = index+1;
+      var itemsHtml = `<div class="card-body">
+            <div class="form-group col-md-5">
+               <strong>Name:</strong>
+               <input type="text" id="name" name="items[`+next+`][name]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-3">
+               <strong>Qty:</strong>
+               <input type="text" id="qty" name="items[`+next+`][qty]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-3">
+               <strong>Unit Price:</strong>
+               <input type="text" id="unit_price" name="items[`+next+`][unit_price]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-5">
+               <strong>Description:</strong>
+               <input type="text" id="description" name="items[`+next+`][description]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-3">
+               <strong>Net Weight:</strong>
+               <input type="text" id="net_weight" name="items[`+next+`][net_weight]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-3">
+               <strong>Gross Weight:</strong>
+               <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="">
+            </div>
+            <div class="form-group col-md-1">
+               <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
+            </div>
+        </div>`;
+        $("#generateAWBMODAL").find(".product-items-list").append(itemsHtml);
+
+  });
+
+  $(document).on("click",".btn-remove-item",function(){
+      $(this).closest(".card-body").remove();
+  });
 
 $(document).on("change","#customer_id",function() {
     var cus_id = $(this).val();

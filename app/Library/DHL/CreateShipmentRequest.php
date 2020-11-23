@@ -320,7 +320,7 @@ class CreateShipmentRequest extends APIAbstract
                         $xml->writeElement('PaymentInfo', $this->paymentInfo);
                         $xml->startElement('InternationalDetail');
                             $xml->startElement('Commodities');
-                                $xml->writeElement('NumberOfPieces',1);
+                                $xml->writeElement('NumberOfPieces',count($this->items));
                                 $xml->writeElement('Description',$this->description);
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
@@ -413,7 +413,6 @@ class CreateShipmentRequest extends APIAbstract
             $xml->endElement();
         $xml->endElement();
         //$xml->endDocument();
-        //echo $xml->outputMemory();die;
         return $this->document = $xml->outputMemory();
     }
 
