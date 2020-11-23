@@ -2805,6 +2805,7 @@ class ProductController extends Controller
             $product = $product->whereHasMedia('original')->first();
         }
 
+        
         if (!$product) {
             // Return JSON
             return response()->json([
@@ -2812,7 +2813,26 @@ class ProductController extends Controller
             ]);
         }
 
+
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
+
+        //deleting old images 
+
+        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag','!=','original')->get();
+
+        //old scraped products 
+        if($oldImages){
+            foreach ($oldImages as $img) {
+
+                $media = Media::where('id',$img->media_id)->first();
+                $image_path = $media->getAbsolutePath();
+                if (\File::exists($image_path)) {
+                    \File::delete($image_path);
+                }
+                $media->delete();
+            }
+        }
+
         foreach ($mediables as $mediable) {
             $mediableArray[] = $mediable->media_id;
         }
