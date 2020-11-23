@@ -20,7 +20,7 @@ class Brand extends Model
     use SoftDeletes;
     use Mediable;
 
-    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references'];
+    protected $fillable = [ 'name', 'euro_to_inr', 'deduction_percentage', 'magento_id', 'brand_segment', 'sku_strip_last', 'sku_add' ,'sku_search_url','references','min_sale_price','max_sale_price'];
     protected $dates = [ 'deleted_at' ];
 
     CONST BRAND_SEGMENT = [
