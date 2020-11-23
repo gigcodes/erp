@@ -27,10 +27,13 @@ class ColorNamesReference extends Model
             }
             // in this case color refenrece we don't found so we need to add that one
             if(!empty($colerRef)) {
-                ColorNamesReference::create([
-                    'color_code' => '',
-                    'color_name' => $colerRef
-                ]);
+                $creferenceModel = ColorNamesReference::where('color_name',$colerRef)->first();
+                if(!$creferenceModel) {
+                    ColorNamesReference::create([
+                        'color_code' => '',
+                        'color_name' => $colerRef
+                    ]);
+                }
             }
             
         }
@@ -83,6 +86,16 @@ class ColorNamesReference extends Model
                 'color_code' => '',
                 'color_name' => $color
             ]);
+
+            if(!empty($color)) {
+                $creferenceModel = ColorNamesReference::where('color_name',$color)->first();
+                if(!$creferenceModel) {
+                    ColorNamesReference::create([
+                        'color_code' => '',
+                        'color_name' => $color
+                    ]);
+                }
+            }
             
         }
 

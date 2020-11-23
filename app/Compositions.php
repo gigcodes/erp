@@ -51,10 +51,13 @@ class Compositions extends Model
 
         // in this case color refenrece we don't found so we need to add that one
         if(!empty($name)) {
-            self::create([
-                'name'         => $name,
-                'replace_with' => '',
-            ]);
+            $compositionModel = self::where('name',$name)->first();
+            if(!$compositionModel) {
+                self::create([
+                    'name'         => $name,
+                    'replace_with' => '',
+                ]);
+            }
         }
 
         // Return an empty string by default
