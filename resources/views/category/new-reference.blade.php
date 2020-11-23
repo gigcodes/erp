@@ -211,7 +211,7 @@
             });
 
             $(document).on("click",".check-all-btn",function() {
-                $(".composition-checkbox").trigger("click");
+                $(".categories-checkbox").trigger("click");
             });
 
 
