@@ -112,6 +112,11 @@ class Order extends Model
         return $this->hasOne('App\Waybill');
     }
 
+    public function waybills()
+    {
+        return $this->hasMany('App\Waybill');
+    }
+
     public function invoice()
     {
         return $this->belongsTo('App\Invoice');

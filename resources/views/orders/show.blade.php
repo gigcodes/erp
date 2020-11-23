@@ -389,14 +389,15 @@
                           </div>
                         @endif
 
-                        @if (isset($waybill))
-                          <div class="form-group">
-                            <strong>AWB: </strong> {{ $waybill->awb }}
-                            <br>
-                            <a href="{{ route('order.download.package-slip', $waybill->id) }}" class="btn-link">Download Package Slip</a>
-                            <a href="javascript:;" data-id="{{ $waybill->id }}" data-awb="{{ $waybill->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
-                          </div>
-
+                        @if (isset($waybills) && !$waybills->isEmpty())
+                          @foreach($waybills as $way)
+                            <div class="form-group">
+                              <strong>AWB: </strong> {{ $way->awb }}
+                              <br>
+                              <a href="{{ route('order.download.package-slip', $way->id) }}" class="btn-link">Download Package Slip</a>
+                              <a href="javascript:;" data-id="{{ $way->id }}" data-awb="{{ $way->awb }}" class="btn-link track-package-slip">Track Package Slip</a>
+                            </div>
+                          @endforeach
                         @else
                           <div class="form-group">
                             <button type="button" class="btn btn-secondary" data-toggle="modal" data-target="#generateAWBMODAL">Generate AWB</button>

@@ -179,6 +179,19 @@ color:black!important;
 
         <tbody>
 			@foreach ($orders_array as $key => $order)
+             @php
+               $extraProducts = [];
+               if(!$order->order_product->isEmpty())  {
+                  foreach($order->order_product as $orderProduct) {
+                    $extraProducts[] = [
+                      "sku" => $orderProduct->sku,
+                      "qty" => $orderProduct->qty,
+                      "product_price" => $orderProduct->product_price
+                    ];
+                  }
+               }
+             @endphp
+
             <tr class="{{ \App\Helpers::statusClass($order->assign_status ) }}">
               <td><span class="td-mini-container">
                   <input type="checkbox" class="selectedOrder" name="selectedOrder" value="{{$order->id}}">
@@ -311,11 +324,10 @@ color:black!important;
                     <a title="Track Package Slip pd-5 btn-ht" href="javascript:;" data-id="{{ $order->waybill->id }}" data-awb="{{ $order->waybill->awb }}" class="btn btn-image track-package-slip">
                         <i class="fa fa fa-globe" aria-hidden="true"></i>
                     </a>
-                  @else
-                    <a title="Generate AWB" data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;">
-                      <i class="fa fa-truck" aria-hidden="true"></i>
-                    </a>
                   @endif
+                  <a title="Generate AWB" data-order-id="<?php echo $order->id; ?>" data-items='<?php echo json_encode($extraProducts); ?>'  data-customer='<?php echo ($order->customer) ? json_encode($order->customer) : json_encode([]); ?>' class="btn btn-image generate-awb pd-5 btn-ht" href="javascript:;"  >
+                    <i class="fa fa-truck" aria-hidden="true"></i>
+                  </a>
                   {{-- @can('order-edit')
                   <a class="btn btn-image pd-5 btn-ht" href="{{ route('order.edit',$order['id']) }}"><img src="{{asset('images/edit.png')}}" /></a>
                   @endcan --}}
@@ -495,20 +507,108 @@ color:black!important;
         minDate:new Date(),
         format: 'YYYY-MM-DD'
       });
+
+      $(document).on("click",".btn-add-items",function(e) {
+          var index = $("#generateAWBMODAL").find(".product-items-list").find(".card-body").length;
+          var next  = index+1;
+          var itemsHtml = `<div class="card-body">
+                <div class="form-group col-md-5">
+                   <strong>Name:</strong>
+                   <input type="text" id="name" name="items[`+next+`][name]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Qty:</strong>
+                   <input type="text" id="qty" name="items[`+next+`][qty]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Unit Price:</strong>
+                   <input type="text" id="unit_price" name="items[`+next+`][unit_price]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-5">
+                   <strong>Description:</strong>
+                   <input type="text" id="description" name="items[`+next+`][description]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Net Weight:</strong>
+                   <input type="text" id="net_weight" name="items[`+next+`][net_weight]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-3">
+                   <strong>Gross Weight:</strong>
+                   <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-1">
+                   <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
+                </div>
+            </div>`;
+            $("#generateAWBMODAL").find(".product-items-list").append(itemsHtml);
+
+      });
+
+      $(document).on("click",".btn-remove-item",function(){
+          $(this).closest(".card-body").remove();
+      });
       
       $(document).on("click",".generate-awb",function() {
           var customer = $(this).data("customer");
+          var order_id = $(this).data("order-id");
+          var items    = $(this).data("items");
+
             if(typeof customer != "undefined" || customer != "") {
-               $(".input_customer_name").val(customer.name);
+               /* $(".input_customer_name").val(customer.name);
                $(".input_customer_phone").val(customer.phone);
                $(".input_customer_address1").val(customer.address);
                $(".input_customer_address2").val(customer.city);
                $(".input_customer_city").val(customer.city);
-               $(".input_customer_pincode").val(customer.pincode);
+               $(".input_customer_pincode").val(customer.pincode); */
+               $("#customer_name").val(customer.name);
+               $("#customer_phone").val(customer.phone);
+               $("#customer_address1").val(customer.address);
+               $("#customer_address2").val(customer.city);
+               $("#customer_city").val(customer.city);
+               $("#customer_pincode").val(customer.pincode);
             }
+
+            if(items.length > 0) {
+              var itemsHtml = '';
+              $.each(items, function(k,v) {
+                  itemsHtml += `<div class="card-body">
+                              <div class="form-group col-md-5">
+                                 <strong>Name:</strong>
+                                 <input type="text" id="name" name="items[`+k+`][name]" class="form-control" value="`+v.sku+`">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Qty:</strong>
+                                 <input type="text" id="qty" name="items[`+k+`][qty]" class="form-control" value="`+v.qty+`">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Unit Price:</strong>
+                                 <input type="text" id="unit_price" name="items[`+k+`][unit_price]" class="form-control" value="`+v.product_price+`">
+                              </div>
+                              <div class="form-group col-md-5">
+                                 <strong>Description:</strong>
+                                 <input type="text" id="description" name="items[`+k+`][description]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Net Weight:</strong>
+                                 <input type="text" id="net_weight" name="items[`+k+`][net_weight]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-3">
+                                 <strong>Gross Weight:</strong>
+                                 <input type="text" id="gross_weight" name="items[`+k+`][gross_weight]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-1">
+                                 <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
+                              </div>
+                          </div>`;
+              });
+              
+              $("#generateAWBMODAL").find(".product-items-list").html(itemsHtml);
+            }
+
+            $("#generateAWBMODAL").find("[name='order_id']").val(order_id);
             $("#generateAWBMODAL").modal("show");
       });
-      
+
 
     function ConfirmDialog(message,id,status) {
       $('<div></div>').appendTo('body')
@@ -928,5 +1028,117 @@ color:black!important;
         $('[data-fancybox="gallery"]').fancybox({
             // Options will go here
           });
+
+          $('#swtichForm').on('click',function(e){
+    
+        var from_customer_id=$("#from_customer_name");
+        var from_customer_city=$("#from_customer_city");
+        var from_customer_country=$("#from_customer_country");
+        var from_customer_phone=$("#from_customer_phone");
+        var from_customer_address1=$("#from_customer_address1");
+        var from_customer_address2=$("#from_customer_address2");
+        var from_customer_pincode=$("#from_customer_pincode");
+        var from_company_name=$("#from_company_name");
+        /* var from_actual_weight=$("#from_actual_weight");
+        var from_box_length=$("#from_box_length");
+        var from_box_width=$("#from_box_width");
+        var from_box_height=$("#from_box_height");
+        var from_amount=$("#from_amount");
+        var from_currency=$("#from_currency");
+        var from_pickup_time=$("#from_pickup_time");
+        var from_service_type=$("#from_service_type"); */
+        //"TO" section
+        var customer_id=$("#customer_name");
+        var customer_city=$("#customer_city");
+        var customer_country=$("#customer_country");
+        var customer_phone=$("#customer_phone");
+        var customer_address1=$("#customer_address1");
+        var customer_address2=$("#customer_address2");
+        var customer_pincode=$("#customer_pincode");
+        var company_name=$("#company_name");
+        var actual_weight=$("#actual_weight");
+        var box_length=$("#box_length");
+        var box_width=$("#box_width");
+        var box_height=$("#box_height");
+        var amount=$("#amount");
+        var currency=$("#currency");
+        var pickup_time=$("#pickup_time");
+        var service_type=$("#service_type");
+
+        var pre_from_customer_id=from_customer_id.val();
+        from_customer_id.val(customer_id.val());
+        customer_id.val(pre_from_customer_id);
+       /*  var pre_from_customer_id_name=from_customer_id.attr('name');
+        var pre_from_customer_id_id=from_customer_id.attr('name');
+        from_customer_id.attr('name',customer_id.attr('name'));
+        from_customer_id.attr('id',customer_id.attr('id'));
+        customer_id.attr('name',pre_from_customer_id_name);
+        customer_id.attr('id',pre_from_customer_id_id); */
+        
+        var pre_from_customer_name=$("#div_from_customer_name").html();
+        $("#div_from_customer_name").html($("#div_to_customer_name").html());
+        $("#div_to_customer_name").html(pre_from_customer_name);
+        
+        var pre_from_customer_city=from_customer_city.val();
+        from_customer_city.val(customer_city.val());
+        customer_city.val(pre_from_customer_city);
+
+        var pre_from_customer_country=from_customer_country.val();
+        from_customer_country.val(customer_country.val());
+        customer_country.val(pre_from_customer_country);
+
+        var pre_from_customer_phone=from_customer_phone.val();
+        from_customer_phone.val(customer_phone.val());
+        customer_phone.val(pre_from_customer_phone);
+
+        var pre_from_customer_address1=from_customer_address1.val();
+        from_customer_address1.val(customer_address1.val());
+        customer_address1.val(pre_from_customer_address1);
+
+        var pre_from_customer_address2=from_customer_address2.val();
+        from_customer_address2.val(customer_address2.val());
+        customer_address2.val(pre_from_customer_address2);
+
+        var pre_from_customer_pincode=from_customer_pincode.val();
+        from_customer_pincode.val(customer_pincode.val());
+        customer_pincode.val(pre_from_customer_pincode);
+
+        var pre_from_company_name=from_company_name.val();
+        from_company_name.val(company_name.val());
+        company_name.val(pre_from_company_name);
+
+        /* var pre_from_actual_weight=from_actual_weight.val();
+        from_actual_weight.val(actual_weight.val());
+        actual_weight.val(pre_from_actual_weight);
+
+        var pre_from_box_length=from_box_length.val();
+        from_box_length.val(box_length.val());
+        box_length.val(pre_from_box_length);
+
+        var pre_from_box_width=from_box_width.val();
+        from_box_width.val(box_width.val());
+        box_width.val(pre_from_box_width);
+
+        var pre_from_box_height=from_box_height.val();
+        from_box_height.val(box_height.val());
+        box_height.val(pre_from_box_height);
+        
+        var pre_from_amount=from_amount.val();
+        from_amount.val(amount.val());
+        amount.val(pre_from_amount);
+
+        var pre_from_currency=from_currency.val();
+        from_currency.val(currency.val());
+        currency.val(pre_from_currency);
+        
+        var pre_from_pickup_time=from_pickup_time.val();
+        from_pickup_time.val(pickup_time.val());
+        pickup_time.val(pre_from_pickup_time);
+
+        var pre_from_service_type=from_service_type.val();
+        from_service_type.val(service_type.val());
+        service_type.val(pre_from_service_type); */
+    
+    });
   </script>
 @endsection

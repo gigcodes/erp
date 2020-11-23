@@ -41,6 +41,7 @@
         "maatwebsite/excel": "^3.1",
         "macsidigital/zoom-laravel": "^1.0",
         "milon/barcode": "^6.0",
+        "mtcmedia/dhl-api": "^1.0",
         "nunomaduro/laravel-console-dusk": "^1.0",
         "nwidart/laravel-modules": "^5.1",
         "ourcodeworld/name-that-color": "dev-master",
@@ -84,6 +85,7 @@
         "classmap": [
             "database/seeds",
             "database/factories"
+           
         ],
         "psr-4": {
             "App\\": "app/",
@@ -92,7 +94,7 @@
         },
         "files": [
             "Modules/BookStack/helpers.php",
-            "app/Helpers/common_functions.php"
+            "app/Helpers/common_functions.php"            
         ]
     },
     "autoload-dev": {
