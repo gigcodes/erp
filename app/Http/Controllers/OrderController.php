@@ -213,7 +213,7 @@ class OrderController extends Controller {
 			"postal_code" 	=> config("dhl.shipper.postal_code"),
 			"country_code"	=> config("dhl.shipper.country_code"),
 			"person_name" 	=> config("dhl.shipper.person_name"),
-			"company_name" 	=> "Solo Luxury",
+			"company_name" 	=> config("dhl.shipper.company_name"),
 			"phone" 		=> config("dhl.shipper.phone")
 		);
 		if($request->input('orderby') == '')
