@@ -112,6 +112,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('compositions/{id}/used-products', 'CompositionsController@usedProducts')->name('compositions.used-products');
     Route::get('compositions/affected-product', 'CompositionsController@affectedProduct');
     Route::post('compositions/update-composition', 'CompositionsController@updateComposition');
+    Route::post('compositions/update-multiple-composition', 'CompositionsController@updateMultipleComposition');
     Route::post('compositions/replace-composition', 'CompositionsController@replaceComposition')->name('compositions.replace');
 
     Route::resource('compositions', 'CompositionsController');
@@ -317,6 +318,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::post('category/references/affected-product', 'CategoryController@affectedProduct');
     Route::post('category/references/affected-product-new', 'CategoryController@affectedProductNew');
     Route::post('category/references/update-category', 'CategoryController@updateCategoryReference');
+    Route::post('category/references/update-multiple-category', 'CategoryController@updateMultipleCategoryReference');
 
 
     Route::post('category/update-field', 'CategoryController@updateField');

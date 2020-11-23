@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\BrandCategoryPriceRange;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
 {
@@ -474,11 +477,77 @@ class CategoryController extends Controller
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
 
-    public function newCategoryReferenceIndex()
+    public function updateMultipleCategoryReference(Request $request)
+    {
+        $old    = $request->old_cat_id;
+        $from   = $request->from;
+        $to     = $request->to;
+
+        //$change = $request->with_product;
+        /*$wholeString = $request->wholeString;
+        if(!isset($wholeString)){
+            $wholeString = $from;
+        }*/
+
+        if(!empty($from) && is_array($from)) {
+            foreach($from as $f) {
+                $original = $f;
+                $f  = explode('/',$f);
+                $f = end($f);
+
+                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                    "from"    => $f,
+                    "to"      => $to,
+                    "user_id" => \Auth::user()->id,
+                ])->onQueue("supplier_products");
+
+                $c = Category::where("id",$old)->first();
+
+                if($c) {
+                    $allrefernce = explode(",",$c->references);
+                    $newRef = [];
+                    if(!empty($allrefernce)) {
+                        foreach($allrefernce as $ar) {
+                            if($ar != $original) {
+                                $newRef[] = $ar;
+                            }
+                        }
+                    }
+                    
+                    $c->references = implode(",",array_unique($newRef));
+                    $c->save();
+
+                    $new = Category::where("id",$to)->first();
+                    if($new) {
+                       $existingRef = explode(",",$new->references);
+                       $existingRef[] = $f;
+                       $new->references = implode(",",array_unique($existingRef));
+                       $new->save();
+                    }
+                }
+
+
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function newCategoryReferenceIndex(Request $request)
     {
         $unKnownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
-        $unKnownCategories = explode(',', $unKnownCategory->references);
-        
+        $unKnownCategories = explode(',', $unKnownCategory->references );
+        $unKnownCategories = array_unique($unKnownCategories);
+        $unKnownCategory->references = implode(",", $unKnownCategories);
+        $unKnownCategory->save();
+
+        $input = preg_quote($request->get('search'), '~');
+        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+
+
+
+        $unKnownCategories = $this->paginate($unKnownCategories);
+        $unKnownCategories->setPath($request->url());
 
         $categoryAll   = Category::where('id','!=',$unKnownCategory)->where('magento_id','!=','0')->get();
         $categoryArray = [];
@@ -497,6 +566,18 @@ class CategoryController extends Controller
         }
         
         return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id]);   
+    }
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    public function paginate($items, $perPage = 20, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
     }
 
 }
