@@ -2188,6 +2188,12 @@ Route::get('/jobs/{id}/delete', 'JobController@delete')->middleware('auth')->nam
 Route::post('/jobs/delete-multiple', 'JobController@deleteMultiple')->middleware('auth')->name('jobs.delete.multiple');
 Route::any('/jobs/alldelete/{id}', 'JobController@alldelete')->middleware('auth')->name('jobs.alldelete');
 
+
+Route::any('/failedjobs', 'FailedJobController@index')->middleware('auth')->name('failedjobs.list');
+Route::get('/failedjobs/{id}/delete', 'FailedJobController@delete')->middleware('auth')->name('failedjobs.delete');
+Route::post('/failedjobs/delete-multiple', 'FailedJobController@deleteMultiple')->middleware('auth')->name('failedjobs.delete.multiple');
+Route::any('/failedjobs/alldelete/{id}', 'FailedJobController@alldelete')->middleware('auth')->name('failedjobs.alldelete');
+
 Route::get('/wetransfer-queue', 'WeTransferController@index')->middleware('auth')->name('wetransfer.list');
 
 Route::post('/supplier/manage-scrap-brands', 'SupplierController@manageScrapedBrands')->name('manageScrapedBrands');
