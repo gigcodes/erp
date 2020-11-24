@@ -63,13 +63,15 @@
             <tr>
                 <th width="10%">SN</th>
                 <th width="30%">Composition</th>
-                <th width="40%">Erp Composition</th>
+                <th width="5%">Pro Count</th>
+                <th width="35%">Erp Composition</th>
                 <th width="20%">Action</th>
             </tr>
             @foreach($compositions as $key=>$composition)
                 <tr>
                     <td>{{ $composition->id }}</td>
                     <td><span class="call-used-product"  data-id="{{ $composition->id }}" data-type="name">{{ $composition->name }}</span> <button type="button" class="btn btn-image add-list-compostion" data-name="{{ $composition->name }}" data-id="{{ $composition->id }}"><img src="/images/add.png"></button></td>
+                    <td>{{ $composition->products($composition->name) }}</td>
                     <td>
                         <div class="form-group small-field">
                             <?php echo Form::select(
