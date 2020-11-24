@@ -63,4 +63,9 @@ class Compositions extends Model
         // Return an empty string by default
         return '';
     }
+
+    public static function products($name)
+    {
+        return \App\Product::where('name','LIKE','%'.$name.'%')->count();
+    }
 }
