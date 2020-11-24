@@ -14,13 +14,35 @@ class CompositionsController extends Controller
      */
     public function index(Request $request)
     {
+        $matchedArray = [];
         $compositions = Compositions::query();
+
+        if($request->keyword != null){
+            //getting search results based on two words 
+            $comps = $compositions->where("name","LIKE","%{$request->keyword}%")->get();
+            foreach ($comps as $comp) {
+                $searchWord = $request->keyword;
+                $searchWordArray = explode(' ', $searchWord);
+                if(count($searchWordArray) != 0){
+                    $isMatched = 1;
+                    foreach ($searchWordArray as $word) {
+                        if (strpos($comp->name, $word) !== false) {
+                            
+                        }else{
+                            $isMatched = 0;
+                        }
+                    }
+                    if($isMatched == 1){
+                        $matchedArray[] = $comp->id;
+                    }
+                }
+            }
+        }
+        
+
+       
         if($request->keyword != null) {
-            // $compositions = $compositions->where(function($q) use ($request) {
-            //     $q->orWhere('name','like','%'.$request->keyword.'%')->orWhere('replace_with','like','%'.$request->keyword.'%');
-            // });
-            //removed search from word
-            $composition = $compositions->where('name','like','%'.$request->keyword.'%');
+            $compositions = $compositions->whereIn('id',$matchedArray);
         }
 
         $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
