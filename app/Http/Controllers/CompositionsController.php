@@ -17,25 +17,28 @@ class CompositionsController extends Controller
         $matchedArray = [];
         $compositions = Compositions::query();
 
-        //getting search results based on two words 
-        $comps = $compositions->where("name","LIKE","%{$request->term}%")->get();
-        foreach ($comps as $comp) {
-            $searchWord = $request->keyword;
-            $searchWordArray = explode(' ', $searchWord);
-            if(count($searchWordArray) != 0){
-                $isMatched = 1;
-                foreach ($searchWordArray as $word) {
-                    if (strpos($comp->name, $word) !== false) {
-                        
-                    }else{
-                        $isMatched = 0;
+        if($request->keyword != null){
+            //getting search results based on two words 
+            $comps = $compositions->where("name","LIKE","%{$request->keyword}%")->get();
+            foreach ($comps as $comp) {
+                $searchWord = $request->keyword;
+                $searchWordArray = explode(' ', $searchWord);
+                if(count($searchWordArray) != 0){
+                    $isMatched = 1;
+                    foreach ($searchWordArray as $word) {
+                        if (strpos($comp->name, $word) !== false) {
+                            
+                        }else{
+                            $isMatched = 0;
+                        }
                     }
-                }
-                if($isMatched == 1){
-                    $matchedArray[] = $comp->id;
+                    if($isMatched == 1){
+                        $matchedArray[] = $comp->id;
+                    }
                 }
             }
         }
+        
 
        
         if($request->keyword != null) {
