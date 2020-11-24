@@ -19,7 +19,7 @@ class CompositionsController extends Controller
 
         if($request->keyword != null){
             //getting search results based on two words 
-            $comps = $compositions->where("name","LIKE","%{$request->keyword}%")->get();
+            $comps = $compositions->where("name","LIKE","%{$request->term}%")->get();
             foreach ($comps as $comp) {
                 $searchWord = $request->keyword;
                 $searchWordArray = explode(' ', $searchWord);
@@ -40,7 +40,7 @@ class CompositionsController extends Controller
         }
         
 
-       
+        
         if($request->keyword != null) {
             $compositions = $compositions->whereIn('id',$matchedArray);
         }
