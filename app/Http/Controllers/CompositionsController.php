@@ -16,9 +16,11 @@ class CompositionsController extends Controller
     {
         $compositions = Compositions::query();
         if($request->keyword != null) {
-            $compositions = $compositions->where(function($q) use ($request) {
-                $q->orWhere('name','like','%'.$request->keyword.'%')->orWhere('replace_with','like','%'.$request->keyword.'%');
-            });
+            // $compositions = $compositions->where(function($q) use ($request) {
+            //     $q->orWhere('name','like','%'.$request->keyword.'%')->orWhere('replace_with','like','%'.$request->keyword.'%');
+            // });
+            //removed search from word
+            $composition = $compositions->where('name','like','%'.$request->keyword.'%');
         }
 
         $listcompostions = ["" => "-- Select --"] + Compositions::where('replace_with','!=','')->groupBy('replace_with')->pluck('replace_with','replace_with')->toArray();
