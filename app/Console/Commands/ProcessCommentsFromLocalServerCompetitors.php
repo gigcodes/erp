@@ -20,7 +20,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
      *
      * @var string
      */
-    protected $signature = 'competitors:process-local-users';
+    protected $signature = 'competitors:process-local-users {hastagId}';
 
     /**
      * The console command description.
@@ -46,33 +46,52 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
      */
     public function handle()
     {
-        //try {
-            $ch = curl_init();
+            $found = 0;
+            $hashtagId = $this->argument('hastagId');
 
-            // set url
-            curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/instagram/get-hashtag-list");
+            $hashtag = HashTag::where('id', $hashtagId)->first();
 
-            //return the transfer as a string
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-
-            // $output contains the output string
-            $output = curl_exec($ch);
-
-            // close curl resource to free up system resources
-            curl_close($ch); 
-
-            $categories = json_decode($output);
-
-            
-            
-            $hashtag = $categories->hastag;
-
+           
             if (!$hashtag) {
                 return;
             }
+            $hashtagId = $hashtag->id;
 
             $hashtagText = $hashtag->hashtag;
-            $hashtagId = $hashtag->id;
+
+            if($hashtagText){
+                $found = 1;
+            }
+        //try {
+            if($found == 0){
+                    $ch = curl_init();
+
+                // set url
+                curl_setopt($ch, CURLOPT_URL, "https://erp.amourint.com/api/instagram/get-hashtag-list");
+
+                //return the transfer as a string
+                curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+
+                // $output contains the output string
+                $output = curl_exec($ch);
+
+                // close curl resource to free up system resources
+                curl_close($ch); 
+
+                $categories = json_decode($output);
+
+                
+                
+                $hashtag = $categories->hastag;
+
+                if (!$hashtag) {
+                    return;
+                }
+
+                $hashtagText = $hashtag->hashtag;
+                $hashtagId = $hashtag->id;
+            }
+
             $hash = new Hashtags();
             $hash->login();
             $maxId = '';
@@ -204,7 +223,7 @@ class ProcessCommentsFromLocalServerCompetitors extends Command
                     }
 
                     $details = ['post' => $postData , 'userdetials' => $userData,'comments' => $postComments];    
-                    $url = 'https://44f2ddb6e2a9.ngrok.io/api/local/instagram-post';
+                    $url = 'https://erp.amourint.com/api/local/instagram-post';
 
                     //Initiate cURL.
                     $ch = curl_init($url);

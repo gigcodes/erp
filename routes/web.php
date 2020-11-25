@@ -1601,6 +1601,8 @@ Route::prefix('instagram')->middleware('auth')->group(function () {
     Route::get('hashtag/users/{id?}', 'HashtagController@showGridUsers')->name('hashtag.users.grid');
     Route::resource('hashtag', 'HashtagController');
     Route::post('hashtag/process/queue', 'HashtagController@rumCommand')->name('hashtag.command');
+    Route::post('hashtag/queue/kill', 'HashtagController@killCommand')->name('hashtag.command.kill');
+    Route::post('hashtag/queue/status', 'HashtagController@checkStatusCommand')->name('hashtag.command.status');
     Route::get('hashtags/grid', 'InstagramController@hashtagGrid');
     Route::get('influencers', 'HashtagController@influencer')->name('influencers.index');
 

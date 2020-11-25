@@ -16,14 +16,14 @@
             @foreach($records as $key => $record)
                 @if($record['extension'] == 'png' || $record['extension'] == 'jpeg' || $record['extension'] == 'jpg' || $record['extension'] == 'gif')
                 <div class="col-md-3">
-                    <img style="width:100px;height:auto;" src="{{$record['url']}}" alt="">
+                    <img style="width:100px;height:auto;" src="@if(isset($record['url'])){{$record['url']}}@endif" alt="">
                     <input type="radio" class="selectInstaAttachMedia" name="selectInstaAttachMedia" 
                     data-id="{{$record['id']}}"
                     data-extension="{{$record['extension']}}"
                     data-file_name="{{$record['file_name']}}"
                     data-mime_type="{{$record['mime_type']}}"
                     data-size="{{$record['size']}}"
-                    data-thumb="{{$record['url']}}"
+                    data-thumb="@if(isset($record['url'])) {{$record['url']}} @endif"
                     data-original="{{$record['original']}}"
                     >
                 </div>
