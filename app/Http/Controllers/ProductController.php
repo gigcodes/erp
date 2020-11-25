@@ -2825,11 +2825,14 @@ class ProductController extends Controller
             foreach ($oldImages as $img) {
 
                 $media = Media::where('id',$img->media_id)->first();
-                $image_path = $media->getAbsolutePath();
-                if (\File::exists($image_path)) {
-                    \File::delete($image_path);
+                if($media){
+                    $image_path = $media->getAbsolutePath();
+                    if (\File::exists($image_path)) {
+                        \File::delete($image_path);
+                    }
+                    $media->delete();                    
                 }
-                $media->delete();
+
             }
         }
 
