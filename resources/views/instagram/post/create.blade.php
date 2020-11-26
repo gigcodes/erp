@@ -240,6 +240,27 @@
     </div>
 </div>
 
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
 @endsection
     
 @section('scripts')
@@ -318,16 +339,40 @@ $(document).ready(function(){
                         $("#loading-image").show();
                     },
                     success: function(data){
+                        console.log(data)
                         $("#loading-image").hide();
                         $("#search_hashtag").attr('contenteditable','true');
-                        //console.log(data.length);
-                        //console.log(data[2]);
                         $('#auto').html('');
+                        results = data.results
+                        if(results.length != 0){
+                            html = ''
+                            for(result of results){
+                                console.log(result)
 
-                        for(x = 0; x < data.length; x++)
-                        {
-                            $('#auto').append("<div class=chip light-blue lighten-2 white-text waves-effect'><a href='#' data-hashtag='"+data[x]+"' data-caption ='"+text+"' >"+data[x]+"</a></div>"); //Fills the #auto div with the options
+                                html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+result.name+'">'+result.name+'('+result.popular+')</a>'
+                                
+                                arrs = result.variants
+
+                                for(arr of arrs){
+                                    html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+arr+'">'+arr+'</a>'
+                                }
+
+                                
+
+                                arrs = result.influencers
+
+                                for(arr of arrs){
+                                    html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+arr+'">'+arr+'</a>'
+                                }
+
+                               
+                                
+                            }
+                             $('#auto').append(html)
                         }
+                        
+                        
+                        
                     }
                 });
             }else{
@@ -346,10 +391,9 @@ $(document).ready(function(){
         var stringWithoutLastHashtag = caption.substring(0, lastIndex);
 
         //var stringWithoutLastHashtag = caption.substring(0, caption.lastIndexOf(" "));
-        var finalString = stringWithoutLastHashtag.concat(" #"+hashtag);
+        var finalString = stringWithoutLastHashtag.concat(" #"+caption);
         console.log("\n "+finalString);
         $("#search_hashtag").val(finalString);
-        $('#auto').html('');
     });
 
 
@@ -411,7 +455,7 @@ $(document).ready(function(){
         var finalString = stringWithoutLastHashtag.concat(" #"+hashtag);
         console.log("\n "+finalString);
         $("#show_hashtag_field").val(finalString);
-        $('#update_hashtag_auto').html('');
+        //$('#update_hashtag_auto').html('');
     });
       
     
@@ -478,6 +522,9 @@ $(document).ready(function(){
     });
 });
 
-
+    $('.add-name').on('click', function(){
+        name = $(this).val();
+        console.log(name)
+    });
 </script>
 @endsection

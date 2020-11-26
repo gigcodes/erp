@@ -45,16 +45,19 @@ $solo_numbers = (new SoloNumbers)->all();
             
     		try {
                 	$instagram = new Instagram();
-                    $instagram->setProxy($account->proxy);
-				    $instagram->login($account->last_name, $account->password);
-				    $this->instagram = $instagram;
+                    //$instagram->setProxy($account->proxy);
+				   $instagram->login($account->last_name, $account->password);
+				   $this->instagram = $instagram;
                 } catch (\Exception $e) {
                     dd($e);
                     echo "ERROR $account->last_name \n";
                     continue;
                 }
                 //getting inbpx
-                $inbox = $this->instagram->direct->getInbox()->asArray();
+                $inbox = $this->instagram->direct->getInbox('',20,'','')->asArray();
+                //$pending = $this->instagram->direct->getPendingInbox()->asArray();
+                
+                
                 //getting inbox
                 
                 if (isset($inbox['inbox']['threads'])) {
@@ -99,13 +102,13 @@ $solo_numbers = (new SoloNumbers)->all();
                 }
 
                 //getting pending inbox message
-                $inbox = $this->instagram->direct->getPendingInbox()->asArray();
-                $incomingThread = $inbox['inbox'];
-                if($incomingThread['unseen_count'] != 0){
-                	$account->new_message = 1;
-                	$account->save();
+                // $inbox = $this->instagram->direct->getPendingInbox()->asArray();
+                // $incomingThread = $inbox['inbox'];
+                // if($incomingThread['unseen_count'] != 0){
+                // 	$account->new_message = 1;
+                // 	$account->save();
                 		
-                }
+                // }
                 
     	}
 
@@ -132,10 +135,8 @@ $solo_numbers = (new SoloNumbers)->all();
                 try {
                 	$instagram = new Instagram();
 				    $instagram->login($account->last_name, $account->password);
-				    $instagram->setProxy($account->proxy);
 				    $this->instagram = $instagram;
                 } catch (\Exception $e) {
-                    dd($e);
                     echo "ERROR $account->last_name \n";
                     continue;
                 }
