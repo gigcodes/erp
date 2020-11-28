@@ -547,7 +547,7 @@ class WhatsappConfigController extends Controller
                         $error_msg = curl_error($curl);
                     } else{
                         $resInArr = json_decode($response, true);
-                        if(isset($resInArr) && $resInArr['accountStatus']!='authenticated')
+                        if(isset($resInArr) && isset($resInArr['accountStatus']) && $resInArr['accountStatus']!='authenticated')
                         {
                             Notification::create( [
                                 'role'       => 'Whatsapp Config Proivders Authentication',
