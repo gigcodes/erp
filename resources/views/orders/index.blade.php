@@ -186,7 +186,8 @@ color:black!important;
                     $extraProducts[] = [
                       "sku" => $orderProduct->sku,
                       "qty" => $orderProduct->qty,
-                      "product_price" => $orderProduct->product_price
+                      "product_price" => $orderProduct->product_price,
+                      "name" => ($orderProduct->product) ? $orderProduct->product->name : ""
                     ];
                   }
                }
@@ -536,7 +537,15 @@ color:black!important;
                    <strong>Gross Weight:</strong>
                    <input type="text" id="gross_weight" name="items[`+next+`][gross_weight]" class="form-control" value="">
                 </div>
-                <div class="form-group col-md-1">
+                <div class="form-group col-md-3">
+                   <strong>HS Code:</strong>
+                   <input type="text" id="hs_code" name="items[`+next+`][hs_code]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-5">
+                   <strong>Manufacturing Country Code:</strong>
+                   <input type="text" id="manufacturing_country_code" name="items[`+next+`][manufacturing_country_code]" class="form-control" value="">
+                </div>
+                <div class="form-group col-md-1" style="margin-top:20px;">
                    <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
                 </div>
             </div>`;
@@ -574,7 +583,7 @@ color:black!important;
                   itemsHtml += `<div class="card-body">
                               <div class="form-group col-md-5">
                                  <strong>Name:</strong>
-                                 <input type="text" id="name" name="items[`+k+`][name]" class="form-control" value="`+v.sku+`">
+                                 <input type="text" id="name" name="items[`+k+`][name]" class="form-control" value="`+v.name+`">
                               </div>
                               <div class="form-group col-md-3">
                                  <strong>Qty:</strong>
@@ -596,7 +605,15 @@ color:black!important;
                                  <strong>Gross Weight:</strong>
                                  <input type="text" id="gross_weight" name="items[`+k+`][gross_weight]" class="form-control" value="">
                               </div>
-                              <div class="form-group col-md-1">
+                              <div class="form-group col-md-3">
+                                 <strong>HS Code:</strong>
+                                 <input type="text" id="hs_code" name="items[`+k+`][hs_code]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-5">
+                                 <strong>Manufacturing Country Code:</strong>
+                                 <input type="text" id="manufacturing_country_code" name="items[`+k+`][manufacturing_country_code]" class="form-control" value="">
+                              </div>
+                              <div class="form-group col-md-1" style="margin-top:20px;">
                                  <button class="btn btn-secondary btn-remove-item"><i class="fa fa-trash"></i></button>
                               </div>
                           </div>`;
