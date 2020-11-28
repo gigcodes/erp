@@ -267,6 +267,9 @@ class CreateShipmentRequest extends APIAbstract
 
     public function toXML()
     {
+
+        $isDomestic = $this->isDomestic();
+
         $xml = new \XmlWriter();
         $xml->openMemory();
         $xml->setIndent(true);
@@ -298,33 +301,44 @@ class CreateShipmentRequest extends APIAbstract
                     $xml->startElement('RequestedShipment');
                         $xml->startElement('ShipmentInfo');
                             $xml->writeElement('DropOffType', $this->dropOffType);
-                            $xml->writeElement('ServiceType',$this->serviceType);
+                            if(!$isDomestic) {
+                                $xml->writeElement('ServiceType',$this->serviceType);
+                            }else{
+                                $xml->writeElement('ServiceType',"N");
+                            }
                             $xml->writeElement('Account',$this->accountNumber);
                             $xml->writeElement('Currency',$this->currency);
                             $xml->writeElement('UnitOfMeasurement',$this->unitOfMeasurement);
                             $xml->writeElement('PackagesCount',count($this->packages));
                             $xml->writeElement('SendPackage',$this->sendPackage);
-                            $xml->writeElement('PaperlessTradeEnabled', $this->paperLess);
-                            if($this->paperLess == true) {
-                                $xml->startElement('SpecialServices');
-                                    $xml->startElement('Service');
-                                        $xml->writeElement('ServiceType', "WY");
+                            if(!$isDomestic) {
+                                $xml->writeElement('PaperlessTradeEnabled', $this->paperLess);
+                                if($this->paperLess == true) {
+                                    $xml->startElement('SpecialServices');
+                                        $xml->startElement('Service');
+                                            $xml->writeElement('ServiceType', "WY");
+                                        $xml->endElement();
                                     $xml->endElement();
+                                }
+                                $xml->startElement('LabelOptions');
+                                    $xml->writeElement('RequestDHLCustomsInvoice', "Y");
                                 $xml->endElement();
                             }
-                            $xml->startElement('LabelOptions');
-                                $xml->writeElement('RequestDHLCustomsInvoice', "Y");
-                            $xml->endElement();
                         $xml->endElement();
                         $xml->writeElement('ShipTimestamp', $this->shippingTime);
                         $xml->writeElement('PaymentInfo', $this->paymentInfo);
+                        
                         $xml->startElement('InternationalDetail');
                             $xml->startElement('Commodities');
                                 $xml->writeElement('NumberOfPieces',count($this->items));
                                 $xml->writeElement('Description',$this->description);
                                 $xml->writeElement('CustomsValue',$this->declaredValue);
                             $xml->endElement();
-                            $xml->writeElement('Content',"NON_DOCUMENTS");
+                            if(!$isDomestic) {
+                                $xml->writeElement('Content',"NON_DOCUMENTS");
+                            }else{
+                                $xml->writeElement('Content',"DOCUMENTS");
+                            }
                             $xml->startElement('ExportDeclaration');
                                 $xml->writeElement('InvoiceDate',date("Y-m-d"));
                                 $xml->writeElement('InvoiceNumber',$this->invoiceNumber);
@@ -339,6 +353,8 @@ class CreateShipmentRequest extends APIAbstract
                                                 $xml->writeElement('UnitPrice',$item['unit_price']);
                                                 $xml->writeElement('NetWeight',$item['net_weight']);
                                                 $xml->writeElement('GrossWeight',$item['gross_weight']);
+                                                $xml->writeElement('CommodityCode',$item['hs_code']);
+                                                $xml->writeElement('ManufacturingCountryCode',$item['manufacturing_country_code']);
                                             $xml->endElement();
                                         }
                                     $xml->endElement();

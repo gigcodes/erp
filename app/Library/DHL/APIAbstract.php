@@ -112,4 +112,16 @@ abstract class APIAbstract
         
         return $this->result;
     }
+
+    // if shipper is from dubai then it will domestic shipment
+
+    public function isDomestic()
+    {
+
+        if($this->getShipper()['country_code'] == $this->getRecipient()['country_code'] && $this->getShipper()['country_code'] == "AE") {
+            return true;
+        }
+        return false;
+    }
+
 }
