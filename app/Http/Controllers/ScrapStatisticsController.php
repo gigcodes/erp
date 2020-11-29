@@ -490,14 +490,32 @@ class ScrapStatisticsController extends Controller
         }
     }
 
-    public function serverStatistics()
+    public function serverStatistics(Request $request)
     {
+        
+        
         try {
-            $scrappers = Scraper::with('getScrapHistory')->paginate(50);
+            $scrappers = Scraper::query();
+            $scrap = $scrappers->where('inventory_lifetime','!=',0)->where('server_id','!=','');
+            
+            if($request->type){
+                $scrappers->orderBy($request->type,$request->order);
+            }
+
+            $scrappers = $scrap->paginate(50);
+
+            if ($request->ajax()) {
+            return response()->json([
+                    'tbody' => view('scrap.partials.scrap-server-status-data', compact('scrappers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                    'links' => (string)$scrappers->render(),
+                    'count' => $scrappers->total(),
+                ], 200);
+            } 
+            
             return view('scrap.scrap-server-status',compact('scrappers'));
         } catch (\Exception $e) {
-            session()->flash('error', $e->getMessage());
-            return redirect()->back();
+            //session()->flash('error', $e->getMessage());
+            //return redirect()->back();
         }
     }
 

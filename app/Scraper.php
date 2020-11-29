@@ -55,7 +55,7 @@ class Scraper extends Model
 
     public function getScrapHistory()
     {
-        return $this->hasOne('App\ScrapRequestHistory', 'scraper_id', 'id');
+        return $this->hasMany('App\ScrapRequestHistory', 'scraper_id', 'id')->orderBy('updated_at','desc')->take(20);
     }
     
 
