@@ -121,11 +121,18 @@ class ProductTemplatesController extends Controller
     public function apiIndex(Request $request)
     {
         
-        $record = \App\ProductTemplate::where('is_processed','0')->whereNotNull('brand_id')->whereNotNull('category_id')->where('category_id','>',3)->orderBy('id','asc')->first();
+        $record = \App\ProductTemplate::where('is_processed','0')->orderBy('id','asc')->first();
+
+        if(!$record) {
+            $data = ['message' => 'Template not found'];
+            return response()->json($data);
+        }
         
-        $category = $record->category;
-        // Get other information related to category
-        $cat = $category->title;
+        if($record->category) {
+            $category = $record->category;
+            // Get other information related to category
+            $cat = $category->title;
+        }
 
         $parent = '';
         $child = '';
@@ -147,30 +154,22 @@ class ProductTemplatesController extends Controller
 
         $data = [];
         //check if template exist
-        if(!isset($record->template->no_of_images)){
-
-            $data = ['message' => 'Product Doesnt have template'];
-            $record->is_processed = 2;
-            $record->save();
-            return response()->json($data);
-
-        }else{
-            $templateProductCount = $record->template->no_of_images;
-        }
+        $templateProductCount = $record->template->no_of_images;
         
-        if($record->getMedia('template-image')->count() <= $templateProductCount){
+        if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
             $data = ['message' => 'Template Product Doesnt have Proper Images'];
-            $record->is_processed = 2;
-            $record->save();
             return response()->json($data);
         }
+
+        $record->is_processed = 2;
+        $record->save();
         
         if ($record) {
             $data = [
                 "id" => $record->id,
                 "templateNumber" => $record->template_no,
                 "productTitle" => $record->product_title,
-                "productBrand" => $record->brand->name,
+                "productBrand" => ($record->brand) ? $record->brand->name : "",
                 "productCategory" => $productCategory,
                 "productPrice" => $record->price,
                 "productDiscountedPrice" => $record->discounted_price,
