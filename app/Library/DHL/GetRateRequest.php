@@ -228,7 +228,7 @@ class GetRateRequest extends APIAbstract
                     $xml->startElement('Request');
                         $xml->startElement('ServiceHeader');
                             $xml->writeElement('MessageTime',gmdate("Y-m-d\TH:i:s-05:00",strtotime("now")));
-                            $xml->writeElement('MessageReference','ARYABHATTAARYABHATTAARYABHATTA');
+                            $xml->writeElement('MessageReference',GUID());
                         $xml->endElement();
                     $xml->endElement();
                     $xml->startElement('RequestedShipment');
