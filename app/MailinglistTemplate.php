@@ -35,7 +35,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public static function getOrderConfirmationTemplate($store)
+    public static function getOrderConfirmationTemplate($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Order Confirmation')->first();
 
@@ -46,7 +46,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getOrderStatusChangeTemplate($store)
+    public static function getOrderStatusChangeTemplate($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Order Status Change')->first();
 
@@ -57,7 +57,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getOrderCancellationTemplate($store)
+    public static function getOrderCancellationTemplate($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Order Cancellation')->first();
 
@@ -68,7 +68,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getIntializeReturn($store)
+    public static function getIntializeReturn($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Initialize Return')->first();
 
@@ -79,7 +79,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getIntializeRefund($store)
+    public static function getIntializeRefund($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Initialize Refund')->first();
 
@@ -90,7 +90,7 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getIntializeExchange($store)
+    public static function getIntializeExchange($store = null)
     {
         $category = \App\MailinglistTemplateCategory::where('title', 'Initialize Exchange')->first();
 
@@ -102,12 +102,14 @@ class MailinglistTemplate extends Model
         return false;
     }
 
-    public function getTemplate($cateogry, $store = null)
+    public static function getTemplate($category, $store = null)
     {
         if ($store) {
             return self::where('store_website_id', $store)->where('category_id', $category->id)->first();
         } else {
-            return self::whereNull('store_website_id')->where('category_id', $category->id)->first();
+            return self::where(function($q) {
+                $q->whereNull('store_website_id')->orWhere('store_website_id','=',"")->orWhere('store_website_id',"<=",0);
+            })->where('category_id', $category->id)->first();
         }
     }
 

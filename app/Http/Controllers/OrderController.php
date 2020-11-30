@@ -2209,7 +2209,14 @@ public function createProductOnMagento(Request $request, $id){
                 $history->save();
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
                 //Sending Mail on changing of order status
-                    $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                    $emailAddress = $order->customer->email;
+                    try {
+                        \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                    }catch(\Exception $e) {
+
+                    }
+
+                    /*$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
                     if($mailingListCategory){
                         if($order->storeWebsiteOrder) {
                             $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
@@ -2230,7 +2237,7 @@ public function createProductOnMagento(Request $request, $id){
                                 Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
                             }
                         }
-                    }
+                    }*/
                 }
                 //Sending Mail on changing of order status
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
