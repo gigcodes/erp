@@ -35,11 +35,15 @@ class OrderStatusChangeMail extends Mailable
         
         $customer       = $order->customer;
         $order_products = $order->order_products;
-        $email          = "customercare@sololuxury.co.in";
+        //$email          = "customercare@sololuxury.co.in";
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         if ($storeWebsiteOrder) {
+            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+            if($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
             $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate($storeWebsiteOrder->website_id);
         } else {
             $template = \App\MailinglistTemplate::getOrderStatusChangeTemplate();
@@ -48,7 +52,7 @@ class OrderStatusChangeMail extends Mailable
         if ($template) {
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
-                return $this->from($email)
+                return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
@@ -60,7 +64,7 @@ class OrderStatusChangeMail extends Mailable
                 $valToReplace   = [$order->customer->name,$order->order_status,$order->order_id];
                 $content        = str_replace($arrToReplace,$valToReplace,$content);
                 
-                return $this->from($email)->subject($template->subject)
+                return $this->from($this->fromMailer)->subject($template->subject)
                 ->view('emails.blank_content', compact(
                     'order', 'customer', 'order_products', 'content'
                 ));
