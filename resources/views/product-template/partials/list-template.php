@@ -11,6 +11,10 @@
 		        <th>Price</th>
 		        <th>Discounted price</th>
 		        <th>Product</th>
+		        <th>Text</th>
+		        <th>Font Style</th>
+		        <th>Font size</th>
+		        <th>Background color</th>
 		        <th>Is Processed</th>
 		        <th>Created at</th>
 		        <th>Action</th>
@@ -22,11 +26,15 @@
 			      	<td>{{>prop.id}}</td>
 			        <td>{{>prop.template_no}}</td>
 			        <td>{{>prop.product_title}}</td>
-			        <td>{{>prop.brand_id}}</td>
+			        <td>{{>prop.brand_name}}</td>
 			        <td>{{>prop.currency}}</td>
 			        <td>{{>prop.price}}</td>
 			        <td>{{>prop.discounted_price}}</td>
 			        <td>{{>prop.product_id}}</td>
+			        <td>{{>prop.text}}</td>
+			        <td>{{>prop.font_style}}</td>
+			        <td>{{>prop.font_size}}</td>
+			        <td>{{>prop.background_color}}</td>
 			        <td>{{>prop.is_processed}}</td>
 			        <td>{{>prop.created_at}}</td>
 			        <td><button type="button" data-id="{{>prop.id}}" class="btn btn-delete-template"><img width="15px" src="/images/delete.png"></button></td>

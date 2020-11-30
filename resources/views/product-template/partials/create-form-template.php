@@ -13,7 +13,6 @@
                 <div class="col-sm-6">
                     <select class="form-control template_no valid" name="template_no" aria-invalid="false">
                         <?php 
-
                             foreach ($templateArr as $template) {
                                 $media = $template->lastMedia(config('constants.media_tags'));
                                 echo '<option value="'.$template->id.'" data-image="'.(($media) ? $media->getUrl() : "").'" data-no-of-images="'.$template->no_of_images.'">'.$template->name.'</option>';
@@ -52,6 +51,35 @@
                    <?php echo Form::text("product_title",null,["class" => "form-control product_title"]); ?>
                 </div>
              </div>
+
+             <div class="form-group row">
+                <label for="text" class="col-sm-3 col-form-label">Text</label>
+                <div class="col-sm-6">
+                   <?php echo Form::select("text",$texts , null ,["class" => "form-control text select2"]); ?>
+                </div>
+             </div>
+
+             <div class="form-group row">
+                <label for="font_style" class="col-sm-3 col-form-label">Font Style</label>
+                <div class="col-sm-6">
+                   <?php echo Form::text("font_style",null ,["class" => "form-control"]); ?>
+                </div>
+             </div>
+
+             <div class="form-group row">
+                <label for="font_size" class="col-sm-3 col-form-label">Font Size</label>
+                <div class="col-sm-6">
+                   <?php echo Form::text("font_size",null ,["class" => "form-control"]); ?>
+                </div>
+             </div>
+
+             <div class="form-group row">
+                <label for="background_color" class="col-sm-3 col-form-label">Background color</label>
+                <div class="col-sm-6">
+                   <?php echo Form::select("background_color",$backgroundColors,null ,["class" => "form-control select2"]); ?>
+                </div>
+             </div>
+
              <div class="form-group row">
                 <label for="brand_id" class="col-sm-3 col-form-label">Brand</label>
                 <div class="col-sm-6">

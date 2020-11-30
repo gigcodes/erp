@@ -59,6 +59,13 @@
         <div class="pull-right">
             <button type="button" class="btn btn-secondary create-product-template-btn">Add Product Template</button>
         </div>
+        <div class="pull-left">
+        	<form action="?" method="get">
+	            <div class="form-group">
+				    <input type="text" name="keyword" value="{{ request('keyword') }}" class="form-control keyword-text" placeholder="Enter keyword">
+				</div>
+			</form>
+        </div>
     </div>
     <br>
     <div class="row" style="margin:10px;">
