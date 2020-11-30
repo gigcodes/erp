@@ -33,20 +33,36 @@ class ProductTemplatesController extends Controller
                                 ->toArray();
             
             if (!empty($productIdsArr)) {
-                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();               
+                $productArr = \App\Product::select('id', 'name', 'sku', 'brand')->whereIn('id', $productIdsArr)->get();
             }
         }
         $templateArr = \App\Template::all();
-        return view("product-template.index", compact('templateArr', 'productArr'));
+
+        $texts = \App\ProductTemplate::where('text',"!=" ,"")->groupBy('text')->pluck('text','text');
+        $backgroundColors = \App\ProductTemplate::where('background_color',"!=" ,"")->groupBy('background_color')->pluck('background_color','background_color');
+
+        return view("product-template.index", compact('templateArr', 'productArr', 'texts' , 'backgroundColors'));
     }
 
     public function response()
     {
-        $records = \App\ProductTemplate::orderBy("id", "desc")->paginate(Setting::get('pagination')); 
+        $keyword = request('keyword');
+
+        $records = \App\ProductTemplate::leftJoin('brands as b','b.id','product_templates.brand_id'); 
+
+        if(!empty($keyword)) {
+            $records = $records->where(function($q) use($keyword) {
+                $q->orWhere('product_templates.product_title','like','%'.$keyword.'%')->orWhere('product_templates.text','like','%'.$keyword.'%')->orWhere('product_templates.product_id','like','%'.$keyword.'%');
+            });
+        }
+        $records = $records->orderBy("id", "desc")
+        ->select(["product_templates.*","b.name as brand_name"])
+        ->paginate(Setting::get('pagination')); 
+
         return response()->json([
             "code" => 1,
             "result" => $records,
-            "pagination" => (string)$records->links(),
+            "pagination" => (string)$records->appends(request()->except('page')),
         ]);
     }
 
@@ -59,6 +75,9 @@ class ProductTemplatesController extends Controller
     {
         $template = new \App\ProductTemplate;
         $params = request()->all();
+        if(empty($params['product_id'])) {
+           $params['product_id'] = [];
+        }
         $params['product_id'] = implode(',', (array)$params['product_id']);
         $template->fill($params);
 
@@ -156,6 +175,10 @@ class ProductTemplatesController extends Controller
                 "productPrice" => $record->price,
                 "productDiscountedPrice" => $record->discounted_price,
                 "productCurrency" => $record->currency,
+                "text" => $record->text,
+                "fontStyle" => $record->font_style,
+                "fontSize" => $record->font_size,
+                "backgroundColor" => $record->background_color
             ];
 
             if ($record->hasMedia('template-image')) {
