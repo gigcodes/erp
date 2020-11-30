@@ -16,7 +16,7 @@ use App\Helpers\TwilioHelper;
 Auth::routes();
 
 
-Route::get('/test/test', 'TestController@index');
+Route::get('/test/test', 'OrderController@testEmail');
 
 Route::get('/test/dhl', 'TmpTaskController@test');
 Route::get('create-media-image', 'CustomerController@testImage');

@@ -2209,7 +2209,13 @@ public function createProductOnMagento(Request $request, $id){
                 $history->save();
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
                 //Sending Mail on changing of order status
-                    $mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
+                    try {
+                        \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                    }catch(\Exception $e) {
+                        \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                    }
+
+                    /*$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
                     if($mailingListCategory){
                         if($order->storeWebsiteOrder) {
                             $templateData = MailinglistTemplate::where('category_id', $mailingListCategory->id )->where("store_website_id",$order->storeWebsiteOrder->website_id)->first();
@@ -2230,7 +2236,7 @@ public function createProductOnMagento(Request $request, $id){
                                 Mail::to($order->customer->email)->send(new OrderStatusMail($emailData));
                             }
                         }
-                    }
+                    }*/
                 }
                 //Sending Mail on changing of order status
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
@@ -3101,5 +3107,16 @@ public function createProductOnMagento(Request $request, $id){
         return response()->json(['message' => 'unable to add reply','status' => 500]);
         }
         return response()->json(['message' => 'please enter a reply','status' => 400]);
+    }
+
+    public function testEmail(Request $request)
+    {
+        //$order_new = \App\Order::find(2032);
+        //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
+        $customer = \App\Customer::first();
+        \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+        // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
+        // 
     }
 }

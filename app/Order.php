@@ -217,6 +217,11 @@ class Order extends Model
         }
     }
 
+    public function status()
+    {
+        return $this->hasOne();
+    }
+
 
     // public function calculateTotal($order)
     // {
