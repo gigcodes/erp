@@ -193,7 +193,7 @@ return [
         App\Providers\WhatsappConfigProvider::class,
         Webklex\IMAP\Providers\LaravelServiceProvider::class,
         Brotzka\DotenvEditor\DotenvEditorServiceProvider::class,
-        //LaravelFCM\FCMServiceProvider::class,
+        LaravelFCM\FCMServiceProvider::class,
     ],
 
     /*
@@ -267,8 +267,8 @@ return [
         'PDF' => Barryvdh\Snappy\Facades\SnappyPdf::class,
         'SnappyImage' => Barryvdh\Snappy\Facades\SnappyImage::class,
         'DotenvEditor' => Brotzka\DotenvEditor\DotenvEditorFacade::class,
-     //    'FCM'      => LaravelFCM\Facades\FCM::class,
-	    // 'FCMGroup' => LaravelFCM\Facades\FCMGroup::class, // Optional
+        'FCM'      => LaravelFCM\Facades\FCM::class,
+	    'FCMGroup' => LaravelFCM\Facades\FCMGroup::class, // Optional
     ],
 
 ];
