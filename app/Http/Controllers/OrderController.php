@@ -2211,6 +2211,26 @@ public function createProductOnMagento(Request $request, $id){
                 //Sending Mail on changing of order status
                     try {
                         \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+
+                        $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->render();
+                        $params = [
+                            'model_id'          => $order->customer->id,
+                            'model_type'        => Customer::class,
+                            'from'              => 'customercare@sololuxury.co.in',
+                            'to'                => $order->customer->email,
+                            'subject'           => "Order status updated # " . $order->order_id,
+                            'message'           => $view,
+                            'template'          => 'order-status-update',
+                            'additional_data'   => $order->id
+                        ];
+                        Email::create($params);
+                        CommunicationHistory::create([
+                            'model_id'      => $order->id,
+                            'model_type'    => Order::class,
+                            'type'          => 'order-status-update',
+                            'method'        => 'email'
+                        ]);
+
                     }catch(\Exception $e) {
                         \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
                     }
