@@ -3102,4 +3102,15 @@ public function createProductOnMagento(Request $request, $id){
         }
         return response()->json(['message' => 'please enter a reply','status' => 400]);
     }
+
+    public function testEmail(Request $request)
+    {
+        //$order_new = \App\Order::find(2032);
+        //\MultiMail::to('webreak.pravin@ gmail.com')->send(new \App\Mail\OrderStatusChangeMail($order_new));
+        $customer = \App\Customer::first();
+        \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+        // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
+        // 
+    }
 }

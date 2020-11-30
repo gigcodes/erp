@@ -22,6 +22,7 @@ class OrderConfirmation extends Mailable
     public function __construct(Order $order)
     {
         $this->order = $order;
+        $this->fromMailer = 'customercare@sololuxury.co.in';
     }
 
     /**
@@ -35,34 +36,39 @@ class OrderConfirmation extends Mailable
         $order          = $this->order;
         $customer       = $order->customer;
         $order_products = $order->order_products;
+        $email          = "customercare@sololuxury.co.in";
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
+        
+        // get the template based on store
         if ($storeWebsiteOrder) {
-            $template = $storeWebsiteOrder->getOrderConfirmationTemplate();
-            if ($template) {
-                if(!empty($template->mail_tpl)) {
-                    // need to fix the all email address
-                    $view = (string)view($template->mail_tpl, compact(
-                        'order', 'customer', 'order_products'
-                    ));
-                    return $this->from('contact@sololuxury.co.in')->subject($template->subject)
+            $template = \App\MailinglistTemplate::getOrderConfirmationTemplate($storeWebsiteOrder->website_id);
+        } else {
+            $template = \App\MailinglistTemplate::getOrderConfirmationTemplate();
+        }
+
+        if ($template) {
+            if (!empty($template->mail_tpl)) {
+                // need to fix the all email address
+                return $this->from($email)
+                    ->subject($template->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
-                }else{
-                    $content = $template->static_template;
-                    return $this->from('contact@sololuxury.co.in')->subject($template->subject)->view('emails.blank_content', compact(
-                        'order', 'customer', 'order_products','content'
+            } else {
+                $content = $template->static_template;
+                return $this->from($email)
+                    ->subject($template->subject)
+                    ->view('emails.blank_content', compact(
+                        'order', 'customer', 'order_products', 'content'
                     ));
-                }
             }
-
-        } else {
-            return $this->from('contact@sololuxury.co.in')->bcc('contact@sololuxury.co.in')->subject($subject)->view('emails.orders.confirmed-solo', compact(
-                'order', 'customer', 'order_products'
-            ));
         }
+        
+        return $this->view('emails.orders.confirmed-solo', compact(
+            'order', 'customer', 'order_products'
+        ));
 
     }
 }
