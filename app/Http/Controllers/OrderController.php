@@ -2424,6 +2424,7 @@ public function createProductOnMagento(Request $request, $id){
             'box_length' => 'required',
             'box_width' => 'required',
             'box_height' => 'required',
+            'notes' => 'required',
             'customer_name' => 'required',
             'customer_city' => 'required',
             'customer_country' => 'required',
@@ -2456,14 +2457,15 @@ public function createProductOnMagento(Request $request, $id){
 
         $rateReq   = new CreateShipmentRequest("soap");
         $rateReq->setShipper([
-            "street"        => config("dhl.shipper.street"),
-            "city"          => config("dhl.shipper.city"),
-            "postal_code"   => config("dhl.shipper.postal_code"),
-            "country_code"  => config("dhl.shipper.country_code"),
-            "person_name"   => config("dhl.shipper.person_name"),
-            "company_name"  => config("dhl.shipper.company_name"),
-            "phone"         => config("dhl.shipper.phone")
+            "street"        => $request->get("from_customer_address1"),
+            "city"          => $request->get("from_customer_city"),
+            "postal_code"   => $request->get("from_customer_pincode"),
+            "country_code"  => $request->get("from_customer_country"),
+            "person_name"   => $request->get("from_customer_name"),
+            "company_name"  => $request->get("from_company_name"),
+            "phone"         => $request->get("from_customer_phone")
         ]);
+
         $rateReq->setRecipient([
             "street"        => $request->get("customer_address1"),
             "city"          => $request->get("customer_city"),
@@ -2491,7 +2493,7 @@ public function createProductOnMagento(Request $request, $id){
                 "length" => $request->get("box_length"),
                 "width"  => $request->get("box_width"),
                 "height" => $request->get("box_height"),
-                "note"   => "N/A",
+                "note"   => $request->get("notes"),
             ]
         ]);
 

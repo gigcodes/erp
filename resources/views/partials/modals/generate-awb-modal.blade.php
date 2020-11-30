@@ -91,11 +91,13 @@
                   </div>
                </div>
                <div class="col-md-12">
-                      <div class="form-group">
-                         <strong>Actual Weight:</strong>
-                         <input type="number" name="actual_weight" id="actual_weight" class="form-control input_actual_weight" value="1" step="0.01" required>
-                      </div>
                     <div class="row">
+                      <div class="col">
+                        <div class="form-group">
+                           <strong>Actual Weight:</strong>
+                           <input type="number" name="actual_weight" id="actual_weight" class="form-control input_actual_weight" value="1" step="0.01" required>
+                        </div>
+                      </div>  
                        <div class="col">
                           <div class="form-group">
                              <strong>Length:</strong>
@@ -116,6 +118,14 @@
                        </div>
                     </div>
                     <div class="row">
+                      <div class="col">
+                          <div class="form-group">
+                             <strong>Notes:</strong>
+                             <input type="text" name="notes" id="notes" class="form-control input_box_notes" value="" required>
+                          </div>
+                       </div>
+                    </div>
+                    <div class="row">
                        <div class="col">
                           <div class="form-group">
                              <strong>Amount:</strong>
@@ -128,8 +138,6 @@
                              <input type="text" name="currency" id="currency" class="form-control input_currency" value="" required>
                           </div>
                        </div>
-                    </div>
-                    <div class="row">
                        <div class="col">
                           <div class="form-group">
                              <strong>Pick Up Date and Time</strong>
@@ -141,6 +149,9 @@
                              </div>
                           </div>
                        </div>
+                    </div>
+                    <div class="row">
+                       
                     </div>
                     <div class="row">
                        <div class="col">
