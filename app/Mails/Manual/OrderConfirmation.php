@@ -36,15 +36,18 @@ class OrderConfirmation extends Mailable
         $order          = $this->order;
         $customer       = $order->customer;
         $order_products = $order->order_products;
-        $email          = "customercare@sololuxury.co.in";
         $this->subject  = $subject;
-        //$this->fromMailer = 'test@gmail.com';
+        $this->fromMailer = "customercare@sololuxury.co.in";
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
         
         // get the template based on store
         if ($storeWebsiteOrder) {
+            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+            if($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate($storeWebsiteOrder->website_id);
         } else {
             $template = \App\MailinglistTemplate::getOrderConfirmationTemplate();
@@ -53,14 +56,14 @@ class OrderConfirmation extends Mailable
         if ($template) {
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
-                return $this->from($email)
+                return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
             } else {
                 $content = $template->static_template;
-                return $this->from($email)
+                return $this->from($this->fromMailer)
                     ->subject($template->subject)
                     ->view('emails.blank_content', compact(
                         'order', 'customer', 'order_products', 'content'
