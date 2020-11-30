@@ -37,6 +37,8 @@ class OrderConfirmation extends Mailable
         $customer       = $order->customer;
         $order_products = $order->order_products;
         $email          = "customercare@sololuxury.co.in";
+        $this->subject  = $subject;
+        //$this->fromMailer = 'test@gmail.com';
 
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
