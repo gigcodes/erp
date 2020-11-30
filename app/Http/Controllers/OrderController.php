@@ -2209,11 +2209,10 @@ public function createProductOnMagento(Request $request, $id){
                 $history->save();
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
                 //Sending Mail on changing of order status
-                    $emailAddress = $order->customer->email;
                     try {
-                        \MultiMail::to('webreak.pravin@gmail.com')->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                        \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
                     }catch(\Exception $e) {
-
+                        \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
                     }
 
                     /*$mailingListCategory = MailinglistTemplateCategory::where('title','Order Status Change')->first();
