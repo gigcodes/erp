@@ -120,6 +120,7 @@
     </div>
 
 @include('marketing.accounts.partials.add-modal')
+@include('marketing.accounts.partials.multiple-image')
 
    
 @endsection
@@ -268,7 +269,174 @@
     function addBroadcast(id) {
         $('#account_id').val(id)
         $('#addModal').modal('show');         
-    }     
+    } 
+
+    function postImage(id) {
+        src = '/instagram/post/getImages'
+        $.ajax({
+                url: src,
+                dataType: "json",
+                beforeSend: function() {
+                       $("#loading-image").show();
+                },
+            }).done(function (data) {
+                html = ''
+                html += '<div class="row">';
+                for(image of data){
+                    html += '<div class="col-md-3"><img src="'+image+'" height="200" width="200" class="img-responsive"><br><input type="checkbox" style="margin-bottom: 10px;" class="image-select" value="'+image+'" ></div>';
+                }
+                
+                html += '</div>'
+                $('#images').empty().append(html);
+                $('#account_id').val(id)
+                $('#largeImageModal').modal('show')
+                console.log(data)
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+        } 
+
+
+    function getCaptions() {
+        var selected = [];
+        html = ''
+        $('.modal-body input:checked').each(function() {
+            selected.push($(this).val());
+        });
+        if(selected.length == 0){
+            alert('Please select image')
+        }else{
+            $.ajax({
+            url: '/instagram/post/getCaptions',
+            dataType: "json",
+            beforeSend: function() {
+                   $("#loading-image").show();
+            },
+            }).done(function (data) {
+                console.log(data)
+                html = ''
+                select = ''
+                select += '<select class="form-control selected-caption">' 
+                for(image of data){
+                    select += '<option value="'+image['id']+'">'+image['caption']+'</option>';
+                }
+                select += '</select>'
+
+                html += '<div class="row">';
+                for(image of selected){
+                    html += '<div class="col-md-4"><img src="'+image+'" height="300" width="300" style="margin-bottom;10px;" class="img-responsive">'+select+'</div>';
+                }
+                html += '</div>'
+                $('#images').empty().append(html);
+                $('#next_button').hide();
+                $('#submit_button').show();
+                
+                alert('selected')
+            }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                alert('No response from server');
+            });
+                
+        }
+   }
+
+    function submitPost() {
+        imageURI = []
+        captions = []
+        $(".img-responsive").each(function () { 
+            imageURI.push($(this).attr('src'));                 
+             
+        });
+        $(".selected-caption").each(function () {
+            captions.push($(this).val() );                  
+        });
+
+        account_id = $('#account_id').val();
+
+        $.ajax({
+        url: '/instagram/post/multiple',
+        dataType: "json",
+        type: "POST",
+        data: {
+            "_token": "{{ csrf_token() }}", 
+            "account_id": account_id,
+            "captions" : captions,
+            "imageURI" : imageURI,
+        },
+        beforeSend: function() {
+               $("#loading-image").show();
+        },
+        }).done(function (data) {
+            $("#loading-image").hide();
+            $('#largeImageModal').modal('hide');
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+
+    }
+
+    
+    function likeUserPost(id) {
+    src = '/instagram/post/likeUserPost'
+    $.ajax({
+            url: src,
+            dataType: "json",
+            type: "POST",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "account_id": id,
+            },
+            beforeSend: function() {
+                   $("#loading-image").show();
+            },
+        }).done(function (data) {
+            $("#loading-image").hide();
+            alert('Liked User Post Successfully')
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }
+
+    function sendRequest(id) {
+    src = '/instagram/post/sendRequest'
+    $.ajax({
+            url: src,
+            dataType: "json",
+            type: "POST",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "account_id": id,
+            },
+            beforeSend: function() {
+                   $("#loading-image").show();
+            },
+        }).done(function (data) {
+            $("#loading-image").hide();
+            alert('Liked User Post Successfully')
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    } 
+
+    function acceptRequest(id) {
+    src = '/instagram/post/acceptRequest'
+    $.ajax({
+            url: src,
+            dataType: "json",
+            type: "POST",
+            data: {
+                "_token": "{{ csrf_token() }}",
+                "account_id": id,
+            },
+            beforeSend: function() {
+                   $("#loading-image").show();
+            },
+        }).done(function (data) {
+            $("#loading-image").hide();
+            alert('Liked User Post Successfully')
+        }).fail(function (jqXHR, ajaxOptions, thrownError) {
+            alert('No response from server');
+        });
+    }         
 
 </script>
 @endsection

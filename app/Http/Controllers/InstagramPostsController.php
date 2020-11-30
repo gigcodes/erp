@@ -23,6 +23,10 @@ use App\InstagramUsersList;
 use App\Library\Instagram\PublishPost;
 use Plank\Mediable\Media;
 use App\StoreSocialContent;
+use UnsplashSearch;
+\InstagramAPI\Instagram::$allowDangerousWebUsageAtMyOwnRisk = true;
+
+
 
 class InstagramPostsController extends Controller
 {
@@ -678,5 +682,179 @@ class InstagramPostsController extends Controller
         Post::where('id', $post_id)->update($updateArr);
         echo json_encode(array("message"=>"Data Updated Succesfully"));
     }
+
+    public function getImages()
+    {
+        $images = [];
+        $keywords = ['fashion','living'];
+        $number = rand(1,500);
+        $response = UnsplashSearch::photos('fashion',['page' => $number, 'order_by' => 'latest']);
+        $content =  $response->getContents();
+        $lists = json_decode($content);
+
+        foreach ($lists->results as $list) {
+            $images[] = $list->urls->full;
+        }
+
+        return $images;
+
+    }
+
+    public function getCaptions()
+    {
+        $captionArray = [];
+        
+        $captions = \App\Caption::all();
+
+        foreach ($captions as $caption) {
+            $captionArray[] = ['id' => $caption->id, 'caption' => $caption->caption];
+            
+               
+        }
+
+        return $captionArray;
+
+    }
+
+    public function postMultiple(Request $request)
+    {
+        if($request->account_id){
+
+            $account = \App\Account::find($request->account_id); 
+
+            $images = $request->imageURI;
+            $captions = $request->captions;
+            for ($i=0; $i < count($request->captions); $i++) { 
+                $media = [];
+                $imageURL = $images[$i];
+                $captionId = $captions[$i];
+                $caption = \App\Caption::find($captionId);
+
+                $file = @file_get_contents($imageURL);
+                $savedMedia =   MediaUploader::fromString($file)
+                ->useFilename(uniqid(true))
+                ->toDirectory('instagram-media')
+                ->upload();
+                $account->attachMedia($savedMedia, 'instagram-profile');
+
+                //getting media id 
+                $lastMedia = $account->lastMedia('instagram-profile');
+
+                $media[] = $lastMedia->id;
+                
+                $post = new Post();
+
+                $post->account_id = $account->id;
+                $post->type       = 'post';
+                $post->caption    = $caption->caption;
+                $post->ig         = [
+                    'media'    => $media,
+                    'location' => '',
+                ];
+
+                $mediaFile = Media::where('id',$lastMedia->id)->first();
+                $image = self::resize_image_crop($mediaFile,640,640);
+                    
+
+                if (new PublishPost($post)) {
+                    sleep(10); 
+                } else {
+                    sleep(30);
+                }
+            }
+
+            return response()->json(['Post Added Succesfully'], 200);
+
+
+
+            
+        }
+        
+    }
+
+    public function likeUserPost(Request $request)
+    {
+       if($request->account_id){
+            $account = \App\Account::find($request->account_id); 
+            $instagram = new Instagram();
+            $instagram->login($account->last_name, $account->password);
+            $getdatas=$instagram->people->getSelfFollowing($instagram->uuid);
+            $decode= json_decode($getdatas);
+            $count = 0;
+            $lastCount = rand(5,10);
+            foreach ($decode->users as $value) {
+                if($count == $lastCount){
+                    break;
+                }
+                $getdata=$instagram->timeline->getUserFeed($value->pk);
+                $decode_data= json_decode($getdata);
+                // print_r($decode_data);die;
+                $likePostCount = 0;
+                $likePostCountLast = rand(5,10);
+
+                foreach ($decode_data->items as $data) {
+                    if($likePostCount == $likePostCountLast){
+                        break;
+                    }
+                    sleep(rand(5,10));
+                    $getdatass=$instagram->media->like($data->id,'0');
+                    $likePostCount++;
+                }
+                $count++;
+            }
+            return response()->json(['Post Added Succesfully'], 200);
+       }
+    }
+
+    public function acceptRequest(Request $request)
+    {
+       if($request->account_id){
+            $account = \App\Account::find($request->account_id); 
+            $instagram = new Instagram();
+            $instagram->login($account->last_name, $account->password);
+            $getdatas=$instagram->people->getPendingFriendships();
+                    
+                $decode= json_decode($getdatas);
+                $count = 0;
+                $lastCount = rand(5,10);
+                foreach($decode->users as $getdata){
+                    if($count == $lastCount){
+                        break;
+                    }
+                    sleep(rand(5,10));
+                    $getdata=$instagram->people->approveFriendship($getdata->pk);
+                    $count++;
+                }
+            return response()->json(['Post Added Succesfully'], 200);
+
+       }
+    }
+
+    public function sendRequest(Request $request)
+    {
+       if($request->account_id){
+            $account = \App\Account::find($request->account_id); 
+            $instagram = new Instagram();
+            $instagram->login($account->last_name, $account->password);
+            $pk = $instagram->people->getUserIdForName($account->last_name);
+            $var =$instagram->people->getSuggestedUsers($pk);
+            $data= json_decode($var);
+            $count = 0;
+            $lastCount = rand(5,10);
+            foreach($data->users as $user){
+                if($count == $lastCount){
+                        break;
+                }
+                sleep(rand(10,30));
+                $instagram->people->follow($user->pk);
+                $count++;
+            }
+
+            return response()->json(['Post Added Succesfully'], 200);
+
+       }
+    }
+
+    
 
 }

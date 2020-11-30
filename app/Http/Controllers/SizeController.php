@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Size;
 use Illuminate\Http\Request;
+use App\UnknownSize;
 
 class SizeController extends Controller
 {
@@ -145,5 +146,87 @@ class SizeController extends Controller
 
         return response()->json(["code" => 500, "error" => "Wrong row id!"]);
 
+    }
+
+    public function sizeReference(Request $request)
+    {
+
+        $sizes = Size::all();
+        $unknownSizes = UnknownSize::query();
+        if($request->search){
+            $unknownSizes = $unknownSizes->where('size','LIKE','%'.$request->search.'%');
+        }
+        $unknownSizes = $unknownSizes->paginate(50);
+        return view('size.reference', compact('sizes', 'unknownSizes'));
+    }
+
+    public function referenceAdd(Request $request)
+    {
+        $size = UnknownSize::where('size',$request->from)->first();
+        $sizeFrom = new Size;
+        $sizeFrom->name = $size->size;
+        $sizeFrom->save();
+        $size->delete();
+        return response()->json(["code" => 200, "data" => 'Its changed']);
+    }
+
+    public function usedProducts(Request $request)
+    {
+        $q = $request->id;
+            $UnknownSize = \App\UnknownSize::find($q);
+        if($q) {
+            // check the type and then 
+           $q = '"'.$q.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$UnknownSize->size.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
+    }
+
+    public function affectedProduct(Request $request)
+    {
+        $from = $request->from;
+        $to   = $request->to;
+
+        if (!empty($from) && !empty($to)) {
+            // check the type and then
+            $q     = '"'.$from.'"';
+            $total = \App\ScrapedProducts::where("properties", "like", '%' . $q . '%')
+                ->join("products as p", "p.sku", "scraped_products.sku")
+                ->where("p.composition", "")
+                ->groupBy("p.id")
+                ->get()->count();
+
+            $view = (string) view("size.partials.affected-products", compact('total', 'from', 'to'));
+
+            return response()->json(["code" => 200, "html" => $view]);
+        }
+    }
+
+    public function updateSizes(Request $request)
+    {
+        $from = $request->from;
+        $to   = $request->to;
+
+        $to = \App\Size::find($to)->name;
+        $updateWithProduct = $request->with_product;
+        if ($updateWithProduct == "yes") {
+            \App\Jobs\UpdateSizeFromErp::dispatch([
+                "from"    => $from,
+                "to"      => $to,
+                "user_id" => \Auth::user()->id,
+            ])->onQueue("supplier_products");
+        }
+
+        $c = Size::where("name",$from)->first();
+        if($c) {
+            $c->references = $c->references.','.$to;
+            $c->save();
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }
 }
