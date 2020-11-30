@@ -72,10 +72,10 @@ var productTemplate = {
                     }
                 });
                 
-                if (noOfImages != uploadImage) {
+                /*if (noOfImages != uploadImage) {
                     alert('Please '+noOfImages+' Image Upload');
                     return false;
-                }
+                }*/
 
                 productTemplate.submitForm($(this));
 
