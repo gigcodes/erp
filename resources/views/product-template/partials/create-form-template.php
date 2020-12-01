@@ -55,7 +55,7 @@
              <div class="form-group row">
                 <label for="text" class="col-sm-3 col-form-label">Text</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("text",$texts , null ,["class" => "form-control text select2"]); ?>
+                   <?php echo Form::select("text",["" => ""] + $texts , null ,["class" => "form-control text select2"]); ?>
                 </div>
              </div>
 
@@ -76,14 +76,14 @@
              <div class="form-group row">
                 <label for="background_color" class="col-sm-3 col-form-label">Background color</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("background_color",$backgroundColors,null ,["class" => "form-control select2"]); ?>
+                   <?php echo Form::select("background_color",["" => ""] + $backgroundColors,null ,["class" => "form-control select2"]); ?>
                 </div>
              </div>
 
              <div class="form-group row">
                 <label for="brand_id" class="col-sm-3 col-form-label">Brand</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("brand_id",\App\Brand::all()->pluck("name","id"),null,["class" => "form-control select-2-brand"]); ?>
+                   <?php echo Form::select("brand_id",["" => "-Select-"] + \App\Brand::all()->pluck("name","id")->toArray(),null,["class" => "form-control"]); ?>
                 </div>
              </div>
              <div class="form-group row">
