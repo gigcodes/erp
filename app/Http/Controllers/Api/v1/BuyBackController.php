@@ -90,6 +90,73 @@ class BuyBackController extends Controller
             }
             ReturnExchangeProduct::create($return_exchange_products_data);
 
+            // send emails 
+            try {
+                if($request->type == "refund") {
+                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeRefundRequest($success));
+                    $view = (new \App\Mails\Manual\InitializeRefundRequest($success))->build();
+                    $params = [
+                        'model_id'          => $success->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $success->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'refund-request',
+                        'additional_data'   => $success->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $success->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'refund-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "return") {
+                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeReturnRequest($success));
+                    $view = (new \App\Mails\Manual\InitializeReturnRequest($success))->build();
+                    $params = [
+                        'model_id'          => $success->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $success->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'return-request',
+                        'additional_data'   => $success->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $success->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'return-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "exchange") {
+                    \MultiMail::to($success->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($success));
+                    $view = (new \App\Mails\Manual\InitializeExchangeRequest($success))->build();
+                    $params = [
+                        'model_id'          => $success->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $success->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'exchange-request',
+                        'additional_data'   => $success->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $success->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'exchange-request',
+                        'method'        => 'email'
+                    ]);
+                }
+
+            }catch(\Exception $e) {
+                \Log::info("Sending mail issue at the buybackcontroller #158 ->".$e->getMessage());
+            }
             return response()->json(['status' => 'success', 'message' => ucwords($request->type).' request created successfully'], 200);
         }else{
             return response()->json(['status' => 'failed', 'message' => 'Please check website is not exist'], 404);

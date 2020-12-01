@@ -1829,7 +1829,36 @@ class CustomerController extends Controller
     {
         $customer = Customer::find($request->customer_id);
 
-        Mail::to($customer->email)->send(new IssueCredit($customer));
+        //Mail::to($customer->email)->send(new IssueCredit($customer));
+        try {
+            \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+            $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+
+            CommunicationHistory::create([
+                'model_id' => $customer->id,
+                'model_type' => Customer::class,
+                'type' => 'issue-credit',
+                'method' => 'email'
+            ]);
+
+            $params = [
+                'model_id'   => $customer->id,
+                'model_type' => Customer::class,
+                'from'       => $view->fromMailer,
+                'to'         => $customer->email,
+                'subject'    => $view->subject,
+                'message'    => $view->render(),
+                'template'   => 'issue-credit',
+                'additional_data' => ''
+            ];
+
+            Email::create($params);
+
+        }catch(\Exception $e) {
+            \Log::info("Sending mail issue at the customercontroller #1836 ->".$e->getMessage());
+        }
+
 
         $message = "Dear $customer->name, this is to confirm that an amount of Rs. $customer->credit - is credited with us against your previous order. You can use this credit note for reference on your next purchase. Thanks & Regards, Solo Luxury Team";
         $requestData = new Request();
@@ -1845,25 +1874,7 @@ class CustomerController extends Controller
             'method' => 'whatsapp'
         ]);
 
-        CommunicationHistory::create([
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            'type' => 'issue-credit',
-            'method' => 'email'
-        ]);
-
-        $params = [
-            'model_id' => $customer->id,
-            'model_type' => Customer::class,
-            'from' => 'customercare@sololuxury.co.in',
-            'to' => $customer->email,
-            'subject' => "Customer Credit Issued",
-            'message' => '',
-            'template' => 'issue-credit',
-            'additional_data' => ''
-        ];
-
-        Email::create($params);
+       
     }
 
     public function sendSuggestion(Request $request)

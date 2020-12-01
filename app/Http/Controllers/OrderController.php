@@ -2215,26 +2215,52 @@ public function createProductOnMagento(Request $request, $id){
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
                 //Sending Mail on changing of order status
                     try {
-                        \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                        // send order canellation email
+                        if(strtolower($statuss->status) == "cancel") {
+                            
+                            \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderCancellationMail($order));
+                            $view = (new \App\Mails\Manual\OrderCancellationMail($order))->build();
 
-                        $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->render();
-                        $params = [
-                            'model_id'          => $order->customer->id,
-                            'model_type'        => Customer::class,
-                            'from'              => 'customercare@sololuxury.co.in',
-                            'to'                => $order->customer->email,
-                            'subject'           => "Order status updated # " . $order->order_id,
-                            'message'           => $view,
-                            'template'          => 'order-status-update',
-                            'additional_data'   => $order->id
-                        ];
-                        Email::create($params);
-                        CommunicationHistory::create([
-                            'model_id'      => $order->id,
-                            'model_type'    => Order::class,
-                            'type'          => 'order-status-update',
-                            'method'        => 'email'
-                        ]);
+                            $params = [
+                                'model_id'          => $order->customer->id,
+                                'model_type'        => Customer::class,
+                                'from'              => $view->fromMailer,
+                                'to'                => $order->customer->email,
+                                'subject'           => $view->subject,
+                                'message'           => $view->render(),
+                                'template'          => 'order-cancellation-update',
+                                'additional_data'   => $order->id
+                            ];
+                            Email::create($params);
+                            CommunicationHistory::create([
+                                'model_id'      => $order->id,
+                                'model_type'    => Order::class,
+                                'type'          => 'order-cancellation-update',
+                                'method'        => 'email'
+                            ]);
+
+
+                        }else{
+                            \MultiMail::to($order->customer->email)->send(new \App\Mails\Manual\OrderStatusChangeMail($order));
+                            $view = (new \App\Mails\Manual\OrderStatusChangeMail($order))->build();
+                            $params = [
+                                'model_id'          => $order->customer->id,
+                                'model_type'        => Customer::class,
+                                'from'              => $view->fromMailer,
+                                'to'                => $order->customer->email,
+                                'subject'           => $view->subject,
+                                'message'           => $view->render(),
+                                'template'          => 'order-status-update',
+                                'additional_data'   => $order->id
+                            ];
+                            Email::create($params);
+                            CommunicationHistory::create([
+                                'model_id'      => $order->id,
+                                'model_type'    => Order::class,
+                                'type'          => 'order-status-update',
+                                'method'        => 'email'
+                            ]);
+                        }
 
                     }catch(\Exception $e) {
                         \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());

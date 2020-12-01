@@ -38,16 +38,24 @@ class InitializeReturnRequest extends Mailable
         $return     = $this->return;
         $customer   = $return->customer;
 
+        $this->subject  = $subject;
+        $this->fromMailer = "customercare@sololuxury.co.in";
+
         if ($customer) {
             if ($customer->store_website_id > 0) {
+                $emailAddress = \App\EmailAddress::where('store_website_id',$customer->store_website_id)->first();
+                if($emailAddress) {
+                    $this->fromMailer = $emailAddress->from_address;
+                }
                 $template = \App\MailinglistTemplate::getIntializeReturn($customer->store_website_id);
             } else {
-                $template = \App\MailinglistTemplate::getIntializeReturn(null);
+                $template = \App\MailinglistTemplate::getIntializeReturn();
             }
             if ($template) {
                 if (!empty($template->mail_tpl)) {
                     // need to fix the all email address
-                    return $this->subject($template->subject)
+                    $this->subject  = $template->subject;
+                    return $this->subject($this->subject)
                         ->view($template->mail_tpl, compact(
                             'customer','return'
                         ));
@@ -55,6 +63,6 @@ class InitializeReturnRequest extends Mailable
             }
         }
 
-        return $this->subject($subject)->markdown('emails.customers.blank');
+        return $this->subject($this->subject)->markdown('emails.customers.blank');
     }
 }

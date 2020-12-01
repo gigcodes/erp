@@ -36,6 +36,7 @@ class OrderConfirmation extends Mailable
         $order          = $this->order;
         $customer       = $order->customer;
         $order_products = $order->order_products;
+        
         $this->subject  = $subject;
         $this->fromMailer = "customercare@sololuxury.co.in";
 
