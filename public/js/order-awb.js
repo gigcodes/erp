@@ -20,19 +20,22 @@ $(document).on("click",".btn-rate-request",function(e) {
       $('.ajax-loader').hide();
       if(response.code == 200) {
         toastr['success'](response.message, 'success');
-        var htmlReturn = "<ul style='list-style:none;'>";
+        var htmlReturn = "";
         if(response.data) {
-           if(response.data.charges.length > 0) {
-             $.each(response.data.charges,function(k,v) {
-                htmlReturn += "<li>"+v.name+" : "+v.amount+"</li>";
-             });
-          }
-          htmlReturn += "<li>Total : "+response.data.amount+" "+response.data.currency+"</li>";
-          htmlReturn += "<li>Delivery Time : "+response.data.delivery_time+"</li>";
-          htmlReturn += "<li>Service Type : "+response.data.service_type+"</li>";
-          htmlReturn += "<li>Total Transit day : "+response.data.total_transit_days+"</li>";
+            $.each(response.data, function(key , result) {
+              htmlReturn += "<div class='col-md-4'> <ul style='list-style:none;'>";
+               if(result.charges && result.charges.length > 0) {
+                 $.each(response.data.charges,function(k,v) {
+                    htmlReturn += "<li>"+v.name+" : "+v.amount+"</li>";
+                 });
+              }
+              htmlReturn += "<li>Total : "+result.amount+" "+result.currency+"</li>";
+              htmlReturn += "<li>Delivery Time : "+result.delivery_time+"</li>";
+              htmlReturn += "<li>Service Type : "+result.service_type+"</li>";
+              htmlReturn += "<li>Total Transit day : "+result.total_transit_days+"</li>";
+              htmlReturn += "</ul></div>";
+            });
         }
-        htmlReturn += "</ul>";
         $(".price-break-down").html(htmlReturn);
     }else{
 	  toastr['error'](response.message, 'error');
