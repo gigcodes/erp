@@ -156,10 +156,10 @@ class ProductTemplatesController extends Controller
         //check if template exist
         $templateProductCount = $record->template->no_of_images;
         
-        if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
-            $data = ['message' => 'Template Product Doesnt have Proper Images'];
-            return response()->json($data);
-        }
+        // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
+        //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
+        //     return response()->json($data);
+        // }
 
         $record->is_processed = 2;
         $record->save();
