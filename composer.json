@@ -54,7 +54,7 @@
         "pragmarx/tracker": "^4.0",
         "pusher/pusher-http-laravel": "^4.2",
         "pusher/pusher-php-server": "v3.0.1",
-        "qoraiche/laravel-mail-editor": "^2.0",
+        "qoraiche/laravel-mail-editor": "2.x-dev",
         "seo2websites/erp-customer": "dev-master",
         "seo2websites/erp-excel-importer": "dev-master",
         "seo2websites/google-vision": "dev-master",
@@ -133,6 +133,10 @@
         {
             "type": "vcs",
             "url": "git@github.com:ludxb/magento-helper"
+        },
+        {
+            "type": "vcs",
+            "url": "git@github.com:ludxb/laravel-mail-editor.git"
         }
     ],
     "scripts": {

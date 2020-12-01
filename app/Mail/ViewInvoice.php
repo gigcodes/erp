@@ -36,7 +36,7 @@ class ViewInvoice extends Mailable
             $this->orderItems = $this->viewOrderProductBlock($this->orders);
         }
 
-        $this->customer = $this->getCustomerDetails($this->orders[0]);
+        $this->customer = $this->orders !== null ? $this->getCustomerDetails($this->orders[0]) : null;
     }
 
     public function preview()

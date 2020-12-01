@@ -62,7 +62,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) 
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null)
                     @if(auth()->user()->isInCustomerService())
                         #{{ $customerId }} 
                     @else

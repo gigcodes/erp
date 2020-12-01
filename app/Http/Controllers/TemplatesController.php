@@ -12,6 +12,7 @@ use App\Category;
 use App\Brand;
 use App\ProductTemplate;
 use Plank\Mediable\Media;
+use Illuminate\Support\Str;
 use DB;
 
 class TemplatesController extends Controller
@@ -211,5 +212,23 @@ class TemplatesController extends Controller
         
         return response()->json(["message" => "Sucess"],200);
     }
-
+    public function getTemplateProduct(request $request){
+        $id = $request->input('productid');
+        $productData = product::find($id);
+        $image = $productData->getMedia(\Config('constants.media_original_tag'))->first(); 
+        $responseData = [
+            'status'=>'success',
+            'productName'=>$productData->name,
+            'short_description'=>Str::limit($productData->short_description, 20, $end='...'),
+            'price'=>'$'.$productData->price,
+            'product_url'=>'www.test.com',
+        ];
+        if($image) { 
+            $responseData['product_image'] = $image->getUrl(); 
+        }
+        if(isset($productData)){
+            return response()->json($responseData);
+        }
+        return response()->json(['status'=>'failed','message'=>'Product not found']);
+    }
 }

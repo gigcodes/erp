@@ -55,6 +55,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
     Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
     Route::post('store-website-description', 'ProductController@storeWebsiteDescription')->name('product.store.website.description');
+    Route::post('test', 'ProductController@test')->name('product.test.template');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
@@ -2526,6 +2527,8 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::post('/update', 'TranslationController@update')->name('translation.update');
 
 });
+//for email templates page
+Route::get('getTemplateProduct', 'TemplatesController@getTemplateProduct')->name('getTemplateProduct');
 
 //Affiliates
 Route::prefix('affiliates')->middleware('auth')->group(static function () {
