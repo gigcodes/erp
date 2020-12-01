@@ -121,7 +121,7 @@ class ProductTemplatesController extends Controller
     public function apiIndex(Request $request)
     {
         
-        $record = \App\ProductTemplate::where('is_processed','0')->orderBy('id','asc')->first();
+        $record = \App\ProductTemplate::where('is_processed','0')->where('background_color','')->orderBy('id','asc')->first();
 
         if(!$record) {
             $data = ['message' => 'Template not found'];
