@@ -328,6 +328,13 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::get('category/new-references', 'CategoryController@newCategoryReferenceIndex');
 
+    Route::get('sizes/references', 'SizeController@sizeReference');
+    Route::get('sizes/{id}/used-products', 'SizeController@usedProducts');
+
+    Route::post('sizes/references/chamge', 'SizeController@referenceAdd');
+    Route::get('sizes/affected-product', 'SizeController@affectedProduct');
+    Route::post('sizes/update-sizes', 'SizeController@updateSizes');
+
     Route::resource('category', 'CategoryController');
 
     Route::resource('resourceimg', 'ResourceImgController');
@@ -1549,6 +1556,12 @@ Route::get('instagram/get/hashtag/{word}', 'InstagramPostsController@hashtag');
 Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
 Route::post('instagram/post/update-hashtag-post', 'InstagramPostsController@updateHashtagPost');
 Route::get('instagram/post/publish-post/{id}', 'InstagramPostsController@publishPost');
+Route::get('instagram/post/getImages', 'InstagramPostsController@getImages');
+Route::get('instagram/post/getCaptions', 'InstagramPostsController@getCaptions');
+Route::post('instagram/post/multiple', 'InstagramPostsController@postMultiple');
+Route::post('instagram/post/likeUserPost', 'InstagramPostsController@likeUserPost');
+Route::post('instagram/post/acceptRequest', 'InstagramPostsController@acceptRequest');
+Route::post('instagram/post/sendRequest', 'InstagramPostsController@sendRequest');
 
 
 Route::prefix('instagram')->middleware('auth')->group(function () {

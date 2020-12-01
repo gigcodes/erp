@@ -467,8 +467,53 @@ class ProductsCreator
                     $tmpSizes[] = $size;
                 }
             }
+            $newSize = [];
+            if(count($tmpSizes) != 0){
+                foreach ($tmpSizes as $size) {
+                    $ifSizeExist = \App\Size::where('name',$size)->first();
+                    if($ifSizeExist){
+                        $newSize[] = $size;
+                    }else{
+                        //check in reference
+                        $ifSizeExist = \App\Size::where('references','LIKE','%'.$size.'%')->first();
+                        if($ifSizeExist){
+                            $references = $ifSizeExist->references;
+                            $referenceArray = explode(',', $references);
+                            $found = 0;
+                            foreach ($referenceArray as $ref) {
+                                if($ref == $size){
+                                    $newSize[] = $ifSizeExist->name;
+                                    $found = 1;
+                                }
+                            }
+                            if($found == 0){
+                                //check if it exist in unknown
+                                $ifExistInUnknown = \App\UnknownSize::where('size','LIKE','%'.$size.'%')->first();
+                                if($ifExistInUnknown){
 
-            $size = implode(',', $tmpSizes);
+                                }else{
+                                    //save unknown size
+                                    $unknown = new \App\UnknownSize;
+                                    $unknown->size = $size;
+                                    $unknown->save();
+                                }
+                            }
+                        }else{
+                            //check if it exist in unknown
+                            $ifExistInUnknown = \App\UnknownSize::where('size','LIKE','%'.$size.'%')->first();
+                            if($ifExistInUnknown){
+
+                            }else{
+                                //save unknown size
+                                $unknown = new \App\UnknownSize;
+                                $unknown->size = $size;
+                                $unknown->save();
+                            }
+                        }
+                    }
+                }
+            }
+            $size = implode(',', $newSize);
         }
 
         if (array_key_exists('dimension', $properties_array)) {

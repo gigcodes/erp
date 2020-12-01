@@ -518,6 +518,15 @@ $solo_numbers = (new SoloNumbers)->all();
             return response()->json(['message' => 'account id is required.'],500);
         }
         $ids = explode(",",$request->selectedInfluencers);
+        $ig = new \InstagramAPI\Instagram();
+    
+        try {
+            $ig->login('satyam_t', 'Schoolrocks93');
+        } catch (\Exception $e) {
+            $msg = 'Instagram login failed: '.$e->getMessage();
+            return response()->json(['message' => $msg, 'code' => 413],413);
+        }
+
         foreach($ids as $id) {
             $thread = InstagramThread::where('scrap_influencer_id',$id)->first();
             if($thread) {
@@ -532,19 +541,13 @@ $solo_numbers = (new SoloNumbers)->all();
 
             $userInstagram = InstagramUsersList::where('username',$influencer->name)->first();
             if(!$userInstagram) {
-                $ig = new \InstagramAPI\Instagram();
-    
                 try {
-                    $ig->login('satyam_t', 'Schoolrocks93');
-                } catch (\Exception $e) {
-                    $msg = 'Instagram login failed: '.$e->getMessage();
-                    return response()->json(['message' => $msg, 'code' => 413],413);
-                }
-                try {
-                    $instaInfo = $ig->people->getInfoByName($influencer->name);
+                    $instaInfo = @$ig->people->getInfoByName($influencer->name);
                 } catch (\Exception $e) {
                     $msg = 'Something went wrong: '.$e->getMessage();
-                    return response()->json(['message' => $msg, 'code' => 413],413);
+                    $influencer->delete();
+                    continue;
+                    //return response()->json(['message' => $msg, 'code' => 413],413);
                 }
                 $instaInfo = $instaInfo->asArray();
     
@@ -567,7 +570,8 @@ $solo_numbers = (new SoloNumbers)->all();
                 }
                 else {
                     $msg = 'Instagram user info not found for '.$influencer->name;
-                    return response()->json(['message' => $msg, 'code' => 413],413); 
+                    continue;
+                    //return response()->json(['message' => $msg, 'code' => 413],413); 
                 }
             }
             $thread->instagram_user_id = $userInstagram->id;
@@ -604,22 +608,24 @@ $solo_numbers = (new SoloNumbers)->all();
             $thread->account_id = $request->account_id;
             $thread->scrap_influencer_id = $request->influencer_id;
         }
+        //find account 
+        $account = \App\Account::find($request->account_id);
         $influencer  = ScrapInfluencer::find($request->influencer_id);
-
         $userInstagram = InstagramUsersList::where('username',$influencer->name)->first();
         if(!$userInstagram) {
             $ig = new \InstagramAPI\Instagram();
 
             try {
-                $ig->login('satyam_t', 'Schoolrocks93');
+                $ig->login($account->last_name, $account->password);
             } catch (\Exception $e) {
                 $msg = 'Instagram login failed: '.$e->getMessage();
                 return response()->json(['message' => $msg, 'code' => 413],413);
             }
             try {
-                $instaInfo = $ig->people->getInfoByName($influencer->name);
+                $instaInfo = @$ig->people->getInfoByName($influencer->name);
             } catch (\Exception $e) {
                 $msg = 'Something went wrong: '.$e->getMessage();
+                $influencer->delete();
                 return response()->json(['message' => $msg, 'code' => 413],413);
             }
             $instaInfo = $instaInfo->asArray();
