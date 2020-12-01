@@ -299,7 +299,7 @@ class ProductsCreator
         $product->brand = $image->brand_id;
         $product->supplier = $supplier;
         $product->name = $image->title;
-        $product->short_description = $image->description;
+        $product->short_description = $description;
         $product->supplier_link = $image->url;
         $product->stage = 3;
         $product->is_scraped = $isExcel == 1 ? 0 : 1;
