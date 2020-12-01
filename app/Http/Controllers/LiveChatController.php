@@ -1231,16 +1231,46 @@ if(isset($request->messageId)){
             $customer->credit=$calc_credit;
             $customer->save();
         if($customer){
-                \App\CreditHistory::create(
+            \App\CreditHistory::create(
                 array(
-                'customer_id'=>$customer_id,
-                'model_id'=>$customer_id,
-                'model_type'=>Customer::class,
-                'used_credit'=>$credit,
-                'used_in'=>'MANUAL',
-                'type'=>$type
+                    'customer_id'=>$customer_id,
+                    'model_id'=>$customer_id,
+                    'model_type'=>Customer::class,
+                    'used_credit'=>$credit,
+                    'used_in'=>'MANUAL',
+                    'type'=>$type
                 )
-                );
+            );
+
+             try {
+                \MultiMail::to($customer->email)->send(new \App\Mails\Manual\SendIssueCredit($customer));
+
+                $view = (new \App\Mails\Manual\SendIssueCredit($customer))->build();
+
+                \App\CommunicationHistory::create([
+                    'model_id' => $customer->id,
+                    'model_type' => \App\Customer::class,
+                    'type' => 'issue-credit',
+                    'method' => 'email'
+                ]);
+
+                $params = [
+                    'model_id'   => $customer->id,
+                    'model_type' => \App\Customer::class,
+                    'from'       => $view->fromMailer,
+                    'to'         => $customer->email,
+                    'subject'    => $view->subject,
+                    'message'    => $view->render(),
+                    'template'   => 'issue-credit',
+                    'additional_data' => ''
+                ];
+
+                \App\Email::create($params);
+
+            }catch(\Exception $e) {
+                \Log::info("Sending mail issue at the livechatcontroller #1271 ->".$e->getMessage());
+            }
+
         }
         return response()->json(['credit updated successfully', 'code' => 200, 'status' => 'success']);
     }

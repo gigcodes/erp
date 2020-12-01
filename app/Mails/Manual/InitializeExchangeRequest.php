@@ -3,11 +3,12 @@
 namespace App\Mails\Manual;
 
 use App\Customer;
+use App\ReturnExchange;
 use Illuminate\Bus\Queueable;
 use Illuminate\Mail\Mailable;
 use Illuminate\Queue\SerializesModels;
 
-class SendIssueCredit extends Mailable
+class InitializeExchangeRequest extends Mailable
 {
     use Queueable, SerializesModels;
 
@@ -17,11 +18,11 @@ class SendIssueCredit extends Mailable
      * @return void
      */
 
-    public $customer;
+    public $return;
 
-    public function __construct(Customer $customer)
+    public function __construct(ReturnExchange $return)
     {
-        $this->customer = $customer;
+        $this->return = $return;
         $this->fromMailer = 'customercare@sololuxury.co.in';
     }
 
@@ -33,8 +34,9 @@ class SendIssueCredit extends Mailable
     public function build()
     {
 
-        $subject  = "Customer Credit Issued";
-        $customer = $this->customer;
+        $subject    = "Return Request Initialized";
+        $return     = $this->return;
+        $customer   = $return->customer;
 
         $this->subject  = $subject;
         $this->fromMailer = "customercare@sololuxury.co.in";
@@ -45,22 +47,22 @@ class SendIssueCredit extends Mailable
                 if($emailAddress) {
                     $this->fromMailer = $emailAddress->from_address;
                 }
-                $template = \App\MailinglistTemplate::getIssueCredit($customer->store_website_id);
+                $template = \App\MailinglistTemplate::getIntializeExchange($customer->store_website_id);
             } else {
-                $template = \App\MailinglistTemplate::getIssueCredit(null);
+                $template = \App\MailinglistTemplate::getIntializeExchange();
             }
             if ($template) {
                 if (!empty($template->mail_tpl)) {
                     // need to fix the all email address
                     $this->subject  = $template->subject;
-                    return $this->subject($template->subject)
+                    return $this->subject($this->subject)
                         ->view($template->mail_tpl, compact(
-                            'customer'
+                            'customer','return'
                         ));
                 }
             }
         }
 
-        return $this->subject($this->subject)->markdown('emails.customers.issue-credit');
+        return $this->subject($this->subject)->markdown('emails.customers.blank');
     }
 }

@@ -39,20 +39,29 @@ class OrderCancellationMail extends Mailable
 
         $content        = "Your order request has been cancelled";
 
+        $this->subject  = $subject;
+        $this->fromMailer = "customercare@sololuxury.co.in";
+
+
         // check this order is related to store website ?
         $storeWebsiteOrder = $order->storeWebsiteOrder;
 
         if ($storeWebsiteOrder) {
+            $emailAddress = \App\EmailAddress::where('store_website_id',$storeWebsiteOrder->website_id)->first();
+            if($emailAddress) {
+                $this->fromMailer = $emailAddress->from_address;
+            }
             $template = \App\MailinglistTemplate::getOrderCancellationTemplate($storeWebsiteOrder->website_id);
         } else {
             $template = \App\MailinglistTemplate::getOrderCancellationTemplate();
         }
 
         if ($template) {
+            $this->subject = $template->subject;
             if (!empty($template->mail_tpl)) {
                 // need to fix the all email address
                 return $this->from($email)
-                    ->subject($template->subject)
+                    ->subject($this->subject)
                     ->view($template->mail_tpl, compact(
                         'order', 'customer', 'order_products'
                     ));
@@ -63,13 +72,11 @@ class OrderCancellationMail extends Mailable
                     [$order->customer->name,$order->order_status,$order->order_id],
                     $template->static_template
                 );
-
-                $subject = $template->subject;
             }
         }
 
         return $this->from($email)
-        ->subject($subject)
+        ->subject($this->subject)
         ->view('emails.blank_content', compact(
             'order', 'customer', 'order_products', 'content'
         ));
