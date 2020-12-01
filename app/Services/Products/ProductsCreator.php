@@ -19,6 +19,7 @@ use App\SupplierBrandCount;
 use App\SupplierCategoryCount;
 use App\Setting;
 use App\Compositions;
+use App\DescriptionChange;
 
 class ProductsCreator
 {
@@ -61,6 +62,12 @@ class ProductsCreator
         if(!empty($formattedDetails['composition'])) {
             $composition = Compositions::getErpName($formattedDetails['composition']);
         }
+
+        $description = $image->description;
+        if(!empty($description)) {
+            $description = DescriptionChange::getErpName($description);
+        }
+
 
         // Store count
         try {
@@ -107,7 +114,7 @@ class ProductsCreator
                 // Check if we can update the short description - not manually entered
                 $manual = ProductStatus::where('name', 'MANUAL_SHORT_DESCRIPTION')->where("product_id",$product->id)->first();
                 if ($manual == null || (int)$manual->value == 0) {
-                    $product->short_description = ProductHelper::getRedactedText($image->description, 'short_description');
+                    $product->short_description = ProductHelper::getRedactedText($description, 'short_description');
                 }
 
                 // Check if we can update the color - not manually entered
@@ -210,7 +217,7 @@ class ProductsCreator
                     }
 
                     $productSupplier->title = $image->title;
-                    $productSupplier->description = $image->description;
+                    $productSupplier->description = $description;
                     $productSupplier->supplier_link = $image->url;
                     $productSupplier->stock = 1;
                     $productSupplier->price = $formattedPrices[ 'price_eur' ];
@@ -368,7 +375,7 @@ class ProductsCreator
             }
 
             $productSupplier->title = $image->title;
-            $productSupplier->description = $image->description;
+            $productSupplier->description = $description;
             $productSupplier->supplier_link = $image->url;
             $productSupplier->stock = 1;
             $productSupplier->price = $formattedPrices[ 'price_eur' ];
