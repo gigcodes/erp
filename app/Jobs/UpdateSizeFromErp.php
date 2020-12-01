@@ -2,6 +2,8 @@
 
 namespace App\Jobs;
 
+use App\Product;
+use App\ScrapedProducts;
 use Illuminate\Bus\Queueable;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Queue\InteractsWithQueue;
@@ -20,12 +22,12 @@ class UpdateSizeFromErp implements ShouldQueue
      *
      * @return void
      */
-    public function __construct()
+    public function __construct($params)
     {
+        $this->params  = $params;
         $this->from    = $params["from"];
         $this->to      = $params["to"];
         $this->user_id = isset($params["user_id"]) ? $params["user_id"] : 6;
-        $this->params  = $params;
     }
 
     public static function putLog($message)
@@ -43,15 +45,39 @@ class UpdateSizeFromErp implements ShouldQueue
     {
         self::putLog("Job update product sizes from erp start time : " . date("Y-m-d H:i:s"));
 
-        $affectedProducts = ScrapedProducts::matchedComposition($this->from);
+        $affectedProducts = ScrapedProducts::matchedSizes($this->from);
+        //getting sku array 
+        $scrapedProductSkuArray = [];
+        foreach ($affectedProducts as $scraped) {
+           $scrapedProductSkuArray[] = $scraped->sku;
+        }
 
         //$sku = [];
-        if (!empty($affectedProducts)) {
-            foreach ($affectedProducts as $affectedProduct) {
-                $to = str_replace($this->from, $this->to, $affectedProduct->sizes );
-                $affectedProduct->sizes = $to;
-                $affectedProduct->save();
-                //$sku[] = $affectedProduct->sku;
+        if (count($scrapedProductSkuArray) != 0) {
+            foreach ($scrapedProductSkuArray as $productSku) {
+                self::putLog("Scrapeed Product {$productSku} update start time : ". date("Y-m-d H:i:s"));
+                $oldProduct = Product::where('sku', $productSku)->first();
+                if($oldProduct->size){
+                    //$sizes = explode(',', $oldProduct->size);
+                    //$newArray = [];
+                    // foreach ($sizes as $size) {
+                    //     if($size == $this->from){
+                    //         //$newArray[] = $this->to;
+                    //     }else{
+                    //        $newArray[] = $size; 
+                    //     }
+                    // }
+                    $newSize = $oldProduct->size.','.$this->to;
+                }elseif(empty($oldProduct->size)){
+                    $newSize = $this->to;
+                }
+                
+                if(isset($newSize)){
+                    $oldProduct->size = $newSize;
+                    $oldProduct->save();  
+                }
+
+                
             }
         }
 

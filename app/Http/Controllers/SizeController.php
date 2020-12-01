@@ -210,22 +210,33 @@ class SizeController extends Controller
     {
         $from = $request->from;
         $to   = $request->to;
+        
+        $to = \App\Size::find($to);
+        
+        $oldReference = $to->references;
 
-        $to = \App\Size::find($to)->name;
         $updateWithProduct = $request->with_product;
+
         if ($updateWithProduct == "yes") {
             \App\Jobs\UpdateSizeFromErp::dispatch([
                 "from"    => $from,
-                "to"      => $to,
+                "to"      => $to->name,
                 "user_id" => \Auth::user()->id,
             ])->onQueue("supplier_products");
         }
 
-        $c = Size::where("name",$from)->first();
-        if($c) {
-            $c->references = $c->references.','.$to;
-            $c->save();
+        //$c = Size::where("name",$to)->first();
+        if(empty($oldReference)) {
+            $to->references = $from;
+            $to->save();
+        }else{
+            $to->references = $oldReference.','.$from;
+            $to->save(); 
         }
+
+        //removing from unknown sizes
+        $si = UnknownSize::where('size',$from)->first();
+        $si->delete();
 
         return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
     }

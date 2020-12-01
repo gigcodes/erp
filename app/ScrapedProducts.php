@@ -210,10 +210,9 @@ class ScrapedProducts extends Model
 
     public static function matchedSizes($name) 
     {
-       $q = '"sizes":"'.$name.'"';
+       $q  = '"'.$name.'"';
        return \App\Product::where("sp.properties","like",'%'.$q.'%')
        ->join("scraped_products as sp","sp.sku","products.sku")
-       ->where("products.sizes","")
        ->select("products.*")
        ->get();
     }    
