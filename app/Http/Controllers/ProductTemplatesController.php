@@ -205,7 +205,7 @@ class ProductTemplatesController extends Controller
 
         // Only do queries if we have an id
         if ( (int) $id > 0 ) {
-            $template = \App\ProductTemplate::where("id", $id)->where('is_processed', 0)->first();
+            $template = \App\ProductTemplate::where("id", $id)->first();
 
             if ($template) {
                 if ($request->post('image')) {
