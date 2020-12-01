@@ -117,6 +117,12 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
 
     Route::resource('compositions', 'CompositionsController');
 
+    Route::post('descriptions/store', 'ChangeDescriptionController@store')->name('descriptions.store');
+
+    Route::post('descriptions/delete', 'ChangeDescriptionController@destroy')->name('descriptions.delete');
+
+    Route::resource('descriptions', 'ChangeDescriptionController');
+
     Route::get('crop/approved', 'ProductCropperController@getApprovedImages');
     Route::get('order-cropped-images', 'ProductCropperController@showCropVerifiedForOrdering');
     Route::post('save-sequence/{id}', 'ProductCropperController@saveSequence');

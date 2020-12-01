@@ -622,10 +622,15 @@ class ScrapController extends Controller
             if(!empty($formatter['composition'])) {
                 $composition = \App\Compositions::getErpName($formatter['composition']);
             }
+
+            $description = $request->get('description');
+            if(!empty($request->get('description'))) {
+                $description = \App\DescriptionChange::getErpName($request->get('description'));
+            }
             
             // Set basic data
             $product->name = $request->get('title');
-            $product->short_description = $request->get('description');
+            $product->short_description = $description;
             $product->composition = $composition;
             $product->color = $color;
             $product->description_link = $request->get('url');
