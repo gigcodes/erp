@@ -185,6 +185,9 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title">Communication</h4>
+                    <input type="hidden" id="chat_obj_type" name="chat_obj_type">
+                    <input type="hidden" id="chat_obj_id" name="chat_obj_id">
+                    <button type="submit" class="btn btn-default downloadChatMessages">Download</button>
                 </div>
                 <div class="modal-body" style="background-color: #999999;">
                 </div>
@@ -206,6 +209,7 @@
 @include("usermanagement::templates.add-time")
 @include("usermanagement::templates.user-avaibility")
 @include("usermanagement::templates.show-task-hours")
+@include("usermanagement::templates.show-user-details")
 
 
 <script type="text/javascript" src="/js/jsrender.min.js"></script>

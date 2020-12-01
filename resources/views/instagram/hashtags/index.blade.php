@@ -187,14 +187,18 @@ input:checked + .slider:before {
                             </form>
                         </td> -->
                         <td>
-                          <label class="switch">
+<!--                           <label class="switch">
                                   @if($hashtag->priority == 1)
                                   <input type="checkbox" checked class="checkbox" value="{{ $hashtag->id }}">
                                   @else
                                   <input type="checkbox" class="checkbox" value="{{ $hashtag->id }}">
                                   @endif
                                   <span class="slider round"></span>
-                                </label>
+                                </label> -->
+                          <button class="form-control" onclick="runCommand('{{ $hashtag->id }}')">Start</button> 
+                          <button class="form-control" onclick="killCommand('{{ $hashtag->id }}')">Kill Script</button>
+                          <button class="form-control" onclick="checkStatusCommand('{{ $hashtag->id }}')">Check Status</button>
+                                
                         </td>
                     </tr>
                 @endforeach
@@ -279,13 +283,67 @@ input:checked + .slider:before {
                            location.reload(true);
                            
                         }else{
-                           alert('Hashtag Added To Fetch Post');  
+                           alert(data.message); 
 
                         }
                       
                     },
                     error: function (data) {
                        alert('Something went wrong');
+                    }
+                        });
+        }
+
+        function killCommand(id) {
+             $.ajax({
+                    type: 'POST',
+                    url: '{{ route('hashtag.command.kill') }}',
+                    data: {
+                        id:id,
+                         _token: "{{ csrf_token() }}"
+                    },beforeSend: function() {
+                       $("#loading-image").show();
+                    },success: function (data) {
+                      $("#loading-image").hide();
+                        if(data.status == 'error'){
+                           alert('Something went wrong'); 
+                           location.reload(true);
+                           
+                        }else{
+                           alert(data.message);
+
+                        }
+                      
+                    },
+                    error: function (data) {
+                       alert(data.message);
+                    }
+                        });
+        }
+
+        function checkStatusCommand(id) {
+             $.ajax({
+                    type: 'POST',
+                    url: '{{ route('hashtag.command.status') }}',
+                    data: {
+                        id:id,
+                         _token: "{{ csrf_token() }}"
+                    },beforeSend: function() {
+                       $("#loading-image").show();
+                    },success: function (data) {
+                      $("#loading-image").hide();
+                        if(data.status == 'error'){
+                           alert('Something went wrong'); 
+                           location.reload(true);
+                           
+                        }else{
+                           alert(data.message);
+
+                        }
+                      
+                    },
+                    error: function (data) {
+                       alert(data.message);
                     }
                         });
         }

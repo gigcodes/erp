@@ -4,73 +4,44 @@
 
 @section('title', 'Scrape Statistics')
 @section('large_content')
-
+    <style type="text/css">
+        #loading-image {
+                position: fixed;
+                top: 50%;
+                left: 50%;
+                margin: -50px 0px 0px -50px;
+                z-index: 60;
+            }
+    </style>
+    
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Scrapper Server Status <span class="total-info"></span></h2>
+            <h2 class="page-heading">Scrapper Server Status <span id="total-count">({{ $scrappers->total() }})</span></h2>
         </div>
     </div>
 
     @include('partials.flash_messages')
+    <div id="myDiv">
+        <img id="loading-image" src="/images/pre-loader.gif" style="display:none;"/>
+    </div>
     <div class="row no-gutters mt-3">
         <div class="col-md-12" id="plannerColumn">
             <div class="table-responsive">
-                <table class="table table-bordered table-striped sort-priority-scrapper">
+                <table class="table table-bordered table-striped sort-priority-scrapper" id="detail-table">
                     <thead>
                     <tr>
-                        <th>#</th>
-                        <th>SST</th>
-                        <th>ATIS</th>
-                        <th>Scrapper</th>
-                        <th>TPLS</th>
-                        <th>SET</th>
+                        <th>Server</th>
+                        <th width="5%">Time</th>
+                        <th><a onclick="filter('scraper_name')">Scrapper<input type="text" style="display: none;" id="scraper_name" value="asc"><i class="fa fa-chevron-up" id="scraper_name_class"></i></th>
+                        <th><a onclick="filter('last_started_at')">Start Time<input type="text" style="display: none;" id="last_started_at" value="asc"><i class="fa fa-chevron-up" id="last_started_at_class"></i></a></th>
+                        <th><a onclick="filter('last_completed_at')">End Time<input type="text" style="display: none;" id="last_completed_at" value="asc"><i class="fa fa-chevron-up" id="last_completed_at_class"></i></a></th>
+                        <th><a onclick="filter('updated_at')">Last Updated<input type="text" style="display: none;" id="updated_at" value="asc"><i class="fa fa-chevron-up" id="updated_at_class"></i></a></th>
                         <th>Dur</th>
                         <th>Action</th>
                     </tr>
                     </thead>
                     <tbody>
-                    @if(isset($scrappers))
-                        @foreach($scrappers as $scrapper)
-                            <?php
-                                $start_time = new DateTime(@$scrapper->last_started_at);
-                                $end_time = new DateTime(@$scrapper->last_completed_at);
-                                $interval = @$start_time->diff($end_time);
-                            ?>
-                            <tr>
-                                <td>{{ @$scrapper->id }}</td>
-                                <td>{{ @$scrapper->scraper_start_time }}</td>
-                                <td>{{ @$scrapper->last_started_at }}</td>
-                                <td>{{ @$scrapper->scraper_name }}</td>
-                                <td>{{ @$scrapper->updated_at }}</td>
-                                <td>{{ @$scrapper->last_completed_at }}</td>
-                                <td>{{ @$interval->format('%H hours %i minutes %s seconds') }}</td>
-                                <td>
-                                    <a class="btn d-inline btn-image openHistory" data-attr="{{ @$scrapper->id }}" id="{{ @$scrapper->id }}">
-                                        <img src="/images/view.png" />
-                                    </a>
-                                </td>
-                            </tr>
-                            <tr class="close_all open_request_{{ @$scrapper->id }}" style="display: none;">
-                                <td>
-                                    <label>Start Time</label>
-                                    <span>{{ @$scrapper->getScrapHistory->start_time }}</span>
-                                </td>
-                                <td>
-                                    <label>End Time</label>
-                                    <span>{{ @$scrapper->getScrapHistory->end_time }}</span>
-                                </td>
-                                <td>
-                                    <label>Sent Request</label>
-                                    <span>{{ @$scrapper->getScrapHistory->request_sent }}</span>
-                                </td>
-                                <td>
-                                    <label>Failed Request</label>
-                                    <span>{{ @$scrapper->getScrapHistory->request_failed }}</span>
-                                </td>
-                            </tr>
-                        @endforeach
-                    @endif
-                    </tbody>
+                   @include('scrap.partials.scrap-server-status-data')
                 </table>
                 @if(isset($scrappers))
                     {!! $scrappers->links() !!}
@@ -89,10 +60,10 @@
     $(document).ready(function(){
        var counter = 0;
        $(document).on("click",'.openHistory', function(){
-            if(counter == 1){
-                $('.close_all').hide();
-                counter = 0;
-            }
+            // if(counter == 1){
+            //     $('.close_all').hide();
+            //     counter = 0;
+            // }
             var id = $(this).attr('id');
             if(counter == 0){
                 $('.open_request_'+id).show();
@@ -103,6 +74,43 @@
             }
        }) ;
     });
+
+
+    function filter(type) {
+         order = $('#'+type).val();
+         if(order == 'asc'){
+            $('#'+type).val('desc')
+            $("#"+type+"_class").removeClass("fa-chevron-down");
+            $("#"+type+"_class").addClass("fa-chevron-down");
+         }else{
+            $('#'+type).val('asc')
+            $("#"+type+"_class").removeClass("fa-chevron-up");
+            $("#"+type+"_class").addClass("fa-chevron-up");
+         }
+         $.ajax({
+            type: 'GET',
+            url: "/scrap/server-statistics",
+            data: {
+                type: type,
+                order : order,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function(data) {
+            $("#loading-image").hide();
+            $("#detail-table tbody").empty().html(data.tbody);
+            $("#total-count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function(response) {
+            alert('No response from server');
+        });
+    }
 
 </script>
 @endsection

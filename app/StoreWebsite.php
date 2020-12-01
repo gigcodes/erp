@@ -22,6 +22,7 @@ class StoreWebsite extends Model
         'magento_password',
         'api_token',
         'cropper_color',
+        'cropping_size',
         'instagram',
         'instagram_remarks',
         'facebook',
@@ -36,6 +37,9 @@ class StoreWebsite extends Model
         'mysql_staging_username',
         'mysql_staging_password',
         'website_source',
+        'push_web_key',
+        'push_web_id',
+        'icon',
     ];
 
     // Append attributes

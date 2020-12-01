@@ -3,7 +3,7 @@
 @section("styles")
     <link rel="stylesheet" type="text/css" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.15/css/bootstrap-multiselect.css">
     <style type="text/css">
-        .select-multiple-cat-list .select2-container {
+          .select-multiple-cat-list .select2-container {
             position: relative;
             z-index: 2;
             float: left;
@@ -62,6 +62,9 @@
         .mr-3 {
             margin:3px;
         }
+        .select-multiple-cat-list + .select2-container {
+            width:100% !important;
+        }
     </style>
 @endsection
 
@@ -95,7 +98,7 @@
                 <form action="{{ url()->current() }}" method="GET" id="searchForm" class="form-inline align-items-start">
                     <input type="hidden" name="source_of_search" value="attach_media">
                     <input type="hidden" name="return_url" value="{{ request('return_url') }}">
-                    <div class="form-group mr-3 mb-3">
+                    <div class="form-group col-md-2 mr-3 mb-3 no-pd">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
                                placeholder="sku,brand,category,status,stage">
@@ -107,11 +110,11 @@
                             <input hidden name="status" type="text" value="{{ $status ?? '' }}">
                         @endif
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-2 mr-3 no-pd">
                         {!! $category_selection !!}
                     </div>
 
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                         @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
@@ -122,7 +125,7 @@
                             </optgroup>
                         </select>
                     </div>
-                    <div class="form-group mr-3">
+                    <div class="form-group col-md-3 mr-3 no-pd">
                     <!-- <select class="form-control customer-search" name="customer_id" data-placeholder="Customer..." data-allow-clear="true">
                                 <option value="">Select customer...</option>
                                 @foreach ($customers as $key => $customer)
@@ -137,12 +140,14 @@
                             ?>
                         </select>
                     </div>
+                    <div class="col-md-1 no-pd">
+                        <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
+                        <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
+                        &nbsp;
+                        <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+                    </div>
 
-
-                    <input type="hidden" name="message" value="{{ $model_type == 'customers' ? "$message_body" : 'Images attached from grid' }}" id="attach_all_message">
-                    <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
-                    &nbsp;
-                    <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+                    
                 </form>
 
                 <!-- <div class="row mt-3">
@@ -902,8 +907,9 @@
 
         $(document).on("click", ".add-more-products", function (event) {
             customer_id = $(this).data('id');
+            suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/add-products/'+customer_id,
+                url: '/attached-images-grid/add-products/'+suggestedproductid+'/'+customer_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -923,16 +929,17 @@
 
         $(document).on("click", ".resend-products", function (event) {
             customer_id = $(this).data('id');
+            suggestedproductid = $(this).data('suggestedproductid');
 
-            var cus_cls = ".customer-"+customer_id;
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
-                    var image = productCard.data("image");
+                    var image = productCard.data("product");
                     if ($input.is(":checked") === true) {
                         image_array.push(image);
                         image_array = unique(image_array);
@@ -944,7 +951,7 @@
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/resend-products/'+customer_id,
+                url: '/attached-images-grid/resend-products/'+suggestedproductid,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -965,10 +972,11 @@
         $(document).on("click", ".resend-single-image", function (event) {
             var image = $(this).data('id');
             var customer_id = $(this).data('customer');
+            suggestedproductid = $(this).data('suggestedproductid');
             image_array = [];
             image_array.push(image);
             $.ajax({
-                url: '/attached-images-grid/resend-products/'+customer_id,
+                url: '/attached-images-grid/resend-products/'+suggestedproductid,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1046,15 +1054,17 @@
 
         $(document).on("click", ".forward-products", function (event) {
             var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggestedproductid = $(this).data("suggestedproductid");
+            $("#forward_suggestedproductid").val(suggestedproductid);
+            var cus_cls = ".customer-"+suggestedproductid;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             image_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggestedproductid+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
             if (productCard.length > 0) {
-                    var image = productCard.data("image");
+                    var image = productCard.data("product");
                     if ($input.is(":checked") === true) {
                         image_array.push(image);
                         image_array = unique(image_array);
@@ -1096,12 +1106,12 @@
 
 
         $(document).on("click", ".remove-products", function (event) {
-            var customer_id = $(this).data("id");
-            var cus_cls = ".customer-"+customer_id;
+            var suggested_products_id = $(this).data("id");
+            var cus_cls = ".customer-"+suggested_products_id;
             var total = $(cus_cls).find(".select-pr-list-chk").length;
             product_array = [];
             for (i = 0; i < total; i++) {
-             var customer_cls = ".customer-"+customer_id+" .select-pr-list-chk";
+             var customer_cls = ".customer-"+suggested_products_id+" .select-pr-list-chk";
              var $input = $(customer_cls).eq(i);
             var productCard = $input.parent().parent().find(".attach-photo");
                 if (productCard.length > 0) {
@@ -1121,7 +1131,7 @@
                 return;
             }
             $.ajax({
-                url: '/attached-images-grid/remove-products/'+customer_id,
+                url: '/attached-images-grid/remove-products/'+suggested_products_id,
                 type: 'POST',
                 dataType: 'json',
                 data: {
@@ -1172,8 +1182,9 @@
         var selectAllCustomerProductBtn = $(".select-customer-all-products");
         selectAllCustomerProductBtn.on("click", function (e) {
                     var customer_id = $(this).data('id');
+                    var suggestedproductid = $(this).data('suggestedproductid');
                     var $this = $(this);
-                    var custCls = '.customer-'+customer_id;
+                    var custCls = '.customer-'+suggestedproductid;
                     if ($this.hasClass("has-all-selected") === false) {
                         // $this.html("Deselect all");
                         $(this).find('img').attr("src", "/images/completed-green.png");
@@ -1252,9 +1263,9 @@
         $(document).on('click', '.preview-attached-img-btn', function (e) {
             e.preventDefault();
             var customer_id = $(this).data('id');
-
+            var suggestedproductid = $(this).data('suggestedproductid');
             $.ajax({
-                url: '/attached-images-grid/get-products/sent/'+customer_id,
+                url: '/attached-images-grid/get-products/sent/'+suggestedproductid+'/'+customer_id,
                 data: $('#searchForm').serialize(),
                 dataType: 'html',
             }).done(function (data) {

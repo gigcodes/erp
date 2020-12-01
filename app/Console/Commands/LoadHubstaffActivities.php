@@ -87,14 +87,15 @@ class LoadHubstaffActivities extends Command
                 );
 
                 if(is_null($data['task_id'])) {
-                    $user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
+                    //STOPPED CERTAIN MESSAGES
+                    /*$user = HubstaffMember::join('users', 'hubstaff_members.user_id', '=', 'users.id')->where('hubstaff_members.hubstaff_user_id',$data['user_id'])->first(); 
                     if($user) {
                         $message = "You haven't selected any task on your last activity period ".$startTime. " to ".$stopTime." , Please select appropriate task or put notes on it.";
                         $requestData = new Request();
                         $requestData->setMethod('POST');
                         $requestData->request->add(['user_id' => $user->user_id, 'message' => $message, 'status' => 1]);
                         app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'activity');
-                    }
+                    }*/
                 }
             }
             $report->update(['end_time' => Carbon::now()]);

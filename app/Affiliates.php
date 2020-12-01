@@ -7,7 +7,43 @@ use App\HashTag;
 
 class Affiliates extends Model
 {
-    protected $fillable = ['location'];
+    protected $fillable = [
+        'location',
+        'hashtag_id',
+        'location',
+        'caption',
+        'posted_at',
+        'source',
+        'address',
+        'facebook',
+        'facebook_followers',
+        'instagram',
+        'instagram_followers',
+        'twitter',
+        'twitter_followers',
+        'youtube',
+        'youtube_followers',
+        'linkedin',
+        'linkedin_followers',
+        'pinterest',
+        'pinterest_followers',
+        'phone',
+        'emailaddress',
+        'title',
+        'is_flagged',
+        'first_name',
+        'last_name',
+        'url',
+        'website_name',
+        'unique_visitors_per_month',
+        'page_views_per_month',
+        'worked_on',
+        'city',
+        'postcode',
+        'country',
+        'type',
+        'store_website_id'
+    ];
 
     public function hashTags()
     {

@@ -338,6 +338,47 @@
             });
 
         });
+		$(document).on('click','.addnewreplybtn',function(e){
+          e.preventDefault();
+          var replybox  = $(this).parentsUntil('#customerUpdateForm').find('.addnewreply');
+          var selectreplybox = $(this).parentsUntil('#customerUpdateForm').find('.quickreply');
+          var reply = $(this).parentsUntil('#customerUpdateForm').find('.addnewreply').val();
+          if(!reply){
+            alert('please add reply to input box !');
+            return false;
+          }
+          $.ajax({
+                type: "POST",
+                url: "{{route('returnexchange.addNewReply')}}",
+                data: {reply:reply},
+                headers: {
+                 'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+                },
+                dataType:"json",
+                beforeSend:function(data){
+                  $('.ajax-loader').show();
+                }
+            }).done(function (response) {
+              $('.ajax-loader').hide();
+              if(response.status==200){
+                replybox.val('');
+                selectreplybox.html(response.html);
+              }
+            }).fail(function (response) {
+              $('.ajax-loader').hide();
+                console.log(response);
+            });
+          
+        })
+        $('.quickreply').on('change',function(){
+          var reply = $(this).find('option:selected').text();
+          var replyval = $(this).find('option:selected').attr('value');
+          if(replyval!=''){
+            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val(reply);
+          }else{
+            $(this).parentsUntil('#customerUpdateForm').find('textarea[name="customer_message"]').val('');
+          }
+        });
 		
 	</script>
 @endsection

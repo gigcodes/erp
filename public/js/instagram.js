@@ -11486,7 +11486,7 @@
                             e.on("enabled", t);
                         } else z();
                     };
-                t.fn.textcomplete ? H() : t.ajax({ url: "https://cdn.rawgit.com/yuku-t/jquery-textcomplete/v1.3.4/dist/jquery.textcomplete.js", dataType: "script", cache: !0, success: H });
+                t.fn.textcomplete ? H() : t.ajax({ url: "https://cdnjs.cloudflare.com/ajax/libs/jquery.textcomplete/1.2.1/jquery.textcomplete.js", dataType: "script", cache: !0, success: H });
             }
             e.inline &&
                 (R.addClass(O("inline", !0)),

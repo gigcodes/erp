@@ -31,10 +31,10 @@
                 <input type="hidden" name="key" value="{{ request('key') }}">
                 <div class="form-group">
                      <strong>Client:</strong>
-                     <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" title="Choose a Customer" required>
+                     <select class="selectpicker form-control" data-live-search="true" data-size="15" name="customer_id" id="customer_id" title="Choose a Customer" required>
                        @foreach ($customers as $customer)
                         <option <?php echo isset($defaultSelected["customer_id"]) && $defaultSelected["customer_id"] == $customer->id  ? "selected=selected"  : "";  ?>
-                        data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
+                        data-tokens="{{ $customer->name }} {{ $customer->email }}  {{ $customer->phone }} {{ $customer->instahandler }}" data-credit="{{$customer->credit}}" value="{{ $customer->id }}">{{ $customer->name }} - {{ $customer->phone }}</option>
                       @endforeach
                     </select>
 
@@ -135,7 +135,6 @@
                                         <th></th>
                                         <th></th>
                                     @endif
-
                                     <th>
                                         <input class="table-input" type="text" value="{{ $order_product['product_price'] }}" name="order_products[{{ $order_product['id'] }}][product_price]">
                                     </th>
@@ -282,13 +281,24 @@
                             $advance_detail = $defaultSelected["advance_detail"];
                         }
                     ?>
-                    <input type="text" class="form-control" name="advance_detail" placeholder="Advance Detail"
+                    <input type="text" class="form-control" name="advance_detail" id="advance_detail" placeholder="Advance Detail"
                            value="{{ old('advance_detail') ? old('advance_detail') : $advance_detail }}"/>
                     @if ($errors->has('advance_detail'))
                         <div class="alert alert-danger">{{$errors->first('advance_detail')}}</div>
                     @endif
                 </div>
             </div>
+            <!-- start-DEVTASK-3291 -->
+            <div class="col">
+                 <div class="form-group">
+                    <strong>Customer Credit:</strong>
+                    <?php $customer_credit = 0; ?>
+                    <input type="text" class="form-control" name="customer_credit" id="customer_credit" placeholder="Customer Credit"
+                           value="{{ old('customer_credit') ? old('customer_credit') : $customer_credit }}"/>
+                </div>
+            </div>
+            <!-- end-DEVTASK-3291 -->
+
             <div class="col">
                  <div class="form-group">
                     <strong>Advance Date:</strong>
@@ -312,7 +322,7 @@
                             $balance_amount = $defaultSelected["balance_amount"];
                         }
                     ?>
-                    <input type="text" class="form-control" name="balance_amount" placeholder="Balance Amount"
+                    <input type="text" class="form-control" name="balance_amount" id="balance_amount" placeholder="Balance Amount"
                            value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
                     @if ($errors->has('balance_amount'))
                         <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
@@ -447,6 +457,31 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.5/js/bootstrap-select.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datetimepicker/4.17.47/js/bootstrap-datetimepicker.min.js"></script>
     <script type="text/javascript">
+
+    //DEVTASK-3291
+        $("#customer_id").on('change',function(){
+             var selectedCustomerCredit=$(this).find(':selected').data('credit');
+             if(selectedCustomerCredit=="undefined" || selectedCustomerCredit==""){
+                selectedCustomerCredit=0;
+             }
+             $("#customer_credit").val(selectedCustomerCredit);
+        });
+          
+        function balanceCalc(){
+            var advance_detail =$("#advance_detail").val();
+            var customer_credit =$("#customer_credit").val();
+            var calc=0;
+                if(advance_detail==undefined){
+                    advance_detail=0;
+                }
+
+                if(customer_credit==undefined){
+                    customer_credit=0;
+                }
+            calc=parseFloat(advance_detail)+parseFloat(customer_credit);
+            $("#balance_amount").val(calc);
+        }
+
         function openConformattionMailBox()
         {
             jQuery("#myModalOrderConfirmation").modal('show');
@@ -540,6 +575,23 @@
                   product_row += '</tr>';
 
               $('#products-table').append(product_row);
+              $("#productModal").modal("hide");
+            },
+            error:function(data) {
+                if( data.status === 422 ) {
+                    var errors = $.parseJSON(data.responseText);
+                    var errStr = "";
+                    $.each(errors, function (key, value) {
+                        if($.isPlainObject(value)) {
+                            $.each(value, function (key, value) {                       
+                                errStr += value+"</br>";
+                            });
+                        }else{
+                            errStr += value+"</br>";
+                        }
+                    });
+                    toastr['error'](errStr, 'error');
+                }
             }
           });
         });
@@ -563,7 +615,12 @@
 
 	          response(results.slice(0, 10));
 	        }
-	      });
+          });
+
+
+          
+
+
       });
     </script>
 @endsection

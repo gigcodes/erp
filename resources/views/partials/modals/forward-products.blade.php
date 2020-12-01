@@ -11,6 +11,7 @@
           <button type="button" class="close" data-dismiss="modal">&times;</button>
         </div>
         <div class="modal-body">
+        <input type="hidden" value="" name="forward_suggestedproductid" id="forward_suggestedproductid"/>
         <input type="hidden" name="products" id="product_lists" value="">
         <input type="hidden" name="type" id="forward_type" value="">
           <div class="form-group">
@@ -26,6 +27,7 @@
             </select> -->
             <select name="customer_id" type="text" class="form-control" placeholder="Search" id="customer-search1" data-allow-clear="true">
             </select>
+            
           </div>
         </div>
         <div class="modal-footer">

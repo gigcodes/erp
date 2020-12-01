@@ -20,9 +20,9 @@ class AddGiftCard extends Mailable
      */
     public function __construct($data)
     {
-        $this->receiver_email = $data['receiver_email'];
-        $this->sender_email = $data['sender_email'];
-        $this->coupon = $data['coupon'];
+        $this->receiver_email = isset($data['receiver_email']) ? $data['receiver_email'] : "";
+        $this->sender_email = isset($data['sender_email']) ? $data['sender_email'] : "";
+        $this->coupon = isset($data['coupon']) ? $data['coupon'] : "";
     }
 
     /**

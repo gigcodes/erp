@@ -72,10 +72,10 @@ var productTemplate = {
                     }
                 });
                 
-                if (noOfImages != uploadImage) {
+                /*if (noOfImages != uploadImage) {
                     alert('Please '+noOfImages+' Image Upload');
                     return false;
-                }
+                }*/
 
                 productTemplate.submitForm($(this));
 
@@ -84,13 +84,14 @@ var productTemplate = {
         if (productTemplate.config.isOpenCreateFrom == 'true') {
             productTemplate.openForm();
         }
+
     },
     validationRule : function() {
          $(document).find("#product-template-from").validate({
             rules: {
                 template_no     : "required",
-                product_title   : "required",
-                brand_id        : "required",
+                //product_title   : "required",
+                //brand_id        : "required",
                 currency        : {
                                     required: true,
                                     minlength: 3,
@@ -99,8 +100,8 @@ var productTemplate = {
             },
             messages: {
                 template_no     : "Please Select Template No",
-                product_title   : "Please Enter Product Title",
-                brand_id        : "Please Select Brand",
+                //product_title   : "Please Enter Product Title",
+                //brand_id        : "Please Select Brand",
                 currency        : {
                                     required: "Please Enter Currency",
                                     minlength: "Please Enter least {0} characters",
@@ -110,8 +111,9 @@ var productTemplate = {
         })
     },
     getResults: function(href) {
-    	var _z = {
-            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/response",
+        var search = $(".keyword-text").val();
+        var _z = {
+            url: (typeof href != "undefined") ? href : this.config.baseUrl + "/product-templates/response?keyword="+search,
             method: "get",
         }
         this.sendAjax(_z, "showResults");
@@ -131,6 +133,10 @@ var productTemplate = {
         productTemplate.validationRule();
         $(".select-2-brand").select2({
             width:"100%"
+        });
+        $(".select2").select2({
+            width:"100%",
+            tags : true
         });
         productTemplate.productSearch();
 

@@ -357,7 +357,9 @@ $(document).on('click', '.load-communication-modal', function () {
         load_attached: load_attached,
         load_type: load_type,
         page : 1,
-        hasMore : true
+        hasMore : true,
+        object_name:object_type,
+        object_val:object_id
     }
 
 
@@ -379,10 +381,14 @@ $(document).on('click', '.load-communication-modal', function () {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
             $("#chat-list-history").find(".modal-body").html(li);
+            $("#chat-list-history").find('#chat_obj_type').val(object_type);
+            $("#chat-list-history").find('#chat_obj_id').val(object_id);
             $("#chat-list-history").modal("show");
         } else {
             $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
             $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
+            $("#chat-list-history").find('#chat_obj_type').val(object_type);
+            $("#chat-list-history").find('#chat_obj_id').val(object_id);
             $("#chat-history").html(li);
         }
 
@@ -400,6 +406,60 @@ $(document).on('click', '.load-communication-modal', function () {
 
     }).fail(function (response) {
         //$(thiss).text('Load More');
+
+        alert('Could not load messages');
+
+    });
+});
+//for download chat messages
+$(document).on('click', '.downloadChatMessages', function () {
+    var thiss = $(this);
+    var object_type = $(this).parentsUntil('#chat-list-history').find('#chat_obj_type').val();
+    var object_id = $(this).parentsUntil('#chat-list-history').find('#chat_obj_id').val();
+    var limit = 10000;
+    thiss.parent().find('.td-full-container').toggleClass('hidden');
+    $.ajax({
+        type: "GET",
+        url: "/chat-messages/" + object_type + "/" + object_id + "/loadMoreMessages",
+        data: {
+            limit: limit,
+            downloadMessages:'1',
+            object:object_type,
+            object_id:object_id,
+        },
+        beforeSend: function () {
+            //$(thiss).text('Loading...');
+        }
+    }).done(function (response) {
+        $('#chatHiddenForm').remove();
+        if(response.downloadUrl){
+        var form = $("<form/>", 
+                 { action:"/chat-messages/downloadChatMessages",
+                    method:"POST",
+                    target:'_blank',
+                    id:"chatHiddenForm",
+                     }
+            );
+        form.append( 
+            $("<input>", 
+                { type:'hidden',  
+                name:'filename', 
+                value:response.downloadUrl }
+            )
+        );
+        form.append( 
+            $("<input>", 
+                { type:'hidden',  
+                name:'_token', 
+                value:$('meta[name="csrf-token"]').attr('content') }
+            )
+        );
+        $("body").append(form);
+        $('#chatHiddenForm').submit();
+     }else{
+         console.log('no message found !')
+     }
+    }).fail(function (response) {
 
         alert('Could not load messages');
 
@@ -974,35 +1034,62 @@ var id = $(this).data('id');
 $('#forward_message_id').val(id);
 });
 
-$(document).on("keyup", '.search_chat_pop', function() {
+$(document).on("focusout", '.search_chat_pop', function() {
     var value = $(this).val().toLowerCase();
-    $(".filter-message").each(function () {
-        if ($(this).text().search(new RegExp(value, "i")) < 0) {
-            $(this).hide();
-        } else {
-            $(this).show()
-        }
-    });
+    exampleFunction() ;//your function call
     // $(".speech-wrapper .bubble").filter(function() {
     //     $(this).toggle($(this).find('.message').data('message').toLowerCase().indexOf(value) > -1)
     // });
 });
 
-$('body').on('focus',".search_chat_pop_time", function(){
-    $(this).datetimepicker({
-        format: 'YYYY-MM-DD'
-    }).on('dp.change', function (ev) {
-        exampleFunction() ;//your function call
-    });
+$(".search_chat_pop_time").datetimepicker({
+    format: 'YYYY-MM-DD',
+    useCurrent: false
+}).on('dp.change', function (ev) {
+    exampleFunction() ;//your function call
 });
+
+/*$('body').on('focus',".search_chat_pop_time", function(){
+    if($(this).data("DateTimePicker") == null){
+        
+       // datepicker initialized
+    }
+});*/
 function exampleFunction(){
-    var value = $('.search_chat_pop_time').val();
-    $(".filter-message").each(function () {
+    var date = $('.search_chat_pop_time').val();
+    var keyword = $('.search_chat_pop_time').val();
+    /*$(".filter-message").each(function () {
         if ($(this).text().search(new RegExp(value, "i")) < 0) {
             $(this).hide();
         } else {
             $(this).show()
         }
+    });*/
+    currentChatParams.data.date = date;
+    currentChatParams.data.keyword = keyword;
+    //console.log(currentChatParams.data);
+    $.ajax({
+        type: "GET",
+        url: currentChatParams.url,
+        data: currentChatParams.data
+    }).done(function (response) {
+        var li = getHtml(response);
+        if ($('#chat-list-history').length > 0) {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
+            $("#chat-list-history").find(".modal-body").html(li);
+            $("#chat-list-history").find('#chat_obj_type').val(currentChatParams.object_name);
+            $("#chat-list-history").find('#chat_obj_id').val(currentChatParams.object_val);
+            $("#chat-list-history").modal("show");
+        } else {
+            $("#chat-list-history").find(".modal-dialog").css({"width":"1000px","max-width":"1000px"});
+            $("#chat-list-history").find(".modal-body").css({"background-color":"white"});
+            $("#chat-list-history").find('#chat_obj_type').val(currentChatParams.object_name);
+            $("#chat-list-history").find('#chat_obj_id').val(currentChatParams.object_val);
+            $("#chat-history").html(li);
+        }
+    }).fail(function (response) {
+        alert('Could not load messages');
     });
 }
 

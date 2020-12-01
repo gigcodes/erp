@@ -41,7 +41,7 @@
     }
 </style>
 
-@includeWhen($accounts->count() == 0, 'partials.no-accounts')
+<?php /* @includeWhen($accounts->count() == 0, 'partials.no-accounts') */ ?>
 
 
 <div class = "row">
@@ -172,7 +172,7 @@
 </div>
 
 @include('instagram.partials.publish-post')
-
+@include('instagram.partials.attachment-media')
 <div id="add-insta-feed-model" class="modal fade" role="dialog">
     <div class="modal-dialog modal-lg">
         <div class="modal-content">
@@ -239,6 +239,27 @@
         </div>
     </div>
 </div>
+
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Modal title</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        ...
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save changes</button>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 @endsection
     
@@ -318,16 +339,40 @@ $(document).ready(function(){
                         $("#loading-image").show();
                     },
                     success: function(data){
+                        console.log(data)
                         $("#loading-image").hide();
                         $("#search_hashtag").attr('contenteditable','true');
-                        //console.log(data.length);
-                        //console.log(data[2]);
                         $('#auto').html('');
+                        results = data.results
+                        if(results.length != 0){
+                            html = ''
+                            for(result of results){
+                                console.log(result)
 
-                        for(x = 0; x < data.length; x++)
-                        {
-                            $('#auto').append("<div class=chip light-blue lighten-2 white-text waves-effect'><a href='#' data-hashtag='"+data[x]+"' data-caption ='"+text+"' >"+data[x]+"</a></div>"); //Fills the #auto div with the options
+                                html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+result.name+'">'+result.name+'('+result.popular+')</a>'
+                                
+                                arrs = result.variants
+
+                                for(arr of arrs){
+                                    html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+arr+'">'+arr+'</a>'
+                                }
+
+                                
+
+                                arrs = result.influencers
+
+                                for(arr of arrs){
+                                    html += '<a class="form-control add-name" data-hashtag="'+wordToSearch+'" data-caption="'+arr+'">'+arr+'</a>'
+                                }
+
+                               
+                                
+                            }
+                             $('#auto').append(html)
                         }
+                        
+                        
+                        
                     }
                 });
             }else{
@@ -346,10 +391,9 @@ $(document).ready(function(){
         var stringWithoutLastHashtag = caption.substring(0, lastIndex);
 
         //var stringWithoutLastHashtag = caption.substring(0, caption.lastIndexOf(" "));
-        var finalString = stringWithoutLastHashtag.concat(" #"+hashtag);
+        var finalString = stringWithoutLastHashtag.concat(" #"+caption);
         console.log("\n "+finalString);
         $("#search_hashtag").val(finalString);
-        $('#auto').html('');
     });
 
 
@@ -411,7 +455,7 @@ $(document).ready(function(){
         var finalString = stringWithoutLastHashtag.concat(" #"+hashtag);
         console.log("\n "+finalString);
         $("#show_hashtag_field").val(finalString);
-        $('#update_hashtag_auto').html('');
+        //$('#update_hashtag_auto').html('');
     });
       
     
@@ -435,8 +479,52 @@ $(document).ready(function(){
             }
         });
     }
+    $('.attachInstagramMedia').on('click', function()
+    {
+        if($('#add-vendor-info-modal').hasClass('in')){
+        $('#add-vendor-info-modal').removeClass('in');
+        $('#instagramAttachmentMedia').modal('show');
+        $('#instagramAttachmentMedia').addClass('in');
+        }
+    });
+    $('#instagramAttachmentMedia').on('hidden.bs.modal', function () {
+        if(!$('#add-vendor-info-modal').hasClass('in')){
+            $('#add-vendor-info-modal').addClass('in');
+        }
+    });
+    $('.attachInstaMediaBtn').on('click', function(){
+        var selectedMedia = $(this).parentsUntil('tr').find('.selectInstaAttachMedia:checked');
+        var checkAttachSelected = selectedMedia.length;
+        if(checkAttachSelected ==0){
+            alert('please select image to attach');
+            return;
+        }
+        var id = selectedMedia.data('id');
+        var original = selectedMedia.data('original');
+        var thumb = selectedMedia.data('thumb');
+        var file_name = selectedMedia.data('file_name');
+
+        $media_container = $('.media-manager .media-files-container');
+        $media_container.empty();
+        if(id !=''){
+            $media_container.append(
+	                              '<div class="media-file">'
+	                            + '    <label class="imagecheck m-1">'
+	                            + '        <input name="media[]" type="checkbox" value="' + id + '" data-original="' + original + '" class="imagecheck-input" />'
+	                            + '        <figure class="imagecheck-figure">'
+	                            + '            <img src="' + thumb + '" alt="' + file_name + '" class="imagecheck-image">'
+	                            + '        </figure>'
+	                            + '    </label>'
+	                            + '</div>'
+	                        );
+        }
+        $('#instagramAttachmentMedia').modal('hide');
+    });
 });
 
-
+    $('.add-name').on('click', function(){
+        name = $(this).val();
+        console.log(name)
+    });
 </script>
 @endsection

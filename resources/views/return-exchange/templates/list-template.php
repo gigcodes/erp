@@ -11,6 +11,7 @@
 		        <th style="width:5%">Refund amount</th>
 		        <th style="width:9%">Reason for refund</th>
 		        <th style="width:6%">Status</th>
+				<th style="width:6%">Change Status</th>
 		        <th style="width:8%">Pickup Address</th>
 		        <th style="width:10%">Refund details</th>
 		        <th style="width:10%">Est Refund / Exchange date</th>
@@ -47,7 +48,7 @@
 						<span class="show-short-statusName-{{:prop.id}}">{{:~trimlength(prop.status_name, 7)}}</span>
 					   <span class="show-full-statusName-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.status_name}}</span></span>
 					</td>
-
+					<td>to be added</td>
 					<td class="expand-row-msg" data-name="pickupAdd" data-id="{{:prop.id}}">
 						<span class="show-short-pickupAdd-{{:prop.id}}">{{:~trimlength(prop.pickup_address, 10)}}</span>
 					   <span class="show-full-pickupAdd-{{:prop.id}} hidden"><span style="word-break:break-all;">{{:prop.pickup_address}}</span></span>

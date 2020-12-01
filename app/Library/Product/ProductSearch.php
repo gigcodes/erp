@@ -194,6 +194,12 @@ class ProductSearch
                         break;
                     case 'without_category':
                         $products = $products->where('category',"<=", 0);
+                        break;
+                    case 'without_color':
+                            $products = $products->where('color',"=", null);
+                        break;
+                    case 'without_composition':
+                        $products = $products->where('composition',"=", null);
                         break;    
                     case 'source_of_search':
                         if ($value == "attach_media") {

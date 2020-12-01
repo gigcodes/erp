@@ -5,46 +5,90 @@ namespace App\Http\Controllers;
 use App\GoogleTranslate;
 use App\Language;
 use App\Product_translation;
+use App\Category_translation;
 use App\Translations;
+use App\Helpers\ProductHelper;
 use Illuminate\Http\Request;
 
 class GoogleTranslateController extends Controller
 {
     public static function translateProductDetails($product)
     {
+        $measurement = ProductHelper::getMeasurements($product);
         $isDefaultAvailable = Product_translation::where('locale','en')->where('product_id',$product->id)->first();
         $languages = Language::pluck('locale')->where("status",1)->toArray();
         if(!$isDefaultAvailable) {
             $product_translation = new Product_translation();
-            $product_translation->title = $product->name;
+            $product_translation->title = html_entity_decode($product->name);
             $product_translation->description = $product->short_description;
             $product_translation->product_id = $product->id;
             $product_translation->locale = 'en';
+            $product_translation->composition = $product->composition;
+            $product_translation->color = $product->color;
+            $product_translation->size = $product->size;
+            $product_translation->country_of_manufacture = $product->made_in;
+            $product_translation->dimension = $measurement;
             $product_translation->save();
         }
         foreach($languages as $language) {
-            $isLocaleAvailable = Product_translation::where('locale',$language)->where('product_id',$product->id)->first();
-            if(!$isLocaleAvailable) {
-                $product_translation = new Product_translation();
-                $titleFromTable = Product_translation::select('title')->where('locale',$language)->where('title',$product->name)->first();
-                $descriptionFromTable = Product_translation::select('description')->where('locale',$language)->where('description',$product->short_description)->first();
+            $isLocaleAvailable = Product_translation::where('locale',$language)
+            ->where('product_id',$product->id)
+            ->where('title','!=','')
+            ->where('description','!=','')
+            ->where('composition','!=','')
+            ->where('color','!=','')
+            ->where('size','!=','')
+            ->where('country_of_manufacture','!=','')
+            ->where('dimension','!=','')
+            ->first();
+            if(!$isLocaleAvailable) { //if product translation not available
+                $title = $description = $composition = $color = $size = $country_of_manufacture = $dimension = '';
+                $product_translation = Product_translation::find($product->id);
+                if (empty($product_translation)) { //check if id existing or not
+                    $product_translation= new Product_translation; //if id not existing create new object for insert else update
+                }
+                $checkdata = Product_translation::select('title,description,composition,color,size,country_of_manufacture,dimension')
+                ->where('locale',$language)->where('product_id',$product->id)->first();
                 $googleTranslate = new GoogleTranslate();
                 $productNames = splitTextIntoSentences($product->name);
                 $productShortDescription =  splitTextIntoSentences($product->short_description);
-                $title = $titleFromTable ? $titleFromTable->title : self::translateProducts($googleTranslate, $language, $productNames);
-                $description = $descriptionFromTable ? $descriptionFromTable->description : self::translateProducts($googleTranslate, $language, $productShortDescription);
-                if($title && $description) {
+                //check in table is field is empty and then translate
+                if($checkdata->title==''){
+                    $title = self::translateProducts($googleTranslate, $language, $productNames);
                     $product_translation->title = $title;
-                    $product_translation->description = $description;
-                    $product_translation->product_id = $product->id;
-                    $product_translation->locale = $language;
-                    $product_translation->save();
                 }
+                if($checkdata->description==''){
+                    $description = self::translateProducts($googleTranslate, $language, $productShortDescription);
+                    $product_translation->description = $description;
+                }
+                if($checkdata->composition==''){
+                    $composition = self::translateProducts($googleTranslate, $language, $product->composition);
+                    $product_translation->composition = $composition;
+                }
+                if($checkdata->color==''){
+                    $color = self::translateProducts($googleTranslate, $language, $product->color);
+                    $product_translation->color = $color;
+                }
+                if($checkdata->size==''){
+                    $size = self::translateProducts($googleTranslate, $language, $product->size);
+                    $product_translation->size = $size;
+                }
+                if($checkdata->country_of_manufacture==''){
+                    $country_of_manufacture = self::translateProducts($googleTranslate, $language, $product->made_in);
+                    $product_translation->country_of_manufacture = $country_of_manufacture;
+                }
+                if($checkdata->dimension==''){
+                    $dimension = self::translateProducts($googleTranslate, $language, $measurement);
+                    $product_translation->dimension = $dimension;
+                }
+                $product_translation->product_id = $product->id;
+                $product_translation->locale = $language;
+                $product_translation->save();
             }
         }
     }
 
-    public static function translateProducts(GoogleTranslate $googleTranslate,$language,$names = []){
+    public static function translateProducts(GoogleTranslate $googleTranslate,$language,$names = [],$glue=''){
         $response = [];
         if(count($names) > 0){
             foreach($names as $name){
@@ -67,11 +111,30 @@ class GoogleTranslateController extends Controller
                     }
                 }
             }
+            
+            if($glue){
+                return implode($glue,$response);
+            }
             return implode($response);
         }
         else{
             return '';
         }
 
+    }
+
+    //DEVTASK-3272
+    public static function translateGeneralDetails($data) 
+    {
+        //$languages = Language::pluck('locale')->where("status",1)->toArray();
+        $languages = Language::where("status",1)->pluck('locale');
+        foreach($languages as $language) {
+            $isLocaleAvailable = Translations::where('to',$language)->where('text_original',$data['text'])->first();
+            if(!$isLocaleAvailable) { //if its not exist then it will go to google translator.
+                $googleTranslate = new GoogleTranslate();
+                $dataNames = splitTextIntoSentences($data['text']);
+                $dataGeneral = self::translateProducts($googleTranslate, $language, $dataNames);
+            }
+        }
     }
 }

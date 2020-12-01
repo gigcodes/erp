@@ -52,6 +52,7 @@
             <th width="15%">Provider Name</th>
             <th width="10%">Purchase Type</th>
             <th width="10%">Payment Cycle</th>
+            <th width="10%">Due Date</th>
             <th width="10%">Amount</th>
             <th width="10%">Currency</th>
             <th width="8%">Location</th>
@@ -72,7 +73,8 @@
               
               <td>{{ $asset->provider_name }}</td>
               <td>{{ $asset->purchase_type }}</td>
-              <td>{{ $asset->payment_cycle }}</td>              
+              <td>{{ $asset->payment_cycle }}</td>   
+              <td>{{ ($asset->due_date)?$asset->due_date:'--' }}</td>           
               <td>{{ $asset->amount }}</td>
               <td>{{ $asset->currency }}</td> 
               <td>{{ $asset->location }}</td>
@@ -85,6 +87,9 @@
                       {!! Form::open(['method' => 'DELETE','route' => ['assets-manager.destroy', $asset->id],'style'=>'display:inline']) !!}
                       <button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
                       {!! Form::close() !!}
+                      <button type="button" title="Payment history" class="btn payment-history-btn pd-5" data-id="{{$asset->id}}">
+                        <i class="fa fa-history" aria-hidden="true"></i>
+                      </button>
                   </div>
               </td>
             </tr>
@@ -96,6 +101,7 @@
       {{ $assets->appends(request()->except('page'))->links() }}
     </div> 
     @include('partials.modals.remarks')
+    @include('assets-manager.partials.payment-history')
     @include('assets-manager.partials.assets-modals')   
 @endsection
 
@@ -203,5 +209,32 @@
       });
             
     });
+    $(document).ready(function() {
+          $('.payment-history-btn').click(function(){
+            var asset_id = $(this).data('id');
+            $.ajax({
+              type: 'POST',
+              headers: {
+                  'X-CSRF-TOKEN': jQuery('meta[name="csrf-token"]').attr('content')
+              },
+              url: "{{ route('assetsmanager.paymentHistory') }}",
+              data: {
+                asset_id:asset_id,
+              },
+          }).done(response => {
+            $('#payment-history-modal').find('.payment-history-list-view').html('');
+              if(response.success==true){
+                $('#payment-history-modal').find('.payment-history-list-view').html(response.html);
+                $('#payment-history-modal').modal('show');
+              }
+               
+          }).fail(function(response) {
+
+            alert('Could not fetch payments');
+          });
+        });
+       
+      });
+
   </script>
 @endsection

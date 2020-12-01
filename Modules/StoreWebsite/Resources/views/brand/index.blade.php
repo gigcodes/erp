@@ -52,6 +52,8 @@
 				      <tr>
 				      	<th width="5%">Id</th>
 				        <th width="10%">Brand</th>
+				        <th width="10%">Min Price</th>
+				        <th width="10%">Max Price</th>
 				        <?php foreach($storeWebsite as $sw) { ?>
 				        	<th width="10%"><?php echo $sw->title; ?></th>
 				        <?php } ?>	
@@ -62,6 +64,8 @@
  					      <tr>
 					      	<td><?php echo $brand->id; ?></td>
 					      	<td><?php echo $brand->name; ?></td>
+					      	<td><?php echo $brand->min_sale_price; ?></td>
+					      	<td><?php echo $brand->max_sale_price; ?></td>
 					      	<?php foreach($storeWebsite as $sw) { 
 					      			$checked = (isset($apppliedResult[$brand->id]) && in_array($sw->id, $apppliedResult[$brand->id])) ? "checked" : ""; 
 					      		?>

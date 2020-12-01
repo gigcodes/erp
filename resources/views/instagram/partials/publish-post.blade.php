@@ -16,8 +16,9 @@
 					<div class="row">
 						<div class="col-md-4 col-lg-4 col-xs-12">
 		                    <div class="card media-manager">
-		                        <div class="card-header pl-3">
+		                        <div class="card-header pl-1">
 		                            <h3 class="card-title">@lang('Media')</h3>
+									<button type="button" class="btn btn-secondary btn-sm mr-3 attachInstagramMedia" title="attach media from all content"><i class="fa fa-paperclip"></i></button>
 		                            <small class="ml-3 text-gray">{{ $used_space }} / {{ $storage_limit }}</small>
 		                            <div class="card-options">
 		                                <button type="button" class="btn btn-secondary btn-sm btn-delete mr-3" disabled>

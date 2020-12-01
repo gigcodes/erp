@@ -18,6 +18,7 @@ use App\SocialStrategy;
 use App\StoreSocialContent;
 use App\ChatMessage;
 use Carbon\Carbon;
+use App\Order;
 class ChatMessagesController extends Controller
 {
     /**
@@ -27,6 +28,7 @@ class ChatMessagesController extends Controller
      */
     public function loadMoreMessages(Request $request)
     {   
+        
         // Set variables
         $limit = $request->get("limit", 3);
         $loadAttached = $request->get("load_attached", 0);
@@ -66,7 +68,10 @@ class ChatMessagesController extends Controller
                 break; 
             case 'content_management':
                 $object = StoreSocialContent::find($request->object_id);
-            break;    
+            break;
+            case 'order':
+                $object = Order::find($request->object_id);
+            break;
             default:
                 $object = Customer::find($request->object);
         }
@@ -98,6 +103,15 @@ class ChatMessagesController extends Controller
         if(!$onlyBroadcast){
            $chatMessages = $chatMessages->where('status', '!=', 10);
         }
+
+        if($request->date != null) {
+           $chatMessages = $chatMessages->whereDate('created_at', $request->date); 
+        }
+
+        if($request->keyword != null) {
+            $chatMessages = $chatMessages->whereDate('message',"like", "%".$request->keyword."%"); 
+        }
+
 
         $chatMessages =  $chatMessages->skip($skip)->take($limit);
 
@@ -152,6 +166,7 @@ class ChatMessagesController extends Controller
         $chatMessages = $chatMessages->get();
         // Set empty array with messages
         $messages = [];
+        $chatFileData = '';
         // Loop over ChatMessages
         foreach ($chatMessages as $chatMessage) {
 
@@ -321,38 +336,69 @@ class ChatMessagesController extends Controller
                     //parent image ends
                 }
             }
-
-            $messages[] = [
-                'id' => $chatMessage->id,
-                'type' => $request->object,
-                'inout' => ($isOut) ? 'out' : 'in',
-                'sendBy'=> ($isOut) ? 'ERP' : $objectname,
-                'sendTo'=> ($isOut) ? $object->name : 'ERP',
-                'message' => $textMessage,
-                'parentMessage' => $textParent,
-                'media_url' => $chatMessage->media_url,
-                'datetime' => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
-                'media' => is_array($media) ? $media : null,
-                'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
-                'product_id' => !empty($productId) ? $productId : null,
-                'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
-                'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
-                'parentProductId' => !empty($parentProductId) ? $parentProductId : null,
-                'status' => $chatMessage->status,
-                'resent' => $chatMessage->resent,
-                'customer_id' => $chatMessage->customer_id,
-                'approved' => $chatMessage->approved,
-                'error_status' => $chatMessage->error_status,
-                'is_queue' => $chatMessage->is_queue,
-                'is_reviewed' => $chatMessage->is_reviewed,
-                'quoted_message_id' => $chatMessage->quoted_message_id
-            ];
+            
+            if(isset($request->downloadMessages) && $request->downloadMessages==1){
+                if($textMessage!=''){
+                $chatFileData .= html_entity_decode($textMessage,ENT_QUOTES, 'UTF-8');
+                $chatFileData .= "\n From ".(($isOut) ? 'ERP' : $objectname)." To ".(($isOut) ? $object->name : 'ERP');
+                $chatFileData .= "\n On ". Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A');
+                $chatFileData .= "\n"."\n"."\n";
+                }
+            }else{
+                $messages[] = [
+                    'id' => $chatMessage->id,
+                    'type' => $request->object,
+                    'inout' => ($isOut) ? 'out' : 'in',
+                    'sendBy'=> ($isOut) ? 'ERP' : $objectname,
+                    'sendTo'=> ($isOut) ? $object->name : 'ERP',
+                    'message' => $textMessage,
+                    'parentMessage' => $textParent,
+                    'media_url' => $chatMessage->media_url,
+                    'datetime' => Carbon::parse($chatMessage->created_at)->format('Y-m-d H:i A'),
+                    'media' => is_array($media) ? $media : null,
+                    'mediaWithDetails' => is_array($mediaWithDetails) ? $mediaWithDetails : null,
+                    'product_id' => !empty($productId) ? $productId : null,
+                    'parentMedia' => is_array($parentMedia) ? $parentMedia : null,
+                    'parentMediaWithDetails' => is_array($parentMediaWithDetails) ? $parentMediaWithDetails : null,
+                    'parentProductId' => !empty($parentProductId) ? $parentProductId : null,
+                    'status' => $chatMessage->status,
+                    'resent' => $chatMessage->resent,
+                    'customer_id' => $chatMessage->customer_id,
+                    'approved' => $chatMessage->approved,
+                    'error_status' => $chatMessage->error_status,
+                    'is_queue' => $chatMessage->is_queue,
+                    'is_reviewed' => $chatMessage->is_reviewed,
+                    'quoted_message_id' => $chatMessage->quoted_message_id
+                ];
+            }
         }
         
         // Return JSON
-        return response()->json([
-            'messages' => $messages
-        ]);
+        if(isset($request->downloadMessages) && $request->downloadMessages==1)
+        {
+            $storagelocation = storage_path().'/chatMessageFiles';
+            if(!is_dir($storagelocation)){
+                mkdir($storagelocation,0777, true);
+            }
+            $filename= $request->object.$request->object_id."_chat.txt";
+            $file = $storagelocation.'/'. $filename;
+            $txt = fopen($file, "w") or die("Unable to open file!");
+            fwrite($txt, $chatFileData);
+            fclose($txt);
+            if($chatFileData==''){
+                return response()->json([
+                    'downloadUrl' => ''
+                ]);
+            }
+            return response()->json([
+                'downloadUrl' => $file
+            ]);
+        }else{
+            return response()->json([
+                'messages' => $messages
+            ]);
+        }
+            
 
        
     }
@@ -391,5 +437,17 @@ class ChatMessagesController extends Controller
         return response()->json([
             'message' => 'Error'
         ],500);
+    }
+    public function downloadChatMessages(request $request){
+        $file = $request->filename;
+        header('Content-Description: File Transfer');
+        header('Content-Disposition: attachment; filename='.basename($file));
+        header('Expires: 0');
+        header('Cache-Control: must-revalidate');
+        header('Pragma: public');
+        header('Content-Length: ' . filesize($file));
+        header("Content-Type: text/plain");
+        readfile($file);
+        unlink($file);
     }
 }

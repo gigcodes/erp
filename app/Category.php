@@ -56,7 +56,7 @@ class Category extends Model
 
     }
 
-    public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
+     public static function getCategoryIdByKeyword( $keyword, $gender=null, $genderAlternative=null )
     {
         // Set gender
         if ( empty( $gender ) ) {
@@ -68,8 +68,31 @@ class Category extends Model
 
         // No result? Try where like
         if ( $dbResult->count() == 0 ) {
-            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->where("id","!=",self::UNKNOWN_CATEGORIES)->get();
+            $dbResult = self::where( 'references', 'like', '%' . $keyword . '%' )->whereNotIn("id",[self::UNKNOWN_CATEGORIES,1])->get();
+            $matchIds = [];
+            foreach ($dbResult as $db) {
+                if($db->references){
+                    $referenceArrays = explode(',', $db->references);
+                    foreach ($referenceArrays as $referenceArray) {
+                        //reference 
+                        $referenceArray = preg_replace('/\s+/', '', $referenceArray);
+                        $referenceArray = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $referenceArray);
+
+                        //category
+                        $input = $keyword;
+                        $input = preg_replace('/\s+/', '', $input);
+                        $input = preg_replace('/[^a-zA-Z0-9_ -]/s', '', $input);
+                        similar_text(strtolower($input), strtolower($referenceArray), $percent);
+                        if ($percent >= 80) {
+                            $matchIds[] = $db->id;
+                            break;
+                        }
+                    }
+                }
+            }
+            $dbResult = self::whereIn('id',$matchIds)->get();
         }
+        
 
         // Still no result
         if ( $dbResult === NULL ) {
@@ -112,6 +135,10 @@ class Category extends Model
                 return 0;
             }
 
+            if ( $parentId == 146 && strtolower( $gender ) == 'kids' ) {
+                return 0;
+            }
+
             // Other
             if ( $parentId > 0 ) {
                 // Store category ID
@@ -132,6 +159,11 @@ class Category extends Model
 
                 // Return correct result for men
                 if ( $dbParentResult->parent_id == 3 && strtolower( $gender ) == 'men' ) {
+                    return $categoryId;
+                }
+
+                // Return correct result for kids
+                if ( $dbParentResult->parent_id == 146 && strtolower( $gender ) == 'kids' ) {
                     return $categoryId;
                 }
             }
@@ -213,7 +245,7 @@ class Category extends Model
         return array_reverse( $categoryTree );
     }
 
-    public static function getCategoryTreeMagentoWithPosition( $id , $website)
+    public static function getCategoryTreeMagentoWithPosition( $id , $website , $needOrigin =  false)
     {
 
         $categoryMulti = StoreWebsiteCategory::where('category_id',$id)->where('store_website_id',$website->id)->first();
@@ -230,7 +262,11 @@ class Category extends Model
         if ( $categoryInstance !== NULL ) {
 
             // Load initial category
-            $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+            if($needOrigin) {
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id,'org_id'=>$categoryMulti->category_id];
+            }else{
+                $categoryTree[] =   ['position' => 1 , 'category_id' => $categoryMulti->remote_id];
+            }
 
             // Set parent ID
             $parentId = $categoryInstance->parent_id;
@@ -243,9 +279,17 @@ class Category extends Model
                 $categoryMultiChild = StoreWebsiteCategory::where('category_id',$parentId)->where('store_website_id',$website->id)->first();
                 if($categoryMultiChild){
                     if($categoryInstance->parent_id == 0){
-                        $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        if($needOrigin) {
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                        }else{
+                            $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
+                        }
                     }else{
-                        $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        if($needOrigin) {
+                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                        }else{
+                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                        }
                     }
                 }else{
                     // Add additional category to tree

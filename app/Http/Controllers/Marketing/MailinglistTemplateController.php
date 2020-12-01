@@ -8,7 +8,7 @@ use App\MailinglistTemplateCategory;
 use App\StoreWebsite;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
-use qoraiche\mailEclipse\mailEclipse;
+use Qoraiche\MailEclipse\MailEclipse;
 use View;
 
 class MailinglistTemplateController extends Controller

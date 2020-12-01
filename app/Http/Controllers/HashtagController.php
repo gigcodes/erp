@@ -331,13 +331,11 @@ class HashtagController extends Controller
 
     public function showGridComments($id = null, Request $request)
     {
-        
-        
         $hashtag = HashTag::find($id);
         
         $query = InstagramPostsComments::query();
         
-
+        
         if($request->term){
             $query = $query->where('comment','LIKE','%'.$request->term.'%');
         }
@@ -443,7 +441,7 @@ class HashtagController extends Controller
             'hashtag' => 'required',
             'narrative' => 'required'
         ]);
-
+        
         $acc = Account::findOrFail($request->get('account_id'));
 
        
@@ -530,11 +528,100 @@ class HashtagController extends Controller
       
      try {
 
-       $art = \Artisan::call("hastag:instagram",['hastagId' => $id]);
-       return ['success' => true, 'message' => 'Process Started Running'];
+        $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+        $export = shell_exec($cmd);
+        $export = trim($export);
+        //getting username 
+        $cmd = 'echo $USER';
+        $username = shell_exec($cmd);
+        $username = trim($username);
+
+        $re = '/'.$username.'(\s*)(\d*)/m';
+
+        preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
+
+        if(count($matches) == 0 || count($matches) == 1 || count($matches) == 2){
+            $cmd = 'php '.base_path().'/artisan competitors:process-local-users '.$id.' &';
+            $export = shell_exec($cmd);
+            
+           // $art = \Artisan::call("competitors:process-local-users",['hastagId' => $id]);
+            return ['success' => true, 'message' => 'Process Started Running'];           
+        }elseif(count($matches) == 3 || count($matches) == 4){
+            return ['success' => true, 'message' => 'Process Is Already Running'];
+        }
+
+
         } catch (\Exception $e) {
             return ['error' => true, 'message' => 'Something went wrong'];
         }
+    }
+
+    public function killCommand(Request $request)
+    {
+        try {
+            $id = $request->id;
+            $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+            $export = shell_exec($cmd);
+            $export = trim($export);
+            //getting username 
+            $cmd = 'echo $USER';
+            $username = shell_exec($cmd);
+            $username = trim($username);
+
+            $re = '/'.$username.'(\s*)(\d*)/m';
+            
+            preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
+
+            if(count($matches) == 0 || count($matches) == 1 || count($matches) == 2){
+                return ['success' => true, 'message' => 'Process Is Not Running'];
+            }elseif(count($matches) == 3 || count($matches) == 4){
+                foreach ($matches as $match) {
+                    if(isset($match[2])){
+                        $cmd = 'kill -9 '.$match[2];
+                        $export = shell_exec($cmd);
+                    }
+                }
+            }
+
+            return ['success' => true, 'message' => 'Process Killed successfuly'];
+
+            
+        } catch (\Exception $e) {
+            return ['error' => true, 'message' => 'Something went wrong'];
+        }
+
+    }
+
+    public function checkStatusCommand(Request $request)
+    {
+        try {
+
+            $id = $request->id;
+            $cmd = 'ps waux | grep competitors:process-local-users\ '.$id;
+            $export = shell_exec($cmd);
+            $export = trim($export);
+            //getting username 
+            $cmd = 'echo $USER';
+            $username = shell_exec($cmd);
+            $username = trim($username);
+
+            $re = '/'.$username.'(\s*)(\d*)/m';
+            
+            preg_match_all($re, $export, $matches, PREG_SET_ORDER, 0);
+
+            if(count($matches) == 0 || count($matches) == 1 || count($matches) == 2){
+                return ['success' => true, 'message' => 'Process Is Not Running'];
+            }elseif(count($matches) == 3 || count($matches) == 4){
+                return ['success' => true, 'message' => 'Process Is Running'];
+            }
+
+            return ['success' => true, 'message' => 'Process cannot be check !'];
+
+            
+        } catch (\Exception $e) {
+            return ['error' => true, 'message' => 'Something went wrong'];
+        }
+
     }
 
     public function influencer(Request $request)

@@ -112,6 +112,11 @@ class Order extends Model
         return $this->hasOne('App\Waybill');
     }
 
+    public function waybills()
+    {
+        return $this->hasMany('App\Waybill');
+    }
+
     public function invoice()
     {
         return $this->belongsTo('App\Invoice');
@@ -199,6 +204,22 @@ class Order extends Model
     public function storeWebsiteOrder()
     {
         return $this->hasOne(\App\StoreWebsiteOrder::class, "order_id","id");
+    }
+
+    public function whatsappAll($needBroadcast = false)
+    {
+        if($needBroadcast) {
+            return $this->hasMany('App\ChatMessage', 'order_id')->where(function($q){
+                $q->whereIn('status', ['7', '8', '9', '10'])->orWhere("group_id",">",0);
+            })->latest();
+        }else{
+            return $this->hasMany('App\ChatMessage', 'order_id')->whereNotIn('status', ['7', '8', '9', '10'])->latest();
+        }
+    }
+
+    public function status()
+    {
+        return $this->hasOne();
     }
 
 

@@ -1,10 +1,10 @@
-<div class="customer-count customer-list-{{$customer_id}} customer-{{$customer_id}}" style="padding: 0px 10px;">   
+<div class="customer-count customer-list-{{$suggested_products_id}} customer-{{$suggested_products_id}}" style="padding: 0px 10px;">   
         @foreach($productsLists as $list)
         @if(count($list->products) > 0)
         <div class="row">
             <div class="col-md-12">
                 <br>
-                <h5 style="margin: 5px 0px;">{{$list->date}}</h5> 
+                <h5 class="product-attach-date" style="margin: 5px 0px;">{{$list->date}}</h5> 
                 <hr style="margin: 5px 0px;">
             </div>
         </div>   
@@ -41,7 +41,7 @@
         @if($count == 0)
         <div class="row parent-row">
         @endif
-        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$customer_id}}-{{$product->id}}" style="padding:0px 5px;margin-bottom:2px !important;">
+        <div class="col-md-2 col-xs-4 text-center product-list-card mb-4 single-image-{{$pr->suggested_product_list_id}}-{{$customer_id}}-{{$product->id}}" style="padding:0px 5px;margin-bottom:2px !important;">
             <div style="border: 1px solid #bfc0bf;padding:0px 5px;">
                 <div data-interval="false" id="carousel_{{ $product->id }}" class="carousel slide" data-ride="carousel">
                     <a href="{{ route('products.show', $product->id) }}" data-toggle="tooltip" data-html="true" data-placement="top" title="<strong>Supplier: </strong>{{ $product->supplier }} <strong>Status: </strong>{{ $product->purchase_status }}">
@@ -55,11 +55,10 @@
                         <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$customer_id}}"></label>
                     </div>
-
-                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$product->id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
+                    <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$pr->suggested_product_list_id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
                         <a href="javascript:;" class="btn btn-sm select_row" title="Select Single Row"><i class="fa fa-arrows-h" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm select_multiple_row" title="Select Multiple Row"><i class="fa fa-check" aria-hidden="true"></i></a>
-                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-id="{{$product->id}}" data-customer="{{$customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
+                        <a href="javascript:;" title="Remove"  class="btn btn-sm delete-message" data-listed_id="{{$pr->suggested_product_list_id}}" data-id="{{$product->id}}" data-customer="{{$customer_id}}" title="Remove"><i class="fa fa-trash" aria-hidden="true"></i></a>
 
                         <a href="javascript:;" class="btn btn-sm create-product-lead-dimension" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Dimensions"><i class="fa fa-delicious" aria-hidden="true"></i></a>
                         <a href="javascript:;" class="btn btn-sm create-product-lead" data-id="{{$product->id}}" data-customer-id="{{$customer->id}}" title="Lead"><i class="fa fa-archive" aria-hidden="true"></i></a>

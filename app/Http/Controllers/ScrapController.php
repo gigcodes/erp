@@ -159,8 +159,9 @@ class ScrapController extends Controller
             $brand = Brand::where('references', 'LIKE', '%' . $request->get('brand') . '%')->first();
 
             if (!$brand) {
-                return response()->json([
-                    'status' => 'invalid_brand'
+                // if brand is not then create a brand
+                $brand = Brand::create([
+                    "name" => $request->get('brand')
                 ]);
             }
         }
@@ -603,13 +604,43 @@ class ScrapController extends Controller
 
         // If product is found, update it
         if ($product) {
+            
+            // clear the request using for the new scraper
+            $propertiesArray = [
+                "material_used" => $request->get('composition'),
+                "color" => $request->get('color'),
+                "sizes" => $request->get('sizes'),
+                "category" => $request->get('category'),
+                "dimension" => $request->get('dimension'),
+                "country" => $request->get('country')
+            ];
+
+            $formatter = (new \App\Services\Products\ProductsCreator)->getGeneralDetails($propertiesArray);
+
+            $color = \App\ColorNamesReference::getColorRequest($formatter['color'],$request->get('url'),$request->get('title'),$request->get('description'));
+            $composition = $formatter['composition'];
+            if(!empty($formatter['composition'])) {
+                $composition = \App\Compositions::getErpName($formatter['composition']);
+            }
+
+            $description = $request->get('description');
+            if(!empty($request->get('description'))) {
+                $description = \App\DescriptionChange::getErpName($request->get('description'));
+            }
+            
             // Set basic data
             $product->name = $request->get('title');
-            $product->short_description = $request->get('description');
-            $product->composition = $request->get('material_used');
-            $product->color = $request->get('color');
+            $product->short_description = $description;
+            $product->composition = $composition;
+            $product->color = $color;
             $product->description_link = $request->get('url');
-            $product->made_in = $request->get('country');
+            $product->made_in = $formatter['made_in'];
+            $product->category = $formatter['category'];
+            // if size is empty then only update
+            if(empty($product->size)) {
+                $product->size = $formatter['size'];
+                $product->size_eu = $formatter['size'];
+            }
             if ((int)$product->price == 0) {
                 $product->price = $request->get('price');
             }
@@ -617,13 +648,13 @@ class ScrapController extends Controller
 
             // Set optional data
             if (!$product->lmeasurement) {
-                $product->lmeasurement = $request->get('dimension')[ 0 ] ?? '0';
+                $product->lmeasurement = $formatter['lmeasurement'];
             }
             if (!$product->hmeasurement) {
-                $product->hmeasurement = $request->get('dimension')[ 1 ] ?? '0';
+                $product->hmeasurement = $formatter['hmeasurement'];
             }
             if (!$product->dmeasurement) {
-                $product->dmeasurement = $request->get('dimension')[ 2 ] ?? '0';
+                $product->dmeasurement = $formatter['dmeasurement'];;
             }
 
             $product->status_id = StatusHelper::$autoCrop;
@@ -1109,9 +1140,9 @@ class ScrapController extends Controller
     public function sendScrapDetails()
     {
 
-        $scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
+        //$scraper = Scraper::whereRaw('(scrapers.start_time IS NULL OR scrapers.start_time < "2000-01-01 00:00:00" OR (scrapers.start_time < scrapers.end_time AND scrapers.end_time < DATE_SUB(NOW(), INTERVAL scrapers.run_gap HOUR)))')->where('time_out','>',0)->first();
 
-        //$scraper = Scraper::where("id",61)->first();
+        $scraper = Scraper::where("id",23)->first();
 
         if($scraper == null){
             return response()->json(['message' => 'No Scraper Present'], 400);
@@ -1246,7 +1277,7 @@ class ScrapController extends Controller
             }
 
             $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/restart-script?filename='.$name.'.js';
-            
+            //dd($url);
             //sample url
             //localhost:8085/restart-script?filename=biffi.js
             $curl = curl_init();
@@ -1256,6 +1287,44 @@ class ScrapController extends Controller
             curl_close($curl);
             if($response){
                 return response()->json(["code" => 200,"message" => "Script Restarted"]);
+            }else{
+                return response()->json(["code" => 500,"message" => "Check if Server is running"]);
+            }
+            
+        }
+    }
+
+    public function getStatus(Request $request)
+    {
+        if($request->name && $request->server_id){
+            $scraper = Scraper::where('scraper_name',$request->name)->first();
+            if(!$scraper->parent_id){
+                $name = $scraper->scraper_name;
+            }else{
+                $name = $scraper->parent->scraper_name.'/'.$scraper->scraper_name;
+            }
+
+            $url = 'http://'.$request->server_id.'.theluxuryunlimited.com:'.env('NODE_SERVER_PORT').'/process-list?filename='.$name.'.js';
+
+
+            //sample url
+            //localhost:8085/restart-script?filename=biffi.js
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $url);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            $response = curl_exec($curl);
+            curl_close($curl);
+            if($response){
+                $re = '/\d+/m';
+                $str = $response;
+                preg_match_all($re, $str, $matches, PREG_SET_ORDER, 0);
+                
+                if(count($matches) == 2 || count($matches) == 1 || count($matches) == 0){
+                    return response()->json(["code" => 200,"message" => "Script Is Not Running"]);
+                }else{
+                    return response()->json(["code" => 200,"message" => "Script Is Running"]);
+                }
+               
             }else{
                 return response()->json(["code" => 500,"message" => "Check if Server is running"]);
             }

@@ -23,7 +23,13 @@
   <td>@if($account->is_customer_support == 1) Yes @else No @endif</td>
   <td>
     
-    
+    @if(strtolower($account->platform) == 'instagram')
+      <button onclick="postImage({{ $account->id }})" class="btn btn-secondary btn-sm">Post Image</button>
+      <button onclick="likeUserPost({{ $account->id }})" class="btn btn-secondary btn-sm">Like Posts</button>
+      <button onclick="sendRequest({{ $account->id }})" class="btn btn-secondary btn-sm">Send Request</button>
+      <button onclick="acceptRequest({{ $account->id }})" class="btn btn-secondary btn-sm">Accept Request</button>
+
+    @endif
     <button onclick="editAccount({{ $account->id }})" class="btn btn-secondary btn-sm">Edit</button>
     @if(Auth::user()->hasRole('Admin'))
     <button onclick="deleteConfig({{ $account->id }})" class="btn btn-sm">Delete</button>

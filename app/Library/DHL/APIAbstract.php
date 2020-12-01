@@ -37,13 +37,12 @@ abstract class APIAbstract
     }
 
     public function doCurlPost()
-    {
+    { 
         if ($this->_mode == "production") {
             $ch = curl_init($this->_productionUrl);
         } else {
             $ch = curl_init($this->_stagingUrl);
         }
-
         curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0); //ssl
         curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0); //ssl
         curl_setopt($ch, CURLOPT_HTTPHEADER, ['Content-Type: text/xml']);
@@ -60,7 +59,6 @@ abstract class APIAbstract
         $result = curl_exec($ch);
 
         curl_close($ch);
-
         $this->resultsRAW = $result;
         try {
             $result = str_ireplace(['xmlSOAP-ENV','ser-root:','SOAP-ENV:', 'SOAP:','rateresp:','shipresp:','trac:','dhl:','ns:'], '', $result);
@@ -114,4 +112,16 @@ abstract class APIAbstract
         
         return $this->result;
     }
+
+    // if shipper is from dubai then it will domestic shipment
+
+    public function isDomestic()
+    {
+
+        if($this->getShipper()['country_code'] == $this->getRecipient()['country_code'] && $this->getShipper()['country_code'] == "AE") {
+            return true;
+        }
+        return false;
+    }
+
 }

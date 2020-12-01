@@ -70,7 +70,7 @@
                                         <div class="col-md-8">
                                             <textarea type="text" rows="4" class="form-control"   placeholder="Type comment..." id="textbox_{{$comment->instagramPost->id}}"></textarea>
                                             <div class="pull-right">
-                                                <button type="button" class="btn btn-xs btn-image comment-it" data-id="{{$comment->instagramPost->id}}" data-post-id="{{$comment->instagramPost->post_id}}"><img src="/images/filled-sent.png" ></button>
+                                                <button type="button" class="btn btn-xs btn-image comment-it" data-id="{{$comment->instagramPost->id}}" data-post-id="{{$comment->instagramPost->post_id}}" data-hashtag="{{ $comment->instagramPost->hashTags->hashtag }}"><img src="/images/filled-sent.png" ></button>
                                             </div>
                                             
                                         </div>

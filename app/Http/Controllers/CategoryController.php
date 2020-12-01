@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use App\Category;
 use App\BrandCategoryPriceRange;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Support\Collection;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class CategoryController extends Controller
 {
@@ -231,7 +234,7 @@ class CategoryController extends Controller
 
         $allStatus = ["" => "N/A"] + \App\Helpers\StatusHelper::getStatus();
 
-        $allCategoriesDropdown = Category::attr([ 'name' => 'new_cat_id', 'class' => 'form-control' , 'style' => "width:100%"])->renderAsDropdown();
+        $allCategoriesDropdown = Category::attr([ 'name' => 'new_cat_id', 'class' => 'form-control new-category-update' , 'style' => "width:100%"])->renderAsDropdown();
 
         return view( 'category.references', compact( 'fillerCategories', 'categories','allStatus','allCategoriesDropdown') );
     }
@@ -374,4 +377,208 @@ class CategoryController extends Controller
         return response()->json(["code" => 200 ,"message" => "Success"]);
 
     }
+
+    public function usedProducts(Request $request)
+    {
+        $q = $request->q;
+        
+        if($q) {
+            // check the type and then 
+           $q = '"'.$q.'"';
+           $products = \App\ScrapedProducts::where("properties","like",'%'.$q.'%')->latest()->limit(5)->get();
+
+           $view = (string)view("compositions.preview-products",compact('products'));
+           return response()->json(["code" => 200, "html" => $view]);
+        }
+
+        return response()->json(["code" => 200, "html" => ""]);
+    }
+
+    public function affectedProduct(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+
+        if (!empty($from)) {
+            // check the type and then
+            $total = \App\ScrapedProducts::matchedCategory($from)->count();
+            return response()->json(["code" => 200, "total" => $total]);
+        }
+    }
+
+    public function affectedProductNew(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+        $wholeString = $request->wholeString;
+
+        if (!empty($from)) {
+            // check the type and then
+            $total = \App\ScrapedProducts::matchedCategory($from)->count();
+
+            $view = (string) view("category.partials.affected-products", compact('total', 'from', 'to', 'wholeString'));
+            
+            return response()->json(["code" => 200, "html" => $view]);
+
+        }
+    }
+
+
+
+    public function updateCategoryReference(Request $request)
+    {
+        $old = $request->old_cat_id;
+        $from = $request->cat_name;
+        $to   = $request->new_cat_id;
+        $change = $request->with_product;
+        $wholeString = $request->wholeString;
+        if(!isset($wholeString)){
+            $wholeString = $from;
+        }
+        
+        if(isset($change)){
+            if($change == 'yes'){
+                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                    "from"    => $from,
+                    "to"      => $to,
+                    "user_id" => \Auth::user()->id,
+                ])->onQueue("supplier_products");
+            }
+        }
+        
+
+        $c = Category::where("id",$old)->first();
+
+        if($c) {
+            $allrefernce = explode(",",$c->references);
+            $newRef = [];
+            if(!empty($allrefernce)) {
+                foreach($allrefernce as $ar) {
+                    if($ar != $wholeString) {
+                        $newRef[] = $ar;
+                    }
+                }
+            }
+            $c->references = implode(",",$newRef);
+            $c->save();
+
+            // new category reference store
+            $new = Category::where("id",$to)->first();
+            if($new) {
+               $existingRef = explode(",",$new->references);
+               $existingRef[] = $from;
+               $new->references = implode(",",$existingRef);
+               $new->save();
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function updateMultipleCategoryReference(Request $request)
+    {
+        $old    = $request->old_cat_id;
+        $from   = $request->from;
+        $to     = $request->to;
+
+        //$change = $request->with_product;
+        /*$wholeString = $request->wholeString;
+        if(!isset($wholeString)){
+            $wholeString = $from;
+        }*/
+
+        if(!empty($from) && is_array($from)) {
+            foreach($from as $f) {
+                $original = $f;
+                $f  = explode('/',$f);
+                $f = end($f);
+
+                \App\Jobs\UpdateProductCategoryFromErp::dispatch([
+                    "from"    => $f,
+                    "to"      => $to,
+                    "user_id" => \Auth::user()->id,
+                ])->onQueue("supplier_products");
+
+                $c = Category::where("id",$old)->first();
+
+                if($c) {
+                    $allrefernce = explode(",",$c->references);
+                    $newRef = [];
+                    if(!empty($allrefernce)) {
+                        foreach($allrefernce as $ar) {
+                            if($ar != $original) {
+                                $newRef[] = $ar;
+                            }
+                        }
+                    }
+                    
+                    $c->references = implode(",",array_unique($newRef));
+                    $c->save();
+
+                    $new = Category::where("id",$to)->first();
+                    if($new) {
+                       $existingRef = explode(",",$new->references);
+                       $existingRef[] = $f;
+                       $new->references = implode(",",array_unique($existingRef));
+                       $new->save();
+                    }
+                }
+
+
+            }
+        }
+
+        return response()->json(["code" => 200, "message" => "Your request has been pushed successfully"]);
+    }
+
+    public function newCategoryReferenceIndex(Request $request)
+    {
+        $unKnownCategory = Category::where('title','LIKE','%Unknown Category%')->first();
+        $unKnownCategories = explode(',', $unKnownCategory->references );
+        $unKnownCategories = array_unique($unKnownCategories);
+        $unKnownCategory->references = implode(",", $unKnownCategories);
+        $unKnownCategory->save();
+
+        $input = preg_quote($request->get('search'), '~');
+        $unKnownCategories = preg_grep('~' . $input . '~', $unKnownCategories);
+
+
+
+        $unKnownCategories = $this->paginate($unKnownCategories);
+        $unKnownCategories->setPath($request->url());
+
+        $categoryAll   = Category::where('id','!=',$unKnownCategory)->where('magento_id','!=','0')->get();
+        $categoryArray = [];
+        foreach ($categoryAll as $category) {
+            $categoryArray[] = array('id' => $category->id, 'value' => $category->title);
+            $childs          = Category::where('parent_id', $category->id)->get();
+            foreach ($childs as $child) {
+                $categoryArray[] = array('id' => $child->id, 'value' => $category->title . ' > ' . $child->title);
+                $grandChilds     = Category::where('parent_id', $child->id)->get();
+                if ($grandChilds != null) {
+                    foreach ($grandChilds as $grandChild) {
+                        $categoryArray[] = array('id' => $grandChild->id, 'value' => $category->title . ' > ' . $child->title . ' > ' . $grandChild->title);
+                    }
+                }
+            }
+        }
+        
+        return view('category.new-reference',['unKnownCategories' => $unKnownCategories,'categoryAll' => $categoryArray,'unKnownCategoryId' => $unKnownCategory->id]);   
+    }
+
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var array
+     */
+    public function paginate($items, $perPage = 20, $page = null, $options = [])
+    {
+        $page = $page ?: (Paginator::resolveCurrentPage() ?: 1);
+        $items = $items instanceof Collection ? $items : Collection::make($items);
+        return new LengthAwarePaginator($items->forPage($page, $perPage), $items->count(), $perPage, $page, $options);
+    }
+
 }
+ 

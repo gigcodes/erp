@@ -1,0 +1,58 @@
+<center><p>{{strtoupper($type)}}</p></center>
+<button class="btn btn-secondary btn-xs pull-right btn-send" data-type="{{$type}}" data-id="{{$supplier_id}}">Send</button>
+<div class="table-responsive mt-2">
+      <table class="table table-bordered order-table" style="border: 1px solid #ddd !important; color:black;table-layout:fixed">
+        <thead>
+        <tr>
+            <th width="2%"></th>
+            <th width="8%">#</th>
+            <th width="20%">Name</th>
+            <th width="20%">SKU</th>
+            <th width="10%">Price</th>
+            <th width="10%">Discount</th>
+            <th width="10%">Fixed Price</th>
+            <th width="10%">Final Price</th>
+            <th width="10%">Action</th>
+         </tr>
+        </thead>
+
+        <tbody>
+			@foreach ($products as $key => $product)
+            <tr class="supplier-{{$supplier_id}}">
+              <td><input type="checkbox" class="select-pr-list-chk" data-id="{{$product->id}}"></td>
+              <td>{{ ++$key }}</td>
+              <td>{{ $product->name }}</td>
+              <td>{{$product->sku}}</td>
+              <td>{{$product->product_price}}</td>
+              <td>{{$product->discount}}</td>
+              <td>{{$product->fixed_price}}</td>
+              <td>
+              @php 
+            if($product->product_price)  {
+              if($product->discount) {
+                $discount = $product->product_price*($product->discount/100);
+                $final_price = $product->product_price - $discount;
+              }
+              else {
+                if($product->fixed_price) {
+                  $final_price = $fixed_price;
+                }
+                else {
+                  $final_price = $product->product_price;
+                }
+              } 
+            }
+            else {
+              $final_price = 0;
+            }
+            @endphp
+            {{number_format($final_price,2)}}
+              
+              
+              </td>
+              <td></td>
+            </tr>
+           @endforeach
+        </tbody>
+      </table>
+	</div>

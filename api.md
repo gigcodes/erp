@@ -34,7 +34,10 @@ Content-Type: application/json
     "subject": "Some subject name",
     "message": "Some message need to ask",
     "source_of_ticket": "site url",
-    "phone_no" : "919876543210"
+    "phone_no" : "919876543210",
+    "sku":"7768484226295",
+    "amount":"415.00",
+    "notify_on":"phone"
 }
 ```
 
@@ -402,6 +405,52 @@ Content-Type: application/json
 ```
 
 
+## Affilates Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/affiliate/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.brands-labels.com", //existing website
+    "first_name":"xyz", //optional
+    "last_name":"ABC", //optional
+    "phone":"9999999999", //optional, string
+    "emailaddress":"example@domain.com", //optional
+    "website_name":"sololuxury", //optional, string
+    "url":"url", //optional, string
+    "unique_visitors_per_month":"unique_visitors_per_month", //optional, string
+    "page_views_per_month":"page_views_per_month", //optional, string
+    "street_address":"address", //optional, string
+    "city":"Texas", //optional, string
+    "postcode":"111111", //optional, string
+    "country":"United States Of America", //optional, string
+
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "affiliate added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add affiliate !"
+}
+```
+
 
 ## Magneto Customer Reference Store API
 
@@ -417,7 +466,7 @@ Content-Type: application/json
     "phone": "918638973610", //optional
     "website": "WWW.SOLOLUXURY.COM",//required, must be a website in store websites
     "dob": "2020-10-23", //optional
-    "wedding_anniversery": "2020-10-23" //optional
+    "wedding_anniversery": "2020-10-23"//optional
 }
 ```
 **Successful Response:**
@@ -426,7 +475,6 @@ Content-Type: application/json
 {
      "status": "200",
     "message": "Saved SucessFully"
-    
 }
 ```
 
@@ -436,5 +484,180 @@ Content-Type: application/json
 {
     "status": "403",
     "message": "Email is required"
+}
+```
+
+```
+## Tickets API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/ticket/send
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "live_chat",
+    "email" : "bardam.yus@gmail.com", //optional if ticket_id is set 
+    "ticket_id":"PWTCR", //optional if email is set
+    "per_page":"10" //optional, default is 15
+}
+```
+**Successful Response:**
+```json
+{
+    "status": "success",
+    "tickets": {
+        "current_page": 1,
+        "data": [
+            {
+                "id": 3,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
+                "last_name": null,
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "PWTCR",
+                "subject": "Task test",
+                "message": "Message: Hi",
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 01:26:31",
+                "created_at": "2020-09-11 11:48:23",
+                "updated_at": "2020-09-11 12:08:33",
+                "type_of_inquiry": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "status": "open"
+            },
+            {
+                "id": 4,
+                "customer_id": 3008,
+                "name": "Bardambek Yusupov",
+                "last_name": null,
+                "email": "bardam.yus@gmail.com",
+                "ticket_id": "J7XPB",
+                "subject": "About new Products",
+                "message": "Message: Hi",
+                "assigned_to": null,
+                "source_of_ticket": "live_chat",
+                "status_id": 1,
+                "date": "2020-08-25 01:25:30",
+                "created_at": "2020-09-11 11:48:23",
+                "updated_at": "2020-09-11 11:48:23",
+                "type_of_inquiry": null,
+                "country": null,
+                "phone_no": null,
+                "order_no": null,
+                "status": "open"
+            }
+        ],
+        "first_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "from": 1,
+        "last_page": 1,
+        "last_page_url": "http://127.0.0.1:8000/api/ticket/send?page=1",
+        "next_page_url": null,
+        "path": "http://127.0.0.1:8000/api/ticket/send",
+        "per_page": 15,
+        "prev_page_url": null,
+        "to": 2,
+        "total": 2
+    }
+}
+```
+
+**Failed Response:**
+```json
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Tickets not found for customer !"
+}
+```
+## Push Notifications API
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/notification/create
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "WWW.SOLOLUXURY.COM", //required , exists in store websites
+    "token" : "sdsad2e232dsdsd", //required 
+}
+```
+**Successful Response:**
+```json
+HTTP/1.1 200
+{
+    "status": "success",
+    "message": "Notification created successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "Unable to create notifications !"
+}
+
+```
+
+## Influencer Api
+
+**Request:**
+
+```json
+POST https://erp.amourint.com/api/influencer/add
+Accept: application/json
+Content-Type: application/json
+{
+    "website" : "www.veralusso.com", //existing website
+    "first_name":"Solo", //optional
+    "last_name":"Luxury", //optional
+    "phone":"9999999999", //optional, string
+    "emailaddress":"solo@luxury.com", //optional
+    "facebook":"example@domain.com", //optional
+    "facebook_followers":"12M", //optional
+    "instagram":"example@domain.com", //optional
+    "instagram_followers":"10M", //optional
+    "twitter":"example@domain.com", //optional
+    "twitter_followers":"12M", //optional
+    "youtube":"example@domain.com", //optional
+    "youtube_followers":"25K", //optional
+    "linkedin":"example@domain.com", //optional
+    "linkedin_followers":"10K", //optional
+    "pinterest":"example@domain.com", //optional
+    "pinterest_followers":"5K", //optional
+    "worked_on":"example@domain.com", //optional
+    "website_name":"sololuxury", //optional, string
+    "url":"url", //optional, string
+    "country":"United States Of America", //optional, string
+    "type" :"influencer"
+}
+```
+
+**Successful Response:**
+```json
+HTTP/1.1 200
+Content-Type: application/json
+{
+    "status": "success",
+    "message": "influencer added successfully !"
+}
+```
+
+**Failed Response:**
+```json
+HTTP/1.1 500
+Content-Type: application/json
+{
+    "status": "failed",
+    "message": "unable to add influencer !"
 }
 ```

@@ -12,6 +12,7 @@ use App\Product;
 use App\StoreWebsiteCategory;
 use App\StoreWebsiteBrand;
 use App\ProductPushErrorLog;
+use App\Helpers\ProductHelper;
 
 
         
@@ -226,13 +227,20 @@ class ProductHelper extends Model
             $arrMeasurement[] = $product->dmeasurement;
         }
 
+        // check if the product is in shooe size then
+        $isHeel = "";
+        if(in_array($product->parent_id,[5,41,163,180])) {
+            $isHeel = "HEEL SIZE ";
+        }
+
+
         // Check for all dimensions
         if (count($arrMeasurement) == 3) {
-            return 'L-' . $arrMeasurement[ 0 ] . 'cm,H-' . $arrMeasurement[ 1 ] . 'cm,D-' . $arrMeasurement[ 2 ] . 'cm';
+            return $isHeel.'L-' . $arrMeasurement[ 0 ] . 'cm,H-' . $arrMeasurement[ 1 ] . 'cm,D-' . $arrMeasurement[ 2 ] . 'cm';
         } elseif (count($arrMeasurement) == 2) {
-            return $arrMeasurement[ 0 ] . 'cm x ' . $arrMeasurement[ 1 ] . 'cm';
+            return $isHeel.$arrMeasurement[ 0 ] . 'cm x ' . $arrMeasurement[ 1 ] . 'cm';
         } elseif (count($arrMeasurement) == 1) {
-            return 'Height: ' . $arrMeasurement[ 0 ] . 'cm';
+            return $isHeel.'Height: ' . $arrMeasurement[ 0 ] . 'cm';
         }
 
         // Still here?
@@ -770,9 +778,9 @@ class ProductHelper extends Model
         return [];
     }
 
-    public static function getStoreWebsiteName($id)
+    public static function getStoreWebsiteName($id,$product = null)
     {
-        $product = Product::find($id);
+        $product = ($product) ? $product : Product::find($id);
 
         $brand = $product->brand;
 
@@ -780,8 +788,7 @@ class ProductHelper extends Model
         
         $storeCategories = StoreWebsiteCategory::where('category_id',$category)->get();
         $websiteArray = [];
-
-       foreach ($storeCategories as $storeCategory) {
+        foreach ($storeCategories as $storeCategory) {
             $storeBrands = StoreWebsiteBrand::where('brand_id',$brand)->where('store_website_id',$storeCategory->store_website_id)->get();
             if(!empty($storeBrands)){
                 foreach ($storeBrands as $storeBrand) {

@@ -40,6 +40,8 @@ class SimplyDutyCountryWise extends Command
      */
     public function handle()
     {
+        //STOPPED CERTAIN MESSAGES
+        return false;
         //try {
 
             $report = CronJobReport::create([

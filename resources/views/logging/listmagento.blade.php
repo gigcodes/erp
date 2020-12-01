@@ -90,19 +90,19 @@
                     <tbody>
                         @foreach($logListMagentos as $item)
                         <tr>
-                            <td> {{ $item->product_id }} </td>
+                            <td><a href="/products/{{ $item->product_id }}" target="__blank">{{ $item->product_id }}</a></td>
 
                             <td class="expand-row-msg" data-name="sku" data-id="{{$item->id}}">
-                                <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 15 ,'...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden">{{$item->sku}}</span>
+                                <span class="show-short-sku-{{$item->id}}">{{ str_limit($item->sku, 5 ,'...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-sku-{{$item->id}} hidden"><a href="{{ $item->website_url }}/default/catalogsearch/result/?q={{ $item->sku }}" target="__blank">{{$item->sku}}</a></span>
                             </td>
                             <td class="expand-row-msg" data-name="brand_name" data-id="{{$item->id}}">
                                 <span class="show-short-brand_name-{{$item->id}}">{{ str_limit($item->brand_name, 10, '...')}}</span>
                                 <span style="word-break:break-all;" class="show-full-brand_name-{{$item->id}} hidden">{{$item->brand_name}}</span>
                             </td>
                             <td class="expand-row-msg" data-name="category_title" data-id="{{$item->id}}">
-                                <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_title, 10, '...')}}</span>
-                                <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_title}}</span>
+                                <span class="show-short-category_title-{{$item->id}}">{{ str_limit($item->category_home, 10, '...')}}</span>
+                                <span style="word-break:break-all;" class="show-full-category_title-{{$item->id}} hidden">{{$item->category_home}}</span>
                             </td>
                             <td> {{$item->price}} </td>
                             <td class="expand-row-msg" data-name="message" data-id="{{$item->id}}">

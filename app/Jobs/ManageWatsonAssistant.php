@@ -48,18 +48,15 @@ class ManageWatsonAssistant implements ShouldQueue
     public function handle()
     {
 
-        $all_watson_accounts = WatsonAccount::get();
-
-        foreach($all_watson_accounts as $account){
-
+        $account = WatsonAccount::where('store_website_id', $this->customer->store_website_id)->first();
+        if($account) {
             $asistant = new AssistantService(
                 "apiKey",
                 $account->api_key
             );
-            Model::sendMessageFromJob($this->customer, $asistant, $this->inputText, $this->contextReset, $this->message_application_id );
-
+            $asistant->set_url($account->url);
+            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id);
         }
-
     }
 
     public function fail($exception = null)

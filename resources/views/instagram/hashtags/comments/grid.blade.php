@@ -166,7 +166,7 @@
         });
 
         $('.comment-it').click(function() {
-            
+                
                 let id = $(this).attr('data-id');
                 let post_id = $(this).attr('data-post-id');
                 let message = $('#textbox_'+id).val();
@@ -174,7 +174,7 @@
                 let accountId = $('#account_id_'+id).val();
                 let narrative = $('#narrative_'+id).val();
                 let selectedusers = $('#selected_user_'+id).val();
-                let hashtag = '';
+                let hashtag = $(this).attr('data-hashtag');
                 if(accountId == 'Select User'){
                     alert('Please Select User to Comment');
                 }else{

@@ -117,10 +117,8 @@ class ProductController extends Controller
     }
 
 
-    public function approvedListing(Request $request)
+    public function approvedListing(Request $request,$pageType = "")
     {
-
-
         $cropped = $request->cropped;
         $colors = (new Colors)->all();
         $categories = Category::all();
@@ -154,23 +152,15 @@ class ProductController extends Controller
             $categories_array[$category->id] = $category->parent_id;
         }
 
-        // if ((int)$request->get('status_id') > 0) {
-        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
-        // } else {
-        //     if ($request->get('submit_for_approval') == "on") {
-        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
-        //     }else{
-        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
-        //     }
-        // }
         if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
             $newProducts = Product::query();
         } else {
             $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
         }
 
-        if ((int)$request->get('status_id') > 0) {
-            $newProducts = $newProducts->where('status_id', (int)$request->get('status_id'));
+        if ($request->get('status_id') != null) {
+            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $newProducts = $newProducts->whereIn('status_id', $statusList);
         } else {
             if ($request->get('submit_for_approval') == "on") {
                 $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
@@ -306,12 +296,26 @@ class ProductController extends Controller
             $join->on("pvu.product_id", "products.id");
             $join->where("pvu.user_id", "!=", auth()->user()->id);
         });
+
+        if($request->without_title != null) {
+           $newProducts = $newProducts->where("products.name","");
+        }
+
+        if($request->without_size != null) {
+           $newProducts = $newProducts->where("products.size","");
+        }
+
+        if($request->without_composition != null) {
+           $newProducts = $newProducts->where("products.composition","");
+        }
+
         if (!auth()->user()->isAdmin()) {
             $newProducts = $newProducts->whereNull("pvu.product_id");
         }
 
         $newProducts = $newProducts->select(["products.*"])->paginate(20);
         if (!auth()->user()->isAdmin()) {
+
             if (!$newProducts->isEmpty()) {
                 $i = 1;
                 foreach ($newProducts as $product) {
@@ -329,7 +333,294 @@ class ProductController extends Controller
                 }
             }
         }
+//here
+        if($request->ajax()) {
 
+            // view path for images
+            $viewpath = ($pageType == "images") ? 'products.final_listing_image_ajax' : 'products.final_listing_ajax';
+            return view($viewpath, [
+                'products' => $newProducts,
+                'products_count' => $newProducts->total(),
+                'colors' => $colors,
+                'brands' => $brands,
+                'suppliers' => $suppliers,
+                'categories' => $categories,
+                'category_tree' => $category_tree,
+                'categories_array' => $categories_array,
+                'term' => $term,
+                'brand' => $brand,
+                'category' => $category,
+                'color' => $color,
+                'supplier' => $supplier,
+                'type' => $type,
+                'users' => $users,
+                'assigned_to_users' => $assigned_to_users,
+                'cropped' => $cropped,
+                'category_array' => $category_array,
+                'selected_categories' => $selected_categories,
+                'store_websites' => StoreWebsite::all(),
+                'type' => $pageType
+            ]);
+        }
+
+        $viewpath = 'products.final_listing'; 
+
+        return view($viewpath, [
+            'products' => $newProducts,
+            'products_count' => $newProducts->total(),
+            'colors' => $colors,
+            'brands' => $brands,
+            'suppliers' => $suppliers,
+            'categories' => $categories,
+            'category_tree' => $category_tree,
+            'categories_array' => $categories_array,
+            // 'category_selection' => $category_selection,
+            // 'category_search'    => $category_search,
+            'term' => $term,
+            'brand' => $brand,
+            'category' => $category,
+            'color' => $color,
+            'supplier' => $supplier,
+            'type' => $type,
+            'users' => $users,
+            'assigned_to_users' => $assigned_to_users,
+            'cropped' => $cropped,
+//            'left_for_users'  => $left_for_users,
+            'category_array' => $category_array,
+            'selected_categories' => $selected_categories,
+            'store_websites' => StoreWebsite::all(),
+            'pageType' => $pageType
+            //'store_website_count' => StoreWebsite::count(),
+        ]);
+    }
+
+    public function getFinalApporvalImages(Request $request){
+        
+        $cropped = $request->cropped;
+        $colors = (new Colors)->all();
+        $categories = Category::all();
+        $category_tree = [];
+        $categories_array = [];
+        $brands = Brand::getAll();
+
+        $suppliers = DB::select('
+                SELECT id, supplier
+                FROM suppliers
+
+                INNER JOIN (
+                    SELECT supplier_id FROM product_suppliers GROUP BY supplier_id
+                    ) as product_suppliers
+                ON suppliers.id = product_suppliers.supplier_id
+        ');
+
+        foreach (Category::all() as $category) {
+            if ($category->parent_id != 0) {
+                $parent = $category->parent;
+                if ($parent->parent_id != 0) {
+                    if (!isset($category_tree[$parent->parent_id])) {
+                        $category_tree[$parent->parent_id] = [];
+                    }
+                    $category_tree[$parent->parent_id][$parent->id] = $category->id;
+                } else {
+                    $category_tree[$parent->id][$category->id] = $category->id;
+                }
+            }
+
+            $categories_array[$category->id] = $category->parent_id;
+        }
+
+        // if ((int)$request->get('status_id') > 0) {
+        //     $newProducts = Product::where('status_id', (int)$request->get('status_id'));
+        // } else {
+        //     if ($request->get('submit_for_approval') == "on") {
+        //         $newProducts = Product::where('status_id', StatusHelper::$submitForApproval);
+        //     }else{
+        //         $newProducts = Product::where('status_id', StatusHelper::$finalApproval);
+        //     }
+        // }
+        if (auth()->user()->isReviwerLikeAdmin('final_listing')) {
+            $newProducts = Product::query();
+        } else {
+            $newProducts = Product::query()->where('assigned_to', auth()->user()->id);
+        }
+
+        if ($request->get('status_id') != null) {
+            $statusList = is_array($request->get('status_id')) ? $request->get('status_id') : [$request->get('status_id')];
+            $newProducts = $newProducts->whereIn('status_id', $statusList);
+        } else {
+            if ($request->get('submit_for_approval') == "on") {
+                $newProducts = $newProducts->where('status_id', StatusHelper::$submitForApproval);
+            } else {
+                $newProducts = $newProducts->where('status_id', StatusHelper::$finalApproval);
+            }
+        }
+
+
+        // Run through query helper
+        $newProducts = QueryHelper::approvedListingOrder($newProducts);
+        $term = $request->input('term');
+        $brand = '';
+        $category = '';
+        $color = '';
+        $supplier = [];
+        $type = '';
+        $assigned_to_users = '';
+
+        if (is_array($request->brand) && $request->brand[0] != null) {
+            $newProducts = $newProducts->whereIn('brand', $request->get('brand'));
+        }
+
+        if (is_array($request->color) && $request->color[0] != null) {
+            $newProducts = $newProducts->whereIn('color', $request->get('color'));
+        }
+        if (is_array($request->category) && $request->category[0] != null && $request->category[0] != 1) {
+            $category_children = [];
+
+            foreach ($request->category as $category) {
+                $is_parent = Category::isParent($category);
+
+                if ($is_parent) {
+                    $childs = Category::find($category)->childs()->get();
+
+                    foreach ($childs as $child) {
+                        $is_parent = Category::isParent($child->id);
+
+                        if ($is_parent) {
+                            $children = Category::find($child->id)->childs()->get();
+
+                            foreach ($children as $chili) {
+                                array_push($category_children, $chili->id);
+                            }
+                        } else {
+                            array_push($category_children, $child->id);
+                        }
+                    }
+                } else {
+                    array_push($category_children, $category);
+                }
+            }
+
+            $newProducts = $newProducts->whereIn('category', $category_children);
+            $category = $request->category[0];
+        }
+        if ($request->type != '') {
+            if ($request->type == 'Not Listed') {
+                $newProducts = $newProducts->where('isFinal', 0)->where('isUploaded', 0);
+            } else {
+                if ($request->type == 'Listed') {
+                    $newProducts = $newProducts->where('isUploaded', 1);
+                } else {
+                    if ($request->type == 'Approved') {
+                        $newProducts = $newProducts->where('is_approved', 1);
+                    } else {
+                        if ($request->type == 'Image Cropped') {
+                            $newProducts = $newProducts->where('is_image_processed', 1);
+                        }
+                    }
+                }
+            }
+
+            $type = $request->get('type');
+        }
+
+        if($request->crop_status == "Not Matched"){
+            $newProducts = $newProducts->whereDoesntHave('croppedImages');
+        }
+        if($request->crop_status == "Matched"){
+            $newProducts = $newProducts->whereHas('croppedImages');
+        }
+
+
+        if (trim($term) != '') {
+
+            $newProducts->where(function ($query) use ($term) {
+                $query->where('short_description', 'LIKE', "%" . $term . "%")
+                    ->orWhere('color', 'LIKE', "%" . $term . "%")
+                    ->orWhere('name', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.sku', 'LIKE', "%" . $term . "%")
+                    ->orWhere('products.id', 'LIKE', "%" . $term . "%")
+                    ->orWhereHas('brands', function($q) use($term){
+                        $q->where('name', 'LIKE', "%" . $term . "%");
+                })
+                ->orWhereHas('product_category', function($q) use($term){
+                    $q->where('title', 'LIKE', "%" . $term . "%");
+                });
+            });
+        }
+
+//        if(!empty($request->term)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->where('color', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('short_description', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('category', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('brand', 'LIKE', '%' . $request->term . '%')
+//                    ->orWhere('sku', 'LIKE', '%' . $request->term . '%') ;
+//            });
+//        }
+//        if(!empty($request->color)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('color', $request->color);
+//            });
+//        }
+//        if(!empty($request->category)){
+//            $newProducts = $newProducts->where(function ($q) use ($request) {
+//                $q->WhereIN('category', $request->category);
+//            });
+//        }
+
+
+        if ($request->get('user_id') > 0) {
+            $newProducts = $newProducts->where('approved_by', $request->get('user_id'));
+        }
+
+
+        $selected_categories = $request->category ? $request->category : [1];
+        $category_array = Category::renderAsArray();
+        $users = User::all();
+
+        $newProducts = $newProducts->leftJoin("product_verifying_users as pvu", function ($join) {
+            $join->on("pvu.product_id", "products.id");
+            $join->where("pvu.user_id", "!=", auth()->user()->id);
+        });
+
+        if($request->without_title != null) {
+           $newProducts = $newProducts->where("products.name","");
+        }
+
+        if($request->without_size != null) {
+           $newProducts = $newProducts->where("products.size","");
+        }
+
+        if($request->without_composition != null) {
+           $newProducts = $newProducts->where("products.composition","");
+        }
+
+        if (!auth()->user()->isAdmin()) {
+            $newProducts = $newProducts->whereNull("pvu.product_id");
+        }
+
+        $newProducts = $newProducts->select(["products.*"])->paginate(20);
+        if (!auth()->user()->isAdmin()) {
+
+            if (!$newProducts->isEmpty()) {
+                $i = 1;
+                foreach ($newProducts as $product) {
+                    $productVerify = \App\ProductVerifyingUser::firstOrNew(array(
+                        'product_id' => $product->id
+                    ));
+                    $productVerify->product_id = $product->id;
+                    $productVerify->user_id = auth()->user()->id;
+                    $productVerify->save();
+                    $i++;
+                    // if more then 15 records then break
+                    if ($i > 25) {
+                        break;
+                    }
+                }
+            }
+        }
+        //echo'<pre>'.print_r($cropped,true).'</pre>'; exit;
+//here
         if($request->ajax()) {
             return view('products.final_listing_ajax', [
                 'products' => $newProducts,
@@ -355,7 +646,7 @@ class ProductController extends Controller
             ]);
         }
 
-        return view('products.final_listing', [
+        return view('products.final_approval_images', [
             'products' => $newProducts,
             'products_count' => $newProducts->total(),
             'colors' => $colors,
@@ -381,7 +672,8 @@ class ProductController extends Controller
             'store_websites' => StoreWebsite::all(),
             //'store_website_count' => StoreWebsite::count(),
         ]);
-    }
+
+    }   
 
     public function approvedListingCropConfirmation(Request $request)
     {
@@ -1430,7 +1722,7 @@ class ProductController extends Controller
 
                 //translate product title and description
 //                $languages = ['hi','ar'];
-                $languages = Language::pluck('locale')->toArray();
+                $languages = Language::pluck('locale')->where("status",1)->toArray();
                 $isDefaultAvailable = Product_translation::whereIN('locale', $languages)->where('product_id', $product->id)->first();
                 if (!$isDefaultAvailable) {
                     $product_translation = new Product_translation;
@@ -2254,15 +2546,18 @@ class ProductController extends Controller
                 $suggestedProducts->size = $size;
                 $suggestedProducts->total = $perPageLimit;
                 $suggestedProducts->save();
+                $suggestedProductId=$suggestedProducts->id;
                 $data_to_insert = [];
                 foreach($product_ids as $id){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->first();
+                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                             $data_to_insert[] = [
+                                'suggested_products_id'=>$suggestedProductId,
                                 'customer_id' => $customerId,
-                                'product_id' => $id
+                                'product_id' => $id,
+                                'date' => date('Y-m-d')
                             ];
                         }
                     }
@@ -2409,7 +2704,8 @@ class ProductController extends Controller
         $product->name = $request->name;
         $product->sku = $request->sku;
        // $size_array = implode(',', $request->size) ;
-        $product->size = implode(',', $request->size);
+        $size = !is_array($request->size) ? [$request->size] : $request->size;
+        $product->size = implode(',', $size);
         $product->brand = $request->brand;
         $product->color = $request->color;
         $product->supplier = $request->supplier;
@@ -2440,11 +2736,14 @@ class ProductController extends Controller
             $product->suppliers()->attach(11); // In-stock ID
         }
 
-        $product->detachMediaTags(config('constants.media_tags'));
-        $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
-            ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
-            ->upload();
-        $product->attachMedia($media, config('constants.media_tags'));
+        if($request->hasFile('image')) {
+            $product->detachMediaTags(config('constants.media_tags'));
+            $media = MediaUploader::fromSource($request->get('is_image_url') ? $request->get('image') : $request->file('image'))
+                ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
+                ->upload();
+            $product->attachMedia($media, config('constants.media_tags'));
+        }
+
 
         $product_image = $product->getMedia(config('constants.media_tags'))->first() ? $product->getMedia(config('constants.media_tags'))->first()->getUrl() : '';
 
@@ -2481,9 +2780,19 @@ class ProductController extends Controller
     public function giveImage()
     {
         $productId = request("product_id", null);
+        $supplierId = request("supplier_id", null);
         if ($productId != null) {
             $product = Product::where('id', $productId)->where('status_id', StatusHelper::$autoCrop)
                 ->where('category', '>', 3)->first();
+        }elseif($supplierId != null) {
+            $product = Product::join("product_suppliers as ps","ps.product_id", "products.id")
+            ->where('ps.supplier_id', $supplierId)
+            ->where('products.status_id', StatusHelper::$autoCrop)
+            ->where('products.category', '>', 3)
+            ->where('products.stock', '>=', 1)
+            ->orderBy('products.scrap_priority', 'DESC')
+            ->select("products.*")
+            ->first();
         } else {
             // Get next product
             $product = Product::where('status_id', StatusHelper::$autoCrop)
@@ -2496,7 +2805,7 @@ class ProductController extends Controller
             $product = $product->whereHasMedia('original')->first();
         }
 
-
+        
         if (!$product) {
             // Return JSON
             return response()->json([
@@ -2504,7 +2813,28 @@ class ProductController extends Controller
             ]);
         }
 
+
         $mediables = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag', 'original')->get();
+
+        //deleting old images 
+
+        $oldImages = DB::table('mediables')->select('media_id')->where('mediable_id', $product->id)->where('mediable_type', 'App\Product')->where('tag','!=','original')->get();
+
+        //old scraped products 
+        if($oldImages){
+            foreach ($oldImages as $img) {
+
+                $media = Media::where('id',$img->media_id)->first();
+                if($media){
+                    $image_path = $media->getAbsolutePath();
+                    if (\File::exists($image_path)) {
+                        \File::delete($image_path);
+                    }
+                    $media->delete();                    
+                }
+
+            }
+        }
 
         foreach ($mediables as $mediable) {
             $mediableArray[] = $mediable->media_id;
@@ -2517,7 +2847,6 @@ class ProductController extends Controller
         }
 
         $images = Media::select('id', 'filename', 'extension', 'mime_type', 'disk', 'directory')->whereIn('id', $mediableArray)->get();
-
 
         foreach ($images as $image) {
             $output['media_id'] = $image->id;
@@ -2581,18 +2910,19 @@ class ProductController extends Controller
 
                 $website = StoreWebsite::find($websiteArray);
                 if ($website) {
-
-                    list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
-                    $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
-                    $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name);
+                    $isCropped = SiteCroppedImages::where('website_id', $websiteArray)
+                    ->where('product_id', $product->id)->exists();
+                    if(!$isCropped) {
+                        list($r, $g, $b) = sscanf($website->cropper_color, "#%02x%02x%02x");
+                        $hexcode = '(' . $r . ',' . $g . ',' . $b . ')';
+                        $colors[] = array('code' => $hexcode, 'color' => $website->cropper_color_name,'size' => $website->cropping_size);
+                    }
                 }
             }
         }
-
         if (!isset($colors)) {
             $colors = [];
         }
-
         if ($parent == null && $parent == '') {
             // Set new status
             $product->status_id = StatusHelper::$attributeRejectCategory;
@@ -2635,27 +2965,46 @@ class ProductController extends Controller
         // Check if we have a file
         if ($request->hasFile('file')) {
             $image = $request->file('file');
+
+            //Get the last image of the product.
+            $allMediaIds = [];
+            $pMedia = $product->getMedia(config('constants.media_original_tag'));
+            if(!$pMedia->isEmpty()) {
+                foreach($pMedia as $m) {
+                    $allMediaIds[] = $m->id;
+                }
+            }
+
+            $productMediacount = count($allMediaIds);
+
             $media = MediaUploader::fromSource($image)
                 ->useFilename('CROPPED_' . time() . '_' . rand(555, 455545))
                 ->toDirectory('product/' . floor($product->id / config('constants.image_per_folder')) . '/' . $product->id)
                 ->upload();
+            $colorName =  null;    
             if ($request->get('color')) {
                 $colorCode = str_replace(['(', ')'], '', $request->get('color'));
                 $rgbarr = explode(",", $colorCode, 3);
                 $hex = sprintf("#%02x%02x%02x", $rgbarr[0], $rgbarr[1], $rgbarr[2]);
+                $colorName = $hex;
                 $tag = 'gallery_' . $hex;
-                $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
-                if ($store_websites !== null) {
 
-                    $exist = SiteCroppedImages::where('website_id', $store_websites->id)
-                        ->where('product_id', $product->id)->exists();
-                    if (!$exist) {
-                        SiteCroppedImages::create([
-                            'website_id' => $store_websites->id,
-                            'product_id' => $product->id
-                        ]);
+                // check the store website count is existed with the total image
+                $storeWebCount = $product->getMedia($tag)->count();
+                if($productMediacount <= $storeWebCount) {
+                    $store_websites = StoreWebsite::where('cropper_color', $request->get('color'))->first();
+                    if ($store_websites !== null) {
+                        $exist = SiteCroppedImages::where('website_id', $store_websites->id)
+                            ->where('product_id', $product->id)->exists();
+                        if (!$exist) {
+                            SiteCroppedImages::create([
+                                'website_id' => $store_websites->id,
+                                'product_id' => $product->id
+                            ]);
+                        }
                     }
                 }
+
             } else {
                 $tag = config('constants.media_gallery_tag');
             }
@@ -2671,17 +3020,16 @@ class ProductController extends Controller
             $imageReference->new_media_name = $media->filename . '.' . $media->extension;
             $imageReference->speed = $request->get('time');
             $imageReference->product_id = $product->id;
+            $imageReference->color = $colorName;
             $imageReference->save();
 
 
-            //Get the last image of the product
-            $productMediacount = $product->getMedia(config('constants.media_original_tag'))->count();
+            
             //CHeck number of products in Crop Reference Grid
-            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereDate('created_at', Carbon::today())->count();
+            $cropCount = CroppedImageReference::where('product_id', $product->id)->whereIn('original_media_id', $allMediaIds)->count();
 
             //check website count using Product
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
-
             try {
                 if (count($websiteArrays) == 0) {
                     $multi = 1;
@@ -2691,8 +3039,12 @@ class ProductController extends Controller
             } catch (\Exception $e) {
                 $multi = 1;
             }
+            $totalM = $productMediacount;
 
-            $cropCount = ($cropCount * $multi);
+            $productMediacount = ($productMediacount * $multi);
+
+            \Log::info(json_encode(["Media Crop",$product->id,$multi,$totalM,$productMediacount,$cropCount]));
+
             if ($productMediacount <= $cropCount) {
                 $product->cropped_at = Carbon::now()->toDateTimeString();
                 $product->status_id = StatusHelper::$finalApproval;
@@ -3116,12 +3468,11 @@ class ProductController extends Controller
         $mediaId = request("media_id", 0);
         $mediaType = request("media_type", "gallery");
 
-
         $cond = Db::table("mediables")->where([
             "media_id" => $mediaId,
             "mediable_id" => $productId,
-            "tag" => $mediaType,
-            "mediable_type" => "App\Product"
+            //"tag" => $mediaType,
+            "mediable_type" => \App\Product::class
         ])->delete();
 
         if ($cond) {
@@ -3262,6 +3613,7 @@ class ProductController extends Controller
         $data['message'] = $request->message;
         $data['customer_id'] = $request->customer_id;
         $data['status'] = $request->status;
+        $data['type'] = $request->type;
         \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
 
         $json = request()->get("json", false);
@@ -3284,7 +3636,6 @@ class ProductController extends Controller
         $style = explode(' ', $style);
         $name = str_replace(['scale(', ')'], '', $style[4]);
         $newHeight = (($name * 3.333333) * 1000);
-
         list($width, $height) = getimagesize($img);
         $thumb = imagecreatetruecolor($newHeight, $newHeight);
         try {
@@ -3313,7 +3664,6 @@ class ProductController extends Controller
 
         imagejpeg($canvasImage, public_path() . '/' . $path);
         $product = Product::find($id);
-
         return response()->json(['success' => 'success', 200]);
     }
 
@@ -3727,19 +4077,20 @@ class ProductController extends Controller
 
     public function pushProduct()
     {
-        $webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
+
+        /*$webData = StoreWebsite::select(['store_websites.id', DB::raw('store_website_brands.brand_id as brandId'), 'store_website_categories.*'])
             ->join('store_website_brands', 'store_websites.id', 'store_website_brands.store_website_id')
             ->join('store_website_categories', 'store_websites.id', 'store_website_categories.store_website_id')
             ->where("website_source", "!=", "")
             ->get();
 
         $brandIds = array_unique($webData->pluck('brandId')->toArray());
-        $categoryIds = array_unique($webData->pluck('category_id')->toArray());
+        $categoryIds = array_unique($webData->pluck('category_id')->toArray());*/
+        
         $products = Product::select('*')->where("short_description", "!=", "")->where("name", "!=", "")->where("status_id", StatusHelper::$finalApproval)
-            ->whereIn('brand', $brandIds)
-            ->whereIn('category', $categoryIds)
-            ->groupBy("brand", "category")
-            ->get();
+        ->groupBy("brand", "category")
+        ->limit(100)
+        ->get();
 
         $queueName = [
             "1" => "mageone",
@@ -3747,10 +4098,11 @@ class ProductController extends Controller
             "3" => "magethree"
         ];
 
+
         foreach ($products as $key => $product) {
-            $i = 1;
             $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
             if(!empty($websiteArrays)) {
+                $i = 1;
                 foreach ($websiteArrays as $websiteArray) {
                     $website = StoreWebsite::find($websiteArray);
                     if($website){
@@ -3878,6 +4230,7 @@ class ProductController extends Controller
 
     public function draftedProducts(Request $request)
     {
+        \Log::info("action started");
         $products = Product::where('quick_product', 1)
             ->leftJoin("brands as b", "b.id", "products.brand")
             ->leftJoin("categories as c", "c.id", "products.category")
@@ -3915,6 +4268,8 @@ class ProductController extends Controller
         }
 
         $products = $products->orderby("products.created_at", "desc")->paginate()->appends(request()->except(['page']));
+
+        \Log::info("Page Displayed here");
 
         return view('drafted-supplier-product.index', compact('products'));
     }
@@ -3971,7 +4326,6 @@ class ProductController extends Controller
     }
     
     public function attachedImageGrid($model_type = null, $model_id = null, $status = null, $assigned_user = null, Request $request) {
-
         $model_type = 'customer';
         if ($model_type == 'customer') {
             $customerId = $model_id;
@@ -4027,17 +4381,19 @@ class ProductController extends Controller
             $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
         }
         // $perPageLimit
-        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
-
-
-
-
-
-
-
+        //$suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('id')->paginate($perPageLimit);
+        
         foreach($suggestedProducts as $suggestion) {
-            $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
-            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            //$last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
+            $last_attached = \App\SuggestedProductList::where('suggested_products_id',$suggestion->id)->orderBy('date','desc')->first();
+            if($last_attached) {
+                $suggestion->last_attached = $last_attached->date;
+            }
+            else {
+                $suggestion->last_attached = $suggestion->created_at;
+            }
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
@@ -4045,7 +4401,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = []; 
             }
 
-            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
             if(count($catIds) > 0) {
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
@@ -4115,19 +4471,66 @@ class ProductController extends Controller
     }
     public function crop_rejected_status(Request $request)
     {
-
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->where('website_id' , $request->site_id)->delete();
+        }
         RejectedImages::updateOrCreate(
             ['website_id' => $request->site_id, 'product_id' => $request->product_id],
             ['status' => $request->status = "approve" ? 1 : 0]
         );
-        return response()->json(true);
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
+    }
+
+    public function all_crop_rejected_status(Request $request)
+    {
+        if($request->status == 'reject') {
+            $lastPriorityScrap = Product::orderBy('scrap_priority','desc')->first();
+            if($lastPriorityScrap) {
+                if($lastPriorityScrap->scrap_priority) {
+                    $lastPriority = $lastPriorityScrap->scrap_priority + 1;
+                }
+                else {
+                    $lastPriority = 1;
+                }  
+            }
+            else {
+                $lastPriority = 1;
+            }
+            $sites = SiteCroppedImages::where('product_id', $request->product_id)->get();
+            foreach($sites as $site) {
+                RejectedImages::updateOrCreate(
+                    ['website_id' => $site->website_id, 'product_id' => $request->product_id],
+                    ['status' => $request->status = "approve" ? 1 : 0]
+                );
+            }
+            
+            Product::where('id', $request->product_id)->update(['status_id' => StatusHelper::$autoCrop, 'scrap_priority' => $lastPriority]);
+            SiteCroppedImages::where('product_id', $request->product_id)->delete();
+        }
+        return response()->json(['code' => 200, 'message' => 'Successfully rejected']);
     }
     
-    public function attachMoreProducts($customerId)
+    public function attachMoreProducts($suggested_products_id)
     {
-       
-        $lastSuggestion = \App\SuggestedProduct::where('customer_id',$customerId)->orderBy('created_at','desc')->first();
+        
+        /* $lastSuggestion = \App\SuggestedProduct::where('customer_id',$customerId)->orderBy('created_at','desc')->first(); */
 
+        $lastSuggestion = \App\SuggestedProduct::where('id',$suggested_products_id)->orderBy('created_at','desc')->first();
+        $customerId=$lastSuggestion->customer_id; 
         $brands = [];
         $categories = [];
         $term = '';
@@ -4142,7 +4545,10 @@ class ProductController extends Controller
             $term = $lastSuggestion->keyword;
             $limit = $lastSuggestion->total;
         }
-        $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id');
+
+        /* $remove_ids = \App\SuggestedProductList::where('customer_id',$customerId)->pluck('product_id as id'); */
+
+        $remove_ids = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->pluck('product_id as id');
 
         $products = (new Product())->newQuery()->latest();
 
@@ -4217,13 +4623,15 @@ class ProductController extends Controller
             if(count($products) > 0) {
                 $data_to_insert = [];
                 foreach($products as $product){
-                    $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$product->id)->first();
+                    $exists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customerId)->where('product_id',$product->id)->where('date',date('Y-m-d'))->first();
                     if(!$exists) {
                         $pr = Product::find($product->id);
                         if($pr->hasMedia(config('constants.attach_image_tag'))) {
                         $data_to_insert[] = [
+                            'suggested_products_id'=>$suggested_products_id,
                             'customer_id' => $customerId,
-                            'product_id' => $product->id
+                            'product_id' => $product->id,
+                            'date' => date('Y-m-d')
                         ];
                     }
                     }
@@ -4264,13 +4672,12 @@ class ProductController extends Controller
         // $suggestedProducts = $suggestedProducts->groupBy('suggested_products.customer_id')->select('suggested_products.*')->paginate($perPageLimit);
 
 
-        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.customer_id')->paginate($perPageLimit);
-
+        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, suggested_products.created_at as created_at'))->orderBy('created_at','DESC')->groupBy('suggested_products.id')->paginate($perPageLimit);
 
         foreach($suggestedProducts as $suggestion) {
             $suggestion->last_attached = \App\SuggestedProduct::where('customer_id',$suggestion->customer_id)->orderBy('created_at','desc')->first()->created_at;
 
-            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.brand')->pluck('products.brand');
+            $brandIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.brand')->pluck('products.brand');
             if(count($brandIds) > 0) {
                 $suggestion->brdNames = Brand::whereIn('id',$brandIds)->get();
             }
@@ -4278,7 +4685,7 @@ class ProductController extends Controller
                 $suggestion->brdNames = []; 
             }
 
-            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->groupBy('products.category')->pluck('products.category');
+            $catIds = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')->where('suggested_product_lists.customer_id',$suggestion->customer_id)->where('suggested_products_id',$suggestion->id)->groupBy('products.category')->pluck('products.category');
             if(count($catIds) > 0) {
                 $suggestion->catNames = Category::whereIn('id',$catIds)->get();
             }
@@ -4351,10 +4758,10 @@ class ProductController extends Controller
                         'suggestedProducts', 'products_count', 'roletype', 'model_id', 'selected_products', 'model_type', 'status', 'assigned_user', 'category_selection', 'brand', 'filtered_category', 'message_body', 'sending_time', 'locations', 'suppliers', 'all_product_ids', 'quick_sell_groups', 'countBrands', 'countCategory', 'countSuppliers', 'customerId', 'categoryArray', 'term','customers'
         ));
     }
-    public function removeProducts($customer_id, Request $request) {
+    public function removeProducts($suggested_products_id, Request $request) {
             $products = json_decode($request->products,true);
-            foreach($products as $product_id) {
-                $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$product_id)->first();
+            foreach($products as $product_list_id) {
+                $suggested = \App\SuggestedProductList::find($product_list_id);
                 if($suggested) {
                     if($suggested->chat_message_id) {
                      $suggested->remove_attachment = 1;
@@ -4365,15 +4772,15 @@ class ProductController extends Controller
                     }
                 }
             }
-            $remains = \App\SuggestedProductList::where('customer_id',$customer_id)->count();
+            $remains = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->count();
                 if(!$remains) {
-                    \App\SuggestedProduct::where('customer_id',$customer_id)->delete();
+                    \App\SuggestedProduct::where('id',$suggested_products_id)->delete();
                 }
             return response()->json(['code' => 200, 'message' => 'Successfull']);
     }
 
     public function removeSingleProduct($customer_id, Request $request) {
-       $suggested = \App\SuggestedProductList::where('customer_id',$customer_id)->where('product_id',$request->product_id)->first();
+        $suggested = \App\SuggestedProductList::find($request->product_id);
        if($suggested) {
            if($suggested->chat_message_id) {
             $suggested->remove_attachment = 1;
@@ -4396,18 +4803,22 @@ class ProductController extends Controller
 
     public function forwardProducts(Request $request) {
         $customerId = 0;
-
         if($request->customer_id) {
             $explode = explode('/',$request->customer_id);
             if(count($explode) > 1) {
                 $customerId =  $explode[1];
             }
         }
+        if(!$request->forward_suggestedproductid){
+            $msg = 'Entry not found';
+            return response()->json(['code' => 500, 'message' => $msg]);
+        }
+        $forward_suggestedproductid=$request->forward_suggestedproductid;
         if(!$customerId) {
             $msg = ' Customer not found';
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->orderBy('created_at','desc')->first();
+                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->where('id',$forward_suggestedproductid)->orderBy('created_at','desc')->first();
                 $products = json_decode($request->products, true);
                 $total = count($products);
                 if($suggestedProducts) {
@@ -4418,27 +4829,39 @@ class ProductController extends Controller
                     $suggestedProducts->customer_id = $customerId;
                     $suggestedProducts->total = $total;
                     $suggestedProducts->save();
+                    $new_suggestedproductid=$suggestedProducts->id;
                 }
-                
+                $listIds = json_decode($request->products, true);
                 $data_to_insert = [];
-                $imagesDecoded = json_decode($request->products, true);
-                if(!empty($imagesDecoded) && is_array($imagesDecoded)) {
-                    $medias = Media::whereIn("id",array_unique($imagesDecoded))->get();
-                    if(!$medias->isEmpty()) {
-                        foreach($medias as $iimg => $media) {
+                $inserted = 0;
+               
+
+
+                if(!empty($listIds) && is_array($listIds)) {
+                foreach($listIds as $listedImage) {
+
+                    $productList = \App\SuggestedProductList::where('suggested_products_id',$forward_suggestedproductid)->find($listedImage);
+                    $product = Product::find($productList->product_id);
+                    $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+                    $image_key = $imageDetails->getKey();
+                    $media = Media::find($image_key);
+                    if($media) {
                             $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
                             if($mediable) {
-                                $exists = \App\SuggestedProductList::where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->first();
+                                $exists = \App\SuggestedProductList::where('suggested_products_id',$new_suggestedproductid)->where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
                                 if(!$exists) {
                                     $pr = Product::find($mediable->mediable_id);
                                     if($pr->hasMedia(config('constants.attach_image_tag'))) {
                                         $data_to_insert[] = [
+                                            'suggested_products_id'=>$new_suggestedproductid,
                                             'customer_id' => $customerId,
-                                            'product_id' => $mediable->mediable_id
+                                            'product_id' => $mediable->mediable_id,
+                                            'date' => date('Y-m-d')
                                         ];
                                     }
                                 }
                            }
+                        }
                         }
 
                         $inserted = count($data_to_insert);
@@ -4456,17 +4879,18 @@ class ProductController extends Controller
                             $data['message'] = null;
                             $data['customer_id'] = $customerId;
                             $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
                             \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
                         }
-                    }
                 }
                 $msg = $inserted. ' Products added successfully';
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
 
-    public function resendProducts($customer_id, Request $request) {
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customer_id)->orderBy('created_at','desc')->first();
+    public function resendProducts($suggestedproductid, Request $request) {
+                $suggestedProducts = \App\SuggestedProduct::where('id', $suggestedproductid)->orderBy('created_at','desc')->first();
+                $customer_id=$suggestedProducts->customer_id;
                 $products = json_decode($request->products, true);
                 $suggestedProducts->touch();
                 
@@ -4480,36 +4904,39 @@ class ProductController extends Controller
                             $data['message'] = null;
                             $data['customer_id'] = $customer_id;
                             $data['status'] = 2;
+                            $data['type'] = 'customer-attach';
                             \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
                 $msg = ' Images Resend successfully';
                 return response()->json(['code' => 200, 'message' => $msg]);
     }
 
-    public function getCustomerProducts($type,$customer_id, Request $request) {
+    public function getCustomerProducts($type,$suggested_products_id,$customer_id,Request $request) {
         $term = null;
+        //$suggested_products_id=3;
         if($type == 'attach') {
-            $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('remove_attachment',0)
-            ->select('suggested_product_lists.*',DB::Raw('DATE(created_at) as date'))->orderBy('date','desc')->get()->unique('date');
+            $productsLists = \App\SuggestedProductList::where('suggested_products_id',$suggested_products_id)->where('customer_id',$customer_id)->where('remove_attachment',0)
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         else {
             $productsLists = \App\SuggestedProductList::where('customer_id',$customer_id)->where('chat_message_id','!=',NULL)
-            ->select('suggested_product_lists.*',DB::Raw('DATE(created_at) as date'))->orderBy('date','desc')->get()->unique('date');
+            ->select('suggested_product_lists.*')->orderBy('date','desc')->get()->unique('date');
         }
         
         foreach($productsLists as $suggestion) {
             if($type == 'attach') {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('suggested_product_lists.suggested_products_id',$suggested_products_id)
             ->where('remove_attachment',0)
-            ->where('suggested_product_lists.created_at', $suggestion->date);
+            ->where('suggested_product_lists.date', $suggestion->date);
             }
             else {
                 $products = \App\SuggestedProductList::join('products','suggested_product_lists.product_id','products.id')
             ->where('suggested_product_lists.customer_id',$customer_id)
+            ->where('suggested_product_lists.suggested_products_id',$suggested_products_id)
             ->where('chat_message_id','!=',NULL)
-            ->where('suggested_product_lists.created_at', $suggestion->date);
+            ->where('suggested_product_lists.date', $suggestion->date);
             }
-
 
             if (isset($request->brand[0])) {
                 if ($request->brand[0] != null) {
@@ -4571,15 +4998,15 @@ class ProductController extends Controller
                     }
                 });
             }
-             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort')->orderBy('sort')->get();
+             $suggestion->products = $products->select('products.*','suggested_product_lists.created_at as sort','suggested_product_lists.id as suggested_product_list_id')->orderBy('sort')->get();
         }
         $selected_products = [];
         $model_type = 'customer';
         if($type == 'attach') {
-            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type'));
+            return view('partials.attached-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
         }
         else {
-            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type'));
+            return view('partials.suggested-image-products',compact('productsLists','customer_id','selected_products','model_type','suggested_products_id'));
         }
     }
 

@@ -11,6 +11,10 @@ class ProductTemplate extends Model
     protected $fillable = [
         'template_no',
         'product_title',
+        'text',
+        'font_style',
+        'font_size',
+        'background_color',
         'brand_id',
         'currency',
         'price',

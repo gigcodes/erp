@@ -38,6 +38,14 @@
                         <strong>Keyord</strong>
                         <input type="text" name="term" class="form-control">
                     </div>
+                    <div class="form-group mr-3">
+                        <strong class="mr-3">Price</strong>
+                        <?php 
+                            $min = 0;
+                            $max = 400000;
+                        ?>
+                        <input type="text" name="price" data-provide="slider" data-slider-min="0" data-slider-max="400000" data-slider-step="1000" data-slider-value="[{{$min}},{{$max}}]"/>
+                    </div>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

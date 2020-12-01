@@ -589,6 +589,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{route('products.product-assign')}}">Assign Products</a>
                                 </li>
+
+                                <li class="nav-item dropdown">
+                                    <a class="dropdown-item" href="{{route('products.listing.approved.images')}}/images">Final Apporval Images</a>
+                                </li>
                             </ul>
                         </li>
                         <li class="nav-item dropdown">
@@ -598,6 +602,7 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 <li class="nav-item">
                                     <a class="dropdown-item" target="_blank" href="/web-message">Communication</a>
                                     <a class="dropdown-item" href="{{route('translation.list')}}">Translations</a>
+                                    <a class="dropdown-item" href="{{route('pushfcmnotification.list')}}">FCM Notifications</a>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
                                     <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Customers<span class="caret"></span></a>
@@ -797,6 +802,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                 </li>
                                 <li class="nav-item">
                                     <a id="navbarDropdown" class="" href="{{ route('keywordassign.index') }}" role="button">Keyword Assign</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a id="navbarDropdown" class="" href="{{ route('purchase-product.index') }}" role="button">Purchase</a>
                                 </li>
                             </ul>
                         </li>
@@ -1202,6 +1210,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a id="navbarDropdown" class="" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" v-pre>Affiliate<span class="caret"></span></a>
                                             <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="navbarDropdown">
                                                 <li class="nav-item dropdown">
+                                                    <a class="dropdown-item" href="{{route('affiliates.list')}}">Manual Affiliates</a>
+                                                </li>
+                                                <li class="nav-item dropdown">
                                                     <a class="dropdown-item" href="{{route('google.affiliate.keyword')}}">Keywords</a>
                                                 </li>
                                                 <li class="nav-item dropdown">
@@ -1210,6 +1221,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             </ul>
                                         </li>
                                     </ul>
+                                </li>
+                                <li class="nav-item dropdown dropdown-submenu">
+                                    <a class="dropdown-item" href="{{ route('googleadsaccount.index') }}">Google AdWords</a>
                                 </li>
                                 <li class="nav-item dropdown">
                                     <a class="dropdown-item" href="{{ route('digital-marketing.index') }}">Social Digital Marketing
@@ -1496,6 +1510,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{route('jobs.list')}}">Laravel Queue</a>
                                         </li>
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('failedjobs.list')}}">Laravel Failed Queue</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('wetransfer.list')}}">Wetransfer Queue</a>
                                         </li>
                                         <li>
@@ -1667,6 +1684,10 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         </li>
 
                                         <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/category/new-references">New Category Reference</a>
+                                        </li>
+
+                                        <li class="nav-item dropdown">
                                             <a class="dropdown-item" href="{{route('brand.index')}}">Brands</a>
                                         </li>
                                         <li class="nav-item dropdown">
@@ -1677,6 +1698,12 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                             <a class="dropdown-item" href="{{route('color-reference.index')}}">Color Reference</a>
                                         </li>
                                         @endif
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="{{route('compositions.index')}}">Composition</a>
+                                        </li>
+                                        <li class="nav-item dropdown">
+                                            <a class="dropdown-item" href="/descriptions">Description</a>
+                                        </li>
                                     </ul>
                                 </li>
                                 <li class="nav-item dropdown dropdown-submenu">
@@ -2638,6 +2665,16 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
         });
 
     </script>
+    @if ($message = Session::get('actSuccess'))
+        <script>
+            toastr['success']('<?php echo $message; ?>', 'success');
+        </script>
+    @endif
+    @if ($message = Session::get('actError'))
+        <script>
+            toastr['error']('<?php echo $message; ?>', 'error');
+        </script>
+    @endif
 
 </body>
 

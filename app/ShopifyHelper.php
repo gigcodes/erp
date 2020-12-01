@@ -34,6 +34,7 @@ class ShopifyHelper
 
         $landingpageProduct = new LandingPageProduct;
         $productData        = $landingpageProduct->getShopifyPushData($product, $website);
+        echo "<pre>"; print_r($productData);  echo "</pre>";die;
         LogListMagento::log($product->id, "Product started to push" . $product->id, 'info', $website->store_website_id, "success");
         
         ProductPushErrorLog::log(null,$product->id, "Product push data not found", 'error',$website->id);
@@ -43,7 +44,10 @@ class ShopifyHelper
 
         $client = new ShopifyClient();
 
-        $shopifyID = \App\StoreWebsiteProduct::where("store_website_id", $website->id)->where("product_id", $product->id)->first();
+        $shopifyID = \App\StoreWebsiteProduct::where("store_website_id", $website->id)
+        ->where("product_id", $product->id)
+        ->first();
+
         if ($shopifyID) {
             $response = $client->updateProduct($shopifyID->platform_id, $productData,null, $website->id);
         } else {
