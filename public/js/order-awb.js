@@ -23,8 +23,8 @@ $(document).on("click",".btn-rate-request",function(e) {
         var htmlReturn = "";
         if(response.data) {
             $.each(response.data, function(key , result) {
-              htmlReturn = "<div class='col'> <ul style='list-style:none;'>";
-               if(result.charges.length > 0) {
+              htmlReturn += "<div class='col-md-4'> <ul style='list-style:none;'>";
+               if(result.charges && result.charges.length > 0) {
                  $.each(response.data.charges,function(k,v) {
                     htmlReturn += "<li>"+v.name+" : "+v.amount+"</li>";
                  });
