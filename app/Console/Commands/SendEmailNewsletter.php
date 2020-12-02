@@ -39,15 +39,23 @@ class SendEmailNewsletter extends Command
     {
         //
         
-        $products = [
-            ["id" => 1 , "name" => "Some name 1", "price" => "$10"],
-            ["id" => 1 , "name" => "Some name 2", "price" => "$10"],
-            ["id" => 1 , "name" => "Some name 3", "price" => "$10"],
-            ["id" => 1 , "name" => "Some name 4", "price" => "$10"],
-            ["id" => 1 , "name" => "Some name 5", "price" => "$10"],
-            ["id" => 1 , "name" => "Some name 6", "price" => "$10"],
-        ];
-
-        echo view('maileclipse::templates.sendingLandingPage', compact('products'));
+        $newsletters = Newsletter::all();
+        foreach($newsletters as $newsletter) {
+            $template = \App\MailinglistTemplate::getNewsletterTemplate($newsletter->store_website_id);
+            if ($template) {
+                $products = $newsletter->products;
+                if (!$products->isEmpty()) {
+                    foreach ($products as $product) {
+                        if ($product->hasMedia(config('constants.attach_image_tag'))) {
+                            foreach ($product->getMedia(config('constants.attach_image_tag')) as $image) {
+                                $product->images[] = $image->getUrl();
+                            }
+                        }
+                    }
+                }
+                
+                echo view($template->mail_tpl, compact('products', 'newsletter'));
+            }
+        }
     }
 }
