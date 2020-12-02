@@ -29,7 +29,9 @@ class NewsletterController extends Controller
 
     public function records(Request $request)
     {
-        $records = \App\Newsletter::join("newsletter_products as np", "newsletters.id", "np.newsletter_id")->leftJoin("users as u", "u.id", "newsletters.updated_by");
+        $records = \App\Newsletter::join("newsletter_products as np", "newsletters.id", "np.newsletter_id")
+        ->leftJoin("users as u", "u.id", "newsletters.updated_by")
+        ->leftJoin("mailinglists as m", "m.id", "newsletters.mail_list_id");
 
         $keyword = request("keyword");
 
@@ -54,7 +56,7 @@ class NewsletterController extends Controller
             $records = $records->whereDate("newsletters.sent_at", '=', $sent_at);
         }
 
-        $records = $records->groupBy('newsletters.id')->select(["newsletters.*", "u.name as updated_by"])->latest()->paginate();
+        $records = $records->groupBy('newsletters.id')->select(["newsletters.*", "u.name as updated_by","m.name as mailinglist_name"])->latest()->paginate();
 
         $store_websites = StoreWebsite::where('website_source', '=', 'shopify')->get();
 

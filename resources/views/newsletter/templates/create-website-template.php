@@ -30,7 +30,15 @@
         		<?php } ?>
         		</select>
         	</div>
-
+        	<div class="form-group">
+	         	<label for="mail_list_id">Mailing List</label>
+        		<select name="mail_list_id" class="form-control">
+        		<option value="">--SELECT-</option>
+        		<?php foreach(\App\Mailinglist::pluck('name','id')->toArray() as $k => $v) {  ?>
+        			<option {{if data}} {{if data.mail_list_id == "<?php echo $k; ?>"}} selected {{/if}} {{/if}} value="<?php echo $k; ?>"><?php echo $v; ?></option>
+        		<?php } ?>
+        		</select>
+        	</div>
 		   </div>
 		   <div class="modal-footer">
 		      <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
