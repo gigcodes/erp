@@ -724,6 +724,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
         });
     });
 
+    Route::prefix('newsletters')->group(function () {
+        Route::get('/', 'NewsletterController@index')->name('newsletters.index');
+        Route::post('/save', 'NewsletterController@save')->name('newsletters.save');
+        Route::get('/records', 'NewsletterController@records')->name('newsletters.records');
+        Route::post('/store', 'NewsletterController@store')->name('newsletters.store');
+        Route::get('/image/{id}/{productId}/delete', 'NewsletterController@deleteImage')->name('newsletters.deleteImage');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'NewsletterController@edit')->name('newsletters.edit');
+            Route::get('delete', 'NewsletterController@delete')->name('newsletters.delete');
+            Route::get('change-store', 'NewsletterController@changeStore')->name('newsletters.change.store');
+            Route::get('preview', 'NewsletterController@preview')->name('newsletters.preview');
+        });
+    });
+
     Route::prefix('size')->group(function () {
         Route::get('/', 'SizeController@index')->name('size.index');
         Route::post('/save', 'SizeController@save')->name('size.save');

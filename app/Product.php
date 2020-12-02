@@ -73,6 +73,7 @@ class Product extends Model
     protected $appends = [];
     protected $communication = '';
     protected $image_url = '';
+    public $images = [];
 
     public static function boot()
     {
