@@ -122,6 +122,7 @@ use App\Console\Commands\WayBillTrackHistories;
 use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\AssetsManagerPaymentCron;
+use App\Console\Commands\SendEmailNewsletter;
 
 
 class Kernel extends ConsoleKernel
@@ -241,6 +242,7 @@ class Kernel extends ConsoleKernel
         ProjectDirectory::class,
         LogScraperDelete::class,
         AssetsManagerPaymentCron::class,
+        SendEmailNewsletter::class,
     ];
 
     /**
@@ -457,6 +459,7 @@ class Kernel extends ConsoleKernel
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
+        $schedule->command('newsletter:send')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
