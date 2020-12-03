@@ -344,7 +344,7 @@ class DialogController extends Controller
             else {
                 $response = WatsonManager::newPushDialog($chatbotDialog->id);
             }
-            
+
             if(isset($response["code"]) && $response["code"] != 200) {
                 return response()->json(["code" => 500, "error" => $response["error"]]);
             }
