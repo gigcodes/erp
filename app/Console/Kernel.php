@@ -85,6 +85,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
@@ -198,6 +199,7 @@ class Kernel extends ConsoleKernel
         RecieveResourceImages::class,
         CreateErpLeadFromCancellationOrder::class,
         SendQueuePendingChatMessages::class,
+        SendQueuePendingChatMessagesGroup::class,
         ScheduleList::class,
         CheckWhatsAppActive::class,
         IncrementFrequencyWhatsappConfig::class,
@@ -429,6 +431,7 @@ class Kernel extends ConsoleKernel
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
             $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
+            $schedule->command('send:queue-pending-chat-group-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
         }
 
 
