@@ -68,10 +68,9 @@ class SendQueuePendingChatMessages extends Command
                 'signature'  => $this->signature,
                 'start_time' => Carbon::now(),
             ]);
+            
             $numberList = array_unique(self::getNumberList());
 
-            // get the status for approval
-            $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
             // get the status for approval
             $approveMessage = \App\Helpers\DevelopmentHelper::needToApproveMessage();
             $limit          = ChatMessage::getQueueLimit();
@@ -97,6 +96,9 @@ class SendQueuePendingChatMessages extends Command
                         $chatMessage = ChatMessage::where('is_queue', ">", 0)
                             ->join("customers as c", "c.id", "chat_messages.customer_id")
                             ->where("c.whatsapp_number", $number)
+                            ->where(function($q) {
+                                $q->orWhere("chat_messages.group_id","<=",0)->orWhereNull("chat_messages.group_id")->orWhere("chat_messages.group_id","");
+                            })
                             ->select("chat_messages.*")
                             ->limit($sendLimit)->get();
 

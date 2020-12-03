@@ -88,6 +88,8 @@ class WatsonController extends Controller
         $params = $request->except('_token');
         if(array_key_exists('is_active',$params)) {
             $params['is_active'] = 1;
+        }else{
+            $params['is_active'] = 0;
         }
         $account->update($params);
         return response()->json(['code' => 200, 'message' => 'Account Successfully updated']);
