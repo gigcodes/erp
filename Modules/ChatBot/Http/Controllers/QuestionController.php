@@ -98,7 +98,7 @@ class QuestionController extends Controller
             'keyword_or_question' => 'required',
         ]);
         if ($validator->fails()) {
-            return response()->json(["code" => 500, "error" => []]);
+            return response()->json(["code" => 500, "error" => $validator->errors()]);
         }
 
         if($request->keyword_or_question  == 'simple' || $request->keyword_or_question  == 'priority-customer') {
@@ -111,7 +111,7 @@ class QuestionController extends Controller
             ]);
 
             if ($validator->fails()) {
-                return response()->json(["code" => 500, "error" => []]);
+                return response()->json(["code" => 500, "error" => $validator->errors()]);
             }
         }
         

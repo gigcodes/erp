@@ -65,6 +65,7 @@ class ManageWatson implements ShouldQueue
         } elseif ($this->service === 'entity') {
             $serviceClass = 'EntitiesService';
         }
+
         foreach ($all_watson_accounts as $account) {
             if ($this->service === 'dialog') {
                 $watson = new DialogService(
@@ -94,6 +95,7 @@ class ManageWatson implements ShouldQueue
             } else if ($this->method === 'update_example') {
                 $result = $watson->updateExample($account->work_space_id, $value, $this->old_example, $this->storeParams);
             }
+
             $status = $result->getStatusCode();
             if($status == 201 || $status == 200) {
                 $success = 1;
