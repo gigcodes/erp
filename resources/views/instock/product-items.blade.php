@@ -21,25 +21,25 @@
             <tr>
                 <td>
                     <a href="{{ route('products.show', $product->id) }}">
-                        <img src="{{ $product->getMedia(config('constants.media_tags'))->first()
-            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
-            : ''
-          }}" class="img-responsive grid-image" alt=""/>
+                        <img style="width: 80px;height: 80px;"  src="{{ $product->getMedia(config('constants.media_tags'))->first()
+                            ? $product->getMedia(config('constants.media_tags'))->first()->getUrl()
+                            : ''
+                          }}" class="img-responsive grid-image" alt=""/>
                     </a>
                 </td>
                 <td>
                     {{ isset($product->brands) ? $product->brands->name : "" }}
                 </td>
-                <td class="transist_status_{{$product->id}}">
-                    {{ $product->purchase_status }}
+                <td class="transist_status_{{$product->id}} show-more-content-btn" data-text="{{$product->purchase_status}}">
+                    {{ strlen($product->purchase_status) > 10 ? substr($product->purchase_status, 0, 10) . '...' : $product->purchase_status }}
                 </td>
-                <td class="location_{{$product->id}}">
-                    {{ ($product->location) ? $product->location : "" }}
+                <td class="location_{{$product->id}} show-more-content-btn" data-text="{{$product->location}}">
+                    {{ strlen($product->location) > 5 ? substr($product->location, 0, 5) . '...' : $product->location }}
                 </td>
-                <td>{{ $product->sku }}</td>
+                <td class="show-more-content-btn" data-text="{{$product->sku}}">{{ strlen($product->sku) > 5 ? substr($product->sku, 0, 5) . '...' : $product->sku }}</td>
                 <td>{{ $product->id }}</td>
-                <td><span class="text-editable" data-field-name="size"
-                          data-product-id="{{ $product->id }}">{{ ($product->size) ? $product->size : "N/A"}}</span></td>
+                <td class="show-more-content-btn" data-text="{{$product->size}}"><span class="text-editable" data-field-name="size"
+                          data-product-id="{{ $product->id }}">{{ strlen($product->size) > 5 ? substr($product->size, 0, 5) . '...' : $product->size }}</span></td>
                 <td><span class="text-editable" data-field-name="price_inr_special"
                           data-product-id="{{ $product->id }}">{{ ($product->price_inr_special > 0) ? $product->price_inr_special : "N/A" }}</span></td>
                 <td><?php echo Form::select("stock_status", [null => "- Select --"] + \App\Product::STOCK_STATUS, $product->stock_status, ["class" => "form-control update-product-stock-status", "data-product-id" => $product->id]); ?></td>
