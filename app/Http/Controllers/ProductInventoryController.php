@@ -956,6 +956,17 @@ class ProductInventoryController extends Controller
 		if($product) {
 			$product->location = $request->get("location",$product->location);
 			$product->save();
+
+			$productHistory = new \App\ProductLocationHistory();
+			$params = [
+				"location_name" => $product->location,
+				"product_id" => $product->id,
+				"date_time" => date("Y-m-d H:i:s")
+			];
+			$productHistory->fill($params);
+			$productHistory->created_by = \Auth::user()->id;
+			$productHistory->save();
+
 		}
 
 		return response()->json(["code" => 1]);

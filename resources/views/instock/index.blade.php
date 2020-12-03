@@ -243,6 +243,15 @@
     <input type="hidden" name="products" id="selected_products_private_viewing" value="">
   </form>
 
+  <div id="show-more-content" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+      <div class="modal-content">
+            <div class="modal-body">
+             </div> 
+      </div>
+    </div>
+  </div>
+
 @endsection
 
 @section('scripts')
@@ -981,6 +990,12 @@
               toastr['error']('Can not store value please review!');
           }
       });
+    });
+
+    $(document).on("click",".show-more-content-btn",function (){
+        var text  = $(this).data("text");
+        $("#show-more-content").find(".modal-body").html(text);
+        $("#show-more-content").modal("show");
     });
 
   </script>
