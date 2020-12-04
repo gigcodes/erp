@@ -124,6 +124,7 @@ use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\AssetsManagerPaymentCron;
 use App\Console\Commands\SendEmailNewsletter;
+use App\Console\Commands\DeleteStoreWebsiteCategory;
 
 
 class Kernel extends ConsoleKernel
@@ -245,6 +246,7 @@ class Kernel extends ConsoleKernel
         LogScraperDelete::class,
         AssetsManagerPaymentCron::class,
         SendEmailNewsletter::class,
+        DeleteStoreWebsiteCategory::class
     ];
 
     /**
@@ -463,6 +465,7 @@ class Kernel extends ConsoleKernel
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
         $schedule->command('newsletter:send')->daily();
+        $schedule->command('delete:store-website-category')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');
