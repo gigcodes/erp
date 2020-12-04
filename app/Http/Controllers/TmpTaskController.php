@@ -2,8 +2,19 @@
 
 namespace App\Http\Controllers;
 
+use App\Brand;
+use App\Category;
+use App\Helpers\ProductHelper;
+use App\Jobs\PushToMagento;
 use App\Library\DHL\GetRateRequest;
+use App\Loggers\LogListMagento;
+use App\Order;
+use App\Product;
+use App\ProductPushErrorLog;
+use App\ScrapedProducts;
+use App\StoreWebsite;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TmpTaskController extends Controller
 {
@@ -16,11 +27,11 @@ class TmpTaskController extends Controller
         if (!$leads->isEmpty()) {
             foreach ($leads as $lead) {
                 try {
-                    $jsonBrand = json_decode($lead->multi_brand, true);
+                    $jsonBrand    = json_decode($lead->multi_brand, true);
                     $jsonCategory = json_decode($lead->multi_category, true);
 
-                    $jsonBrand      =  !empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : []; 
-                    $jsonCategory   =  !empty($jsonCategory) ? (is_array($jsonCategory) ? array_filter($jsonCategory) : [$jsonCategory]) : [];
+                    $jsonBrand    = !empty($jsonBrand) ? (is_array($jsonBrand) ? array_filter($jsonBrand) : [$jsonBrand]) : [];
+                    $jsonCategory = !empty($jsonCategory) ? (is_array($jsonCategory) ? array_filter($jsonCategory) : [$jsonCategory]) : [];
 
                     if ($lead->selected_product) {
                         $selectedProduct = json_decode($lead->selected_product, true);
@@ -41,7 +52,7 @@ class TmpTaskController extends Controller
 
                     $brandSegment = null;
                     if (!empty($jsonBrand)) {
-                        $brand = \App\Brand::whereIn("id",$jsonBrand)->get();
+                        $brand = \App\Brand::whereIn("id", $jsonBrand)->get();
                         if ($brand) {
                             $brandSegmentArr = [];
                             foreach ($brand as $v) {
@@ -52,28 +63,28 @@ class TmpTaskController extends Controller
                     }
 
                     $erpLead = \App\ErpLeads::where([
-                        'brand_id' => isset($jsonBrand[ 0 ]) ? $jsonBrand[ 0 ] : '',
-                        'category_id' => isset($jsonCategory[ 0 ]) ? $jsonCategory[ 0 ] : '',
-                        'customer_id' => $lead->customer_id,
+                        'brand_id'      => isset($jsonBrand[0]) ? $jsonBrand[0] : '',
+                        'category_id'   => isset($jsonCategory[0]) ? $jsonCategory[0] : '',
+                        'customer_id'   => $lead->customer_id,
                         'brand_segment' => $brandSegment,
                     ])->first();
 
                     if (!$erpLead) {
                         $erpLead = new \App\ErpLeads;
                     }
-                    
+
                     $erpLead->lead_status_id = $lead->status;
-                    $erpLead->customer_id = $lead->customer_id;
-                    $erpLead->product_id = !empty($product) ? $product->id : null;
-                    $erpLead->brand_id = isset($jsonBrand[ 0 ]) ? $jsonBrand[ 0 ] : null;
-                    $erpLead->brand_segment = $brandSegment;
-                    $erpLead->category_id = isset($jsonCategory[ 0 ]) ? $jsonCategory[ 0 ] : null;
-                    $erpLead->color = null;
-                    $erpLead->size = $lead->size;
-                    $erpLead->min_price = 0.00;
-                    $erpLead->max_price = 0.00;
-                    $erpLead->created_at = $lead->created_at;
-                    $erpLead->updated_at = $lead->updated_at;
+                    $erpLead->customer_id    = $lead->customer_id;
+                    $erpLead->product_id     = !empty($product) ? $product->id : null;
+                    $erpLead->brand_id       = isset($jsonBrand[0]) ? $jsonBrand[0] : null;
+                    $erpLead->brand_segment  = $brandSegment;
+                    $erpLead->category_id    = isset($jsonCategory[0]) ? $jsonCategory[0] : null;
+                    $erpLead->color          = null;
+                    $erpLead->size           = $lead->size;
+                    $erpLead->min_price      = 0.00;
+                    $erpLead->max_price      = 0.00;
+                    $erpLead->created_at     = $lead->created_at;
+                    $erpLead->updated_at     = $lead->updated_at;
                     $erpLead->save();
 
                     $mediaArr = $lead->getMedia(config('constants.media_tags'));
@@ -91,23 +102,23 @@ class TmpTaskController extends Controller
 
     public function importProduct()
     {
-        $scraped_product = \App\ScrapedProducts::orderBy("id","desc")->first();
+        $scraped_product = \App\ScrapedProducts::orderBy("id", "desc")->first();
         app('App\Services\Products\ProductsCreator')->createProduct($scraped_product);
     }
 
     public function testEmail(Request $request)
     {
         $order = \App\Order::latest()->first();
-        
-        if($order) {
-            
-            $customer           = $order->customer;
-            $orderItems         = $order->order_product;
+
+        if ($order) {
+
+            $customer   = $order->customer;
+            $orderItems = $order->order_product;
 
             $data["order"]      = $order;
             $data["customer"]   = $customer;
             $data["orderItems"] = $orderItems;
-            
+
             Mail::to('solanki7492@gmail.com')->send(new OrderInvoice($data));
         }
 
@@ -119,4 +130,49 @@ class TmpTaskController extends Controller
         $result = $rate->call();
     }
 
+    public function testPushProduct(Request $request)
+    {
+        $queueName = [
+            "1" => "mageone",
+            "2" => "magetwo",
+            "3" => "magethree"
+        ];
+
+        if($request->product_id == null) {
+            die("Please Enter product id");
+        }
+
+        $productId = $request->product_id;
+        if($request->store_website_ids != null) {
+            $websiteArrays = explode(",", $request->store_website_ids);
+        }
+        $product = \App\Product::find($request->product_id);
+        // call product
+        if ($product) {
+            if(empty($websiteArrays)) {
+                $websiteArrays = ProductHelper::getStoreWebsiteName($product->id);
+            }
+            if (count($websiteArrays) == 0) {
+                \Log::info("Product started " . $product->id . " No website found");
+                $msg = 'No website found for  Brand: ' . $product->brand . ' and Category: ' . $product->category;
+                ProductPushErrorLog::log($product->id, $msg, 'error');
+                LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info');
+            } else {
+                $i = 1;
+                foreach ($websiteArrays as $websiteArray) {
+                    $website = StoreWebsite::find($websiteArray);
+                    if ($website) {
+                        \Log::info("Product started website found For website" . $website->website);
+                        LogListMagento::log($product->id, "Start push to magento for product id " . $product->id, 'info', $website->id);
+                        //currently we have 3 queues assigned for this task.
+                        if ($i > 3) {
+                            $i = 1;
+                        }
+                        PushToMagento::dispatch($product, $website)->onQueue($queueName[$i]);
+                        $i++;
+                    }
+                }
+            }
+        }
+    }
 }

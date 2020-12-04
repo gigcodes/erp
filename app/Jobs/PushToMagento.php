@@ -46,6 +46,7 @@ class PushToMagento implements ShouldQueue
         // Load product and website
         $product = $this->_product;
         $website = $this->_website;
+
         if(!$website->website_source || $website->website_source == '') {
             ProductPushErrorLog::log('',$product->id, 'Website Source not found', 'error',$website->id);
         }
