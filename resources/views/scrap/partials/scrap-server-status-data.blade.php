@@ -1,3 +1,4 @@
+
  @if(isset($scrappers))
                         @foreach($scrappers as $scrapper)
                             <?php
@@ -31,11 +32,9 @@
                             </tr>
 
                            
-<!--                             <tr class="close_all" style="display: none;">
-                            </tr> -->
+
                             
-                             <thead class="open_request_{{ @$scrapper->id }}" style="display: none;">
-                            <tr>
+                            <tr class="open_request_{{ @$scrapper->id }}" style="display: none;">
                                 <th>Start Time</th>
                                 <th>End Time</th>
                                 <th>Duration</th>
@@ -44,7 +43,7 @@
                             </tr>
                                     @if($scrapper->getScrapHistory->count() != 0)
                                         @foreach($scrapper->getScrapHistory as $scrapHistory)
-                                            <tr>
+                                            <tr class="open_request_{{ @$scrapper->id }}" style="display: none;">
                                                 <?php
                                                     $start_time = new DateTime(@$scrapHistory->start_time);
                                                     $end_time = new DateTime(@$scrapHistory->end_time);
@@ -65,12 +64,12 @@
                                                 <td>
                                                     {{ @$scrapHistory->request_failed }}
                                                 </td>
-                                            <tr>
+                                            </tr>
                                         @endforeach    
                                     @endif
 
-                             <thead>
+                             </td>
                                
                         @endforeach
                     @endif
-                    </tbody>
+                   
