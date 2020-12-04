@@ -75,6 +75,11 @@
 					      	<td><?php echo $color->store_color; ?></td>
 					      	<td>
 									<button type="button" class="btn btn-image edit-color d-inline" data-toggle="modal" data-target="#colorEditModal" data-color="{{ json_encode($color) }}"><img src="/images/edit.png" /></button>
+									
+									<button type="button" class="btn btn-image push-to-store d-inline" data-id="<?php echo $color->id; ?>" data-color="{{ json_encode($color) }}">
+										<img src="/images/icons-refresh.png" />
+									</button>
+
 									{!! Form::open(['method' => 'DELETE','route' => ['store-website.color.destroy', $color->id],'style'=>'display:inline']) !!}
 									<button type="submit" class="btn btn-image d-inline"><img src="/images/delete.png" /></button>
 									{!! Form::close() !!}
@@ -110,6 +115,27 @@ $(document).on('click', '.edit-color', function() {
       $('#erp_color').val(color.erp_color);
       $('#store_color').val(color.store_color);
     });
+
+$(document).on("click",".push-to-store",function() {
+	var id = $(this).data("id");
+	$.ajax({
+		url: '/store-website/color/push-to-store',
+		type: 'POST',
+		dataType: 'json',
+		data: {
+			_token: "{{ csrf_token() }}",
+			id: id,
+		},
+	}).done(function (response) {
+		if(response.code == 200) {
+			toastr['success']('Color Pushed successfully', 'success');
+		}else{
+			toastr['error']('Something went wrong', 'error');
+		}
+	}).fail(function () {
+		console.log("error");
+	});
+});
 </script>
 
 @endsection
