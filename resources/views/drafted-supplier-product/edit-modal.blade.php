@@ -29,7 +29,7 @@
             <div class="col-xs-12 col-sm-12 col-md-12">
                 <div class="form-group">
                     <strong>Price:</strong>
-                    <input type="text" name="price " value="{{ ($product) ? $product->price : '' }}" class="form-control" placeholder="price">
+                    <input type="text" name="price" value="{{ ($product) ? $product->price : '' }}" class="form-control" placeholder="price">
                 </div>
             </div>
             <div class="col-xs-12 col-sm-12 col-md-12">
