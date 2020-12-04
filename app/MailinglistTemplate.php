@@ -102,6 +102,18 @@ class MailinglistTemplate extends Model
         return false;
     }
 
+    public static function getNewsletterTemplate($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Newsletter')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
     public static function getTemplate($category, $store = null)
     {
         if ($store) {

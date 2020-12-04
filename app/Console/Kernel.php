@@ -85,6 +85,7 @@ use App\Console\Commands\UpdateShoeAndClothingSizeFromChatMessages;
 use App\Console\Commands\UpdateCustomerSizeFromOrder;
 use App\Console\Commands\CreateErpLeadFromCancellationOrder;
 use App\Console\Commands\SendQueuePendingChatMessages;
+use App\Console\Commands\SendQueuePendingChatMessagesGroup;
 use App\Console\Commands\SyncCustomersFromMagento;
 use App\NotificationQueue;
 use App\Benchmark;
@@ -122,6 +123,7 @@ use App\Console\Commands\WayBillTrackHistories;
 use App\Console\Commands\ProjectDirectory;
 use App\Console\Commands\LogScraperDelete;
 use App\Console\Commands\AssetsManagerPaymentCron;
+use App\Console\Commands\SendEmailNewsletter;
 
 
 class Kernel extends ConsoleKernel
@@ -197,6 +199,7 @@ class Kernel extends ConsoleKernel
         RecieveResourceImages::class,
         CreateErpLeadFromCancellationOrder::class,
         SendQueuePendingChatMessages::class,
+        SendQueuePendingChatMessagesGroup::class,
         ScheduleList::class,
         CheckWhatsAppActive::class,
         IncrementFrequencyWhatsappConfig::class,
@@ -241,6 +244,7 @@ class Kernel extends ConsoleKernel
         ProjectDirectory::class,
         LogScraperDelete::class,
         AssetsManagerPaymentCron::class,
+        SendEmailNewsletter::class,
     ];
 
     /**
@@ -427,6 +431,7 @@ class Kernel extends ConsoleKernel
         // check if time both is not empty then run the cron
         if(!empty($queueStartTime) && !empty($queueEndTime)) {
             $schedule->command('send:queue-pending-chat-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
+            $schedule->command('send:queue-pending-chat-group-messages')->cron('*/5 * * * *')->between($queueStartTime, $queueEndTime)->withoutOverlapping(10);
         }
 
 
@@ -457,6 +462,7 @@ class Kernel extends ConsoleKernel
         // Github
         $schedule->command('live-chat:get-tickets')->everyFifteenMinutes();
         $schedule->call('App\Http\Controllers\AnalyticsController@cronShowData')->daily();
+        $schedule->command('newsletter:send')->daily();
         //$schedule->command('github:load_branch_state')->hourly();
         // $schedule->command('checkScrapersLog')->dailyAt('8:00');
         // $schedule->command('store:store-brands-from-supplier')->dailyAt('23:45');

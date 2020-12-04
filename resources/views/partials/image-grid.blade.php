@@ -62,7 +62,7 @@
             <div class="">
 
                 <!--roletype-->
-                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null) 
+                <h2 class="page-heading">Attach Images to Message (<span id="products_count">{{ $products_count }}</span>) @if($customerId != null)
                     @if(auth()->user()->isInCustomerService())
                         #{{ $customerId }} 
                     @else
@@ -284,8 +284,10 @@
             $action =  route('landing-page.save');
         } else if($model_type == 'live-chat') {
             $action =  route('live-chat.attach.image');
-        }else if ($model_type == 'direct'){
+        } else if ($model_type == 'direct'){
             $action =  route('direct.send.file');
+        } else if ($model_type == 'newsletters'){
+            $action =  route('newsletters.save');
         }
     @endphp
     <form action="{{ $action }}" data-model-type="{{$model_type}}" method="POST" id="attachImageForm">

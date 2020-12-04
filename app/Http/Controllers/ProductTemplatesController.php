@@ -38,8 +38,8 @@ class ProductTemplatesController extends Controller
         }
         $templateArr = \App\Template::all();
 
-        $texts = \App\ProductTemplate::where('text',"!=" ,"")->groupBy('text')->pluck('text','text');
-        $backgroundColors = \App\ProductTemplate::where('background_color',"!=" ,"")->groupBy('background_color')->pluck('background_color','background_color');
+        $texts = \App\ProductTemplate::where('text',"!=" ,"")->groupBy('text')->pluck('text','text')->toArray();
+        $backgroundColors = \App\ProductTemplate::where('background_color',"!=" ,"")->groupBy('background_color')->pluck('background_color','background_color')->toArray();
 
         return view("product-template.index", compact('templateArr', 'productArr', 'texts' , 'backgroundColors'));
     }
@@ -86,14 +86,14 @@ class ProductTemplatesController extends Controller
             if (!empty($request->get('product_media_list')) && is_array($request->get('product_media_list'))) {
                 foreach ($request->get('product_media_list') as $mediaid) {
                     $media = Media::find($mediaid);
-                    $template->attachMedia($media, config('constants.media_tags'));
+                    $template->attachMedia($media, ['template-image']);
                 }
             }
 
             if ($request->hasFile('files')) {
                 foreach ($request->file('files') as $image) {
                     $media = MediaUploader::fromSource($image)->toDirectory('product-template-images')->upload();
-                    $template->attachMedia($media,'template-image');
+                    $template->attachMedia($media,['template-image']);
                 }
             }
         }
@@ -122,6 +122,7 @@ class ProductTemplatesController extends Controller
     {
         
         $record = \App\ProductTemplate::where('is_processed','0')->orderBy('id','asc')->first();
+
 
         if(!$record) {
             $data = ['message' => 'Template not found'];
@@ -156,10 +157,10 @@ class ProductTemplatesController extends Controller
         //check if template exist
         $templateProductCount = $record->template->no_of_images;
         
-        if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
-            $data = ['message' => 'Template Product Doesnt have Proper Images'];
-            return response()->json($data);
-        }
+        // if($record->getMedia('template-image')->count() <= $templateProductCount && $templateProductCount > 0){
+        //     $data = ['message' => 'Template Product Doesnt have Proper Images'];
+        //     return response()->json($data);
+        // }
 
         $record->is_processed = 2;
         $record->save();
@@ -205,7 +206,7 @@ class ProductTemplatesController extends Controller
 
         // Only do queries if we have an id
         if ( (int) $id > 0 ) {
-            $template = \App\ProductTemplate::where("id", $id)->where('is_processed', 0)->first();
+            $template = \App\ProductTemplate::where("id", $id)->first();
 
             if ($template) {
                 if ($request->post('image')) {

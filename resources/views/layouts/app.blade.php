@@ -1360,6 +1360,9 @@ $metaData = \App\Routes::where(['url' => $currentRoutes->uri])->first();
                                         <a class="dropdown-item" href="{{ route('landing-page.index') }}">Landing Page</a>
                                     </li>
                                     <li class="nav-item">
+                                        <a class="dropdown-item" href="{{ route('newsletters.index') }}">Newsletters</a>
+                                    </li>
+                                    <li class="nav-item">
                                         <a class="dropdown-item" href="{{ route('store-website.price-override.index') }}">Price Override</a>
                                     </li>
                                     <li class="nav-item">

@@ -55,6 +55,7 @@ Route::prefix('product')->middleware('auth')->group(static function () {
     Route::post('hscode/save-group', 'ProductController@saveGroupHsCode')->name('hscode.save.group');
     Route::post('hscode/edit-group', 'ProductController@editGroup')->name('hscode.edit.group');
     Route::post('store-website-description', 'ProductController@storeWebsiteDescription')->name('product.store.website.description');
+    Route::post('test', 'ProductController@test')->name('product.test.template');
 });
 
 Route::prefix('logging')->middleware('auth')->group(static function () {
@@ -720,6 +721,20 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
             Route::get('delete', 'LandingPageController@delete')->name('landing-page.delete');
             Route::get('push-to-shopify', 'LandingPageController@pushToShopify')->name('landing-page.push-to-shopify');
             Route::get('change-store', 'LandingPageController@changeStore')->name('landing-page.change.store');
+        });
+    });
+
+    Route::prefix('newsletters')->group(function () {
+        Route::get('/', 'NewsletterController@index')->name('newsletters.index');
+        Route::post('/save', 'NewsletterController@save')->name('newsletters.save');
+        Route::get('/records', 'NewsletterController@records')->name('newsletters.records');
+        Route::post('/store', 'NewsletterController@store')->name('newsletters.store');
+        Route::get('/image/{id}/{productId}/delete', 'NewsletterController@deleteImage')->name('newsletters.deleteImage');
+        Route::prefix('{id}')->group(function () {
+            Route::get('edit', 'NewsletterController@edit')->name('newsletters.edit');
+            Route::get('delete', 'NewsletterController@delete')->name('newsletters.delete');
+            Route::get('change-store', 'NewsletterController@changeStore')->name('newsletters.change.store');
+            Route::get('preview', 'NewsletterController@preview')->name('newsletters.preview');
         });
     });
 
@@ -2526,6 +2541,8 @@ Route::prefix('translation')->middleware('auth')->group(static function () {
     Route::post('/update', 'TranslationController@update')->name('translation.update');
 
 });
+//for email templates page
+Route::get('getTemplateProduct', 'TemplatesController@getTemplateProduct')->name('getTemplateProduct');
 
 //Affiliates
 Route::prefix('affiliates')->middleware('auth')->group(static function () {
