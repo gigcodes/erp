@@ -505,6 +505,10 @@ class ScrapStatisticsController extends Controller
                         $scrappers->where('server_id',$request->order);
                     }
                     
+                }elseif($request->type == 'filter_by_text'){
+                    if(!empty($request->order)){
+                        $scrappers->where('scraper_name','LIKE','%'.$request->order.'%');
+                    }
                 }else{
                    $scrappers->orderBy($request->type,$request->order); 
                 }

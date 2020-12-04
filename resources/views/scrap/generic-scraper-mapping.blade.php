@@ -109,6 +109,7 @@
         currency = '<option value="currency">Currency</option >';
         b2b_price = '<option value="b2b_price">B2bprice</option >';
         composition = '<option value="composition">Composition</option >';
+        dimension = '<option value="dimension">Dimension</option >';
 
         $(".select-value").each(function( index ) {
             if($(this).children("option:selected").val() == 'sku'){
@@ -164,11 +165,13 @@
             }
             if($(this).children("option:selected").val() == 'composition'){
                 composition = '';
+            }if($(this).children("option:selected").val() == 'dimension'){
+                dimension = '';
             }
         });
 
-        html = '<tr><td><select class="form-control select-value">'+sku+''+url+''+title+''+category+''+material_used+''+description+''+price+''+discounted_price+''+images+''+sizes+''+brand+''+color+''+country+''+is_sale+''+size_system+''+currency+''+b2b_price+''+composition+'</select></td><td><input type="text" class="selector form-control"></td><td><input type="text" class="function form-control"></td><td><input type="text" class="parameter form-control"></td></tr>';
-        if(sku == '' && url == '' && category == '' && material_used == '' && description == '' && price == '' && discounted_price == '' && images == '' && sizes == '' && brand == '' && color == '' && country == '' && is_sale == '' && size_system == '' && currency == '' && b2b_price == ''){
+        html = '<tr><td><select class="form-control select-value">'+sku+''+url+''+title+''+category+''+material_used+''+description+''+price+''+discounted_price+''+images+''+sizes+''+brand+''+color+''+country+''+is_sale+''+size_system+''+currency+''+b2b_price+''+composition+''+dimension+'</select></td><td><input type="text" class="selector form-control"></td><td><input type="text" class="function form-control"></td><td><input type="text" class="parameter form-control"></td></tr>';
+        if(sku == '' && url == '' && category == '' && material_used == '' && description == '' && price == '' && discounted_price == '' && images == '' && sizes == '' && brand == '' && color == '' && country == '' && is_sale == '' && size_system == '' && currency == '' && b2b_price == '' && dimension == ''){
             alert('All Fields Selected');
         }else{
             $('#column').append(html);    

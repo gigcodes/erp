@@ -16,15 +16,19 @@
     
     <div class="row mb-5">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">Scrapper Server Status <span id="total-count">({{ $scrappers->total() }})</span></h2>
+            <h2 class="page-heading">Scrapper Server Status (<span id="total-count">{{ $scrappers->total() }}</span>)</h2>
             <div class="row">
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <select class="form-control" onchange="filterByServer('server_id_filter')" id="server_change">
                         <option value="">Select All</option>
                         @foreach($servers as $server)
                             <option value="{{ $server->server_id }}">{{ $server->server_id }}</option>
                         @endforeach
                     </select>
+                </div>
+                <div class="col-md-4">
+                    <input class="form-control" id="server_text">
+                    <button type="button" class="form-control" onclick="filterByText('filter_by_text')">Search</button>
                 </div>
             </div>
         </div>
@@ -127,6 +131,33 @@
     function filterByServer(type) {
          order = $('#server_change').val();
          console.log(order)
+         $.ajax({
+            type: 'GET',
+            url: "/scrap/server-statistics",
+            data: {
+                type: type,
+                order : order,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function(data) {
+            $("#loading-image").hide();
+            $("#detail-table tbody").empty().html(data.tbody);
+            $("#total-count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function(response) {
+            alert('No response from server');
+        });
+    } 
+
+    function filterByText(type) {
+         order = $('#server_text').val();
          $.ajax({
             type: 'GET',
             url: "/scrap/server-statistics",
