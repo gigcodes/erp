@@ -124,4 +124,28 @@ class ColorController extends Controller
         }
         return redirect()->route('store-website.color.list')->withErrors('Unable to delete a store color');
     }
+
+    public function pushToStore(Request $request)
+    {
+        $id = $request->get("id", 0);
+
+        if ($id > 0) {
+            $color    = \App\StoreWebsiteColor::where("id", $id)->first();
+            if($color) {
+                $website = \App\StoreWebsite::find($color->store_website_id);
+                if($website) {
+                    $colorName = !empty($color->store_color) ? $color->store_color : $color->erp_color;
+                    $id = \seo2websites\MagentoHelper\MagentoHelper::addColor($colorName, $website);
+                    if(!empty($id)) {
+                        $color->platform_id = $id;
+                        $color->save();
+                    }
+                }
+                return response()->json(["code" => 200, "data" => $color]);
+            }
+        }
+
+        return response()->json(["code" => 500, "error" => "Wrong row id!"]);
+
+    }
 }
