@@ -591,7 +591,9 @@
                 }
             },
             changeQuickComment : function (ele) {
+                console.log([ele.val(),ele.closest('tr').find('.quick-message-field')]);
                 ele.closest('tr').find('.quick-message-field').html(ele.val());
+                ele.closest('tr').find('.quick-message-field').val(ele.val());
             },
             leadsChart : function () {
                 var params = {
