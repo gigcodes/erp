@@ -67,16 +67,6 @@
                     </div>
                   </td>
                 </tr>
-                <tr>
-                  <td align="left">
-                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Estimated delivery date</div>
-                  </td>
-                  <td align="right" style="padding-right: 10px;">
-                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">
-                      {{$order->estimated_delivery_date}}
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </td>
