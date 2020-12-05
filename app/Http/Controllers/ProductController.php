@@ -2752,12 +2752,11 @@ class ProductController extends Controller
 
             $order_product->order_id = $request->order_id;
             $order_product->sku = $request->sku;
-            $order_product->product_price = $request->price_inr_special;
+            $order_product->product_price = $product->price_inr_special;
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
             $order_product->product_id = $product->id;
-
             $order_product->save();
 
             // return response($product);
