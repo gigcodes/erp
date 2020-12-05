@@ -623,4 +623,78 @@ class ReturnExchangeController extends Controller
 		}
 		return response()->json(['message' => 'please enter a reply','status' => 400]);
 	}
+
+    public function resendEmail(Request $request)
+    {
+        $returnExchange = \App\ReturnExchange::find($request->id);
+        if($returnExchange) {
+            try {
+                if($request->type == "refund") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeRefundRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeRefundRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'refund-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'refund-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "return") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeReturnRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeReturnRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'return-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'return-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "exchange") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeExchangeRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'exchange-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'exchange-request',
+                        'method'        => 'email'
+                    ]);
+                }
+            }catch(\Exception $e) {
+                \Log::info("Sending mail issue at the returnexchangecontroller #694 ->".$e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'Return request send successfully','status' => 200]);
+    }
 }

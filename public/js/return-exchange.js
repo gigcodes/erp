@@ -113,6 +113,12 @@ var msQueue = {
             msQueue.getProduct($(this).data("id"));     
         });
 
+
+        $(document).on("click",".resend-confirmation-email",function(e){
+            e.preventDefault();
+            msQueue.resendMail($(this).data("id"));
+        });
+
         $(".select2").select2({tags:true});
 
         $(window).scroll(function() {
@@ -353,6 +359,20 @@ var msQueue = {
           }
         }
     },
+    resendMail : function(id) {
+        var _z = {
+            url: this.config.baseUrl + "/return-exchange/"+id+"/resend-email",
+            method: "get",
+            beforeSend : function() {
+                $("#loading-image").show();
+            }
+        }
+        this.sendAjax(_z, "afterSendEmail");
+    },
+    afterSendEmail : function(response) {
+        $("#loading-image").hide();
+        toastr['success']("Email send successfully");
+    }
 }
 
 $.extend(msQueue, common);

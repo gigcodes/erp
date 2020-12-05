@@ -94,7 +94,9 @@
 						{{if !prop.credited}}
 						<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
 						{{/if}}
-            			
+            			<button type="button" class="btn resend-confirmation-email" data-id="{{>prop.customer_id}}">
+            				<i class="fa fa-paper-plane" aria-hidden="true"></i>
+            			</button>
 						</div>
 			        </td>
 			      </tr>
