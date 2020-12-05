@@ -316,21 +316,6 @@
             </div>
             <div class="col">
                 <div class="form-group">
-                    <strong>Balance Amount:</strong>
-                    <?php
-                        if(isset($defaultSelected["balance_amount"])) {
-                            $balance_amount = $defaultSelected["balance_amount"];
-                        }
-                    ?>
-                    <input type="text" class="form-control" name="balance_amount" id="balance_amount" placeholder="Balance Amount"
-                           value="{{ old('balance_amount') ? old('balance_amount') : $balance_amount }}"/>
-                    @if ($errors->has('balance_amount'))
-                        <div class="alert alert-danger">{{$errors->first('balance_amount')}}</div>
-                    @endif
-                </div>
-            </div>
-            <div class="col">
-                <div class="form-group">
                     <strong> Status :</strong>
                     <?php
                         if(isset($defaultSelected["order_status_id"])) {

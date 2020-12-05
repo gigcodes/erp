@@ -58,7 +58,7 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
             $requestData->request->add([
                 'customer_id' => $order->customer_id,
                 'message'     => $msg,
-                'status'      => 2,
+                'status'      => 0,
                 'order_id'    => $order->id,
             ]);
 

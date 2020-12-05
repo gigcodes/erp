@@ -2399,6 +2399,7 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
         Route::get('/date-history', 'ReturnExchangeController@estimationHistory')->name('return-exchange.date-history');
         Route::get('/product', 'ReturnExchangeController@product')->name('return-exchange.product');
         Route::post('/update', 'ReturnExchangeController@update')->name('return-exchange.update');
+        Route::get('/resend-email', 'ReturnExchangeController@resendEmail')->name('return-exchange.resend-email');
     });
 });
 
