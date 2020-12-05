@@ -564,8 +564,6 @@ class OrderController extends Controller {
 
         $order = new Order();
 
-
-
         $data  = [];
         foreach ( $order->getFillable() as $item ) {
             $data[ $item ] = '';
@@ -686,6 +684,7 @@ class OrderController extends Controller {
         }
 
         $data['estimated_delivery_date'] = $data['date_of_delivery'];
+
         $order = Order::create( $data );
 
         if(!empty($request->input('order_products'))) {
@@ -698,6 +697,11 @@ class OrderController extends Controller {
                             $nw_order_product->{$k} = $attr;
                         }
                     }
+
+                    foreach($order_product_data as $k => $v) {
+                        $nw_order_product->{$k} = $v;
+                    }
+
                     $nw_order_product->order_id = $order->id;
                     $nw_order_product->save();
                 }
@@ -738,7 +742,17 @@ class OrderController extends Controller {
                     }
                 }
             }
-        } 
+        }
+
+
+        $totalAmount = 0;
+        foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
+            $totalAmount += $order_product->product_price;
+        }
+
+        $order->balance_amount = ($totalAmount - $order->advance_detail);
+        $order->save();
+
         if ($customer->credit > 0) {
             $balance_amount = $order->balance_amount;
 
@@ -751,6 +765,7 @@ class OrderController extends Controller {
                 $balance_amount -= $customer->credit;
                 $order->advance_detail += $customer->credit;
             }
+
             $order->balance_amount = $balance_amount;
             $order->order_id = $oPrefix."-".$order->id;
             $order->save();
