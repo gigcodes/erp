@@ -718,7 +718,7 @@ class OrderController extends Controller {
                             $params = [
                                 'model_id'          => $order_new->customer->id,
                                 'model_type'        => Customer::class,
-                                'from'              => $emailClass->fromMail,
+                                'from'              => $emailClass->fromMailer,
                                 'to'                => $order_new->customer->email,
                                 'subject'           => $emailClass->subject,
                                 'message'           => $emailClass->render(),
