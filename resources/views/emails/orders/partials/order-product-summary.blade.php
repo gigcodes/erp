@@ -16,6 +16,9 @@
                         <h4 style="margin: 0;padding:0;font-weight: bold;font-size: 14px;color: #898989;">{{ ($product->brands) ? ucwords($product->brands->name) : "" }}</h4>
                         <p style="margin: 0;padding: 0;width: 70%;margin: 5px 0;">{{ $product->name }}</p>
                         <div style="font-size: 12px;color: #898989;">Quantity : {{ $order_product->qty }}</div>
+                        @if(!empty($order_product->shoe_size))
+                          <div style="font-size: 12px;color: #898989;">Size : {{ $order_product->shoe_size }}</div>
+                        @endif
                         <div style="font-size: 12px;font-weight: 700;color: #000000;margin-top: 5px;margin-bottom: 10px;">Receive it by {{ date("M d, Y",strtotime($order->estimated_delivery_date)) }}</div>
                       </td>
                       <td style="font-weight: bold;padding: 5px 10px;">{{ $order->currency }} {{$order_product->order_price}}</td>
@@ -38,11 +41,41 @@
               <tbody align="right">
                 <tr>
                   <td align="left"><div style="color: #898989;font-size: 14px;padding-top: 10px;">Subtotal</div></td>
-                  <td align="right" style="padding-right: 10px;"><div style="color: #898989;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">{{ $order->currency }}{{$product_total}}</div></td>
+                  <td align="right" style="padding-right: 10px;">
+                    <div style="color: #898989;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">
+                    {{ $order->currency }}{{$product_total}}
+                    </div>
+                  </td>
                 </tr>
-                 <tr>
-                  <td align="left"><div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Total <span style="font-size: 11px;font-weight: normal;color: #898989;">(Inclusive of VAT)</span></div></td>
-                  <td align="right" style="padding-right: 10px;"><div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">{{ $order->currency }}{{$order->advance_detail + $order->balance_amount}}</div></td>
+                <tr>
+                  <td align="left">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Advance Amount</div>
+                  </td>
+                  <td align="right" style="padding-right: 10px;">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">
+                      {{ $order->currency }}{{$order->advance_detail}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Balance Amount</div>
+                  </td>
+                  <td align="right" style="padding-right: 10px;">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">
+                      {{ $order->currency }}{{$order->balance_amount}}
+                    </div>
+                  </td>
+                </tr>
+                <tr>
+                  <td align="left">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;">Estimated delivery date</div>
+                  </td>
+                  <td align="right" style="padding-right: 10px;">
+                    <div style="color: #000000;font-size: 14px;font-weight: bold;padding-top: 10px;padding-left: 20px;">
+                      {{$order->estimated_delivery_date}}
+                    </div>
+                  </td>
                 </tr>
               </tbody>
             </table>
