@@ -275,6 +275,13 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
             $returnExchange->save();
+
+            //Sending Mail on changing of order status
+            if(isset($request->send_message) && $request->send_message=='1'){
+                //sending order message to the customer 
+                UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message',null))->onQueue("customer_message");
+            }
+
             $returnExchange->updateHistory();
         }
 
@@ -697,4 +704,47 @@ class ReturnExchangeController extends Controller
 
         return response()->json(['message' => 'Return request send successfully','status' => 200]);
     }
+
+    public function status(Request $request)
+    {
+        $status = ReturnExchangeStatus::query();
+
+        if($request->search !=  null) {
+            $status = $status->where("status_name","like","%".$request->search."%");
+        }
+
+        $status = $status->get();
+
+        return view("return-exchange.status",compact('status'));
+    }
+
+    public function saveStatusField(Request $request)
+    {
+        if($request->id != null) {
+            $status = ReturnExchangeStatus::find($request->id);
+            if($status) {
+                $status->{$request->field} = $request->value;
+                $status->save();
+
+                return response()->json(["code" => 200 , "data" => $status , "message" => "Added successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "No data found"]);
+    }
+
+    public function deleteStatus(Request $request)
+    {
+        if($request->id != null) {
+            $status = ReturnExchangeStatus::find($request->id);
+            if($status) {
+                $status->delete();
+                return response()->json(["code" => 200 , "data" => $status , "message" => "Added successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "No data found"]);
+    }
+
+
 }
