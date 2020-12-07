@@ -2392,7 +2392,10 @@ Route::group(['middleware' => 'auth', 'prefix' => 'return-exchange'], function (
     Route::post('/createRefund', 'ReturnExchangeController@createRefund')->name('return-exchange.createRefund');
     Route::post('/updateRefund', 'ReturnExchangeController@updateRefund')->name('return-exchange.updateRefund');
     Route::post('/update-estimated-date', 'ReturnExchangeController@updateEstmatedDate')->name('return-exchange.update-estimated-date');
+    Route::get('/status', 'ReturnExchangeController@status')->name('return-exchange.status');
+    Route::post('/status/store', 'ReturnExchangeController@saveStatusField')->name('return-exchange.save.status-field');
     Route::post('/status/create', 'ReturnExchangeController@createStatus')->name('return-exchange.createStatus');
+    Route::post('/status/delete', 'ReturnExchangeController@deleteStatus')->name('return-exchange.deleteStatus');
     Route::post('/addNewReply', 'ReturnExchangeController@addNewReply')->name('returnexchange.addNewReply');
 
     Route::prefix('{id}')->group(function () {
