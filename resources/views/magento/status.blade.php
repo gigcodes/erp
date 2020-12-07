@@ -41,7 +41,7 @@
               <td>{{ $orderStatus->status }}</td>
               <td><input type="text" value="{{ $orderStatus->magento_status }}" class="form-control" onfocusout="updateStatus({{ $orderStatus->id }})" id="status{{ $orderStatus->id }}"></td>
               <td>
-                <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ $orderStatus->message_text_tpl }}</textarea>
+                <textarea class="form-control message-text-tpl" name="message_text_tpl">{{ !empty($orderStatus->message_text_tpl) ? $orderStatus->message_text_tpl : \App\Order::ORDER_STATUS_TEMPLATE }}</textarea>
                 <button type="button" class="btn btn-image edit-vendor" onclick="updateStatus({{ $orderStatus->id }})"><i class="fa fa-arrow-circle-right fa-lg"></i></button>
               </td>
             </tr>

@@ -2307,7 +2307,7 @@ public function createProductOnMagento(Request $request, $id){
                 //Sending Mail on changing of order status
                 if(isset($request->sendmessage) && $request->sendmessage=='1'){
                     //sending order message to the customer 
-                    UpdateOrderStatusMessageTpl::dispatch($order->id)->onQueue("customer_message");
+                    UpdateOrderStatusMessageTpl::dispatch($order->id, request('message',null))->onQueue("customer_message");
                 }
                 $storeWebsiteOrder = StoreWebsiteOrder::where('order_id',$order->id)->first();
                 if($storeWebsiteOrder) {
@@ -3190,5 +3190,23 @@ public function createProductOnMagento(Request $request, $id){
 
         // \MultiMail::to('webreak.pravin@gmail.com')->send(new OrderConfirmation($order_new));
         // */
+    }
+
+    public function statusChangeTemplate(Request $request)
+    {
+        $statusModal       = \App\OrderStatus::where("id", $request->order_status_id)->first();
+        $order       = \App\Order::where("id", $request->order_id)->first();
+
+        $template = \App\Order::ORDER_STATUS_TEMPLATE;
+
+        if($statusModal) {
+            if(!empty($statusModal->message_text_tpl)) {
+                $template = $statusModal->message_text_tpl;
+            }
+        }
+
+        $template = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $template);
+
+        return response()->json(["code" => 200, "template" => $template]);
     }
 }
