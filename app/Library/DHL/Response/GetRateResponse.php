@@ -53,6 +53,7 @@ class GetRateResponse extends ResponseAbstract
     public function getChargesBreakDown()
     {
         $services = $this->getService();
+        //echo "<pre>"; print_r($services);  echo "</pre>";die;
         
         // check if service is not empty then
         
@@ -60,21 +61,23 @@ class GetRateResponse extends ResponseAbstract
         if (!empty($services)) {
             foreach($services as $service) {
                 $resCharges = [];
-                $charges = !empty($service->Charges) ? $service->Charges : [];
-                if (!empty($charges)) {
-                    foreach ($charges->Charge as $key => $value) {
-                        $resCharges["charges"][] = [
-                            "name"   => (string)$value->ChargeName,
-                            "amount" => (string)$value->ChargeAmount,
-                        ];
+                if(isset($service->CustomerAgreementInd) && $service->CustomerAgreementInd == "N") {
+                    $charges = !empty($service->Charges) ? $service->Charges : [];
+                    if (!empty($charges)) {
+                        foreach ($charges->Charge as $key => $value) {
+                            $resCharges["charges"][] = [
+                                "name"   => (string)$value->ChargeName,
+                                "amount" => (string)$value->ChargeAmount,
+                            ];
+                        }
                     }
+                    $resCharges["amount"]             = (string) $service->TotalNet->Amount;
+                    $resCharges["currency"]           = (string) $service->TotalNet->Currency;
+                    $resCharges["delivery_time"]      = (string) date("Y-m-d H:i:s",strtotime($service->DeliveryTime));
+                    $resCharges["service_type"]       = (string) $service->ServiceName;
+                    $resCharges["total_transit_days"] = (string) $service->TotalTransitDays;
+                    $servicesR[] = $resCharges;
                 }
-                $resCharges["amount"]             = (string) $service->TotalNet->Amount;
-                $resCharges["currency"]           = (string) $service->TotalNet->Currency;
-                $resCharges["delivery_time"]      = (string) date("Y-m-d H:i:s",strtotime($service->DeliveryTime));
-                $resCharges["service_type"]       = (string) $service->ServiceName;
-                $resCharges["total_transit_days"] = (string) $service->TotalTransitDays;
-                $servicesR[] = $resCharges;
             }
         }
 

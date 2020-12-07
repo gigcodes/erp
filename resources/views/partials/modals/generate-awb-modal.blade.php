@@ -170,9 +170,8 @@
                </div>
             </div>
             <div class="modal-footer">
-               <div class="row">
-                  <div class="col price-break-down">
-                  </div>
+               <div class="row price-break-down" style="width: 100%">
+                  
                </div>
             </div>
             <div class="modal-footer">
