@@ -15,6 +15,7 @@ use App\MailinglistTemplateCategory;
 use App\EmailAddress;
 use App\MailinglistTemplate;
 use App\Reply;
+use App\Jobs\UpdateReturnStatusMessageTpl;
 use Auth;
 class ReturnExchangeController extends Controller
 {
