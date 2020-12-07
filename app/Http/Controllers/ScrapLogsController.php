@@ -13,24 +13,26 @@ class ScrapLogsController extends Controller
     public function index(Request $Request) 
     {	
 		$name = "";
-		return view('scrap-logs.index',compact('name'));
+		$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
+		return view('scrap-logs.index',compact('name','servers'));
     }
 
 	public function filter($searchVal, $dateVal) 
     {
+
     	$file_list = [];
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
 		$files = File::allFiles(env('SCRAP_LOGS_FOLDER'));
-		$date = empty($dateVal )? Carbon::now()->format('d') : sprintf("%02d", $dateVal);
-		if($date == 01) 
-		{
-			$date = 32;
-		}
+
+		$date = $dateVal;
+
 		foreach ($files as $key => $val) {
 			$day_of_file = explode('-', $val->getFilename());
-			if(str_contains(end($day_of_file), sprintf("%02d", $date-1)) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+			
+			if(str_contains(end($day_of_file), $date) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+				
 				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file = file($file_path_new);
 				$log_msg = "";
