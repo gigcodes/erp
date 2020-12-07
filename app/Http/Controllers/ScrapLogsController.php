@@ -19,8 +19,14 @@ class ScrapLogsController extends Controller
 
 	public function filter($searchVal, $dateVal) 
     {
-
-    	$file_list = [];
+    	$serverArray = [];
+    	$servers = \App\Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
+    	
+    	foreach ($servers as $server) {
+    		$serverArray[] = $server['server_id'];
+    	}
+		
+		$file_list = [];
     	$searchVal = $searchVal != "null" ? $searchVal : "";
     	$dateVal = $dateVal != "null" ? $dateVal : "";
 		$file_list = [];
@@ -32,6 +38,12 @@ class ScrapLogsController extends Controller
 			$day_of_file = explode('-', $val->getFilename());
 			
 			if(str_contains(end($day_of_file), $date) && (str_contains($val->getFilename(), $searchVal) || empty($searchVal))) {
+				
+				if (in_array($val->getRelativepath(), $serverArray)) {
+				    
+				}else{
+					continue;
+				}
 				
 				$file_path_new = env('SCRAP_LOGS_FOLDER')."/".$val->getRelativepath()."/".$val->getFilename();
 				$file = file($file_path_new);
