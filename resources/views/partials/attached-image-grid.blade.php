@@ -110,7 +110,7 @@
                     <div class="form-group col-md-2 mr-3 mb-3 no-pd">
                         <input name="term" type="text" class="form-control" id="product-search"
                                value="{{ isset($term) ? $term : '' }}"
-                               placeholder="sku,brand,category,status,stage" style="width:100%;">
+                               placeholder="Search by SKU or product id" style="width:100%;">
                         @if( isset($doSelection) )
                             <input hidden name="doSelection" type="text" value="true">
                             <input hidden name="model_id" type="text" value="{{ $model_id ?? '' }}">
@@ -124,7 +124,7 @@
                     </div>
 
                     <div class="form-group col-md-3 mr-3 no-pd">
-                        @php $brands = \App\Brand::where("magento_id",">",0)->pluck("name","id"); @endphp
+                        @php $brands = \App\Brand::pluck("name","id"); @endphp
                         {{-- {!! Form::select('brand[]',$brands, (isset($brand) ? $brand : ''), ['placeholder' => 'Select a Brand','class' => 'form-control select-multiple', 'multiple' => true]) !!} --}}
                         <select class="form-control select-multiple brands" name="brand[]" multiple data-placeholder="Brands...">
                             <optgroup label="Brands">
@@ -203,7 +203,6 @@
                 </tbody>
             </table>
         </div>
-        {{$suggestedProducts->appends(request()->except("page"))->links()}}
     </div>
 
 
@@ -337,6 +336,7 @@
 
                     // $loader.hide();
 
+                    console.log(data);
                     $('.infinite-scroll-data').append(data);
 
                 })
