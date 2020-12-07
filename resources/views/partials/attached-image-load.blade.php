@@ -50,4 +50,6 @@
     </td>
     </tr>
 @endforeach
-{{$suggestedProducts->appends(request()->except("page"))->links()}}
+<tr>
+    <td colspan="7">{{$suggestedProducts->appends(request()->except("page"))->links()}}</td>
+</tr>
