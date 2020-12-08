@@ -712,43 +712,6 @@ class OrderController extends Controller {
             }
         }
 
-         if($request->hdn_order_mail_status == "1")
-        {
-            $id_order_inc = $order->id;
-            $order_new = Order::find($id_order_inc);
-            if (!$order_new->is_sent_offline_confirmation()) {
-                if ($order_new->order_type == 'offline') {
-                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
-                        //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                        try {
-                            $emailClass =  (new OrderConfirmation($order_new))->build();
-                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
-                            $params = [
-                                'model_id'          => $order_new->customer->id,
-                                'model_type'        => Customer::class,
-                                'from'              => $emailClass->fromMailer,
-                                'to'                => $order_new->customer->email,
-                                'subject'           => $emailClass->subject,
-                                'message'           => $emailClass->render(),
-                                'template'          => 'order-confirmation',
-                                'additional_data'   => $order_new->id
-                            ];
-                            Email::create($params);
-                            CommunicationHistory::create([
-                                'model_id'      => $order_new->id,
-                                'model_type'    => Order::class,
-                                'type'          => 'offline-confirmation',
-                                'method'        => 'email'
-                            ]);
-                        }catch(\Exception $e) {
-                            \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
-                        }
-                    }
-                }
-            }
-        }
-
-
         $totalAmount = 0;
         foreach (OrderProduct::where('order_id', $order->id)->get() as $order_product) {
             $totalAmount += $order_product->product_price;
@@ -759,7 +722,7 @@ class OrderController extends Controller {
 
         if ($customer->credit > 0) {
             $balance_amount = $order->balance_amount;
-
+            $totalCredit = $customer->credit;
             if (($order->balance_amount - $customer->credit) < 0) {
                 $left_credit = ($order->balance_amount - $customer->credit) * -1;
                 $order->advance_detail += $order->balance_amount;
@@ -768,6 +731,7 @@ class OrderController extends Controller {
             } else {
                 $balance_amount -= $customer->credit;
                 $order->advance_detail += $customer->credit;
+                $customer->credit = 0;
             }
 
             $order->balance_amount = $balance_amount;
@@ -778,14 +742,14 @@ class OrderController extends Controller {
             if($order->id){
                 CreditHistory::create(
                     array(
-                    'customer_id'=>$request->customer_id,
-                    'model_id'=>$order->id,
-                    'model_type'=>Order::class,
-                    'used_credit'=>$customer->credit,
-                    'used_in'=>'ORDER',
-                    'type'=>'MINUS'
+                        'customer_id'=>$request->customer_id,
+                        'model_id'=>$order->id,
+                        'model_type'=>Order::class,
+                        'used_credit'=> (float)$totalCredit - $customer->credit,
+                        'used_in'=>'ORDER',
+                        'type'=>'MINUS'
                     )
-                    );
+                );
             }
 
         }
@@ -895,6 +859,41 @@ class OrderController extends Controller {
         if (!$order->is_sent_offline_confirmation()) {
             if ($order->order_type == 'offline') {
 
+            }
+        }
+
+        if($request->hdn_order_mail_status == "1") {
+            $id_order_inc = $order->id;
+            $order_new = Order::find($id_order_inc);
+            if (!$order_new->is_sent_offline_confirmation()) {
+                if ($order_new->order_type == 'offline') {
+                    if(!empty($order_new->customer) && !empty($order_new->customer->email)) {
+                        //Mail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                        try {
+                            $emailClass =  (new OrderConfirmation($order_new))->build();
+                            \MultiMail::to($order_new->customer->email)->send(new OrderConfirmation($order_new));
+                            $params = [
+                                'model_id'          => $order_new->customer->id,
+                                'model_type'        => Customer::class,
+                                'from'              => $emailClass->fromMailer,
+                                'to'                => $order_new->customer->email,
+                                'subject'           => $emailClass->subject,
+                                'message'           => $emailClass->render(),
+                                'template'          => 'order-confirmation',
+                                'additional_data'   => $order_new->id
+                            ];
+                            Email::create($params);
+                            CommunicationHistory::create([
+                                'model_id'      => $order_new->id,
+                                'model_type'    => Order::class,
+                                'type'          => 'offline-confirmation',
+                                'method'        => 'email'
+                            ]);
+                        }catch(\Exception $e) {
+                            \Log::info("Sending mail issue at the ordercontroller #2215 ->".$e->getMessage());
+                        }
+                    }
+                }
             }
         }
 
