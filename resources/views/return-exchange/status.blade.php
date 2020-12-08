@@ -7,7 +7,7 @@
 
 <div class="row" id="return-exchange-page">
 	<div class="col-lg-12 margin-tb">
-        <h2 class="page-heading">Return Exchange <span id="total-counter">({{$status->count()}})</span></h2>
+        <h2 class="page-heading">Return Exchange Status <span id="total-counter">({{$status->count()}})</span></h2>
     </div>
     <br>
     <div class="col-lg-12 margin-tb">
@@ -57,7 +57,7 @@
                             </div>
                         </td>
                         <td>
-                            <button type="button" class="btn btn-delete-template no_pd" onClick='return confirm("Are you sure you want to delete this request ?")' data-id="<?php echo $s->id; ?>"><img width="15px" src="/images/delete.png"></button>
+                            <button type="button" class="btn btn-delete-template no_pd"  data-id="<?php echo $s->id; ?>"><img width="15px" src="/images/delete.png"></button>
                         </td>
                     </tr>
                 <?php } ?>
@@ -130,25 +130,27 @@
         });
 
         $(document).on("click",".btn-delete-template",function(e) {
-            var id = $(this).data("id");
-            $.ajax({
-                url: "/return-exchange/status/delete",
-                dataType: "json",
-                type: "post",
-                data: {
-                    "id" : id,
-                    "_token" : "{{ csrf_token() }}"
-                },
-                beforeSend: function () {
-                    $("#loading-image").show();
-                }
-            }).done(function (data) {
-                $("#loading-image").hide();
-                toastr["success"]("data updated successfully");
-            }).fail(function (jqXHR, ajaxOptions, thrownError) {
-                $("#loading-image").hide();
-                alert('No response from server');
-            });
+            if(confirm("Are you sure you want to delete this request ?")) {
+                var id = $(this).data("id");
+                $.ajax({
+                    url: "/return-exchange/status/delete",
+                    dataType: "json",
+                    type: "post",
+                    data: {
+                        "id" : id,
+                        "_token" : "{{ csrf_token() }}"
+                    },
+                    beforeSend: function () {
+                        $("#loading-image").show();
+                    }
+                }).done(function (data) {
+                    $("#loading-image").hide();
+                    toastr["success"]("data updated successfully");
+                }).fail(function (jqXHR, ajaxOptions, thrownError) {
+                    $("#loading-image").hide();
+                    alert('No response from server');
+                });
+            }
 
         });
 	</script>
