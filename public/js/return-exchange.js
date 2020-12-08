@@ -201,7 +201,6 @@ var msQueue = {
         this.sendAjax(_z, "showEditRecords",{append : true});   
     },
     showEditRecords : function(response) {
-        console.log(response);
         if(response.code == 200) {
            $("#loading-image").hide();
             var addProductTpl = $.templates("#template-edit-block");

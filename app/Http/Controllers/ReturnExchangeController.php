@@ -281,6 +281,71 @@ class ReturnExchangeController extends Controller
             if(isset($request->send_message) && $request->send_message=='1'){
                 //sending order message to the customer 
                 UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message',null))->onQueue("customer_message");
+                try {
+                    if($returnExchange->type == "refund") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeRefund($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'refund-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'refund-request',
+                            'method'        => 'email'
+                        ]);
+                    }else if ($returnExchange->type == "return") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeReturn($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'return-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'return-request',
+                            'method'        => 'email'
+                        ]);
+                    }else if ($returnExchange->type == "exchange") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeExchange($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'exchange-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'exchange-request',
+                            'method'        => 'email'
+                        ]);
+                    }
+                }catch(\Exception $e) {
+                    \Log::info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
+                }
             }
 
             $returnExchange->updateHistory();

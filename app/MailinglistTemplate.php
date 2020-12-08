@@ -125,4 +125,39 @@ class MailinglistTemplate extends Model
         }
     }
 
+    public static function getStatusChangeReturn($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Status Change Return')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
+    public static function getStatusChangeExchange($store = null)
+    {
+        $category = \App\MailinglistTemplateCategory::where('title', 'Status Change Exchange')->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
+
+    public static function template($name, $store = null)
+    {   
+        $category = \App\MailinglistTemplateCategory::where('title', $name)->first();
+
+        if ($category) {
+            // get the template for that cateogry and store website
+            return self::getTemplate($category, $store);
+        }
+
+        return false;
+    }
 }
