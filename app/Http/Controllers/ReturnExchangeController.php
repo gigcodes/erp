@@ -280,7 +280,7 @@ class ReturnExchangeController extends Controller
             //Sending Mail on changing of order status
             if(isset($request->send_message) && $request->send_message=='1'){
                 //sending order message to the customer 
-                //UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message',null))->onQueue("customer_message");
+                UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message',null))->onQueue("customer_message");
                 try {
                     if($returnExchange->type == "refund") {
                         \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeRefund($returnExchange));
