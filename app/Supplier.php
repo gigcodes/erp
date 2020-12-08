@@ -15,7 +15,7 @@ class Supplier extends Model
     ];
 
     protected $fillable = [
-        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id','supplier_sub_category_id','scrapper','supplier_status_id','is_blocked','supplier_price_range_id','est_delivery_time'
+        'is_updated', 'supplier', 'address', 'phone', 'default_phone', 'whatsapp_number', 'email', 'default_email', 'social_handle', 'instagram_handle', 'website', 'gst', 'status','supplier_category_id','supplier_sub_category_id','scrapper','supplier_status_id','is_blocked','supplier_price_range_id','est_delivery_time','inventory_lifetime'
     ];
 
     protected static function boot()
