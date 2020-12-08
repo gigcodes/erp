@@ -242,7 +242,7 @@
                             </div>
 
                             <div class="form-group">
-                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ $supplier->inventory_lifetime }}">
+                                <input type="text" name="inventory_lifetime" id="supplier_inventory_lifetime" class="form-control input-sm" placeholder="Inventory Lifetime (in days)" value="{{ ($supplier->scraper) ? $supplier->scraper->inventory_lifetime : '' }}">
                             </div>
 
                             <div class="form-group">
