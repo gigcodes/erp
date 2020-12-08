@@ -5,7 +5,7 @@ namespace App\Library\DHL;
 abstract class APIAbstract
 {
     protected $_stagingUrl    = 'https://wsbexpress.dhl.com/sndpt/expressRateBook';
-    protected $_productionUrl = 'https://wsbexpress.dhl.com/sndpt/expressRateBook';
+    protected $_productionUrl = 'https://wsbexpress.dhl.com/gbl/expressRateBook';
 
     protected $document;
     protected $results;
@@ -21,7 +21,7 @@ abstract class APIAbstract
     {
         $this->username      = getenv('DHL_ID') ?: config('dhl.DHL_ID');
         $this->password      = getenv('DHL_KEY') ?: config('dhl.DHL_KEY');
-        $this->_mode         = getenv('APP_ENV') ?: config('app.env');
+        $this->_mode         = getenv('DHL_MODE') ?: config('app.env');
         $this->accountNumber = getenv('DHL_ACCOUNT') ?: config('dhl.api.accountNumber');
         $this->type          = "curl";
     }
