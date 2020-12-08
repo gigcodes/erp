@@ -42,11 +42,13 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
             //     $defaultMessageTpl = $statusModal->message_text_tpl;
             // }
             if(!$this->message || $this->message == "") {
-                $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
+                $msg = \App\Order::ORDER_STATUS_TEMPLATE;
                 if ($statusModal && !empty($statusModal->message_text_tpl)) {
-                    $defaultMessageTpl = $statusModal->message_text_tpl;
+                    $msg = $statusModal->message_text_tpl;
                 }
-                $msg = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $defaultMessageTpl);
+                if(!empty($statusModal->status)) {
+                    $msg = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $msg);
+                }
             }
             else {
                 $defaultMessageTpl = $this->message; 
