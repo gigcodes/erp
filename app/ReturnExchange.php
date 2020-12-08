@@ -60,7 +60,7 @@ class ReturnExchange extends Model
 	
 	public function returnExchangeStatus()
     {
-        return $this->hasOne(\App\ReturnExchangeStatus::class, "status", "id");
+        return $this->hasOne(\App\ReturnExchangeStatus::class, "id", "status");
     }
 
     public function customer()
