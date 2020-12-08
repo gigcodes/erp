@@ -543,11 +543,11 @@
                               </div>
 
                               <div class="form-group">
-                                  <strong>Price:</strong>
-                                  <input type="number" class="form-control" name="price" placeholder="Price"
-                                         value="{{ old('price') }}" step=".01"  id="product-price"/>
-                                  @if ($errors->has('price'))
-                                      <div class="alert alert-danger">{{$errors->first('price')}}</div>
+                                  <strong>Special Price (INR):</strong>
+                                  <input type="number" class="form-control" name="price_inr_special" placeholder="Special Price (INR):"
+                                         value="{{ old('price_inr_special') }}" step=".01"  id="product-price"/>
+                                  @if ($errors->has('price_inr_special'))
+                                      <div class="alert alert-danger">{{$errors->first('price_inr_special')}}</div>
                                   @endif
                               </div>
 
@@ -1338,7 +1338,7 @@
       form_data.append('sku', sku);
       form_data.append('color', color);
       form_data.append('brand', brand);
-      form_data.append('price', price);
+      form_data.append('price_inr_special', price);
       form_data.append('size', size);
       form_data.append('quantity', quantity);
 
@@ -1358,7 +1358,7 @@
               product_row += '<th>' + response.product.sku + '</th>';
               product_row += '<th>' + response.product.color + '</th>';
               product_row += '<th>' + brands_array[response.product.brand] + '</th>';
-              product_row += '<th><input class="table-input" type="text" value="' + response.product.price + '" name="order_products[' + response.order.id + '][product_price]"></th>';
+              product_row += '<th><input class="table-input" type="text" value="' + response.product.price_inr_special + '" name="order_products[' + response.order.id + '][product_price]"></th>';
               // product_row += '<th>' + response.product.size + '</th>';
 
               if (response.product.size != null) {

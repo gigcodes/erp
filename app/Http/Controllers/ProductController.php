@@ -2711,7 +2711,12 @@ class ProductController extends Controller
         $product->supplier = $request->supplier;
         $product->location = $request->location;
         $product->category = $request->category ?? 1;
-        $product->price = $request->price;
+        if($request->price) {
+           $product->price = $request->price;
+        }
+        if($request->price_inr_special) {
+           $product->price_inr_special = $request->price_inr_special;
+        }
         $product->stock = 1;
 
         $brand = Brand::find($request->brand);
@@ -2728,6 +2733,13 @@ class ProductController extends Controller
             $product->price_inr_special = $product->price_inr - ($product->price_inr * $deduction_percentage) / 100;
 
             $product->price_inr_special = round($product->price_inr_special, -3);
+        }else if($request->price_inr_special) {
+            if (isset($request->brand) && !empty($brand->euro_to_inr)) {
+                $product->price = $request->price_inr_special / $brand->euro_to_inr;
+            } else {
+                $product->price = $request->price_inr_special / Setting::get('euro_to_inr');
+            }
+            $product->price_inr = $request->price_inr_special;
         }
 
         $product->save();
