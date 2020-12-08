@@ -13,10 +13,6 @@
                 <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ $order->order_id }}</div></td>
               </tr>
               <tr>
-                <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">Order Total:</div></td>
-                <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ $order->currency }} {{ $order->advance_detail + $order->balance_amount }}</div></td>
-              </tr>
-              <tr>
                 <td><div style="color: #898989;font-size: 12px;padding-top: 5px;">Payment :</div></td>
                 <td><div style="color: #898989;font-size: 12px;font-weight: bold;padding-top: 5px;">{{ ucwords($order->payment_mode) }}</div></td>
               </tr>

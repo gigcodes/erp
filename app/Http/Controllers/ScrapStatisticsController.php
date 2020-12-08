@@ -499,20 +499,35 @@ class ScrapStatisticsController extends Controller
             $scrap = $scrappers->where('inventory_lifetime','!=',0)->where('server_id','!=','');
             
             if($request->type){
-                $scrappers->orderBy($request->type,$request->order);
+
+                if($request->type == 'server_id_filter'){
+                    if(!empty($request->order)){
+                        $scrappers->where('server_id',$request->order);
+                    }
+                    
+                }elseif($request->type == 'filter_by_text'){
+                    if(!empty($request->order)){
+                        $scrappers->where('scraper_name','LIKE','%'.$request->order.'%');
+                    }
+                }else{
+                   $scrappers->orderBy($request->type,$request->order); 
+                }
+                
             }
 
             $scrappers = $scrap->paginate(50);
 
+            $servers = Scraper::select('server_id')->whereNotNull('server_id')->groupBy('server_id')->get();
+
             if ($request->ajax()) {
             return response()->json([
-                    'tbody' => view('scrap.partials.scrap-server-status-data', compact('scrappers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                    'tbody' => view('scrap.partials.scrap-server-status-data', compact('scrappers','servers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
                     'links' => (string)$scrappers->render(),
                     'count' => $scrappers->total(),
                 ], 200);
             } 
             
-            return view('scrap.scrap-server-status',compact('scrappers'));
+            return view('scrap.scrap-server-status',compact('scrappers','servers'));
         } catch (\Exception $e) {
             //session()->flash('error', $e->getMessage());
             //return redirect()->back();

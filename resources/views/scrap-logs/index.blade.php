@@ -13,17 +13,25 @@
 		</div>
 	</div>
 	<div class="mt-3 col-md-12">
-		<div class="col-lg-1">
+		<div class="col-lg-2">
 			<select name="date" id="datepicker" class="form-control">
 				@for($i=0; $i<=31; $i++)
-					<option value={{$i}}>{{$i}}</option>
+					<option value="{{$i}}" @if((date("d") - 1) == $i) selected @endif>{{$i}}</option>
 				@endfor
 			</select>
+		</div>
+		<div class="col-lg-2">
+			<select name="date" id="datepicker" class="form-control">
+				<option value="">Select Server</option>
+					@foreach($servers as $server)
+						<option value="{{ $server['server_id'] }}")>{{$server['server_id'] }}</option>
+					@endforeach
+			</select>
 		</div>					
-		<div class="col-lg-3">
+		<div class="col-lg-2">
 			<input class="form-control" type="text" id="search" placeholder="Search name" name="search" value="{{ $name }}">
 		</div>
-		<div class="col-lg-4">
+		<div class="col-lg-2">
 			<button type="button" id="tabledata" class="btn btn-image">
 			<img src="/images/filter.png">
 			</button>
@@ -87,6 +95,7 @@
 		function tableData(BASE_URL) {
 			var search = $("input[name='search'").val() != "" ? $("input[name='search'").val() : null;
 			var date = $("#datepicker").val() !="" ? $("#datepicker").val() : null;
+			console.log(BASE_URL+"/scrap-logs/fetch/"+search+"/"+date)
 			$.ajax({
 				url: BASE_URL+"/scrap-logs/fetch/"+search+"/"+date,
 				method:"get",
@@ -96,6 +105,7 @@
 				data:{},
 				cache: false,
 				success: function(data) {
+						console.log(data)
 						$("tbody").empty();
 						$.each(data.file_list, function(i,row){
 							$("tbody").append("<tr><td>"+(i+1)+"</td><td>"+row['foldername']+"</td><td><a href='scrap-logs/file-view/"+row['filename']+ '/' +row['foldername']+"' target='_blank'>"+row['filename']+"</a>&nbsp;<a href='javascript:;' onclick='openLasttenlogs(\""+row['scraper_id']+"\")'><i class='fa fa-weixin' aria-hidden='true'></i></a></td><td>"+row['log_msg']+"</td></tr>");

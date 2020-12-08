@@ -1,23 +1,23 @@
 <script type="text/x-jsrender" id="template-result-block">
-	<div class="row page-template-{{:page}}">
+	<div class="row page-template-{{:page}} table-responsive">
 		<table class="table table-bordered" style="table-layout:fixed;">
 		    <thead>
 		      <tr>
-		      	<th style="width:5%"><input type="checkbox" class="select-all-records"></th>
-		        <th style="width:7%">Customer</th>
-		        <th style="width:7%">Product</th>
-				<th style="width:9%">Website</th>
-		        <th style="width:5%">Type</th>
-		        <th style="width:5%">Refund amount</th>
-		        <th style="width:9%">Reason for refund</th>
-		        <th style="width:6%">Status</th>
-				<th style="width:6%">Change Status</th>
-		        <th style="width:8%">Pickup Address</th>
-		        <th style="width:10%">Refund details</th>
-		        <th style="width:10%">Est Refund / Exchange date</th>
-		        <th style="width:5%">Remarks</th>
-		        <th style="width:4%">Created At</th>
-		        <th width="10%" align="center">Action</th>
+		      	<th><input type="checkbox" class="select-all-records"></th>
+		        <th>Customer</th>
+		        <th>Product</th>
+				<th>Website</th>
+		        <th>Type</th>
+		        <th>Refund</th>
+		        <th>Reason for refund</th>
+		        <th>Status</th>
+				<th>Change Status</th>
+		        <th>Pickup Address</th>
+		        <th>Refund details</th>
+		        <th>Est Refund / Exchange date</th>
+		        <th>Remarks</th>
+		        <th>Created At</th>
+		        <th>Action</th>
 		      </tr>
 		    </thead>
 		    <tbody>
@@ -94,7 +94,9 @@
 						{{if !prop.credited}}
 						<button type="button" data-id="{{>prop.id}}" class="btn create-update-refund no_pd" title="Create or update refund"><i class="fa fa-exchange"></i></button>
 						{{/if}}
-            			
+            			<button type="button" class="btn resend-confirmation-email" data-id="{{>prop.customer_id}}">
+            				<i class="fa fa-paper-plane" aria-hidden="true"></i>
+            			</button>
 						</div>
 			        </td>
 			      </tr>
@@ -226,6 +228,17 @@
 		            </div>
 		        </div>
 		    </div>
+
+		    <div class="row">
+		        <div class="col">
+		            <div class="form-group">
+		                <strong>Send Message&nbsp;:&nbsp;</strong>
+		                <span><input type="radio" name="send_message" value="1" />Yes</span>
+		                <span><input type="radio" name="send_message" value="0" />No</span>
+		            </div>
+		        </div>
+		    </div>
+
 		    <div class="row">
 		        <div class="col">
 		            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>

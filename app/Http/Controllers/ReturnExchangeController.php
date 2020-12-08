@@ -15,6 +15,7 @@ use App\MailinglistTemplateCategory;
 use App\EmailAddress;
 use App\MailinglistTemplate;
 use App\Reply;
+use App\Jobs\UpdateReturnStatusMessageTpl;
 use Auth;
 class ReturnExchangeController extends Controller
 {
@@ -275,6 +276,78 @@ class ReturnExchangeController extends Controller
         if (!empty($returnExchange)) {
             $returnExchange->fill($params);
             $returnExchange->save();
+
+            //Sending Mail on changing of order status
+            if(isset($request->send_message) && $request->send_message=='1'){
+                //sending order message to the customer 
+                //UpdateReturnStatusMessageTpl::dispatch($returnExchange->id, request('message',null))->onQueue("customer_message");
+                try {
+                    if($returnExchange->type == "refund") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeRefund($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeRefund($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'refund-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'refund-request',
+                            'method'        => 'email'
+                        ]);
+                    }else if ($returnExchange->type == "return") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeReturn($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeReturn($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'return-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'return-request',
+                            'method'        => 'email'
+                        ]);
+                    }else if ($returnExchange->type == "exchange") {
+                        \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\StatusChangeExchange($returnExchange));
+                        $view = (new \App\Mails\Manual\StatusChangeExchange($returnExchange))->build();
+                        $params = [
+                            'model_id'          => $returnExchange->id,
+                            'model_type'        => \App\ReturnExchange::class,
+                            'from'              => $view->fromMailer,
+                            'to'                => $returnExchange->customer->email,
+                            'subject'           => $view->subject,
+                            'message'           => $view->render(),
+                            'template'          => 'exchange-request',
+                            'additional_data'   => $returnExchange->id
+                        ];
+                        \App\Email::create($params);
+                        \App\CommunicationHistory::create([
+                            'model_id'      => $returnExchange->id,
+                            'model_type'    => \App\ReturnExchange::class,
+                            'type'          => 'exchange-request',
+                            'method'        => 'email'
+                        ]);
+                    }
+                }catch(\Exception $e) {
+                    \Log::info("Sending mail issue at the returnexchangecontroller #158 ->".$e->getMessage());
+                }
+            }
+
             $returnExchange->updateHistory();
         }
 
@@ -623,4 +696,121 @@ class ReturnExchangeController extends Controller
 		}
 		return response()->json(['message' => 'please enter a reply','status' => 400]);
 	}
+
+    public function resendEmail(Request $request)
+    {
+        $returnExchange = \App\ReturnExchange::find($request->id);
+        if($returnExchange) {
+            try {
+                if($request->type == "refund") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeRefundRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeRefundRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'refund-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'refund-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "return") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeReturnRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeReturnRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'return-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'return-request',
+                        'method'        => 'email'
+                    ]);
+                }else if ($request->type == "exchange") {
+                    \MultiMail::to($returnExchange->customer->email)->send(new \App\Mails\Manual\InitializeExchangeRequest($returnExchange));
+                    $view = (new \App\Mails\Manual\InitializeExchangeRequest($returnExchange))->build();
+                    $params = [
+                        'model_id'          => $returnExchange->id,
+                        'model_type'        => \App\ReturnExchange::class,
+                        'from'              => $view->fromMailer,
+                        'to'                => $returnExchange->customer->email,
+                        'subject'           => $view->subject,
+                        'message'           => $view->render(),
+                        'template'          => 'exchange-request',
+                        'additional_data'   => $returnExchange->id
+                    ];
+                    \App\Email::create($params);
+                    \App\CommunicationHistory::create([
+                        'model_id'      => $returnExchange->id,
+                        'model_type'    => \App\ReturnExchange::class,
+                        'type'          => 'exchange-request',
+                        'method'        => 'email'
+                    ]);
+                }
+            }catch(\Exception $e) {
+                \Log::info("Sending mail issue at the returnexchangecontroller #694 ->".$e->getMessage());
+            }
+        }
+
+        return response()->json(['message' => 'Return request send successfully','status' => 200]);
+    }
+
+    public function status(Request $request)
+    {
+        $status = ReturnExchangeStatus::query();
+
+        if($request->search !=  null) {
+            $status = $status->where("status_name","like","%".$request->search."%");
+        }
+
+        $status = $status->get();
+
+        return view("return-exchange.status",compact('status'));
+    }
+
+    public function saveStatusField(Request $request)
+    {
+        if($request->id != null) {
+            $status = ReturnExchangeStatus::find($request->id);
+            if($status) {
+                $status->{$request->field} = $request->value;
+                $status->save();
+
+                return response()->json(["code" => 200 , "data" => $status , "message" => "Added successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "No data found"]);
+    }
+
+    public function deleteStatus(Request $request)
+    {
+        if($request->id != null) {
+            $status = ReturnExchangeStatus::find($request->id);
+            if($status) {
+                $status->delete();
+                return response()->json(["code" => 200 , "data" => $status , "message" => "Added successfully"]);
+            }
+        }
+
+        return response()->json(["code" => 500 , "data" => [] , "message" => "No data found"]);
+    }
+
+
 }

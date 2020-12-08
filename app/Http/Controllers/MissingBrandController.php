@@ -35,11 +35,31 @@ class MissingBrandController extends Controller
     }
 
 
-    public function index()
+    public function index(Request $request)
     {
-    	$missingBrands = MissingBrand::orderBy('id','desc')->paginate(20);
+    	$missingBrands = MissingBrand::query();
+
+        //orderBy('id','desc')->paginate(20);
+        if(!empty($request->term)){
+            $missingBrands = $missingBrands->where('name','LIKE','%'.$request->term.'%')->orWhere('supplier','LIKE','%'.$request->term.'%');
+        }
+
+        if(!empty($request->select)){
+            $missingBrands = $missingBrands->where('supplier',$request->select);
+        }
+
+        $scrapers = MissingBrand::select('supplier')->groupBy('supplier')->get();
+        $missingBrands = $missingBrands->paginate(20);
+        if ($request->ajax()) {
+        return response()->json([
+                'tbody' => view('missingbrand.partial.data', compact('missingBrands','scrapers'))->with('i', ($request->input('page', 1) - 1) * 5)->render(),
+                'links' => (string)$missingBrands->render(),
+                'count' => $missingBrands->total(),
+            ], 200);
+        } 
+
     	$title = 'Missing Brands';
-    	return view('missingbrand.index',['missingBrands' => $missingBrands,'title' => $title]);
+    	return view('missingbrand.index',['missingBrands' => $missingBrands,'title' => $title,'scrapers' => $scrapers]);
     }
 
     public function store(Request $request, Brand $brand)

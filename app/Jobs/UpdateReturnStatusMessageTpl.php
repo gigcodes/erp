@@ -9,21 +9,21 @@ use Illuminate\Http\Request;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 
-class UpdateOrderStatusMessageTpl implements ShouldQueue
+class UpdateReturnStatusMessageTpl implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public $tries = 1;
-    private $orderId;
+    private $returnId;
     private $message;
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct($orderId, $message = NULL)
+    public function __construct($returnId, $message = NULL)
     {
-        $this->orderId = $orderId;
+        $this->returnId = $returnId;
         $this->message = $message;
     }
 
@@ -34,32 +34,30 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
      */
     public function handle()
     {
-        $order = \App\Order::where('id', $this->orderId)->first();
-        if ($order) {
-            $statusModal       = \App\OrderStatus::where("id", $order->order_status_id)->first();
+        $return = \App\ReturnExchange::where('id', $this->returnId)->first();
+        if ($return) {
+            $statusModal       = \App\ReturnExchangeStatus::where("id", $return->status)->first();
             // $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
             // if ($statusModal && !empty($statusModal->message_text_tpl)) {
             //     $defaultMessageTpl = $statusModal->message_text_tpl;
             // }
             if(!$this->message || $this->message == "") {
-                $defaultMessageTpl = \App\Order::ORDER_STATUS_TEMPLATE;
-                if ($statusModal && !empty($statusModal->message_text_tpl)) {
-                    $defaultMessageTpl = $statusModal->message_text_tpl;
+                $defaultMessageTpl = \App\ReturnExchangeStatus::STATUS_TEMPLATE;
+                if ($statusModal && !empty($statusModal->message)) {
+                    $defaultMessageTpl = $statusModal->message;
                 }
-                $msg = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $defaultMessageTpl);
+                $msg = str_replace(["#{id}", "#{status}"], [$return->id, $statusModal->status_name], $defaultMessageTpl);
             }
             else {
-                $defaultMessageTpl = $this->message; 
                 $msg = $this->message;
             }
             // start update the order status
             $requestData = new Request();
             $requestData->setMethod('POST');
             $requestData->request->add([
-                'customer_id' => $order->customer_id,
+                'customer_id' => $return->customer_id,
                 'message'     => $msg,
-                'status'      => 0,
-                'order_id'    => $order->id,
+                'status'      => 0
             ]);
 
             app('App\Http\Controllers\WhatsAppController')->sendMessage($requestData, 'customer');

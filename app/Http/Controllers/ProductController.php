@@ -2752,12 +2752,11 @@ class ProductController extends Controller
 
             $order_product->order_id = $request->order_id;
             $order_product->sku = $request->sku;
-            $order_product->product_price = $request->price_inr_special;
+            $order_product->product_price = $product->price_inr_special;
             $order_product->size = $request->size;
             $order_product->color = $request->color;
             $order_product->qty = $request->quantity;
             $order_product->product_id = $product->id;
-
             $order_product->save();
 
             // return response($product);
@@ -4338,6 +4337,22 @@ class ProductController extends Controller
                 $customerId =  $explode[1];
             }
         }
+
+        if ($request->category) {
+            try {
+                $filtered_category = $request->category;
+            } catch (\Exception $e) {
+                $filtered_category = [];
+            }
+        } else {
+            $filtered_category = [];
+        }
+        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
+                ->selected($filtered_category)
+                ->renderAsDropdown();
+
+
+
         //\DB::enableQueryLog();
         $roletype = $request->input('roletype') ?? 'Sale';
         $term = $request->input('term');
@@ -4376,13 +4391,30 @@ class ProductController extends Controller
         //         $request->request->add(['price_max' => $maxPrice]);
         //     }
         // }
-        $suggestedProducts = new \App\SuggestedProduct;
+        $suggestedProducts = \App\SuggestedProduct::leftJoin("suggested_product_lists as spl","spl.suggested_products_id", "suggested_products.id");
+        $suggestedProducts = $suggestedProducts->leftJoin("products as p","spl.product_id", "p.id");
         if($customerId) {
-            $suggestedProducts = $suggestedProducts->where('customer_id',$customerId);
+            $suggestedProducts = $suggestedProducts->where('suggested_products.customer_id',$customerId);
         }
+
+
+        if($request->category != null) {
+            $suggestedProducts = $suggestedProducts->whereIn("p.category",$request->category);
+        }
+
+        if($request->brand != null) {
+            $suggestedProducts = $suggestedProducts->whereIn("p.brand",$request->brand);
+        }
+
+        if(!empty($term)) {
+            $suggestedProducts = $suggestedProducts->where(function($q) use($term){
+                $q->orWhere("p.sku","LIKE","%".$term."%")->orWhere("p.id","LIKE","%".$term."%");
+            });
+        }
+
         // $perPageLimit
         //$suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('customer_id')->paginate($perPageLimit);
-        $suggestedProducts = $suggestedProducts->select(DB::raw('*, max(created_at) as created_at'))->orderBy('created_at','DESC')->groupBy('id')->paginate($perPageLimit);
+        $suggestedProducts = $suggestedProducts->select(DB::raw('suggested_products.*, max(suggested_products.created_at) as created_at'))->orderBy('suggested_products.created_at','DESC')->groupBy('suggested_products.id')->paginate($perPageLimit);
         
         foreach($suggestedProducts as $suggestion) {
             //$last_attached = \App\SuggestedProductList::where('customer_id',$suggestion->customer_id)->orderBy('date','desc')->first();
@@ -4410,18 +4442,7 @@ class ProductController extends Controller
             }
         }
 
-        if ($request->category) {
-            try {
-                $filtered_category = $request->category;
-            } catch (\Exception $e) {
-                $filtered_category = [1];
-            }
-        } else {
-            $filtered_category = [1];
-        }
-        $category_selection = Category::attr(['name' => 'category[]', 'class' => 'form-control select-multiple-cat-list input-lg select-multiple', 'multiple' => true, 'data-placeholder' => 'Select Category..'])
-                ->selected($filtered_category)
-                ->renderAsDropdown();
+        
 
         $all_product_ids = [];
         $model_type = 'customer';

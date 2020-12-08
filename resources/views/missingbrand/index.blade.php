@@ -10,18 +10,30 @@
 
     <div class="row">
         <div class="col-lg-12 margin-tb">
-            <h2 class="page-heading">{{ $title }} ({{ $missingBrands->count() }})</h2>
+            <h2 class="page-heading">{{ $title }} (<span id="total-count">{{ $missingBrands->total() }}</span>)</h2>
             <div class="pull-left">
-<!--                 <form class="form-inline" action="{{ route('missing-brands.index') }}" method="GET">
-                    <div class="form-group">
-                        <input name="term" type="text" class="form-control"
-                               value="{{ isset($term) ? $term : '' }}"
-                               placeholder="Search">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <input name="term" type="text" class="form-control"
+                                       value="{{ isset($term) ? $term : '' }}"
+                                       placeholder="Search" id="term">
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="form-group">
+                                <select class="form-control select2" id="select">
+                                    <option value="">Select Scrapper</option>
+                                    @foreach($scrapers as $scraper)
+                                        <option value="{{ $scraper['supplier'] }}">{{ $scraper['supplier'] }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>    
+                        <div class="col-md-4">
+                            <button type="button" class="form-control" onclick="filterResults()">Search</button>
+                        </div>
                     </div>
-                    
-
-                    <button type="submit" class="btn btn-image"><img src="/images/filter.png"/></button>
-                </form> -->
             </div>
 
         </div>
@@ -30,7 +42,7 @@
     @include('partials.flash_messages')
 
    <div class="table-responsive mt-3">
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="brand-table">
             <thead>
             <tr>
                 <th>ID</th>
@@ -42,16 +54,7 @@
             </thead>
 
             <tbody>
-            @foreach ($missingBrands as $missingBrand)
-                <tr>
-                    <td>{{ $missingBrand->id }}</td>
-                    <td>{{ $missingBrand->name }}</td>
-                    <td>{{ $missingBrand->supplier }}</td>
-                    <td>{{ $missingBrand->created_at }}</td>
-                    <td><a href="javascript:;" data-name="{{$missingBrand->name}}" data-id="{{$missingBrand->id}}" class="create-brand">Brand</a> | 
-                        <a href="javascript:;" data-name="{{$missingBrand->name}}" data-id="{{$missingBrand->id}}" class="create-reference">Reference</a></td>
-                </tr>
-            @endforeach
+            @include('missingbrand.partial.data')
             </tbody>
             {!! $missingBrands->render() !!}
         </table>
@@ -121,8 +124,13 @@
     </div>
 </div>
 
+
 <script type="text/javascript">
     
+    $('#select').select2({
+        width: "100%"
+    });
+
     $(document).on("click",".create-brand",function() {
         $(".brand-name-field").val($(this).data('name'));
         $(".brand-name-id").val($(this).data('id'));
@@ -134,6 +142,34 @@
         $(".brand-name-id").val($(this).data('id'));
         $("#reference-brand-modal").modal("show");
     });
+
+    function filterResults() {
+         term = $('#term').val();
+         select = $('#select').val();
+         $.ajax({
+            type: 'GET',
+            url: "/missing-brands",
+            data: {
+                term : term,
+                select : select,
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function(data) {
+            $("#loading-image").hide();
+            $("#brand-table tbody").empty().html(data.tbody);
+            $("#total-count").text(data.count);
+            if (data.links.length > 10) {
+                $('ul.pagination').replaceWith(data.links);
+            } else {
+                $('ul.pagination').replaceWith('<ul class="pagination"></ul>');
+            }
+
+        }).fail(function(response) {
+            alert('No response from server');
+        });
+    }  
 
 </script>
 
