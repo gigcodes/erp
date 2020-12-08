@@ -285,10 +285,18 @@ class Category extends Model
                             $categoryTree[] = ['position' => 2, 'category_id' => $categoryMultiChild->remote_id];
                         }
                     }else{
-                        if($needOrigin) {
-                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                        if($categoryInstance->parent_id == 0){
+                            if($needOrigin) {
+                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                            }else{
+                                $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                            }
                         }else{
-                            $categoryTree[] = ['position' => 3, 'category_id' => $categoryMultiChild->remote_id];
+                            if($needOrigin) {
+                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id,'org_id'=>$categoryMultiChild->category_id];
+                            }else{
+                                $categoryTree[] = ['position' => 4, 'category_id' => $categoryMultiChild->remote_id];
+                            }
                         }
                     }
                 }else{
