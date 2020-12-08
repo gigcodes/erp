@@ -585,7 +585,7 @@
           e.preventDefault();
 
           var product_id = $(this).data('product');
-          var url = "{{ url('deleteOrderProduct') }}/" + product_id;
+          var url = "{{ url('deleteOrderProduct') }}/" + product_id+"?key={{ request('key') }}";
           // var token = "{{ csrf_token() }}";
 
           $('#product-remove-form').attr('action', url);

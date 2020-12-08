@@ -571,7 +571,7 @@ class OrderController extends Controller {
 
         $expiresAt = Carbon::now()->addMinutes(10);
 
-        if (Cache::has('last-order')) {
+        /*if (Cache::has('last-order')) {
             if (!Cache::has('user-order-' . Auth::id())) {
                 $last_order = Cache::get('last-order') + 1;
                 Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
@@ -580,19 +580,23 @@ class OrderController extends Controller {
                 $last_order = Cache::get('last-order');
             }
         } else {
-            $last = Order::withTrashed()->latest()->first();
-            $last_order = ($last) ? $last->id + 1 : 1;
-            if (!empty($defaultSelected['selected_product'])) {
-                foreach ($defaultSelected['selected_product'] as $product) {
-                    self::attachProduct( $last_order, $product );
-                }
-            }
+            // removed logic for add in cache
+            
+        }*/
 
-            Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
-            Cache::put('last-order', $last_order, $expiresAt);
+        $last = Order::withTrashed()->latest()->first();
+        $last_order = ($last) ? $last->id + 1 : 1;
+
+        Cache::put('user-order-' . Auth::id(), $last_order, $expiresAt);
+        Cache::put('last-order', $last_order, $expiresAt);
+
+        if (!empty($defaultSelected['selected_product'])) {
+            foreach ($defaultSelected['selected_product'] as $product) {
+                self::attachProduct( $last_order, $product );
+            }
         }
 
-        $data['id'] = Cache::get('user-order-' . Auth::id());
+        $data['id'] = $last_order;
         $data['sales_persons'] = Helpers::getUsersArrayByRole( 'Sales' );
         $data['modify']        = 0;
         $data['order_products'] = $this->getOrderProductsWithProductData($data['id']);
@@ -629,7 +633,7 @@ class OrderController extends Controller {
         ] );
 
         $data = $request->all();
-        $key  = $request->get("key","");
+        $sessionKey  = $request->get("key","");
         $data['user_id'] = Auth::id();
         /*if ( $request->input( 'order_type' ) == 'offline' ) {
             $data['order_id'] = $this->generateNextOrderId();
@@ -937,8 +941,8 @@ class OrderController extends Controller {
         }
 
 
-        if(!empty($key)) {
-            $defaultData = session($key);
+        if(!empty($sessionKey)) {
+            $defaultData = session($sessionKey);
             if(!empty($defaultData) && !empty($defaultData["redirect_back"])) {
                 return redirect($defaultData["redirect_back"])->with( 'message', 'Order created successfully' );
             }
@@ -1962,6 +1966,20 @@ class OrderController extends Controller {
     }
 
     public function deleteOrderProduct(OrderProduct $order_product){
+        $key = request('key');
+        if(!empty($key)) {
+            $defaultData = session($key);
+            if(!empty($defaultData['selected_product'])) {
+                $postProducts = [];
+                foreach($defaultData['selected_product'] as $product) {
+                    if($product != $order_product->product_id) {
+                        $postProducts = $product;
+                    }
+                }
+                $defaultData['selected_product'] = $postProducts;
+                session([$key => $defaultData]);
+            }
+        }
         $order_product->delete();
 
         return redirect()->back()->with('message','Product Detached');
@@ -1998,7 +2016,7 @@ class OrderController extends Controller {
 
         if ( empty( $order_product ) ) {
 
-            OrderProduct::create( [
+            $product = OrderProduct::create( [
                 'order_id'      => $model_id,
                 'product_id'    => $product->id,
                 'sku'           => $product->sku,
@@ -2010,8 +2028,8 @@ class OrderController extends Controller {
             $action = 'Attached';
         } else {
 
-            $order_product->delete();
-            $action = 'Attach';
+            //$order_product->delete();
+            $action = 'Attached';
         }
 
         return $action;
@@ -2032,7 +2050,6 @@ class OrderController extends Controller {
     }
 
     public function getOrderProductsWithProductData($order_id){
-
 
         $orderProducts = OrderProduct::where('order_id', '=', $order_id)->get()->toArray();
 
