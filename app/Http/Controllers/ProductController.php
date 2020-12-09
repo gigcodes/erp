@@ -4836,88 +4836,95 @@ class ProductController extends Controller
 
     public function forwardProducts(Request $request) {
         $customerId = 0;
-        if($request->customer_id) {
-            $explode = explode('/',$request->customer_id);
-            if(count($explode) > 1) {
-                $customerId =  $explode[1];
+        if ($request->customer_id) {
+            $explode = explode('/', $request->customer_id);
+            if (count($explode) > 1) {
+                $customerId = $explode[1];
             }
         }
-        if(!$request->forward_suggestedproductid){
+        /*if (!$request->forward_suggestedproductid) {
             $msg = 'Entry not found';
             return response()->json(['code' => 500, 'message' => $msg]);
-        }
-        $forward_suggestedproductid=$request->forward_suggestedproductid;
-        if(!$customerId) {
+        }*/
+        
+        $forward_suggestedproductid = $request->forward_suggestedproductid;
+        
+        if (!$customerId) {
             $msg = ' Customer not found';
             return response()->json(['code' => 500, 'message' => $msg]);
         }
-                $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->where('id',$forward_suggestedproductid)->orderBy('created_at','desc')->first();
-                $products = json_decode($request->products, true);
-                $total = count($products);
-                if($suggestedProducts) {
-                    $suggestedProducts->touch();
+        
+        $suggestedProducts = false;
+        if($forward_suggestedproductid) {
+            $suggestedProducts = \App\SuggestedProduct::where('customer_id', $customerId)->where('id', $forward_suggestedproductid)->orderBy('created_at', 'desc')->first();
+        }
+
+        $products          = json_decode($request->products, true);
+        $total             = count($products);
+        
+        if ($suggestedProducts) {
+            $suggestedProducts->touch();
+        } else {
+            $suggestedProducts              = new \App\SuggestedProduct;
+            $suggestedProducts->customer_id = $customerId;
+            $suggestedProducts->total       = $total;
+            $suggestedProducts->save();
+            $new_suggestedproductid = $suggestedProducts->id;
+        }
+
+
+        $listIds        = json_decode($request->products, true);
+        $data_to_insert = [];
+        $inserted       = 0;
+
+        if (!empty($listIds) && is_array($listIds)) {
+            foreach ($listIds as $listedImage) {
+
+                $productList  = \App\SuggestedProductList::find($listedImage);
+                $product      = Product::find($productList->product_id);
+                $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
+                $image_key    = $imageDetails->getKey();
+                $media        = Media::find($image_key);
+                if ($media) {
+                    $mediable = \App\Mediables::where('media_id', $media->id)->where('mediable_type', 'App\Product')->first();
+                    if ($mediable) {
+                        $exists = \App\SuggestedProductList::where('suggested_products_id', $new_suggestedproductid)->where('customer_id', $customerId)->where('product_id', $mediable->mediable_id)->where('date', date('Y-m-d'))->first();
+                        if (!$exists) {
+                            $pr = Product::find($mediable->mediable_id);
+                            if ($pr->hasMedia(config('constants.attach_image_tag'))) {
+                                $data_to_insert[] = [
+                                    'suggested_products_id' => $new_suggestedproductid,
+                                    'customer_id'           => $customerId,
+                                    'product_id'            => $mediable->mediable_id,
+                                    'date'                  => date('Y-m-d'),
+                                ];
+                            }
+                        }
+                    }
                 }
-                else {
-                    $suggestedProducts = new \App\SuggestedProduct;
-                    $suggestedProducts->customer_id = $customerId;
-                    $suggestedProducts->total = $total;
-                    $suggestedProducts->save();
-                    $new_suggestedproductid=$suggestedProducts->id;
-                }
-                $listIds = json_decode($request->products, true);
-                $data_to_insert = [];
-                $inserted = 0;
-               
+            }
 
+            $inserted = count($data_to_insert);
+            if ($inserted > 0) {
+                \App\SuggestedProductList::insert($data_to_insert);
+            }
 
-                if(!empty($listIds) && is_array($listIds)) {
-                foreach($listIds as $listedImage) {
-
-                    $productList = \App\SuggestedProductList::where('suggested_products_id',$forward_suggestedproductid)->find($listedImage);
-                    $product = Product::find($productList->product_id);
-                    $imageDetails = $product->getMedia(config('constants.attach_image_tag'))->first();
-                    $image_key = $imageDetails->getKey();
-                    $media = Media::find($image_key);
-                    if($media) {
-                            $mediable = \App\Mediables::where('media_id',$media->id)->where('mediable_type','App\Product')->first();
-                            if($mediable) {
-                                $exists = \App\SuggestedProductList::where('suggested_products_id',$new_suggestedproductid)->where('customer_id',$customerId)->where('product_id',$mediable->mediable_id)->where('date',date('Y-m-d'))->first();
-                                if(!$exists) {
-                                    $pr = Product::find($mediable->mediable_id);
-                                    if($pr->hasMedia(config('constants.attach_image_tag'))) {
-                                        $data_to_insert[] = [
-                                            'suggested_products_id'=>$new_suggestedproductid,
-                                            'customer_id' => $customerId,
-                                            'product_id' => $mediable->mediable_id,
-                                            'date' => date('Y-m-d')
-                                        ];
-                                    }
-                                }
-                           }
-                        }
-                        }
-
-                        $inserted = count($data_to_insert);
-                        if($inserted > 0) {
-                            \App\SuggestedProductList::insert($data_to_insert);
-                        }
-
-                        if($request->type == 'forward') {
-                            $data['_token'] = $request->_token;
-                            $data['send_pdf'] = 0;
-                            $data['pdf_file_name'] = "";
-                            $data['images'] = $request->products;
-                            $data['image'] = null;
-                            $data['screenshot_path'] = null;
-                            $data['message'] = null;
-                            $data['customer_id'] = $customerId;
-                            $data['status'] = 2;
-                            $data['type'] = 'customer-attach';
-                            \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
-                        }
-                }
-                $msg = $inserted. ' Products added successfully';
-                return response()->json(['code' => 200, 'message' => $msg]);
+            if ($request->type == 'forward') {
+                $data['_token']          = $request->_token;
+                $data['send_pdf']        = 0;
+                $data['pdf_file_name']   = "";
+                $data['images']          = $request->products;
+                $data['image']           = null;
+                $data['screenshot_path'] = null;
+                $data['message']         = null;
+                $data['customer_id']     = $customerId;
+                $data['status']          = 2;
+                $data['type']            = 'customer-attach';
+                \App\Jobs\AttachImagesSend::dispatch($data)->onQueue("customer_message");
+            }
+        }
+        $msg = $inserted . ' Products added successfully';
+        return response()->json(['code' => 200, 'message' => $msg]);
     }
 
 

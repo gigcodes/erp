@@ -157,6 +157,9 @@
                     <input type="hidden" name="status" value="{{ $status }}" id="attach_all_status">
                     &nbsp;
                     <button type="submit" class="btn btn-image image-filter-btn"><img src="/images/filter.png"/></button>
+                    
+                    <button type="button" class="btn btn-xs btn-secondary forward-all-products mr-3" title="Attach images to new Customer"><i class="fa fa-paperclip" aria-hidden="true"></i></button>
+
                     </div>
                 </form>
   
@@ -1077,6 +1080,29 @@
          });
         });
 
+        $(document).on("click", ".forward-all-products", function (event) {
+            image_array = [];
+            var products = $(".select-pr-list-chk:checked");
+                if(products.length > 0) {
+                    $.each(products,function(k,v) {
+                        var p = $(v).parent().parent().find(".attach-photo")
+                        if(p && p.data("product")) {
+                            image_array.push(p.data("product"));
+                        }
+                    });
+                }
+            if (image_array.length == 0) {
+                alert('Please select some images');
+                return;
+            }
+            
+            $('#forward-products-form').find('#product_lists').val(JSON.stringify(image_array));
+            $('#forward-products-form').find('#forward_type').val('attach');
+            $("#forwardProductsModal").modal('show');
+            $('select.select2').select2({
+                width: "100%"
+            });    
+        });
 
         $(document).on("click", ".forward-products", function (event) {
             var customer_id = $(this).data("id");

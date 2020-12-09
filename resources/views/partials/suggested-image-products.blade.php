@@ -54,7 +54,7 @@
                 </div>
                 <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
+                        <input type="checkbox" class="custom-control-input select-pr-list-chk" checked="checked" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$customer_id}}"></label>
                     </div>
 

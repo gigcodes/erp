@@ -45,9 +45,9 @@
     </td>
     </tr>
     <tr class="expand-{{$suggested->id}} hidden">
-    <td colspan="7" id="attach-image-list-{{$suggested->id}}">
-    
-    </td>
+        <td colspan="7" id="attach-image-list-{{$suggested->id}}">
+        
+        </td>
     </tr>
 @endforeach
 <tr>
