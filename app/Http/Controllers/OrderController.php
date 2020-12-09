@@ -687,7 +687,9 @@ class OrderController extends Controller {
             $data['auto_emailed'] = 0;
         }
 
-        $data['estimated_delivery_date'] = $data['date_of_delivery'];
+        if(isset($data['date_of_delivery'])) {
+            $data['estimated_delivery_date'] = $data['date_of_delivery'];
+        }
 
         $order = Order::create( $data );
 
