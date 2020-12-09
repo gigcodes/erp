@@ -73,6 +73,15 @@
     <div class="row">
         <div class="col">
             <div class="form-group">
+                <strong>Due Date&nbsp;:&nbsp;</strong>
+                <input type="text" class="form-control due-date" name="est_completion_date"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
                 <strong>Remarks&nbsp;:&nbsp;</strong>
                 <textarea class="form-control" name="remarks"></textarea>
             </div>
