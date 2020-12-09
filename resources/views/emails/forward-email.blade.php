@@ -7,5 +7,5 @@
     <div>Subject: {{ $forwardEmail->subject }}</div>
     <div>To: &lt;{{ $forwardEmail->to }}&gt;</div>
     <br>
-    <div>{{ $forwardEmail->message }}</div>
+    <div>{!! $forwardEmail->message !!}</div>
 </div>
