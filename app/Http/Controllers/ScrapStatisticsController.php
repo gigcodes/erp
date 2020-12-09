@@ -230,7 +230,7 @@ class ScrapStatisticsController extends Controller
     {
         $name = $request->input('name');
 
-        $remark = ScrapRemark::where('scraper_name', $name)->get();
+        $remark = ScrapRemark::where('scraper_name', $name)->latest()->get();
 
         return response()->json($remark, 200);
     }

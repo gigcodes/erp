@@ -143,7 +143,6 @@
                         <th>Server ID</th>
                         <th>Run Time</th>
                         <th>Start Scrap</th>
-                        <th>Last Scraped</th>
                         <th>Stock</th>
                         <th>URL Count</th>
                         <th>Errors</th>
@@ -156,6 +155,7 @@
                         <th>Parent Scrapper</th>
                         <th>Next Step</th> -->
                         <th>Status</th>
+                        <th>Remarks</th>
                         <th>Functions</th>
                     </tr>
                     </thead>
@@ -231,18 +231,10 @@
                                         <button style="padding-right:0px;width:10%;display:inline-block;" type="button" class="btn btn-xs show-history" title="Show History" data-field="scraper_start_time" data-id="{{$supplier->scrapper_id}}"><i class="fa fa-info-circle"></i></button>
                                 </div>
                             </td>
-                            <td width="10%">
+                            <td width="10%" data-start-time="@if($supplier->last_started_at){{$supplier->last_started_at }}@endif" data-end-time="@if($supplier->last_completed_at){{$supplier->last_completed_at }}@endif" class="show-scraper-detail">
                                 @if(isset($supplier->scraper_name) && !empty($supplier->scraper_name) &&  isset($lastRunAt[$supplier->scraper_name]))
                                     {!! str_replace(' ', '<br/>', date('d-M-y H:i', strtotime($lastRunAt[$supplier->scraper_name]))) !!}
                                     <br/>
-                                @endif
-                                <br/>
-                                @if($supplier->last_started_at)
-                                <p>: Start Time {{ $supplier->last_started_at }} </p>
-                                <br/>
-                                @endif
-                                @if($supplier->last_completed_at)
-                                <p>: End Time {{ $supplier->last_completed_at }} </p>
                                 @endif
                             </td>
                             <td width="3%">{{ !empty($data) ? $data->total - $data->errors : '' }}</td>
@@ -269,7 +261,15 @@
                                 {{ !empty($supplier->scrapers_status) ? $supplier->scrapers_status : "N/A" }}
                             </td>
                             <td width="10%">
+                                <?php
+                                    $remark = $supplier->scraperRemark();
+                                    if($remark) {
+                                        echo (strlen($remark->remark) > 15) ? substr($remark->remark, 0, 15).".." : $remark->remark;
+                                    }
+                                 ?>
                                 <button style="padding:3px;" type="button" class="btn btn-image make-remark d-inline" data-toggle="modal" data-target="#makeRemarkModal" data-name="{{ $supplier->scraper_name }}"><img width="2px;" src="/images/remark.png"/></button>
+                            </td>
+                            <td width="10%">
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline toggle-class" data-id="{{ $supplier->id }}"><img width="2px;" src="/images/forward.png"/></button>
                                 <a style="padding:3px;" class="btn  d-inline btn-image" href="{{ get_server_last_log_file($supplier->scraper_name,$supplier->server_id) }}" id="link" target="-blank"><img src="/images/view.png" /></a>
                                 <button style="padding:3px;" type="button" class="btn btn-image d-inline" onclick="restartScript('{{ $supplier->scraper_name }}' , '{{ $supplier->server_id }}' )"><img width="2px;" src="/images/resend2.png"/></button>
@@ -654,7 +654,18 @@
             </div>
         </div>
       </div>  
-      
+      <div id="show-content-model" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h4 class="modal-title"></h4>
+                        <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                    </div>
+                </div>
+            </div>
+      </div>
 @endsection
 
 @section('scripts')
@@ -1062,5 +1073,22 @@
 
 
         $(".select2").select2();
+
+        $(document).on("click",".show-scraper-detail",function (e){
+            e.preventDefault();
+            var startime = $(this).data("start-time");
+            var endtime = $(this).data("end-time");
+
+            var model  = $("#show-content-model");
+            var html = `<div class="row">
+                <div class="col-md-12">
+                    <p>Star Time : `+startime+`</p>
+                    <p>End Time : `+endtime+`</p>
+                </div>
+            </div>`;
+            model.find(".modal-title").html("Scraper Start time details");
+            model.find(".modal-body").html(html);
+            model.modal("show");
+        });
     </script>
 @endsection
