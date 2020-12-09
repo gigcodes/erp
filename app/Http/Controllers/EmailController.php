@@ -307,6 +307,7 @@ class EmailController extends Controller
        }
 
        $email = Email::find($request->forward_email_id);
+       
        Mail::to($request->email)->send(new ForwardEmail($email, $email->message));
 
        return response()->json(['success' => true, 'message' => 'Email has been successfully sent.']);
