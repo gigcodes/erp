@@ -1009,6 +1009,10 @@ color:black!important;
                 url: "/return-exchange/getProducts/" + $this.data("id"),
             }).done(function (response) {
               $modelData.html(response.html);
+              $('.due-date').datetimepicker({
+                minDate:new Date(),
+                format: 'YYYY-MM-DD'
+              });
             }).fail(function (response) {});
         });
 
