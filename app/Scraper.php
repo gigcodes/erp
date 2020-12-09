@@ -57,8 +57,9 @@ class Scraper extends Model
     {
         return $this->hasMany('App\ScrapRequestHistory', 'scraper_id', 'id')->orderBy('updated_at','desc')->take(20);
     }
-    
 
-    
-
+    public function scraperRemark()
+    {
+       return \App\ScrapRemark::where("scraper_name",$this->scraper_name)->latest()->first();
+    }
 }
