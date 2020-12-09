@@ -52,7 +52,7 @@
                 </div>
                 <div class="row pl-4 pr-4" style="padding: 0px; margin-bottom: 8px;">
                     <div class="custom-control custom-checkbox">
-                        <input type="checkbox" class="custom-control-input select-pr-list-chk" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
+                        <input type="checkbox" class="custom-control-input select-pr-list-chk" checked="checked" id="defaultUnchecked_{{ $product->id.$kr.$customer_id}}" >
                         <label class="custom-control-label" for="defaultUnchecked_{{ $product->id.$kr.$customer_id}}"></label>
                     </div>
                     <a href="javascript:;" class="btn btn-sm btn-image {{ in_array($imageDetails->getKey(), $selected_products) ? 'btn-success' : '' }} attach-photo new-{{$customer_id}}" data-image="{{ ($model_type == 'purchase-replace' || $model_type == 'broadcast-images' || $model_type == 'landing-page') ? $product->id : $imageDetails->getKey() }}" data-product={{$pr->suggested_product_list_id}} data-attached="{{ in_array($imageDetails->getKey(), $selected_products) ? 1 : 0 }}"><img src="{{asset('images/attach.png')}}"></a>
