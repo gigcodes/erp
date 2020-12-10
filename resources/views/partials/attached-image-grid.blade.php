@@ -295,6 +295,7 @@
     </div>
     @include('partials.modals.category')
     @include('partials.modals.forward-products')
+    @include('partials.add-order-model')
     <?php $stage = new \App\Stage(); ?>
     <script src="/js/bootstrap-multiselect.min.js"></script>
     <script src="/js/jquery.jscroll.min.js"></script>
@@ -616,7 +617,6 @@
             });
             
             var expand = $('.expand-'+suggestedproductid);
-            console.log(expand);
             $(expand).toggleClass('hidden');
 
         });
@@ -1238,6 +1238,26 @@
             var mini ='.expand-row-msg .show-full-'+name+'-'+id;
             $(full).toggleClass('hidden');
             $(mini).toggleClass('hidden');
+        });
+
+        $(document).on("click",".btn-event-order",function(e) {
+            e.preventDefault();
+            var form  = $(this).closest("form");
+            $.ajax({
+                type: "POST",
+                url: "/erp-customer/move-order",
+                data : form.serialize(),
+                dataType : "json",  
+                beforeSend : function() {
+                    $(this).text('Loading...');
+                    },
+            }).done(function (response) {
+                if(response.code == 1) {
+                    window.location = "/order/create?key="+response.key;
+                }
+            }).fail(function (response) {
+                console.log(response);
+            });
         });
         
 </script>
