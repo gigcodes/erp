@@ -213,15 +213,24 @@
           @foreach ($suppliers as $supplier)
 			<tr>
 				<td>{{ $supplier->id }}
-        <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
-        </td>
+                    <input type="checkbox" name="supplier_message[]" class="d-inline supplier_message" value="{{$supplier->id}}">
+                </td>
 				<td>
 					{{ $supplier->supplier }}
          
 					@if ($supplier->has_error == 1)
 						<span class="text-danger">!!!</span>
 					@endif
-
+                    <div class="form-group">
+                            <select class="form-control change-whatsapp-no" data-supplier-id="<?php echo $supplier->id; ?>">
+                                <option value="">-No Selected-</option>
+                                @foreach(array_filter(config("apiwha.instances")) as $number => $apwCate)
+                                    @if($number != "0")
+                                        <option {{ ($number == $supplier->whatsapp_number && $supplier->whatsapp_number != '') ? "selected='selected'" : "" }} value="{{ $number }}">{{ $number }}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                    </div>
 				</td>
 			
         <td>
@@ -338,20 +347,7 @@
 					@if ($supplier->last_type == "email")
 					Email
 					@elseif ($supplier->last_type == "message")
-						<div class="td-mini-container">
-							{{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
-						</div>
-						<div class="td-full-container hidden">
-							{{ $supplier->message }}
-						</div>
-
-					@if ($supplier->message != '')
-						<button type="button" class="btn btn-xs btn-secondary load-more-communication" data-id="{{ $supplier->id }}">Load More</button>
-
-						<ul class="more-communication-container">
-
-						</ul>
-					@endif
+						{{ strlen($supplier->message) > 10 ? substr($supplier->message, 0, 10).'...' : $supplier->message }}
 					@endif
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-load-type="text" data-all="1" title="Load messages"><img src="/images/chat.png" alt=""></a>
 					<a type="button" class="btn btn-xs btn-image load-communication-modal" data-is_admin="{{ $isAdmin }}" data-is_hod_crm="{{ $isHRM }}" data-object="supplier" data-id="{{$supplier->id}}" data-attached="1" data-load-type="images" data-all="1" title="Load Auto Images attacheds"><img src="/images/archive.png" alt=""></a>
