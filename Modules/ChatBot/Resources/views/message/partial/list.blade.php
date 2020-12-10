@@ -5,6 +5,7 @@
         <th width="2%">Name</th>
         <th width="15%">User input</th>
         <th width="15%">Bot Replied</th>
+        <th width="15%">Created</th>
 {{--        <th width="30%">Images</th>--}}
         <th width="5%">Action</th>
     </tr>
@@ -33,6 +34,7 @@
 {{--                @endif--}}
 {{--            </form>--}}
 {{--        </td>--}}
+        <td>{{ $pam->created_at }}</td>
         <td>
             @if($pam->approved == 0)
             <a href="javascript:;" class="approve-message" data-id="{{ $pam->chat_id }}">
@@ -47,9 +49,9 @@
 {{--                    <img width="15px" title="Attach More Images" height="15px" src="/images/customer-suggestion.png">--}}
 {{--                </a>--}}
 {{--            @endif--}}
-            <span class="check-all" data-id="{{ $pam->chat_id }}">
+            <!-- <span class="check-all" data-id="{{ $pam->chat_id }}">
               <i class="fa fa-indent" aria-hidden="true"></i>
-            </span>
+            </span> -->
                 @if($pam->chat_message_id !== $pam->chat_id)
             <a href="javascript:;" class="approve_message" data-id="{{ $pam->chat_id }}">
                 <i class="fa fa-plus" aria-hidden="true"></i>
