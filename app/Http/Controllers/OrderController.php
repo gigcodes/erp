@@ -2492,7 +2492,7 @@ public function createProductOnMagento(Request $request, $id){
             'customer_pincode' => 'required',
             'items' => 'required',
             'items.*.name' => 'required',
-            'items.*.qty' => 'required',
+            'items.*.qty' => 'required|numeric',
             'items.*.unit_price' => 'required',
             'items.*.description' => 'required',
             'items.*.net_weight' => 'required',
