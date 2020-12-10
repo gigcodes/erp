@@ -35,7 +35,9 @@
                         </div>
                     </div>
             </div>
-
+            <div class="pull-right">
+                <a href="javascript:;" class="create-multi-reference">Reference</a>
+            </div>
         </div>
     </div>
 
@@ -45,7 +47,7 @@
         <table class="table table-bordered" id="brand-table">
             <thead>
             <tr>
-                <th>ID</th>
+                <th><input type="checkbox" class="select_all" name="select_all">&nbsp;ID</th>
                 <th>Brand</th>
                 <th>Supplier</th>
                 <th>Created At</th>
@@ -124,6 +126,34 @@
     </div>
 </div>
 
+<div id="multi-reference-brand-modal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title">Assign Reference</h4>
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form action="<?php echo route('missing-brands.multi-reference'); ?>" method="post">
+                    <?php echo csrf_field(); ?>
+                    <div class="form-row">
+                        <div class="form-group col-md-12">
+                            <strong>Brand</strong>
+                            <?php echo Form::select("brand",\App\Brand::pluck('name','id')->toArray(),null,['class' => 'form-control mul-brand-field']); ?>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-secondary save-multi-brand-refer-btn">Save</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+    </div>
+</div>
+
 
 <script type="text/javascript">
     
@@ -170,6 +200,46 @@
             alert('No response from server');
         });
     }  
+
+    $(document).on("click",".select_all",function() {
+        $(".multi-brand-ref").click();
+    });
+
+    $(document).on("click",".create-multi-reference",function() {
+        $("#multi-reference-brand-modal").modal("show");
+    });
+
+    $(document).on("click" , ".save-multi-brand-refer-btn", function(e) {
+        e.preventDefault();
+        var ids = [];
+        var checkedFields = $(".multi-brand-ref:checked");
+        if(checkedFields.length > 0) {
+            $.each(checkedFields,function(k,v) {
+                ids.push($(v).val());
+            });
+        }else{
+            alert("Please select brands");
+            return false;
+        }
+        $.ajax({
+            type: 'POST',
+            url: "/missing-brands/multi-reference",
+            data: {
+                brand  : $(".mul-brand-field").val(),
+                ids : ids,
+                _token : "{{ csrf_token() }}"
+            },
+            beforeSend: function () {
+                $("#loading-image").show();
+            },
+        }).done(function(data) {
+            $("#loading-image").hide();
+            toastr["success"]("Request sent successfully");
+            location.reload();
+        }).fail(function(response) {
+            alert('No response from server');
+        });
+    });
 
 </script>
 
