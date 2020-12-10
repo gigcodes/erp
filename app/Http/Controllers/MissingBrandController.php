@@ -96,4 +96,27 @@ class MissingBrandController extends Controller
         return redirect()->back()->with('success', 'Brand reference added successfully');
 
     }
+
+
+    public function multiReference (Request $request)
+    {
+        $ids = $request->ids;
+        if(!empty($ids)) {
+            $brand = Brand::find($request->brand);
+            $ref   = explode(",", $brand->references);
+            if($brand) {
+                $mIds = MissingBrand::whereIn("id",$ids)->get();
+                if(!$mIds->isEmpty()) {
+                    foreach($mIds as $m) {
+                        $ref[] = $m->name;
+                        $m->delete();
+                    }
+                }
+                $brand->references = implode(",",array_filter($ref));
+                $brand->save();
+            }
+        }
+
+        return response()->json(["code" => 200 , "data" => [], "message" => "Brand reference added successfully"]);
+    }
 }
