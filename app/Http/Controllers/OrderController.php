@@ -2540,7 +2540,8 @@ public function createProductOnMagento(Request $request, $id){
         $declaredValue = 0;
         if(!empty($request->items)) {
             foreach ($request->items as $key => $itm) {
-                $declaredValue += $itm['unit_price'] * $itm['qty'];
+                $qty = is_numeric($itm['qty']) ? $itm['qty'] : 1;
+                $declaredValue += $itm['unit_price'] * $qty;
             }
         }
 
