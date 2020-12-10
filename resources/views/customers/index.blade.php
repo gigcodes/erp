@@ -891,7 +891,7 @@
 
         </div>
     </div>
-    @include('customers.zoomMeeting');
+    @include('customers.zoomMeeting')
     <div id="broadcast-list" class="modal fade" role="dialog">
         <div class="modal-dialog">
             <div class="modal-content">
