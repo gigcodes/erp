@@ -79,6 +79,8 @@ class ProductTemplatesController extends Controller
            $params['product_id'] = [];
         }
         $params['product_id'] = implode(',', (array)$params['product_id']);
+        $params['background_color'] = implode(',', (array)$params['background_color']);
+
         $template->fill($params);
 
         if ($template->save()) {
@@ -178,7 +180,7 @@ class ProductTemplatesController extends Controller
                 "text" => $record->text,
                 "fontStyle" => $record->font_style,
                 "fontSize" => $record->font_size,
-                "backgroundColor" => $record->background_color
+                "backgroundColor" => explode(",", $record->background_color)
             ];
 
             if ($record->hasMedia('template-image')) {
