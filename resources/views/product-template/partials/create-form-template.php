@@ -76,7 +76,7 @@
              <div class="form-group row">
                 <label for="background_color" class="col-sm-3 col-form-label">Background color</label>
                 <div class="col-sm-6">
-                   <?php echo Form::select("background_color",["" => ""] + $backgroundColors,null ,["class" => "form-control select2"]); ?>
+                   <?php echo Form::select("background_color[]",$backgroundColors,null ,["class" => "form-control select2","multiple" => "true"]); ?>
                 </div>
              </div>
 
