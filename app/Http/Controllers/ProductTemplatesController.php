@@ -122,7 +122,6 @@ class ProductTemplatesController extends Controller
 
     public function apiIndex(Request $request)
     {
-        
         $record = \App\ProductTemplate::where('is_processed','0')->orderBy('id','asc')->first();
 
 
