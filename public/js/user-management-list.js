@@ -815,6 +815,41 @@ $.views.helpers({
         }
     });
 
+    $(document).on('keypress', '.priority-no-field-change', function (e) {
+        if (e.which == 13) {
+            e.preventDefault();
+            let issueId = $(this).data('id');
+            let priority = $(this).val();
+            let type = $(this).data('type');
+            if(type == 'TASK') {
+                $.ajax({
+                    type: 'POST',
+                    url: "/task/update/priority-no",
+                    data: {
+                        _token: $('meta[name="csrf-token"]').attr('content'),
+                        priority: priority,
+                        task_id: issueId
+                    },
+                    success: function () {
+                        toastr["success"]("Priority No updated successfully!", "Message")
+                    }
+                });
+            }
+            else {
+                $.ajax({
+                    url: "/development/issue/priority-no/assign",
+                    data: {
+                        priority: priority,
+                        issue_id: issueId
+                    },
+                    success: function (response) {
+                        toastr["success"]("Priority No updated successfully!", "Message")
+                    }
+                });
+            }
+        }
+    });
+
 
     $(document).on('click', '.show-time-history', function() {
         var issueId = $(this).data('id');

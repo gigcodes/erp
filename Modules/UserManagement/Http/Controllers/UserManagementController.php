@@ -822,13 +822,9 @@ class UserManagementController extends Controller
 
     public function userTasks($id) {
         $user = User::find($id);
-
-
-        
-
             $taskList = DB::select('
             select * from (
-                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type  FROM tasks
+                (SELECT tasks.id as task_id,tasks.task_subject as subject, tasks.task_details as details, tasks.approximate as approximate_time, tasks.due_date,tasks.deleted_at,tasks.assign_to as assign_to,tasks.is_statutory as status_falg,chat_messages.message as last_message, chat_messages.created_at as orderBytime, tasks.is_verified as cond, "TASK" as type,tasks.created_at as created_at,tasks.priority_no  FROM tasks
                           LEFT JOIN (
                               SELECT  chat_messages.id as message_id,  chat_messages.task_id,  chat_messages.message,  chat_messages.status as message_status, 
                               chat_messages.sent as message_type,  chat_messages.created_at as message_created_at,  chat_messages.is_reminder AS message_is_reminder, chat_messages.user_id AS message_user_id,
@@ -839,10 +835,10 @@ class UserManagementController extends Controller
                 union 
                 
                 (
-                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
+                    select developer_tasks.id as task_id, developer_tasks.subject as subject, developer_tasks.task as details, developer_tasks.estimate_minutes as approximate_time, developer_tasks.due_date as due_date,developer_tasks.deleted_at, developer_tasks.assigned_to as assign_to,developer_tasks.status as status_falg, chat_messages.message as last_message, chat_messages.created_at as orderBytime,"d" as cond, "DEVTASK" as type,developer_tasks.created_at as created_at,developer_tasks.priority_no from developer_tasks left join (SELECT MAX(id) as  max_id, issue_id, message,created_at  FROM  chat_messages where issue_id > 0  GROUP BY issue_id ) m_max on  m_max.issue_id = developer_tasks.id left join chat_messages on chat_messages.id = m_max.max_id where developer_tasks.status != "Done" and developer_tasks.deleted_at is null and developer_tasks.assigned_to = '.$id.'
                     
                     ) 
-                ) as c order by c.orderBytime desc
+                ) as c order by created_at desc,priority_no asc limit 10
             ');
 
 

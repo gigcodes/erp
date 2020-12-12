@@ -44,7 +44,11 @@
 					</td>
 			      	<td>
 					  <div class="form-group">
+
 							<div class='input-group estimate_minutes'>
+
+                                <input style="min-width: 30px;margin-right: 3px;" type="text" data-id="{{:prop.task_id}}" data-type="{{:prop.type}}" class="form-control priority-no-field-change input-sm" name="priority_no" placeholder="Priority no" value="{{:prop.priority_no}}">
+
 								<input style="min-width: 30px;" placeholder="E.minutes" value="{{:prop.approximate_time}}" type="text" class="form-control estimate-time-change" name="estimate_minutes_{{:prop.task_id}}" data-id="{{:prop.task_id}}" id="estimate_minutes_{{:prop.task_id}}" data-type={{:prop.type}}>
 
 								<button style="float:right;padding-right:0px;" type="button" class="btn btn-xs show-time-history" title="Show History" data-id="{{:prop.task_id}}" data-type={{:prop.type}}><i class="fa fa-info-circle"></i></button>
