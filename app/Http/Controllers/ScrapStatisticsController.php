@@ -18,6 +18,8 @@ use Exception;
 use Illuminate\Support\Facades\File;
 use Plank\Mediable\MediaUploaderFacade as MediaUploader;
 use Zend\Diactoros\Response\JsonResponse;
+use Maatwebsite\Excel\Facades\Excel;
+use App\Exports\ScrapRemarkExport;
 
 class ScrapStatisticsController extends Controller
 {
@@ -229,9 +231,9 @@ class ScrapStatisticsController extends Controller
     public function getRemark(Request $request)
     {
         $name = $request->input('name');
-
-        $remark = ScrapRemark::where('scraper_name', $name)->latest()->get();
-
+        
+        $remarks = ScrapRemark::where('scraper_name', $name)->latest()->get();
+        $download = $request->input('download');
         return response()->json($remark, 200);
     }
 
@@ -452,9 +454,14 @@ class ScrapStatisticsController extends Controller
         return $output;
     }
 
-    public function getLastRemark()
+    public function getLastRemark(Request $request)
     {
         $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
+
+        $download = $request->input('download');
+        if(!empty($download)) {
+            return Excel::download(new ScrapRemarkExport($lastRemark), 'remarks.csv');
+        }
 
         return response()->json(["code" => 200 , "data" => $lastRemark]);
     }

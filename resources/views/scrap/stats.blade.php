@@ -118,6 +118,13 @@
                 </button>
             </div>
             <div class="col-md-4">
+                <a href="{{ route('scrap.latest-remark') }}?download=true">
+                    <button type="button" class="btn btn-default btn-sm download-latest-remark">
+                      <span class="glyphicon glyphicon-th-list"></span> Download Latest Remarks
+                    </button>
+                </a>
+            </div>
+            <div class="col-md-4">
                 <button type="button" class="btn btn-default btn-sm get-latest-remark">
                   <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
                 </button>
