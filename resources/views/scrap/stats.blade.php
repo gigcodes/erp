@@ -112,22 +112,32 @@
             </div>
         </div>    
         <div class="col col-md-5">
-            <div class="col-md-4">
-                <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildScraper">
-                  <span class="glyphicon glyphicon-th-plus"></span> Add Child Scraper
-                </button>
+            <div class="row">
+                <div class="col-md-4 mt-1">
+                    <button type="button" class="btn btn-default btn-sm" data-toggle="modal" data-target="#addChildScraper">
+                      <span class="glyphicon glyphicon-th-plus"></span> Add Child Scraper
+                    </button>
+                </div>
+                <div class="col-md-4 mt-1">
+                    <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addRemarkModal">
+                      <span class="glyphicon glyphicon-th-plus"></span> Add Note
+                    </button>
+                </div>
             </div>
-            <div class="col-md-4">
-                <button type="button" class="btn btn-default btn-sm get-latest-remark">
-                  <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
-                </button>
+            <div class="row">
+                <div class="col-md-4 mt-1">
+                    <button type="button" class="btn btn-default btn-sm get-latest-remark">
+                      <span class="glyphicon glyphicon-th-list"></span> Latest Remarks
+                    </button>
+                </div>
+                <div class="col-md-4 mt-1">
+                    <a href="{{ route('scrap.latest-remark') }}?download=true">
+                        <button type="button" class="btn btn-default btn-sm download-latest-remark">
+                          <span class="glyphicon glyphicon-th-list"></span> Download Latest Remarks
+                        </button>
+                    </a>
+                </div>
             </div>
-            <div class="col-md-4">
-                <button type="button" class="btn btn-default btn-sm add-remark" data-toggle="modal" data-target="#addRemarkModal">
-                  <span class="glyphicon glyphicon-th-plus"></span> Add Note
-                </button>
-            </div>
-            
          </div>   
     </div>
     <?php $totalCountedUrl = 0; ?>
