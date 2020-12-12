@@ -63,7 +63,7 @@ class ScrapStatisticsController extends Controller
             $activeSuppliers->where("scraper_type", $scrapeType);
         }
 
-        $activeSuppliers = $activeSuppliers->orderby('scraper_priority', 'desc')->get();
+        $activeSuppliers = $activeSuppliers->orderby('s.supplier', 'asc')->get();
         // Get scrape data
         $sql = '
             SELECT
@@ -454,7 +454,7 @@ class ScrapStatisticsController extends Controller
 
     public function getLastRemark()
     {
-        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by created_at desc");
+        $lastRemark = \DB::select("select * from scrap_remarks as sr join ( select max(id) as id from scrap_remarks group by scraper_name) as max_s on sr.id =  max_s.id order by sr.scraper_name asc");
 
         return response()->json(["code" => 200 , "data" => $lastRemark]);
     }
