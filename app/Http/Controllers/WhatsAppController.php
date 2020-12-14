@@ -1778,26 +1778,46 @@ class WhatsAppController extends FindByNumberController
                         $replies = ChatbotQuestion::
                         join('chatbot_question_examples', 'chatbot_questions.id', 'chatbot_question_examples.chatbot_question_id')
                             ->join('chatbot_questions_reply', 'chatbot_questions.id', 'chatbot_questions_reply.chatbot_question_id')
-                            ->where('chatbot_questions_reply.store_website_id', $customer->store_website_id)
+                            ->where('chatbot_questions_reply.store_website_id', ($customer->store_website_id) ? $customer->store_website_id : 1)
                             ->select('chatbot_questions.*', 'chatbot_question_examples.question', 'chatbot_questions_reply.suggested_reply')->get();
+                        
                         $isReplied = 0;
                         foreach ($replies as $reply) {
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
                                 $keyword = $reply->question;
                                 if(($keyword == $params['message'] || preg_match("/{$keyword}/i", $params['message'])) && $reply->suggested_reply) {
-                                    if($reply->auto_approve) {
+                                    /*if($reply->auto_approve) {
                                         $status = 2;
                                     }
                                     else {
                                         $status = 8; 
-                                    }
+                                    }*/
+                                    $status = ChatMessage::CHAT_AUTO_WATSON_REPLY;
                                     $temp_params = $params;
                                     $temp_params['message'] = $reply->suggested_reply;
                                     $temp_params['media_url'] = null;
                                     $temp_params['status'] = $status;
+                                    $temp_params['question_id'] = $reply->id;
 
                                     // Create new message
                                     $message = ChatMessage::create($temp_params);
+
+                                    if ($message->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
+                                        \App\ChatbotReply::create([
+                                            "chat_id" => $message->id,
+                                            "question" => $params['message'],
+                                            "reply" => '{
+                                               "output":{
+                                                  "database":[
+                                                     {
+                                                        "response_type":"text",
+                                                        "text":"'.$reply->suggested_reply.'"
+                                                     }
+                                                  ]
+                                               }
+                                            }',
+                                        ]);
+                                    }
 
                                     // Send message if all required data is set
                                     if ($temp_params['message'] || $temp_params['media_url']) {
@@ -1814,6 +1834,10 @@ class WhatsAppController extends FindByNumberController
                                 }
                             }
                         }
+
+
+                        // assigned the first storewebsite to default erp customer
+                        $customer->store_website_id = ($customer->store_website_id > 0) ? $customer->store_website_id : 1;
                         if(!$isReplied && $customer->store_website_id) {
                             WatsonManager::sendMessage($customer,$params['message']);
                         }
@@ -1869,13 +1893,13 @@ class WhatsAppController extends FindByNumberController
 //                    }
 
                     // start to check with watson api directly
-                    if(!$isReplied) {
+                    /*if(!$isReplied) {
                         if(!empty($params['message'])) {
                             if ($customer && $params[ 'message' ] != '') {
                                 WatsonManager::sendMessage($customer,$params['message']);
                             }
                         }
-                    }
+                    }*/
                 }
             }
             // Moved to the bottom of this loop, since it overwrites the message
