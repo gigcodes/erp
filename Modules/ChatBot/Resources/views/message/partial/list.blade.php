@@ -97,9 +97,10 @@
 
 <script type="text/javascript">
     $(".approve_message").on("click", function () {
+        var $this = $(this);
         $("#approve-reply-popup").modal("show");
         $('.user-input').text();
-        $('#approve-reply-popup [name="question[]"').val($('.user-input').text())
+        $('#approve-reply-popup [name="question[]"').val($this.closest("tr").find('.user-input').text())
     });
     $('#entity_details').hide();
     $('#erp_details').hide();
