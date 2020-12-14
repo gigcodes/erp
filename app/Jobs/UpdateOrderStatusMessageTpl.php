@@ -46,7 +46,7 @@ class UpdateOrderStatusMessageTpl implements ShouldQueue
                 if ($statusModal && !empty($statusModal->message_text_tpl)) {
                     $msg = $statusModal->message_text_tpl;
                 }
-                if(!empty($statusModal->status)) {
+                if($statusModal && !empty($statusModal->status)) {
                     $msg = str_replace(["#{order_id}", "#{order_status}"], [$order->order_id, $statusModal->status], $msg);
                 }
             }
