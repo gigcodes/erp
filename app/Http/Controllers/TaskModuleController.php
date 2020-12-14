@@ -733,6 +733,20 @@ class TaskModuleController extends Controller {
 		
 	}
 
+	public function updatePriorityNo(Request $request) {
+		$task = Task::find($request->task_id);
+
+		if(Auth::user()->id == $task->assign_to || Auth::user()->isAdmin()) {
+			$task->priority_no = $request->priority;
+			$task->save();
+			return response()->json(['msg' => 'success']);
+		}
+		else {
+			return response()->json(['msg' => 'Unauthorized access'],500);
+		}
+		
+	}
+
 	public function taskListByUserId(Request $request)
     {
         $user_id = $request->get('user_id' , 0);

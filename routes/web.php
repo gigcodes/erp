@@ -590,6 +590,7 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('task/{id}', 'TaskModuleController@show')->name('task.module.show');
     Route::resource('task', 'TaskModuleController');
     Route::post('task/update/approximate', 'TaskModuleController@updateApproximate')->name('task.update.approximate');
+    Route::post('task/update/priority-no', 'TaskModuleController@updatePriorityNo')->name('task.update.updatePriorityNo');
     Route::post('task/time/history/approve', 'TaskModuleController@approveTimeHistory')->name('task.time.history.approve');
 
 
@@ -1046,6 +1047,9 @@ Route::group(['middleware' => ['auth', 'optimizeImages']], function () {
     Route::get('development/issue/estimate_date-change/assign', 'DevelopmentController@saveEstimateDate');
     Route::get('development/date/history', 'DevelopmentController@getDateHistory')->name('development/date/history');
     Route::get('development/issue/estimate_minutes/assign', 'DevelopmentController@saveEstimateMinutes')->name('development.issue.estimate_minutes.store');
+    Route::get('development/issue/priority-no/assign', 'DevelopmentController@savePriorityNo')->name('development.issue.savePriorityNo.store');
+
+
     Route::get('development/issue/lead_estimate_minutes/assign', 'DevelopmentController@saveLeadEstimateTime')->name('development.issue.lead_estimate_minutes.store');
     Route::get('development/issue/responsible-user/assign', 'DevelopmentController@assignResponsibleUser');
     Route::get('development/issue/cost/assign', 'DevelopmentController@saveAmount');

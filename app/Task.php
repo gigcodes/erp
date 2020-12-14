@@ -38,7 +38,8 @@ class Task extends Model {
 		'master_user_id',
 		'lead_hubstaff_task_id',
 		'due_date',
-		'site_developement_id'
+		'site_developement_id',
+		'priority_no'
 	];
 
 	const TASK_TYPES = [

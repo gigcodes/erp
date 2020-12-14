@@ -2066,6 +2066,19 @@ class DevelopmentController extends Controller
         return response()->json(['status' => 'success']);
     }
 
+    public function savePriorityNo(Request $request)
+    {
+        $issue = DeveloperTask::find($request->get('issue_id'));
+        //$issue = Issue::find($request->get('issue_id'));
+
+        if($issue) {
+            $issue->priority_no = $request->get('priority');
+            $issue->save(); 
+        }
+
+        return response()->json(['status' => 'success']);
+    }
+
     public function saveEstimateDate(Request $request)
     {
         $issue = DeveloperTask::find($request->get('issue_id'));
