@@ -1141,7 +1141,6 @@ class WhatsAppController extends FindByNumberController
                     \Log::info("Message with google api ".self::class."__".__FUNCTION__."_".__LINE__);
                 }
             }
-
             if (!empty($supplier) && $contentType !== 'image') {
                 $supplierDetails = is_object($supplier) ? Supplier::find($supplier->id) : $supplier;
                 $language = $supplierDetails->language;
@@ -1494,8 +1493,6 @@ class WhatsAppController extends FindByNumberController
                 }
             }
 
-            \Log::info("customer number found => ".$isCustomerNumber);
-
             // No to?
             if (empty($to)) {
                 $to = $config[0]['number'];
@@ -1589,9 +1586,7 @@ class WhatsAppController extends FindByNumberController
                 }
             }
             // Is this message from a customer?
-            
             if ($customer && $isCustomerNumber) {
-
                 if ($params['message']) {
                     (new KeywordsChecker())->assignCustomerAndKeywordForNewMessage($params['message'], $customer);
                 }
@@ -1790,9 +1785,7 @@ class WhatsAppController extends FindByNumberController
                         foreach ($replies as $reply) {
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
                                 $keyword = $reply->question;
-                                \Log::info(print_r([$params['message'],$keyword,$reply->suggested_reply],true));
-                                if(($keyword == $params['message'] || preg_match("/{$keyword}/i", $params['message'])) && $reply->suggested_reply) {
-                                    \Log::info("It is in for above");
+                                if(($keyword == $params['message'] || preg_match("~{$keyword}~i", $params['message'])) && $reply->suggested_reply) {
                                     /*if($reply->auto_approve) {
                                         $status = 2;
                                     }
