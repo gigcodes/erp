@@ -1786,7 +1786,7 @@ class WhatsAppController extends FindByNumberController
                             if($params['message'] != '' && $customer && array_key_exists('message', $params)){
                                 $keyword = explode("/",$reply->question);
                                 $keyword = $keyword[0];
-                                if(($keyword == $params['message'] || preg_match("/{$keyword}/i", $params['message'])) && $reply->suggested_reply) {
+                                if(($keyword == $params['message'] || strpos($keyword, $params['message']) !== false) && $reply->suggested_reply) {
                                     /*if($reply->auto_approve) {
                                         $status = 2;
                                     }
