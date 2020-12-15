@@ -24,6 +24,7 @@ class SendMessageToCustomer implements ShouldQueue
 
     protected $type;
     protected $params;
+    protected $chatbotReply;
 
     const SENDING_MEDIA_SIZE = 10;
     const MEDIA_PDF_CHUNKS   = 50;
@@ -33,12 +34,13 @@ class SendMessageToCustomer implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data)
+    public function __construct($data,$chatbotReply = null)
     {
 
         // Set product
         $this->type   = isset($data['type']) ? $data['type'] : "simple";
         $this->params = isset($data) ? $data : [];
+        $this->chatbotReply = $chatbotReply;
     }
 
     /**
@@ -190,11 +192,14 @@ class SendMessageToCustomer implements ShouldQueue
                 $insertParams["customer_id"] = $customer->id;
                 $chatMessage                 = ChatMessage::create($insertParams);
                 if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                    \App\ChatbotReply::create([
-                        "chat_id"  => $chatMessage->id,
-                        "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
-                        "reply"    => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
-                    ]);
+                    if($this->chatbotReply) {
+                        $chatbotReply = $this->chatbotReply;
+                        $chatbotReply->chat_id = $chatMessage->id;
+                        $chatbotReply->answer = $chatMessage->message;
+                        $chatbotReply->reply = isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : null;
+                        $chatbotReply->reply_from = 'watson';
+                        $chatbotReply->save();
+                    }
                 }
 
                 if (!empty($medias) && !$medias->isEmpty()) {

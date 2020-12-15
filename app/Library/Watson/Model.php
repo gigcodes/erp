@@ -528,21 +528,33 @@ class Model
     }
 
 
-    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null)
+    public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null , $messageModel = false)
     {
-        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id)->onQueue('watson_push');
+        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id,$messageModel)->onQueue('watson_push');
 
         return true;
 
     }
 
-    public static function sendMessageFromJob(Customer $customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null)
+    public static function sendMessageFromJob(Customer $customer, $account, $assistant, $inputText, $contextReset = false, $message_application_id = null, $messageModel = null)
     {
         if (env("PUSH_WATSON", true) == false) {
             return true;
         }
 
         $assistantID = $account->assistant_id;
+
+        $chatbotReply = false;
+        if($messageModel) {
+           $chatbotReply = \App\ChatbotReply::where('replied_chat_id',$messageModel->id)->first();
+            if(!$chatbotReply) {
+                $chatbotReply = \App\ChatbotReply::create([
+                    "question" => $inputText,
+                    "replied_chat_id" => $messageModel->id
+                ]);
+            }
+        }
+
 
         if (empty($customer->chat_session_id)) {
             $customer = self::createSession($customer, $assistant, $assistantID);
@@ -620,11 +632,13 @@ class Model
 
                                     $chatMessage = ChatMessage::create($insertParams);
                                     if ($chatMessage->status == ChatMessage::CHAT_AUTO_WATSON_REPLY) {
-                                        \App\ChatbotReply::create([
-                                            "chat_id" => $chatMessage->id,
-                                            "question" => isset($params["chatbot_question"]) ? $params["chatbot_question"] : null,
-                                            "reply" => isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : json_encode([]),
-                                        ]);
+                                        if($chatbotReply) {
+                                            $chatbotReply->chat_id = $chatMessage->id;
+                                            $chatbotReply->answer = $chatMessage->message;
+                                            $chatbotReply->reply = isset($params["chatbot_response"]) ? json_encode($params["chatbot_response"]) : null;
+                                            $chatbotReply->reply_from = 'watson';
+                                            $chatbotReply->save();
+                                        }
                                     }
 
                                     $suggestion->chat_message_id = $chatMessage->id;
@@ -635,7 +649,7 @@ class Model
 
                                 break;
                             case 'send_text_only':
-                                \App\Jobs\SendMessageToCustomer::dispatch($params)->onQueue("customer_message");
+                                \App\Jobs\SendMessageToCustomer::dispatch($params,$chatbotReply)->onQueue("customer_message");
                                 break;
                         }
                     }

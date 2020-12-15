@@ -25,18 +25,20 @@ class ManageWatsonAssistant implements ShouldQueue
     protected $inputText;
     protected $contextReset;
     protected $message_application_id;
+    protected $messageModel;
 
     /**
      * Create a new job instance.
      *
      * @return void
      */
-    public function __construct(Customer $customer, $inputText, $contextReset, $message_application_id)
+    public function __construct($customer, $inputText, $contextReset, $message_application_id, $messageModel = null)
     {
         $this->customer = $customer;
         $this->inputText = $inputText;
         $this->contextReset = $contextReset;
         $this->message_application_id = $message_application_id;
+        $this->messageModel = $messageModel;
 
     }
 
@@ -47,15 +49,16 @@ class ManageWatsonAssistant implements ShouldQueue
      */
     public function handle()
     {
+        $store_website_id = ($this->customer->store_website_id > 0) ? $this->customer->store_website_id : 1;
 
-        $account = WatsonAccount::where('store_website_id', $this->customer->store_website_id)->first();
+        $account = WatsonAccount::where('store_website_id', $store_website_id)->first();
         if($account) {
             $asistant = new AssistantService(
                 "apiKey",
                 $account->api_key
             );
             $asistant->set_url($account->url);
-            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id);
+            Model::sendMessageFromJob($this->customer, $account, $asistant, $this->inputText, $this->contextReset, $this->message_application_id, $this->messageModel);
         }
     }
 

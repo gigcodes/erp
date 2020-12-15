@@ -19,15 +19,15 @@ class MessageController extends Controller
     {
         $search = request("search");
         $status = request("status");
+
         $pendingApprovalMsg = ChatMessage::join("customers as c", "c.id", "chat_messages.customer_id")
-            ->leftJoin("chatbot_replies as cr", "cr.chat_id", "chat_messages.id")
-            ->leftJoin("suggestions as s", "s.chat_message_id", "chat_messages.id")
-            ->leftJoin("chatbot_questions as cq", "cq.chat_message_id", "chat_messages.id");
+            ->Join("chatbot_replies as cr", "cr.replied_chat_id", "chat_messages.id")
+            ->leftJoin("chat_messages as cm1", "cm1.id", "cr.chat_id");
+
         if (!empty($search)) {
             $pendingApprovalMsg = $pendingApprovalMsg->where(function ($q) use ($search) {
                 $q->where("cr.question", "like", "%" . $search . "%")
-                    ->orWhere("c.name", "Like", "%" . $search . "%")
-                    ->orWhere("chat_messages.message", "like", "%" . $search . "%");
+                    ->orWhere("cr.answer", "Like", "%" . $search . "%");
             });
         }
 
@@ -37,13 +37,13 @@ class MessageController extends Controller
             });
         }
 
-        $pendingApprovalMsg = $pendingApprovalMsg->
-        where(function($q) {
-            $q->whereIn("status", [ChatMessage::CHAT_SUGGESTED_IMAGES, ChatMessage::CHAT_AUTO_WATSON_REPLY]);
+        $pendingApprovalMsg = $pendingApprovalMsg->where(function($q) {
+            $q->where("chat_messages.message","!=", "");
         })->where("chat_messages.customer_id", ">", 0)
-            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question", "c.name as customer_name", "s.id as suggestion_id", 'cq.chat_message_id'])
-            ->latest()
+            ->select(["chat_messages.*", "chat_messages.id as chat_id", "cr.question","cm1.message as answer", "c.name as customer_name","cr.reply_from"])
+            ->orderBy("chat_messages.id","desc")
             ->paginate(20);
+            
             $allCategory = ChatbotCategory::all();
             $allCategoryList = [];
             if (!$allCategory->isEmpty()) {
@@ -51,11 +51,11 @@ class MessageController extends Controller
                     $allCategoryList[] = ["id" => $all->id, "text" => $all->name];
                 }
             }
-        $page = $pendingApprovalMsg->currentPage();
-        if ($request->ajax()) {
-            $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page','allCategoryList'));
-            return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
-        }
+            $page = $pendingApprovalMsg->currentPage();
+            if ($request->ajax()) {
+                $tml = (string) view("chatbot::message.partial.list", compact('pendingApprovalMsg', 'page','allCategoryList'));
+                return response()->json(["code" => 200, "tpl" => $tml, "page" => $page]);
+            }
 
         
 //dd($pendingApprovalMsg);
