@@ -76,7 +76,7 @@ class Model
 
                 //$result = $watson->update($keyword->workspace_id, $keyword->value, $storeParams);
 
-                ManageWatson::dispatch('entity', $keyword, $storeParams, 'update');
+                ManageWatson::dispatch('entity', $keyword, $storeParams, 'update')->onQueue('watson_push');
 
             } else {
                 //$result                = $watson->create($workSpaceId, $storeParams);
@@ -95,7 +95,7 @@ class Model
 
                 WatsonWorkspace::insert($data_to_insert);
 
-                ManageWatson::dispatch('entity', $keyword, $storeParams, 'create');
+                ManageWatson::dispatch('entity', $keyword, $storeParams, 'create')->onQueue('watson_push');
             }
 
 //            if ($result->getStatusCode() != 200) {
@@ -124,7 +124,7 @@ class Model
 //                self::API_KEY
 //            );
 
-            ManageWatson::dispatch('entity', $keyword, [], 'delete', 'keyword');
+            ManageWatson::dispatch('entity', $keyword, [], 'delete', 'keyword')->onQueue('watson_push');
 
             //$watson->delete($keyword->workspace_id, $keyword->keyword);
         }
@@ -192,7 +192,7 @@ class Model
                 // $result = $watson->update($question->workspace_id, $question->value, $storeParams);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'update');
-                ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue);
+                ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'update','value',false, $oldValue)->onQueue('watson_push');
             } else {
                 // $result                 = $watson->create($workSpaceId, $storeParams);
                 $question->workspace_id = $workSpaceId;
@@ -211,7 +211,7 @@ class Model
                 WatsonWorkspace::insert($data_to_insert);
 
 //                ManageWatson::dispatch('intent',$question, $storeParams, 'create');
-                ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue);
+                ManageWatson::dispatch($question->keyword_or_question, $question, $storeParams, 'create', 'value',false, $oldValue)->onQueue('watson_push');
 
             }
 
@@ -398,7 +398,7 @@ class Model
 //            );
 
             if (!empty($questionModel->workspace_id)) {
-                ManageWatson::dispatch('intent', $question, $storeParams, 'update_example', 'value', $oldExample);
+                ManageWatson::dispatch('intent', $question, $storeParams, 'update_example', 'value', $oldExample)->onQueue('watson_push');
                 //$result = $watson->updateExample($questionModel->workspace_id, $questionModel->value, $oldExample, $storeParams);
 
             }
@@ -428,7 +428,7 @@ class Model
 //            );
 
 //            ManageWatson::dispatch('intent', $question, [], 'delete');
-            ManageWatson::dispatch($question->keyword_or_question, $question, [], 'delete');
+            ManageWatson::dispatch($question->keyword_or_question, $question, [], 'delete')->onQueue('watson_push');
 
             // $response = $watson->delete($question->workspace_id, $question->value);
         }
@@ -471,7 +471,7 @@ class Model
                 $storeParams["output"]["generic"][] = $genericOutput;
                 //$result                             = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
 
-                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name');
+                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name')->onQueue('watson_push');
 
             } else {
                 //$result               = $watson->create($workSpaceId, $storeParams);
@@ -490,7 +490,7 @@ class Model
 
                 WatsonWorkspace::insert($data_to_insert);
 
-                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name');
+                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name')->onQueue('watson_push');
             }
 
 //            if ($result->getStatusCode() != 200) {
@@ -518,7 +518,7 @@ class Model
 //                self::API_KEY
 //            );
 
-            ManageWatson::dispatch('dialog', $dialog, [], 'delete', 'name');
+            ManageWatson::dispatch('dialog', $dialog, [], 'delete', 'name')->onQueue('watson_push');;
 
             // $response = $watson->delete($dialog->workspace_id, $dialog->name);
         }
@@ -530,7 +530,7 @@ class Model
 
     public static function sendMessage(Customer $customer, $inputText, $contextReset = false, $message_application_id = null)
     {
-        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id);
+        ManageWatsonAssistant::dispatch($customer, $inputText, $contextReset, $message_application_id)->onQueue('watson_push');
 
         return true;
 
@@ -951,7 +951,7 @@ class Model
 
             if (!empty($dialog->workspace_id)) {
                 //$result = $watson->update($dialog->workspace_id, $dialog->name, $storeParams);
-                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name');
+                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'update', 'name')->onQueue('watson_push');
             } else {
                 //$result = $watson->create($workSpaceId, $storeParams);
 
@@ -964,7 +964,7 @@ class Model
                 $dialog->workspace_id = $workSpaceId;
                 $dialog->save();
 
-                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name');
+                ManageWatson::dispatch('dialog', $dialog, $storeParams, 'create', 'name')->onQueue('watson_push');
 
             }
 
@@ -995,14 +995,14 @@ class Model
                         if (!empty($mulDialog->workspace_id)) {
                             $storeParams["output"]["generic"][] = $genericOutput;
                             //$result                             = $watson->update($mulDialog->workspace_id, $mulDialog->name, $storeParams);
-                            ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'update', 'name');
+                            ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'update', 'name')->onQueue('watson_push');
                         } else {
                             $storeParams["output"]["generic"][] = $genericOutput;
                             //$result                             = $watson->create($workSpaceId, $storeParams);
                             $mulDialog->workspace_id = $workSpaceId;
                             $mulDialog->save();
 
-                            ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'create', 'name');
+                            ManageWatson::dispatch('dialog', $mulDialog, $storeParams, 'create', 'name')->onQueue('watson_push');
                         }
 
 //                        if ($result->getStatusCode() != 200) {
